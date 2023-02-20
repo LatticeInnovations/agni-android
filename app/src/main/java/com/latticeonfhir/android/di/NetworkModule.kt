@@ -1,8 +1,7 @@
 package com.latticeonfhir.android.di
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.latticeonfhir.android.BuildConfig
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.server.api.ApiService
 import dagger.Module
 import dagger.Provides
@@ -11,6 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.CallAdapter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -36,17 +36,11 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGson(): Gson {
-        return GsonBuilder().serializeNulls().create()
-    }
-
-    @Provides
-    @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(GsonConverterFactory.create(FhirApp.gson))
             .build()
     }
 

@@ -5,16 +5,19 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.latticeonfhir.android.data.local.roomdb.dao.PersonDao
+import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PersonEntity
-import com.latticeonfhir.android.data.local.roomdb.typeconverters.TypeConverter
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import java.util.UUID
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
 
-@Database(entities = [PersonEntity::class], version = 1, exportSchema = true)
-@TypeConverters(TypeConverter::class)
+@Database(entities = [PersonEntity::class, GenericEntity::class], version = 1, exportSchema = true)
+//@TypeConverters(TypeConverter::class)
 abstract class FhirAppDatabase : RoomDatabase() {
+
+    abstract fun getPersonDao(): PersonDao
 
     companion object {
         @Volatile
@@ -34,12 +37,11 @@ abstract class FhirAppDatabase : RoomDatabase() {
                 preferenceStorage.uuid = UUID.randomUUID().toString()
             }
 
-            val passphrase: ByteArray =
-                SQLiteDatabase.getBytes(preferenceStorage.uuid.toCharArray())
+            val passphrase: ByteArray = SQLiteDatabase.getBytes(preferenceStorage.uuid.toCharArray())
             val factory = SupportFactory(passphrase)
 
             return Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android.db")
-                .openHelperFactory(factory)
+//                .openHelperFactory(factory)
                 .build()
         }
     }
