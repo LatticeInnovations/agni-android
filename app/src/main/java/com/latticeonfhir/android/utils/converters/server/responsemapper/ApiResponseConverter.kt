@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.converters.serverresponse.responsemapper
+package com.latticeonfhir.android.utils.converters.server.responsemapper
 
 import com.latticeonfhir.android.base.server.BaseResponse
 import retrofit2.Response

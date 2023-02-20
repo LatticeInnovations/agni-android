@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.converters.serverresponse.responseconverter
+package com.latticeonfhir.android.utils.converters.responseconverter
 
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum

@@ -1,7 +1,7 @@
 package com.latticeonfhir.android.data.server.repository.sync
 
 import com.latticeonfhir.android.data.server.model.PersonResponse
-import com.latticeonfhir.android.utils.converters.serverresponse.responsemapper.ResponseMapper
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 
 interface SyncRepository {
 
