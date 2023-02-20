@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id 'kotlin-parcelize'
 }
 
 android {
@@ -65,6 +66,7 @@ dependencies {
 
     //Constraint Layout
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.core:core-ktx:+'
 
     //Testing
     testImplementation 'junit:junit:4.13.2'
@@ -75,8 +77,8 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
     //Hilt-Dagger
-    implementation 'com.google.dagger:hilt-android:2.44'
-    kapt 'com.google.dagger:hilt-compiler:2.44'
+    implementation 'com.google.dagger:hilt-android:2.45'
+    kapt 'com.google.dagger:hilt-compiler:2.45'
 
     //Encrypt Shared Preferences
     implementation 'androidx.security:security-crypto:1.0.0'

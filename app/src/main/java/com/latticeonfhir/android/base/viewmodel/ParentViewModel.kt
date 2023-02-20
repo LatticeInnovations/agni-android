@@ -1,5 +1,5 @@
 package com.latticeonfhir.android.base.viewmodel
 
-import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.DefaultLifecycleObserver
 
-interface ParentViewModel : LifecycleObserver
+interface ParentViewModel : DefaultLifecycleObserver
