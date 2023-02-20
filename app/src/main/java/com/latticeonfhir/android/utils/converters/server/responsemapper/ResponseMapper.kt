@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.converters.serverresponse.responsemapper
+package com.latticeonfhir.android.utils.converters.server.responsemapper
 
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException

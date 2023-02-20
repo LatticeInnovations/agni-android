@@ -11,20 +11,11 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val syncRepository: SyncRepository,
-                                        private val personRepository: PersonRepository) : BaseViewModel() {
+class MainViewModel @Inject constructor(private val syncRepository: SyncRepository, private val personRepository: PersonRepository) : BaseViewModel() {
 
-    fun runMethod() {
+    init {
         viewModelScope.launch(Dispatchers.IO) {
             syncRepository.getListPersonData()
-        }
-    }
-
-    fun getPersonList() {
-        viewModelScope.launch {
-            Timber.d(
-                "${personRepository.getPersonList()}"
-            )
         }
     }
 }
