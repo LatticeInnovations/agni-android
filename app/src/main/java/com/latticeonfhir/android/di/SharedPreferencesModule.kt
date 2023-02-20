@@ -17,14 +17,12 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object SharedPreferencesModule {
 
-    var masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-
     @Provides
     @Singleton
     fun provideSharedPrefs(@ApplicationContext context: Context): SharedPreferences {
         return EncryptedSharedPreferences.create(
             PreferenceStorageImpl.PREFS_NAME,
-            masterKeyAlias,
+            MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
             context,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
