@@ -31,7 +31,7 @@ android {
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "\"http://dev.myserver.com\""
+            buildConfigField "String", "BASE_URL", "\"http://134.209.154.146:3000/api/v1/\""
         }
         release {
             minifyEnabled true
@@ -83,6 +83,7 @@ dependencies {
 
     //Room Database
     implementation 'androidx.room:room-runtime:2.5.0'
+    implementation 'androidx.room:room-ktx:2.5.0'
     kapt 'androidx.room:room-compiler:2.5.0'
 
     //Room Database Test Helpers
@@ -112,8 +113,11 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.5.5'
 
     //SQL Cipher
-    implementation "net.zetetic:android-database-sqlcipher:4.5.3"
-    implementation "androidx.sqlite:sqlite:2.3.0"
+    implementation 'net.zetetic:android-database-sqlcipher:4.5.3'
+    implementation 'androidx.sqlite:sqlite:2.3.0'
+
+    //Timber
+    implementation 'com.jakewharton.timber:timber:5.0.1'
 }
 
 kapt {
