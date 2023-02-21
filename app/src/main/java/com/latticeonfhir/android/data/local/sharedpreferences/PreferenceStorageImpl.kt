@@ -9,11 +9,7 @@ import com.latticeonfhir.android.utils.sharedpreference.StringPreference
 class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : PreferenceStorage {
 
     override var loginFlag by BooleanPreference(sharedPreferences, PREF_LOGIN_FLAG, false)
-    override var defaultLanguage by BooleanPreference(
-        sharedPreferences,
-        PREF_DEFAULT_LANGUAGE,
-        false
-    )
+    override var defaultLanguage by BooleanPreference(sharedPreferences, PREF_DEFAULT_LANGUAGE, false)
     override var token by StringPreference(sharedPreferences, PREF_TOKEN, "")
     override var empCode by StringPreference(sharedPreferences, PREF_EMP_CODE, "")
     override var username by StringPreference(sharedPreferences, PREF_USERNAME, "")
