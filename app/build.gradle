@@ -1,0 +1,126 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
+    id 'kotlin-parcelize'
+}
+
+android {
+    namespace 'com.latticeonfhir.android'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.latticeonfhir.android"
+        minSdk 23
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "BASE_URL", "\"http://134.209.154.146:3000/api/v1/\""
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "BASE_URL", "\"http://release.myserver.com\""
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        viewBinding true
+        dataBinding true
+    }
+}
+
+dependencies {
+
+    //Android Core
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.6.0'
+
+    //Material Components
+    implementation 'com.google.android.material:material:1.7.0'
+
+    //Constraint Layout
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    //Testing
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    //Recycler View
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+
+    //Hilt-Dagger
+    implementation 'com.google.dagger:hilt-android:2.45'
+    kapt 'com.google.dagger:hilt-compiler:2.45'
+
+    //Encrypt Shared Preferences
+    implementation 'androidx.security:security-crypto:1.0.0'
+
+    //Room Database
+    implementation 'androidx.room:room-runtime:2.5.0'
+    implementation 'androidx.room:room-ktx:2.5.0'
+    kapt 'androidx.room:room-compiler:2.5.0'
+
+    //Room Database Test Helpers
+    testImplementation 'androidx.room:room-testing:2.5.0'
+
+    //Room Database Paging Support
+    implementation 'androidx.room:room-paging:2.5.0'
+
+    //Paging 3
+    implementation 'androidx.paging:paging-runtime:3.1.1'
+
+    //Jetpack Compose Paging
+    implementation 'androidx.paging:paging-compose:1.0.0-alpha18'
+
+    //Paging 3 Test Implementation
+    testImplementation 'androidx.paging:paging-common:3.1.1'
+
+    //Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.1'
+
+    //GSON
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    //Fragment
+    implementation 'androidx.fragment:fragment-ktx:1.5.5'
+
+    //SQL Cipher
+    implementation 'net.zetetic:android-database-sqlcipher:4.5.3'
+    implementation 'androidx.sqlite:sqlite:2.3.0'
+
+    //Timber
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+}
+
+kapt {
+    correctErrorTypes true
+}
