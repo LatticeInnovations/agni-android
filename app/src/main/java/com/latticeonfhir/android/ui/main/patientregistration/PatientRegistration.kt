@@ -1,0 +1,67 @@
+package com.latticeonfhir.android.ui.main.patientregistration
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.*
+import androidx.compose.ui.Modifier
+import com.latticeonfhir.android.ui.main.ui.theme.FHIRAndroidTheme
+
+class PatientRegistration: ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        val viewModel by viewModels<PatientRegistrationViewModel>()
+        super.onCreate(savedInstanceState)
+        setContent {
+            FHIRAndroidTheme {
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        CenterAlignedTopAppBar(
+                            title = { Text(text = "Patient Registration", style = MaterialTheme.typography.titleLarge)},
+                            navigationIcon = {
+                                if(viewModel.step != 1){
+                                    IconButton(onClick = {
+                                        viewModel.step -= 1
+                                    }) {
+                                        Icon(Icons.Default.ArrowBack, contentDescription = "Back button")
+                                    }
+                                }
+                            },
+                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                            ),
+                            actions = {
+                                if (viewModel.step!=3)
+                                    IconButton(onClick = { /*TODO*/ }) {
+                                        Icon(Icons.Default.Clear, contentDescription = null)
+                                    }
+                            }
+                        )
+                    },
+                    content = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(it)
+                        ) {
+                            if(viewModel.step == 1)
+                                PatientRegistrationStepOne(viewModel = viewModel)
+                            else if (viewModel.step == 2)
+                                PatientRegistrationStepTwo(viewModel = viewModel)
+                            else if (viewModel.step == 3)
+                                PatientRegistrationStepThree(viewModel = viewModel)
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
