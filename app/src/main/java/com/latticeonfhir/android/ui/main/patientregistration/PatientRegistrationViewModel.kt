@@ -40,7 +40,7 @@ class PatientRegistrationViewModel: ViewModel() {
     fun basicInfoValidation(): Boolean{
         if (firstName.length < 3 || firstName.length > 150)
             return false
-        if (lastName.length < 3 || lastName.length > 150)
+        if (middleName.length > 150 || lastName.length > 150)
             return false
         if (dobAgeSelector == "dob" && dob == "")
             return false
@@ -56,6 +56,8 @@ class PatientRegistrationViewModel: ViewModel() {
     }
 
     fun identityInfoValidation(): Boolean{
+        if (isPassportSelected == false && isVoterSelected == false && isPatientSelected == false)
+            return false
         if (isPassportSelected && passportId.length<8)
             return false
         if (isVoterSelected && voterId.length<10)
@@ -76,9 +78,9 @@ class PatientRegistrationViewModel: ViewModel() {
     }
 }
 
-class Address(){
+class Address {
     var pincode by mutableStateOf("")
-    var state by mutableStateOf("")
+    var state by mutableStateOf("Uttarakhand")
     var area by mutableStateOf("")
     var town by mutableStateOf("")
     var city by mutableStateOf("")

@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.main.patientregistration
 
+import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -16,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral10
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
@@ -23,6 +25,7 @@ import com.latticeonfhir.android.ui.main.ui.theme.Primary40
 
 @Composable
 fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .padding(15.dp),
@@ -72,6 +75,7 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
 
         Button(
             onClick = {
+                viewModel.step = 4
                 Log.d("manseeyy","${viewModel.firstName}" +
                         "\n${viewModel.middleName}" +
                         "\n${viewModel.lastName}" +
