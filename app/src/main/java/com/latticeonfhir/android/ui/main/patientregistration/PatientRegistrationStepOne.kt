@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -17,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral10
@@ -163,9 +166,12 @@ fun CustomTextField(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
-        maxLines = 1,
+        singleLine = true,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = Primary40
+        ),
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Next
         )
     )
 }
@@ -281,9 +287,13 @@ fun ContactTextField(viewModel: PatientRegistrationViewModel) {
             placeholder = {
                 Text(text = "Enter Phone Number")
             },
-            maxLines = 1,
+            singleLine = true,
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Primary40
+            ),
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next,
+                keyboardType = KeyboardType.Number
             )
         )
     }

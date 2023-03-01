@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.main.patientregistration
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,37 +13,51 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.main.ui.theme.FHIRAndroidTheme
+import com.latticeonfhir.android.ui.main.ui.theme.Primary95
 
-class PatientRegistration: ComponentActivity() {
+class PatientRegistration : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         val viewModel by viewModels<PatientRegistrationViewModel>()
         super.onCreate(savedInstanceState)
         setContent {
+            val context = LocalContext.current
             FHIRAndroidTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         CenterAlignedTopAppBar(
-                            title = { Text(text = "Patient Registration", style = MaterialTheme.typography.titleLarge)},
+                            title = {
+                                Text(
+                                    text = if(viewModel.step == 4) "Preview"
+                                        else "Patient Registration",
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            },
                             navigationIcon = {
-                                if(viewModel.step != 1){
+                                if (viewModel.step != 1) {
                                     IconButton(onClick = {
                                         viewModel.step -= 1
                                     }) {
-                                        Icon(Icons.Default.ArrowBack, contentDescription = "Back button")
+                                        Icon(
+                                            Icons.Default.ArrowBack,
+                                            contentDescription = "Back button"
+                                        )
                                     }
                                 }
                             },
                             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                                containerColor = Primary95
                             ),
                             actions = {
-                                if (viewModel.step!=3)
-                                    IconButton(onClick = { /*TODO*/ }) {
-                                        Icon(Icons.Default.Clear, contentDescription = null)
-                                    }
+                                IconButton(onClick = {
+                                    context.startActivity(Intent(context, MainActivity::class.java))
+                                }) {
+                                    Icon(Icons.Default.Clear, contentDescription = null)
+                                }
                             }
                         )
                     },
@@ -52,12 +67,14 @@ class PatientRegistration: ComponentActivity() {
                                 .fillMaxSize()
                                 .padding(it)
                         ) {
-                            if(viewModel.step == 1)
+                            if (viewModel.step == 1)
                                 PatientRegistrationStepOne(viewModel = viewModel)
                             else if (viewModel.step == 2)
                                 PatientRegistrationStepTwo(viewModel = viewModel)
                             else if (viewModel.step == 3)
                                 PatientRegistrationStepThree(viewModel = viewModel)
+                            else if (viewModel.step == 4)
+                                PatientRegistrationPreview(viewModel = viewModel)
                         }
                     }
                 )
