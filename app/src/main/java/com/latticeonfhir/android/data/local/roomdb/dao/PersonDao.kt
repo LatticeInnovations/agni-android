@@ -5,25 +5,39 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
-import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
+import androidx.room.Update
+import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.PersonAndIdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
 
 @Dao
 interface PersonDao {
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertListPersonData(list: List<GenericEntity>)
+    suspend fun insertListPersonData(list: List<PatientEntity>)
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPersonData(personData: GenericEntity): Long
+    suspend fun insertListOfIdentifiers(vararg listOfIdentifiers: IdentifierEntity)
 
     @Transaction
-    @Query("SELECT * FROM GenericEntity WHERE type=:type")
-    suspend fun getListPersonData(type: GenericTypeEnum = GenericTypeEnum.PERSON): List<GenericEntity>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPersonData(patientEntity: PatientEntity): Long
 
     @Transaction
-    @Query("SELECT payload FROM GenericEntity WHERE id=:personId AND type=:type")
-    suspend fun getPersonDataById(personId: String, type: GenericTypeEnum = GenericTypeEnum.PERSON): String
+    @Query("SELECT * FROM PatientEntity")
+    suspend fun getListPersonData(): List<PersonAndIdentifierEntity>
+
+    @Transaction
+    @Query("SELECT * FROM PatientEntity WHERE id=:personId")
+    suspend fun getPersonDataById(personId: String): PersonAndIdentifierEntity
+
+    @Transaction
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updatePersonData(patientEntity: PatientEntity): Int
+
+    @Transaction
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateListOfIdentifiers(vararg listOfIdentifiers: IdentifierEntity)
 }

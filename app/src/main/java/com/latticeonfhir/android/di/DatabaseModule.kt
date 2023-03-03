@@ -2,6 +2,8 @@ package com.latticeonfhir.android.di
 
 import android.content.Context
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
+import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PersonDao
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import dagger.Module
@@ -25,5 +27,17 @@ object DatabaseModule {
     @Provides
     fun providePersonDao(fhirAppDatabase: FhirAppDatabase): PersonDao {
         return fhirAppDatabase.getPersonDao()
+    }
+
+    @Singleton
+    @Provides
+    fun providePatientDao(fhirAppDatabase: FhirAppDatabase): PatientDao {
+        return fhirAppDatabase.getPatientDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideIdentifierDao(fhirAppDatabase: FhirAppDatabase): IdentifierDao {
+        return fhirAppDatabase.getIdentifierDao()
     }
 }

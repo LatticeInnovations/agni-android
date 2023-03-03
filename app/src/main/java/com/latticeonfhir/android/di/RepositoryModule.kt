@@ -1,7 +1,7 @@
 package com.latticeonfhir.android.di
 
-import com.latticeonfhir.android.data.local.repository.person.PersonRepository
-import com.latticeonfhir.android.data.local.repository.person.PersonRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.person.PatientRepository
+import com.latticeonfhir.android.data.local.repository.person.PatientRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import dagger.Binds
@@ -16,9 +16,13 @@ abstract class RepositoryModule {
 
     @Binds
     @ViewModelScoped
-    abstract fun providePersonRepository(personRepositoryImpl: PersonRepositoryImpl): PersonRepository
+    abstract fun providePersonRepository(personRepositoryImpl: PatientRepositoryImpl): PatientRepository
 
     @Binds
     @ViewModelScoped
     abstract fun provideSyncRepository(syncRepositoryImpl: SyncRepositoryImpl): SyncRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun providePatientRepository(patientRepositoryImpl: PatientRepositoryImpl): PatientRepository
 }
