@@ -20,6 +20,8 @@ class FhirApp : Application() {
     }
 
     companion object {
-        val gson: Gson = GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create()
+        val gson: Gson by lazy {
+            GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create()
+        }
     }
 }

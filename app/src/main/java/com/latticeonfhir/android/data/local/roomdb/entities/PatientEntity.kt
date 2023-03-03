@@ -1,0 +1,22 @@
+package com.latticeonfhir.android.data.local.roomdb.entities
+
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import java.util.UUID
+
+@Entity
+data class PatientEntity(
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
+    val firstName: String,
+    val middleName: String?,
+    val lastName: String?,
+    val active: Boolean?,
+    val gender: String,
+    val birthDate: Long,
+    val mobileNumber: Long?,
+    val email: String?,
+    @Embedded val permanentAddress: PermanentAddressEntity,
+    val fhirId: String?
+)

@@ -6,14 +6,16 @@ import java.util.Date
 import java.util.Objects
 
 data class PersonResponse(
+    val id: String,
     val firstName: String,
-    val middleName: String,
-    val lastName: String,
+    val middleName: String?,
+    val lastName: String?,
     val identifier: List<PersonIdentifier>?,
-    val active: Boolean,
+    val active: Boolean?,
     val gender: String,
     val birthDate: Date,
-    val mobileNumber: Long,
-    val email: String,
-    val permanentAddress: PermanentAddressEntity
+    val mobileNumber: Long?,
+    val email: String?,
+    val permanentAddress: PersonAddressResponse,
+    val fhirId: String?
 ): ParcelableClass()
