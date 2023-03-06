@@ -5,19 +5,26 @@ import android.os.Bundle
 import android.widget.Space
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.activity.BaseActivity
 import com.latticeonfhir.android.databinding.ActivityMainBinding
 import com.latticeonfhir.android.ui.main.patientregistration.*
+import com.latticeonfhir.android.ui.main.searchpatient.SearchPatient
 import com.latticeonfhir.android.ui.main.ui.theme.FHIRAndroidTheme
 import com.latticeonfhir.android.ui.main.ui.theme.Primary40
 import com.latticeonfhir.android.ui.main.ui.theme.Primary95
@@ -54,10 +61,12 @@ class MainActivity : BaseActivity() {
                                 }
                             },
                             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                containerColor = Primary95
+                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                             ),
                             actions = {
-                                IconButton(onClick = { /*TODO*/ }) {
+                                IconButton(onClick = {
+                                    context.startActivity(Intent(context, SearchPatient::class.java))
+                                }) {
                                     Icon(Icons.Default.Search, contentDescription = null)
                                 }
                                 IconButton(onClick = { /*TODO*/ }) {
@@ -90,17 +99,17 @@ class MainActivity : BaseActivity() {
                                         painter = painterResource(id = R.drawable.person_add),
                                         contentDescription = null,
                                         modifier = Modifier.size(22.dp, 16.dp),
-                                        tint = Primary40
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(
                                         text = "Add Patient",
                                         style = MaterialTheme.typography.labelLarge,
-                                        color = Primary40
+                                        color = MaterialTheme.colorScheme.primary
                                     )
                                 }
                             },
-                            containerColor = Primary95
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(11.dp)
                         )
                     },
                     content = {
@@ -109,7 +118,149 @@ class MainActivity : BaseActivity() {
                                 .fillMaxSize()
                                 .padding(it)
                         ) {
-
+                            Column(
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                Row (
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(5.dp)
+                                        .horizontalScroll(rememberScrollState()),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ){
+                                    AssistChip(
+                                        onClick = { /*TODO*/ },
+                                        label = {
+                                            Text(
+                                                text = "Category 1",
+                                                style = MaterialTheme.typography.labelLarge,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        },
+                                        trailingIcon = {
+                                            Icon(
+                                                Icons.Default.ArrowDropDown,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                    AssistChip(
+                                        onClick = { /*TODO*/ },
+                                        label = {
+                                            Text(
+                                                text = "Category 2",
+                                                style = MaterialTheme.typography.labelLarge,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        },
+                                        trailingIcon = {
+                                            Icon(Icons.Default.ArrowDropDown, contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onSurface)
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                    AssistChip(
+                                        onClick = { /*TODO*/ },
+                                        label = {
+                                            Text(
+                                                text = "Category 3",
+                                                style = MaterialTheme.typography.labelLarge,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        },
+                                        trailingIcon = {
+                                            Icon(Icons.Default.ArrowDropDown, contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onSurface)
+                                        }
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier.verticalScroll(rememberScrollState())
+                                ) {
+                                    PatientItemCard(
+                                        name = "Chetan A S Ramanathan",
+                                        patientId = "M/51 · PID 23456",
+                                        metaData = "Referred: 12 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Pilavullakandi Thekkeparambimnsahgfh",
+                                        patientId = "F/58 · PID 11111",
+                                        metaData = "Seen on 18 May 2022"
+                                    )
+                                    PatientItemCard(
+                                        name = "Pilavullakandi Thekkeparambimnsahgfh",
+                                        patientId = "F/58 · PID 11111",
+                                        metaData = "Referred: 12 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Pilavullakandi Thekkeparambimnsahgfh",
+                                        patientId = "F/58 · PID 11111",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Gauri Sharma",
+                                        patientId = "F/44 · PID 12345",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Ramesh Seksaria",
+                                        patientId = "F/44 · PID 12345",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Ramesh Seksaria",
+                                        patientId = "F/44 · PID 12345",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Ramesh Seksaria",
+                                        patientId = "F/44 · PID 12345",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Ramesh Seksaria",
+                                        patientId = "F/44 · PID 12345",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Ramesh Seksaria",
+                                        patientId = "F/44 · PID 12345",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Ramesh Seksaria",
+                                        patientId = "F/44 · PID 12345",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Ramesh Seksaria",
+                                        patientId = "F/44 · PID 12345",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Ramesh Seksaria",
+                                        patientId = "F/44 · PID 12345",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Ramesh Seksaria",
+                                        patientId = "F/44 · PID 12345",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Ramesh Seksaria",
+                                        patientId = "F/44 · PID 12345",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                    PatientItemCard(
+                                        name = "Ramesh Seksaria",
+                                        patientId = "F/44 · PID 12345",
+                                        metaData = "Last seen: 23 Jan"
+                                    )
+                                }
+                            }
                         }
                     }
                 )
@@ -120,4 +271,37 @@ class MainActivity : BaseActivity() {
     }
 
     override fun viewModel() = viewModel
+}
+
+@Composable
+fun PatientItemCard(name: String, patientId: String, metaData: String){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(15.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(8f)) {
+            Text(
+                text = name,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = patientId,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1
+            )
+        }
+        Spacer(modifier = Modifier.width(5.dp))
+        Text(
+            text = metaData,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1
+        )
+    }
 }

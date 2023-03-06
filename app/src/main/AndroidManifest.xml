@@ -24,6 +24,12 @@
             android:theme="@style/Theme.FHIRAndroid">
         </activity>
         <activity
+            android:name=".ui.main.searchpatient.SearchPatient"
+            android:exported="false"
+            android:label="@string/title_activity_patient_registration"
+            android:theme="@style/Theme.FHIRAndroid">
+        </activity>
+        <activity
             android:name=".ui.main.MainActivity"
             android:exported="true">
             <intent-filter>

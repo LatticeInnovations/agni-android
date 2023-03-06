@@ -29,7 +29,7 @@ fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
             Text(
                 text = "Identification",
                 style = MaterialTheme.typography.bodyLarge,
-                color = Neutral10
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "Page 2/3",
@@ -39,7 +39,7 @@ fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
         }
         Spacer(modifier = Modifier.height(20.dp))
         Column(modifier = Modifier
-            .weight(15f)
+            .weight(1f)
             .verticalScroll(rememberScrollState())) {
             Row(
                 modifier = Modifier.fillMaxWidth()
@@ -100,11 +100,7 @@ fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
                 viewModel.step = 3
             },
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Primary40
-            ),
+                .fillMaxWidth(),
             enabled = viewModel.identityInfoValidation()
         ) {
             Text(text = "Next")
@@ -121,11 +117,11 @@ fun IdSelectionChip(idSelected: Boolean, label: String, updateSelection: (Boolea
         label = { Text(text = label) },
         colors = AssistChipDefaults.assistChipColors(
             containerColor = if (idSelected)
-                MaterialTheme.colorScheme.tertiaryContainer
+                MaterialTheme.colorScheme.primaryContainer
             else
                 MaterialTheme.colorScheme.background,
             labelColor = if (idSelected)
-                MaterialTheme.colorScheme.tertiary
+                MaterialTheme.colorScheme.primary
             else
                 MaterialTheme.colorScheme.outline
         ),

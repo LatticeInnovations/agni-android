@@ -39,7 +39,7 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
             Text(
                 text = "Addresses",
                 style = MaterialTheme.typography.bodyLarge,
-                color = Neutral10
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "Page 3/3",
@@ -50,7 +50,7 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
         Spacer(modifier = Modifier.height(20.dp))
         Column(modifier = Modifier
             .verticalScroll(rememberScrollState())
-            .weight(11f)) {
+            .weight(1f)) {
             AddressComposable(label = "Home Address", address = viewModel.homeAddress)
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -58,10 +58,7 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
             if (!viewModel.addWorkAddress) {
                 OutlinedButton(
                     onClick = { viewModel.addWorkAddress = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Primary40
-                    )
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Text(text = "Add a work address")
@@ -99,11 +96,7 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
                 .padding(top = 15.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Primary40
-            ),
             enabled = viewModel.addressInfoValidation()
         ) {
             Text(text = "Submit")
