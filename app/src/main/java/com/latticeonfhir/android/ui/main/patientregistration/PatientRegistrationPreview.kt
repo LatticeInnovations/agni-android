@@ -27,15 +27,12 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .weight(12f)
+                .weight(1f)
         ) {
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth(),
-                shape = RoundedCornerShape(4.dp),
-                colors = CardDefaults.elevatedCardColors(
-                    containerColor = Primary95
-                )
+                shape = RoundedCornerShape(4.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -70,10 +67,7 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth(),
-                shape = RoundedCornerShape(4.dp),
-                colors = CardDefaults.elevatedCardColors(
-                    containerColor = Primary95
-                )
+                shape = RoundedCornerShape(4.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -82,11 +76,11 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
                 ) {
                     Heading("Page 2/3")
                     if (viewModel.isPassportSelected) DetailsText(
-                        "Passport Id:",
+                        "Passport Id",
                         viewModel.passportId
                     )
-                    if (viewModel.isVoterSelected) DetailsText("Voter Id:", viewModel.voterId)
-                    if (viewModel.isPatientSelected) DetailsText("Patient Id:", viewModel.patientId)
+                    if (viewModel.isVoterSelected) DetailsText("Voter Id", viewModel.voterId)
+                    if (viewModel.isPatientSelected) DetailsText("Patient Id", viewModel.patientId)
                     EditButton(viewModel, 2)
                 }
                 Divider(
@@ -98,10 +92,7 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth(),
-                shape = RoundedCornerShape(4.dp),
-                colors = CardDefaults.elevatedCardColors(
-                    containerColor = Primary95
-                )
+                shape = RoundedCornerShape(4.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -129,10 +120,6 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp)
-                .weight(0.9f),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Primary40
-            )
         ) {
             Text(text = "Save")
         }
@@ -190,14 +177,14 @@ fun EditButton(viewModel: PatientRegistrationViewModel, step: Int){
             Icon(
                 Icons.Outlined.Edit,
                 contentDescription = null,
-                tint = Primary40,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(5.dp))
             Text(
                 text = "Edit",
                 style = MaterialTheme.typography.labelLarge,
-                color = Primary40
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }

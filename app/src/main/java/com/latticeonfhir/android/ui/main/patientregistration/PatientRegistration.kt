@@ -14,9 +14,9 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.main.ui.theme.FHIRAndroidTheme
-import com.latticeonfhir.android.ui.main.ui.theme.Primary95
 
 class PatientRegistration : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -50,7 +50,7 @@ class PatientRegistration : ComponentActivity() {
                                 }
                             },
                             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                containerColor = Primary95
+                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                             ),
                             actions = {
                                 IconButton(onClick = {

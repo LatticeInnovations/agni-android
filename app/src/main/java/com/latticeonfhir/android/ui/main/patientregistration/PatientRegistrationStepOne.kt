@@ -43,7 +43,7 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
             Text(
                 text = "Basic Information",
                 style = MaterialTheme.typography.bodyLarge,
-                color = Neutral10
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "Page 1/3",
@@ -55,7 +55,7 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .weight(11f)
+                .weight(1f)
         ) {
 
             CustomTextField(viewModel.firstName, "First Name", 1f, viewModel.maxFirstNameLength) {
@@ -81,11 +81,11 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
                     label = { Text(text = "Date of birth") },
                     colors = AssistChipDefaults.assistChipColors(
                         containerColor = if (viewModel.dobAgeSelector == "dob")
-                            MaterialTheme.colorScheme.tertiaryContainer
+                            MaterialTheme.colorScheme.primaryContainer
                         else
                             MaterialTheme.colorScheme.background,
                         labelColor = if (viewModel.dobAgeSelector == "dob")
-                            MaterialTheme.colorScheme.tertiary
+                            MaterialTheme.colorScheme.primary
                         else
                             MaterialTheme.colorScheme.outline
                     )
@@ -96,11 +96,11 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
                     label = { Text(text = "Age") },
                     colors = AssistChipDefaults.assistChipColors(
                         containerColor = if (viewModel.dobAgeSelector == "age")
-                            MaterialTheme.colorScheme.tertiaryContainer
+                            MaterialTheme.colorScheme.primaryContainer
                         else
                             MaterialTheme.colorScheme.background,
                         labelColor = if (viewModel.dobAgeSelector == "age")
-                            MaterialTheme.colorScheme.tertiary
+                            MaterialTheme.colorScheme.primary
                         else
                             MaterialTheme.colorScheme.outline
                     )
@@ -132,11 +132,7 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 10.dp)
-                .weight(0.9f),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Primary40
-            ),
+                .padding(top = 10.dp),
             enabled = viewModel.basicInfoValidation()
         ) {
             Text(text = "Next")
@@ -167,9 +163,6 @@ fun CustomTextField(
             )
         },
         singleLine = true,
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedBorderColor = Primary40
-        ),
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Next
         )
@@ -203,15 +196,7 @@ fun DobTextField(viewModel: PatientRegistrationViewModel) {
                 isDateDialogShown = false
             },
             title = { Text(text = "Select date") },
-            initialDate = LocalDate.now(),
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-            colors = com.marosseleng.compose.material3.datetimepickers.date.domain.DatePickerDefaults.colors(
-                todayStroke = DatePickerStroke(1.dp, Primary40),
-                todayLabelTextColor = Primary40,
-                monthDayLabelSelectedBackgroundColor = Primary40,
-                selectedYearBackgroundColor = Primary40,
-                selectedMonthBackgroundColor = Primary40
-            )
+            initialDate = LocalDate.now()
         )
     }
     OutlinedTextField(
@@ -233,10 +218,7 @@ fun DobTextField(viewModel: PatientRegistrationViewModel) {
         readOnly = true,
         trailingIcon = {
             Icon(Icons.Default.DateRange, contentDescription = null)
-        },
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedBorderColor = Primary40
-        )
+        }
     )
 }
 
@@ -271,10 +253,7 @@ fun ContactTextField(viewModel: PatientRegistrationViewModel) {
                 Icon(Icons.Default.ArrowDropDown, contentDescription = null)
             },
             modifier = Modifier.fillMaxWidth(0.4f),
-            readOnly = true,
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Primary40
-            )
+            readOnly = true
         )
         Spacer(modifier = Modifier.width(6.dp))
         OutlinedTextField(
@@ -288,9 +267,6 @@ fun ContactTextField(viewModel: PatientRegistrationViewModel) {
                 Text(text = "Enter Phone Number")
             },
             singleLine = true,
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Primary40
-            ),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next,
                 keyboardType = KeyboardType.Number
@@ -314,11 +290,11 @@ fun GenderComposable(viewModel: PatientRegistrationViewModel) {
             },
             colors = AssistChipDefaults.assistChipColors(
                 containerColor = if (viewModel.gender == "male")
-                    MaterialTheme.colorScheme.tertiaryContainer
+                    MaterialTheme.colorScheme.primaryContainer
                 else
                     MaterialTheme.colorScheme.background,
                 labelColor = if (viewModel.gender == "male")
-                    MaterialTheme.colorScheme.tertiary
+                    MaterialTheme.colorScheme.primary
                 else
                     MaterialTheme.colorScheme.outline
             )
@@ -331,11 +307,11 @@ fun GenderComposable(viewModel: PatientRegistrationViewModel) {
             },
             colors = AssistChipDefaults.assistChipColors(
                 containerColor = if (viewModel.gender == "female")
-                    MaterialTheme.colorScheme.tertiaryContainer
+                    MaterialTheme.colorScheme.primaryContainer
                 else
                     MaterialTheme.colorScheme.background,
                 labelColor = if (viewModel.gender == "female")
-                    MaterialTheme.colorScheme.tertiary
+                    MaterialTheme.colorScheme.primary
                 else
                     MaterialTheme.colorScheme.outline
             )
@@ -348,11 +324,11 @@ fun GenderComposable(viewModel: PatientRegistrationViewModel) {
             },
             colors = AssistChipDefaults.assistChipColors(
                 containerColor = if (viewModel.gender == "others")
-                    MaterialTheme.colorScheme.tertiaryContainer
+                    MaterialTheme.colorScheme.primaryContainer
                 else
                     MaterialTheme.colorScheme.background,
                 labelColor = if (viewModel.gender == "others")
-                    MaterialTheme.colorScheme.tertiary
+                    MaterialTheme.colorScheme.primary
                 else
                     MaterialTheme.colorScheme.outline
             )
