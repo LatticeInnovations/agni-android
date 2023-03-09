@@ -18,4 +18,7 @@ class SearchPatientViewModel: ViewModel() {
     var visitSelected by mutableStateOf(visitIntervals[0])
 
     var range by mutableStateOf(minAge.toFloat()..maxAge.toFloat())
+
+    var isNameValid by mutableStateOf(false)
+    var isPatientIdValid by mutableStateOf(false)
 }

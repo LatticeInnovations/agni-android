@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.main.patientregistration
 
-import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -10,22 +9,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.ui.main.ui.theme.Neutral10
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
-import com.latticeonfhir.android.ui.main.ui.theme.Primary40
 
 @Composable
 fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
-    val context = LocalContext.current
     Column(
         modifier = Modifier
             .padding(15.dp),
@@ -38,20 +30,22 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
         ) {
             Text(
                 text = "Addresses",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "Page 3/3",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodySmall,
                 color = Neutral40
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
-        Column(modifier = Modifier
-            .verticalScroll(rememberScrollState())
-            .weight(1f)) {
-            AddressComposable(label = "Home Address", address = viewModel.homeAddress)
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .weight(1f)
+        ) {
+            AddressComposable(label = "Home Address", address = viewModel.homeAddress, viewModel)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -66,33 +60,39 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
             }
 
             if (viewModel.addWorkAddress) {
-                AddressComposable(label = "Work Address", address = viewModel.workAddress)
+                AddressComposable(
+                    label = "Work Address",
+                    address = viewModel.workAddress,
+                    viewModel
+                )
             }
         }
 
         Button(
             onClick = {
                 viewModel.step = 4
-                Log.d("manseeyy","${viewModel.firstName}" +
-                        "\n${viewModel.middleName}" +
-                        "\n${viewModel.lastName}" +
-                        "\n${viewModel.dob}" +
-                        "\n${viewModel.phoneNumber}" +
-                        "\n${viewModel.email}" +
-                        "\n${viewModel.gender}" +
-                        "\n${viewModel.passportId}" +
-                        "\n${viewModel.voterId}" +
-                        "\n${viewModel.patientId}" +
-                        "\n${viewModel.homeAddress.pincode}"+
-                        "\n${viewModel.homeAddress.state}"+
-                        "\n${viewModel.homeAddress.area}"+
-                        "\n${viewModel.homeAddress.town}"+
-                        "\n${viewModel.homeAddress.city}"+
-                        "\n${viewModel.workAddress.pincode}"+
-                        "\n${viewModel.workAddress.state}"+
-                        "\n${viewModel.workAddress.area}"+
-                        "\n${viewModel.workAddress.town}"+
-                        "\n${viewModel.workAddress.city}")
+                Log.d(
+                    "MYTAG", "${viewModel.firstName}" +
+                            "\n${viewModel.middleName}" +
+                            "\n${viewModel.lastName}" +
+                            "\n${viewModel.dob}" +
+                            "\n${viewModel.phoneNumber}" +
+                            "\n${viewModel.email}" +
+                            "\n${viewModel.gender}" +
+                            "\n${viewModel.passportId}" +
+                            "\n${viewModel.voterId}" +
+                            "\n${viewModel.patientId}" +
+                            "\n${viewModel.homeAddress.pincode}" +
+                            "\n${viewModel.homeAddress.state}" +
+                            "\n${viewModel.homeAddress.area}" +
+                            "\n${viewModel.homeAddress.town}" +
+                            "\n${viewModel.homeAddress.city}" +
+                            "\n${viewModel.workAddress.pincode}" +
+                            "\n${viewModel.workAddress.state}" +
+                            "\n${viewModel.workAddress.area}" +
+                            "\n${viewModel.workAddress.town}" +
+                            "\n${viewModel.workAddress.city}"
+                )
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -104,9 +104,8 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddressComposable(label: String, address: Address) {
+fun AddressComposable(label: String, address: Address, viewModel: PatientRegistrationViewModel) {
     Text(
         text = label,
         style = MaterialTheme.typography.bodyLarge,
@@ -120,52 +119,105 @@ fun AddressComposable(label: String, address: Address) {
             value = address.pincode,
             label = "Postal Code",
             weight = 0.4f,
-            maxLength = 6
+            maxLength = 6,
+            address.isPostalCodeValid,
+            "Enter valid 6 digit postal code"
         ) {
             address.pincode = it
+            address.isPostalCodeValid = address.pincode.length < 6
         }
         Spacer(modifier = Modifier.width(15.dp))
-        OutlinedTextField(
-            value = address.state,
-            onValueChange = {},
-            placeholder = { Text(text = "State",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)},
-            modifier = Modifier.fillMaxWidth().padding(top=8.dp),
-            readOnly = true,
-            trailingIcon = {
-                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-            },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Primary40
+        var expanded by remember { mutableStateOf(false) }
+        Box {
+            OutlinedTextField(
+                value = address.state,
+                onValueChange = {
+                    address.isStateValid = address.state == ""
+                },
+                label = {
+                    Text(
+                        text = "State",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                readOnly = true,
+                interactionSource = remember {
+                    MutableInteractionSource()
+                }.also { interactionSource ->
+                    LaunchedEffect(interactionSource) {
+                        interactionSource.interactions.collect {
+                            if (it is PressInteraction.Release) {
+                                expanded = !expanded
+                            }
+                        }
+                    }
+                },
+                trailingIcon = {
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                },
+                isError = address.isStateValid,
+                supportingText = {
+                    if (address.isStateValid)
+                        Text(text = "Please select a state.", style = MaterialTheme.typography.bodySmall)
+                }
             )
-        )
+            DropdownMenu(
+                modifier = Modifier.fillMaxHeight(0.5f),
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                viewModel.statesList.forEach { label ->
+                    DropdownMenuItem(
+                        onClick = {
+                            expanded = false
+                            address.state = label
+                        },
+                        text = {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    )
+                }
+            }
+        }
     }
     Spacer(modifier = Modifier.height(15.dp))
     CustomTextField(
         value = address.area,
         label = "House No., Building, Street, Area",
         weight = 1f,
-        maxLength = 150
+        maxLength = 150, address.isAreaValid,
+        "Enter valid input."
     ) {
         address.area = it
+        address.isAreaValid = address.area.isEmpty()
     }
     Spacer(modifier = Modifier.height(15.dp))
     CustomTextField(
         value = address.town,
         label = "Town/ Locality",
         weight = 1f,
-        maxLength = 150
+        maxLength = 150, address.isTownValid,
+        "Enter valid input."
     ) {
         address.town = it
+        address.isTownValid = address.town.isEmpty()
     }
     Spacer(modifier = Modifier.height(15.dp))
     CustomTextField(
         value = address.city,
         label = "City/ District",
         weight = 1f,
-        maxLength = 150
+        maxLength = 150, address.isCityValid,
+        "Enter valid input."
     ) {
         address.city = it
+        address.isCityValid = address.city.isEmpty()
     }
 }

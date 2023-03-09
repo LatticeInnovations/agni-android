@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.main.patientregistration
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -11,11 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.ui.main.ui.theme.Neutral10
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
-import com.latticeonfhir.android.ui.main.ui.theme.Primary40
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
     Column(
@@ -28,12 +26,12 @@ fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
         ) {
             Text(
                 text = "Identification",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "Page 2/3",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodySmall,
                 color = Neutral40
             )
         }
@@ -42,7 +40,9 @@ fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
             .weight(1f)
             .verticalScroll(rememberScrollState())) {
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
             ) {
                 IdSelectionChip(idSelected = viewModel.isPassportSelected, label = "Passport Id") {
                     viewModel.isPassportSelected = !it
@@ -63,9 +63,12 @@ fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
                     value = viewModel.passportId,
                     label = "Passport Id",
                     weight = 1f,
-                    viewModel.maxPassportIdLength
+                    viewModel.maxPassportIdLength,
+                    viewModel.isPassportValid,
+                    "Enter valid Passport ID (eg., A1098765)"
                 ) {
                     viewModel.passportId = it
+                    viewModel.isPassportValid = !viewModel.passportPattern.matches(viewModel.passportId)
                 }
                 IdLength(viewModel.passportId, viewModel.maxPassportIdLength)
             }
@@ -75,9 +78,12 @@ fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
                     value = viewModel.voterId,
                     label = "Voter Id",
                     weight = 1f,
-                    viewModel.maxVoterIdLength
+                    viewModel.maxVoterIdLength,
+                    viewModel.isVoterValid,
+                    "Enter valid Voter Id (eg., XYZ9876543)"
                 ) {
                     viewModel.voterId = it
+                    viewModel.isVoterValid = !viewModel.voterPattern.matches(viewModel.voterId)
                 }
                 IdLength(viewModel.voterId, viewModel.maxVoterIdLength)
             }
@@ -87,14 +93,16 @@ fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
                     value = viewModel.patientId,
                     label = "Patient Id",
                     weight = 1f,
-                    viewModel.maxPatientIdLength
+                    viewModel.maxPatientIdLength,
+                    viewModel.isPatientValid,
+                    "Enter valid Patient Id"
                 ) {
                     viewModel.patientId = it
+                    viewModel.isPatientValid = viewModel.patientId.length < 10
                 }
                 IdLength(viewModel.patientId, viewModel.maxPatientIdLength)
             }
         }
-        Spacer(modifier = Modifier.weight(1f))
         Button(
             onClick = {
                 viewModel.step = 3
@@ -117,17 +125,17 @@ fun IdSelectionChip(idSelected: Boolean, label: String, updateSelection: (Boolea
         label = { Text(text = label) },
         colors = AssistChipDefaults.assistChipColors(
             containerColor = if (idSelected)
-                MaterialTheme.colorScheme.primaryContainer
+                MaterialTheme.colorScheme.secondaryContainer
             else
                 MaterialTheme.colorScheme.background,
             labelColor = if (idSelected)
-                MaterialTheme.colorScheme.primary
+                MaterialTheme.colorScheme.surfaceTint
             else
                 MaterialTheme.colorScheme.outline
         ),
         leadingIcon = {
             if (idSelected)
-                Icon(Icons.Default.Check, contentDescription = null, tint = Primary40)
+                Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.surfaceTint)
         }
     )
 }

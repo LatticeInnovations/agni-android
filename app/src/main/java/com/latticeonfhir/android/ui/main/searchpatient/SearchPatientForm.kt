@@ -35,18 +35,23 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
                 value = searchPatientViewModel.patientName,
                 label = "Patient Name",
                 weight = 1f,
-                maxLength = 150
+                maxLength = 150, searchPatientViewModel.isNameValid,
+                "Name length should be between 3 and 150."
             ) {
                 searchPatientViewModel.patientName = it
+                searchPatientViewModel.isNameValid =
+                    searchPatientViewModel.patientName.length < 3 || searchPatientViewModel.patientName.length > 150
             }
             Spacer(modifier = Modifier.height(15.dp))
             CustomTextField(
                 value = searchPatientViewModel.patientId,
                 label = "Patient Id",
                 weight = 1f,
-                maxLength = 150
+                maxLength = 150, searchPatientViewModel.isPatientIdValid,
+                "Enter valid Patient Id."
             ) {
                 searchPatientViewModel.patientId = it
+                searchPatientViewModel.isPatientIdValid = searchPatientViewModel.patientId.length < 10
             }
             Spacer(modifier = Modifier.height(20.dp))
             Text(
@@ -116,7 +121,6 @@ fun AgeBox(age: String, label: String, updateAge: (String) -> Unit) {
 
 @Composable
 fun AgeRangeSlider(viewModel: SearchPatientViewModel){
-    //var range by remember { mutableStateOf(viewModel.minAge.toFloat()..viewModel.maxAge.toFloat()) }
     RangeSlider(
         value = viewModel.range,
         onValueChange = {
@@ -143,11 +147,11 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
             },
             colors = AssistChipDefaults.assistChipColors(
                 containerColor = if (viewModel.gender == "male")
-                    MaterialTheme.colorScheme.primaryContainer
+                    MaterialTheme.colorScheme.secondaryContainer
                 else
                     MaterialTheme.colorScheme.background,
                 labelColor = if (viewModel.gender == "male")
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.surfaceTint
                 else
                     MaterialTheme.colorScheme.outline
             )
@@ -160,11 +164,11 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
             },
             colors = AssistChipDefaults.assistChipColors(
                 containerColor = if (viewModel.gender == "female")
-                    MaterialTheme.colorScheme.primaryContainer
+                    MaterialTheme.colorScheme.secondaryContainer
                 else
                     MaterialTheme.colorScheme.background,
                 labelColor = if (viewModel.gender == "female")
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.surfaceTint
                 else
                     MaterialTheme.colorScheme.outline
             )
@@ -177,11 +181,11 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
             },
             colors = AssistChipDefaults.assistChipColors(
                 containerColor = if (viewModel.gender == "others")
-                    MaterialTheme.colorScheme.primaryContainer
+                    MaterialTheme.colorScheme.secondaryContainer
                 else
                     MaterialTheme.colorScheme.background,
                 labelColor = if (viewModel.gender == "others")
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.surfaceTint
                 else
                     MaterialTheme.colorScheme.outline
             )
@@ -192,7 +196,7 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
 @Composable
 fun VisitDropdown(viewModel: SearchPatientViewModel) {
     var expanded by remember { mutableStateOf(false) }
-    Column {
+    Box {
         OutlinedTextField(
             value = viewModel.visitSelected,
             onValueChange = {},
@@ -217,7 +221,7 @@ fun VisitDropdown(viewModel: SearchPatientViewModel) {
             }
         )
         DropdownMenu(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(0.9f),
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
