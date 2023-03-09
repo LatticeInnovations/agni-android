@@ -54,7 +54,8 @@ class PatientRegistration : ComponentActivity() {
                             ),
                             actions = {
                                 IconButton(onClick = {
-                                    context.startActivity(Intent(context, MainActivity::class.java))
+                                    if (viewModel.step == 4) viewModel.openDialog = true
+                                    else context.startActivity(Intent(context, MainActivity::class.java))
                                 }) {
                                     Icon(Icons.Default.Clear, contentDescription = null)
                                 }

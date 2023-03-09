@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.main.patientregistration
 
+import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,15 +11,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.ui.main.ui.theme.Primary40
+import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.main.ui.theme.Primary70
-import com.latticeonfhir.android.ui.main.ui.theme.Primary95
 
 @Composable
 fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
+    val context = LocalContext.current
     Column(
         modifier = Modifier.fillMaxSize()
             .padding(15.dp)
@@ -39,7 +40,7 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
                         .fillMaxWidth()
                         .padding(15.dp)
                 ) {
-                    Heading("Page 1/3")
+                    Heading("Basic Information")
                     DetailsText("First Name", viewModel.firstName)
                     if (viewModel.middleName != "") DetailsText("Middle Name", viewModel.middleName)
                     if (viewModel.lastName != "") DetailsText("Last Name", viewModel.lastName)
@@ -74,7 +75,7 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
                         .fillMaxWidth()
                         .padding(15.dp)
                 ) {
-                    Heading("Page 2/3")
+                    Heading("Identification")
                     if (viewModel.isPassportSelected) DetailsText(
                         "Passport Id",
                         viewModel.passportId
@@ -99,7 +100,7 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
                         .fillMaxWidth()
                         .padding(15.dp)
                 ) {
-                    Heading("Page 3/3")
+                    Heading("Addresses")
                     SubHeading("Home Address")
                     AddressCard(viewModel.homeAddress)
                     if (viewModel.addWorkAddress) {
@@ -112,6 +113,38 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
                 Divider(
                     modifier = Modifier.fillMaxWidth(),
                     color = Primary70
+                )
+            }
+            if (viewModel.openDialog) {
+                AlertDialog(
+                    onDismissRequest = {
+                        viewModel.openDialog = false
+                    },
+                    title = {
+                        Text(text = "Discard Changes ?",
+                            style = MaterialTheme.typography.titleMedium)
+                    },
+                    text = {
+                        Text("Are you sure you want to cancel preview and discard any changes you have made?",
+                        style = MaterialTheme.typography.bodyMedium)
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.openDialog = false
+                                context.startActivity(Intent(context, MainActivity::class.java))
+                            }) {
+                            Text("Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.openDialog = false
+                            }) {
+                            Text("Cancel")
+                        }
+                    }
                 )
             }
         }

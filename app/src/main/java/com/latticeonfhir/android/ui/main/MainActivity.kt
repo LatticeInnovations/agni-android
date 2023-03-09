@@ -2,7 +2,6 @@ package com.latticeonfhir.android.ui.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Space
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.horizontalScroll
@@ -18,16 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.activity.BaseActivity
-import com.latticeonfhir.android.databinding.ActivityMainBinding
 import com.latticeonfhir.android.ui.main.patientregistration.*
 import com.latticeonfhir.android.ui.main.searchpatient.SearchPatient
 import com.latticeonfhir.android.ui.main.ui.theme.FHIRAndroidTheme
-import com.latticeonfhir.android.ui.main.ui.theme.Primary40
-import com.latticeonfhir.android.ui.main.ui.theme.Primary95
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

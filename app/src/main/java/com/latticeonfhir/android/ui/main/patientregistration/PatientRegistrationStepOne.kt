@@ -1,7 +1,6 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.latticeonfhir.android.ui.main.patientregistration
 
+import android.util.Patterns
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
@@ -17,18 +16,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.ui.main.ui.theme.Neutral10
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
-import com.latticeonfhir.android.ui.main.ui.theme.Primary40
-import com.marosseleng.compose.material3.datetimepickers.date.domain.DatePickerStroke
 import java.time.LocalDate
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
     Column(
@@ -42,12 +36,12 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
         ) {
             Text(
                 text = "Basic Information",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "Page 1/3",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodySmall,
                 color = Neutral40
             )
         }
@@ -58,34 +52,57 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
                 .weight(1f)
         ) {
 
-            CustomTextField(viewModel.firstName, "First Name", 1f, viewModel.maxFirstNameLength) {
+            CustomTextField(
+                viewModel.firstName,
+                "First Name",
+                1f,
+                viewModel.maxFirstNameLength,
+                viewModel.isNameValid,
+                "Name length should be between 3 and 150."
+            ) {
                 viewModel.firstName = it
+                viewModel.isNameValid =
+                    viewModel.firstName.length < 3 || viewModel.firstName.length > 150
             }
             ValueLength(viewModel.firstName)
             CustomTextField(
                 viewModel.middleName,
                 "Middle Name",
                 1f,
-                viewModel.maxMiddleNameLength
+                viewModel.maxMiddleNameLength,
+                false,
+                ""
             ) {
                 viewModel.middleName = it
             }
             ValueLength(viewModel.middleName)
-            CustomTextField(viewModel.lastName, "Last Name", 1f, viewModel.maxLastNameLength) {
+            CustomTextField(
+                viewModel.lastName,
+                "Last Name",
+                1f,
+                viewModel.maxLastNameLength,
+                false,
+                ""
+            ) {
                 viewModel.lastName = it
             }
             ValueLength(viewModel.lastName)
             Row(modifier = Modifier.fillMaxWidth()) {
                 AssistChip(
                     onClick = { viewModel.dobAgeSelector = "dob" },
-                    label = { Text(text = "Date of birth") },
+                    label = {
+                        Text(
+                            text = "Date of birth",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    },
                     colors = AssistChipDefaults.assistChipColors(
                         containerColor = if (viewModel.dobAgeSelector == "dob")
-                            MaterialTheme.colorScheme.primaryContainer
+                            MaterialTheme.colorScheme.secondaryContainer
                         else
                             MaterialTheme.colorScheme.background,
                         labelColor = if (viewModel.dobAgeSelector == "dob")
-                            MaterialTheme.colorScheme.primary
+                            MaterialTheme.colorScheme.surfaceTint
                         else
                             MaterialTheme.colorScheme.outline
                     )
@@ -93,14 +110,14 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
                 Spacer(modifier = Modifier.width(10.dp))
                 AssistChip(
                     onClick = { viewModel.dobAgeSelector = "age" },
-                    label = { Text(text = "Age") },
+                    label = { Text(text = "Age", style = MaterialTheme.typography.labelLarge) },
                     colors = AssistChipDefaults.assistChipColors(
                         containerColor = if (viewModel.dobAgeSelector == "age")
-                            MaterialTheme.colorScheme.primaryContainer
+                            MaterialTheme.colorScheme.secondaryContainer
                         else
                             MaterialTheme.colorScheme.background,
                         labelColor = if (viewModel.dobAgeSelector == "age")
-                            MaterialTheme.colorScheme.primary
+                            MaterialTheme.colorScheme.surfaceTint
                         else
                             MaterialTheme.colorScheme.outline
                     )
@@ -118,8 +135,16 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            CustomTextField(viewModel.email, "Email", 1F, viewModel.maxEmailLength) {
+            CustomTextField(
+                viewModel.email,
+                "Email",
+                1F,
+                viewModel.maxEmailLength,
+                viewModel.isEmailValid,
+                "Enter valid email (eg., abc123@gmail.com)"
+            ) {
                 viewModel.email = it
+                viewModel.isEmailValid = !Patterns.EMAIL_ADDRESS.matcher(viewModel.email).matches()
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -146,6 +171,8 @@ fun CustomTextField(
     label: String,
     weight: Float,
     maxLength: Int,
+    isError: Boolean,
+    error: String,
     updateValue: (String) -> Unit
 ) {
     OutlinedTextField(
@@ -165,7 +192,11 @@ fun CustomTextField(
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Next
-        )
+        ),
+        isError = isError,
+        supportingText = {
+            if (isError) Text(text = error, style = MaterialTheme.typography.bodySmall)
+        }
     )
 }
 
@@ -175,7 +206,7 @@ fun ValueLength(value: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 5.dp, end = 15.dp),
-        text = if (value.length == 0) "" else "${value.length}/150",
+        text = if (value.isEmpty()) "" else "${value.length}/150",
         style = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Right,
         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -202,7 +233,7 @@ fun DobTextField(viewModel: PatientRegistrationViewModel) {
     OutlinedTextField(
         value = viewModel.dob,
         onValueChange = {},
-        placeholder = { Text(text = "Date of birth", style = MaterialTheme.typography.bodyLarge)},
+        placeholder = { Text(text = "Date of birth", style = MaterialTheme.typography.bodyLarge) },
         interactionSource = remember {
             MutableInteractionSource()
         }.also { interactionSource ->
@@ -227,15 +258,15 @@ fun AgeTextField(viewModel: PatientRegistrationViewModel) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
-        CustomTextField(viewModel.years, label = "Years", 0.25F, 3) {
+        CustomTextField(viewModel.years, label = "Years", 0.25F, 3, false, "") {
             viewModel.years = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomTextField(viewModel.months, label = "Months", 0.36F, 2) {
+        CustomTextField(viewModel.months, label = "Months", 0.36F, 2, false, "") {
             viewModel.months = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomTextField(viewModel.days, label = "Days", 0.5F, 2) {
+        CustomTextField(viewModel.days, label = "Days", 0.5F, 2, false, "") {
             viewModel.days = it
         }
     }
@@ -253,12 +284,14 @@ fun ContactTextField(viewModel: PatientRegistrationViewModel) {
                 Icon(Icons.Default.ArrowDropDown, contentDescription = null)
             },
             modifier = Modifier.fillMaxWidth(0.4f),
-            readOnly = true
+            readOnly = true,
+            singleLine = true
         )
         Spacer(modifier = Modifier.width(6.dp))
         OutlinedTextField(
             value = viewModel.phoneNumber,
             onValueChange = {
+                viewModel.isPhoneValid = it.length < 10
                 if (it.length <= 10)
                     viewModel.phoneNumber = it
             },
@@ -270,7 +303,12 @@ fun ContactTextField(viewModel: PatientRegistrationViewModel) {
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next,
                 keyboardType = KeyboardType.Number
-            )
+            ),
+            isError = viewModel.isPhoneValid,
+            supportingText = {
+                if (viewModel.isPhoneValid)
+                    Text("Enter Valid Input", style = MaterialTheme.typography.bodySmall)
+            }
         )
     }
 }
@@ -290,11 +328,11 @@ fun GenderComposable(viewModel: PatientRegistrationViewModel) {
             },
             colors = AssistChipDefaults.assistChipColors(
                 containerColor = if (viewModel.gender == "male")
-                    MaterialTheme.colorScheme.primaryContainer
+                    MaterialTheme.colorScheme.secondaryContainer
                 else
                     MaterialTheme.colorScheme.background,
                 labelColor = if (viewModel.gender == "male")
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.surfaceTint
                 else
                     MaterialTheme.colorScheme.outline
             )
@@ -307,11 +345,11 @@ fun GenderComposable(viewModel: PatientRegistrationViewModel) {
             },
             colors = AssistChipDefaults.assistChipColors(
                 containerColor = if (viewModel.gender == "female")
-                    MaterialTheme.colorScheme.primaryContainer
+                    MaterialTheme.colorScheme.secondaryContainer
                 else
                     MaterialTheme.colorScheme.background,
                 labelColor = if (viewModel.gender == "female")
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.surfaceTint
                 else
                     MaterialTheme.colorScheme.outline
             )
@@ -324,11 +362,11 @@ fun GenderComposable(viewModel: PatientRegistrationViewModel) {
             },
             colors = AssistChipDefaults.assistChipColors(
                 containerColor = if (viewModel.gender == "others")
-                    MaterialTheme.colorScheme.primaryContainer
+                    MaterialTheme.colorScheme.secondaryContainer
                 else
                     MaterialTheme.colorScheme.background,
                 labelColor = if (viewModel.gender == "others")
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.surfaceTint
                 else
                     MaterialTheme.colorScheme.outline
             )
