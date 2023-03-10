@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a77b95f7f1213baed42cc6cef849d77d",
+    "identityHash": "1eb739207d3e21d2e6b4372e49d006d2",
     "entities": [
       {
-        "tableName": "PersonEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `active` INTEGER, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER, `email` TEXT, `addressLine1` TEXT, `city` TEXT, `district` TEXT, `state` TEXT, `postalCode` TEXT, `country` TEXT, `addressLine2` TEXT, PRIMARY KEY(`id`))",
+        "tableName": "PatientEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `active` INTEGER, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER, `email` TEXT, `fhirId` TEXT, `addressLine1` TEXT, `city` TEXT, `district` TEXT, `state` TEXT, `postalCode` TEXT, `country` TEXT, `addressLine2` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -59,6 +59,12 @@
           {
             "fieldPath": "email",
             "columnName": "email",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fhirId",
+            "columnName": "fhirId",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -148,7 +154,7 @@
       },
       {
         "tableName": "IdentifierEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifierNumber` TEXT NOT NULL, `identifierType` TEXT NOT NULL, `identifierCode` TEXT, `personId` TEXT NOT NULL, PRIMARY KEY(`identifierNumber`), FOREIGN KEY(`personId`) REFERENCES `PersonEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifierNumber` TEXT NOT NULL, `identifierType` TEXT NOT NULL, `identifierCode` TEXT, `PatientId` TEXT NOT NULL, PRIMARY KEY(`identifierNumber`), FOREIGN KEY(`PatientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "identifierNumber",
@@ -169,8 +175,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "personId",
-            "columnName": "personId",
+            "fieldPath": "PatientId",
+            "columnName": "PatientId",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -183,22 +189,22 @@
         },
         "indices": [
           {
-            "name": "index_IdentifierEntity_personId",
+            "name": "index_IdentifierEntity_PatientId",
             "unique": false,
             "columnNames": [
-              "personId"
+              "PatientId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_IdentifierEntity_personId` ON `${TABLE_NAME}` (`personId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_IdentifierEntity_PatientId` ON `${TABLE_NAME}` (`PatientId`)"
           }
         ],
         "foreignKeys": [
           {
-            "table": "PersonEntity",
+            "table": "PatientEntity",
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "personId"
+              "PatientId"
             ],
             "referencedColumns": [
               "id"
@@ -210,7 +216,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a77b95f7f1213baed42cc6cef849d77d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1eb739207d3e21d2e6b4372e49d006d2')"
     ]
   }
 }

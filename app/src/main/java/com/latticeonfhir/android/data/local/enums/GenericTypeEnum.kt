@@ -1,7 +1,7 @@
 package com.latticeonfhir.android.data.local.enums
 
 enum class GenericTypeEnum(val number: Int, val value: String) {
-    PERSON(1,"Person"),
+    Patient(1,"Patient"),
     PATIENT(2,"Patient"),
     MEDICAL_RECORD(3,"Medical Record");
 
