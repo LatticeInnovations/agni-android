@@ -6,7 +6,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
-import com.latticeonfhir.android.data.local.roomdb.dao.PersonDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
@@ -22,7 +21,6 @@ import java.util.UUID
 )
 abstract class FhirAppDatabase : RoomDatabase() {
 
-    abstract fun getPersonDao(): PersonDao
     abstract fun getPatientDao(): PatientDao
     abstract fun getIdentifierDao(): IdentifierDao
 

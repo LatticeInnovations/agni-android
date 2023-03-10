@@ -21,11 +21,8 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Timber.d(viewModel.toString())
 
-        binding.helloText.setOnClickListener {
-            viewModel.getUserData()
-        }
+
     }
 
     override fun viewModel() = viewModel

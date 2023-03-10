@@ -8,7 +8,7 @@ import java.util.UUID
 @Entity
 data class PatientEntity(
     @PrimaryKey
-    val id: String = UUID.randomUUID().toString(),
+    val id: String,
     val firstName: String,
     val middleName: String?,
     val lastName: String?,

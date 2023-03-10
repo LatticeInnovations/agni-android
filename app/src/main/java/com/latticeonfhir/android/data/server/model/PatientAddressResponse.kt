@@ -2,7 +2,7 @@ package com.latticeonfhir.android.data.server.model
 
 import com.latticeonfhir.android.base.parcelclass.ParcelableClass
 
-data class PersonAddressResponse(
+data class PatientAddressResponse(
     val addressLine1: String?,
     val city: String?,
     val district: String?,

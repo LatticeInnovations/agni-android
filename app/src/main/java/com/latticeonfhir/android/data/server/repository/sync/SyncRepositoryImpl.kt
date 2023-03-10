@@ -1,12 +1,13 @@
 package com.latticeonfhir.android.data.server.repository.sync
 
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
-import com.latticeonfhir.android.data.local.roomdb.dao.PersonDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.api.ApiService
-import com.latticeonfhir.android.data.server.model.PersonResponse
-import com.latticeonfhir.android.utils.converters.responseconverter.toGenericEntity
+import com.latticeonfhir.android.data.server.enpoints.EndPoints
+import com.latticeonfhir.android.data.server.enpoints.EndPoints.Patient
+import com.latticeonfhir.android.data.server.model.PatientResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toPersonEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiSuccessResponse
@@ -15,41 +16,41 @@ import javax.inject.Inject
 
 class SyncRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
-    private val personDao: PersonDao,
+    private val patientDao: PatientDao,
     private val identifierDao: IdentifierDao
 ) : SyncRepository {
 
-    override suspend fun getListPersonData(): ResponseMapper<List<PersonResponse>> {
-        val response = ApiResponseConverter.convert(apiService.getListPersonData())
+    override suspend fun getListPatientData(): ResponseMapper<List<PatientResponse>> {
+        val response = ApiResponseConverter.convert(apiService.getListPatientData(Patient, emptyMap()))
         if (response is ApiSuccessResponse) {
-            personDao.insertListPersonData(response.body.map { personResponse ->
-                personResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
+            patientDao.insertListPatientData(response.body.map { PatientResponse ->
+                PatientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
                     identifierDao.insertListOfIdentifier(listOfIdentifiers)
                 }
-                personResponse.toPersonEntity()
+                PatientResponse.toPatientEntity()
             })
         }
         if (response is ApiEndResponse) {
-            personDao.insertListPersonData(response.body.map { personResponse ->
-                personResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
+            patientDao.insertListPatientData(response.body.map { PatientResponse ->
+                PatientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
                     identifierDao.insertListOfIdentifier(listOfIdentifiers)
                 }
-                personResponse.toPersonEntity()
+                PatientResponse.toPatientEntity()
             })
         }
         return response
     }
 
-    override suspend fun getPersonDataById(id: String): ResponseMapper<List<PersonResponse>> {
-        val response = ApiResponseConverter.convert(apiService.getPersonDataById(id))
+    override suspend fun getPatientDataById(id: String): ResponseMapper<List<PatientResponse>> {
+        val response = ApiResponseConverter.convert(apiService.getListPatientData(Patient,mapOf(Pair("_id",id))))
         if (response is ApiSuccessResponse) {
-            personDao.insertListPersonData(response.body.map {
-                it.toPersonEntity()
+            patientDao.insertListPatientData(response.body.map {
+                it.toPatientEntity()
             })
         }
         if (response is ApiEndResponse) {
-            personDao.insertListPersonData(response.body.map {
-                it.toPersonEntity()
+            patientDao.insertListPatientData(response.body.map {
+                it.toPatientEntity()
             })
         }
         return response
