@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.enpoints
+package com.latticeonfhir.android.data.server.constants
 
 object EndPoints {
 

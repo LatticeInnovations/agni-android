@@ -21,7 +21,11 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel.toString()
 
+        binding.helloText.setOnClickListener {
+            viewModel.getUserData()
+        }
 
     }
 

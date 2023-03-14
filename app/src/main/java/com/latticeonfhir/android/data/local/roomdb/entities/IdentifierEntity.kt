@@ -5,11 +5,12 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(indices = [Index("PatientId")],
+@Entity(
+    indices = [Index("patientId")],
     foreignKeys = [ForeignKey(
         entity = PatientEntity::class,
         parentColumns = arrayOf("id"),
-        childColumns = arrayOf("PatientId"),
+        childColumns = arrayOf("patientId"),
         onDelete = ForeignKey.CASCADE
     )]
 )
@@ -18,5 +19,5 @@ data class IdentifierEntity(
     val identifierNumber: String,
     val identifierType: String,
     val identifierCode: String?,
-    val PatientId: String
+    val patientId: String
 )

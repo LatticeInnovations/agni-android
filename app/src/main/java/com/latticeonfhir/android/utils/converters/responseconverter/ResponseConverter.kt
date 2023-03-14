@@ -1,23 +1,24 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
-import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.PermanentAddressEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.PermanentAddressEntity
 import com.latticeonfhir.android.data.server.model.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.PatientResponse
+import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import java.util.Date
 import java.util.UUID
 
 fun PatientResponse.toGenericEntity(): GenericEntity {
     return GenericEntity(
         id = identifier?.get(0)?.identifierNumber ?: UUID.randomUUID().toString(),
-        payload = FhirApp.gson.toJson(this),
-        type = GenericTypeEnum.Patient
+        patientId = this.id,
+        payload = this.toJson(),
+        type = GenericTypeEnum.PATIENT
     )
 }
 
@@ -49,12 +50,12 @@ fun PatientAddressResponse.toPermanentAddressEntity(): PermanentAddressEntity {
     )
 }
 
-fun PatientIdentifier.toIdentifierEntity(PatientId: String): IdentifierEntity {
+fun PatientIdentifier.toIdentifierEntity(patientId: String): IdentifierEntity {
     return IdentifierEntity(
         identifierNumber = identifierNumber,
         identifierType = identifierType,
         identifierCode = code,
-        PatientId = PatientId
+        patientId = patientId
     )
 }
 

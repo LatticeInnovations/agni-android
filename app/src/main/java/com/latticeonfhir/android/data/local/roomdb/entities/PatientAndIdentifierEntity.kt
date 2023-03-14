@@ -7,6 +7,6 @@ data class PatientAndIdentifierEntity(
     @Embedded val patientEntity: PatientEntity,
     @Relation(
         parentColumn = "id",
-        entityColumn = "PatientId"
+        entityColumn = "patientId"
     ) val identifiers: List<IdentifierEntity>
 )
