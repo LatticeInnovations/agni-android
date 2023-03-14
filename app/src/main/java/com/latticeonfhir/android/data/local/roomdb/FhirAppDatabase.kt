@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
@@ -23,6 +24,7 @@ abstract class FhirAppDatabase : RoomDatabase() {
 
     abstract fun getPatientDao(): PatientDao
     abstract fun getIdentifierDao(): IdentifierDao
+    abstract fun getGenericDao(): GenericDao
 
     companion object {
         @Volatile
@@ -46,7 +48,7 @@ abstract class FhirAppDatabase : RoomDatabase() {
             val factory = SupportFactory(passphrase)
 
             return Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android.db")
-                .openHelperFactory(factory)
+//                .openHelperFactory(factory)
                 .build()
         }
     }

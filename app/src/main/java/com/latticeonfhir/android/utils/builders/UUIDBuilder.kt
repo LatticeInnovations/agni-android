@@ -4,7 +4,7 @@ import java.util.UUID
 
 object UUIDBuilder {
 
-    fun getUUID(): String {
-        return "urn:uuid:${UUID.randomUUID()}"
+    fun generateUUID(): String {
+        return UUID.randomUUID().toString()
     }
 }

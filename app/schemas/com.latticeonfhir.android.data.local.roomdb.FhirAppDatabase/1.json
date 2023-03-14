@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1eb739207d3e21d2e6b4372e49d006d2",
+    "identityHash": "2d0b95f5cf1c51361ce22fb73fabb337",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -122,11 +122,17 @@
       },
       {
         "tableName": "GenericEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `payload` TEXT NOT NULL, `type` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `patientId` TEXT NOT NULL, `payload` TEXT NOT NULL, `type` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "patientId",
+            "columnName": "patientId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -149,12 +155,22 @@
             "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_GenericEntity_patientId",
+            "unique": false,
+            "columnNames": [
+              "patientId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_GenericEntity_patientId` ON `${TABLE_NAME}` (`patientId`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
         "tableName": "IdentifierEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifierNumber` TEXT NOT NULL, `identifierType` TEXT NOT NULL, `identifierCode` TEXT, `PatientId` TEXT NOT NULL, PRIMARY KEY(`identifierNumber`), FOREIGN KEY(`PatientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifierNumber` TEXT NOT NULL, `identifierType` TEXT NOT NULL, `identifierCode` TEXT, `patientId` TEXT NOT NULL, PRIMARY KEY(`identifierNumber`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "identifierNumber",
@@ -175,8 +191,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "PatientId",
-            "columnName": "PatientId",
+            "fieldPath": "patientId",
+            "columnName": "patientId",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -189,13 +205,13 @@
         },
         "indices": [
           {
-            "name": "index_IdentifierEntity_PatientId",
+            "name": "index_IdentifierEntity_patientId",
             "unique": false,
             "columnNames": [
-              "PatientId"
+              "patientId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_IdentifierEntity_PatientId` ON `${TABLE_NAME}` (`PatientId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_IdentifierEntity_patientId` ON `${TABLE_NAME}` (`patientId`)"
           }
         ],
         "foreignKeys": [
@@ -204,7 +220,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "PatientId"
+              "patientId"
             ],
             "referencedColumns": [
               "id"
@@ -216,7 +232,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1eb739207d3e21d2e6b4372e49d006d2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2d0b95f5cf1c51361ce22fb73fabb337')"
     ]
   }
 }
