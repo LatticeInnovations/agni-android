@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
@@ -116,27 +117,28 @@ fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IdSelectionChip(idSelected: Boolean, label: String, updateSelection: (Boolean) -> Unit) {
-    AssistChip(
+    FilterChip(
+        selected = idSelected,
         onClick = {
             updateSelection(idSelected)
         },
         label = { Text(text = label) },
-        colors = AssistChipDefaults.assistChipColors(
-            containerColor = if (idSelected)
-                MaterialTheme.colorScheme.secondaryContainer
-            else
-                MaterialTheme.colorScheme.background,
-            labelColor = if (idSelected)
-                MaterialTheme.colorScheme.surfaceTint
-            else
-                MaterialTheme.colorScheme.outline
+        colors = FilterChipDefaults.filterChipColors(
+            labelColor = MaterialTheme.colorScheme.outline,
+            selectedLabelColor = MaterialTheme.colorScheme.primary
+        ),
+        border = FilterChipDefaults.filterChipBorder(
+            selectedBorderColor = MaterialTheme.colorScheme.primary,
+            selectedBorderWidth = 1.dp
         ),
         leadingIcon = {
             if (idSelected)
                 Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.surfaceTint)
-        }
+        },
+        modifier = Modifier.testTag("$label chip")
     )
 }
 

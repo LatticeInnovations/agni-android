@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.main.ui.theme.FHIRAndroidTheme
@@ -43,7 +44,7 @@ class SearchPatient : AppCompatActivity() {
                                      IconButton(onClick = {
                                          searchPatientViewModel.step = 1
                                      }) {
-                                         Icon(Icons.Default.ArrowBack, contentDescription = null)
+                                         Icon(Icons.Default.ArrowBack, contentDescription = null, modifier = Modifier.testTag("back icon"))
                                      }
                                  }
                             },
@@ -57,7 +58,7 @@ class SearchPatient : AppCompatActivity() {
                                             )
                                         )
                                     }) {
-                                        Icon(Icons.Default.Clear, contentDescription = null)
+                                        Icon(Icons.Default.Clear, contentDescription = null, modifier = Modifier.testTag("clear icon"))
                                     }
                                 }
                             }

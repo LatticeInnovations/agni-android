@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.main.MainActivity
@@ -27,7 +28,7 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()).testTag("columnLayout")
                 .weight(1f)
         ) {
             ElevatedCard(
@@ -122,11 +123,13 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
                     },
                     title = {
                         Text(text = "Discard Changes ?",
-                            style = MaterialTheme.typography.titleMedium)
+                            style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.testTag("alert dialog title"))
                     },
                     text = {
                         Text("Are you sure you want to cancel preview and discard any changes you have made?",
-                        style = MaterialTheme.typography.bodyMedium)
+                        style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.testTag("alert dialog description"))
                     },
                     confirmButton = {
                         TextButton(
@@ -134,7 +137,8 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
                                 viewModel.openDialog = false
                                 context.startActivity(Intent(context, MainActivity::class.java))
                             }) {
-                            Text("Confirm")
+                            Text("Confirm",
+                                modifier = Modifier.testTag("alert dialog confirm btn"))
                         }
                     },
                     dismissButton = {
@@ -142,14 +146,18 @@ fun PatientRegistrationPreview (viewModel: PatientRegistrationViewModel){
                             onClick = {
                                 viewModel.openDialog = false
                             }) {
-                            Text("Cancel")
+                            Text("Cancel",
+                                modifier = Modifier.testTag("alert dialog cancel btn"))
                         }
                     }
                 )
             }
+            Spacer(modifier = Modifier.testTag("end of page"))
         }
         Button(
-            onClick = {},
+            onClick = {
+                context.startActivity(Intent(context, MainActivity::class.java))
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp)
@@ -205,7 +213,9 @@ fun EditButton(viewModel: PatientRegistrationViewModel, step: Int){
     Column (modifier = Modifier.fillMaxWidth()){
         TextButton(
             onClick = { viewModel.step = step },
-            modifier = Modifier.align(Alignment.End)
+            modifier = Modifier
+                .align(Alignment.End)
+                .testTag("edit btn $step")
         ) {
             Icon(
                 Icons.Outlined.Edit,
