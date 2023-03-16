@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -51,7 +52,8 @@ class MainActivity : BaseActivity() {
                                 IconButton(onClick = {}) {
                                     Icon(
                                         Icons.Default.Menu,
-                                        contentDescription = null
+                                        contentDescription = null,
+                                        modifier = Modifier.testTag("menu icon")
                                     )
                                 }
                             },
@@ -62,13 +64,14 @@ class MainActivity : BaseActivity() {
                                 IconButton(onClick = {
                                     context.startActivity(Intent(context, SearchPatient::class.java))
                                 }) {
-                                    Icon(Icons.Default.Search, contentDescription = null)
+                                    Icon(Icons.Default.Search, contentDescription = null,
+                                        modifier = Modifier.testTag("search icon"))
                                 }
                                 IconButton(onClick = { /*TODO*/ }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.icon),
                                         contentDescription = null,
-                                        Modifier.size(20.dp)
+                                        modifier = Modifier.size(20.dp).testTag("user icon")
                                     )
                                 }
                             },
@@ -93,14 +96,15 @@ class MainActivity : BaseActivity() {
                                     Icon(
                                         painter = painterResource(id = R.drawable.person_add),
                                         contentDescription = null,
-                                        modifier = Modifier.size(22.dp, 16.dp),
+                                        modifier = Modifier.size(22.dp, 16.dp).testTag("add patient icon"),
                                         tint = MaterialTheme.colorScheme.primary
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(
                                         text = "Add Patient",
                                         style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.testTag("add patient text")
                                     )
                                 }
                             },
@@ -172,7 +176,7 @@ class MainActivity : BaseActivity() {
                                     )
                                 }
                                 Column(
-                                    modifier = Modifier.verticalScroll(rememberScrollState())
+                                    modifier = Modifier.verticalScroll(rememberScrollState()).testTag("patients list")
                                 ) {
                                     PatientItemCard(
                                         name = "Chetan A S Ramanathan",

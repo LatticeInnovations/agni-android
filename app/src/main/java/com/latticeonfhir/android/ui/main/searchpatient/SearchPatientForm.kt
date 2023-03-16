@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -122,6 +123,7 @@ fun AgeBox(age: String, label: String, updateAge: (String) -> Unit) {
 @Composable
 fun AgeRangeSlider(viewModel: SearchPatientViewModel){
     RangeSlider(
+        modifier = Modifier.testTag("age range slider"),
         value = viewModel.range,
         onValueChange = {
             viewModel.range = it
@@ -201,7 +203,7 @@ fun VisitDropdown(viewModel: SearchPatientViewModel) {
             value = viewModel.visitSelected,
             onValueChange = {},
             readOnly = true,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag("last facility visit"),
             interactionSource = remember {
                 MutableInteractionSource()
             }.also { interactionSource ->

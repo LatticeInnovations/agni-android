@@ -9,10 +9,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
 
@@ -44,6 +46,7 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .weight(1f)
+                .testTag("columnLayout")
         ) {
             AddressComposable(label = "Home Address", address = viewModel.homeAddress, viewModel)
 
@@ -52,9 +55,11 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
             if (!viewModel.addWorkAddress) {
                 OutlinedButton(
                     onClick = { viewModel.addWorkAddress = true },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("add work address btn")
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
+                    Icon(Icons.Default.Add, contentDescription = "add work address icon")
                     Text(text = "Add a work address")
                 }
             }
@@ -66,6 +71,7 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
                     viewModel
                 )
             }
+            Spacer(modifier = Modifier.testTag("end of page"))
         }
 
         Button(
@@ -106,12 +112,20 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
 
 @Composable
 fun AddressComposable(label: String, address: Address, viewModel: PatientRegistrationViewModel) {
-    Text(
-        text = label,
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.fillMaxWidth()
-    )
+    Row(horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()){
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        if (label == "Work Address"){
+            IconButton(onClick = { viewModel.addWorkAddress = false }) {
+                Icon(Icons.Default.Clear, contentDescription = "disable work address")
+            }
+        }
+    }
     Row(
         modifier = Modifier.padding(top = 10.dp)
     ) {
@@ -142,7 +156,8 @@ fun AddressComposable(label: String, address: Address, viewModel: PatientRegistr
                     )
                 },
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .testTag("State"),
                 readOnly = true,
                 interactionSource = remember {
                     MutableInteractionSource()

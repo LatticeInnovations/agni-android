@@ -16,6 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -48,7 +49,7 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
         Spacer(modifier = Modifier.height(15.dp))
         Column(
             modifier = Modifier
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()).testTag("columnLayout")
                 .weight(1f)
         ) {
 
@@ -88,40 +89,13 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
             }
             ValueLength(viewModel.lastName)
             Row(modifier = Modifier.fillMaxWidth()) {
-                AssistChip(
-                    onClick = { viewModel.dobAgeSelector = "dob" },
-                    label = {
-                        Text(
-                            text = "Date of birth",
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    },
-                    colors = AssistChipDefaults.assistChipColors(
-                        containerColor = if (viewModel.dobAgeSelector == "dob")
-                            MaterialTheme.colorScheme.secondaryContainer
-                        else
-                            MaterialTheme.colorScheme.background,
-                        labelColor = if (viewModel.dobAgeSelector == "dob")
-                            MaterialTheme.colorScheme.surfaceTint
-                        else
-                            MaterialTheme.colorScheme.outline
-                    )
-                )
+                CustomFilterChip(viewModel.dobAgeSelector, "dob", "Date of Birth"){
+                    viewModel.dobAgeSelector = it
+                }
                 Spacer(modifier = Modifier.width(10.dp))
-                AssistChip(
-                    onClick = { viewModel.dobAgeSelector = "age" },
-                    label = { Text(text = "Age", style = MaterialTheme.typography.labelLarge) },
-                    colors = AssistChipDefaults.assistChipColors(
-                        containerColor = if (viewModel.dobAgeSelector == "age")
-                            MaterialTheme.colorScheme.secondaryContainer
-                        else
-                            MaterialTheme.colorScheme.background,
-                        labelColor = if (viewModel.dobAgeSelector == "age")
-                            MaterialTheme.colorScheme.surfaceTint
-                        else
-                            MaterialTheme.colorScheme.outline
-                    )
-                )
+                CustomFilterChip(viewModel.dobAgeSelector, "age", "Age"){
+                    viewModel.dobAgeSelector = it
+                }
             }
             if (viewModel.dobAgeSelector == "dob") {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -157,7 +131,8 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 10.dp),
+                .padding(top = 10.dp)
+                .testTag("step2"),
             enabled = viewModel.basicInfoValidation()
         ) {
             Text(text = "Next")
@@ -181,7 +156,9 @@ fun CustomTextField(
             if (it.length <= maxLength)
                 updateValue(it)
         },
-        modifier = Modifier.fillMaxWidth(weight),
+        modifier = Modifier
+            .fillMaxWidth(weight)
+            .testTag(label),
         label = {
             Text(
                 text = label,
@@ -191,7 +168,7 @@ fun CustomTextField(
         },
         singleLine = true,
         keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Next
+            imeAction = if(label == "Email") ImeAction.Done else ImeAction.Next
         ),
         isError = isError,
         supportingText = {
@@ -245,7 +222,9 @@ fun DobTextField(viewModel: PatientRegistrationViewModel) {
                 }
             }
         },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("dobInputField"),
         readOnly = true,
         trailingIcon = {
             Icon(Icons.Default.DateRange, contentDescription = null)
@@ -295,7 +274,9 @@ fun ContactTextField(viewModel: PatientRegistrationViewModel) {
                 if (it.length <= 10)
                     viewModel.phoneNumber = it
             },
-            modifier = Modifier.fillMaxWidth(1f),
+            modifier = Modifier
+                .fillMaxWidth(1f)
+                .testTag("Phone Number"),
             placeholder = {
                 Text(text = "Enter Phone Number")
             },
@@ -316,60 +297,45 @@ fun ContactTextField(viewModel: PatientRegistrationViewModel) {
 @Composable
 fun GenderComposable(viewModel: PatientRegistrationViewModel) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().testTag("genderRow"),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = "Gender", style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.width(20.dp))
-        AssistChip(
-            onClick = { viewModel.gender = "male" },
-            label = {
-                Text(text = "Male")
-            },
-            colors = AssistChipDefaults.assistChipColors(
-                containerColor = if (viewModel.gender == "male")
-                    MaterialTheme.colorScheme.secondaryContainer
-                else
-                    MaterialTheme.colorScheme.background,
-                labelColor = if (viewModel.gender == "male")
-                    MaterialTheme.colorScheme.surfaceTint
-                else
-                    MaterialTheme.colorScheme.outline
-            )
-        )
+        CustomFilterChip(viewModel.gender, "male", "Male"){
+            viewModel.gender = it
+        }
         Spacer(modifier = Modifier.width(15.dp))
-        AssistChip(
-            onClick = { viewModel.gender = "female" },
-            label = {
-                Text(text = "Female")
-            },
-            colors = AssistChipDefaults.assistChipColors(
-                containerColor = if (viewModel.gender == "female")
-                    MaterialTheme.colorScheme.secondaryContainer
-                else
-                    MaterialTheme.colorScheme.background,
-                labelColor = if (viewModel.gender == "female")
-                    MaterialTheme.colorScheme.surfaceTint
-                else
-                    MaterialTheme.colorScheme.outline
-            )
-        )
+        CustomFilterChip(viewModel.gender, "female", "Female"){
+            viewModel.gender = it
+        }
         Spacer(modifier = Modifier.width(15.dp))
-        AssistChip(
-            onClick = { viewModel.gender = "others" },
-            label = {
-                Text(text = "Others")
-            },
-            colors = AssistChipDefaults.assistChipColors(
-                containerColor = if (viewModel.gender == "others")
-                    MaterialTheme.colorScheme.secondaryContainer
-                else
-                    MaterialTheme.colorScheme.background,
-                labelColor = if (viewModel.gender == "others")
-                    MaterialTheme.colorScheme.surfaceTint
-                else
-                    MaterialTheme.colorScheme.outline
-            )
-        )
+        CustomFilterChip(viewModel.gender, "others", "Others"){
+            viewModel.gender = it
+        }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomFilterChip(selector: String, selected: String, label: String, updateSelected:(String)->Unit) {
+    FilterChip(
+        selected = selector == selected,
+        modifier = Modifier.testTag(selected),
+        onClick = { updateSelected(selected) },
+        label = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge
+            )
+        },
+        colors = FilterChipDefaults.filterChipColors(
+            labelColor = MaterialTheme.colorScheme.outline,
+            selectedLabelColor = MaterialTheme.colorScheme.primary
+        ),
+        border = FilterChipDefaults.filterChipBorder(
+            selectedBorderColor = MaterialTheme.colorScheme.primary,
+            selectedBorderWidth = 1.dp
+        )
+    )
 }

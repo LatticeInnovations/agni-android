@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.main.ui.theme.FHIRAndroidTheme
@@ -57,7 +58,7 @@ class PatientRegistration : ComponentActivity() {
                                     if (viewModel.step == 4) viewModel.openDialog = true
                                     else context.startActivity(Intent(context, MainActivity::class.java))
                                 }) {
-                                    Icon(Icons.Default.Clear, contentDescription = null)
+                                    Icon(Icons.Default.Clear, contentDescription = "clear icon")
                                 }
                             }
                         )
@@ -68,14 +69,12 @@ class PatientRegistration : ComponentActivity() {
                                 .fillMaxSize()
                                 .padding(it)
                         ) {
-                            if (viewModel.step == 1)
-                                PatientRegistrationStepOne(viewModel = viewModel)
-                            else if (viewModel.step == 2)
-                                PatientRegistrationStepTwo(viewModel = viewModel)
-                            else if (viewModel.step == 3)
-                                PatientRegistrationStepThree(viewModel = viewModel)
-                            else if (viewModel.step == 4)
-                                PatientRegistrationPreview(viewModel = viewModel)
+                            when (viewModel.step){
+                                1 -> PatientRegistrationStepOne(viewModel = viewModel)
+                                2 -> PatientRegistrationStepTwo(viewModel = viewModel)
+                                3 -> PatientRegistrationStepThree(viewModel = viewModel)
+                                4 -> PatientRegistrationPreview(viewModel = viewModel)
+                            }
                         }
                     }
                 )
