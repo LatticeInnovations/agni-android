@@ -2,5 +2,6 @@ package com.latticeonfhir.android.data.server.constants
 
 object EndPoints {
 
-    const val Patient = "Patient"
+    const val PATIENT = "Patient"
+    const val RELATED_PERSON = "RelatedPerson"
 }

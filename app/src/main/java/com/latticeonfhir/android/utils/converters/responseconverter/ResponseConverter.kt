@@ -6,9 +6,11 @@ import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PermanentAddressEntity
-import com.latticeonfhir.android.data.server.model.PatientAddressResponse
-import com.latticeonfhir.android.data.server.model.PatientIdentifier
-import com.latticeonfhir.android.data.server.model.PatientResponse
+import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
+import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
+import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import java.util.Date
 import java.util.UUID
@@ -99,5 +101,15 @@ fun PermanentAddressEntity.toPatientAddressResponse(): PatientAddressResponse {
         postalCode = postalCode,
         country = country,
         addressLine2 = addressLine2
+    )
+}
+
+fun RelationEntity.toReverseRelation(): RelationEntity {
+    return RelationEntity(
+        id = UUIDBuilder.generateUUID(),
+        toId = fromId,
+        fromId = toId,
+        toRelation = fromRelation,
+        fromRelation = toRelation
     )
 }

@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import dagger.Module
 import dagger.Provides
@@ -39,5 +40,11 @@ object DatabaseModule {
     @Provides
     fun provideGenericDao(fhirAppDatabase: FhirAppDatabase): GenericDao {
         return fhirAppDatabase.getGenericDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRelationDao(fhirAppDatabase: FhirAppDatabase): RelationDao {
+        return fhirAppDatabase.getRelationDao()
     }
 }

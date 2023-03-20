@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.model
+package com.latticeonfhir.android.data.server.model.patient
 
 import com.latticeonfhir.android.base.parcelclass.ParcelableClass
 import java.util.Date
