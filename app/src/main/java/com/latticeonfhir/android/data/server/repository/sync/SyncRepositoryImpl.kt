@@ -104,6 +104,30 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.PATIENT,
+            syncType = SyncType.PATCH
+        ).run {
+            if (this.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    apiService.patchListOfChanges(
+                        PATIENT,
+                        map { it.payload.fromJson<Map<String, Any>>() }
+                    )
+                ).apply {
+                    if (this is ApiSuccessResponse) {
+                        body
+                    }
+                    if (this is ApiErrorResponse) {
+                        errorMessage
+                    }
+                }
+            }
+        }
+    }
+
     override suspend fun sendRelatedPersonData(fhirId: String): ResponseMapper<List<CreateResponse>> {
         val list = mutableListOf<RelatedPersonRequest>()
         return genericDao.getSameTypeGenericEntityPayload(GenericTypeEnum.RELATION, SyncType.PATCH)
