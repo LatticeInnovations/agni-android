@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.model
+package com.latticeonfhir.android.data.server.model.create
 
 data class CreateResponse(
     val status: String,

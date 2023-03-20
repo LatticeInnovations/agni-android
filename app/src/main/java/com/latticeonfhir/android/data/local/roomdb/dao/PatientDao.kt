@@ -1,5 +1,7 @@
 package com.latticeonfhir.android.data.local.roomdb.dao
 
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -15,19 +17,15 @@ interface PatientDao {
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertListPatientData(list: List<PatientEntity>)
+    suspend fun insertPatientData(vararg patientEntity: PatientEntity): List<Long>
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertListOfIdentifiers(vararg listOfIdentifiers: IdentifierEntity)
-
-    @Transaction
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPatientData(patientEntity: PatientEntity): Long
+    suspend fun insertIdentifiers(vararg identifierEntity: IdentifierEntity): List<Long>
 
     @Transaction
     @Query("SELECT * FROM PatientEntity")
-    suspend fun getListPatientData(): List<PatientAndIdentifierEntity>
+    fun getListPatientData(): PagingSource<Int,PatientAndIdentifierEntity>
 
     @Transaction
     @Query("SELECT * FROM PatientEntity WHERE id=:PatientId")
@@ -39,5 +37,5 @@ interface PatientDao {
 
     @Transaction
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateListOfIdentifiers(vararg listOfIdentifiers: IdentifierEntity)
+    suspend fun updateIdentifiers(vararg listOfIdentifiers: IdentifierEntity)
 }

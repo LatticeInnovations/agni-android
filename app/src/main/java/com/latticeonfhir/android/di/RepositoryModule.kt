@@ -4,6 +4,8 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
+import com.latticeonfhir.android.data.local.repository.relation.RelationRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import dagger.Binds
@@ -27,4 +29,8 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideGenericRepository(genericRepositoryImpl: GenericRepositoryImpl): GenericRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideRelationRepository(relationRepositoryImpl: RelationRepositoryImpl): RelationRepository
 }

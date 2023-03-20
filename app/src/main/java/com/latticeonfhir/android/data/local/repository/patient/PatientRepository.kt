@@ -1,9 +1,13 @@
 package com.latticeonfhir.android.data.local.repository.patient
 
-import com.latticeonfhir.android.data.server.model.PatientResponse
+import androidx.lifecycle.LiveData
+import androidx.paging.PagingData
+import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 
 interface PatientRepository {
 
-    suspend fun getPatientList(): List<PatientResponse>
+    suspend fun addPatient(patientEntity: PatientEntity): List<Long>
+    suspend fun getPatientList(): LiveData<PagingData<PatientResponse>>
     suspend fun updatePatientData(patientResponse: PatientResponse): Int
 }

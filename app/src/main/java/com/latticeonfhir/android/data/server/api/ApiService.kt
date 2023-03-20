@@ -1,8 +1,9 @@
 package com.latticeonfhir.android.data.server.api
 
 import com.latticeonfhir.android.base.server.BaseResponse
-import com.latticeonfhir.android.data.server.model.CreateResponse
-import com.latticeonfhir.android.data.server.model.PatientResponse
+import com.latticeonfhir.android.data.server.model.create.CreateResponse
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -15,14 +16,14 @@ import java.util.Objects
 interface ApiService {
 
     @GET("{endPoint}")
-    suspend fun getListPatientData(@Path("endPoint") endPoint: String, @QueryMap map: Map<String,String>?): Response<BaseResponse<List<PatientResponse>>>
+    suspend fun getListData(@Path("endPoint") endPoint: String, @QueryMap map: Map<String,String>?): Response<BaseResponse<List<PatientResponse>>>
 
     @POST("{endPoint}")
-    suspend fun createPatientData(@Path("endPoint") endPoint: String, @Body patientResponses: List<PatientResponse>): Response<BaseResponse<List<CreateResponse>>>
+    suspend fun <T> createData(@Path("endPoint") endPoint: String, @Body patientResponses: List<T>): Response<BaseResponse<List<CreateResponse>>>
 
     @PATCH("{endPoint}/{id}")
-    suspend fun patchSinglePatientChanges(@Path("endPoint") endPoint: String, @Path("id") id: String, patchLogs: Map<String,Objects>): Response<BaseResponse<PatientResponse>>
+    suspend fun <T> patchSingleChanges(@Path("endPoint") endPoint: String, @Path("id") id: String, patchLogs: Map<String,T>): Response<BaseResponse<PatientResponse>>
 
     @PATCH("sync/{endPoint}")
-    suspend fun patchListOfPatientChanges(@Path("endPoint") endPoint: String, patchLogs: List<Map<String,Objects>>): Response<BaseResponse<List<CreateResponse>>>
+    suspend fun <T> patchListOfChanges(@Path("endPoint") endPoint: String, patchLogs: List<T>): Response<BaseResponse<List<CreateResponse>>>
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2d0b95f5cf1c51361ce22fb73fabb337",
+    "identityHash": "b677659e46a33057781730faab1726f4",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -227,12 +227,73 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "RelationEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `fromId` TEXT NOT NULL, `toId` TEXT NOT NULL, `relation` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`fromId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fromId",
+            "columnName": "fromId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "toId",
+            "columnName": "toId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "relation",
+            "columnName": "relation",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_RelationEntity_fromId_toId",
+            "unique": false,
+            "columnNames": [
+              "fromId",
+              "toId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_RelationEntity_fromId_toId` ON `${TABLE_NAME}` (`fromId`, `toId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "PatientEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "fromId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2d0b95f5cf1c51361ce22fb73fabb337')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b677659e46a33057781730faab1726f4')"
     ]
   }
 }

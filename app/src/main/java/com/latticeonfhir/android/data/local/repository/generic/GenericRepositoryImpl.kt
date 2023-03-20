@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
+import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.ChangeRequest
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
@@ -12,27 +13,75 @@ import javax.inject.Inject
 class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) :
     GenericRepository {
 
-    override suspend fun insertGenericEntity(
+    override suspend fun insertPostObjectEntity(
+        patientId: String,
+        payload: String,
+        typeEnum: GenericTypeEnum
+    ): Long {
+        return genericDao.getGenericEntityById(patientId, typeEnum, SyncType.POST).run {
+            if (this != null) {
+                genericDao.insertGenericEntity(copy(payload = payload))
+            } else {
+                genericDao.insertGenericEntity(
+                    GenericEntity(
+                        UUIDBuilder.generateUUID(), patientId, payload, typeEnum, SyncType.POST
+                    )
+                )
+            }
+        }
+
+    }
+
+    override suspend fun insertOrUpdateGenericObjectEntity(
         patientId: String,
         map: Map<String, ChangeRequest>,
         typeEnum: GenericTypeEnum
     ): Long {
-        return genericDao.getGenericEntityById(patientId, typeEnum).run {
+        return genericDao.getGenericEntityById(patientId, typeEnum, SyncType.PATCH).run {
             if (this != null) {
-                val existingMap = this.payload.fromJson<MutableMap<String, ChangeRequest>>()
+                val existingMap = payload.fromJson<MutableMap<String, ChangeRequest>>()
                 map.entries.forEach {
                     existingMap[it.key] = it.value
                 }
-                genericDao.insertChangeRequest(
-                    this.copy(payload = existingMap.toJson())
+                genericDao.insertGenericEntity(
+                    copy(payload = existingMap.toJson())
                 )
             } else {
-                genericDao.insertChangeRequest(
+                genericDao.insertGenericEntity(
                     GenericEntity(
                         id = UUIDBuilder.generateUUID(),
                         patientId = patientId,
                         payload = map.toJson(),
-                        type = typeEnum
+                        type = typeEnum,
+                        syncType = SyncType.PATCH
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun insertOrUpdateGenericArrayEntity(
+        patientId: String,
+        map: Map<String, List<ChangeRequest>>,
+        typeEnum: GenericTypeEnum
+    ): Long {
+        return genericDao.getGenericEntityById(patientId, typeEnum, SyncType.PATCH).run {
+            if (this != null) {
+                val existingMap = payload.fromJson<Map<String, MutableList<ChangeRequest>>>()
+                existingMap.keys.forEach { key ->
+                    map[key]?.let { value -> existingMap[key]?.addAll(value) }
+                }
+                genericDao.insertGenericEntity(
+                    copy(payload = existingMap.toJson())
+                )
+            } else {
+                genericDao.insertGenericEntity(
+                    GenericEntity(
+                        id = UUIDBuilder.generateUUID(),
+                        patientId = patientId,
+                        payload = map.toJson(),
+                        type = typeEnum,
+                        syncType = SyncType.PATCH
                     )
                 )
             }

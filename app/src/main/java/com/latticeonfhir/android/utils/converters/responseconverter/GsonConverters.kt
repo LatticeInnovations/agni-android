@@ -10,7 +10,7 @@ object GsonConverters {
         return FhirApp.gson.toJson(this,type)
     }
 
-    inline fun <reified T> String.fromJson(): T {
+    fun <T> String.fromJson(): T {
         val type = object : TypeToken<T>() {}.type
         return FhirApp.gson.fromJson(this,type)
     }
