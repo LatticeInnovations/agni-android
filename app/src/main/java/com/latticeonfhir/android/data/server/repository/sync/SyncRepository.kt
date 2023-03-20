@@ -11,6 +11,7 @@ interface SyncRepository {
     suspend fun getAndInsertListPatientData(): ResponseMapper<List<PatientResponse>>
     suspend fun getAndInsertPatientDataById(id: String): ResponseMapper<List<PatientResponse>>
     suspend fun sendPersonPostData():  ResponseMapper<List<CreateResponse>>
+    suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>>
 
     //Related-Person
     suspend fun sendRelatedPersonData(fhirId: String): ResponseMapper<List<CreateResponse>>
