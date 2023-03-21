@@ -10,4 +10,5 @@ interface PatientRepository {
     suspend fun addPatient(patientEntity: PatientEntity): List<Long>
     suspend fun getPatientList(): LiveData<PagingData<PatientResponse>>
     suspend fun updatePatientData(patientResponse: PatientResponse): Int
+    suspend fun getPatientById(patientId: String): PatientResponse
 }

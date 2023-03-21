@@ -3,7 +3,6 @@ package com.latticeonfhir.android.data.server.api
 import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -11,7 +10,6 @@ import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.QueryMap
-import java.util.Objects
 
 interface ApiService {
 

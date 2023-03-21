@@ -28,8 +28,8 @@ interface PatientDao {
     fun getListPatientData(): PagingSource<Int,PatientAndIdentifierEntity>
 
     @Transaction
-    @Query("SELECT * FROM PatientEntity WHERE id=:PatientId")
-    suspend fun getPatientDataById(PatientId: String): PatientAndIdentifierEntity
+    @Query("SELECT * FROM PatientEntity WHERE id=:patientId")
+    suspend fun getPatientDataById(patientId: String): PatientAndIdentifierEntity
 
     @Transaction
     @Update(onConflict = OnConflictStrategy.REPLACE)

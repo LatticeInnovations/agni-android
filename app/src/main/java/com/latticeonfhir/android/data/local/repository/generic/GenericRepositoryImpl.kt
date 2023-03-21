@@ -15,21 +15,24 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
 
     override suspend fun insertPostObjectEntity(
         patientId: String,
-        payload: String,
+        entity: Any,
         typeEnum: GenericTypeEnum
     ): Long {
         return genericDao.getGenericEntityById(patientId, typeEnum, SyncType.POST).run {
             if (this != null) {
-                genericDao.insertGenericEntity(copy(payload = payload))
+                genericDao.insertGenericEntity(copy(payload = entity.toJson()))
             } else {
                 genericDao.insertGenericEntity(
                     GenericEntity(
-                        UUIDBuilder.generateUUID(), patientId, payload, typeEnum, SyncType.POST
+                        UUIDBuilder.generateUUID(),
+                        patientId,
+                        entity.toJson(),
+                        typeEnum,
+                        SyncType.POST
                     )
                 )
             }
         }
-
     }
 
     override suspend fun insertOrUpdateGenericObjectEntity(
