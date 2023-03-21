@@ -1,28 +1,13 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
-import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PermanentAddressEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import java.util.Date
-import java.util.UUID
-
-fun PatientResponse.toGenericEntity(): GenericEntity {
-    return GenericEntity(
-        id = identifier?.get(0)?.identifierNumber ?: UUID.randomUUID().toString(),
-        patientId = this.id,
-        payload = this.toJson(),
-        type = GenericTypeEnum.PATIENT
-    )
-}
 
 fun PatientResponse.toPatientEntity(): PatientEntity {
     return PatientEntity(
@@ -104,12 +89,12 @@ fun PermanentAddressEntity.toPatientAddressResponse(): PatientAddressResponse {
     )
 }
 
-fun RelationEntity.toReverseRelation(): RelationEntity {
-    return RelationEntity(
-        id = UUIDBuilder.generateUUID(),
-        toId = fromId,
-        fromId = toId,
-        toRelation = fromRelation,
-        fromRelation = toRelation
-    )
-}
+//fun RelationEntity.toReverseRelation(): RelationEntity {
+//    return RelationEntity(
+//        id = UUIDBuilder.generateUUID(),
+//        toId = fromId,
+//        fromId = toId,
+//        relation = fromRelation,
+//        fromRelation = toRelation
+//    )
+//}
