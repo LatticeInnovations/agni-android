@@ -1,25 +1,20 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
-import com.google.gson.internal.LinkedTreeMap
-import com.latticeonfhir.android.FhirApp
-import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.ChangeRequest
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
-import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.utils.builders.GenericEntity.processPatch
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
-import timber.log.Timber
 import javax.inject.Inject
 
 class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) :
     GenericRepository {
 
-    override suspend fun insertPostObjectEntity(
+    override suspend fun insertOrUpdatePostEntity(
         patientId: String,
         entity: Any,
         typeEnum: GenericTypeEnum
@@ -51,13 +46,11 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                 val existingMap = payload.fromJson<MutableMap<String, Any>>()
                 map.entries.forEach { mapEntry ->
                     if ((mapEntry.value is List<*>)) {
-                        (mapEntry.value as List<ChangeRequest>).forEach { entryValue ->
-                            existingMap[mapEntry.key] = processPatch(
-                                existingMap,
-                                mapEntry,
-                                entryValue
-                            )
-                        }
+                        existingMap[mapEntry.key] = processPatch(
+                            existingMap,
+                            mapEntry,
+                            (mapEntry.value as List<ChangeRequest>)
+                        )
                     } else {
                         existingMap[mapEntry.key] = mapEntry.value
                     }
