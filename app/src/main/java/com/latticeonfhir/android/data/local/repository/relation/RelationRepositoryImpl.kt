@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.data.local.repository.relation
 
+import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
 import javax.inject.Inject
@@ -12,9 +13,17 @@ class RelationRepositoryImpl @Inject constructor(private val relationDao: Relati
         )
     }
 
-    override suspend fun listOfRelation(listOfRelations: List<RelationEntity>): List<Long> {
+    override suspend fun addListOfRelation(listOfRelations: List<RelationEntity>): List<Long> {
         return relationDao.insertRelation(
             *listOfRelations.toTypedArray()
         )
+    }
+
+    override suspend fun getRelationBetween(fromId: String, toId: String): RelationEnum {
+        return relationDao.getRelation(fromId,toId)
+    }
+
+    override suspend fun getAllRelationOfPatient(patientId: String): List<RelationEntity> {
+        return relationDao.getAllRelationOfPatient(patientId)
     }
 }
