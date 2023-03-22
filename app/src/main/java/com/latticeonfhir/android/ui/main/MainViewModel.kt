@@ -5,17 +5,15 @@ import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.ChangeRequest
-import com.latticeonfhir.android.data.local.model.IdentifierPatchRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -30,6 +28,7 @@ class MainViewModel @Inject constructor(
         val list = mutableListOf<ChangeRequest>()
         list.add(
             ChangeRequest(
+                key = "http://hospital.smarthealthit.org",
                 "add", PatientIdentifier(
                     identifierType = "http://hospital.smarthealthit.org",
                     identifierNumber = "22483974-herh8478374-fhdj7866",
@@ -40,7 +39,9 @@ class MainViewModel @Inject constructor(
 
         list.add(
             ChangeRequest(
-                "add", PatientIdentifier(
+                key = "https://www.pan.utiitsl.com",
+                operation = "add",
+                PatientIdentifier(
                     identifierType = "https://www.pan.utiitsl.com",
                     identifierNumber = "SATIH3787N",
                     code = null
@@ -80,7 +81,9 @@ class MainViewModel @Inject constructor(
             val list = mutableListOf<ChangeRequest>()
             list.add(
                 ChangeRequest(
-                    "replace", PatientIdentifier(
+                    key = "http://hospital.smarthealthit.org",
+                    operation = "replace",
+                    PatientIdentifier(
                         identifierType = "http://hospital.smarthealthit.org",
                         identifierNumber = "22483974-herh8478374-fhdj7867",
                         code = "MR"

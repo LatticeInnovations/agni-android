@@ -3,7 +3,6 @@ package com.latticeonfhir.android.data.server.repository.sync
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.IdentifierCodeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
-import com.latticeonfhir.android.data.local.model.ChangeRequest
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.api.ApiService
@@ -12,7 +11,7 @@ import com.latticeonfhir.android.data.server.constants.EndPoints.RELATED_PERSON
 import com.latticeonfhir.android.data.server.constants.QueryParameters.ID
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRequest
+import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
@@ -22,6 +21,9 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiError
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiSuccessResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SyncRepositoryImpl @Inject constructor(
@@ -104,12 +106,34 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun sendRelatedPersonPostData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.RELATION,
+            syncType = SyncType.POST
+        ).run {
+            if (this.isEmpty()) ApiEmptyResponse()
+            else ApiResponseConverter.convert(
+                apiService.createData(
+                    PATIENT,
+                    map { it.payload.fromJson<RelatedPersonResponse>() }
+                )
+            ).apply {
+                if (this is ApiSuccessResponse) {
+                    body
+                }
+                if (this is ApiErrorResponse) {
+                    errorMessage
+                }
+            }
+        }
+    }
+
     override suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
             genericTypeEnum = GenericTypeEnum.PATIENT,
             syncType = SyncType.PATCH
         ).run {
-            if (this.isEmpty()) ApiEmptyResponse()
+            if (isEmpty()) ApiEmptyResponse()
             else {
                 ApiResponseConverter.convert(
                     apiService.patchListOfChanges(
@@ -118,6 +142,9 @@ class SyncRepositoryImpl @Inject constructor(
                     )
                 ).apply {
                     if (this is ApiSuccessResponse) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            sendPersonPatchData()
+                        }
                         body
                     }
                     if (this is ApiErrorResponse) {
@@ -128,32 +155,25 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendRelatedPersonData(fhirId: String): ResponseMapper<List<CreateResponse>> {
-        val list = mutableListOf<RelatedPersonRequest>()
+    override suspend fun sendRelatedPersonPatchData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(GenericTypeEnum.RELATION, SyncType.PATCH)
-            .let { relatedRequestList ->
-                if (relatedRequestList.isEmpty()) ApiEmptyResponse()
+            .run {
+                if (isEmpty()) ApiEmptyResponse()
                 else {
-                    relatedRequestList.forEach { genericEntity ->
-                        val map = mutableMapOf<String, Any>()
-                        map["id"] = genericEntity.id
-                        map.putAll(genericEntity.payload.fromJson<Map<String, List<ChangeRequest>>>())
-                        list.add(
-                            RelatedPersonRequest(
-                                map
-                            )
-                        )
-                    }
                     ApiResponseConverter.convert(
                         apiService.patchListOfChanges(
                             RELATED_PERSON,
-                            list
+                            map { it.payload.fromJson<Map<String, Any>>() }
                         )
-                    ).run {
+                    ).apply {
                         if (this is ApiSuccessResponse) {
-                            ApiSuccessResponse(body)
-                        } else {
-                            ApiEmptyResponse()
+                            CoroutineScope(Dispatchers.IO).launch {
+                                sendRelatedPersonPatchData()
+                            }
+                            body
+                        }
+                        if (this is ApiErrorResponse) {
+                            errorMessage
                         }
                     }
                 }
