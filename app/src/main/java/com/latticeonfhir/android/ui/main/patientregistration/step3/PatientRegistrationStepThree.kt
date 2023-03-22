@@ -20,6 +20,7 @@ import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.main.common.CustomTextField
 import com.latticeonfhir.android.ui.main.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.main.patientregistration.step3.Address
 

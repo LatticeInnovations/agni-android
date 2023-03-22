@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.main.common.PatientItemCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -247,38 +248,4 @@ fun LandingScreen(navController: NavController) {
             }
         }
     )
-}
-
-
-@Composable
-fun PatientItemCard(name: String, patientId: String, metaData: String){
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(15.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(8f)) {
-            Text(
-                text = name,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = patientId,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1
-            )
-        }
-        Spacer(modifier = Modifier.width(5.dp))
-        Text(
-            text = metaData,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.labelSmall,
-            maxLines = 1
-        )
-    }
 }

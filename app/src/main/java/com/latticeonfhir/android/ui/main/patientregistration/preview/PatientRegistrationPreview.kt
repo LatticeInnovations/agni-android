@@ -32,8 +32,8 @@ fun PatientRegistrationPreview(
     val patientRegisterDetails = navController.previousBackStackEntry?.savedStateHandle?.get<PatientRegister>(
         key = "patient_register_details"
     )
-    patientRegisterDetails!!
-        .run {
+    patientRegisterDetails
+        ?.run {
             viewModel.firstName = firstName.toString()
             viewModel.middleName = middleName.toString()
             viewModel.lastName = lastName.toString()
@@ -106,7 +106,9 @@ fun PatientRegistrationPreview(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                PreviewScreen(navController, viewModel, patientRegisterDetails)
+                if (patientRegisterDetails != null) {
+                    PreviewScreen(navController, viewModel, patientRegisterDetails)
+                }
             }
         }
     )

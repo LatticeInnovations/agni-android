@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
 import java.time.LocalDate
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.ui.main.common.CustomFilterChip
+import com.latticeonfhir.android.ui.main.common.CustomTextField
 import com.latticeonfhir.android.ui.main.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.main.patientregistration.step1.PatientRegistrationStepOneViewModel
 
@@ -175,43 +177,6 @@ fun PatientRegistrationStepOne(patientRegister: PatientRegister, viewModel: Pati
 }
 
 @Composable
-fun CustomTextField(
-    value: String,
-    label: String,
-    weight: Float,
-    maxLength: Int,
-    isError: Boolean,
-    error: String,
-    updateValue: (String) -> Unit
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = {
-            if (it.length <= maxLength)
-                updateValue(it)
-        },
-        modifier = Modifier
-            .fillMaxWidth(weight)
-            .testTag(label),
-        label = {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            imeAction = if(label == "Email") ImeAction.Done else ImeAction.Next
-        ),
-        isError = isError,
-        supportingText = {
-            if (isError) Text(text = error, style = MaterialTheme.typography.bodySmall)
-        }
-    )
-}
-
-@Composable
 fun ValueLength(value: String) {
     Text(
         modifier = Modifier
@@ -352,31 +317,3 @@ fun GenderComposable(viewModel: PatientRegistrationStepOneViewModel) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomFilterChip(
-    selector: String,
-    selected: String,
-    label: String,
-    updateSelected: (String) -> Unit
-) {
-    FilterChip(
-        selected = selector == selected,
-        modifier = Modifier.testTag(selected),
-        onClick = { updateSelected(selected) },
-        label = {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge
-            )
-        },
-        colors = FilterChipDefaults.filterChipColors(
-            labelColor = MaterialTheme.colorScheme.outline,
-            selectedLabelColor = MaterialTheme.colorScheme.primary
-        ),
-        border = FilterChipDefaults.filterChipBorder(
-            selectedBorderColor = MaterialTheme.colorScheme.primary,
-            selectedBorderWidth = 1.dp
-        )
-    )
-}

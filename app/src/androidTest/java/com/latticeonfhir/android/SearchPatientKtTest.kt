@@ -3,6 +3,7 @@ package com.latticeonfhir.android
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.main.searchpatient.SearchPatient
 import org.junit.Rule
 import org.junit.Test
@@ -11,7 +12,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SearchPatientKtTest {
     @get: Rule
-    val composeTestRule = createAndroidComposeRule<SearchPatient>()
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    val searchIcon = hasTestTag("search icon")
 
     // Placeholders
     val title = hasText("Search Patient")
@@ -28,9 +31,9 @@ class SearchPatientKtTest {
     val patientId = hasTestTag("Patient Id") and hasClickAction()
 
     // Selection Chips
-    val femaleChip = hasText("Female") and hasClickAction()
-    val maleChip = hasText("Male") and hasClickAction()
-    val othersChip = hasText("Others") and hasClickAction()
+    val femaleChip = hasTestTag("female") and hasClickAction()
+    val maleChip = hasTestTag("male") and hasClickAction()
+    val othersChip = hasTestTag("others") and hasClickAction()
 
     // Button
     val nextBtn = hasText("Next")
@@ -44,9 +47,14 @@ class SearchPatientKtTest {
     // dropdown
     val lastFacilityVisit = hasTestTag("last facility visit") and hasClickAction()
 
+    fun navigate_to_search_patient(){
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+    }
+
     // tests for search patient form
     @Test
     fun searchPatientForm_verify_if_all_views_exist() {
+        navigate_to_search_patient()
         composeTestRule.onNode(title).assertExists("Title should be \"Search Patient\".")
         composeTestRule.onNode(clearIcon, useUnmergedTree = true).assertExists()
         composeTestRule.onNode(backIcon, useUnmergedTree = true).assertDoesNotExist()
@@ -65,6 +73,7 @@ class SearchPatientKtTest {
 
     @Test
     fun searchPatientForm_verify_last_facility_visit_dropdown() {
+        navigate_to_search_patient()
         composeTestRule.onNode(lastFacilityVisit).performClick()
         composeTestRule.onAllNodesWithText("Last week")[1].assertExists("Last week option should be displayed.")
         composeTestRule.onNodeWithText("Last month").assertExists("Last month option should be displayed.")
@@ -74,12 +83,14 @@ class SearchPatientKtTest {
 
     @Test
     fun searchPatientForm_verify_next_button_click() {
+        navigate_to_search_patient()
         composeTestRule.onNode(nextBtn).performClick()
         composeTestRule.onNode(backIcon, useUnmergedTree = true).assertExists("Search Result screen should be displayed.")
     }
 
     @Test
     fun searchPatientForm_verify_clear_icon_click() {
+        navigate_to_search_patient()
         composeTestRule.onNode(clearIcon, useUnmergedTree = true).performClick()
         composeTestRule.onNodeWithText("My Patients").assertExists("My Patients screen should be displayed.")
     }
@@ -87,6 +98,7 @@ class SearchPatientKtTest {
     // tests for search patient result
     @Test
     fun searchPatientResult_verify_all_views_exists() {
+        navigate_to_search_patient()
         composeTestRule.onNode(nextBtn).performClick()
         composeTestRule.onNode(title).assertExists("Title should be \"Search Patient\".")
         composeTestRule.onNode(backIcon, useUnmergedTree = true).assertExists("Back Icon should be displayed.")

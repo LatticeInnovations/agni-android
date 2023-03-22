@@ -3,6 +3,7 @@ package com.latticeonfhir.android
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistration
 import org.junit.Rule
 import org.junit.Test
@@ -11,7 +12,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PatientRegistrationKtTest {
     @get: Rule
-    val composeTestRule = createAndroidComposeRule<PatientRegistration>()
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    val addPatientText = hasTestTag("add patient text")
 
     // Placeholders
     val title = hasText("Patient Registration")
@@ -66,9 +69,14 @@ class PatientRegistrationKtTest {
     val alertDialogConfirmBtn = hasTestTag("alert dialog confirm btn")
     val alertDialogCancelBtn = hasTestTag("alert dialog cancel btn")
 
+    fun navigate_to_patient_registration(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+    }
+
     // Patient Registration Step 1 Tests
     @Test
     fun patientRegistrationStepOne_verify_if_all_views_exists() {
+        navigate_to_patient_registration()
         composeTestRule.onNode(title).assertExists("Title should be \"Patient Registration\".")
         composeTestRule.onNode(clearIcon, useUnmergedTree = true).assertExists("Clear icon  should be displayed.")
         composeTestRule.onNode(backBtn, useUnmergedTree = true).assertDoesNotExist()
@@ -91,6 +99,7 @@ class PatientRegistrationKtTest {
 
     @Test
     fun patientRegistrationStepOne_dob_selected() {
+        navigate_to_patient_registration()
         composeTestRule.onNode(dobChip).performClick()
         composeTestRule.onNode(dobChip).assertIsSelected()
         composeTestRule.onNode(ageChip).assertIsNotSelected()
@@ -102,6 +111,7 @@ class PatientRegistrationKtTest {
 
     @Test
     fun patientRegistrationStepOne_age_selected() {
+        navigate_to_patient_registration()
         composeTestRule.onNode(ageChip).performClick()
         composeTestRule.onNode(ageChip).assertIsSelected()
         composeTestRule.onNode(dobChip).assertIsNotSelected()
@@ -113,6 +123,7 @@ class PatientRegistrationKtTest {
 
     @Test
     fun patientRegistrationStepOne_next_btn_enabled_on_valid_inputs() {
+        navigate_to_patient_registration()
         composeTestRule.onNode(firstName).performTextInput("mansi")
         composeTestRule.onNode(firstName).performImeAction()
         composeTestRule.onNode(middleName).performImeAction()
@@ -134,6 +145,7 @@ class PatientRegistrationKtTest {
 
     @Test
     fun patientRegistrationStepOne_next_btn_disabled_on_invalid_firstName() {
+        navigate_to_patient_registration()
         composeTestRule.onNode(firstName).performTextInput("ma")
         composeTestRule.onNode(firstName).performImeAction()
         composeTestRule.onNode(middleName).performImeAction()
@@ -154,6 +166,7 @@ class PatientRegistrationKtTest {
 
     @Test
     fun patientRegistrationStepOne_next_btn_disabled_on_invalid_phoneNo() {
+        navigate_to_patient_registration()
         composeTestRule.onNode(firstName).performTextInput("mansi")
         composeTestRule.onNode(firstName).performImeAction()
         composeTestRule.onNode(middleName).performImeAction()
@@ -175,6 +188,7 @@ class PatientRegistrationKtTest {
 
     @Test
     fun patientRegistrationStepOne_next_btn_disabled_on_invalid_email() {
+        navigate_to_patient_registration()
         composeTestRule.onNode(firstName).performTextInput("mansi")
         composeTestRule.onNode(firstName).performImeAction()
         composeTestRule.onNode(middleName).performImeAction()
@@ -203,6 +217,7 @@ class PatientRegistrationKtTest {
 
     @Test
     fun patientRegistrationStepOne_verify_clear_icon_click() {
+        navigate_to_patient_registration()
         composeTestRule.onNode(clearIcon, true).performClick()
         composeTestRule.onNodeWithText("My Patients").assertExists("Should be navigated to My Patients screen.")
     }
