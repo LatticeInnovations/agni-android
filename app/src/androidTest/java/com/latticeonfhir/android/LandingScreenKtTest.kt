@@ -9,7 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class MainActivityKtTest {
+class LandingScreenKtTest {
     @get: Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
@@ -32,7 +32,7 @@ class MainActivityKtTest {
     val patientList = hasTestTag("patients list") and hasScrollAction()
 
     @Test
-    fun mainActivity_verify_if_all_views_exist() {
+    fun landingScreen_verify_if_all_views_exist() {
         composeTestRule.onNode(title).assertExists(errorMessageOnFail = "Title should be \"My Patients\".")
         composeTestRule.onNode(menuIcon, useUnmergedTree = true).assertExists(errorMessageOnFail = "Menu Icon should be displayed.")
         composeTestRule.onNode(searchIcon, useUnmergedTree = true).assertExists(errorMessageOnFail = "Search Icon should be displayed.")
@@ -46,13 +46,13 @@ class MainActivityKtTest {
     }
 
     @Test
-    fun mainActivity_verify_search_icon_click(){
+    fun landingScreen_verify_search_icon_click(){
         composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
         composeTestRule.onNodeWithText("Search Patient").assertExists(errorMessageOnFail = "Search Patient screen should be displayed.")
     }
 
     @Test
-    fun mainActivity_verify_add_patient_button_click(){
+    fun landingScreen_verify_add_patient_button_click(){
         composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
         composeTestRule.onNodeWithText("Patient Registration").assertExists(errorMessageOnFail = "Patient Registration screen should be displayed.")
     }

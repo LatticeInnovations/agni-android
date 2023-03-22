@@ -6,12 +6,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import com.latticeonfhir.android.PatientItemCard
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.latticeonfhir.android.ui.main.common.PatientItemCard
 
 @Composable
-fun SearchPatientResult(searchPatientViewModel: SearchPatientViewModel) {
+fun SearchPatientResult(searchPatientViewModel: SearchPatientViewModel = viewModel()) {
     Column(
-        modifier = Modifier.verticalScroll(rememberScrollState()).testTag("search result list")
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .testTag("search result list")
     ) {
         PatientItemCard(
             name = "Chetan A S Ramanathan",

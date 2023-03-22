@@ -16,7 +16,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.ui.main.patientregistration.CustomTextField
+import com.latticeonfhir.android.ui.main.common.CustomFilterChip
+import com.latticeonfhir.android.ui.main.common.CustomTextField
 
 @Composable
 fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
@@ -142,56 +143,29 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
     ) {
         Text(text = "Gender", style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.width(20.dp))
-        AssistChip(
-            onClick = { viewModel.gender = "male" },
-            label = {
-                Text(text = "Male")
-            },
-            colors = AssistChipDefaults.assistChipColors(
-                containerColor = if (viewModel.gender == "male")
-                    MaterialTheme.colorScheme.secondaryContainer
-                else
-                    MaterialTheme.colorScheme.background,
-                labelColor = if (viewModel.gender == "male")
-                    MaterialTheme.colorScheme.surfaceTint
-                else
-                    MaterialTheme.colorScheme.outline
-            )
-        )
+        CustomFilterChip(
+            selector = viewModel.gender,
+            selected = "male",
+            label = "Male"
+        ){
+            viewModel.gender = it
+        }
         Spacer(modifier = Modifier.width(15.dp))
-        AssistChip(
-            onClick = { viewModel.gender = "female" },
-            label = {
-                Text(text = "Female")
-            },
-            colors = AssistChipDefaults.assistChipColors(
-                containerColor = if (viewModel.gender == "female")
-                    MaterialTheme.colorScheme.secondaryContainer
-                else
-                    MaterialTheme.colorScheme.background,
-                labelColor = if (viewModel.gender == "female")
-                    MaterialTheme.colorScheme.surfaceTint
-                else
-                    MaterialTheme.colorScheme.outline
-            )
-        )
+        CustomFilterChip(
+            selector = viewModel.gender,
+            selected = "female",
+            label = "Female"
+        ){
+            viewModel.gender = it
+        }
         Spacer(modifier = Modifier.width(15.dp))
-        AssistChip(
-            onClick = { viewModel.gender = "others" },
-            label = {
-                Text(text = "Others")
-            },
-            colors = AssistChipDefaults.assistChipColors(
-                containerColor = if (viewModel.gender == "others")
-                    MaterialTheme.colorScheme.secondaryContainer
-                else
-                    MaterialTheme.colorScheme.background,
-                labelColor = if (viewModel.gender == "others")
-                    MaterialTheme.colorScheme.surfaceTint
-                else
-                    MaterialTheme.colorScheme.outline
-            )
-        )
+        CustomFilterChip(
+            selector = viewModel.gender,
+            selected = "others",
+            label = "Others"
+        ){
+            viewModel.gender = it
+        }
     }
 }
 
@@ -203,7 +177,9 @@ fun VisitDropdown(viewModel: SearchPatientViewModel) {
             value = viewModel.visitSelected,
             onValueChange = {},
             readOnly = true,
-            modifier = Modifier.fillMaxWidth().testTag("last facility visit"),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("last facility visit"),
             interactionSource = remember {
                 MutableInteractionSource()
             }.also { interactionSource ->
