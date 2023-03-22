@@ -1,17 +1,18 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
+import com.google.gson.internal.LinkedTreeMap
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.ChangeRequest
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
+import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import javax.inject.Inject
 
-class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) :
-    GenericRepository {
+class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) : GenericRepository {
 
     override suspend fun insertPostObjectEntity(
         patientId: String,
@@ -24,55 +25,38 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
             } else {
                 genericDao.insertGenericEntity(
                     GenericEntity(
-                        UUIDBuilder.generateUUID(),
-                        patientId,
-                        entity.toJson(),
-                        typeEnum,
-                        SyncType.POST
-                    )
-                )
-            }
-        }
-    }
-
-    override suspend fun insertOrUpdateGenericObjectEntity(
-        patientId: String,
-        map: Map<String, ChangeRequest>,
-        typeEnum: GenericTypeEnum
-    ): Long {
-        return genericDao.getGenericEntityById(patientId, typeEnum, SyncType.PATCH).run {
-            if (this != null) {
-                val existingMap = payload.fromJson<MutableMap<String, ChangeRequest>>()
-                map.entries.forEach {
-                    existingMap[it.key] = it.value
-                }
-                genericDao.insertGenericEntity(
-                    copy(payload = existingMap.toJson())
-                )
-            } else {
-                genericDao.insertGenericEntity(
-                    GenericEntity(
                         id = UUIDBuilder.generateUUID(),
                         patientId = patientId,
-                        payload = map.toJson(),
+                        payload = entity.toJson(),
                         type = typeEnum,
-                        syncType = SyncType.PATCH
+                        syncType = SyncType.POST
                     )
                 )
             }
         }
     }
 
-    override suspend fun insertOrUpdateGenericArrayEntity(
+    override suspend fun insertOrUpdatePatchEntity(
         patientId: String,
-        map: Map<String, List<ChangeRequest>>,
+        map: Map<String, Any>,
         typeEnum: GenericTypeEnum
     ): Long {
         return genericDao.getGenericEntityById(patientId, typeEnum, SyncType.PATCH).run {
             if (this != null) {
-                val existingMap = payload.fromJson<Map<String, MutableList<ChangeRequest>>>()
-                existingMap.keys.forEach { key ->
-                    map[key]?.let { value -> existingMap[key]?.addAll(value) }
+                val existingMap = payload.fromJson<MutableMap<String, Any>>()
+                map.entries.forEach { mapEntry ->
+                    if((mapEntry.value is List<*>)) {
+                        (mapEntry.value as List<*>).forEach { entryValue ->
+                            val identifierType = ((entryValue as ChangeRequest).value as PatientIdentifier).identifierType
+                            val c = (existingMap[mapEntry.key] as List<LinkedTreeMap<String,Any>>).find { linkedTreeMap ->
+                                (linkedTreeMap["value"] as LinkedTreeMap<String,String>)["identifierType"] == identifierType
+                            }
+                            (existingMap[mapEntry.key] as MutableList<LinkedTreeMap<String,Any>>).remove(c)
+                            (existingMap[mapEntry.key] as MutableList<ChangeRequest>).add(entryValue)
+                        }
+                    } else {
+                        existingMap[mapEntry.key] = mapEntry.value
+                    }
                 }
                 genericDao.insertGenericEntity(
                     copy(payload = existingMap.toJson())
