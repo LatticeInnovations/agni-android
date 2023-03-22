@@ -23,9 +23,30 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
 import java.time.LocalDate
+import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.ui.main.patientregistration.model.PatientRegister
+import com.latticeonfhir.android.ui.main.patientregistration.step1.PatientRegistrationStepOneViewModel
 
 @Composable
-fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
+fun PatientRegistrationStepOne(patientRegister: PatientRegister, viewModel: PatientRegistrationStepOneViewModel = viewModel()) {
+    val patientRegistrationViewModel: PatientRegistrationViewModel = viewModel()
+    LaunchedEffect(viewModel.isLaunched) {
+        if(!viewModel.isLaunched) {
+            patientRegister.run {
+                viewModel.firstName = firstName.toString()
+                viewModel.middleName = middleName.toString()
+                viewModel.lastName = lastName.toString()
+                viewModel.phoneNumber = phoneNumber.toString()
+                viewModel.email = email.toString()
+                viewModel.dob = dob.toString()
+                viewModel.years = years.toString()
+                viewModel.months = months.toString()
+                viewModel.days = days.toString()
+                viewModel.gender = gender.toString()
+            }
+            viewModel.isLaunched = true
+        }
+    }
     Column(
         modifier = Modifier
             .padding(15.dp),
@@ -49,7 +70,8 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
         Spacer(modifier = Modifier.height(15.dp))
         Column(
             modifier = Modifier
-                .verticalScroll(rememberScrollState()).testTag("columnLayout")
+                .verticalScroll(rememberScrollState())
+                .testTag("columnLayout")
                 .weight(1f)
         ) {
 
@@ -89,11 +111,11 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
             }
             ValueLength(viewModel.lastName)
             Row(modifier = Modifier.fillMaxWidth()) {
-                CustomFilterChip(viewModel.dobAgeSelector, "dob", "Date of Birth"){
+                CustomFilterChip(viewModel.dobAgeSelector, "dob", "Date of Birth") {
                     viewModel.dobAgeSelector = it
                 }
                 Spacer(modifier = Modifier.width(10.dp))
-                CustomFilterChip(viewModel.dobAgeSelector, "age", "Age"){
+                CustomFilterChip(viewModel.dobAgeSelector, "age", "Age") {
                     viewModel.dobAgeSelector = it
                 }
             }
@@ -127,7 +149,19 @@ fun PatientRegistrationStepOne(viewModel: PatientRegistrationViewModel) {
         }
         Button(
             onClick = {
-                viewModel.step = 2
+                patientRegister.run {
+                    firstName = viewModel.firstName
+                    middleName = viewModel.middleName
+                    lastName = viewModel.lastName
+                    dob = viewModel.dob
+                    years = viewModel.years
+                    months = viewModel.months
+                    days = viewModel.days
+                    phoneNumber = viewModel.phoneNumber
+                    email = viewModel.email
+                    gender = viewModel.gender
+                }
+                patientRegistrationViewModel.step = 2
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -192,7 +226,7 @@ fun ValueLength(value: String) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun DobTextField(viewModel: PatientRegistrationViewModel) {
+fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
     var isDateDialogShown: Boolean by rememberSaveable {
         mutableStateOf(false)
     }
@@ -233,7 +267,7 @@ fun DobTextField(viewModel: PatientRegistrationViewModel) {
 }
 
 @Composable
-fun AgeTextField(viewModel: PatientRegistrationViewModel) {
+fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -252,7 +286,7 @@ fun AgeTextField(viewModel: PatientRegistrationViewModel) {
 }
 
 @Composable
-fun ContactTextField(viewModel: PatientRegistrationViewModel) {
+fun ContactTextField(viewModel: PatientRegistrationStepOneViewModel) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -295,22 +329,24 @@ fun ContactTextField(viewModel: PatientRegistrationViewModel) {
 }
 
 @Composable
-fun GenderComposable(viewModel: PatientRegistrationViewModel) {
+fun GenderComposable(viewModel: PatientRegistrationStepOneViewModel) {
     Row(
-        modifier = Modifier.fillMaxWidth().testTag("genderRow"),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("genderRow"),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = "Gender", style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.width(20.dp))
-        CustomFilterChip(viewModel.gender, "male", "Male"){
+        CustomFilterChip(viewModel.gender, "male", "Male") {
             viewModel.gender = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(viewModel.gender, "female", "Female"){
+        CustomFilterChip(viewModel.gender, "female", "Female") {
             viewModel.gender = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(viewModel.gender, "others", "Others"){
+        CustomFilterChip(viewModel.gender, "others", "Others") {
             viewModel.gender = it
         }
     }
@@ -318,7 +354,12 @@ fun GenderComposable(viewModel: PatientRegistrationViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomFilterChip(selector: String, selected: String, label: String, updateSelected:(String)->Unit) {
+fun CustomFilterChip(
+    selector: String,
+    selected: String,
+    label: String,
+    updateSelected: (String) -> Unit
+) {
     FilterChip(
         selected = selector == selected,
         modifier = Modifier.testTag(selected),
