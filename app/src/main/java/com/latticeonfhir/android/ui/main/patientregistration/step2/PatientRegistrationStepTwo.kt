@@ -8,15 +8,37 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.latticeonfhir.android.ui.main.patientregistration.step2.PatientRegistrationStepTwoViewModel
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
+import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.ui.main.patientregistration.model.PatientRegister
 
 @Composable
-fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
+fun PatientRegistrationStepTwo(
+    patientRegister: PatientRegister,
+    viewModel: PatientRegistrationStepTwoViewModel = viewModel()
+) {
+    val patientRegistrationViewModel: PatientRegistrationViewModel = viewModel()
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            patientRegister.run {
+                viewModel.patientId = patientId.toString()
+                viewModel.passportId = passportId.toString()
+                viewModel.voterId = voterId.toString()
+                if (patientRegistrationViewModel.isEditing) viewModel.isPassportSelected =
+                    passportId.toString().isNotEmpty()
+                viewModel.isVoterSelected = voterId.toString().isNotEmpty()
+                viewModel.isPatientSelected = patientId.toString().isNotEmpty()
+            }
+        }
+    }
     Column(
         modifier = Modifier.padding(15.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -37,9 +59,11 @@ fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
-        Column(modifier = Modifier
-            .weight(1f)
-            .verticalScroll(rememberScrollState())) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -69,7 +93,8 @@ fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
                     "Enter valid Passport ID (eg., A1098765)"
                 ) {
                     viewModel.passportId = it
-                    viewModel.isPassportValid = !viewModel.passportPattern.matches(viewModel.passportId)
+                    viewModel.isPassportValid =
+                        !viewModel.passportPattern.matches(viewModel.passportId)
                 }
                 IdLength(viewModel.passportId, viewModel.maxPassportIdLength)
             }
@@ -106,7 +131,12 @@ fun PatientRegistrationStepTwo(viewModel: PatientRegistrationViewModel) {
         }
         Button(
             onClick = {
-                viewModel.step = 3
+                patientRegister.run {
+                    passportId = viewModel.passportId
+                    voterId = viewModel.voterId
+                    patientId = viewModel.patientId
+                }
+                patientRegistrationViewModel.step = 3
             },
             modifier = Modifier
                 .fillMaxWidth(),
@@ -136,7 +166,11 @@ fun IdSelectionChip(idSelected: Boolean, label: String, updateSelection: (Boolea
         ),
         leadingIcon = {
             if (idSelected)
-                Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.surfaceTint)
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.surfaceTint
+                )
         },
         modifier = Modifier.testTag("$label chip")
     )

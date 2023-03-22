@@ -6,7 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import com.latticeonfhir.android.ui.main.PatientItemCard
+import com.latticeonfhir.android.PatientItemCard
 
 @Composable
 fun SearchPatientResult(searchPatientViewModel: SearchPatientViewModel) {

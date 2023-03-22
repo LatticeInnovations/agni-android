@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.main.patientregistration
 
-import android.util.Log
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
@@ -16,10 +15,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.latticeonfhir.android.ui.main.patientregistration.step3.PatientRegistrationStepThreeViewModel
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
+import androidx.lifecycle.viewmodel.compose.*
+import androidx.navigation.NavController
+import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.main.patientregistration.model.PatientRegister
+import com.latticeonfhir.android.ui.main.patientregistration.step3.Address
 
 @Composable
-fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
+fun PatientRegistrationStepThree(navController: NavController, patientRegister: PatientRegister, viewModel: PatientRegistrationStepThreeViewModel = viewModel()) {
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            patientRegister.run {
+                viewModel.homeAddress.pincode = homePostalCode.toString()
+                viewModel.homeAddress.state = homeState.toString()
+                viewModel.homeAddress.city = homeCity.toString()
+                viewModel.homeAddress.area = homeArea.toString()
+                viewModel.homeAddress.town = homeTown.toString()
+                viewModel.addWorkAddress = workPostalCode.toString().isNotEmpty()
+                viewModel.workAddress.pincode = workPostalCode.toString()
+                viewModel.workAddress.state = workState.toString()
+                viewModel.workAddress.city = workCity.toString()
+                viewModel.workAddress.area = workArea.toString()
+                viewModel.workAddress.town = workTown.toString()
+            }
+        }
+    }
     Column(
         modifier = Modifier
             .padding(15.dp),
@@ -76,29 +98,23 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
 
         Button(
             onClick = {
-                viewModel.step = 4
-                Log.d(
-                    "MYTAG", "${viewModel.firstName}" +
-                            "\n${viewModel.middleName}" +
-                            "\n${viewModel.lastName}" +
-                            "\n${viewModel.dob}" +
-                            "\n${viewModel.phoneNumber}" +
-                            "\n${viewModel.email}" +
-                            "\n${viewModel.gender}" +
-                            "\n${viewModel.passportId}" +
-                            "\n${viewModel.voterId}" +
-                            "\n${viewModel.patientId}" +
-                            "\n${viewModel.homeAddress.pincode}" +
-                            "\n${viewModel.homeAddress.state}" +
-                            "\n${viewModel.homeAddress.area}" +
-                            "\n${viewModel.homeAddress.town}" +
-                            "\n${viewModel.homeAddress.city}" +
-                            "\n${viewModel.workAddress.pincode}" +
-                            "\n${viewModel.workAddress.state}" +
-                            "\n${viewModel.workAddress.area}" +
-                            "\n${viewModel.workAddress.town}" +
-                            "\n${viewModel.workAddress.city}"
+                patientRegister.run {
+                    homePostalCode = viewModel.homeAddress.pincode
+                    homeArea = viewModel.homeAddress.area
+                    homeState = viewModel.homeAddress.state
+                    homeCity = viewModel.homeAddress.city
+                    homeTown = viewModel.homeAddress.town
+                    workPostalCode = viewModel.workAddress.pincode
+                    workArea = viewModel.workAddress.area
+                    workState = viewModel.workAddress.state
+                    workCity = viewModel.workAddress.city
+                    workTown = viewModel.workAddress.town
+                }
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    key = "patient_register_details",
+                    value = patientRegister
                 )
+                navController.navigate(Screen.PatientRegistrationPreviewScreen.route)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -111,7 +127,7 @@ fun PatientRegistrationStepThree(viewModel: PatientRegistrationViewModel) {
 }
 
 @Composable
-fun AddressComposable(label: String, address: Address, viewModel: PatientRegistrationViewModel) {
+fun AddressComposable(label: String, address: Address, viewModel: PatientRegistrationStepThreeViewModel) {
     Row(horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()){
@@ -121,7 +137,14 @@ fun AddressComposable(label: String, address: Address, viewModel: PatientRegistr
             color = MaterialTheme.colorScheme.onBackground
         )
         if (label == "Work Address"){
-            IconButton(onClick = { viewModel.addWorkAddress = false }) {
+            IconButton(onClick = {
+                address.pincode = ""
+                address.state = ""
+                address.city = ""
+                address.area = ""
+                address.town = ""
+                viewModel.addWorkAddress = false
+            }) {
                 Icon(Icons.Default.Clear, contentDescription = "disable work address")
             }
         }
