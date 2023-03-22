@@ -20,7 +20,7 @@ interface ApiService {
     suspend fun <T> createData(@Path("endPoint") endPoint: String, @Body patientResponses: List<T>): Response<BaseResponse<List<CreateResponse>>>
 
     @PATCH("{endPoint}/{id}")
-    suspend fun <T> patchSingleChanges(@Path("endPoint") endPoint: String, @Path("id") id: String, patchLogs: Map<String,T>): Response<BaseResponse<PatientResponse>>
+    suspend fun <T> patchSingleChanges(@Path("endPoint") endPoint: String, @Path("id") id: String, patchLogs: T): Response<BaseResponse<PatientResponse>>
 
     @PATCH("sync/{endPoint}")
     suspend fun <T> patchListOfChanges(@Path("endPoint") endPoint: String, patchLogs: List<T>): Response<BaseResponse<List<CreateResponse>>>

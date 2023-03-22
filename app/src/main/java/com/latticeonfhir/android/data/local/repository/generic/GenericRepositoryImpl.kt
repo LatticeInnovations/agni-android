@@ -1,18 +1,23 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
 import com.google.gson.internal.LinkedTreeMap
+import com.latticeonfhir.android.FhirApp
+import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.ChangeRequest
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.android.utils.builders.GenericEntity.processPatch
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
+import timber.log.Timber
 import javax.inject.Inject
 
-class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) : GenericRepository {
+class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) :
+    GenericRepository {
 
     override suspend fun insertPostObjectEntity(
         patientId: String,
@@ -45,14 +50,13 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
             if (this != null) {
                 val existingMap = payload.fromJson<MutableMap<String, Any>>()
                 map.entries.forEach { mapEntry ->
-                    if((mapEntry.value is List<*>)) {
-                        (mapEntry.value as List<*>).forEach { entryValue ->
-                            val identifierType = ((entryValue as ChangeRequest).value as PatientIdentifier).identifierType
-                            val c = (existingMap[mapEntry.key] as List<LinkedTreeMap<String,Any>>).find { linkedTreeMap ->
-                                (linkedTreeMap["value"] as LinkedTreeMap<String,String>)["identifierType"] == identifierType
-                            }
-                            (existingMap[mapEntry.key] as MutableList<LinkedTreeMap<String,Any>>).remove(c)
-                            (existingMap[mapEntry.key] as MutableList<ChangeRequest>).add(entryValue)
+                    if ((mapEntry.value is List<*>)) {
+                        (mapEntry.value as List<ChangeRequest>).forEach { entryValue ->
+                            existingMap[mapEntry.key] = processPatch(
+                                existingMap,
+                                mapEntry,
+                                entryValue
+                            )
                         }
                     } else {
                         existingMap[mapEntry.key] = mapEntry.value
