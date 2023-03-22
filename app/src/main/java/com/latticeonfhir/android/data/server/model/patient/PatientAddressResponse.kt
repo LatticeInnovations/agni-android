@@ -1,6 +1,8 @@
-package com.latticeonfhir.android.data.local.roomdb.entities
+package com.latticeonfhir.android.data.server.model.patient
 
-data class PermanentAddressEntity(
+import com.latticeonfhir.android.base.parcelclass.ParcelableClass
+
+data class PatientAddressResponse(
     val addressLine1: String?,
     val city: String?,
     val district: String?,
@@ -8,4 +10,4 @@ data class PermanentAddressEntity(
     val postalCode: String?,
     val country: String?,
     val addressLine2: String?
-)
+): ParcelableClass()

@@ -4,18 +4,33 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.latticeonfhir.android.data.local.roomdb.dao.PersonDao
+import androidx.room.TypeConverters
+import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
+import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.PersonEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
+import com.latticeonfhir.android.data.local.roomdb.typeconverters.TypeConverter
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
 import java.util.UUID
 
-@Database(entities = [PersonEntity::class, GenericEntity::class], version = 1, exportSchema = true)
+@Database(
+    entities = [PatientEntity::class, GenericEntity::class, IdentifierEntity::class, RelationEntity::class],
+    version = 1,
+    exportSchema = true
+)
+@TypeConverters(TypeConverter::class)
 abstract class FhirAppDatabase : RoomDatabase() {
 
-    abstract fun getPersonDao(): PersonDao
+    abstract fun getPatientDao(): PatientDao
+    abstract fun getIdentifierDao(): IdentifierDao
+    abstract fun getGenericDao(): GenericDao
+    abstract fun getRelationDao(): RelationDao
 
     companion object {
         @Volatile
@@ -39,7 +54,7 @@ abstract class FhirAppDatabase : RoomDatabase() {
             val factory = SupportFactory(passphrase)
 
             return Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android.db")
-                .openHelperFactory(factory)
+//                .openHelperFactory(factory)
                 .build()
         }
     }
