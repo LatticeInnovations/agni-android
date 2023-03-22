@@ -1,0 +1,14 @@
+package com.latticeonfhir.android.data.local.repository.patient
+
+import androidx.lifecycle.LiveData
+import androidx.paging.PagingData
+import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+
+interface PatientRepository {
+
+    suspend fun addPatient(patientEntity: PatientEntity): List<Long>
+    suspend fun getPatientList(): LiveData<PagingData<PatientResponse>>
+    suspend fun updatePatientData(patientResponse: PatientResponse): Int
+    suspend fun getPatientById(patientId: String): PatientResponse
+}
