@@ -11,6 +11,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.QueryMap
 
+@JvmSuppressWildcards
 interface ApiService {
 
     @GET("{endPoint}")
@@ -20,8 +21,8 @@ interface ApiService {
     suspend fun <T> createData(@Path("endPoint") endPoint: String, @Body patientResponses: List<T>): Response<BaseResponse<List<CreateResponse>>>
 
     @PATCH("{endPoint}/{id}")
-    suspend fun <T> patchSingleChanges(@Path("endPoint") endPoint: String, @Path("id") id: String, patchLogs: Map<String,T>): Response<BaseResponse<PatientResponse>>
+    suspend fun patchSingleChanges(@Path("endPoint") endPoint: String, @Path("id") id: String ,@Body patchLogs: Map<String, Any>): Response<BaseResponse<PatientResponse>>
 
     @PATCH("sync/{endPoint}")
-    suspend fun <T> patchListOfChanges(@Path("endPoint") endPoint: String, patchLogs: List<T>): Response<BaseResponse<List<CreateResponse>>>
+    suspend fun patchListOfChanges(@Path("endPoint") endPoint: String, @Body patchLogs: List<Map<String, Any>>): Response<BaseResponse<List<CreateResponse>>>
 }
