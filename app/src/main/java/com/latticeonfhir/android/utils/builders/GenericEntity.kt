@@ -15,7 +15,7 @@ object GenericEntity {
         val existingList = mutableListOf<ChangeRequest>()
         var alreadyExist: ChangeRequest?
         (existingMap[mapEntry.key] as List<*>).map {
-            (it as LinkedTreeMap<String, Any>).mapToObject(ChangeRequest::class.java)
+            (it as LinkedTreeMap<*, *>).mapToObject(ChangeRequest::class.java)
                 ?.let { it1 -> existingList.add(it1) }
         }
         entryValues.forEach { entryValue ->

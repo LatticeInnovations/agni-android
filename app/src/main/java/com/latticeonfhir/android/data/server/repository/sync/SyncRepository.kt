@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.data.server.repository.sync
 
-import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper

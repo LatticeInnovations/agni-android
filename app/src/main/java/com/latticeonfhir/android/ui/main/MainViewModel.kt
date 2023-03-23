@@ -52,9 +52,12 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             syncRepository.getAndInsertListPatientData()
             val map = mutableMapOf<String, Any>()
+            map["id"] = 109
+            map["resourceType"] = "Patient"
             map["middleName"] = ChangeRequest(operation = ChangeTypeEnum.ADD.value, value = "Hawk")
             map["lastName"] = ChangeRequest(operation = ChangeTypeEnum.ADD.value, value = "Singh")
             map["identifier"] = list
+            map["active"] = true
             genericRepository.insertOrUpdatePatchEntity(
                 patientId = personId,
                 map = map,
@@ -82,7 +85,7 @@ class MainViewModel @Inject constructor(
             list.add(
                 ChangeRequest(
                     key = "http://hospital.smarthealthit.org",
-                    operation = "replace",
+                    operation = "remove",
                     PatientIdentifier(
                         identifierType = "http://hospital.smarthealthit.org",
                         identifierNumber = "22483974-herh8478374-fhdj7867",
@@ -93,11 +96,12 @@ class MainViewModel @Inject constructor(
             val map = mutableMapOf<String, Any>()
             map["firstName"] = ChangeRequest(operation = ChangeTypeEnum.ADD.value, value = "Naveen")
             map["identifier"] = list
-            genericRepository.insertOrUpdatePatchEntity(
+            val c = genericRepository.insertOrUpdatePatchEntity(
                 patientId = personId,
                 map = map,
                 typeEnum = GenericTypeEnum.PATIENT
             )
+            if(c > 0) syncRepository.sendPersonPatchData()
         }
     }
 }
