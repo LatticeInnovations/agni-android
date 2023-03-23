@@ -68,9 +68,11 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             ) {
                 AgeBox(searchPatientViewModel.minAge, "Min") {
                     searchPatientViewModel.minAge = it
+                    searchPatientViewModel.updateRange(searchPatientViewModel.minAge, searchPatientViewModel.maxAge)
                 }
                 AgeBox(searchPatientViewModel.maxAge, "Max") {
                     searchPatientViewModel.maxAge = it
+                    searchPatientViewModel.updateRange(searchPatientViewModel.minAge, searchPatientViewModel.maxAge)
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -110,8 +112,7 @@ fun AgeBox(age: String, label: String, updateAge: (String) -> Unit) {
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number
-            ),
-            readOnly = true
+            )
         )
         Text(
             text = label,

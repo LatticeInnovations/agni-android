@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.main.patientregistration
+package com.latticeonfhir.android.ui.main.patientregistration.step3
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -15,14 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.ui.main.patientregistration.step3.PatientRegistrationStepThreeViewModel
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.main.common.CustomTextField
 import com.latticeonfhir.android.ui.main.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.ui.main.patientregistration.step3.Address
 
 @Composable
 fun PatientRegistrationStepThree(navController: NavController, patientRegister: PatientRegister, viewModel: PatientRegistrationStepThreeViewModel = viewModel()) {

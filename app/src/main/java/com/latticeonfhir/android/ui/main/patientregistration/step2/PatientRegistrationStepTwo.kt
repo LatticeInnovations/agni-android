@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.main.patientregistration
+package com.latticeonfhir.android.ui.main.patientregistration.step2
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -14,10 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.ui.main.patientregistration.step2.PatientRegistrationStepTwoViewModel
 import com.latticeonfhir.android.ui.main.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.ui.main.common.CustomTextField
+import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.main.patientregistration.model.PatientRegister
 
 @Composable

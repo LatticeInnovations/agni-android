@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.main.patientregistration
+package com.latticeonfhir.android.ui.main.patientregistration.step1
 
 import android.util.Patterns
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -26,8 +26,8 @@ import java.time.LocalDate
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.ui.main.common.CustomFilterChip
 import com.latticeonfhir.android.ui.main.common.CustomTextField
+import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.main.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.ui.main.patientregistration.step1.PatientRegistrationStepOneViewModel
 
 @Composable
 fun PatientRegistrationStepOne(patientRegister: PatientRegister, viewModel: PatientRegistrationStepOneViewModel = viewModel()) {
