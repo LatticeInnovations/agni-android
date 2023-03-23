@@ -2,11 +2,11 @@ package com.latticeonfhir.android.ui.main.searchpatient
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.DefaultLifecycleObserver
+import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 
-class SearchPatientViewModel: ViewModel() {
+class SearchPatientViewModel: BaseViewModel(), DefaultLifecycleObserver {
     var step by mutableStateOf(1)
     var patientName by mutableStateOf("")
     var patientId by mutableStateOf("")
@@ -21,4 +21,12 @@ class SearchPatientViewModel: ViewModel() {
 
     var isNameValid by mutableStateOf(false)
     var isPatientIdValid by mutableStateOf(false)
+
+    fun updateRange(minAge: String, maxAge: String){
+        val min: String
+        val max: String
+        if (minAge.isEmpty()) min = "0" else min = minAge
+        if (maxAge.isEmpty()) max = "0" else max = maxAge
+        range = min.toFloat()..max.toFloat()
+    }
 }

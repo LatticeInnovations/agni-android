@@ -14,6 +14,9 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.ui.main.patientregistration.model.PatientRegister
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.main.patientregistration.step1.PatientRegistrationStepOne
+import com.latticeonfhir.android.ui.main.patientregistration.step2.PatientRegistrationStepTwo
+import com.latticeonfhir.android.ui.main.patientregistration.step3.PatientRegistrationStepThree
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
