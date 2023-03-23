@@ -1,0 +1,25 @@
+package com.latticeonfhir.android.data.local.roomdb.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
+import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
+
+@Dao
+interface RelationDao {
+
+    @Transaction
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRelation(vararg relationEntity: RelationEntity): List<Long>
+
+    @Transaction
+    @Query("SELECT relation FROM RelationEntity WHERE fromId=:fromId AND toId=:toId")
+    suspend fun getRelation(fromId: String, toId: String): RelationEnum
+
+    @Transaction
+    @Query("SELECT * FROM RelationEntity WHERE fromId=:patientId")
+    suspend fun getAllRelationOfPatient(patientId: String): List<RelationEntity>
+}

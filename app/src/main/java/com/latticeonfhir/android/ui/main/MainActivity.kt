@@ -4,10 +4,14 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.lifecycleScope
 import com.latticeonfhir.android.base.activity.BaseActivity
 import com.latticeonfhir.android.navigation.NavigationAppHost
 import com.latticeonfhir.android.ui.main.ui.theme.FHIRAndroidTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import okhttp3.internal.notify
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -23,8 +27,14 @@ class MainActivity : BaseActivity() {
                 NavigationAppHost(navController = navController)
             }
         }
-//        binding = ActivityMainBinding.inflate(layoutInflater)
-//        setContentView(binding.root)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        viewModel.toString()
+
+        binding.helloText.setOnClickListener {
+            viewModel.getUserData()
+        }
     }
 
     override fun viewModel() = viewModel

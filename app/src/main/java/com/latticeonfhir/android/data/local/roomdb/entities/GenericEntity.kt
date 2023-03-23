@@ -1,14 +1,17 @@
 package com.latticeonfhir.android.data.local.roomdb.entities
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
-import com.latticeonfhir.android.data.server.model.PersonResponse
+import com.latticeonfhir.android.data.local.enums.SyncType
 
-@Entity
+@Entity(indices = [Index("patientId")])
 data class GenericEntity(
     @PrimaryKey
     val id: String,
+    val patientId: String,
     val payload: String,
-    val type: GenericTypeEnum
+    val type: GenericTypeEnum,
+    val syncType: SyncType
 )
