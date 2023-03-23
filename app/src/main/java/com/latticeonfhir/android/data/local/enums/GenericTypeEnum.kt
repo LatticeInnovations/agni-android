@@ -1,9 +1,9 @@
 package com.latticeonfhir.android.data.local.enums
 
 enum class GenericTypeEnum(val number: Int, val value: String) {
-    PERSON(1,"Person"),
-    PATIENT(2,"Patient"),
-    MEDICAL_RECORD(3,"Medical Record");
+    PATIENT(1,"Patient"),
+    MEDICAL_RECORD(2,"Medical Record"),
+    RELATION(3,"Relation");
 
     companion object {
         fun fromInt(number: Int) = values().firstOrNull { it.number == number }

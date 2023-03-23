@@ -1,18 +1,17 @@
 package com.latticeonfhir.android.di
 
 import com.latticeonfhir.android.BuildConfig
-import com.latticeonfhir.android.FhirApp
+import com.latticeonfhir.android.FhirApp.Companion.gson
 import com.latticeonfhir.android.data.server.api.ApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.CallAdapter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -40,7 +39,7 @@ object NetworkModule {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(FhirApp.gson))
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
