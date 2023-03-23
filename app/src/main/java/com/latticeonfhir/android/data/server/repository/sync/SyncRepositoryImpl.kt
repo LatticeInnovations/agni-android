@@ -138,7 +138,7 @@ class SyncRepositoryImpl @Inject constructor(
                 ApiResponseConverter.convert(
                     apiService.patchListOfChanges(
                         PATIENT,
-                        map { it.payload.fromJson<Map<String, Any>>() }
+                        map { it.payload.fromJson() }
                     )
                 ).apply {
                     if (this is ApiSuccessResponse) {

@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
 import com.google.gson.reflect.TypeToken
-import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.FhirApp.Companion.gson
 
 object GsonConverters {
@@ -16,7 +15,7 @@ object GsonConverters {
         return gson.fromJson(this,type)
     }
 
-    fun <T> Map<String, Any?>?.mapToObject(type: Class<T>): T? {
+    fun <T> Map<*, Any?>?.mapToObject(type: Class<T>): T? {
         if (this == null) return null
 
         val json = gson.toJson(this)
