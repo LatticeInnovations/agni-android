@@ -18,8 +18,8 @@ import javax.inject.Inject
 class PatientRepositoryImpl @Inject constructor(private val patientDao: PatientDao) :
     PatientRepository {
 
-    override suspend fun addPatient(patientEntity: PatientEntity): List<Long> {
-         return patientDao.insertPatientData(patientEntity)
+    override suspend fun addPatient(patientResponse: PatientResponse): List<Long> {
+         return patientDao.insertPatientData(patientResponse.toPatientEntity())
     }
 
     override suspend fun getPatientList(): LiveData<PagingData<PatientResponse>> {

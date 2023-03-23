@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.base.parcelclass
+package com.latticeonfhir.android.base.baseclass
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

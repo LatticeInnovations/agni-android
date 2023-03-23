@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.data.server.model.patient
 
-import com.latticeonfhir.android.base.parcelclass.ParcelableClass
+import com.latticeonfhir.android.base.baseclass.ParcelableClass
 import java.util.Date
 
 data class PatientResponse(

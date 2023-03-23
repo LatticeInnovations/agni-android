@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.data.server.model.patient
 
-import com.latticeonfhir.android.base.parcelclass.ParcelableClass
+import com.latticeonfhir.android.base.baseclass.ParcelableClass
 
 data class PatientAddressResponse(
     val addressLine1: String?,
