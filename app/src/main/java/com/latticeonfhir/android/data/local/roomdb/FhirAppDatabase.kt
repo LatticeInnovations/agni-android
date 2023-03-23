@@ -13,6 +13,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.TestEntity
 import com.latticeonfhir.android.data.local.roomdb.typeconverters.TypeConverter
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import net.sqlcipher.database.SQLiteDatabase
@@ -20,7 +21,7 @@ import net.sqlcipher.database.SupportFactory
 import java.util.UUID
 
 @Database(
-    entities = [PatientEntity::class, GenericEntity::class, IdentifierEntity::class, RelationEntity::class],
+    entities = [PatientEntity::class, GenericEntity::class, IdentifierEntity::class, RelationEntity::class, TestEntity::class],
     version = 1,
     exportSchema = true
 )
@@ -42,15 +43,15 @@ abstract class FhirAppDatabase : RoomDatabase() {
         }
 
         private fun buildDatabase(
-            context: Context,
-            preferenceStorage: PreferenceStorage
+            context: Context, preferenceStorage: PreferenceStorage
         ): FhirAppDatabase {
 
             if (preferenceStorage.uuid.isEmpty()) {
                 preferenceStorage.uuid = UUID.randomUUID().toString()
             }
 
-            val passphrase: ByteArray = SQLiteDatabase.getBytes(preferenceStorage.uuid.toCharArray())
+            val passphrase: ByteArray =
+                SQLiteDatabase.getBytes(preferenceStorage.uuid.toCharArray())
             val factory = SupportFactory(passphrase)
 
             return Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android.db")

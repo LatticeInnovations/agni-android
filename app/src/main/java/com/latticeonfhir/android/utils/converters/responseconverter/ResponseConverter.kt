@@ -4,6 +4,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PermanentAddressEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.TestEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -12,6 +13,21 @@ import java.util.Date
 fun PatientResponse.toPatientEntity(): PatientEntity {
     return PatientEntity(
         id = id,
+        firstName = firstName,
+        middleName = middleName,
+        lastName = lastName,
+        active = active,
+        gender = gender,
+        birthDate = birthDate.time,
+        mobileNumber = mobileNumber,
+        email = email,
+        permanentAddress = permanentAddress.toPermanentAddressEntity(),
+        fhirId = fhirId
+    )
+}
+
+fun PatientResponse.toTestEntity(): TestEntity {
+    return TestEntity(
         firstName = firstName,
         middleName = middleName,
         lastName = lastName,

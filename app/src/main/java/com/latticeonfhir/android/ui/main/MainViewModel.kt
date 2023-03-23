@@ -7,19 +7,22 @@ import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val syncRepository: SyncRepository,
     private val patientRepository: PatientRepository,
-    private val genericRepository: GenericRepository
+    private val genericRepository: GenericRepository,
+    private val patientDao: PatientDao
 ) : BaseViewModel() {
 
     private val personId = UUIDBuilder.generateUUID()
@@ -81,27 +84,29 @@ class MainViewModel @Inject constructor(
 //                    lastName = "Hawk"
 //                )
 //            )
-            val list = mutableListOf<ChangeRequest>()
-            list.add(
-                ChangeRequest(
-                    key = "http://hospital.smarthealthit.org",
-                    operation = "remove",
-                    PatientIdentifier(
-                        identifierType = "http://hospital.smarthealthit.org",
-                        identifierNumber = "22483974-herh8478374-fhdj7867",
-                        code = "MR"
-                    )
-                )
-            )
-            val map = mutableMapOf<String, Any>()
-            map["firstName"] = ChangeRequest(operation = ChangeTypeEnum.ADD.value, value = "Naveen")
-            map["identifier"] = list
-            val c = genericRepository.insertOrUpdatePatchEntity(
-                patientId = personId,
-                map = map,
-                typeEnum = GenericTypeEnum.PATIENT
-            )
-            if(c > 0) syncRepository.sendPersonPatchData()
+//            val list = mutableListOf<ChangeRequest>()
+//            list.add(
+//                ChangeRequest(
+//                    key = "http://hospital.smarthealthit.org",
+//                    operation = "remove",
+//                    PatientIdentifier(
+//                        identifierType = "http://hospital.smarthealthit.org",
+//                        identifierNumber = "22483974-herh8478374-fhdj7867",
+//                        code = "MR"
+//                    )
+//                )
+//            )
+//            val map = mutableMapOf<String, Any>()
+//            map["firstName"] = ChangeRequest(operation = ChangeTypeEnum.ADD.value, value = "Naveen")
+//            map["identifier"] = list
+//            val c = genericRepository.insertOrUpdatePatchEntity(
+//                patientId = personId,
+//                map = map,
+//                typeEnum = GenericTypeEnum.PATIENT
+//            )
+//            if(c > 0) syncRepository.sendPersonPatchData()
+            val c = patientDao.getFuzzySearch()
+            Timber.d("Blah Blah Seach $c")
         }
     }
 }

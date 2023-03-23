@@ -2,12 +2,12 @@ package com.latticeonfhir.android.data.local.roomdb.entities
 
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.Fts4
 import androidx.room.PrimaryKey
 
 @Entity
-data class PatientEntity(
-    @PrimaryKey
-    val id: String,
+@Fts4
+data class TestEntity(
     val firstName: String,
     val middleName: String?,
     val lastName: String?,
@@ -18,4 +18,7 @@ data class PatientEntity(
     val email: String?,
     @Embedded val permanentAddress: PermanentAddressEntity,
     val fhirId: String?
-)
+) {
+    @PrimaryKey(autoGenerate = true)
+    var rowid: Int = 1
+}
