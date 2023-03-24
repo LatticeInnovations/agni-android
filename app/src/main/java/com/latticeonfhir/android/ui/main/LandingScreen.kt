@@ -2,8 +2,8 @@ package com.latticeonfhir.android
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Menu
@@ -15,13 +15,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.main.MainViewModel
+import com.latticeonfhir.android.ui.main.common.Loader
 import com.latticeonfhir.android.ui.main.common.PatientItemCard
+import java.time.LocalDate
+import java.time.Period
+import java.time.ZoneId
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LandingScreen(navController: NavController) {
+fun LandingScreen(navController: NavController, viewModel: MainViewModel = hiltViewModel()) {
+    viewModel.getUserData()
+    val patientsList = viewModel.patientList.collectAsLazyPagingItems()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -56,7 +67,9 @@ fun LandingScreen(navController: NavController) {
                         Icon(
                             painter = painterResource(id = R.drawable.icon),
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp).testTag("user icon")
+                            modifier = Modifier
+                                .size(20.dp)
+                                .testTag("user icon")
                         )
                     }
                 },
@@ -76,7 +89,9 @@ fun LandingScreen(navController: NavController) {
                         Icon(
                             painter = painterResource(id = R.drawable.person_add),
                             contentDescription = null,
-                            modifier = Modifier.size(22.dp, 16.dp).testTag("add patient icon"),
+                            modifier = Modifier
+                                .size(22.dp, 16.dp)
+                                .testTag("add patient icon"),
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.width(10.dp))
@@ -157,89 +172,48 @@ fun LandingScreen(navController: NavController) {
                             }
                         )
                     }
-                    Column(
-                        modifier = Modifier.verticalScroll(rememberScrollState()).testTag("patients list")
-                    ) {
-                        PatientItemCard(
-                            name = "Chetan A S Ramanathan",
-                            patientId = "M/51 · PID 23456",
-                            metaData = "Referred: 12 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Pilavullakandi Thekkeparambimnsahgfh",
-                            patientId = "F/58 · PID 11111",
-                            metaData = "Seen on 18 May 2022"
-                        )
-                        PatientItemCard(
-                            name = "Pilavullakandi Thekkeparambimnsahgfh",
-                            patientId = "F/58 · PID 11111",
-                            metaData = "Referred: 12 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Pilavullakandi Thekkeparambimnsahgfh",
-                            patientId = "F/58 · PID 11111",
-                            metaData = "Last seen: 23 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Gauri Sharma",
-                            patientId = "F/44 · PID 12345",
-                            metaData = "Last seen: 23 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Ramesh Seksaria",
-                            patientId = "F/44 · PID 12345",
-                            metaData = "Last seen: 23 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Ramesh Seksaria",
-                            patientId = "F/44 · PID 12345",
-                            metaData = "Last seen: 23 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Ramesh Seksaria",
-                            patientId = "F/44 · PID 12345",
-                            metaData = "Last seen: 23 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Ramesh Seksaria",
-                            patientId = "F/44 · PID 12345",
-                            metaData = "Last seen: 23 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Ramesh Seksaria",
-                            patientId = "F/44 · PID 12345",
-                            metaData = "Last seen: 23 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Ramesh Seksaria",
-                            patientId = "F/44 · PID 12345",
-                            metaData = "Last seen: 23 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Ramesh Seksaria",
-                            patientId = "F/44 · PID 12345",
-                            metaData = "Last seen: 23 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Ramesh Seksaria",
-                            patientId = "F/44 · PID 12345",
-                            metaData = "Last seen: 23 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Ramesh Seksaria",
-                            patientId = "F/44 · PID 12345",
-                            metaData = "Last seen: 23 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Ramesh Seksaria",
-                            patientId = "F/44 · PID 12345",
-                            metaData = "Last seen: 23 Jan"
-                        )
-                        PatientItemCard(
-                            name = "Ramesh Seksaria",
-                            patientId = "F/44 · PID 12345",
-                            metaData = "Last seen: 23 Jan"
-                        )
+                    LazyColumn {
+                        items(patientsList){patient ->
+                            if (patient != null) {
+                                val name = patient.firstName +
+                                        if (patient.middleName.isNullOrEmpty()) "" else {" " + patient.middleName} +
+                                        if (patient.lastName.isNullOrEmpty()) "" else {" " + patient.lastName}
+                                val age = Period.between(
+                                    patient.birthDate.toInstant()
+                                        .atZone(ZoneId.systemDefault())
+                                        .toLocalDate(),
+                                    LocalDate.now()
+                                ).years
+                                PatientItemCard(
+                                    name = name,
+                                    patientId = "${patient.gender[0].uppercase()}/$age · PID ${patient.fhirId}",
+                                    metaData = "Referred: 12 Jan"
+                                )
+                            }
+                        }
+                        when(patientsList.loadState.append){
+                            is LoadState.NotLoading -> Unit
+                            LoadState.Loading -> {
+                                item {
+                                    Loader()
+                                }
+                            }
+                            is LoadState.Error -> {
+                                // TODO
+                            }
+                        }
+
+                        when(patientsList.loadState.refresh){
+                            is LoadState.NotLoading -> Unit
+                            LoadState.Loading -> {
+                                item {
+                                    Loader()
+                                }
+                            }
+                            is LoadState.Error -> {
+                                // TODO
+                            }
+                        }
                     }
                 }
             }

@@ -15,19 +15,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.ui.main.patientregistration.preview.PatientRegistrationPreviewViewModel
 import com.latticeonfhir.android.ui.main.ui.theme.Primary70
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
+import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
+import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.main.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.main.patientregistration.step3.Address
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientRegistrationPreview(
     navController: NavController,
-    viewModel: PatientRegistrationPreviewViewModel = viewModel()
+    viewModel: PatientRegistrationPreviewViewModel = hiltViewModel()
 ) {
     val patientRegisterDetails = navController.previousBackStackEntry?.savedStateHandle?.get<PatientRegister>(
         key = "patient_register_details"
@@ -268,6 +277,61 @@ fun PreviewScreen(
         }
         Button(
             onClick = {
+                if (viewModel.passportId.isNotEmpty()) {
+                    viewModel.identifierList.add(
+                        PatientIdentifier(
+                            identifierType = "https://www.passportindia.gov.in/",
+                            identifierNumber = viewModel.passportId,
+                            code = null
+                        )
+                    )
+                }
+                if (viewModel.voterId.isNotEmpty()) {
+                    viewModel.identifierList.add(
+                        PatientIdentifier(
+                            identifierType = "https://www.nvsp.in/",
+                            identifierNumber = viewModel.voterId,
+                            code = null
+                        )
+                    )
+                }
+                if (viewModel.patientId.isNotEmpty()) {
+                    viewModel.identifierList.add(
+                        PatientIdentifier(
+                            identifierType = "http://hospital.smarthealthit.org",
+                            identifierNumber = viewModel.patientId,
+                            code = null
+                        )
+                    )
+                }
+                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                val date = LocalDate.parse(patientRegister.dob, formatter)
+                viewModel.addPatient(
+                    PatientResponse(
+                        id = UUIDBuilder.generateUUID(),
+                        firstName = patientRegister.firstName!!,
+                        middleName = if(patientRegister.middleName!!.isEmpty()) null else patientRegister.middleName,
+                        lastName = if(patientRegister.lastName!!.isEmpty()) null else patientRegister.lastName,
+                        birthDate = Date.from(
+                            date.atStartOfDay(ZoneId.systemDefault()).toInstant()
+                        ),
+                        email = patientRegister.email,
+                        active = true,
+                        gender = patientRegister.gender!!,
+                        mobileNumber = patientRegister.phoneNumber!!.toLong(),
+                        fhirId = null,
+                        permanentAddress = PatientAddressResponse(
+                            postalCode = patientRegister.homePostalCode,
+                            state = patientRegister.homeState,
+                            addressLine1 = patientRegister.homeArea,
+                            addressLine2 = patientRegister.homeTown,
+                            city = patientRegister.homeCity,
+                            country = "India",
+                            district = null
+                        ),
+                        identifier = viewModel.identifierList
+                    )
+                )
                 navController.navigate(Screen.LandingScreen.route)
             },
             modifier = Modifier

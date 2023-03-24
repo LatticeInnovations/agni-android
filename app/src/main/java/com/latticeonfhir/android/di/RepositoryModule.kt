@@ -2,6 +2,8 @@ package com.latticeonfhir.android.di
 
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
+import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
@@ -33,4 +35,8 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideRelationRepository(relationRepositoryImpl: RelationRepositoryImpl): RelationRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideIdentifierRepository(identifierRepositoryImpl: IdentifierRepositoryImpl): IdentifierRepository
 }
