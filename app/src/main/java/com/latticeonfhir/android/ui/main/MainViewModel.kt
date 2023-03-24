@@ -1,6 +1,9 @@
 package com.latticeonfhir.android.ui.main
 
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
@@ -8,10 +11,12 @@ import com.latticeonfhir.android.data.local.model.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +28,7 @@ class MainViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     private val personId = UUIDBuilder.generateUUID()
+    lateinit var patientList: Flow<PagingData<PatientResponse>>
 
     init {
         val list = mutableListOf<ChangeRequest>()
@@ -68,8 +74,7 @@ class MainViewModel @Inject constructor(
 
     fun getUserData() {
         viewModelScope.launch {
-            patientRepository.getPatientList()
-            submitData()
+            patientList = patientRepository.getPatientList().asFlow().cachedIn(viewModelScope)
         }
     }
 
