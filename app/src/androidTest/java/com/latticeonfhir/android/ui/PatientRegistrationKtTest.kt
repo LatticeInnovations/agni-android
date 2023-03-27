@@ -1,4 +1,4 @@
-package com.latticeonfhir.android
+package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
