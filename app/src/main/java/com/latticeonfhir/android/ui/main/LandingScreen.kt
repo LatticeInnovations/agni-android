@@ -172,7 +172,7 @@ fun LandingScreen(navController: NavController, viewModel: MainViewModel = hiltV
                             }
                         )
                     }
-                    LazyColumn {
+                    LazyColumn (modifier = Modifier.testTag("patients list")){
                         items(patientsList){patient ->
                             if (patient != null) {
                                 val name = patient.firstName +
