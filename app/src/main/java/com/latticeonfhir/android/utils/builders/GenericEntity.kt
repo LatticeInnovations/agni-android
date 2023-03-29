@@ -18,7 +18,7 @@ object GenericEntity {
             (it as LinkedTreeMap<*, *>).mapToObject(ChangeRequest::class.java)
                 ?.let { it1 -> existingList.add(it1) }
         }
-        entryValues.forEach { entryValue ->
+        entryValues.map { entryValue ->
             alreadyExist = existingList.find { it.key == entryValue.key }
             when (entryValue.operation) {
                 ChangeTypeEnum.ADD.value -> {
