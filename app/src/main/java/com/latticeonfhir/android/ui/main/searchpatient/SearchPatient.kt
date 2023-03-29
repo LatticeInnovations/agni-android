@@ -15,7 +15,10 @@ import com.latticeonfhir.android.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchPatient(navController: NavController, searchPatientViewModel: SearchPatientViewModel = viewModel()) {
+fun SearchPatient(
+    navController: NavController,
+    searchPatientViewModel: SearchPatientViewModel = viewModel()
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -30,16 +33,21 @@ fun SearchPatient(navController: NavController, searchPatientViewModel: SearchPa
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                 ),
                 navigationIcon = {
-                    if (searchPatientViewModel.step == 2) {
-                        IconButton(onClick = {
-                            searchPatientViewModel.step = 1
-                        }) {
-                            Icon(
-                                Icons.Default.ArrowBack,
-                                contentDescription = null,
-                                modifier = Modifier.testTag("back icon")
+                    IconButton(onClick = {
+                        if (searchPatientViewModel.step == 2) searchPatientViewModel.step = 1
+                        else {
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                "isSearching",
+                                true
                             )
+                            navController.navigate(Screen.LandingScreen.route)
                         }
+                    }) {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = null,
+                            modifier = Modifier.testTag("back icon")
+                        )
                     }
                 },
                 actions = {

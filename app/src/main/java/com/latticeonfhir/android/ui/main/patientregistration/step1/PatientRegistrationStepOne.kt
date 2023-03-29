@@ -1,6 +1,8 @@
 package com.latticeonfhir.android.ui.main.patientregistration.step1
 
+import android.util.Log
 import android.util.Patterns
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
@@ -28,19 +30,26 @@ import com.latticeonfhir.android.ui.main.common.CustomFilterChip
 import com.latticeonfhir.android.ui.main.common.CustomTextField
 import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.main.patientregistration.model.PatientRegister
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 @Composable
-fun PatientRegistrationStepOne(patientRegister: PatientRegister, viewModel: PatientRegistrationStepOneViewModel = viewModel()) {
+fun PatientRegistrationStepOne(
+    patientRegister: PatientRegister,
+    viewModel: PatientRegistrationStepOneViewModel = viewModel()
+) {
     val patientRegistrationViewModel: PatientRegistrationViewModel = viewModel()
     LaunchedEffect(viewModel.isLaunched) {
-        if(!viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
             patientRegister.run {
                 viewModel.firstName = firstName.toString()
                 viewModel.middleName = middleName.toString()
                 viewModel.lastName = lastName.toString()
                 viewModel.phoneNumber = phoneNumber.toString()
                 viewModel.email = email.toString()
-                viewModel.dob = dob.toString()
+                viewModel.dobDay = dobDay.toString()
+                viewModel.dobMonth = dobMonth.toString()
+                viewModel.dobYear = dobYear.toString()
                 viewModel.years = years.toString()
                 viewModel.months = months.toString()
                 viewModel.days = days.toString()
@@ -122,7 +131,6 @@ fun PatientRegistrationStepOne(patientRegister: PatientRegister, viewModel: Pati
                 }
             }
             if (viewModel.dobAgeSelector == "dob") {
-                Spacer(modifier = Modifier.height(8.dp))
                 DobTextField(viewModel)
             } else
                 AgeTextField(viewModel)
@@ -155,7 +163,9 @@ fun PatientRegistrationStepOne(patientRegister: PatientRegister, viewModel: Pati
                     firstName = viewModel.firstName
                     middleName = viewModel.middleName
                     lastName = viewModel.lastName
-                    dob = viewModel.dob
+                    dobDay = viewModel.dobDay
+                    dobMonth = viewModel.dobMonth
+                    dobYear = viewModel.dobYear
                     years = viewModel.years
                     months = viewModel.months
                     days = viewModel.days
@@ -189,46 +199,166 @@ fun ValueLength(value: String) {
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
-    var isDateDialogShown: Boolean by rememberSaveable {
-        mutableStateOf(false)
-    }
-    if (isDateDialogShown) {
-        com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog(
-            onDismissRequest = { isDateDialogShown = false },
-            onDateChange = {
-                viewModel.dob = it.toString()
-                isDateDialogShown = false
-            },
-            title = { Text(text = "Select date") },
-            initialDate = LocalDate.now()
-        )
-    }
-    OutlinedTextField(
-        value = viewModel.dob,
-        onValueChange = {},
-        placeholder = { Text(text = "Date of birth", style = MaterialTheme.typography.bodyLarge) },
-        interactionSource = remember {
-            MutableInteractionSource()
-        }.also { interactionSource ->
-            LaunchedEffect(interactionSource) {
-                interactionSource.interactions.collect {
-                    if (it is PressInteraction.Release) {
-                        isDateDialogShown = true
-                    }
-                }
-            }
-        },
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .testTag("dobInputField"),
-        readOnly = true,
-        trailingIcon = {
-            Icon(Icons.Default.DateRange, contentDescription = null)
+    ) {
+        var dayExpanded by remember { mutableStateOf(false) }
+        var monthExpanded by remember { mutableStateOf(false) }
+        var yearExpanded by remember { mutableStateOf(false) }
+        Column(
+            modifier = Modifier.fillMaxWidth(0.3f).testTag("day")
+        ) {
+            OutlinedTextField(
+                value = viewModel.dobDay,
+                onValueChange = {
+                    viewModel.dobDay = it
+                },
+                label = {
+                    Text(text = "Day")
+                },
+                trailingIcon = {
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+                },
+                interactionSource = remember {
+                    MutableInteractionSource()
+                }.also { interactionSource ->
+                    LaunchedEffect(interactionSource) {
+                        interactionSource.interactions.collect {
+                            if (it is PressInteraction.Release) {
+                                dayExpanded = !dayExpanded
+                            }
+                        }
+                    }
+                },
+                singleLine = true
+            )
+            DropdownMenu(
+                modifier = Modifier.fillMaxHeight(0.5f),
+                expanded = dayExpanded,
+                onDismissRequest = { dayExpanded = false },
+            ) {
+                viewModel.daysList.forEach { label ->
+                    DropdownMenuItem(
+                        onClick = {
+                            dayExpanded = false
+                            viewModel.dobDay = label.toString()
+                        },
+                        text = {
+                            Text(
+                                text = label.toString(),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    )
+                }
+            }
         }
-    )
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(
+            modifier = Modifier.fillMaxWidth(0.5f).testTag("month")
+        ) {
+            OutlinedTextField(
+                value = viewModel.dobMonth,
+                onValueChange = {
+                    viewModel.dobMonth = it
+                },
+                label = {
+                    Text(text = "Month")
+                },
+                trailingIcon = {
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+                },
+                interactionSource = remember {
+                    MutableInteractionSource()
+                }.also { interactionSource ->
+                    LaunchedEffect(interactionSource) {
+                        interactionSource.interactions.collect {
+                            if (it is PressInteraction.Release) {
+                                monthExpanded = !monthExpanded
+                            }
+                        }
+                    }
+                },
+                readOnly = true,
+                singleLine = true
+            )
+            DropdownMenu(
+                modifier = Modifier.fillMaxHeight(0.5f),
+                expanded = monthExpanded,
+                onDismissRequest = { monthExpanded = false },
+            ) {
+                viewModel.monthsList.forEach { label ->
+                    DropdownMenuItem(
+                        onClick = {
+                            monthExpanded = false
+                            viewModel.dobMonth = label
+                        },
+                        text = {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(
+            modifier = Modifier.fillMaxWidth(1f).testTag("year")
+        ) {
+            OutlinedTextField(
+                value = viewModel.dobYear,
+                onValueChange = {
+                    viewModel.dobYear = it
+                },
+                label = {
+                    Text(text = "Year")
+                },
+                trailingIcon = {
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+                },
+                interactionSource = remember {
+                    MutableInteractionSource()
+                }.also { interactionSource ->
+                    LaunchedEffect(interactionSource) {
+                        interactionSource.interactions.collect {
+                            if (it is PressInteraction.Release) {
+                                yearExpanded = !yearExpanded
+                            }
+                        }
+                    }
+                },
+                singleLine = true
+            )
+            DropdownMenu(
+                modifier = Modifier.fillMaxHeight(0.5f),
+                expanded = yearExpanded,
+                onDismissRequest = { yearExpanded = false },
+            ) {
+                viewModel.yearsList.forEach { label ->
+                    DropdownMenuItem(
+                        onClick = {
+                            yearExpanded = false
+                            viewModel.dobYear = label.toString()
+                        },
+                        text = {
+                            Text(
+                                text = label.toString(),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable

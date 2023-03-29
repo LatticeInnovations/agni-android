@@ -14,18 +14,12 @@ class PatientRegistrationStepThreeViewModel: BaseViewModel(), DefaultLifecycleOb
 
     var addWorkAddress by mutableStateOf(false)
 
-    val statesList = listOf("Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar",
-        "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
-        "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya",
-        "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
-        "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal")
-
     fun addressInfoValidation(): Boolean{
-        if (homeAddress.pincode.length < 6 || homeAddress.state=="" || homeAddress.area == ""
-            || homeAddress.town == "" || homeAddress.city == "")
+        if (homeAddress.pincode.length < 6 || homeAddress.state=="" || homeAddress.addressLine1 == ""
+            || homeAddress.city == "")
             return false
-        if (addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state=="" || workAddress.area == ""
-                    || workAddress.town == "" || workAddress.city == ""))
+        if (addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state=="" || workAddress.addressLine1 == ""
+                    || workAddress.city == ""))
             return false
         return true
     }
@@ -34,12 +28,12 @@ class PatientRegistrationStepThreeViewModel: BaseViewModel(), DefaultLifecycleOb
 class Address {
     var pincode by mutableStateOf("")
     var state by mutableStateOf("")
-    var area by mutableStateOf("")
-    var town by mutableStateOf("")
+    var addressLine1 by mutableStateOf("")
+    var addressLine2 by mutableStateOf("")
     var city by mutableStateOf("")
+    var district by mutableStateOf("")
     var isPostalCodeValid by mutableStateOf(false)
-    var isStateValid by mutableStateOf(false)
-    var isAreaValid by mutableStateOf(false)
-    var isTownValid by mutableStateOf(false)
+    var isAddressLine1Valid by mutableStateOf(false)
     var isCityValid by mutableStateOf(false)
+    var isStateValid by mutableStateOf(false)
 }

@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.ui.main.patientregistration.step3.Address
 
 class SearchPatientViewModel: BaseViewModel(), DefaultLifecycleObserver {
     var step by mutableStateOf(1)
@@ -21,6 +22,9 @@ class SearchPatientViewModel: BaseViewModel(), DefaultLifecycleObserver {
 
     var isNameValid by mutableStateOf(false)
     var isPatientIdValid by mutableStateOf(false)
+
+    var isAddressSelected by mutableStateOf(false)
+    var address = Address()
 
     fun updateRange(minAge: String, maxAge: String){
         val min: String

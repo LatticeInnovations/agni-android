@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.main.searchpatient
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
@@ -16,76 +17,99 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.latticeonfhir.android.ui.main.common.AddressComposable
 import com.latticeonfhir.android.ui.main.common.CustomFilterChip
 import com.latticeonfhir.android.ui.main.common.CustomTextField
+import com.latticeonfhir.android.ui.main.ui.theme.Secondary60
 
 @Composable
 fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(15.dp)
     ) {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            Text(
-                text = "Search using any of the field below",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(15.dp))
-            CustomTextField(
-                value = searchPatientViewModel.patientName,
-                label = "Patient Name",
-                weight = 1f,
-                maxLength = 150, searchPatientViewModel.isNameValid,
-                "Name length should be between 3 and 150."
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .weight(1f).padding(vertical = 15.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 15.dp)
             ) {
-                searchPatientViewModel.patientName = it
-                searchPatientViewModel.isNameValid =
-                    searchPatientViewModel.patientName.length < 3 || searchPatientViewModel.patientName.length > 150
-            }
-            Spacer(modifier = Modifier.height(15.dp))
-            CustomTextField(
-                value = searchPatientViewModel.patientId,
-                label = "Patient Id",
-                weight = 1f,
-                maxLength = 150, searchPatientViewModel.isPatientIdValid,
-                "Enter valid Patient Id."
-            ) {
-                searchPatientViewModel.patientId = it
-                searchPatientViewModel.isPatientIdValid = searchPatientViewModel.patientId.length < 10
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                text = "Select age range",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                AgeBox(searchPatientViewModel.minAge, "Min") {
-                    searchPatientViewModel.minAge = it
-                    searchPatientViewModel.updateRange(searchPatientViewModel.minAge, searchPatientViewModel.maxAge)
+                Text(
+                    text = "Search using any of the field below",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                CustomTextField(
+                    value = searchPatientViewModel.patientName,
+                    label = "Patient Name",
+                    weight = 1f,
+                    maxLength = 150, searchPatientViewModel.isNameValid,
+                    "Name length should be between 3 and 150."
+                ) {
+                    searchPatientViewModel.patientName = it
+                    searchPatientViewModel.isNameValid =
+                        searchPatientViewModel.patientName.length < 3 || searchPatientViewModel.patientName.length > 150
                 }
-                AgeBox(searchPatientViewModel.maxAge, "Max") {
-                    searchPatientViewModel.maxAge = it
-                    searchPatientViewModel.updateRange(searchPatientViewModel.minAge, searchPatientViewModel.maxAge)
+                Spacer(modifier = Modifier.height(15.dp))
+                CustomTextField(
+                    value = searchPatientViewModel.patientId,
+                    label = "Patient Id",
+                    weight = 1f,
+                    maxLength = 150, searchPatientViewModel.isPatientIdValid,
+                    "Enter valid Patient Id."
+                ) {
+                    searchPatientViewModel.patientId = it
+                    searchPatientViewModel.isPatientIdValid =
+                        searchPatientViewModel.patientId.length < 10
                 }
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Select age range",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    AgeBox(searchPatientViewModel.minAge, "Min") {
+                        searchPatientViewModel.minAge = it
+                        searchPatientViewModel.updateRange(
+                            searchPatientViewModel.minAge,
+                            searchPatientViewModel.maxAge
+                        )
+                    }
+                    AgeBox(searchPatientViewModel.maxAge, "Max") {
+                        searchPatientViewModel.maxAge = it
+                        searchPatientViewModel.updateRange(
+                            searchPatientViewModel.minAge,
+                            searchPatientViewModel.maxAge
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                AgeRangeSlider(viewModel = searchPatientViewModel)
+                Spacer(modifier = Modifier.height(10.dp))
+                GenderComposable(viewModel = searchPatientViewModel)
+                Spacer(modifier = Modifier.height(10.dp))
+                VisitDropdown(searchPatientViewModel)
+                Spacer(modifier = Modifier.height(15.dp))
+                AddressDropdown(searchPatientViewModel)
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            AgeRangeSlider(viewModel = searchPatientViewModel)
-            Spacer(modifier = Modifier.height(10.dp))
-            GenderComposable(viewModel = searchPatientViewModel)
-            Spacer(modifier = Modifier.height(10.dp))
-            VisitDropdown(searchPatientViewModel)
+            if (!searchPatientViewModel.isAddressSelected)
+                Divider(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Secondary60
+                )
         }
-        Spacer(modifier = Modifier.weight(1f))
         Button(
             onClick = { searchPatientViewModel.step = 2 },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().
+                    padding(top = 0.dp, start = 15.dp, end = 15.dp, bottom = 15.dp)
         ) {
             Text(text = "Next", style = MaterialTheme.typography.labelLarge)
         }
@@ -123,7 +147,7 @@ fun AgeBox(age: String, label: String, updateAge: (String) -> Unit) {
 }
 
 @Composable
-fun AgeRangeSlider(viewModel: SearchPatientViewModel){
+fun AgeRangeSlider(viewModel: SearchPatientViewModel) {
     RangeSlider(
         modifier = Modifier.testTag("age range slider"),
         value = viewModel.range,
@@ -148,7 +172,7 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
             selector = viewModel.gender,
             selected = "male",
             label = "Male"
-        ){
+        ) {
             viewModel.gender = it
         }
         Spacer(modifier = Modifier.width(15.dp))
@@ -156,7 +180,7 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
             selector = viewModel.gender,
             selected = "female",
             label = "Female"
-        ){
+        ) {
             viewModel.gender = it
         }
         Spacer(modifier = Modifier.width(15.dp))
@@ -164,7 +188,7 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
             selector = viewModel.gender,
             selected = "others",
             label = "Others"
-        ){
+        ) {
             viewModel.gender = it
         }
     }
@@ -220,5 +244,38 @@ fun VisitDropdown(viewModel: SearchPatientViewModel) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun AddressDropdown(viewModel: SearchPatientViewModel) {
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .clickable {
+                    if (!viewModel.isAddressSelected) {
+                        viewModel.address.pincode = ""
+                        viewModel.address.state = ""
+                        viewModel.address.city = ""
+                        viewModel.address.addressLine1 = ""
+                        viewModel.address.addressLine1 = ""
+                        viewModel.address.district = ""
+                    }
+                    viewModel.isAddressSelected = !viewModel.isAddressSelected
+                },
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Address")
+            Icon(
+                Icons.Default.ArrowDropDown,
+                contentDescription = ""
+            )
+        }
+        if (viewModel.isAddressSelected)
+            AddressComposable(label = "", address = viewModel.address) {
+            }
     }
 }
