@@ -15,17 +15,10 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toTestEntity
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiSuccessResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.android.utils.converters.server.responsemapper.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class SyncRepositoryImpl @Inject constructor(
@@ -38,11 +31,6 @@ class SyncRepositoryImpl @Inject constructor(
         return ApiResponseConverter.convert(apiService.getListData(PATIENT, emptyMap()))
             .apply {
                 if (this is ApiSuccessResponse) {
-                    patientDao.insertTestData(*body.map {
-                        it.toTestEntity()
-                    }.toTypedArray()).forEach {
-                        Timber.d("Chal Gaya")
-                    }
                     patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
                     body.map { patientResponse ->
                         patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
@@ -170,7 +158,7 @@ class SyncRepositoryImpl @Inject constructor(
                     ApiResponseConverter.convert(
                         apiService.patchListOfChanges(
                             RELATED_PERSON,
-                            map { it.payload.fromJson<Map<String, Any>>() }
+                            map { it.payload.fromJson() }
                         )
                     ).apply {
                         if (this is ApiSuccessResponse) {
