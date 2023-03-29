@@ -21,11 +21,19 @@ class PatientRegistrationStepOneViewModel: BaseViewModel(), DefaultLifecycleObse
     var phoneNumber by mutableStateOf("")
     var email by mutableStateOf("")
     var dobAgeSelector by mutableStateOf("dob")
-    var dob by mutableStateOf("")
+    var dobDay by mutableStateOf("")
+    var dobMonth by mutableStateOf("")
+    var dobYear by mutableStateOf("")
     var years by mutableStateOf("")
     var months by mutableStateOf("")
     var days by mutableStateOf("")
     var gender by mutableStateOf("")
+
+    val daysList = (1..31).toList()
+    val monthsList = listOf("January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December")
+
+    val yearsList = (1920..2023).toList()
 
     var isNameValid by mutableStateOf(false)
     var isEmailValid by mutableStateOf(false)
@@ -36,7 +44,7 @@ class PatientRegistrationStepOneViewModel: BaseViewModel(), DefaultLifecycleObse
             return false
         if (middleName.length > 150 || lastName.length > 150)
             return false
-        if (dobAgeSelector == "dob" && dob == "")
+        if (dobAgeSelector == "dob" && (dobDay == "" || dobYear == "" || dobMonth ==""))
             return false
         if (dobAgeSelector == "age" &&
             (years == "" ||
@@ -45,7 +53,7 @@ class PatientRegistrationStepOneViewModel: BaseViewModel(), DefaultLifecycleObse
             return false
         if (phoneNumber.length < 10)
             return false
-        if(email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches())
+        if(email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return false
         if (gender == "")
             return false

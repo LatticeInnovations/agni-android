@@ -48,7 +48,9 @@ fun PatientRegistrationPreview(
             viewModel.lastName = lastName.toString()
             viewModel.email = email.toString()
             viewModel.phoneNumber = phoneNumber.toString()
-            viewModel.dob = dob.toString()
+            viewModel.dobDay = dobDay.toString()
+            viewModel.dobMonth = dobMonth.toString()
+            viewModel.dobYear = dobYear.toString()
             viewModel.years = years.toString()
             viewModel.months = months.toString()
             viewModel.days = days.toString()
@@ -58,14 +60,18 @@ fun PatientRegistrationPreview(
             viewModel.patientId = patientId.toString()
             viewModel.homeAddress.pincode = homePostalCode.toString()
             viewModel.homeAddress.state = homeState.toString()
-            viewModel.homeAddress.area = homeArea.toString()
+            viewModel.homeAddress.addressLine1 = homeAddressLine1.toString()
+            viewModel.homeAddress.addressLine2 = homeAddressLine2.toString()
             viewModel.homeAddress.city = homeCity.toString()
-            viewModel.homeAddress.town = homeTown.toString()
+            viewModel.homeAddress.district = homeDistrict.toString()
             viewModel.workAddress.pincode = workPostalCode.toString()
             viewModel.workAddress.state = workState.toString()
-            viewModel.workAddress.area = workArea.toString()
+            viewModel.workAddress.addressLine1 = workAddressLine1.toString()
+            viewModel.workAddress.addressLine2 = workAddressLine2.toString()
             viewModel.workAddress.city = workCity.toString()
-            viewModel.workAddress.town = workTown.toString()
+            viewModel.workAddress.district = workDistrict.toString()
+
+            viewModel.dob = "${viewModel.dobDay}-${viewModel.dobMonth.subSequence(0, 3)}-${viewModel.dobYear}"
         }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -166,7 +172,7 @@ fun PreviewScreen(
                         viewModel.days
                     )
                     DetailsText("Phone Number", "+91 ${viewModel.phoneNumber}")
-                    DetailsText("Email Address", viewModel.email)
+                    if (viewModel.email.isNotEmpty()) DetailsText("Email Address", viewModel.email)
                     DetailsText("Gender", viewModel.gender)
                     EditButton(navController, 1, patientRegister)
                 }
@@ -304,8 +310,8 @@ fun PreviewScreen(
                         )
                     )
                 }
-                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                val date = LocalDate.parse(patientRegister.dob, formatter)
+                val formatter = DateTimeFormatter.ofPattern("d-MMM-yyyy", Locale.ENGLISH)
+                val date = LocalDate.parse(viewModel.dob, formatter)
                 viewModel.addPatient(
                     PatientResponse(
                         id = UUIDBuilder.generateUUID(),
@@ -315,7 +321,7 @@ fun PreviewScreen(
                         birthDate = Date.from(
                             date.atStartOfDay(ZoneId.systemDefault()).toInstant()
                         ),
-                        email = patientRegister.email,
+                        email = if(patientRegister.email!!.isEmpty()) null else patientRegister.email,
                         active = true,
                         gender = patientRegister.gender!!,
                         mobileNumber = patientRegister.phoneNumber!!.toLong(),
@@ -323,11 +329,11 @@ fun PreviewScreen(
                         permanentAddress = PatientAddressResponse(
                             postalCode = patientRegister.homePostalCode,
                             state = patientRegister.homeState,
-                            addressLine1 = patientRegister.homeArea,
-                            addressLine2 = patientRegister.homeTown,
+                            addressLine1 = patientRegister.homeAddressLine1,
+                            addressLine2 = if(patientRegister.homeAddressLine2!!.isEmpty()) null else patientRegister.homeAddressLine2,
                             city = patientRegister.homeCity,
                             country = "India",
-                            district = null
+                            district = if(patientRegister.homeDistrict!!.isEmpty()) null else patientRegister.homeDistrict
                         ),
                         identifier = viewModel.identifierList
                     )
@@ -430,8 +436,9 @@ fun AddressCard(address: Address) {
     ) {
         DetailsText("Postal Code", address.pincode)
         DetailsText("State", address.state)
-        DetailsText("House No., Building, Street, Area", address.area)
-        DetailsText("Town/ Locality", address.town)
-        DetailsText("City/ District", address.city)
+        DetailsText("Address Line 1", address.addressLine1)
+        if (address.addressLine2.isNotEmpty()) DetailsText("Address Line 2", address.addressLine2)
+        DetailsText("City", address.city)
+        if (address.district.isNotEmpty()) DetailsText("District", address.district)
     }
 }
