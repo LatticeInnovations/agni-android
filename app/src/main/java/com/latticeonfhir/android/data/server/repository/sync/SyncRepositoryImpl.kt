@@ -16,6 +16,12 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiSuccessResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import com.latticeonfhir.android.utils.converters.server.responsemapper.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
