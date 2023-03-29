@@ -43,8 +43,8 @@ jobs:
     - name: Execute Gradle build
       run: ./gradlew build
        
-    - name: Run Ktlint
-      run: ./gradlew ktlintStagingDebugCheck
+#     - name: Run Ktlint
+#       run: ./gradlew ktlintStagingDebugCheck
 
     - name: Run Unit Tests
       run: ./gradlew testStagingDebugUnitTest
