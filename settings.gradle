@@ -13,7 +13,6 @@ dependencyResolutionManagement {
         flatDir {
             dirs 'app/libs'
         }
-        maven { url 'https://jitpack.io' }
     }
 }
 rootProject.name = "FHIR-Android"

@@ -8,6 +8,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.api.ApiService
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.EndPoints.RELATED_PERSON
+import com.latticeonfhir.android.data.server.constants.QueryParameters.COUNT
 import com.latticeonfhir.android.data.server.constants.QueryParameters.ID
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -28,7 +29,7 @@ class SyncRepositoryImpl @Inject constructor(
 ) : SyncRepository {
 
     override suspend fun getAndInsertListPatientData(): ResponseMapper<List<PatientResponse>> {
-        return ApiResponseConverter.convert(apiService.getListData(PATIENT, emptyMap()))
+        return ApiResponseConverter.convert(apiService.getListData(PATIENT, mapOf(Pair(COUNT,"500"))))
             .apply {
                 if (this is ApiSuccessResponse) {
                     patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
