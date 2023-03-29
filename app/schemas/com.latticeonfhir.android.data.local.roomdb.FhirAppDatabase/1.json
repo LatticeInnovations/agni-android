@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b3fb34473f738f35869163e0dc541e46",
+    "identityHash": "7349eabb3c1df0b19f36c89ba1711867",
     "entities": [
       {
         "tableName": "PatientEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `active` INTEGER, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER, `email` TEXT, `fhirId` TEXT, `addressLine1` TEXT, `city` TEXT, `district` TEXT, `state` TEXT, `postalCode` TEXT, `country` TEXT, `addressLine2` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `active` INTEGER, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER, `email` TEXT, `fhirId` TEXT, `addressLine1` TEXT NOT NULL, `city` TEXT, `district` TEXT, `state` TEXT NOT NULL, `postalCode` TEXT NOT NULL, `country` TEXT, `addressLine2` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -72,7 +72,7 @@
             "fieldPath": "permanentAddress.addressLine1",
             "columnName": "addressLine1",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "permanentAddress.city",
@@ -90,13 +90,13 @@
             "fieldPath": "permanentAddress.state",
             "columnName": "state",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "permanentAddress.postalCode",
             "columnName": "postalCode",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "permanentAddress.country",
@@ -294,134 +294,12 @@
             ]
           }
         ]
-      },
-      {
-        "ftsVersion": "FTS4",
-        "ftsOptions": {
-          "tokenizer": "simple",
-          "tokenizerArgs": [],
-          "contentTable": "",
-          "languageIdColumnName": "",
-          "matchInfo": "FTS4",
-          "notIndexedColumns": [],
-          "prefixSizes": [],
-          "preferredOrder": "ASC"
-        },
-        "contentSyncTriggers": [],
-        "tableName": "TestEntity",
-        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `active` INTEGER, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER, `email` TEXT, `fhirId` TEXT, `addressLine1` TEXT, `city` TEXT, `district` TEXT, `state` TEXT, `postalCode` TEXT, `country` TEXT, `addressLine2` TEXT)",
-        "fields": [
-          {
-            "fieldPath": "firstName",
-            "columnName": "firstName",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "middleName",
-            "columnName": "middleName",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "lastName",
-            "columnName": "lastName",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "active",
-            "columnName": "active",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "gender",
-            "columnName": "gender",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "birthDate",
-            "columnName": "birthDate",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "mobileNumber",
-            "columnName": "mobileNumber",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "email",
-            "columnName": "email",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "fhirId",
-            "columnName": "fhirId",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "permanentAddress.addressLine1",
-            "columnName": "addressLine1",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "permanentAddress.city",
-            "columnName": "city",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "permanentAddress.district",
-            "columnName": "district",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "permanentAddress.state",
-            "columnName": "state",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "permanentAddress.postalCode",
-            "columnName": "postalCode",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "permanentAddress.country",
-            "columnName": "country",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "permanentAddress.addressLine2",
-            "columnName": "addressLine2",
-            "affinity": "TEXT",
-            "notNull": false
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "rowid"
-          ]
-        },
-        "indices": [],
-        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b3fb34473f738f35869163e0dc541e46')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7349eabb3c1df0b19f36c89ba1711867')"
     ]
   }
 }

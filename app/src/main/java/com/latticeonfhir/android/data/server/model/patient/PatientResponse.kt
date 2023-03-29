@@ -8,7 +8,7 @@ data class PatientResponse(
     val firstName: String,
     val middleName: String?,
     val lastName: String?,
-    val identifier: List<PatientIdentifier>?,
+    val identifier: List<PatientIdentifier>,
     val active: Boolean?,
     val gender: String,
     val birthDate: Date,

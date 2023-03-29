@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.data.local.roomdb.dao
 
-import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
@@ -11,7 +10,6 @@ import androidx.room.Update
 import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.TestEntity
 
 @Dao
 interface PatientDao {
@@ -39,12 +37,4 @@ interface PatientDao {
     @Transaction
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateIdentifiers(vararg listOfIdentifiers: IdentifierEntity)
-
-    @Transaction
-    @Query("SELECT * FROM PatientEntity WHERE firstName MATCH 'Anju' ")
-    suspend fun getFuzzySearch() : List<PatientEntity>
-
-    @Transaction
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTestData(vararg testEntity: TestEntity): List<Long>
 }

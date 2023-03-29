@@ -7,6 +7,7 @@ import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
@@ -22,7 +23,7 @@ class MainViewModel @Inject constructor(
     private val syncRepository: SyncRepository,
     private val patientRepository: PatientRepository,
     private val genericRepository: GenericRepository,
-    private val patientDao: PatientDao
+    private val searchRepository: SearchRepository
 ) : BaseViewModel() {
 
     private val personId = UUIDBuilder.generateUUID()
@@ -105,7 +106,7 @@ class MainViewModel @Inject constructor(
 //                typeEnum = GenericTypeEnum.PATIENT
 //            )
 //            if(c > 0) syncRepository.sendPersonPatchData()
-            val c = patientDao.getFuzzySearch()
+            val c = searchRepository.searchPatients("Priyateek")
             Timber.d("Blah Blah Seach $c")
         }
     }
