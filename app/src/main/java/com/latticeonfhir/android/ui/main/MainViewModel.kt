@@ -16,6 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -106,7 +107,9 @@ class MainViewModel @Inject constructor(
 //                typeEnum = GenericTypeEnum.PATIENT
 //            )
 //            if(c > 0) syncRepository.sendPersonPatchData()
-            val c = searchRepository.searchPatients("Priyateek")
+            Timber.d("Start Time ${Date().time}")
+            val c = searchRepository.searchPatients("Sumt")
+            Timber.d("End Time ${Date().time}")
             Timber.d("Blah Blah Seach $c")
         }
     }
