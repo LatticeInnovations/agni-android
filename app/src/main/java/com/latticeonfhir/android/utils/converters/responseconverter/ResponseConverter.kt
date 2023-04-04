@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
+import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
@@ -98,3 +99,7 @@ fun PermanentAddressEntity.toPatientAddressResponse(): PatientAddressResponse {
 //        fromRelation = toRelation
 //    )
 //}
+
+fun List<GenericEntity>.toListOfId(): List<String> {
+    return this.map { it.id }
+}
