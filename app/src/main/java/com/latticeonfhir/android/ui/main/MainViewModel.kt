@@ -1,6 +1,11 @@
 package com.latticeonfhir.android.ui.main
 
+import android.app.Application
 import androidx.lifecycle.viewModelScope
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import com.latticeonfhir.android.FhirApp
+import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
@@ -8,15 +13,23 @@ import com.latticeonfhir.android.data.local.model.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
+import com.latticeonfhir.android.service.workmanager.BackoffCriteria
+import com.latticeonfhir.android.service.workmanager.PeriodicSyncConfiguration
+import com.latticeonfhir.android.service.workmanager.RepeatInterval
+import com.latticeonfhir.android.service.workmanager.RetryConfiguration
+import com.latticeonfhir.android.service.workmanager.Sync
+import com.latticeonfhir.android.service.workmanager.workers.download.patient.PatientDownloadSyncWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.upload.patient.PatientUploadSyncWorkerImpl
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,12 +37,14 @@ class MainViewModel @Inject constructor(
     private val syncRepository: SyncRepository,
     private val patientRepository: PatientRepository,
     private val genericRepository: GenericRepository,
-    private val searchRepository: SearchRepository
-) : BaseViewModel() {
+    private val searchRepository: SearchRepository,
+    application: Application
+) : BaseAndroidViewModel(application) {
 
     private val personId = UUIDBuilder.generateUUID()
 
     init {
+        FhirApp.syncRepository = syncRepository
         val list = mutableListOf<ChangeRequest>()
         list.add(
             ChangeRequest(
@@ -55,7 +70,15 @@ class MainViewModel @Inject constructor(
         )
 
         viewModelScope.launch(Dispatchers.IO) {
-            syncRepository.getAndInsertListPatientData()
+            Sync.periodicSync<PatientUploadSyncWorkerImpl>(getApplication<Application?>().applicationContext,
+                PeriodicSyncConfiguration(
+                    syncConstraints = Constraints.Builder().build(),
+                    repeat = RepeatInterval(10,TimeUnit.SECONDS),
+                    retryConfiguration = RetryConfiguration(BackoffCriteria(BackoffPolicy.LINEAR, 10,TimeUnit.SECONDS),5)
+                )
+            )
+            Sync.oneTimeSync<PatientDownloadSyncWorkerImpl>(getApplication<Application?>().applicationContext)
+//            syncRepository.getAndInsertListPatientData()
             val map = mutableMapOf<String, Any>()
             map["id"] = 109
             map["resourceType"] = "Patient"
@@ -71,7 +94,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getUserData() {
+    internal fun getUserData() {
         viewModelScope.launch {
             patientRepository.getPatientList()
             submitData()
@@ -108,7 +131,7 @@ class MainViewModel @Inject constructor(
 //            )
 //            if(c > 0) syncRepository.sendPersonPatchData()
             Timber.d("Start Time ${Date().time}")
-            val c = searchRepository.searchPatients("Sumt")
+            val c = searchRepository.searchPatients("Priyateek")
             Timber.d("End Time ${Date().time}")
             Timber.d("Blah Blah Seach $c")
         }
