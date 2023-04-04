@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.data.local.roomdb.dao
 
-import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert

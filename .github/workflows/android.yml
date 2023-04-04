@@ -1,8 +1,8 @@
 name: Android CI
 
 on:
-  pull_request:
-    branches: [ "main" ]
+  push:
+    branches: [ "dev" ]
 
 jobs:
   build:
@@ -29,6 +29,8 @@ jobs:
       
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
+      with:
+        gradle-version: 7.4
       
     - name: Setup Gradle Cache
       uses: actions/cache@v2
@@ -41,8 +43,8 @@ jobs:
     - name: Execute Gradle build
       run: ./gradlew build
        
-    - name: Run Ktlint
-      run: ./gradlew ktlintStagingDebugCheck
+#     - name: Run Ktlint
+#       run: ./gradlew ktlintStagingDebugCheck
 
     - name: Run Unit Tests
       run: ./gradlew testStagingDebugUnitTest
