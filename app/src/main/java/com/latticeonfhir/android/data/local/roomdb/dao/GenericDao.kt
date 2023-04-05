@@ -27,4 +27,8 @@ interface GenericDao {
     @Transaction
     @Query("SELECT * FROM GenericEntity WHERE type=:genericTypeEnum AND syncType=:syncType LIMIT :limit")
     suspend fun getSameTypeGenericEntityPayload(genericTypeEnum: GenericTypeEnum, syncType: SyncType, limit: Int = 10): List<GenericEntity>
+
+    @Transaction
+    @Query("DELETE FROM GenericEntity WHERE id IN (:ids)")
+    suspend fun deleteSyncPayload(ids: List<String>): Int
 }

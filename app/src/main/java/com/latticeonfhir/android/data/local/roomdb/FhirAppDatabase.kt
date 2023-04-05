@@ -9,6 +9,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
@@ -31,6 +32,7 @@ abstract class FhirAppDatabase : RoomDatabase() {
     abstract fun getIdentifierDao(): IdentifierDao
     abstract fun getGenericDao(): GenericDao
     abstract fun getRelationDao(): RelationDao
+    abstract fun getSearchDao(): SearchDao
 
     companion object {
         @Volatile
@@ -42,15 +44,15 @@ abstract class FhirAppDatabase : RoomDatabase() {
         }
 
         private fun buildDatabase(
-            context: Context,
-            preferenceStorage: PreferenceStorage
+            context: Context, preferenceStorage: PreferenceStorage
         ): FhirAppDatabase {
 
             if (preferenceStorage.uuid.isEmpty()) {
                 preferenceStorage.uuid = UUID.randomUUID().toString()
             }
 
-            val passphrase: ByteArray = SQLiteDatabase.getBytes(preferenceStorage.uuid.toCharArray())
+            val passphrase: ByteArray =
+                SQLiteDatabase.getBytes(preferenceStorage.uuid.toCharArray())
             val factory = SupportFactory(passphrase)
 
             return Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android.db")
