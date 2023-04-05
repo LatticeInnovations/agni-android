@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.main.patientregistration
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,7 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.ui.main.patientregistration.preview.PatientRegistrationPreviewViewModel
@@ -38,9 +41,10 @@ fun PatientRegistrationPreview(
     navController: NavController,
     viewModel: PatientRegistrationPreviewViewModel = hiltViewModel()
 ) {
-    val patientRegisterDetails = navController.previousBackStackEntry?.savedStateHandle?.get<PatientRegister>(
-        key = "patient_register_details"
-    )
+    val patientRegisterDetails =
+        navController.previousBackStackEntry?.savedStateHandle?.get<PatientRegister>(
+            key = "patient_register_details"
+        )
     patientRegisterDetails
         ?.run {
             viewModel.firstName = firstName.toString()
@@ -71,7 +75,8 @@ fun PatientRegistrationPreview(
             viewModel.workAddress.city = workCity.toString()
             viewModel.workAddress.district = workDistrict.toString()
 
-            viewModel.dob = "${viewModel.dobDay}-${viewModel.dobMonth.subSequence(0, 3)}-${viewModel.dobYear}"
+            viewModel.dob =
+                "${viewModel.dobDay}-${viewModel.dobMonth.subSequence(0, 3)}-${viewModel.dobYear}"
         }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -125,6 +130,73 @@ fun PatientRegistrationPreview(
                     PreviewScreen(navController, viewModel, patientRegisterDetails)
                 }
             }
+        },
+        floatingActionButton = {
+            Button(
+                onClick = {
+                    if (viewModel.passportId.isNotEmpty()) {
+                        viewModel.identifierList.add(
+                            PatientIdentifier(
+                                identifierType = "https://www.passportindia.gov.in/",
+                                identifierNumber = viewModel.passportId,
+                                code = null
+                            )
+                        )
+                    }
+                    if (viewModel.voterId.isNotEmpty()) {
+                        viewModel.identifierList.add(
+                            PatientIdentifier(
+                                identifierType = "https://www.nvsp.in/",
+                                identifierNumber = viewModel.voterId,
+                                code = null
+                            )
+                        )
+                    }
+                    if (viewModel.patientId.isNotEmpty()) {
+                        viewModel.identifierList.add(
+                            PatientIdentifier(
+                                identifierType = "https://www.apollohospitals.com/",
+                                identifierNumber = viewModel.patientId,
+                                code = null
+                            )
+                        )
+                    }
+                    val formatter = DateTimeFormatter.ofPattern("d-MMM-yyyy", Locale.ENGLISH)
+                    val date = LocalDate.parse(viewModel.dob, formatter)
+                    viewModel.addPatient(
+                        PatientResponse(
+                            id = UUIDBuilder.generateUUID(),
+                            firstName = patientRegisterDetails?.firstName!!,
+                            middleName = if (patientRegisterDetails.middleName!!.isEmpty()) null else patientRegisterDetails.middleName,
+                            lastName = if (patientRegisterDetails.lastName!!.isEmpty()) null else patientRegisterDetails.lastName,
+                            birthDate = Date.from(
+                                date.atStartOfDay(ZoneId.systemDefault()).toInstant()
+                            ),
+                            email = if (patientRegisterDetails.email!!.isEmpty()) null else patientRegisterDetails.email,
+                            active = true,
+                            gender = patientRegisterDetails.gender!!,
+                            mobileNumber = patientRegisterDetails.phoneNumber!!.toLong(),
+                            fhirId = null,
+                            permanentAddress = PatientAddressResponse(
+                                postalCode = patientRegisterDetails.homePostalCode!!,
+                                state = patientRegisterDetails.homeState!!,
+                                addressLine1 = patientRegisterDetails.homeAddressLine1!!,
+                                addressLine2 = if (patientRegisterDetails.homeAddressLine2!!.isEmpty()) null else patientRegisterDetails.homeAddressLine2,
+                                city = patientRegisterDetails.homeCity,
+                                country = "India",
+                                district = if (patientRegisterDetails.homeDistrict!!.isEmpty()) null else patientRegisterDetails.homeDistrict
+                            ),
+                            identifier = viewModel.identifierList
+                        )
+                    )
+                    navController.navigate(Screen.LandingScreen.route)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 32.dp)
+            ) {
+                Text(text = "Save")
+            }
         }
     )
 }
@@ -136,104 +208,117 @@ fun PreviewScreen(
     patientRegister: PatientRegister
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(15.dp)
-    ) {
-        Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
+                .padding(15.dp)
                 .verticalScroll(rememberScrollState())
                 .testTag("columnLayout")
-                .weight(1f)
         ) {
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(4.dp)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
             ) {
+                val name = viewModel.firstName.capitalize() +
+                        if (viewModel.middleName.isEmpty()) "" else {
+                            " " + viewModel.middleName.capitalize()
+                        } +
+                        if (viewModel.lastName.isEmpty()) "" else {
+                            " " + viewModel.lastName.capitalize()
+                        }
                 Column(
                     modifier = Modifier
+                        .padding(20.dp)
                         .fillMaxWidth()
-                        .padding(15.dp)
                 ) {
-                    Heading("Basic Information")
-                    DetailsText("First Name", viewModel.firstName)
-                    if (viewModel.middleName != "") DetailsText("Middle Name", viewModel.middleName)
-                    if (viewModel.lastName != "") DetailsText("Last Name", viewModel.lastName)
-                    if (viewModel.dob.isNotEmpty()) DetailsText(
-                        "Date of birth",
-                        viewModel.dob
+                    Heading("Basic Information", 1, patientRegister, navController)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "$name, ${viewModel.gender.capitalize()}",
+                        style = MaterialTheme.typography.bodyLarge
                     )
-                    if (viewModel.years.isNotEmpty() && viewModel.months.isNotEmpty() && viewModel.days.isNotEmpty()) AgeText(
-                        "Age",
-                        viewModel.years,
-                        viewModel.months,
-                        viewModel.days
-                    )
-                    DetailsText("Phone Number", "+91 ${viewModel.phoneNumber}")
-                    if (viewModel.email.isNotEmpty()) DetailsText("Email Address", viewModel.email)
-                    DetailsText("Gender", viewModel.gender)
-                    EditButton(navController, 1, patientRegister)
-                }
-                Divider(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = Primary70
-                )
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(4.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(15.dp)
-                ) {
-                    Heading("Identification")
-                    if (viewModel.passportId.isNotEmpty()) DetailsText(
-                        "Passport Id",
-                        viewModel.passportId
-                    )
-                    if (viewModel.voterId.isNotEmpty()) DetailsText("Voter Id", viewModel.voterId)
-                    if (viewModel.patientId.isNotEmpty()) DetailsText(
-                        "Patient Id",
-                        viewModel.patientId
-                    )
-                    EditButton(navController, 2, patientRegister)
-                }
-                Divider(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = Primary70
-                )
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(4.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(15.dp)
-                ) {
-                    Heading("Addresses")
-                    SubHeading("Home Address")
-                    AddressCard(viewModel.homeAddress)
-                    if (viewModel.workAddress.pincode.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(20.dp))
-                        SubHeading("Work Address")
-                        AddressCard(viewModel.workAddress)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Label("Date of birth")
+                    Detail("${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}")
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Label("Phone No.")
+                    Detail("+91 ${viewModel.phoneNumber}")
+                    if (viewModel.email.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Label("Email")
+                        Detail(viewModel.email)
                     }
-                    EditButton(navController, 3, patientRegister)
                 }
-                Divider(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = Primary70
-                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(20.dp)
+                        .fillMaxWidth()
+                ) {
+                    Heading("Identification", 2, patientRegister, navController)
+                    if (viewModel.passportId.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Label("Passport ID")
+                        Detail(viewModel.passportId)
+                    }
+                    if (viewModel.voterId.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Label("Voter ID")
+                        Detail(viewModel.voterId)
+                    }
+                    if (viewModel.patientId.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Label("Patient ID")
+                        Detail(viewModel.patientId)
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            ) {
+                val homeAddressLine1 = viewModel.homeAddress.addressLine1 +
+                        if (viewModel.homeAddress.addressLine2.isEmpty()) "" else {
+                            ", " + viewModel.homeAddress.addressLine2
+                        }
+                val homeAddressLine2 = viewModel.homeAddress.city +
+                        if (viewModel.homeAddress.district.isEmpty()) "" else {
+                            ", " + viewModel.homeAddress.district
+                        }
+                val homeAddressLine3 = "${viewModel.homeAddress.state}, ${viewModel.homeAddress.pincode}"
+                Column(
+                    modifier = Modifier
+                        .padding(20.dp)
+                        .fillMaxWidth()
+                ) {
+                    Heading("Addresses", 3, patientRegister, navController)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Label("Home Address")
+                    Detail(homeAddressLine1)
+                    Detail(homeAddressLine2)
+                    Detail(homeAddressLine3)
+                    if (viewModel.workAddress.pincode.isNotEmpty()) {
+                        val workAddressLine1 = viewModel.workAddress.addressLine1 +
+                                if (viewModel.workAddress.addressLine2.isEmpty()) "" else {
+                                    ", " + viewModel.workAddress.addressLine2
+                                }
+                        val workAddressLine2 = viewModel.workAddress.city +
+                                if (viewModel.workAddress.district.isEmpty()) "" else {
+                                    ", " + viewModel.workAddress.district
+                                }
+                        val workAddressLine3 = "${viewModel.workAddress.state}, ${viewModel.workAddress.pincode}"
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Label("Work Address")
+                        Detail(workAddressLine1)
+                        Detail(workAddressLine2)
+                        Detail(workAddressLine3)
+                    }
+                }
             }
             if (viewModel.openDialog) {
                 AlertDialog(
@@ -279,120 +364,25 @@ fun PreviewScreen(
                     }
                 )
             }
-            Spacer(modifier = Modifier.testTag("end of page"))
+            Spacer(modifier = Modifier
+                .padding(bottom = 60.dp)
+                .testTag("end of page"))
         }
-        Button(
-            onClick = {
-                if (viewModel.passportId.isNotEmpty()) {
-                    viewModel.identifierList.add(
-                        PatientIdentifier(
-                            identifierType = "https://www.passportindia.gov.in/",
-                            identifierNumber = viewModel.passportId,
-                            code = null
-                        )
-                    )
-                }
-                if (viewModel.voterId.isNotEmpty()) {
-                    viewModel.identifierList.add(
-                        PatientIdentifier(
-                            identifierType = "https://www.nvsp.in/",
-                            identifierNumber = viewModel.voterId,
-                            code = null
-                        )
-                    )
-                }
-                if (viewModel.patientId.isNotEmpty()) {
-                    viewModel.identifierList.add(
-                        PatientIdentifier(
-                            identifierType = "http://hospital.smarthealthit.org",
-                            identifierNumber = viewModel.patientId,
-                            code = null
-                        )
-                    )
-                }
-                val formatter = DateTimeFormatter.ofPattern("d-MMM-yyyy", Locale.ENGLISH)
-                val date = LocalDate.parse(viewModel.dob, formatter)
-                viewModel.addPatient(
-                    PatientResponse(
-                        id = UUIDBuilder.generateUUID(),
-                        firstName = patientRegister.firstName!!,
-                        middleName = if(patientRegister.middleName!!.isEmpty()) null else patientRegister.middleName,
-                        lastName = if(patientRegister.lastName!!.isEmpty()) null else patientRegister.lastName,
-                        birthDate = Date.from(
-                            date.atStartOfDay(ZoneId.systemDefault()).toInstant()
-                        ),
-                        email = if(patientRegister.email!!.isEmpty()) null else patientRegister.email,
-                        active = true,
-                        gender = patientRegister.gender!!,
-                        mobileNumber = patientRegister.phoneNumber!!.toLong(),
-                        fhirId = null,
-                        permanentAddress = PatientAddressResponse(
-                            postalCode = patientRegister.homePostalCode!!,
-                            state = patientRegister.homeState!!,
-                            addressLine1 = patientRegister.homeAddressLine1!!,
-                            addressLine2 = if(patientRegister.homeAddressLine2!!.isEmpty()) null else patientRegister.homeAddressLine2,
-                            city = patientRegister.homeCity,
-                            country = "India",
-                            district = if(patientRegister.homeDistrict!!.isEmpty()) null else patientRegister.homeDistrict
-                        ),
-                        identifier = viewModel.identifierList
-                    )
-                )
-                navController.navigate(Screen.LandingScreen.route)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp)
-        ) {
-            Text(text = "Save")
-        }
-    }
+
 }
 
 @Composable
-fun Heading(title: String) {
-    Text(
-        text = title,
+fun Heading(heading: String, step: Int, patientRegister: PatientRegister, navController: NavController) {
+    Row(
         modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-}
-
-@Composable
-fun SubHeading(title: String) {
-    Text(
-        text = title,
-        modifier = Modifier.fillMaxWidth(),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurface
-    )
-}
-
-@Composable
-fun DetailsText(label: String, text: String) {
-    Text(
-        text = "$label: ${text.capitalize()}",
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurface,
-        modifier = Modifier.padding(top = 15.dp)
-    )
-}
-
-@Composable
-fun AgeText(label: String, years: String, months: String, days: String) {
-    Text(
-        text = "$label: $years years $months months $days days",
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurface,
-        modifier = Modifier.padding(top = 15.dp)
-    )
-}
-
-@Composable
-fun EditButton(navController: NavController, step: Int, patientRegister: PatientRegister) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = heading,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.secondary
+        )
         TextButton(
             onClick = {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
@@ -410,7 +400,6 @@ fun EditButton(navController: NavController, step: Int, patientRegister: Patient
                 navController.navigate(Screen.PatientRegistrationScreen.route)
             },
             modifier = Modifier
-                .align(Alignment.End)
                 .testTag("edit btn $step")
         ) {
             Icon(
@@ -430,15 +419,11 @@ fun EditButton(navController: NavController, step: Int, patientRegister: Patient
 }
 
 @Composable
-fun AddressCard(address: Address) {
-    Column(
-        modifier = Modifier.padding(5.dp)
-    ) {
-        DetailsText("Postal Code", address.pincode)
-        DetailsText("State", address.state)
-        DetailsText("Address Line 1", address.addressLine1)
-        if (address.addressLine2.isNotEmpty()) DetailsText("Address Line 2", address.addressLine2)
-        DetailsText("City", address.city)
-        if (address.district.isNotEmpty()) DetailsText("District", address.district)
-    }
+fun Label(label: String) {
+    Text(text = label, style = MaterialTheme.typography.bodySmall)
+}
+
+@Composable
+fun Detail(detail: String) {
+    Text(text = detail, style = MaterialTheme.typography.bodyLarge)
 }

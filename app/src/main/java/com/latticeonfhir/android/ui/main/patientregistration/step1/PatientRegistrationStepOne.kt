@@ -205,61 +205,22 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        var dayExpanded by remember { mutableStateOf(false) }
         var monthExpanded by remember { mutableStateOf(false) }
-        var yearExpanded by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier.fillMaxWidth(0.23f).testTag("day")
-        ) {
-            OutlinedTextField(
-                value = viewModel.dobDay,
-                onValueChange = {
-                    viewModel.dobDay = it
-                },
-                label = {
-                    Text(text = "Day")
-                },
-//                trailingIcon = {
-//                    Icon(Icons.Default.ArrowDropDown, contentDescription = "")
-//                },
-//                interactionSource = remember {
-//                    MutableInteractionSource()
-//                }.also { interactionSource ->
-//                    LaunchedEffect(interactionSource) {
-//                        interactionSource.interactions.collect {
-//                            if (it is PressInteraction.Release) {
-//                                dayExpanded = !dayExpanded
-//                            }
-//                        }
-//                    }
-//                },
-                singleLine = true
-            )
-            DropdownMenu(
-                modifier = Modifier.fillMaxHeight(0.5f),
-                expanded = dayExpanded,
-                onDismissRequest = { dayExpanded = false },
-            ) {
-                viewModel.daysList.forEach { label ->
-                    DropdownMenuItem(
-                        onClick = {
-                            dayExpanded = false
-                            viewModel.dobDay = label.toString()
-                        },
-                        text = {
-                            Text(
-                                text = label.toString(),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    )
-                }
-            }
+        CustomTextField(
+            value = viewModel.dobDay,
+            label = "Day",
+            weight = 0.23f,
+            maxLength = 2,
+            isError = false,
+            error = ""
+        ){
+            viewModel.dobDay = it
         }
         Spacer(modifier = Modifier.width(10.dp))
         Column(
-            modifier = Modifier.fillMaxWidth(0.6f).testTag("month")
+            modifier = Modifier
+                .fillMaxWidth(0.6f)
+                .testTag("month")
         ) {
             OutlinedTextField(
                 value = viewModel.dobMonth,
@@ -309,54 +270,15 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
             }
         }
         Spacer(modifier = Modifier.width(10.dp))
-        Column(
-            modifier = Modifier.fillMaxWidth(1f).testTag("year")
-        ) {
-            OutlinedTextField(
-                value = viewModel.dobYear,
-                onValueChange = {
-                    viewModel.dobYear = it
-                },
-                label = {
-                    Text(text = "Year")
-                },
-//                trailingIcon = {
-//                    Icon(Icons.Default.ArrowDropDown, contentDescription = "")
-//                },
-//                interactionSource = remember {
-//                    MutableInteractionSource()
-//                }.also { interactionSource ->
-//                    LaunchedEffect(interactionSource) {
-//                        interactionSource.interactions.collect {
-//                            if (it is PressInteraction.Release) {
-//                                yearExpanded = !yearExpanded
-//                            }
-//                        }
-//                    }
-//                },
-                singleLine = true
-            )
-            DropdownMenu(
-                modifier = Modifier.fillMaxHeight(0.5f),
-                expanded = yearExpanded,
-                onDismissRequest = { yearExpanded = false },
-            ) {
-                viewModel.yearsList.forEach { label ->
-                    DropdownMenuItem(
-                        onClick = {
-                            yearExpanded = false
-                            viewModel.dobYear = label.toString()
-                        },
-                        text = {
-                            Text(
-                                text = label.toString(),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    )
-                }
-            }
+        CustomTextField(
+            value = viewModel.dobYear,
+            label = "Year",
+            weight = 1f,
+            maxLength = 4,
+            isError = false,
+            error = ""
+        ){
+            viewModel.dobYear = it
         }
     }
 }
