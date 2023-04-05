@@ -6,10 +6,12 @@ import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.api.ApiService
+import com.latticeonfhir.android.data.server.constants.ConstantValues.COUNT_VALUE
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.EndPoints.RELATED_PERSON
 import com.latticeonfhir.android.data.server.constants.QueryParameters.COUNT
 import com.latticeonfhir.android.data.server.constants.QueryParameters.ID
+import com.latticeonfhir.android.data.server.constants.QueryParameters.OFFSET
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
@@ -21,9 +23,8 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmpty
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiSuccessResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
-import com.latticeonfhir.android.utils.converters.server.responsemapper.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,20 +36,24 @@ class SyncRepositoryImpl @Inject constructor(
     private val genericDao: GenericDao
 ) : SyncRepository {
 
-    override suspend fun getAndInsertListPatientData(): ResponseMapper<List<PatientResponse>> {
+    override suspend fun getAndInsertListPatientData(offset: Int): ResponseMapper<List<PatientResponse>> {
         return ApiResponseConverter.convert(
             apiService.getListData(
                 PATIENT,
-                mapOf(Pair(COUNT, "100"))
-            )
+                mapOf(Pair(COUNT, COUNT_VALUE.toString()), Pair(OFFSET, offset.toString()))
+            ),
+            true
         ).apply {
-            if (this is ApiSuccessResponse) {
+            if (this is ApiContinueResponse) {
                 patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
                 body.map { patientResponse ->
                     patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
                         patientDao.insertIdentifiers(*listOfIdentifiers.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
                             .toTypedArray())
                     }
+                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    getAndInsertListPatientData(offset + 20)
                 }
             }
             if (this is ApiEndResponse) {
@@ -70,7 +75,7 @@ class SyncRepositoryImpl @Inject constructor(
                 mapOf(Pair(ID, id))
             )
         ).apply {
-            if (this is ApiSuccessResponse) {
+            if (this is ApiContinueResponse) {
                 patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
                 body.map { patientResponse ->
                     patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
@@ -103,7 +108,7 @@ class SyncRepositoryImpl @Inject constructor(
                     map { it.payload.fromJson<PatientResponse>() }
                 )
             ).apply {
-                if (this is ApiSuccessResponse) {
+                if (this is ApiContinueResponse) {
                     CoroutineScope(Dispatchers.IO).launch {
                         genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                             if (it > 0) sendPersonPostData()
@@ -130,7 +135,7 @@ class SyncRepositoryImpl @Inject constructor(
                     map { it.payload.fromJson<RelatedPersonResponse>() }
                 )
             ).apply {
-                if (this is ApiSuccessResponse) {
+                if (this is ApiContinueResponse) {
                     CoroutineScope(Dispatchers.IO).launch {
                         genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                             if (it > 0) sendRelatedPersonPostData()
@@ -158,7 +163,7 @@ class SyncRepositoryImpl @Inject constructor(
                         map { it.payload.fromJson() }
                     )
                 ).apply {
-                    if (this is ApiSuccessResponse) {
+                    if (this is ApiContinueResponse) {
                         CoroutineScope(Dispatchers.IO).launch {
                             genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                                 if (it > 0) sendPersonPatchData()
@@ -185,7 +190,7 @@ class SyncRepositoryImpl @Inject constructor(
                             map { it.payload.fromJson() }
                         )
                     ).apply {
-                        if (this is ApiSuccessResponse) {
+                        if (this is ApiContinueResponse) {
                             CoroutineScope(Dispatchers.IO).launch {
                                 genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                                     if (it > 0) sendRelatedPersonPatchData()

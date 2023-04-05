@@ -6,7 +6,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.Response
 
 interface SyncRepository {
 
-    suspend fun getAndInsertListPatientData(): ResponseMapper<List<PatientResponse>>
+    suspend fun getAndInsertListPatientData(offset: Int): ResponseMapper<List<PatientResponse>>
     suspend fun getAndInsertPatientDataById(id: String): ResponseMapper<List<PatientResponse>>
 
     //POST

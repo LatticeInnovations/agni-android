@@ -130,10 +130,6 @@ class MainViewModel @Inject constructor(
 //                typeEnum = GenericTypeEnum.PATIENT
 //            )
 //            if(c > 0) syncRepository.sendPersonPatchData()
-            Timber.d("Start Time ${Date().time}")
-            val c = searchRepository.searchPatients("Priyateek")
-            Timber.d("End Time ${Date().time}")
-            Timber.d("Blah Blah Seach $c")
         }
     }
 }
