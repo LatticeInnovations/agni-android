@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="dagger.Module" />
+    <list size="2">
+      <item index="0" class="java.lang.String" itemvalue="dagger.Binds" />
+      <item index="1" class="java.lang.String" itemvalue="dagger.Module" />
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
@@ -57,7 +58,7 @@
       </value>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_17_PREVIEW" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>
