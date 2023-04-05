@@ -194,7 +194,7 @@ fun LandingScreen(
             modifier =
             Modifier
                 .matchParentSize()
-                .background(Color.Gray.copy(alpha = if (viewModel.isSearching) 0.5f else 0f))
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = if (viewModel.isSearching) 0.5f else 0f))
 
         ) {
             AnimatedVisibility(
@@ -271,8 +271,8 @@ fun PreviousSearches() {
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(painterResource(id = R.drawable.search_history), contentDescription = "")
+        Icon(painterResource(id = R.drawable.search_history), contentDescription = "", tint = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.width(15.dp))
-        Text(text = "List item", style = MaterialTheme.typography.bodyLarge)
+        Text(text = "List item", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
     }
 }

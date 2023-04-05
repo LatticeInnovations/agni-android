@@ -35,11 +35,7 @@ fun SearchPatient(
                 ),
                 navigationIcon = {
                     IconButton(onClick = {
-                        if (searchPatientViewModel.step == 2) searchPatientViewModel.step = 1
-                        else {
-                            navController.popBackStack()
-                            //navController.navigate(Screen.LandingScreen.route)
-                        }
+                        navController.popBackStack()
                     }) {
                         Icon(
                             Icons.Default.Clear,
@@ -56,10 +52,7 @@ fun SearchPatient(
                     .fillMaxSize()
                     .padding(it)
             ) {
-//                if (searchPatientViewModel.step == 1)
                 SearchPatientForm(searchPatientViewModel = searchPatientViewModel)
-//                else if (searchPatientViewModel.step == 2)
-//                    SearchPatientResult(searchPatientViewModel = searchPatientViewModel)
             }
         },
         floatingActionButton = {
@@ -68,9 +61,6 @@ fun SearchPatient(
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         "isSearchResult", true
                     )
-//                    navController.currentBackStackEntry?.savedStateHandle?.set(
-//                        "searchPatientList", searchResultList
-//                    )
                     navController.navigate(Screen.LandingScreen.route)
                 },
                 modifier = Modifier
