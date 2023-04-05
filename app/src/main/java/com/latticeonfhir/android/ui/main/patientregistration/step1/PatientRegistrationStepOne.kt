@@ -209,7 +209,7 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
         var monthExpanded by remember { mutableStateOf(false) }
         var yearExpanded by remember { mutableStateOf(false) }
         Column(
-            modifier = Modifier.fillMaxWidth(0.3f).testTag("day")
+            modifier = Modifier.fillMaxWidth(0.23f).testTag("day")
         ) {
             OutlinedTextField(
                 value = viewModel.dobDay,
@@ -219,20 +219,20 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
                 label = {
                     Text(text = "Day")
                 },
-                trailingIcon = {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = "")
-                },
-                interactionSource = remember {
-                    MutableInteractionSource()
-                }.also { interactionSource ->
-                    LaunchedEffect(interactionSource) {
-                        interactionSource.interactions.collect {
-                            if (it is PressInteraction.Release) {
-                                dayExpanded = !dayExpanded
-                            }
-                        }
-                    }
-                },
+//                trailingIcon = {
+//                    Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+//                },
+//                interactionSource = remember {
+//                    MutableInteractionSource()
+//                }.also { interactionSource ->
+//                    LaunchedEffect(interactionSource) {
+//                        interactionSource.interactions.collect {
+//                            if (it is PressInteraction.Release) {
+//                                dayExpanded = !dayExpanded
+//                            }
+//                        }
+//                    }
+//                },
                 singleLine = true
             )
             DropdownMenu(
@@ -259,7 +259,7 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
         }
         Spacer(modifier = Modifier.width(10.dp))
         Column(
-            modifier = Modifier.fillMaxWidth(0.5f).testTag("month")
+            modifier = Modifier.fillMaxWidth(0.6f).testTag("month")
         ) {
             OutlinedTextField(
                 value = viewModel.dobMonth,
@@ -320,20 +320,20 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
                 label = {
                     Text(text = "Year")
                 },
-                trailingIcon = {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = "")
-                },
-                interactionSource = remember {
-                    MutableInteractionSource()
-                }.also { interactionSource ->
-                    LaunchedEffect(interactionSource) {
-                        interactionSource.interactions.collect {
-                            if (it is PressInteraction.Release) {
-                                yearExpanded = !yearExpanded
-                            }
-                        }
-                    }
-                },
+//                trailingIcon = {
+//                    Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+//                },
+//                interactionSource = remember {
+//                    MutableInteractionSource()
+//                }.also { interactionSource ->
+//                    LaunchedEffect(interactionSource) {
+//                        interactionSource.interactions.collect {
+//                            if (it is PressInteraction.Release) {
+//                                yearExpanded = !yearExpanded
+//                            }
+//                        }
+//                    }
+//                },
                 singleLine = true
             )
             DropdownMenu(
