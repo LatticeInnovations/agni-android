@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.latticeonfhir.android.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,10 +23,10 @@ fun SearchPatient(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            CenterAlignedTopAppBar(
+            TopAppBar(
                 title = {
                     Text(
-                        text = "Search Patient",
+                        text = "Advanced Search",
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -36,31 +37,15 @@ fun SearchPatient(
                     IconButton(onClick = {
                         if (searchPatientViewModel.step == 2) searchPatientViewModel.step = 1
                         else {
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                "isSearching",
-                                true
-                            )
-                            navController.navigate(Screen.LandingScreen.route)
+                            navController.popBackStack()
+                            //navController.navigate(Screen.LandingScreen.route)
                         }
                     }) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.Default.Clear,
                             contentDescription = null,
                             modifier = Modifier.testTag("back icon")
                         )
-                    }
-                },
-                actions = {
-                    if (searchPatientViewModel.step == 1) {
-                        IconButton(onClick = {
-                            navController.navigate(Screen.LandingScreen.route)
-                        }) {
-                            Icon(
-                                Icons.Default.Clear,
-                                contentDescription = null,
-                                modifier = Modifier.testTag("clear icon")
-                            )
-                        }
                     }
                 }
             )
@@ -71,10 +56,28 @@ fun SearchPatient(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                if (searchPatientViewModel.step == 1)
-                    SearchPatientForm(searchPatientViewModel = searchPatientViewModel)
-                else if (searchPatientViewModel.step == 2)
-                    SearchPatientResult(searchPatientViewModel = searchPatientViewModel)
+//                if (searchPatientViewModel.step == 1)
+                SearchPatientForm(searchPatientViewModel = searchPatientViewModel)
+//                else if (searchPatientViewModel.step == 2)
+//                    SearchPatientResult(searchPatientViewModel = searchPatientViewModel)
+            }
+        },
+        floatingActionButton = {
+            Button(
+                onClick = {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "isSearchResult", true
+                    )
+//                    navController.currentBackStackEntry?.savedStateHandle?.set(
+//                        "searchPatientList", searchResultList
+//                    )
+                    navController.navigate(Screen.LandingScreen.route)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 30.dp)
+            ) {
+                Text(text = "Search", style = MaterialTheme.typography.labelLarge)
             }
         }
     )

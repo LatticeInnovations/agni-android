@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.main.landingscreen
 
+import android.util.Log
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,8 +17,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.main.common.Loader
 import com.latticeonfhir.android.ui.main.common.PatientItemCard
 import java.time.LocalDate
@@ -86,7 +89,12 @@ fun MyPatientScreen(viewModel: LandingScreenViewModel= hiltViewModel()) {
                 }
             )
         }
-        val patientsList = viewModel.patientList.collectAsLazyPagingItems()
+        val patientsList: LazyPagingItems<PatientResponse>
+        if (viewModel.isSearchResult){
+            patientsList = viewModel.searchResultList.collectAsLazyPagingItems()
+        } else {
+            patientsList = viewModel.patientList.collectAsLazyPagingItems()
+        }
         LazyColumn (modifier = Modifier.testTag("patients list")){
             items(patientsList){patient ->
                 if (patient != null) {

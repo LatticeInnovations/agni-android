@@ -4,8 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
+import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.main.patientregistration.step3.Address
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import java.util.*
 
 class SearchPatientViewModel: BaseViewModel(), DefaultLifecycleObserver {
     var step by mutableStateOf(1)
@@ -23,7 +32,6 @@ class SearchPatientViewModel: BaseViewModel(), DefaultLifecycleObserver {
     var isNameValid by mutableStateOf(false)
     var isPatientIdValid by mutableStateOf(false)
 
-    var isAddressSelected by mutableStateOf(false)
     var address = Address()
 
     fun updateRange(minAge: String, maxAge: String){

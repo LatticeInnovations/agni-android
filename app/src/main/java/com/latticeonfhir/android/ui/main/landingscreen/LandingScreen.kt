@@ -1,5 +1,7 @@
 package com.latticeonfhir.android
 
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -10,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -17,6 +20,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.main.landingscreen.*
 
@@ -27,116 +31,128 @@ fun LandingScreen(
     viewModel: LandingScreenViewModel = hiltViewModel()
 ) {
     val focusRequester = remember { FocusRequester() }
-    if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isSearching") == true) {
-        viewModel.isSearching = true
+
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                    "isSearchResult"
+                ) == true
+            ) {
+                viewModel.isSearchResult = true
+            }
+            viewModel.isLaunched = true
+        }
     }
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            if (viewModel.isSearching) {
-                Surface(
-                    modifier = Modifier.height(64.dp),
-                    color = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center
-                    ) {
-                        TextField(
-                            value = viewModel.searchQuery,
-                            onValueChange = {
-                                viewModel.searchQuery = it
-                            },
-                            leadingIcon = {
-                                IconButton(onClick = {
-                                    viewModel.isSearching = false
-                                }) {
-                                    Icon(Icons.Default.ArrowBack, contentDescription = "")
-                                }
-                            },
-                            trailingIcon = {
-                                IconButton(onClick = {
-                                    viewModel.searchQuery = ""
-                                }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "")
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .focusRequester(focusRequester)
-                                .onGloballyPositioned {
-                                    focusRequester.requestFocus()
-                                },
-                            colors = TextFieldDefaults.textFieldColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
-                            ),
-                            keyboardOptions = KeyboardOptions(
-                                imeAction = ImeAction.Search
+
+    viewModel.populateList()
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                if (viewModel.isSearchResult){
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = "${viewModel.searchResultList.collectAsLazyPagingItems().itemCount} matches found",
+                                style = MaterialTheme.typography.titleLarge
                             )
-                        )
-                    }
-                }
-            } else {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            text = viewModel.items[viewModel.selectedIndex],
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
-                    ),
-                    actions = {
-                        if (viewModel.selectedIndex == 0)
+                        },
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                        ),
+                        actions = {
                             IconButton(onClick = {
-                                viewModel.isSearching = true
+                                    viewModel.isSearching = true
+                                }) {
+                                    Icon(
+                                        Icons.Default.Search, contentDescription = null,
+                                        modifier = Modifier.testTag("search icon")
+                                    )
+                                }
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                viewModel.isSearchResult = false
+                                viewModel.populateList()
                             }) {
                                 Icon(
-                                    Icons.Default.Search, contentDescription = null,
-                                    modifier = Modifier.testTag("search icon")
+                                    Icons.Default.Clear, contentDescription = null,
+                                    modifier = Modifier.testTag("clear icon")
                                 )
                             }
-                    },
-                )
-            }
-        },
-        floatingActionButton = {
-            if (!viewModel.isSearching && viewModel.selectedIndex == 0) {
-                FloatingActionButton(
-                    onClick = {
-                        navController.navigate(Screen.PatientRegistrationScreen.route)
-                    },
-                    content = {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 20.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.person_add),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(25.dp, 23.dp)
-                                    .testTag("add patient icon"),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text(
-                                text = "Add Patient",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.testTag("add patient text")
-                            )
                         }
-                    },
-                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(11.dp)
-                )
-            }
-        },
-        bottomBar = {
-            if (!viewModel.isSearching) {
+                    )
+                } else {
+                    CenterAlignedTopAppBar(
+                        title = {
+                            Text(
+                                text = viewModel.items[viewModel.selectedIndex],
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        },
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                        ),
+                        actions = {
+                            if (viewModel.selectedIndex == 0)
+                                IconButton(onClick = {
+                                    viewModel.isSearching = true
+                                }) {
+                                    Icon(
+                                        Icons.Default.Search, contentDescription = null,
+                                        modifier = Modifier.testTag("search icon")
+                                    )
+                                }
+                        },
+                    )
+                }
+
+            },
+            floatingActionButton = {
+                if (viewModel.selectedIndex == 0) {
+                    FloatingActionButton(
+                        onClick = {
+                            navController.navigate(Screen.PatientRegistrationScreen.route)
+                        },
+                        content = {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 20.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.person_add),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(25.dp, 23.dp)
+                                        .testTag("add patient icon"),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = "Add Patient",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.testTag("add patient text")
+                                )
+                            }
+                        },
+                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(11.dp)
+                    )
+                }
+            },
+            bottomBar = {
                 NavigationBar {
                     val icons =
-                        listOf(R.drawable.patient_list, R.drawable.list_alt, R.drawable.person_icon)
+                        listOf(
+                            R.drawable.patient_list,
+                            R.drawable.list_alt,
+                            R.drawable.person_icon
+                        )
                     viewModel.items.forEachIndexed { index, item ->
                         NavigationBarItem(
                             icon = {
@@ -148,23 +164,24 @@ fun LandingScreen(
                                         .padding(vertical = 3.dp)
                                 )
                             },
-                            label = { Text(item, style = MaterialTheme.typography.labelMedium) },
+                            label = {
+                                Text(
+                                    item,
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                            },
                             selected = viewModel.selectedIndex == index,
                             onClick = { viewModel.selectedIndex = index }
                         )
                     }
                 }
-            }
-        },
-        content = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)
-            ) {
-                if (viewModel.isSearching)
-                    SearchScreen(navController = navController)
-                else {
+            },
+            content = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(it)
+                ) {
                     when (viewModel.selectedIndex) {
                         0 -> MyPatientScreen()
                         1 -> QueueScreen()
@@ -172,6 +189,90 @@ fun LandingScreen(
                     }
                 }
             }
+        )
+        Box(
+            modifier =
+            Modifier
+                .matchParentSize()
+                .background(Color.Gray.copy(alpha = if (viewModel.isSearching) 0.5f else 0f))
+
+        ) {
+            AnimatedVisibility(
+                visible = viewModel.isSearching,
+                enter = slideInVertically(initialOffsetY = { -it }),
+                exit = slideOutVertically(targetOffsetY = { -it })
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    TextField(
+                        value = viewModel.searchQuery,
+                        onValueChange = {
+                            viewModel.searchQuery = it
+                        },
+                        leadingIcon = {
+                            IconButton(onClick = {
+                                viewModel.searchQuery = ""
+                                viewModel.isSearching = false
+                            }) {
+                                Icon(Icons.Default.ArrowBack, contentDescription = "")
+                            }
+                        },
+                        trailingIcon = {
+                            if (viewModel.searchQuery.isNotBlank()) {
+                                IconButton(onClick = {
+                                    viewModel.searchQuery = ""
+                                }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "")
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester)
+                            .onGloballyPositioned {
+                                focusRequester.requestFocus()
+                            },
+                        colors = TextFieldDefaults.textFieldColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Search
+                        )
+                    )
+                    repeat(5) {
+                        PreviousSearches()
+                    }
+                    OutlinedButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 0.dp, bottom = 14.dp, start = 14.dp, end = 14.dp),
+                        onClick = {
+                            viewModel.isSearching = false
+                            navController.navigate(Screen.SearchPatientScreen.route)
+                        }
+                    ) {
+                        Text(text = "Advanced search")
+                    }
+                }
+            }
         }
-    )
+    }
+}
+
+@Composable
+fun PreviousSearches() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(painterResource(id = R.drawable.search_history), contentDescription = "")
+        Spacer(modifier = Modifier.width(15.dp))
+        Text(text = "List item", style = MaterialTheme.typography.bodyLarge)
+    }
 }

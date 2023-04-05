@@ -17,6 +17,7 @@ import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.main.patientregistration.step1.PatientRegistrationStepOne
 import com.latticeonfhir.android.ui.main.patientregistration.step2.PatientRegistrationStepTwo
 import com.latticeonfhir.android.ui.main.patientregistration.step3.PatientRegistrationStepThree
+import com.latticeonfhir.android.ui.main.patientregistration.step4.ConfirmRelationship
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,14 +46,21 @@ fun PatientRegistration(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Patient Registration",
+                        text = if (viewModel.step == 4) "Confirm Relationship" else "Patient Registration",
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
                 navigationIcon = {
                     if (viewModel.step != 1) {
                         IconButton(onClick = {
-                            viewModel.step -= 1
+                            if (viewModel.step == 4) {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    key = "patient_register_details",
+                                    value = patientRegister
+                                )
+                                navController.navigate(Screen.PatientRegistrationPreviewScreen.route)
+                            } else
+                                viewModel.step -= 1
                         }) {
                             Icon(
                                 Icons.Default.ArrowBack,
@@ -83,6 +91,7 @@ fun PatientRegistration(
                     1 -> PatientRegistrationStepOne(patientRegister)
                     2 -> PatientRegistrationStepTwo(patientRegister)
                     3 -> PatientRegistrationStepThree(navController, patientRegister)
+                    4 -> ConfirmRelationship(navController)
                 }
             }
         }
