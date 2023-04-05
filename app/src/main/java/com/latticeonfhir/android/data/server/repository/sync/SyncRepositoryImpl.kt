@@ -8,11 +8,13 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.api.ApiService
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.EndPoints.RELATED_PERSON
+import com.latticeonfhir.android.data.server.constants.QueryParameters.COUNT
 import com.latticeonfhir.android.data.server.constants.QueryParameters.ID
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
+import com.latticeonfhir.android.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
@@ -21,6 +23,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiError
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiSuccessResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.android.utils.converters.server.responsemapper.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,27 +36,31 @@ class SyncRepositoryImpl @Inject constructor(
 ) : SyncRepository {
 
     override suspend fun getAndInsertListPatientData(): ResponseMapper<List<PatientResponse>> {
-        return ApiResponseConverter.convert(apiService.getListData(PATIENT, emptyMap()))
-            .apply {
-                if (this is ApiSuccessResponse) {
-                    patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
-                    body.map { patientResponse ->
-                        patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
-                            patientDao.insertIdentifiers(*listOfIdentifiers.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
-                                .toTypedArray())
-                        }
-                    }
-                }
-                if (this is ApiEndResponse) {
-                    patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
-                    body.map { patientResponse ->
-                        patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
-                            patientDao.insertIdentifiers(*listOfIdentifiers.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
-                                .toTypedArray())
-                        }
+        return ApiResponseConverter.convert(
+            apiService.getListData(
+                PATIENT,
+                mapOf(Pair(COUNT, "100"))
+            )
+        ).apply {
+            if (this is ApiSuccessResponse) {
+                patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
+                body.map { patientResponse ->
+                    patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
+                        patientDao.insertIdentifiers(*listOfIdentifiers.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
+                            .toTypedArray())
                     }
                 }
             }
+            if (this is ApiEndResponse) {
+                patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
+                body.map { patientResponse ->
+                    patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
+                        patientDao.insertIdentifiers(*listOfIdentifiers.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
+                            .toTypedArray())
+                    }
+                }
+            }
+        }
     }
 
     override suspend fun getAndInsertPatientDataById(id: String): ResponseMapper<List<PatientResponse>> {
@@ -97,6 +104,11 @@ class SyncRepositoryImpl @Inject constructor(
                 )
             ).apply {
                 if (this is ApiSuccessResponse) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        genericDao.deleteSyncPayload(this@run.toListOfId()).also {
+                            if (it > 0) sendPersonPostData()
+                        }
+                    }
                     body
                 }
                 if (this is ApiErrorResponse) {
@@ -119,6 +131,11 @@ class SyncRepositoryImpl @Inject constructor(
                 )
             ).apply {
                 if (this is ApiSuccessResponse) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        genericDao.deleteSyncPayload(this@run.toListOfId()).also {
+                            if (it > 0) sendRelatedPersonPostData()
+                        }
+                    }
                     body
                 }
                 if (this is ApiErrorResponse) {
@@ -143,7 +160,9 @@ class SyncRepositoryImpl @Inject constructor(
                 ).apply {
                     if (this is ApiSuccessResponse) {
                         CoroutineScope(Dispatchers.IO).launch {
-                            sendPersonPatchData()
+                            genericDao.deleteSyncPayload(this@run.toListOfId()).also {
+                                if (it > 0) sendPersonPatchData()
+                            }
                         }
                         body
                     }
@@ -163,12 +182,14 @@ class SyncRepositoryImpl @Inject constructor(
                     ApiResponseConverter.convert(
                         apiService.patchListOfChanges(
                             RELATED_PERSON,
-                            map { it.payload.fromJson<Map<String, Any>>() }
+                            map { it.payload.fromJson() }
                         )
                     ).apply {
                         if (this is ApiSuccessResponse) {
                             CoroutineScope(Dispatchers.IO).launch {
-                                sendRelatedPersonPatchData()
+                                genericDao.deleteSyncPayload(this@run.toListOfId()).also {
+                                    if (it > 0) sendRelatedPersonPatchData()
+                                }
                             }
                             body
                         }

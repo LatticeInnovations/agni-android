@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "cc8e29b76777371daa8c5b7a1fd4f4ff",
+    "identityHash": "7349eabb3c1df0b19f36c89ba1711867",
     "entities": [
       {
         "tableName": "PatientEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `active` INTEGER, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER, `email` TEXT, `fhirId` TEXT, `addressLine1` TEXT, `city` TEXT, `district` TEXT, `state` TEXT, `postalCode` TEXT, `country` TEXT, `addressLine2` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `active` INTEGER, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER, `email` TEXT, `fhirId` TEXT, `addressLine1` TEXT NOT NULL, `city` TEXT, `district` TEXT, `state` TEXT NOT NULL, `postalCode` TEXT NOT NULL, `country` TEXT, `addressLine2` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -72,7 +72,7 @@
             "fieldPath": "permanentAddress.addressLine1",
             "columnName": "addressLine1",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "permanentAddress.city",
@@ -90,13 +90,13 @@
             "fieldPath": "permanentAddress.state",
             "columnName": "state",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "permanentAddress.postalCode",
             "columnName": "postalCode",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "permanentAddress.country",
@@ -299,7 +299,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cc8e29b76777371daa8c5b7a1fd4f4ff')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7349eabb3c1df0b19f36c89ba1711867')"
     ]
   }
 }

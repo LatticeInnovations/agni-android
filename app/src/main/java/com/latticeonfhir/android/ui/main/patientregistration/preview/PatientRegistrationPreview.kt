@@ -327,9 +327,9 @@ fun PreviewScreen(
                         mobileNumber = patientRegister.phoneNumber!!.toLong(),
                         fhirId = null,
                         permanentAddress = PatientAddressResponse(
-                            postalCode = patientRegister.homePostalCode,
-                            state = patientRegister.homeState,
-                            addressLine1 = patientRegister.homeAddressLine1,
+                            postalCode = patientRegister.homePostalCode!!,
+                            state = patientRegister.homeState!!,
+                            addressLine1 = patientRegister.homeAddressLine1!!,
                             addressLine2 = if(patientRegister.homeAddressLine2!!.isEmpty()) null else patientRegister.homeAddressLine2,
                             city = patientRegister.homeCity,
                             country = "India",

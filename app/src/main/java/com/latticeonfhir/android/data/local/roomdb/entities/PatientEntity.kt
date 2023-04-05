@@ -3,7 +3,6 @@ package com.latticeonfhir.android.data.local.roomdb.entities
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.UUID
 
 @Entity
 data class PatientEntity(
