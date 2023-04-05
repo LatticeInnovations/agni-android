@@ -98,15 +98,15 @@ dependencies {
     implementation 'androidx.security:security-crypto:1.0.0'
 
     //Room Database
-    implementation 'androidx.room:room-runtime:2.5.0'
-    implementation 'androidx.room:room-ktx:2.5.0'
-    kapt 'androidx.room:room-compiler:2.5.0'
+    implementation 'androidx.room:room-runtime:2.5.1'
+    implementation 'androidx.room:room-ktx:2.5.1'
+    kapt 'androidx.room:room-compiler:2.5.1'
 
     //Room Database Test Helpers
-    testImplementation 'androidx.room:room-testing:2.5.0'
+    testImplementation 'androidx.room:room-testing:2.5.1'
 
     //Room Database Paging Support
-    implementation 'androidx.room:room-paging:2.5.0'
+    implementation 'androidx.room:room-paging:2.5.1'
 
     //Paging 3
     implementation 'androidx.paging:paging-runtime:3.1.1'
@@ -126,11 +126,11 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 
     //Fragment
-    implementation 'androidx.fragment:fragment-ktx:1.5.5'
+    implementation 'androidx.fragment:fragment-ktx:1.5.6'
 
     //SQL Cipher
     implementation 'net.zetetic:android-database-sqlcipher:4.5.3'
-    implementation 'androidx.sqlite:sqlite:2.3.0'
+    implementation 'androidx.sqlite:sqlite:2.3.1'
 
     //Timber
     implementation 'com.jakewharton.timber:timber:5.0.1'
@@ -155,7 +155,10 @@ dependencies {
     coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:1.1.6")
 
     //Work Manager
-    implementation "androidx.work:work-runtime-ktx:2.8.0"
+    implementation "androidx.work:work-runtime-ktx:2.8.1"
+
+    //Fuzzy Wuzzy
+    implementation 'me.xdrop:fuzzywuzzy:1.4.0'
 
     // hilt- viewmodel compose
     implementation "androidx.hilt:hilt-navigation-compose:1.0.0"

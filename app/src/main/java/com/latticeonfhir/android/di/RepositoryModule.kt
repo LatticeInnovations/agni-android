@@ -8,6 +8,8 @@ import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.search.SearchRepository
+import com.latticeonfhir.android.data.local.repository.search.SearchRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import dagger.Binds
@@ -39,4 +41,8 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideIdentifierRepository(identifierRepositoryImpl: IdentifierRepositoryImpl): IdentifierRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideSearchRepository(searchRepositoryImpl: SearchRepositoryImpl): SearchRepository
 }
