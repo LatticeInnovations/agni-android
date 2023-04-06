@@ -1,13 +1,19 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
+import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PermanentAddressEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.relation.Relation.getInverseRelation
 import java.util.Date
 
 fun PatientResponse.toPatientEntity(): PatientEntity {
@@ -72,9 +78,7 @@ fun PatientAndIdentifierEntity.toPatientResponse(): PatientResponse {
 
 fun IdentifierEntity.toPatientIdentifier(): PatientIdentifier {
     return PatientIdentifier(
-        identifierType = identifierType,
-        identifierNumber = identifierNumber,
-        code = identifierCode
+        identifierType = identifierType, identifierNumber = identifierNumber, code = identifierCode
     )
 }
 
@@ -90,16 +94,37 @@ fun PermanentAddressEntity.toPatientAddressResponse(): PatientAddressResponse {
     )
 }
 
-//fun RelationEntity.toReverseRelation(): RelationEntity {
-//    return RelationEntity(
-//        id = UUIDBuilder.generateUUID(),
-//        toId = fromId,
-//        fromId = toId,
-//        relation = fromRelation,
-//        fromRelation = toRelation
-//    )
-//}
+fun RelationEntity.toReverseRelation(
+    patientDao: PatientDao,
+    inverseRelationEntity: (RelationEntity) -> Unit
+) {
+    getInverseRelation(this, patientDao) { relationEnum ->
+        inverseRelationEntity(
+            RelationEntity(
+                id = UUIDBuilder.generateUUID(),
+                toId = fromId,
+                fromId = toId,
+                relation = relationEnum
+            )
+        )
+    }
+}
 
 fun List<GenericEntity>.toListOfId(): List<String> {
     return this.map { it.id }
+}
+
+fun Relationship.toRelationEntity(): RelationEntity {
+    return RelationEntity(
+        id = UUIDBuilder.generateUUID(),
+        fromId = patientIs,
+        toId = relativeId,
+        relation = RelationEnum.fromString(relativeIs)
+    )
+}
+
+fun RelationEntity.toRelationship(): Relationship {
+    return Relationship(
+        patientIs = fromId, relativeId = toId, relativeIs = relation.value
+    )
 }
