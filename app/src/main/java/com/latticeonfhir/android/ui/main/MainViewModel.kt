@@ -1,6 +1,8 @@
 package com.latticeonfhir.android.ui.main
 
 import android.app.Application
+import android.content.Context
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
@@ -21,12 +23,15 @@ import com.latticeonfhir.android.service.workmanager.PeriodicSyncConfiguration
 import com.latticeonfhir.android.service.workmanager.RepeatInterval
 import com.latticeonfhir.android.service.workmanager.RetryConfiguration
 import com.latticeonfhir.android.service.workmanager.Sync
+import com.latticeonfhir.android.service.workmanager.SyncJobStatus
 import com.latticeonfhir.android.service.workmanager.workers.download.patient.PatientDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.PatientUploadSyncWorkerImpl
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
@@ -71,14 +76,37 @@ class MainViewModel @Inject constructor(
         )
 
         viewModelScope.launch(Dispatchers.IO) {
-            Sync.periodicSync<PatientUploadSyncWorkerImpl>(getApplication<Application>().applicationContext,
+            Sync.periodicSync<PatientUploadSyncWorkerImpl>(
+                getApplication<Application?>().baseContext,
                 PeriodicSyncConfiguration(
                     syncConstraints = Constraints.Builder().build(),
-                    repeat = RepeatInterval(10,TimeUnit.SECONDS),
-                    retryConfiguration = RetryConfiguration(BackoffCriteria(BackoffPolicy.LINEAR, 10,TimeUnit.SECONDS),5)
+                    repeat = RepeatInterval(10, TimeUnit.SECONDS),
+                    retryConfiguration = RetryConfiguration(
+                        BackoffCriteria(
+                            BackoffPolicy.LINEAR,
+                            10,
+                            TimeUnit.SECONDS
+                        ), 5
+                    )
+                )
+            ).collectLatest {
+                Timber.d("Collected Latest ${it.timestamp}")
+            }
+
+            Sync.periodicSync<PatientDownloadSyncWorkerImpl>(
+                getApplication<Application?>().applicationContext, PeriodicSyncConfiguration(
+                    syncConstraints = Constraints.Builder().build(),
+                    repeat = RepeatInterval(10, TimeUnit.SECONDS),
+                    retryConfiguration = RetryConfiguration(
+                        BackoffCriteria(
+                            BackoffPolicy.LINEAR,
+                            10,
+                            TimeUnit.SECONDS
+                        ), 5
+                    )
                 )
             )
-            Sync.oneTimeSync<PatientDownloadSyncWorkerImpl>(getApplication<Application>().applicationContext)
+            
 //            syncRepository.getAndInsertListPatientData()
             val map = mutableMapOf<String, Any>()
             map["id"] = 109
@@ -131,10 +159,6 @@ class MainViewModel @Inject constructor(
 //                typeEnum = GenericTypeEnum.PATIENT
 //            )
 //            if(c > 0) syncRepository.sendPersonPatchData()
-            Timber.d("Start Time ${Date().time}")
-            val c = searchRepository.searchPatients("Priyateek")
-            Timber.d("End Time ${Date().time}")
-            Timber.d("Blah Blah Seach $c")
         }
     }
 }
