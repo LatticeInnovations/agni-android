@@ -21,12 +21,12 @@ object Search {
             }
             if (!patientId.isNullOrBlank()) {
                 finalList.filter {
-                    FuzzySearch.ratio(patientId, it.patientEntity.fhirId) > matchingRatio
+                    FuzzySearch.ratio(patientId, it.identifiers.find { identifier -> identifier.identifierNumber == patientId }?.identifierNumber) > matchingRatio
                 }
             }
             if (minAge != null && maxAge != null) {
                 finalList.filter {
-                    minAge <= it.patientEntity.birthDate.toAge() && it.patientEntity.birthDate <= maxAge
+                    (minAge <= it.patientEntity.birthDate.toAge()) && (it.patientEntity.birthDate <= maxAge)
                 }
             }
             if (!lastFacilityVisit.isNullOrBlank()) {

@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.main
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.viewModels
 import com.latticeonfhir.android.base.activity.BaseActivity
