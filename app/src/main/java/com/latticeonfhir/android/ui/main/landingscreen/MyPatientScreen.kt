@@ -102,9 +102,7 @@ fun MyPatientScreen(viewModel: LandingScreenViewModel= hiltViewModel()) {
                             if (patient.middleName.isNullOrEmpty()) "" else {" " + patient.middleName} +
                             if (patient.lastName.isNullOrEmpty()) "" else {" " + patient.lastName}
                     val age = Period.between(
-                        patient.birthDate.toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate(),
+                        patient.birthDate,
                         LocalDate.now()
                     ).years
                     PatientItemCard(

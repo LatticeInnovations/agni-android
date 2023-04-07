@@ -20,6 +20,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
 
@@ -50,7 +51,7 @@ class LandingScreenViewModel @Inject constructor(
         middleName = null,
         lastName = "result",
         active = true,
-        birthDate = Date(980188200000),
+        birthDate = LocalDate.now(),
         email = null,
         fhirId = null,
         gender = "male",

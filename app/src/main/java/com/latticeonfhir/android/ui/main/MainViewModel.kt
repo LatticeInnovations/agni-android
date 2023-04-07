@@ -77,7 +77,7 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             Sync.periodicSync<PatientUploadSyncWorkerImpl>(
-                getApplication<Application?>().baseContext,
+                getApplication<Application>().baseContext,
                 PeriodicSyncConfiguration(
                     syncConstraints = Constraints.Builder().build(),
                     repeat = RepeatInterval(10, TimeUnit.SECONDS),
@@ -94,7 +94,7 @@ class MainViewModel @Inject constructor(
             }
 
             Sync.periodicSync<PatientDownloadSyncWorkerImpl>(
-                getApplication<Application?>().applicationContext, PeriodicSyncConfiguration(
+                getApplication<Application>().applicationContext, PeriodicSyncConfiguration(
                     syncConstraints = Constraints.Builder().build(),
                     repeat = RepeatInterval(10, TimeUnit.SECONDS),
                     retryConfiguration = RetryConfiguration(
