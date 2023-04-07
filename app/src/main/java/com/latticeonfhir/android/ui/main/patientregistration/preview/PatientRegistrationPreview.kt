@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.main.patientregistration
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -169,9 +170,7 @@ fun PatientRegistrationPreview(
                             firstName = patientRegisterDetails?.firstName!!,
                             middleName = if (patientRegisterDetails.middleName!!.isEmpty()) null else patientRegisterDetails.middleName,
                             lastName = if (patientRegisterDetails.lastName!!.isEmpty()) null else patientRegisterDetails.lastName,
-                            birthDate = Date.from(
-                                date.atStartOfDay(ZoneId.systemDefault()).toInstant()
-                            ),
+                            birthDate = date,
                             email = if (patientRegisterDetails.email!!.isEmpty()) null else patientRegisterDetails.email,
                             active = true,
                             gender = patientRegisterDetails.gender!!,
