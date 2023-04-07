@@ -16,6 +16,7 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.service.workmanager.BackoffCriteria
 import com.latticeonfhir.android.service.workmanager.PeriodicSyncConfiguration
@@ -105,7 +106,7 @@ class MainViewModel @Inject constructor(
                     )
                 )
             )
-
+            
 //            syncRepository.getAndInsertListPatientData()
             val map = mutableMapOf<String, Any>()
             map["id"] = 109
