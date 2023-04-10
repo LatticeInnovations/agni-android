@@ -24,7 +24,7 @@ class SearchRepositoryImpl @Inject constructor(private val searchDao: SearchDao)
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
                 enablePlaceholders = false,
-                maxSize = PAGE_SIZE
+                //maxSize = PAGE_SIZE
             ),
             pagingSourceFactory = {
                 SearchPagingSource(
