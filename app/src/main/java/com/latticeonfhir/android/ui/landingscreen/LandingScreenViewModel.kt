@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -12,12 +13,15 @@ import androidx.paging.cachedIn
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -27,7 +31,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LandingScreenViewModel @Inject constructor(
-    private val patientRepository: PatientRepository
+    private val patientRepository: PatientRepository,
+    private val searchRepository: SearchRepository
 ) : BaseViewModel() {
 
     var isLaunched by mutableStateOf(false)
@@ -75,14 +80,20 @@ class LandingScreenViewModel @Inject constructor(
         )
     )
 
-    val searchResultList = flowOf(PagingData.from(listOf(patientResponse, patientResponse, patientResponse)))
+    var searchResultList = flowOf(PagingData.from(listOf(patientResponse, patientResponse, patientResponse)))
 
     fun populateList(){
-        if(isSearchResult){
-            lazyPatientsList = searchResultList
+        lazyPatientsList = if(isSearchResult){
+            searchResultList
         } else{
             getPatientList()
-            lazyPatientsList = patientList
+            patientList
+        }
+    }
+
+    internal fun searchPatient(searchParameters: SearchParameters) {
+        viewModelScope.launch(Dispatchers.IO) {
+            searchResultList = searchRepository.searchPatients(searchParameters).cachedIn(viewModelScope)
         }
     }
 }

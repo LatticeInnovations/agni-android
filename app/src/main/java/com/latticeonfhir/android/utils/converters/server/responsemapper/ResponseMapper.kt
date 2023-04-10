@@ -24,8 +24,9 @@ sealed class ResponseMapper<T> {
                         ApiEmptyResponse()
                     } else {
                         when {
+                            paginated && response.body()?.status == 1 -> ApiContinueResponse(body = response.body()?.data!!)
+                            response.body()?.status == 2 -> ApiEndResponse(body = response.body()?.data!!)
                             response.body()?.status == 1 -> ApiEndResponse(body = response.body()?.data!!)
-                            paginated && response.body()?.status == 2 -> ApiEndResponse(body = response.body()?.data!!)
                             else -> ApiContinueResponse(body = response.body()?.data!!)
                         }
                     }
