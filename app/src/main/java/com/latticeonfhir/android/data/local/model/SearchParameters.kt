@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.model
 
 import androidx.annotation.Keep
+import com.latticeonfhir.android.base.baseclass.ParcelableClass
 
 @Keep
 data class SearchParameters(
@@ -16,4 +17,4 @@ data class SearchParameters(
     val postalCode: String?,
     val country: String?,
     val addressLine2: String?
-)
+): ParcelableClass()

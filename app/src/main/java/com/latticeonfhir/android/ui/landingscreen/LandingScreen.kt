@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.landingscreen.LandingScreenViewModel
 import com.latticeonfhir.android.ui.landingscreen.MyPatientScreen
@@ -43,6 +44,9 @@ fun LandingScreen(
                 ) == true
             ) {
                 viewModel.isSearchResult = true
+                viewModel.searchParameters = navController.previousBackStackEntry?.savedStateHandle?.get<SearchParameters>(
+                    "searchParameters"
+                )
             }
             viewModel.isLaunched = true
         }
