@@ -11,7 +11,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
@@ -25,7 +24,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
 
@@ -41,8 +39,10 @@ class LandingScreenViewModel @Inject constructor(
     var isSearchResult by mutableStateOf(false)
     var searchQuery by mutableStateOf("")
     var selectedIndex by mutableStateOf(0)
-    lateinit var patientList: Flow<PagingData<PatientResponse>>
-    lateinit var lazyPatientsList: Flow<PagingData<PatientResponse>>
+    var patientList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf<PagingData<PatientResponse>>())
+    var searchResultList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf<PagingData<PatientResponse>>())
+    var searchParameters by mutableStateOf<SearchParameters?>(null)
+
 
     fun getPatientList() {
         viewModelScope.launch {
@@ -80,20 +80,20 @@ class LandingScreenViewModel @Inject constructor(
         )
     )
 
-    var searchResultList = flowOf(PagingData.from(listOf(patientResponse, patientResponse, patientResponse)))
+    //var searchResultList = flowOf(PagingData.from(listOf(patientResponse, patientResponse, patientResponse)))
 
     fun populateList(){
-        lazyPatientsList = if(isSearchResult){
-            searchResultList
+        if(isSearchResult){
+            searchPatient(searchParameters!!)
         } else{
             getPatientList()
-            patientList
         }
     }
 
     internal fun searchPatient(searchParameters: SearchParameters) {
         viewModelScope.launch(Dispatchers.IO) {
             searchResultList = searchRepository.searchPatients(searchParameters).cachedIn(viewModelScope)
+            //searchResultList = flowOf(PagingData.from(listOf(patientResponse, patientResponse, patientResponse)))
         }
     }
 }
