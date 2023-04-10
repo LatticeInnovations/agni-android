@@ -14,9 +14,14 @@ object Search {
     ): List<PatientAndIdentifierEntity> {
         var finalList = totalList.toMutableList()
         searchParameters.run {
+            if(!gender.isNullOrBlank()) {
+                finalList = finalList.filter {
+                    gender == it.patientEntity.gender
+                } as MutableList<PatientAndIdentifierEntity>
+            }
             if (!name.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    FuzzySearch.ratio(name, it.patientEntity.firstName) > matchingRatio
+                    FuzzySearch.ratio(name, "${it.patientEntity.firstName} ${it.patientEntity.middleName ?: ""} ${it.patientEntity.lastName ?: ""}") > matchingRatio
                 } as MutableList<PatientAndIdentifierEntity>
             }
             if (!patientId.isNullOrBlank()) {

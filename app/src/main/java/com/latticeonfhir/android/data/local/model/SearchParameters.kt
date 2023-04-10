@@ -9,6 +9,7 @@ data class SearchParameters(
     val name: String?,
     val minAge: Int?,
     val maxAge: Int?,
+    val gender: String?,
     val lastFacilityVisit: String?,
     val addressLine1: String?,
     val city: String?,
