@@ -6,20 +6,30 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
+import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.Paging.PAGE_SIZE
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientResponse
 import com.latticeonfhir.android.utils.paging.SearchPagingSource
 import com.latticeonfhir.android.utils.search.Search.getFuzzySearchList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class SearchRepositoryImpl @Inject constructor(private val searchDao: SearchDao) :
-    SearchRepository {
+class SearchRepositoryImpl @Inject constructor(private val searchDao: SearchDao) : SearchRepository {
+
+    private lateinit var searchList: List<PatientAndIdentifierEntity>
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            searchList = searchDao.getPatientList()
+        }
+    }
 
     override suspend fun searchPatients(searchParameters: SearchParameters): Flow<PagingData<PatientResponse>> {
-        val searchList = searchDao.getPatientList()
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
@@ -38,6 +48,44 @@ class SearchRepositoryImpl @Inject constructor(private val searchDao: SearchDao)
             pagingData.map { patientAndIdentifierEntity ->
                 patientAndIdentifierEntity.toPatientResponse()
             }
+        }
+    }
+
+    override suspend fun searchPatientByQuery(query: String): Flow<PagingData<PatientResponse>> {
+        return if (query.contains("[0-9]".toRegex())) {
+            searchPatients(
+                SearchParameters(
+                    query,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            )
+        } else {
+            searchPatients(
+                SearchParameters(
+                    null,
+                    query,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            )
         }
     }
 }
