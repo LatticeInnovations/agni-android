@@ -4,7 +4,7 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.latticeonfhir.android.ui.main.MainActivity
-import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistration
+import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
