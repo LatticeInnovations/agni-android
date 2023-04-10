@@ -4,12 +4,12 @@ import android.app.Application
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
-import com.latticeonfhir.android.service.workmanager.Sync
-import com.latticeonfhir.android.service.workmanager.workers.download.patient.PatientDownloadSyncWorkerImpl
+import com.latticeonfhir.android.utils.converters.gson.DateDeserializer
+import com.latticeonfhir.android.utils.converters.gson.DateSerializer
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
-import javax.inject.Inject
+import java.util.*
 
 @HiltAndroidApp
 class FhirApp : Application() {
@@ -22,7 +22,14 @@ class FhirApp : Application() {
     }
 
     companion object {
-        val gson: Gson by lazy { GsonBuilder().create() }
+        val gson: Gson by lazy { GsonBuilder()
+            .registerTypeAdapter(Date::class.java,
+                DateDeserializer()
+            )
+            .registerTypeAdapter(Date::class.java,
+                DateSerializer()
+            )
+            .create() }
         lateinit var syncRepository: SyncRepository
     }
 }

@@ -13,10 +13,9 @@ import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.relation.Relation.getInverseRelation
-import java.time.Instant
-import java.time.ZoneId
-import java.time.temporal.TemporalField
 import java.util.Date
 
 fun PatientResponse.toPatientEntity(): PatientEntity {
@@ -27,7 +26,7 @@ fun PatientResponse.toPatientEntity(): PatientEntity {
         lastName = lastName,
         active = active,
         gender = gender,
-        birthDate = birthDate.atStartOfDay(ZoneId.systemDefault()).toEpochSecond(),
+        birthDate = birthDate.toTimeInMilli(),
         mobileNumber = mobileNumber,
         email = email,
         permanentAddress = permanentAddress.toPermanentAddressEntity(),
@@ -71,7 +70,7 @@ fun PatientAndIdentifierEntity.toPatientResponse(): PatientResponse {
         identifier = identifiers.map { it.toPatientIdentifier() },
         active = patientEntity.active,
         gender = patientEntity.gender,
-        birthDate =  Instant.ofEpochMilli(patientEntity.birthDate).atZone(ZoneId.systemDefault()).toLocalDate(),
+        birthDate = Date(patientEntity.birthDate).time.toPatientDate(),
         mobileNumber = patientEntity.mobileNumber,
         email = patientEntity.email,
         permanentAddress = patientEntity.permanentAddress.toPatientAddressResponse(),
