@@ -71,7 +71,8 @@ fun PatientAndIdentifierEntity.toPatientResponse(): PatientResponse {
         identifier = identifiers.map { it.toPatientIdentifier() },
         active = patientEntity.active,
         gender = patientEntity.gender,
-        birthDate =  Instant.ofEpochMilli(patientEntity.birthDate).atZone(ZoneId.systemDefault()).toLocalDate(),
+        birthDate = Instant.ofEpochMilli(patientEntity.birthDate).atZone(ZoneId.systemDefault())
+            .toLocalDate(),
         mobileNumber = patientEntity.mobileNumber,
         email = patientEntity.email,
         permanentAddress = patientEntity.permanentAddress.toPatientAddressResponse(),
@@ -120,14 +121,14 @@ fun List<GenericEntity>.toListOfId(): List<String> {
 fun Relationship.toRelationEntity(): RelationEntity {
     return RelationEntity(
         id = UUIDBuilder.generateUUID(),
-        fromId = patientIs,
+        fromId = patientId,
         toId = relativeId,
-        relation = RelationEnum.fromString(relativeIs)
+        relation = RelationEnum.fromString(relation)
     )
 }
 
 fun RelationEntity.toRelationship(): Relationship {
     return Relationship(
-        patientIs = fromId, relativeId = toId, relativeIs = relation.value
+        patientId = fromId, relativeId = toId, relation = relation.value
     )
 }
