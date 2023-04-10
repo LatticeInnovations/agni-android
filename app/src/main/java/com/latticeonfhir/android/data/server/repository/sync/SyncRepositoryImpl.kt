@@ -56,7 +56,7 @@ class SyncRepositoryImpl @Inject constructor(
                     }
                 }
                 CoroutineScope(Dispatchers.IO).launch {
-                    getAndInsertListPatientData(offset + 20)
+                    getAndInsertListPatientData(offset + 100)
                 }
             }
             if (this is ApiEndResponse) {
