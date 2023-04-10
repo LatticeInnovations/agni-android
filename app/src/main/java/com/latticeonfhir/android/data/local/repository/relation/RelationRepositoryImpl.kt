@@ -4,6 +4,8 @@ import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
+import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toReverseRelation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,11 +18,11 @@ class RelationRepositoryImpl @Inject constructor(
     private val patientDao: PatientDao
 ) : RelationRepository {
 
-    override suspend fun addRelation(relationEntity: RelationEntity): List<Long> {
+    override suspend fun addRelation(relationship: Relationship): List<Long> {
         return relationDao.insertRelation(
-            relationEntity
+            relationship.toRelationEntity()
         ).also {
-            relationEntity.toReverseRelation(patientDao) { relationEntity ->
+            relationship.toRelationEntity().toReverseRelation(patientDao) { relationEntity ->
                 CoroutineScope(Dispatchers.IO).launch {
                     relationDao.insertRelation(
                         relationEntity

@@ -1,7 +1,11 @@
 package com.latticeonfhir.android.data.server.model.relatedperson
 
+import com.google.gson.annotations.SerializedName
+
 data class Relationship(
-    val patientIs: String,
+    @SerializedName("patientIs")
+    val patientId: String,
     val relativeId: String,
-    val relativeIs: String
+    @SerializedName("relativeIs")
+    val relation: String
 )
