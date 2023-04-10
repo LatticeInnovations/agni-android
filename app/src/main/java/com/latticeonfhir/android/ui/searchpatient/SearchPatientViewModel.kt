@@ -3,20 +3,13 @@ package com.latticeonfhir.android.ui.searchpatient
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
-import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import java.util.*
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class SearchPatientViewModel: BaseViewModel(), DefaultLifecycleObserver {
+@HiltViewModel
+class SearchPatientViewModel @Inject constructor(): BaseViewModel() {
     var step by mutableStateOf(1)
     var patientName by mutableStateOf("")
     var patientId by mutableStateOf("")
