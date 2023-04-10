@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.data.server.api
 
+import com.latticeonfhir.android.base.baseclass.ParcelableClass
 import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -17,8 +18,8 @@ interface ApiService {
     @GET("{endPoint}")
     suspend fun getListData(@Path("endPoint") endPoint: String, @QueryMap map: Map<String,String>?): Response<BaseResponse<List<PatientResponse>>>
 
-    @POST("{endPoint}")
-    suspend fun <T> createData(@Path("endPoint") endPoint: String, @Body patientResponses: List<T>): Response<BaseResponse<List<CreateResponse>>>
+    @POST("sync/{endPoint}")
+    suspend fun createData(@Path("endPoint") endPoint: String, @Body patientResponses: List<Any>): Response<BaseResponse<List<CreateResponse>>>
 
     @PATCH("{endPoint}/{id}")
     suspend fun patchSingleChanges(@Path("endPoint") endPoint: String, @Path("id") id: String ,@Body patchLogs: Map<String, Any>): Response<BaseResponse<PatientResponse>>

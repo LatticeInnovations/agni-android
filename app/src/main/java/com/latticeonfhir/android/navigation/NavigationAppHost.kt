@@ -6,9 +6,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.latticeonfhir.android.LandingScreen
-import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistration
+import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistrationPreview
-import com.latticeonfhir.android.ui.main.searchpatient.SearchPatient
+import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 
 @Composable
 fun NavigationAppHost(navController: NavController) {
