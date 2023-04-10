@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.data.server.repository.sync
 
+import com.google.gson.internal.LinkedTreeMap
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.IdentifierCodeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
@@ -16,6 +17,7 @@ import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
+import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
@@ -28,6 +30,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class SyncRepositoryImpl @Inject constructor(
@@ -105,10 +108,18 @@ class SyncRepositoryImpl @Inject constructor(
             else ApiResponseConverter.convert(
                 apiService.createData(
                     PATIENT,
-                    map { it.payload.fromJson<PatientResponse>() }
+                    map { it.payload.fromJson<LinkedTreeMap<*,*>>().mapToObject(PatientResponse::class.java) as Any }
                 )
             ).apply {
                 if (this is ApiContinueResponse) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        genericDao.deleteSyncPayload(this@run.toListOfId()).also {
+                            if (it > 0) sendPersonPostData()
+                        }
+                    }
+                    body
+                }
+                if(this is ApiEndResponse) {
                     CoroutineScope(Dispatchers.IO).launch {
                         genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                             if (it > 0) sendPersonPostData()
@@ -132,10 +143,18 @@ class SyncRepositoryImpl @Inject constructor(
             else ApiResponseConverter.convert(
                 apiService.createData(
                     PATIENT,
-                    map { it.payload.fromJson<RelatedPersonResponse>() }
+                    map { it.payload.fromJson<LinkedTreeMap<*,*>>().mapToObject(RelatedPersonResponse::class.java) as Any }
                 )
             ).apply {
                 if (this is ApiContinueResponse) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        genericDao.deleteSyncPayload(this@run.toListOfId()).also {
+                            if (it > 0) sendRelatedPersonPostData()
+                        }
+                    }
+                    body
+                }
+                if(this is ApiEndResponse) {
                     CoroutineScope(Dispatchers.IO).launch {
                         genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                             if (it > 0) sendRelatedPersonPostData()
@@ -171,6 +190,14 @@ class SyncRepositoryImpl @Inject constructor(
                         }
                         body
                     }
+                    if(this is ApiEndResponse) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            genericDao.deleteSyncPayload(this@run.toListOfId()).also {
+                                if (it > 0) sendPersonPatchData()
+                            }
+                        }
+                        body
+                    }
                     if (this is ApiErrorResponse) {
                         errorMessage
                     }
@@ -191,6 +218,14 @@ class SyncRepositoryImpl @Inject constructor(
                         )
                     ).apply {
                         if (this is ApiContinueResponse) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                genericDao.deleteSyncPayload(this@run.toListOfId()).also {
+                                    if (it > 0) sendRelatedPersonPatchData()
+                                }
+                            }
+                            body
+                        }
+                        if(this is ApiEndResponse) {
                             CoroutineScope(Dispatchers.IO).launch {
                                 genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                                     if (it > 0) sendRelatedPersonPatchData()

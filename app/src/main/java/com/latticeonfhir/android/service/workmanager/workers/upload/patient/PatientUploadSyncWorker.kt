@@ -11,7 +11,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmpty
 abstract class PatientUploadSyncWorker(context: Context, workerParameters: WorkerParameters): SyncWorker(context,workerParameters) {
 
     override suspend fun doWork(): Result {
-        return when(getSyncRepository().sendPersonPatchData()) {
+        return when(getSyncRepository().sendPersonPostData()) {
             is ApiContinueResponse -> Result.success()
             is ApiEndResponse -> Result.success()
             is ApiErrorResponse -> Result.failure()
