@@ -71,7 +71,6 @@ fun SearchPatient(
                         state = if(searchPatientViewModel.address.state.isEmpty()) null else searchPatientViewModel.address.state,
                         district = if(searchPatientViewModel.address.district.isEmpty()) null else searchPatientViewModel.address.district,
                         city = if(searchPatientViewModel.address.city.isEmpty()) null else searchPatientViewModel.address.city,
-                        country = "India",
                         lastFacilityVisit = searchPatientViewModel.visitSelected
                     )
                     navController.currentBackStackEntry?.savedStateHandle?.set(
