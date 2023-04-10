@@ -10,4 +10,5 @@ interface RelationRepository {
     suspend fun addListOfRelation(listOfRelations: List<RelationEntity>): List<Long>
     suspend fun getRelationBetween(fromId: String, toId: String): RelationEnum
     suspend fun getAllRelationOfPatient(patientId: String): List<RelationEntity>
+    suspend fun deleteRelation(vararg relationId: String): Int
 }
