@@ -52,12 +52,12 @@ class MainViewModel @Inject constructor(
             Sync.periodicSync<PatientDownloadSyncWorkerImpl>(
                 getApplication<Application>().applicationContext, PeriodicSyncConfiguration(
                     syncConstraints = Constraints.Builder().setRequiresBatteryNotLow(true).build(),
-                    repeat = RepeatInterval(10, TimeUnit.SECONDS),
+                    repeat = RepeatInterval(5, TimeUnit.MINUTES),
                     retryConfiguration = RetryConfiguration(
                         BackoffCriteria(
                             BackoffPolicy.LINEAR,
-                            10,
-                            TimeUnit.SECONDS
+                            5,
+                            TimeUnit.MINUTES
                         ), 5
                     )
                 )

@@ -45,4 +45,8 @@ class RelationRepositoryImpl @Inject constructor(
     override suspend fun getAllRelationOfPatient(patientId: String): List<RelationEntity> {
         return relationDao.getAllRelationOfPatient(patientId)
     }
+
+    override suspend fun deleteRelation(vararg relationId: String): Int {
+        return relationDao.deleteRelation(*relationId)
+    }
 }

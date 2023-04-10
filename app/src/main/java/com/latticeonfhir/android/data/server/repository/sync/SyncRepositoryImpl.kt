@@ -21,16 +21,15 @@ import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class SyncRepositoryImpl @Inject constructor(
@@ -56,7 +55,7 @@ class SyncRepositoryImpl @Inject constructor(
                     }
                 }
                 CoroutineScope(Dispatchers.IO).launch {
-                    getAndInsertListPatientData(offset + 100)
+//                    getAndInsertListPatientData(offset + 100)
                 }
             }
             if (this is ApiEndResponse) {
