@@ -12,83 +12,75 @@ object Search {
         searchParameters: SearchParameters,
         matchingRatio: Int
     ): List<PatientAndIdentifierEntity> {
-        val finalList = totalList.toMutableList()
+        var finalList = totalList.toMutableList()
         searchParameters.run {
             if (!name.isNullOrBlank()) {
-                finalList.filter {
+                finalList = finalList.filter {
                     FuzzySearch.ratio(name, it.patientEntity.firstName) > matchingRatio
-                }
+                } as MutableList<PatientAndIdentifierEntity>
             }
             if (!patientId.isNullOrBlank()) {
-                finalList.filter {
-                    FuzzySearch.ratio(patientId, it.identifiers.find { identifier -> identifier.identifierNumber == patientId }?.identifierNumber) > matchingRatio
-                }
+                finalList = finalList.filter {
+                    FuzzySearch.ratio(patientId, it.identifiers.find { identifier -> identifier.identifierNumber == patientId }?.identifierNumber ?: "") > matchingRatio
+                } as MutableList<PatientAndIdentifierEntity>
             }
             if (minAge != null && maxAge != null) {
-                finalList.filter {
-                    (minAge <= it.patientEntity.birthDate.toAge()) && (it.patientEntity.birthDate <= maxAge)
-                }
+                finalList = finalList.filter {
+                    (minAge <= it.patientEntity.birthDate.toAge()) && (it.patientEntity.birthDate.toAge() <= maxAge)
+                } as MutableList<PatientAndIdentifierEntity>
             }
             if (!lastFacilityVisit.isNullOrBlank()) {
-                finalList.filter {
+                finalList = finalList.filter {
                     true
-                }
+                } as MutableList<PatientAndIdentifierEntity>
             }
             if (!addressLine1.isNullOrBlank()) {
-                finalList.filter {
+                finalList = finalList.filter {
                     FuzzySearch.ratio(
                         addressLine1,
                         it.patientEntity.permanentAddress.addressLine1
                     ) > matchingRatio
-                }
+                } as MutableList<PatientAndIdentifierEntity>
             }
             if (!city.isNullOrBlank()) {
-                finalList.filter {
+                finalList = finalList.filter {
                     FuzzySearch.ratio(
                         city,
-                        it.patientEntity.permanentAddress.city
+                        it.patientEntity.permanentAddress.city ?: ""
                     ) > matchingRatio
-                }
+                } as MutableList<PatientAndIdentifierEntity>
             }
             if (!district.isNullOrBlank()) {
-                finalList.filter {
+                finalList = finalList.filter {
                     FuzzySearch.ratio(
                         district,
-                        it.patientEntity.permanentAddress.district
+                        it.patientEntity.permanentAddress.district ?: ""
                     ) > matchingRatio
-                }
+                } as MutableList<PatientAndIdentifierEntity>
             }
             if (!state.isNullOrBlank()) {
-                finalList.filter {
+                finalList = finalList.filter {
                     FuzzySearch.ratio(
                         state,
                         it.patientEntity.permanentAddress.state
                     ) > matchingRatio
-                }
+                } as MutableList<PatientAndIdentifierEntity>
             }
             if (!postalCode.isNullOrBlank()) {
-                finalList.filter {
+                finalList = finalList.filter {
                     FuzzySearch.ratio(
                         postalCode,
                         it.patientEntity.permanentAddress.postalCode
                     ) > matchingRatio
-                }
-            }
-            if (!country.isNullOrBlank()) {
-                finalList.filter {
-                    FuzzySearch.ratio(
-                        country,
-                        it.patientEntity.permanentAddress.country
-                    ) > matchingRatio
-                }
+                } as MutableList<PatientAndIdentifierEntity>
             }
             if (!addressLine2.isNullOrBlank()) {
-                finalList.filter {
+                finalList = finalList.filter {
                     FuzzySearch.ratio(
                         addressLine2,
-                        it.patientEntity.permanentAddress.addressLine2
+                        it.patientEntity.permanentAddress.addressLine2 ?: ""
                     ) > matchingRatio
-                }
+                } as MutableList<PatientAndIdentifierEntity>
             }
         }
         return finalList

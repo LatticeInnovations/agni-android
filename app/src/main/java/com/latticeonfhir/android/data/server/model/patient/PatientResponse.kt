@@ -1,8 +1,9 @@
 package com.latticeonfhir.android.data.server.model.patient
 
+import androidx.annotation.Keep
 import com.latticeonfhir.android.base.baseclass.ParcelableClass
-import java.util.*
 
+@Keep
 data class PatientResponse(
     val id: String,
     val firstName: String,
