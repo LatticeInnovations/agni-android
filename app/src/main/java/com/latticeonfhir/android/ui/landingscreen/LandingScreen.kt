@@ -191,7 +191,7 @@ fun LandingScreen(
                         .padding(it)
                 ) {
                     when (viewModel.selectedIndex) {
-                        0 -> MyPatientScreen()
+                        0 -> MyPatientScreen(navController)
                         1 -> QueueScreen()
                         2 -> ProfileScreen()
                     }

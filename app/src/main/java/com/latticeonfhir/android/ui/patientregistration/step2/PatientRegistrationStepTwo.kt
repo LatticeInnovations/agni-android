@@ -53,7 +53,7 @@ fun PatientRegistrationStepTwo(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Page 2/3",
+                text = "Page 2/${patientRegistrationViewModel.totalSteps}",
                 style = MaterialTheme.typography.bodySmall,
                 color = Neutral40
             )
@@ -136,7 +136,7 @@ fun PatientRegistrationStepTwo(
                     voterId = viewModel.voterId
                     patientId = viewModel.patientId
                 }
-                patientRegistrationViewModel.step = 3
+                patientRegistrationViewModel.currentStep = 3
             },
             modifier = Modifier
                 .fillMaxWidth(),
