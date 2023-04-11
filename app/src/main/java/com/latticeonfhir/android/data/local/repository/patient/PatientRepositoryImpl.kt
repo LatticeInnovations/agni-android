@@ -36,7 +36,9 @@ class PatientRepositoryImpl @Inject constructor(private val patientDao: PatientD
         return patientDao.updatePatientData(patientResponse.toPatientEntity())
     }
 
-    override suspend fun getPatientById(patientId: String): PatientResponse {
-        return patientDao.getPatientDataById(patientId).toPatientResponse()
+    override suspend fun getPatientById(vararg patientId: String): List<PatientResponse> {
+        return patientDao.getPatientDataById(*patientId).map { patiendAndIdentifierEntity ->
+            patiendAndIdentifierEntity.toPatientResponse()
+        }
     }
 }

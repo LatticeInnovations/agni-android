@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
 
@@ -65,6 +66,7 @@ fun SearchPatient(
                         patientId = if(searchPatientViewModel.patientId.isEmpty()) null else searchPatientViewModel.patientId,
                         minAge = searchPatientViewModel.minAge.toInt(),
                         maxAge = searchPatientViewModel.maxAge.toInt(),
+                        gender = GenderEnum.MALE.value,
                         addressLine1 = if(searchPatientViewModel.address.addressLine1.isEmpty()) null else searchPatientViewModel.address.addressLine1,
                         addressLine2 = if(searchPatientViewModel.address.addressLine2.isEmpty()) null else searchPatientViewModel.address.addressLine2,
                         postalCode = if(searchPatientViewModel.address.pincode.isEmpty()) null else searchPatientViewModel.address.pincode,

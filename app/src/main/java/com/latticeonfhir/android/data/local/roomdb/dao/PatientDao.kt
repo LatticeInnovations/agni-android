@@ -27,8 +27,8 @@ interface PatientDao {
     fun getListPatientData(): PagingSource<Int,PatientAndIdentifierEntity>
 
     @Transaction
-    @Query("SELECT * FROM PatientEntity WHERE id=:patientId")
-    suspend fun getPatientDataById(patientId: String): PatientAndIdentifierEntity
+    @Query("SELECT * FROM PatientEntity WHERE id IN (:patientId)")
+    suspend fun getPatientDataById(vararg patientId: String): List<PatientAndIdentifierEntity>
 
     @Transaction
     @Update(onConflict = OnConflictStrategy.REPLACE)

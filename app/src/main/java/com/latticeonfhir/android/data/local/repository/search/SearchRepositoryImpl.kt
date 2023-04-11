@@ -21,15 +21,8 @@ import javax.inject.Inject
 
 class SearchRepositoryImpl @Inject constructor(private val searchDao: SearchDao) : SearchRepository {
 
-    private lateinit var searchList: List<PatientAndIdentifierEntity>
-
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            searchList = searchDao.getPatientList()
-        }
-    }
-
     override suspend fun searchPatients(searchParameters: SearchParameters): Flow<PagingData<PatientResponse>> {
+        val searchList = searchDao.getPatientList()
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
