@@ -24,19 +24,10 @@ class ConfirmRelationshipViewModel @Inject constructor(
 
     var editRelation by mutableStateOf("Son")
 
-    var relationsList = listOf<MemberRelation>(
-        MemberRelation(
-            "Vikran Pandey",
-            RelationEnum.FATHER.value,
-            "Alok Pandey"
-        ),
-        MemberRelation(
-            "Vikran Pandey",
-            "father",
-            "Alok Pandey"
-        )
-    )
-}
+    var patientId by mutableStateOf("")
+    var relativeId by mutableStateOf("")
+    var relation by mutableStateOf("")
+
     internal fun getPatientData(id: String, patientResponse: (PatientResponse) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             patientResponse(patientRepository.getPatientById(id)[0])

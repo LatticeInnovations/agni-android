@@ -27,11 +27,13 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
+import com.latticeonfhir.android.utils.relation.Relation.getRelationEnumFromString
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -47,6 +49,18 @@ fun PatientRegistrationPreview(
         navController.previousBackStackEntry?.savedStateHandle?.get<PatientRegister>(
             key = "patient_register_details"
         )
+    if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+            key = "fromHouseholdMember"
+        ) == true) {
+        viewModel.fromHouseholdMember = true
+        viewModel.relation = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+            key = "relation"
+        )!!
+        viewModel.patientFrom = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+            key = "patientFrom"
+        )!!
+        viewModel.patientFromId = viewModel.patientFrom!!.id
+    }
     patientRegisterDetails
         ?.run {
             viewModel.firstName = firstName.toString()
@@ -165,9 +179,10 @@ fun PatientRegistrationPreview(
                     }
                     val formatter = DateTimeFormatter.ofPattern("d-MMM-yyyy", Locale.getDefault())
                     val date = LocalDate.parse(viewModel.dob, formatter)
+                    viewModel.relativeId = UUIDBuilder.generateUUID()
                     viewModel.addPatient(
                         PatientResponse(
-                            id = UUIDBuilder.generateUUID(),
+                            id = viewModel.relativeId,
                             firstName = patientRegisterDetails?.firstName!!,
                             middleName = if (patientRegisterDetails.middleName!!.isEmpty()) null else patientRegisterDetails.middleName,
                             lastName = if (patientRegisterDetails.lastName!!.isEmpty()) null else patientRegisterDetails.lastName,
@@ -189,7 +204,31 @@ fun PatientRegistrationPreview(
                             identifier = viewModel.identifierList
                         )
                     )
-                    navController.navigate(Screen.LandingScreen.route)
+                    if (viewModel.fromHouseholdMember){
+                        // adding relation
+                        viewModel.addRelation(
+                            Relationship(
+                                patientId = viewModel.patientFromId,
+                                relativeId = viewModel.relativeId,
+                                relation = getRelationEnumFromString(viewModel.relation)
+                            )
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "patientId",
+                            viewModel.patientFromId
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "relativeId",
+                            viewModel.relativeId
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "relation",
+                            viewModel.relation
+                        )
+                        navController.navigate(Screen.ConfirmRelationship.route)
+                    } else {
+                        navController.navigate(Screen.LandingScreen.route)
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
