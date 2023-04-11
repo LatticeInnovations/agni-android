@@ -40,5 +40,5 @@ interface PatientDao {
 
     @Transaction
     @Query("UPDATE PatientEntity SET fhirId=:fhirId WHERE id=:id")
-    suspend fun updateFhirId(id: String, fhirId: String): Long
+    suspend fun updateFhirId(id: String, fhirId: String): Int
 }
