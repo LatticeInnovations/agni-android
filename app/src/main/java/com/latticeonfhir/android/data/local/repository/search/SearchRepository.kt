@@ -8,4 +8,5 @@ import kotlinx.coroutines.flow.Flow
 interface SearchRepository {
 
     suspend fun searchPatients(searchParameters: SearchParameters): Flow<PagingData<PatientResponse>>
+    suspend fun searchPatientByQuery(query: String): Flow<PagingData<PatientResponse>>
 }
