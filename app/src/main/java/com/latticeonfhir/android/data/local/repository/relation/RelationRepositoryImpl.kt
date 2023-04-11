@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.data.local.repository.relation
 
-import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.RelationBetween
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
@@ -10,7 +9,6 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEn
 import com.latticeonfhir.android.utils.converters.responseconverter.toReverseRelation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
