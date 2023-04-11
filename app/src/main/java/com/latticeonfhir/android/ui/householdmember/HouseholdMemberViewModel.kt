@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.main.patientlandingscreen
+package com.latticeonfhir.android.ui.householdmember
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

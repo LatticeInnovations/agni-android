@@ -47,17 +47,20 @@ fun PatientRegistration(
                 "patient_register_details"
             )!!
     }
-    if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-            "fromHouseholdMember"
-        ) == true
-    ) {
-        viewModel.fromHouseholdMember = true
-        viewModel.showRelationDialogue = true
-        viewModel.totalSteps = 4
-        viewModel.patientFrom =
-            navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                "patient"
-            )
+    LaunchedEffect(viewModel.isLaunched) {
+        if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                "fromHouseholdMember"
+            ) == true
+        ) {
+            viewModel.fromHouseholdMember = true
+            viewModel.showRelationDialogue = true
+            viewModel.totalSteps = 4
+            viewModel.patientFrom =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    "patient"
+                )
+        }
+        viewModel.isLaunched = true
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),

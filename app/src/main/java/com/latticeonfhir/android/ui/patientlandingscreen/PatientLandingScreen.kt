@@ -23,16 +23,17 @@ import java.time.LocalDate
 import java.time.Period
 import java.time.ZoneId
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.ui.patientlandingscreen.PatientLandingScreenViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientLandingScreen(navController: NavController) {
-    val patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+fun PatientLandingScreen(navController: NavController, viewModel: PatientLandingScreenViewModel = viewModel()) {
+    viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
         "patient"
-    )!!
+    )
     Scaffold(
         topBar = {
             LargeTopAppBar(
@@ -44,7 +45,7 @@ fun PatientLandingScreen(navController: NavController) {
                     IconButton(onClick = {
                         navController.currentBackStackEntry?.savedStateHandle?.set(
                             "patient",
-                            patient
+                            viewModel.patient
                         )
                         navController.navigate(Screen.LandingScreen.route)
                     }) {
@@ -52,18 +53,19 @@ fun PatientLandingScreen(navController: NavController) {
                     }
                 },
                 title = {
-                    val name = patient.firstName +
-                            if (patient.middleName.isNullOrEmpty()) "" else {
-                                " " + patient.middleName
+                    val name = viewModel.patient?.firstName +
+                            if (viewModel.patient?.middleName.isNullOrEmpty()) "" else {
+                                " " + viewModel.patient?.middleName
                             } +
-                            if (patient.lastName.isNullOrEmpty()) "" else {
-                                " " + patient.lastName
+                            if (viewModel.patient?.lastName.isNullOrEmpty()) "" else {
+                                " " + viewModel.patient?.lastName
                             }
-                    val age = Period.between(
-                        Instant.ofEpochMilli(patient.birthDate.toTimeInMilli()).atZone(ZoneId.systemDefault()).toLocalDate(),
+                    val age = viewModel.patient?.birthDate?.toTimeInMilli()
+                        ?.let { Period.between(
+                        Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate() ,
                         LocalDate.now()
-                    ).years
-                    val subTitle = "${patient.gender[0].uppercase()}/$age · ${patient.fhirId}"
+                    ).years}
+                    val subTitle = "${viewModel.patient?.gender?.get(0)?.uppercase()}/$age · ${viewModel.patient?.fhirId}"
                     Column {
                         Text(text = name, style = MaterialTheme.typography.titleLarge)
                         Text(text = subTitle, style = MaterialTheme.typography.bodyLarge)
@@ -82,7 +84,7 @@ fun PatientLandingScreen(navController: NavController) {
         content = {
             Box(modifier = Modifier.padding(it)) {
                 Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 30.dp)) {
-                    CardComposable(navController, patient)
+                    CardComposable(navController, viewModel.patient)
                 }
             }
         }
@@ -90,7 +92,7 @@ fun PatientLandingScreen(navController: NavController) {
 }
 
 @Composable
-fun CardComposable(navController: NavController, patient: PatientResponse) {
+fun CardComposable(navController: NavController, patient: PatientResponse?) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()

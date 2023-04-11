@@ -45,6 +45,7 @@ fun PatientRegistrationStepThree(navController: NavController, patientRegister: 
                 viewModel.homeAddress.addressLine2 = homeAddressLine2.toString()
             }
         }
+        viewModel.isLaunched = true
     }
     Column(
         modifier = Modifier
