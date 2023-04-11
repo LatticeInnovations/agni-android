@@ -16,8 +16,8 @@ object Relation {
         relationFetched: (RelationEnum) -> Unit
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            val fromGender = patientDao.getPatientDataById(relationEntity.fromId).patientEntity.gender
-            val toGender = patientDao.getPatientDataById(relationEntity.toId).patientEntity.gender
+            val fromGender = patientDao.getPatientDataById(relationEntity.fromId)[0].patientEntity.gender
+            val toGender = patientDao.getPatientDataById(relationEntity.toId)[0].patientEntity.gender
             relationFetched(when (GenderEnum.fromString(fromGender)) {
                 GenderEnum.MALE -> {
                     when (GenderEnum.fromString(toGender)) {
