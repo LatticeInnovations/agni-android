@@ -26,4 +26,12 @@ interface RelationDao {
     @Transaction
     @Query("DELETE FROM RelationEntity WHERE id IN (:relationIds)")
     suspend fun deleteRelation(vararg relationIds: String): Int
+
+    @Transaction
+    @Query("DELETE FROM RelationEntity WHERE fromId=:fromId AND toId=:toId")
+    suspend fun deleteRelation(fromId: String, toId: String): Int
+
+    @Transaction
+    @Query("DELETE FROM RelationEntity WHERE fromId=:patientId")
+    suspend fun deleteAllRelationOfPatient(patientId: String): Int
 }
