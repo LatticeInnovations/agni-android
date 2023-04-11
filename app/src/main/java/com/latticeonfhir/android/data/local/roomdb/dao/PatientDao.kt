@@ -37,4 +37,8 @@ interface PatientDao {
     @Transaction
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateIdentifiers(vararg listOfIdentifiers: IdentifierEntity)
+
+    @Transaction
+    @Query("UPDATE PatientEntity SET fhirId=:fhirId WHERE id=:id")
+    suspend fun updateFhirId(id: String, fhirId: String): Int
 }
