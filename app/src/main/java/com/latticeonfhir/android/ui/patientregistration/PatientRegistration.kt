@@ -1,18 +1,22 @@
 package com.latticeonfhir.android.ui.patientregistration
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
 import com.latticeonfhir.android.ui.patientregistration.step2.PatientRegistrationStepTwo
@@ -30,8 +34,8 @@ fun PatientRegistration(
         "isEditing"
     ) == true
     ){
-        viewModel.step = navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
-            "step"
+        viewModel.currentStep = navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
+            "currentStep"
         )!!
         viewModel.isEditing = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
             "isEditing"
@@ -40,27 +44,41 @@ fun PatientRegistration(
             "patient_register_details"
         )!!
     }
+    if(navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+            "fromHouseholdMember"
+        ) == true
+    ){
+        viewModel.fromHouseholdMember = true
+        viewModel.showRelationDialogue = true
+        viewModel.totalSteps = 4
+        viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+            "patient"
+        )!!
+        viewModel.currentStep = navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
+            "currentStep"
+        )!!
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = if (viewModel.step == 4) "Confirm Relationship" else "Patient Registration",
+                        text = if (viewModel.currentStep == 4) "Confirm Relationship" else "Patient Registration",
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
                 navigationIcon = {
-                    if (viewModel.step != 1) {
+                    if (viewModel.currentStep != 1) {
                         IconButton(onClick = {
-                            if (viewModel.step == 4) {
+                            if (viewModel.currentStep == 4) {
                                 navController.currentBackStackEntry?.savedStateHandle?.set(
                                     key = "patient_register_details",
                                     value = patientRegister
                                 )
                                 navController.navigate(Screen.PatientRegistrationPreviewScreen.route)
                             } else
-                                viewModel.step -= 1
+                                viewModel.currentStep -= 1
                         }) {
                             Icon(
                                 Icons.Default.ArrowBack,
@@ -74,7 +92,8 @@ fun PatientRegistration(
                 ),
                 actions = {
                     IconButton(onClick = {
-                        navController.navigate(Screen.LandingScreen.route)
+                        //navController.navigate(Screen.LandingScreen.route)
+                        navController.popBackStack()
                     }) {
                         Icon(Icons.Default.Clear, contentDescription = "clear icon")
                     }
@@ -87,12 +106,145 @@ fun PatientRegistration(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                when (viewModel.step) {
+                when (viewModel.currentStep) {
                     1 -> PatientRegistrationStepOne(patientRegister)
                     2 -> PatientRegistrationStepTwo(patientRegister)
                     3 -> PatientRegistrationStepThree(navController, patientRegister)
                     4 -> ConfirmRelationship(navController)
                 }
+            }
+            if (viewModel.showRelationDialogue){
+                var expanded by remember{
+                    mutableStateOf(false)
+                }
+                AlertDialog(
+                    onDismissRequest = {
+                        viewModel.showRelationDialogue = false
+                    },
+                    title = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Establish relation",
+                                style = MaterialTheme.typography.headlineSmall
+                            )
+                            IconButton(onClick = {
+                                viewModel.showRelationDialogue = false
+                                if (viewModel.relation.isEmpty()){
+                                    viewModel.fromHouseholdMember = false
+                                    viewModel.totalSteps = 3
+                                }
+                            }) {
+                                Icon(Icons.Default.Clear, contentDescription = null)
+                            }
+                        }
+                    },
+                    text = {
+                        Column {
+                            val name = viewModel.patient?.firstName +
+                                    if (viewModel.patient?.middleName.isNullOrEmpty()) "" else {
+                                        " " + viewModel.patient?.middleName
+                                    } +
+                                    if (viewModel.patient?.lastName.isNullOrEmpty()) "" else {
+                                        " " + viewModel.patient?.lastName
+                                    }
+                            Text(
+                                name,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Spacer(modifier = Modifier.height(23.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = "is the",
+                                    style = MaterialTheme.typography.bodyLarge)
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column() {
+                                    val relationsList = if (viewModel.patient?.gender == "male") listOf("Son", "Father", "Brother")
+                                    else listOf("Daughter", "Mother", "Sister")
+
+                                    TextField(
+                                        value = viewModel.relation,
+                                        onValueChange = {},
+                                        trailingIcon = {
+                                            IconButton(onClick = { expanded = !expanded }) {
+                                                Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+                                            }
+                                        },
+                                        readOnly = true,
+                                        textStyle = MaterialTheme.typography.bodyLarge,
+                                        placeholder = {
+                                            Text(text = "e.g. ${relationsList[0]}", style = MaterialTheme.typography.bodyLarge)
+                                        },
+                                        interactionSource = remember {
+                                            MutableInteractionSource()
+                                        }.also { interactionSource ->
+                                            LaunchedEffect(interactionSource) {
+                                                interactionSource.interactions.collect {
+                                                    if (it is PressInteraction.Release) {
+                                                        expanded = !expanded
+                                                    }
+                                                }
+                                            }
+                                        },
+                                    )
+                                    DropdownMenu(
+                                        modifier = Modifier.fillMaxHeight(0.4f),
+                                        expanded = expanded,
+                                        onDismissRequest = { expanded = false },
+                                    ) {
+                                        relationsList.forEach { label ->
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    expanded = false
+                                                    viewModel.relation = label
+                                                },
+                                                text = {
+                                                    Text(
+                                                        text = label,
+                                                        style = MaterialTheme.typography.bodyLarge,
+                                                        color = MaterialTheme.colorScheme.onSurface
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+
+                            }
+                            Spacer(modifier = Modifier.height(23.dp))
+                            Text(text = "of the patient I am about to create",
+                                style = MaterialTheme.typography.bodyLarge)
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.showRelationDialogue = false
+                            },
+                            enabled = viewModel.relation.isNotEmpty()
+                        ) {
+                            Text(
+                                "Create"
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.showRelationDialogue = false
+                                navController.popBackStack()
+                            }) {
+                            Text(
+                                "Go back"
+                            )
+                        }
+                    }
+                )
             }
         }
     )

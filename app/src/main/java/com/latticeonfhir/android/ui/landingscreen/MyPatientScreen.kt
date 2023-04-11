@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -30,7 +31,7 @@ import java.time.Period
 import java.time.ZoneId
 
 @Composable
-fun MyPatientScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
+fun MyPatientScreen(navController: NavController, viewModel: LandingScreenViewModel = hiltViewModel()) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -100,17 +101,8 @@ fun MyPatientScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
         LazyColumn (modifier = Modifier.testTag("patients list")){
             items(patientsList){patient ->
                 if (patient != null) {
-                    val name = patient.firstName +
-                            if (patient.middleName.isNullOrEmpty()) "" else {" " + patient.middleName} +
-                            if (patient.lastName.isNullOrEmpty()) "" else {" " + patient.lastName}
-                    val age = Period.between(
-                        Instant.ofEpochMilli(patient.birthDate.toTimeInMilli()).atZone(ZoneId.systemDefault()).toLocalDate(),
-                        LocalDate.now()
-                    ).years
                     PatientItemCard(
-                        name = name,
-                        patientId = "${patient.gender[0].uppercase()}/$age · PID ${patient.fhirId}",
-                        metaData = "Referred: 12 Jan"
+                        navController, patient
                     )
                 }
             }

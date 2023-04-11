@@ -1,8 +1,6 @@
 package com.latticeonfhir.android.ui.patientregistration.step1
 
-import android.util.Log
 import android.util.Patterns
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
@@ -11,12 +9,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
@@ -24,14 +19,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.theme.Neutral40
-import java.time.LocalDate
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import java.time.format.DateTimeFormatter
-import java.util.*
 
 @Composable
 fun PatientRegistrationStepOne(
@@ -73,7 +65,7 @@ fun PatientRegistrationStepOne(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Page 1/3",
+                text = "Page 1/${patientRegistrationViewModel.totalSteps}",
                 style = MaterialTheme.typography.bodySmall,
                 color = Neutral40
             )
@@ -173,7 +165,7 @@ fun PatientRegistrationStepOne(
                     email = viewModel.email
                     gender = viewModel.gender
                 }
-                patientRegistrationViewModel.step = 2
+                patientRegistrationViewModel.currentStep = 2
             },
             modifier = Modifier
                 .fillMaxWidth()

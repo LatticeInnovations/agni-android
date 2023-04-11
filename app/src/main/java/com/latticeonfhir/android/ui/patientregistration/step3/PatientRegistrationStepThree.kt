@@ -21,10 +21,12 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.AddressComposable
 import com.latticeonfhir.android.ui.common.CustomTextField
+import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 
 @Composable
 fun PatientRegistrationStepThree(navController: NavController, patientRegister: PatientRegister, viewModel: PatientRegistrationStepThreeViewModel = viewModel()) {
+    val patientRegistrationViewModel: PatientRegistrationViewModel = viewModel()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             patientRegister.run {
@@ -60,7 +62,7 @@ fun PatientRegistrationStepThree(navController: NavController, patientRegister: 
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Page 3/3",
+                text = "Page 3/${patientRegistrationViewModel.totalSteps}",
                 style = MaterialTheme.typography.bodySmall,
                 color = Neutral40
             )
