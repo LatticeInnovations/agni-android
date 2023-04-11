@@ -56,7 +56,9 @@ fun ConfirmRelationship(
             Spacer(modifier = Modifier.height(24.dp))
         }
         Button(
-            onClick = { },
+            onClick = {
+                // add to relation table here
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp)
@@ -76,36 +78,31 @@ fun ConfirmRelationship(
 
 @Composable
 fun MemberCard(viewModel: ConfirmRelationshipViewModel) {
-    Surface(
-        shape = RoundedCornerShape(4.dp),
-        color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 5.dp
+    Row(
+        modifier = Modifier.padding(14.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp)
-        ) {
-            Text(
-                text = "Vikram Pandey is the father of Alok Pandey",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
+        Text(
+            text = "Vikram Pandey is the father of Alok Pandey",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(modifier = Modifier.width(20.dp))
+        FilledTonalIconButton(onClick = { viewModel.openDeleteDialog = true }) {
+            Icon(
+                painterResource(id = R.drawable.delete_icon),
+                contentDescription = "delete member",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
             )
-            Spacer(modifier = Modifier.width(10.dp))
-            IconButton(onClick = { viewModel.openDeleteDialog = true }) {
-                Icon(
-                    painterResource(id = R.drawable.delete_icon),
-                    contentDescription = "delete member",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-            IconButton(onClick = { viewModel.openEditDialog = true }) {
-                Icon(
-                    painterResource(id = R.drawable.edit_icon),
-                    contentDescription = "edit member",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+        }
+        Spacer(modifier = Modifier.width(20.dp))
+        FilledTonalIconButton(onClick = { viewModel.openEditDialog = true }) {
+            Icon(
+                painterResource(id = R.drawable.edit_icon),
+                contentDescription = "edit member",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }
@@ -118,7 +115,7 @@ fun DeleteDialog(viewModel: ConfirmRelationshipViewModel) {
         },
         title = {
             Text(
-                text = "Discard relation ?",
+                text = "Remove relationship?",
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.testTag("delete dialog title")
             )
@@ -126,7 +123,7 @@ fun DeleteDialog(viewModel: ConfirmRelationshipViewModel) {
         text = {
             Column() {
                 Text(
-                    "Are you sure you want to remove this relation?",
+                    "Are you sure you want to remove this relationship? Patient records will not be affected.",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.testTag("delete dialog description 1")
                 )
@@ -166,7 +163,7 @@ fun DeleteDialog(viewModel: ConfirmRelationshipViewModel) {
 
 @Composable
 fun EditDialog(viewModel: ConfirmRelationshipViewModel) {
-    var expanded by remember{
+    var expanded by remember {
         mutableStateOf(false)
     }
     AlertDialog(
@@ -175,7 +172,7 @@ fun EditDialog(viewModel: ConfirmRelationshipViewModel) {
         },
         title = {
             Text(
-                text = "Edit relation",
+                text = "Edit relationship",
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.testTag("edit dialog title")
             )
@@ -192,8 +189,10 @@ fun EditDialog(viewModel: ConfirmRelationshipViewModel) {
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "is the",
-                        style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = "is the",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                     Spacer(modifier = Modifier.width(10.dp))
                     TextField(
                         value = viewModel.editRelation,
@@ -210,8 +209,10 @@ fun EditDialog(viewModel: ConfirmRelationshipViewModel) {
                     )
                 }
                 Spacer(modifier = Modifier.height(23.dp))
-                Text(text = "of Vikram Pandey.",
-                    style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = "of Vikram Pandey.",
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
         },
         confirmButton = {
