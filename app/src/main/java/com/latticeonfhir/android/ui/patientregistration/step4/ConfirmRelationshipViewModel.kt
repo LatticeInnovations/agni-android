@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -23,6 +24,19 @@ class ConfirmRelationshipViewModel @Inject constructor(
 
     var editRelation by mutableStateOf("Son")
 
+    var relationsList = listOf<MemberRelation>(
+        MemberRelation(
+            "Vikran Pandey",
+            RelationEnum.FATHER.value,
+            "Alok Pandey"
+        ),
+        MemberRelation(
+            "Vikran Pandey",
+            "father",
+            "Alok Pandey"
+        )
+    )
+}
     internal fun getPatientData(id: String, patientResponse: (PatientResponse) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             patientResponse(patientRepository.getPatientById(id)[0])
