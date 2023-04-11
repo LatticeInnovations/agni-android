@@ -21,7 +21,9 @@ object Search {
             }
             if (!name.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    FuzzySearch.ratio(name, "${it.patientEntity.firstName} ${it.patientEntity.middleName ?: ""} ${it.patientEntity.lastName ?: ""}") > matchingRatio
+                    FuzzySearch.ratio(name, it.patientEntity.firstName) > matchingRatio ||
+                    FuzzySearch.ratio(name,it.patientEntity.middleName ?: "") > matchingRatio ||
+                    FuzzySearch.ratio(name,it.patientEntity.lastName ?: "") > matchingRatio
                 } as MutableList<PatientAndIdentifierEntity>
             }
             if (!patientId.isNullOrBlank()) {

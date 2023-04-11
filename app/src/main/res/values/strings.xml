@@ -4,4 +4,5 @@
     <string name="title_activity_patient_registration">PatientRegistration</string>
     <string name="title_activity_patient_registration_preview">PatientRegistrationPreview</string>
     <string name="title_activity_search_patient">SearchPatient</string>
+    <string name="relation_builder">%s is the %s of %s</string>
 </resources>
