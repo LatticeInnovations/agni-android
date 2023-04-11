@@ -97,7 +97,7 @@ fun PatientRegistrationPreview(
                             true
                         )
                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "step",
+                            "currentStep",
                             3
                         )
                         navController.currentBackStackEntry?.savedStateHandle?.set(
@@ -390,7 +390,7 @@ fun Heading(heading: String, step: Int, patientRegister: PatientRegister, navCon
                     true
                 )
                 navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "step",
+                    "currentStep",
                     step
                 )
                 navController.currentBackStackEntry?.savedStateHandle?.set(

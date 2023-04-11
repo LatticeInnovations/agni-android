@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.enums.RelationEnum
 
 class ConfirmRelationshipViewModel : BaseViewModel() {
     var openEditDialog by mutableStateOf(false)
@@ -14,7 +15,7 @@ class ConfirmRelationshipViewModel : BaseViewModel() {
     var relationsList = listOf<MemberRelation>(
         MemberRelation(
             "Vikran Pandey",
-            "father",
+            RelationEnum.FATHER.value,
             "Alok Pandey"
         ),
         MemberRelation(
