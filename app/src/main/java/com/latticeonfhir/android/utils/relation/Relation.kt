@@ -1,5 +1,8 @@
 package com.latticeonfhir.android.utils.relation
 
+import android.content.Context
+import android.widget.TextView
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -216,5 +219,8 @@ object Relation {
             "Unknown" -> RelationEnum.UNKNOWN.value
             else -> {RelationEnum.UNKNOWN.value}
         }
+        
+    internal fun getRelationFromRelationEnum(context: Context, relationEnum: RelationEnum): String {
+        return context.resources.getStringArray(R.array.relation)[relationEnum.number]
     }
 }

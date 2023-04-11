@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="relation">
+        <item>mother</item>
+        <item>father</item>
+        <item>grand father</item>
+        <item>grand mother</item>
+        <item>brother</item>
+        <item>sister</item>
+        <item>wife</item>
+        <item>son</item>
+        <item>daughter</item>
+        <item>grand son</item>
+        <item>grand daughter</item>
+        <item>uncle</item>
+        <item>aunty</item>
+        <item>brother in law</item>
+        <item>sister in law</item>
+        <item>father in law</item>
+        <item>mother in law</item>
+        <item>nephew</item>
+        <item>son in law</item>
+        <item>husband</item>
+        <item>child</item>
+        <item>grand child</item>
+        <item>sibling</item>
+        <item>spouse</item>
+        <item>parent</item>
+        <item>grand parent</item>
+        <item>niece</item>
+        <item>in law</item>
+        <item>daughter in law</item>
+        <item>unknown</item>
+    </string-array>
+</resources>
