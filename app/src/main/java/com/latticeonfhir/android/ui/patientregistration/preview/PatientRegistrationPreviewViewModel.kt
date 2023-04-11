@@ -11,12 +11,16 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
+import com.latticeonfhir.android.utils.relation.Relation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,7 +32,8 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     private val patientRepository: PatientRepository,
     private val genericRepository: GenericRepository,
     private val identifierRepository: IdentifierRepository,
-    private val relationRepository: RelationRepository
+    private val relationRepository: RelationRepository,
+    private val patientDao: PatientDao
 ): BaseViewModel(), DefaultLifecycleObserver {
 
     var firstName by mutableStateOf("")
@@ -74,6 +79,22 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
 
     fun addRelation(relationship: Relationship){
         viewModelScope.launch(Dispatchers.IO) {
+            Relation.getInverseRelation(relationship.toRelationEntity(), patientDao){
+                viewModelScope.launch(Dispatchers.IO) {
+                    genericRepository.insertOrUpdatePostEntity(
+                        patientId = relationship.patientId,
+                        entity = RelatedPersonResponse(
+                            id = relationship.patientId,
+                            relationship = listOf(Relationship(
+                                patientId = Relation.getRelationEnumFromString(relation),
+                                relativeId = relativeId,
+                                relation = it.value
+                            ))
+                        ),
+                        typeEnum = GenericTypeEnum.RELATION
+                    )
+                }
+            }
             relationRepository.addRelation(relationship)
         }
     }

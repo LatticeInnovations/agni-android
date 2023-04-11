@@ -1,7 +1,11 @@
 package com.latticeonfhir.android.ui.patientregistration.step4
 
 import android.util.Log
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -20,8 +24,15 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
+import androidx.paging.LoadState
+import androidx.paging.compose.items
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.Loader
+import com.latticeonfhir.android.ui.common.PatientItemCard
+import com.latticeonfhir.android.utils.relation.Relation
+import com.latticeonfhir.android.utils.relation.Relation.getStringFromRelationEnum
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +49,15 @@ fun ConfirmRelationship(
     viewModel.relativeId = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
         key = "relativeId"
     )!!
-    Log.d("manseeyy", viewModel.patientId + viewModel.relation + viewModel.relativeId)
+    viewModel.getPatientData(viewModel.patientId) {
+        viewModel.patient = it
+    }
+    viewModel.getPatientData(viewModel.relativeId) {
+        viewModel.relative = it
+    }
+    viewModel.getRelationBetween(viewModel.patientId, viewModel.relativeId) {
+        viewModel.relationBetween = it
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -49,28 +68,28 @@ fun ConfirmRelationship(
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
-                navigationIcon = {
-                        IconButton(onClick = {
-//                                navController.currentBackStackEntry?.savedStateHandle?.set(
-//                                    key = "patient_register_details",
-//                                    value = patientRegister
-//                                )
-//                                navController.navigate(Screen.PatientRegistrationPreviewScreen.route)
-                            navController.popBackStack()
-                        }) {
-                            Icon(
-                                Icons.Default.ArrowBack,
-                                contentDescription = "Back button"
-                            )
-                        }
-                },
+//                navigationIcon = {
+//                    IconButton(onClick = {
+////                                navController.currentBackStackEntry?.savedStateHandle?.set(
+////                                    key = "patient_register_details",
+////                                    value = patientRegister
+////                                )
+////                                navController.navigate(Screen.PatientRegistrationPreviewScreen.route)
+//
+//                        navController.popBackStack()
+//                    }) {
+//                        Icon(
+//                            Icons.Default.ArrowBack,
+//                            contentDescription = "Back button"
+//                        )
+//                    }
+//                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                 ),
                 actions = {
                     IconButton(onClick = {
-                        //navController.navigate(Screen.LandingScreen.route)
-                        navController.popBackStack(Screen.LandingScreen.route, false)
+                        viewModel.discardAllRelationDialog = true
                     }) {
                         Icon(Icons.Default.Clear, contentDescription = "clear icon")
                     }
@@ -84,13 +103,72 @@ fun ConfirmRelationship(
                     .padding(it)
             ) {
                 ConfirmRelationshipScreen(navController, viewModel)
+                if (viewModel.discardAllRelationDialog){
+                    AlertDialog(
+                        onDismissRequest = {
+                            viewModel.discardAllRelationDialog = false
+                        },
+                        title = {
+                            Text(
+                                text = "Discard relation?",
+                                style = MaterialTheme.typography.headlineSmall,
+                                modifier = Modifier.testTag("delete dialog title")
+                            )
+                        },
+                        text = {
+                                Text(
+                                    "Are you sure you want to discard this patient record?",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    //viewModel.deleteRelation(fromPatient!!.id, toPatient!!.id)
+                                    viewModel.discardAllRelationDialog = false
+                                    viewModel.deleteAllRelation(viewModel.patientId)
+                                    Timber.tag("manseeyy").d("deleted all relations")
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "patientId",
+                                        viewModel.patientId
+                                    )
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "relativeId",
+                                        viewModel.relativeId
+                                    )
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "relation",
+                                        viewModel.relation
+                                    )
+                                    navController.navigate(Screen.LandingScreen.route)
+                                }) {
+                                Text(
+                                    "Yes, discard"
+                                )
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    viewModel.discardAllRelationDialog = false
+                                }) {
+                                Text(
+                                    "No, go back"
+                                )
+                            }
+                        }
+                    )
+                }
             }
         }
     )
 }
 
 @Composable
-fun ConfirmRelationshipScreen(navController: NavController, viewModel: ConfirmRelationshipViewModel){
+fun ConfirmRelationshipScreen(
+    navController: NavController,
+    viewModel: ConfirmRelationshipViewModel
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -118,14 +196,45 @@ fun ConfirmRelationshipScreen(navController: NavController, viewModel: ConfirmRe
                 .verticalScroll(rememberScrollState())
                 .weight(1f)
         ) {
-            MemberCard(viewModel)
-            Spacer(modifier = Modifier.height(24.dp))
-            MemberCard(viewModel)
-            Spacer(modifier = Modifier.height(24.dp))
+            if (viewModel.showRelationCard) {
+                MemberCard(
+                    viewModel.patient, getStringFromRelationEnum(
+                        viewModel.relationBetween?.patientIs?.value
+                    ),
+                    viewModel.relative,
+                    viewModel
+                ){
+                    viewModel.showRelationCard = false
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+            if (viewModel.showInverseRelationCard) {
+                MemberCard(
+                    viewModel.relative,
+                    getStringFromRelationEnum(viewModel.relationBetween?.relativeIs?.value),
+                    viewModel.patient,
+                    viewModel
+                ){
+                    viewModel.showInverseRelationCard = false
+                }
+            }
         }
         Button(
             onClick = {
                 // add to relation table here
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "patientId",
+                    viewModel.patientId
+                )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "relativeId",
+                    viewModel.relativeId
+                )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "relation",
+                    viewModel.relation
+                )
+                navController.navigate(Screen.LandingScreen.route)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -134,28 +243,33 @@ fun ConfirmRelationshipScreen(navController: NavController, viewModel: ConfirmRe
             Text(text = "Connect Patient")
         }
 
-        if (viewModel.openDeleteDialog) {
-            DeleteDialog(viewModel)
-        }
-
-        if (viewModel.openEditDialog) {
-            EditDialog(viewModel)
-        }
     }
 }
 
 @Composable
-fun MemberCard(viewModel: ConfirmRelationshipViewModel) {
+fun MemberCard(
+    fromPatient: PatientResponse?,
+    relation: String?,
+    toPatient: PatientResponse?,
+    viewModel: ConfirmRelationshipViewModel,
+    updateVisibility: () -> (Unit)
+) {
+    var openDeleteDialog by remember {
+        mutableStateOf(false)
+    }
+    var openEditDialog by remember {
+        mutableStateOf(false)
+    }
     Row(
         modifier = Modifier.padding(14.dp)
     ) {
         Text(
-            text = "Vikram Pandey is the father of Alok Pandey",
+            text = "${fromPatient?.firstName} is the $relation of ${toPatient?.firstName}",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(20.dp))
-        FilledTonalIconButton(onClick = { viewModel.openDeleteDialog = true }) {
+        FilledTonalIconButton(onClick = { openDeleteDialog = true }) {
             Icon(
                 painterResource(id = R.drawable.delete_icon),
                 contentDescription = "delete member",
@@ -164,7 +278,7 @@ fun MemberCard(viewModel: ConfirmRelationshipViewModel) {
             )
         }
         Spacer(modifier = Modifier.width(20.dp))
-        FilledTonalIconButton(onClick = { viewModel.openEditDialog = true }) {
+        FilledTonalIconButton(onClick = { openEditDialog = true }) {
             Icon(
                 painterResource(id = R.drawable.edit_icon),
                 contentDescription = "edit member",
@@ -173,13 +287,34 @@ fun MemberCard(viewModel: ConfirmRelationshipViewModel) {
             )
         }
     }
+
+    if (openDeleteDialog) {
+        DeleteDialog(fromPatient, relation, toPatient, viewModel, openDeleteDialog, updateVisibility){
+            openDeleteDialog = false
+        }
+    }
+
+    if (openEditDialog) {
+        EditDialog(fromPatient, relation, toPatient, viewModel, openEditDialog){
+            openEditDialog = false
+        }
+    }
 }
 
 @Composable
-fun DeleteDialog(viewModel: ConfirmRelationshipViewModel) {
+fun DeleteDialog(
+    fromPatient: PatientResponse?,
+    relation: String?,
+    toPatient: PatientResponse?,
+    viewModel: ConfirmRelationshipViewModel,
+    openDialog: Boolean,
+    updateVisibility: () -> Unit,
+    closeDialog: () -> Unit
+) {
     AlertDialog(
         onDismissRequest = {
-            viewModel.openDeleteDialog = false
+            //viewModel.openDeleteDialog = false
+                           closeDialog()
         },
         title = {
             Text(
@@ -196,7 +331,7 @@ fun DeleteDialog(viewModel: ConfirmRelationshipViewModel) {
                     modifier = Modifier.testTag("delete dialog description 1")
                 )
                 Text(
-                    "Vikram Pandey is the father of Alok Pandey",
+                    "${fromPatient?.firstName} is the $relation of ${toPatient?.firstName}",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
                         .testTag("delete dialog description 2")
@@ -207,7 +342,9 @@ fun DeleteDialog(viewModel: ConfirmRelationshipViewModel) {
         confirmButton = {
             TextButton(
                 onClick = {
-                    viewModel.openDeleteDialog = false
+                    viewModel.deleteRelation(fromPatient!!.id, toPatient!!.id)
+                    closeDialog()
+                    updateVisibility()
                 }) {
                 Text(
                     "Confirm",
@@ -218,7 +355,8 @@ fun DeleteDialog(viewModel: ConfirmRelationshipViewModel) {
         dismissButton = {
             TextButton(
                 onClick = {
-                    viewModel.openDeleteDialog = false
+                    //viewModel.openDeleteDialog = false
+                    closeDialog()
                 }) {
                 Text(
                     "Cancel",
@@ -230,13 +368,21 @@ fun DeleteDialog(viewModel: ConfirmRelationshipViewModel) {
 }
 
 @Composable
-fun EditDialog(viewModel: ConfirmRelationshipViewModel) {
+fun EditDialog(
+    fromPatient: PatientResponse?,
+    relation: String?,
+    toPatient: PatientResponse?,
+    viewModel: ConfirmRelationshipViewModel,
+    openDialog: Boolean,
+    closeDialog: () -> Unit
+) {
     var expanded by remember {
         mutableStateOf(false)
     }
     AlertDialog(
         onDismissRequest = {
-            viewModel.openEditDialog = false
+            //viewModel.openEditDialog = false
+            closeDialog()
         },
         title = {
             Text(
@@ -248,7 +394,7 @@ fun EditDialog(viewModel: ConfirmRelationshipViewModel) {
         text = {
             Column {
                 Text(
-                    "Alok Pandey",
+                    "${fromPatient?.firstName}",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.testTag("edit dialog description 1")
                 )
@@ -262,31 +408,103 @@ fun EditDialog(viewModel: ConfirmRelationshipViewModel) {
                         style = MaterialTheme.typography.bodyLarge
                     )
                     Spacer(modifier = Modifier.width(10.dp))
-                    TextField(
-                        value = viewModel.editRelation,
-                        onValueChange = {
-                            viewModel.editRelation = it
-                        },
-                        trailingIcon = {
-                            IconButton(onClick = { expanded = !expanded }) {
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+                    Column() {
+                        val relationsList =
+                            if (fromPatient?.gender == "male") listOf(
+                                "Son",
+                                "Father",
+                                "Grand Father",
+                                "Brother",
+                                "Grand Son",
+                                "Uncle",
+                                "Brother-in-law",
+                                "Father-in-law",
+                                "Son-in-law",
+                                "Nephew",
+                                "Husband"
+                            )
+                            else if (fromPatient?.gender == "female") listOf(
+                                "Daughter",
+                                "Mother",
+                                "Grand Mother",
+                                "Sister",
+                                "Grand Daughter",
+                                "Aunty",
+                                "Sister-in-law",
+                                "Mother-in-law",
+                                "Daughter-in-law",
+                                "Niece",
+                                "Wife"
+                            )
+                            else listOf(
+                                "Child",
+                                "Parent",
+                                "Grand Parent",
+                                "Sibling",
+                                "Grand Child",
+                                "In-Law",
+                                "Spouse"
+                            )
+
+                        TextField(
+                            value = "$relation",
+                            onValueChange = {
+                                viewModel.relation = it
+                            },
+                            trailingIcon = {
+                                IconButton(onClick = { expanded = !expanded }) {
+                                    Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+                                }
+                            },
+                            readOnly = true,
+                            textStyle = MaterialTheme.typography.bodyLarge,
+                            interactionSource = remember {
+                                MutableInteractionSource()
+                            }.also { interactionSource ->
+                                LaunchedEffect(interactionSource) {
+                                    interactionSource.interactions.collect {
+                                        if (it is PressInteraction.Release) {
+                                            expanded = !expanded
+                                        }
+                                    }
+                                }
+                            },
+                        )
+                        DropdownMenu(
+                            modifier = Modifier.fillMaxHeight(0.4f),
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                        ) {
+                            relationsList.forEach { label ->
+                                DropdownMenuItem(
+                                    onClick = {
+                                        expanded = false
+                                        viewModel.relation = label
+                                    },
+                                    text = {
+                                        Text(
+                                            text = label,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                )
                             }
-                        },
-                        readOnly = true,
-                        textStyle = MaterialTheme.typography.bodyLarge
+                        }
+                    }
+                    }
+                    Spacer(modifier = Modifier.height(23.dp))
+                    Text(
+                        text = "of ${toPatient?.firstName}.",
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
-                Spacer(modifier = Modifier.height(23.dp))
-                Text(
-                    text = "of Vikram Pandey.",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    viewModel.openEditDialog = false
+                    //viewModel.openEditDialog = false
+                    closeDialog()
                 }) {
                 Text(
                     "Save",
@@ -297,7 +515,8 @@ fun EditDialog(viewModel: ConfirmRelationshipViewModel) {
         dismissButton = {
             TextButton(
                 onClick = {
-                    viewModel.openEditDialog = false
+                    //viewModel.openEditDialog = false
+                    closeDialog()
                 }) {
                 Text(
                     "Cancel",
