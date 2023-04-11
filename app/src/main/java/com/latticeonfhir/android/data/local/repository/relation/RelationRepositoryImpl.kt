@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.repository.relation
 
 import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.RelationBetween
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
@@ -38,8 +39,11 @@ class RelationRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getRelationBetween(fromId: String, toId: String): RelationEnum {
-        return relationDao.getRelation(fromId, toId)
+    override suspend fun getRelationBetween(fromId: String, toId: String): RelationBetween {
+        return RelationBetween(
+            patientIs = relationDao.getRelation(fromId, toId),
+            relativeIs = relationDao.getRelation(toId, fromId)
+        )
     }
 
     override suspend fun getAllRelationOfPatient(patientId: String): List<RelationEntity> {
@@ -48,5 +52,13 @@ class RelationRepositoryImpl @Inject constructor(
 
     override suspend fun deleteRelation(vararg relationId: String): Int {
         return relationDao.deleteRelation(*relationId)
+    }
+
+    override suspend fun deleteRelation(fromId: String, toId: String): Int {
+        return relationDao.deleteRelation(fromId,toId)
+    }
+
+    override suspend fun deleteAllRelationOfPatient(patientId: String): Int {
+        return relationDao.deleteAllRelationOfPatient(patientId)
     }
 }
