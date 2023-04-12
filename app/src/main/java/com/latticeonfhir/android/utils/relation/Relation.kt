@@ -185,6 +185,82 @@ object Relation {
         }
     }
 
+    internal fun getRelationEnumFromString(relation: String): String {
+        return when (relation) {
+            "Father" -> RelationEnum.FATHER.value
+            "Mother" -> RelationEnum.MOTHER.value
+            "Grand Father" -> RelationEnum.GRAND_FATHER.value
+            "Grand Mother" -> RelationEnum.GRAND_MOTHER.value
+            "Brother" -> RelationEnum.BROTHER.value
+            "Sister" -> RelationEnum.SISTER.value
+            "Wife" -> RelationEnum.WIFE.value
+            "Son" -> RelationEnum.SON.value
+            "Daughter" -> RelationEnum.DAUGHTER.value
+            "Grand Son" -> RelationEnum.GRAND_SON.value
+            "Grand Daughter" -> RelationEnum.GRAND_DAUGHTER.value
+            "Uncle" -> RelationEnum.UNCLE.value
+            "Aunty" -> RelationEnum.AUNTY.value
+            "Brother-in-law" -> RelationEnum.BROTHER_IN_LAW.value
+            "Sister-in-law" -> RelationEnum.SISTER_IN_LAW.value
+            "Father-in-law" -> RelationEnum.FATHER_IN_LAW.value
+            "Mother-in-law" -> RelationEnum.MOTHER_IN_LAW.value
+            "Son-in-law" -> RelationEnum.SON_IN_LAW.value
+            "Nephew" -> RelationEnum.NEPHEW.value
+            "Husband" -> RelationEnum.HUSBAND.value
+            "Child" -> RelationEnum.CHILD.value
+            "Grand Child" -> RelationEnum.GRAND_CHILD.value
+            "Sibling" -> RelationEnum.SIBLING.value
+            "Spouse" -> RelationEnum.SPOUSE.value
+            "Parent" -> RelationEnum.PARENT.value
+            "Grand Parent" -> RelationEnum.GRAND_PARENT.value
+            "Niece" -> RelationEnum.NIECE.value
+            "In-Law" -> RelationEnum.IN_LAW.value
+            "Daughter-in-law" -> RelationEnum.DAUGHTER_IN_LAW.value
+            "Unknown" -> RelationEnum.UNKNOWN.value
+            else -> {
+                RelationEnum.UNKNOWN.value
+            }
+        }
+    }
+
+    internal fun getStringFromRelationEnum(relation: String?): String {
+        return when (relation) {
+            RelationEnum.FATHER.value -> "Father"
+            RelationEnum.MOTHER.value -> "Mother"
+            RelationEnum.GRAND_FATHER.value -> "Grand Father"
+            RelationEnum.GRAND_MOTHER.value -> "Grand Mother"
+            RelationEnum.BROTHER.value -> "Brother"
+            RelationEnum.SISTER.value -> "Sister"
+            RelationEnum.WIFE.value -> "Wife"
+            RelationEnum.SON.value -> "Son"
+            RelationEnum.DAUGHTER.value -> "Daughter"
+            RelationEnum.GRAND_SON.value -> "Grand Son"
+            RelationEnum.GRAND_DAUGHTER.value -> "Grand Daughter"
+            RelationEnum.UNCLE.value -> "Uncle"
+            RelationEnum.AUNTY.value -> "Aunty"
+            RelationEnum.BROTHER_IN_LAW.value -> "Brother-in-law"
+            RelationEnum.SISTER_IN_LAW.value -> "Sister-in-law"
+            RelationEnum.FATHER_IN_LAW.value -> "Father-in-law"
+            RelationEnum.MOTHER_IN_LAW.value -> "Mother-in-law"
+            RelationEnum.SON_IN_LAW.value -> "Son-in-law"
+            RelationEnum.NEPHEW.value -> "Nephew"
+            RelationEnum.HUSBAND.value -> "Husband"
+            RelationEnum.CHILD.value -> "Child"
+            RelationEnum.GRAND_CHILD.value -> "Grand Child"
+            RelationEnum.SIBLING.value -> "Sibling"
+            RelationEnum.SPOUSE.value -> "Spouse"
+            RelationEnum.PARENT.value -> "Parent"
+            RelationEnum.GRAND_PARENT.value -> "Grand Parent"
+            RelationEnum.NIECE.value -> "Niece"
+            RelationEnum.IN_LAW.value -> "In-Law"
+            RelationEnum.DAUGHTER_IN_LAW.value -> "Daughter-in-law"
+            RelationEnum.UNKNOWN.value -> "Unknown"
+            else -> {
+                "Unknown"
+            }
+        }
+    }
+        
     internal fun getRelationFromRelationEnum(context: Context, relationEnum: RelationEnum): String {
         return context.resources.getStringArray(R.array.relation)[relationEnum.number]
     }

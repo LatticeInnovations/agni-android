@@ -2,7 +2,11 @@ package com.latticeonfhir.android
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -21,8 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.PatientItemCard
 import com.latticeonfhir.android.ui.landingscreen.LandingScreenViewModel
 import com.latticeonfhir.android.ui.landingscreen.MyPatientScreen
 import com.latticeonfhir.android.ui.landingscreen.ProfileScreen
@@ -44,15 +50,16 @@ fun LandingScreen(
                 ) == true
             ) {
                 viewModel.isSearchResult = true
-                viewModel.searchParameters = navController.previousBackStackEntry?.savedStateHandle?.get<SearchParameters>(
-                    "searchParameters"
-                )
+                viewModel.searchParameters =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<SearchParameters>(
+                        "searchParameters"
+                    )
             }
+
+            viewModel.populateList()
             viewModel.isLaunched = true
         }
     }
-
-    viewModel.populateList()
 
     Box(
         modifier = Modifier
@@ -62,7 +69,7 @@ fun LandingScreen(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                if (viewModel.isSearchResult){
+                if (viewModel.isSearchResult) {
                     TopAppBar(
                         title = {
                             Text(
@@ -75,18 +82,20 @@ fun LandingScreen(
                         ),
                         actions = {
                             IconButton(onClick = {
-                                    viewModel.isSearching = true
-                                }) {
-                                    Icon(
-                                        Icons.Default.Search, contentDescription = null,
-                                        modifier = Modifier.testTag("search icon")
-                                    )
-                                }
+                                viewModel.isSearching = true
+                                viewModel.getPreviousSearches()
+                            }) {
+                                Icon(
+                                    Icons.Default.Search, contentDescription = null,
+                                    modifier = Modifier.testTag("search icon")
+                                )
+                            }
                         },
                         navigationIcon = {
                             IconButton(onClick = {
                                 viewModel.isSearchResult = false
-                                viewModel.populateList()
+                                //viewModel.populateList()
+                                navController.popBackStack(Screen.LandingScreen.route, false)
                             }) {
                                 Icon(
                                     Icons.Default.Clear, contentDescription = null,
@@ -110,6 +119,7 @@ fun LandingScreen(
                             if (viewModel.selectedIndex == 0)
                                 IconButton(onClick = {
                                     viewModel.isSearching = true
+                                    viewModel.getPreviousSearches()
                                 }) {
                                     Icon(
                                         Icons.Default.Search, contentDescription = null,
@@ -249,10 +259,24 @@ fun LandingScreen(
                         ),
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Search
-                        )
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSearch = {
+                                viewModel.isSearchResult = true
+                                viewModel.isSearching = false
+                                viewModel.isSearchingByQuery = true
+                                viewModel.insertRecentSearch()
+                                viewModel.populateList()
+                            }
+                        ),
+                        singleLine = true
                     )
-                    repeat(5) {
-                        PreviousSearches()
+                    LazyColumn(modifier = Modifier.testTag("patients list")) {
+                        items(viewModel.previousSearchList) { listItem ->
+                            PreviousSearches(
+                                listItem, viewModel
+                            )
+                        }
                     }
                     OutlinedButton(
                         modifier = Modifier
@@ -272,15 +296,30 @@ fun LandingScreen(
 }
 
 @Composable
-fun PreviousSearches() {
+fun PreviousSearches(listItem: String, viewModel: LandingScreenViewModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(14.dp),
+            .padding(14.dp)
+            .clickable {
+                viewModel.isSearchResult = true
+                viewModel.isSearching = false
+                viewModel.isSearchingByQuery = true
+                viewModel.searchQuery = listItem
+                viewModel.populateList()
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(painterResource(id = R.drawable.search_history), contentDescription = "", tint = MaterialTheme.colorScheme.onSurface)
+        Icon(
+            painterResource(id = R.drawable.search_history),
+            contentDescription = "",
+            tint = MaterialTheme.colorScheme.onSurface
+        )
         Spacer(modifier = Modifier.width(15.dp))
-        Text(text = "List item", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            text = listItem,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }

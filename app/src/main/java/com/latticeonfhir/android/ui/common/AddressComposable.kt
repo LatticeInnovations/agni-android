@@ -38,7 +38,7 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
     ) {
         CustomTextField(
             value = address.pincode,
-            label = "Postal Code",
+            label = "Postal Code *",
             weight = 0.4f,
             maxLength = 6,
             address.isPostalCodeValid,
@@ -57,7 +57,7 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
                 },
                 label = {
                     Text(
-                        text = "State",
+                        text = "State *",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -119,7 +119,7 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
     Spacer(modifier = Modifier.height(15.dp))
     CustomTextField(
         value = address.addressLine1,
-        label = "Address Line 1",
+        label = "Address Line 1 *",
         weight = 1f,
         maxLength = 150, address.isAddressLine1Valid,
         "Please enter your address."
@@ -140,7 +140,7 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
     Spacer(modifier = Modifier.height(15.dp))
     CustomTextField(
         value = address.city,
-        label = "City",
+        label = "City *",
         weight = 1f,
         maxLength = 150, address.isCityValid,
         "Please enter your city."
