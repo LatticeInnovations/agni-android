@@ -11,7 +11,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -21,7 +23,7 @@ import androidx.paging.compose.items
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.PatientItemCard
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
-import com.latticeonfhir.android.utils.relation.Relation
+import com.latticeonfhir.android.utils.relation.RelationConverter
 import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
@@ -30,6 +32,7 @@ import java.time.ZoneId
 @Composable
 fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = hiltViewModel()) {
     viewModel.getAllRelations(patientId = patient.id)
+    val context = LocalContext.current
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -44,7 +47,7 @@ fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = 
             }
             relative?.let {
                 MembersCard(
-                    Relation.getStringFromRelationEnum(relation.relation.value),
+                    RelationConverter.getRelationFromRelationEnum(context, relation.relation).capitalize(),
                     it
                 )
             }

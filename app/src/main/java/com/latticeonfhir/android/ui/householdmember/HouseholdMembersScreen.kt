@@ -32,9 +32,14 @@ fun HouseholdMembersScreen(
     navController: NavController,
     viewModel: HouseholdMemberViewModel = viewModel()
 ) {
-    val patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-        "patient"
-    )!!
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                "patient"
+            )
+        }
+        viewModel.isLaunched = true
+    }
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -54,13 +59,17 @@ fun HouseholdMembersScreen(
                     }
                 },
                 title = {
-                    val subTitle = "${patient.gender[0].uppercase()}/${Constants.GetAge(patient.birthDate)}"
+                    val subTitle = "${viewModel.patient?.gender?.get(0)?.uppercase()}/${viewModel.patient?.birthDate?.let {
+                        Constants.GetAge(
+                            it
+                        )
+                    }}"
                     Column {
                         Text(
                             text = "Household members",
                             style = MaterialTheme.typography.titleLarge
                         )
-                        Text(text = "${Constants.GetFullName(patient.firstName, patient.middleName, patient.lastName)}, $subTitle", style = MaterialTheme.typography.bodyLarge)
+                        Text(text = "${Constants.GetFullName(viewModel.patient?.firstName, viewModel.patient?.middleName, viewModel.patient?.lastName)}, $subTitle", style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             )
@@ -68,6 +77,8 @@ fun HouseholdMembersScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         content = {
             Box(modifier = Modifier.padding(it)) {
+
+                val tabIndicatorHeight = 2.dp
                 Column(modifier = Modifier.fillMaxWidth()) {
                     TabRow(
                         selectedTabIndex = viewModel.tabIndex
@@ -80,10 +91,18 @@ fun HouseholdMembersScreen(
                                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+//                        Box(
+//                            modifier = Modifier
+//                                .align(Alignment.BottomStart)
+//                                .height(tabIndicatorHeight)
+//                                .fillMaxWidth(fraction = 1f / viewModel.tabs.size)
+//                                .offset(x = viewModel..value * (1f / tabTitles.size))
+//                                .background(Color.Black)
+//                        )
                     }
                     when (viewModel.tabIndex) {
-                        0 -> MembersScreen(patient)
-                        1 -> SuggestionsScreen(snackbarHostState, scope)
+                        0 -> viewModel.patient?.let { it1 -> MembersScreen(it1) }
+                        1 -> viewModel.patient?.let { it1 -> SuggestionsScreen(it1, snackbarHostState, scope) }
                     }
                 }
             }
@@ -116,7 +135,7 @@ fun HouseholdMembersScreen(
                                 onClick = {
                                     navController.currentBackStackEntry?.savedStateHandle?.set(
                                         "patient",
-                                        patient
+                                        viewModel.patient
                                     )
                                     navController.navigate(Screen.AddHouseholdMember.route)
                                 },
