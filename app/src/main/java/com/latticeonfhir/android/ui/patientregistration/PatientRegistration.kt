@@ -16,12 +16,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
 import com.latticeonfhir.android.ui.patientregistration.step2.PatientRegistrationStepTwo
 import com.latticeonfhir.android.ui.patientregistration.step3.PatientRegistrationStepThree
 import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationship
+import com.latticeonfhir.android.utils.relation.Relation.getRelationEnumFromString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,33 +32,35 @@ fun PatientRegistration(
     viewModel: PatientRegistrationViewModel = viewModel()
 ) {
     var patientRegister = PatientRegister()
-    if(navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-        "isEditing"
-    ) == true
-    ){
+    if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+            "isEditing"
+        ) == true
+    ) {
         viewModel.currentStep = navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
             "currentStep"
         )!!
         viewModel.isEditing = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
             "isEditing"
         )!!
-        patientRegister = navController.previousBackStackEntry?.savedStateHandle?.get<PatientRegister>(
-            "patient_register_details"
-        )!!
+        patientRegister =
+            navController.previousBackStackEntry?.savedStateHandle?.get<PatientRegister>(
+                "patient_register_details"
+            )!!
     }
-    if(navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-            "fromHouseholdMember"
-        ) == true
-    ){
-        viewModel.fromHouseholdMember = true
-        viewModel.showRelationDialogue = true
-        viewModel.totalSteps = 4
-        viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-            "patient"
-        )!!
-        viewModel.currentStep = navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
-            "currentStep"
-        )!!
+    LaunchedEffect(viewModel.isLaunched) {
+        if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                "fromHouseholdMember"
+            ) == true
+        ) {
+            viewModel.fromHouseholdMember = true
+            viewModel.showRelationDialogue = true
+            viewModel.totalSteps = 4
+            viewModel.patientFrom =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    "patient"
+                )
+        }
+        viewModel.isLaunched = true
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -64,21 +68,14 @@ fun PatientRegistration(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = if (viewModel.currentStep == 4) "Confirm Relationship" else "Patient Registration",
+                        text = "Patient Registration",
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
                 navigationIcon = {
                     if (viewModel.currentStep != 1) {
                         IconButton(onClick = {
-                            if (viewModel.currentStep == 4) {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    key = "patient_register_details",
-                                    value = patientRegister
-                                )
-                                navController.navigate(Screen.PatientRegistrationPreviewScreen.route)
-                            } else
-                                viewModel.currentStep -= 1
+                            viewModel.currentStep -= 1
                         }) {
                             Icon(
                                 Icons.Default.ArrowBack,
@@ -110,11 +107,10 @@ fun PatientRegistration(
                     1 -> PatientRegistrationStepOne(patientRegister)
                     2 -> PatientRegistrationStepTwo(patientRegister)
                     3 -> PatientRegistrationStepThree(navController, patientRegister)
-                    4 -> ConfirmRelationship(navController)
                 }
             }
-            if (viewModel.showRelationDialogue){
-                var expanded by remember{
+            if (viewModel.showRelationDialogue) {
+                var expanded by remember {
                     mutableStateOf(false)
                 }
                 AlertDialog(
@@ -133,7 +129,7 @@ fun PatientRegistration(
                             )
                             IconButton(onClick = {
                                 viewModel.showRelationDialogue = false
-                                if (viewModel.relation.isEmpty()){
+                                if (viewModel.relation.isEmpty()) {
                                     viewModel.fromHouseholdMember = false
                                     viewModel.totalSteps = 3
                                 }
@@ -144,12 +140,12 @@ fun PatientRegistration(
                     },
                     text = {
                         Column {
-                            val name = viewModel.patient?.firstName +
-                                    if (viewModel.patient?.middleName.isNullOrEmpty()) "" else {
-                                        " " + viewModel.patient?.middleName
+                            val name = viewModel.patientFrom?.firstName +
+                                    if (viewModel.patientFrom?.middleName.isNullOrEmpty()) "" else {
+                                        " " + viewModel.patientFrom?.middleName
                                     } +
-                                    if (viewModel.patient?.lastName.isNullOrEmpty()) "" else {
-                                        " " + viewModel.patient?.lastName
+                                    if (viewModel.patientFrom?.lastName.isNullOrEmpty()) "" else {
+                                        " " + viewModel.patientFrom?.lastName
                                     }
                             Text(
                                 name,
@@ -160,25 +156,67 @@ fun PatientRegistration(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(text = "is the",
-                                    style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    text = "is the",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Column() {
-                                    val relationsList = if (viewModel.patient?.gender == "male") listOf("Son", "Father", "Brother")
-                                    else listOf("Daughter", "Mother", "Sister")
+                                    val relationsList =
+                                        if (viewModel.patientFrom?.gender == "male") listOf(
+                                            "Son",
+                                            "Father",
+                                            "Grand Father",
+                                            "Brother",
+                                            "Grand Son",
+                                            "Uncle",
+                                            "Brother-in-law",
+                                            "Father-in-law",
+                                            "Son-in-law",
+                                            "Nephew",
+                                            "Husband"
+                                        )
+                                        else if (viewModel.patientFrom?.gender == "female") listOf(
+                                            "Daughter",
+                                            "Mother",
+                                            "Grand Mother",
+                                            "Sister",
+                                            "Grand Daughter",
+                                            "Aunty",
+                                            "Sister-in-law",
+                                            "Mother-in-law",
+                                            "Daughter-in-law",
+                                            "Niece",
+                                            "Wife"
+                                        )
+                                        else listOf(
+                                            "Child",
+                                            "Parent",
+                                            "Grand Parent",
+                                            "Sibling",
+                                            "Grand Child",
+                                            "In-Law",
+                                            "Spouse"
+                                        )
 
                                     TextField(
                                         value = viewModel.relation,
                                         onValueChange = {},
                                         trailingIcon = {
                                             IconButton(onClick = { expanded = !expanded }) {
-                                                Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+                                                Icon(
+                                                    Icons.Default.ArrowDropDown,
+                                                    contentDescription = ""
+                                                )
                                             }
                                         },
                                         readOnly = true,
                                         textStyle = MaterialTheme.typography.bodyLarge,
                                         placeholder = {
-                                            Text(text = "e.g. ${relationsList[0]}", style = MaterialTheme.typography.bodyLarge)
+                                            Text(
+                                                text = "e.g. ${relationsList[0]}",
+                                                style = MaterialTheme.typography.bodyLarge
+                                            )
                                         },
                                         interactionSource = remember {
                                             MutableInteractionSource()
@@ -217,8 +255,10 @@ fun PatientRegistration(
 
                             }
                             Spacer(modifier = Modifier.height(23.dp))
-                            Text(text = "of the patient I am about to create",
-                                style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "of the patient I am about to create",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                         }
                     },
                     confirmButton = {

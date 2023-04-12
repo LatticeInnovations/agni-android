@@ -45,6 +45,7 @@ fun PatientRegistrationStepThree(navController: NavController, patientRegister: 
                 viewModel.homeAddress.addressLine2 = homeAddressLine2.toString()
             }
         }
+        viewModel.isLaunched = true
     }
     Column(
         modifier = Modifier
@@ -129,6 +130,20 @@ fun PatientRegistrationStepThree(navController: NavController, patientRegister: 
                     key = "patient_register_details",
                     value = patientRegister
                 )
+                if (patientRegistrationViewModel.fromHouseholdMember) {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        key = "fromHouseholdMember",
+                        value = patientRegistrationViewModel.fromHouseholdMember
+                    )
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        key = "patientFrom",
+                        value = patientRegistrationViewModel.patientFrom
+                    )
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        key = "relation",
+                        value = patientRegistrationViewModel.relation
+                    )
+                }
                 navController.navigate(Screen.PatientRegistrationPreviewScreen.route)
             },
             modifier = Modifier

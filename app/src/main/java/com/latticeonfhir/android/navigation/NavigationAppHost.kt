@@ -11,6 +11,7 @@ import com.latticeonfhir.android.ui.main.patientlandingscreen.HouseholdMembersSc
 import com.latticeonfhir.android.ui.main.patientlandingscreen.PatientLandingScreen
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistrationPreview
+import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationship
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 
 @Composable
@@ -23,5 +24,6 @@ fun NavigationAppHost(navController: NavController) {
         composable(Screen.PatientLandingScreen.route){ PatientLandingScreen(navController = navController) }
         composable(Screen.HouseholdMembersScreen.route){ HouseholdMembersScreen(navController = navController) }
         composable(Screen.AddHouseholdMember.route){ AddHouseholdMember(navController = navController) }
+        composable(Screen.ConfirmRelationship.route){ ConfirmRelationship(navController = navController) }
     }
 }

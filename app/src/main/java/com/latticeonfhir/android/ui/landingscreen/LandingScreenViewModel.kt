@@ -36,13 +36,14 @@ class LandingScreenViewModel @Inject constructor(
     var isLaunched by mutableStateOf(false)
     val items = listOf("My Patients", "Queue", "Profile")
     var isSearching by mutableStateOf(false)
+    var isSearchingByQuery by mutableStateOf(false)
     var isSearchResult by mutableStateOf(false)
     var searchQuery by mutableStateOf("")
     var selectedIndex by mutableStateOf(0)
     var patientList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf<PagingData<PatientResponse>>())
     var searchResultList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf<PagingData<PatientResponse>>())
     var searchParameters by mutableStateOf<SearchParameters?>(null)
-
+    var previousSearchList = mutableListOf<String>()
 
     fun getPatientList() {
         viewModelScope.launch {
@@ -50,50 +51,37 @@ class LandingScreenViewModel @Inject constructor(
         }
     }
 
-    // dummy data for search list
-    val patientResponse = PatientResponse(
-        id = "43cf9743-7844-4814-9b11-39dfc83faaa9",
-        firstName = "search",
-        middleName = null,
-        lastName = "result",
-        active = true,
-        birthDate = Date().time.toPatientDate(),
-        email = null,
-        fhirId = null,
-        gender = "male",
-        mobileNumber = 99999999999,
-        permanentAddress = PatientAddressResponse(
-            addressLine1 = "something",
-            addressLine2 = null,
-            city = "somecity",
-            district = null,
-            state = "Uttarakhand",
-            postalCode = "333333",
-            country = "India"
-        ),
-        identifier = listOf(
-            PatientIdentifier(
-                code = null,
-                identifierNumber = "XXXXXXXXXX",
-                identifierType = "http://hospital.smarthealthit.org"
-            )
-        )
-    )
-
-    //var searchResultList = flowOf(PagingData.from(listOf(patientResponse, patientResponse, patientResponse)))
-
     fun populateList(){
         if(isSearchResult){
-            searchPatient(searchParameters!!)
+            if (isSearchingByQuery) searchPatientByQuery()
+            else searchPatient(searchParameters!!)
         } else{
             getPatientList()
+        }
+    }
+
+    internal fun getPreviousSearches(){
+        viewModelScope.launch(Dispatchers.IO) {
+            previousSearchList = searchRepository.getRecentSearches() as MutableList<String>
+        }
+    }
+
+    internal fun insertRecentSearch(){
+        viewModelScope.launch(Dispatchers.IO) {
+            searchRepository.insertRecentSearch(searchQuery)
         }
     }
 
     internal fun searchPatient(searchParameters: SearchParameters) {
         viewModelScope.launch(Dispatchers.IO) {
             searchResultList = searchRepository.searchPatients(searchParameters).cachedIn(viewModelScope)
-            //searchResultList = flowOf(PagingData.from(listOf(patientResponse, patientResponse, patientResponse)))
+        }
+    }
+
+    internal fun searchPatientByQuery() {
+        viewModelScope.launch(Dispatchers.IO) {
+            searchResultList = searchRepository.searchPatientByQuery(searchQuery).cachedIn(viewModelScope)
+            searchQuery = ""
         }
     }
 }

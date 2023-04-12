@@ -1,9 +1,11 @@
 package com.latticeonfhir.android.data.local.model
 
+import androidx.annotation.Keep
 import androidx.lifecycle.LiveData
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 
+@Keep
 data class RelationBetween (
-    private val patientIs: LiveData<RelationEnum>,
-    private val relativeIs: LiveData<RelationEnum>
+    val patientIs: LiveData<RelationEnum>,
+    val relativeIs: LiveData<RelationEnum>
 )

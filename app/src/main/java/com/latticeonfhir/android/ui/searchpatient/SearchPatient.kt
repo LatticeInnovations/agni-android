@@ -66,14 +66,14 @@ fun SearchPatient(
                         patientId = if(searchPatientViewModel.patientId.isEmpty()) null else searchPatientViewModel.patientId,
                         minAge = searchPatientViewModel.minAge.toInt(),
                         maxAge = searchPatientViewModel.maxAge.toInt(),
-                        gender = GenderEnum.MALE.value,
                         addressLine1 = if(searchPatientViewModel.address.addressLine1.isEmpty()) null else searchPatientViewModel.address.addressLine1,
                         addressLine2 = if(searchPatientViewModel.address.addressLine2.isEmpty()) null else searchPatientViewModel.address.addressLine2,
                         postalCode = if(searchPatientViewModel.address.pincode.isEmpty()) null else searchPatientViewModel.address.pincode,
                         state = if(searchPatientViewModel.address.state.isEmpty()) null else searchPatientViewModel.address.state,
                         district = if(searchPatientViewModel.address.district.isEmpty()) null else searchPatientViewModel.address.district,
                         city = if(searchPatientViewModel.address.city.isEmpty()) null else searchPatientViewModel.address.city,
-                        lastFacilityVisit = searchPatientViewModel.visitSelected
+                        lastFacilityVisit = searchPatientViewModel.visitSelected,
+                        gender = if(searchPatientViewModel.gender.isEmpty()) null else searchPatientViewModel.gender
                     )
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         "isSearchResult", true
