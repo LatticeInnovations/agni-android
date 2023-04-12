@@ -49,11 +49,7 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
                 ),
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "patient",
-                            viewModel.patient
-                        )
-                        navController.navigate(Screen.LandingScreen.route)
+                        navController.popBackStack()
                     }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "back icon")
                     }

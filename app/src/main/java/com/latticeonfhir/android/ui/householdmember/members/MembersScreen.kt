@@ -1,46 +1,75 @@
 package com.latticeonfhir.android.ui.main.patientlandingscreen
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.latticeonfhir.android.ui.householdmember.members.MembersScreenViewModel
+import androidx.lifecycle.viewmodel.compose.*
+import androidx.paging.compose.items
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.ui.common.PatientItemCard
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import com.latticeonfhir.android.utils.relation.Relation
+import java.time.Instant
+import java.time.LocalDate
+import java.time.Period
+import java.time.ZoneId
 
 @Composable
-fun MembersScreen() {
-    Column(
+fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = hiltViewModel()) {
+    viewModel.getAllRelations(patientId = patient.id)
+    LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
             .padding(10.dp)
     ) {
-        MembersCard()
-        MembersCard()
-        MembersCard()
-        MembersCard()
-        MembersCard()
-        MembersCard()
-        MembersCard()
-        MembersCard()
-        MembersCard()
-        MembersCard()
-        MembersCard()
-        MembersCard()
-        MembersCard()
-        MembersCard()
+        items(viewModel.relationsList) { relation ->
+            var relative by remember {
+                mutableStateOf<PatientResponse?>(null)
+            }
+            viewModel.getPatientData(relation.toId) {
+                relative = it
+            }
+            relative?.let {
+                MembersCard(
+                    Relation.getStringFromRelationEnum(relation.relation.value),
+                    it
+                )
+            }
+        }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun MembersCard() {
+fun MembersCard(relation: String, relative: PatientResponse) {
+    val name = relative?.firstName +
+            if (relative?.middleName.isNullOrEmpty()) "" else {
+                " " + relative?.middleName
+            } +
+            if (relative?.lastName.isNullOrEmpty()) "" else {
+                " " + relative?.lastName
+            }
+    val age =
+        relative?.birthDate?.let {
+            Period.between(
+                Instant.ofEpochMilli(it.toTimeInMilli()).atZone(ZoneId.systemDefault())
+                    .toLocalDate(),
+                LocalDate.now()
+            ).years
+        }
+    val subtitle = "${relative?.gender?.get(0)?.uppercase()}/$age · PID ${relative?.fhirId}"
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -54,9 +83,21 @@ fun MembersCard() {
                 .fillMaxWidth()
                 .padding(15.dp)
         ) {
-            Text(text = "Father of", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(text = "Sangeeta Pandey", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
-            Text(text = "F/29 · PID 12345", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                text = "$relation of",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = name,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
