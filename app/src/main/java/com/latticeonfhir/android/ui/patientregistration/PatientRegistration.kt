@@ -11,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
@@ -19,12 +18,9 @@ import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
 import com.latticeonfhir.android.ui.patientregistration.step2.PatientRegistrationStepTwo
 import com.latticeonfhir.android.ui.patientregistration.step3.PatientRegistrationStepThree
-import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationship
-import com.latticeonfhir.android.utils.relation.Relation.getRelationEnumFromString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

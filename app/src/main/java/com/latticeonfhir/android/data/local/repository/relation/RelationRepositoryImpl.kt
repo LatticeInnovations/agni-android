@@ -1,10 +1,11 @@
 package com.latticeonfhir.android.data.local.repository.relation
 
+import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.model.RelationBetween
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
-import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toReverseRelation
 import kotlinx.coroutines.CoroutineScope
@@ -17,11 +18,11 @@ class RelationRepositoryImpl @Inject constructor(
     private val patientDao: PatientDao
 ) : RelationRepository {
 
-    override suspend fun addRelation(relationship: Relationship): List<Long> {
+    override suspend fun addRelation(relation: Relation): List<Long> {
         return relationDao.insertRelation(
-            relationship.toRelationEntity()
+            relation.toRelationEntity()
         ).also {
-            relationship.toRelationEntity().toReverseRelation(patientDao) { relationEntity ->
+            relation.toRelationEntity().toReverseRelation(patientDao) { relationEntity ->
                 CoroutineScope(Dispatchers.IO).launch {
                     relationDao.insertRelation(
                         relationEntity
@@ -37,11 +38,8 @@ class RelationRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getRelationBetween(fromId: String, toId: String): RelationBetween {
-        return RelationBetween(
-            patientIs = relationDao.getRelation(fromId, toId),
-            relativeIs = relationDao.getRelation(toId, fromId)
-        )
+    override suspend fun getRelationBetween(fromId: String, toId: String): List<RelationView> {
+        return relationDao.getRelation(fromId, toId)
     }
 
     override suspend fun getAllRelationOfPatient(patientId: String): List<RelationEntity> {
