@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
+import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 
 @Dao
 interface RelationDao {
@@ -17,8 +18,8 @@ interface RelationDao {
     suspend fun insertRelation(vararg relationEntity: RelationEntity): List<Long>
 
     @Transaction
-    @Query("SELECT relation FROM RelationEntity WHERE fromId=:fromId AND toId=:toId")
-    fun getRelation(fromId: String, toId: String): LiveData<RelationEnum>
+    @Query("SELECT * FROM (SELECT * FROM RelationView WHERE patientId=:fromId AND relation=:toId) UNION SELECT * FROM (SELECT * FROM RelationView WHERE patientId=:toId AND relation=:fromId)")
+    suspend fun getRelation(fromId: String, toId: String): List<RelationView>
 
     @Transaction
     @Query("SELECT * FROM RelationEntity WHERE fromId=:patientId")

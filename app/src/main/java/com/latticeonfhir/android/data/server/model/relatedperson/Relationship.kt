@@ -5,9 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 @Keep
 data class Relationship(
-    @SerializedName("patientIs")
-    val patientId: String,
+    val patientIs: String,
     val relativeId: String,
-    @SerializedName("relativeIs")
-    val relation: String
+    val relativeIs: String
 )
