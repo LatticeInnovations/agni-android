@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.data.local.roomdb.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -17,7 +18,7 @@ interface RelationDao {
 
     @Transaction
     @Query("SELECT relation FROM RelationEntity WHERE fromId=:fromId AND toId=:toId")
-    suspend fun getRelation(fromId: String, toId: String): RelationEnum
+    suspend fun getRelation(fromId: String, toId: String): LiveData<RelationEnum>
 
     @Transaction
     @Query("SELECT * FROM RelationEntity WHERE fromId=:patientId")
