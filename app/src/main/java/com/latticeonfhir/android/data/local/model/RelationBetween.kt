@@ -6,6 +6,6 @@ import com.latticeonfhir.android.data.local.enums.RelationEnum
 
 @Keep
 data class RelationBetween (
-    val patientIs: LiveData<RelationEnum>,
-    val relativeIs: LiveData<RelationEnum>
+    val patientIs: LiveData<RelationEnum?>,
+    val relativeIs: LiveData<RelationEnum?>
 )
