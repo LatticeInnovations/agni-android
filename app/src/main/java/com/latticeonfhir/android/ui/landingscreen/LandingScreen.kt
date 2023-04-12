@@ -3,6 +3,7 @@ package com.latticeonfhir.android
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -48,11 +49,11 @@ fun LandingScreen(
                     "searchParameters"
                 )
             }
+
+            viewModel.populateList()
             viewModel.isLaunched = true
         }
     }
-
-    viewModel.populateList()
 
     Box(
         modifier = Modifier
@@ -86,7 +87,8 @@ fun LandingScreen(
                         navigationIcon = {
                             IconButton(onClick = {
                                 viewModel.isSearchResult = false
-                                viewModel.populateList()
+                                //viewModel.populateList()
+                                navController.popBackStack(Screen.LandingScreen.route, false)
                             }) {
                                 Icon(
                                     Icons.Default.Clear, contentDescription = null,
@@ -249,7 +251,16 @@ fun LandingScreen(
                         ),
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Search
-                        )
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSearch = {
+                                viewModel.isSearchResult = true
+                                viewModel.isSearching = false
+                                viewModel.isSearchingByQuery = true
+                                viewModel.populateList()
+                            }
+                        ),
+                        singleLine = true
                     )
                     repeat(5) {
                         PreviousSearches()

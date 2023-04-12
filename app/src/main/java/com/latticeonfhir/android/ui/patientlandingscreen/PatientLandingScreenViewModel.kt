@@ -7,5 +7,6 @@ import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 
 class PatientLandingScreenViewModel: BaseViewModel() {
+    var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
 }

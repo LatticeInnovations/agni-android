@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -31,9 +32,14 @@ import java.time.Instant
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientLandingScreen(navController: NavController, viewModel: PatientLandingScreenViewModel = viewModel()) {
-    viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-        "patient"
-    )
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                "patient"
+            )
+        }
+        viewModel.isLaunched = true
+    }
     Scaffold(
         topBar = {
             LargeTopAppBar(
