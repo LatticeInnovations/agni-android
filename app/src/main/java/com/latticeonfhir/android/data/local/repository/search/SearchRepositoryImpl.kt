@@ -7,7 +7,9 @@ import androidx.paging.map
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.SearchHistoryEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.constants.Paging.PAGE_SIZE
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientResponse
 import com.latticeonfhir.android.utils.paging.SearchPagingSource
@@ -17,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 class SearchRepositoryImpl @Inject constructor(private val searchDao: SearchDao) : SearchRepository {
@@ -80,5 +83,32 @@ class SearchRepositoryImpl @Inject constructor(private val searchDao: SearchDao)
                 )
             )
         }
+    }
+
+    override suspend fun insertRecentSearch(searchQuery: String): Long {
+        return searchDao.getRecentSearches().run {
+            if (size == 5) {
+                searchDao.getOldestRecentSearchId().run {
+                    searchDao.deleteRecentSearch(this)
+                    searchDao.insertRecentSearch(
+                        SearchHistoryEntity(
+                            searchQuery = searchQuery,
+                            date = Date()
+                        )
+                    )
+                }
+            } else {
+                searchDao.insertRecentSearch(
+                    SearchHistoryEntity(
+                        searchQuery = searchQuery,
+                        date = Date()
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun getRecentSearches(): List<String> {
+        return searchDao.getRecentSearches()
     }
 }
