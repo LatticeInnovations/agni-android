@@ -1,16 +1,12 @@
 package com.latticeonfhir.android.ui.patientregistration.step4
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
@@ -26,15 +22,9 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
-import androidx.paging.LoadState
-import androidx.paging.compose.items
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.Loader
-import com.latticeonfhir.android.ui.common.PatientItemCard
-import com.latticeonfhir.android.utils.relation.Relation
-import com.latticeonfhir.android.utils.relation.Relation.getRelationFromRelationEnum
-import com.latticeonfhir.android.utils.relation.Relation.getStringFromRelationEnum
+import com.latticeonfhir.android.utils.relation.RelationConverter.getRelationFromRelationEnum
 import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,7 +97,7 @@ fun ConfirmRelationship(
                     .padding(it)
             ) {
                 ConfirmRelationshipScreen(context, navController, viewModel)
-                if (viewModel.discardAllRelationDialog){
+                if (viewModel.discardAllRelationDialog) {
                     AlertDialog(
                         onDismissRequest = {
                             viewModel.discardAllRelationDialog = false
@@ -120,10 +110,10 @@ fun ConfirmRelationship(
                             )
                         },
                         text = {
-                                Text(
-                                    "Are you sure you want to discard this patient record?",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                            Text(
+                                "Are you sure you want to discard this patient record?",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         },
                         confirmButton = {
                             TextButton(
@@ -170,7 +160,7 @@ fun ConfirmRelationship(
 
 @Composable
 fun ConfirmRelationshipScreen(
-    context : Context,
+    context: Context,
     navController: NavController,
     viewModel: ConfirmRelationshipViewModel
 ) {
@@ -201,29 +191,30 @@ fun ConfirmRelationshipScreen(
                 .verticalScroll(rememberScrollState())
                 .weight(1f)
         ) {
-            viewModel.relationBetween?.patientIs?.value?.run {
-                    MemberCard(
-                        viewModel.patient, getRelationFromRelationEnum(
-                            context,
-                            this
-                        ),
-                        viewModel.relative,
-                        viewModel
-                    ){
-                        viewModel.showRelationCard = false
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-            if (viewModel.showInverseRelationCard) {
-                MemberCard(
-                    viewModel.relative,
-                    getStringFromRelationEnum(viewModel.relationBetween?.relativeIs?.value?.value),
-                    viewModel.patient,
-                    viewModel
-                ){
-                    viewModel.showInverseRelationCard = false
-                }
-            }
+//            viewModel.relationBetween?.patientIs?.value?.run {
+//                MemberCard(
+//                    viewModel.patient, getRelationFromRelationEnum(
+//                        context,
+//                        this
+//                    ),
+//                    viewModel.relative,
+//                    viewModel
+//                ) {
+//                    viewModel.showRelationCard = false
+//                }
+//                Spacer(modifier = Modifier.height(24.dp))
+//            }
+
+//            viewModel.relationBetween?.relativeIs?.value?.run {
+//                MemberCard(
+//                    viewModel.relative,
+//                    getRelationFromRelationEnum(context,this),
+//                    viewModel.patient,
+//                    viewModel
+//                ) {
+//                    viewModel.showInverseRelationCard = false
+//                }
+//            }
         }
         Button(
             onClick = {
@@ -295,13 +286,20 @@ fun MemberCard(
     }
 
     if (openDeleteDialog) {
-        DeleteDialog(fromPatient, relation, toPatient, viewModel, openDeleteDialog, updateVisibility){
+        DeleteDialog(
+            fromPatient,
+            relation,
+            toPatient,
+            viewModel,
+            openDeleteDialog,
+            updateVisibility
+        ) {
             openDeleteDialog = false
         }
     }
 
     if (openEditDialog) {
-        EditDialog(fromPatient, relation, toPatient, viewModel, openEditDialog){
+        EditDialog(fromPatient, relation, toPatient, viewModel, openEditDialog) {
             openEditDialog = false
         }
     }
@@ -320,7 +318,7 @@ fun DeleteDialog(
     AlertDialog(
         onDismissRequest = {
             //viewModel.openDeleteDialog = false
-                           closeDialog()
+            closeDialog()
         },
         title = {
             Text(
@@ -498,13 +496,13 @@ fun EditDialog(
                             }
                         }
                     }
-                    }
-                    Spacer(modifier = Modifier.height(23.dp))
-                    Text(
-                        text = "of ${toPatient?.firstName}.",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
                 }
+                Spacer(modifier = Modifier.height(23.dp))
+                Text(
+                    text = "of ${toPatient?.firstName}.",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         },
         confirmButton = {
             TextButton(
