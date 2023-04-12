@@ -21,8 +21,7 @@ class ConfirmRelationshipViewModel @Inject constructor(
     private val relationRepository: RelationRepository,
     private val patientRepository: PatientRepository
 ) : BaseViewModel() {
-    var openEditDialog by mutableStateOf(false)
-    var openDeleteDialog by mutableStateOf(false)
+    var isLaunched by mutableStateOf(false)
 
     var showRelationCard by mutableStateOf(true)
     var showInverseRelationCard by mutableStateOf(true)

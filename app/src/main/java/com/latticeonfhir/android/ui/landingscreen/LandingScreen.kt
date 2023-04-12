@@ -1,6 +1,7 @@
 package com.latticeonfhir.android
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -82,19 +83,18 @@ fun LandingScreen(
                         ),
                         actions = {
                             IconButton(onClick = {
-                                viewModel.isSearching = true
-                                viewModel.getPreviousSearches()
+                                viewModel.isSearching = false
+                                navController.navigate(Screen.SearchPatientScreen.route)
                             }) {
                                 Icon(
-                                    Icons.Default.Search, contentDescription = null,
-                                    modifier = Modifier.testTag("search icon")
+                                    Icons.Default.Search, contentDescription = null
                                 )
                             }
                         },
                         navigationIcon = {
                             IconButton(onClick = {
                                 viewModel.isSearchResult = false
-                                //viewModel.populateList()
+                                viewModel.populateList()
                                 navController.popBackStack(Screen.LandingScreen.route, false)
                             }) {
                                 Icon(
@@ -118,6 +118,7 @@ fun LandingScreen(
                         actions = {
                             if (viewModel.selectedIndex == 0)
                                 IconButton(onClick = {
+                                    viewModel.searchQuery = ""
                                     viewModel.isSearching = true
                                     viewModel.getPreviousSearches()
                                 }) {

@@ -21,6 +21,7 @@ import java.time.Period
 import java.time.ZoneId
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.ui.householdmember.HouseholdMemberViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import java.time.Instant
@@ -34,6 +35,9 @@ fun HouseholdMembersScreen(
     val patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
         "patient"
     )!!
+
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -50,28 +54,18 @@ fun HouseholdMembersScreen(
                     }
                 },
                 title = {
-                    val name = patient.firstName +
-                            if (patient.middleName.isNullOrEmpty()) "" else {
-                                " " + patient.middleName
-                            } +
-                            if (patient.lastName.isNullOrEmpty()) "" else {
-                                " " + patient.lastName
-                            }
-                    val age = Period.between(
-                        Instant.ofEpochMilli(patient.birthDate.toTimeInMilli()).atZone(ZoneId.systemDefault()).toLocalDate(),
-                        LocalDate.now()
-                    ).years
-                    val subTitle = "${patient.gender[0].uppercase()}/$age"
+                    val subTitle = "${patient.gender[0].uppercase()}/${Constants.GetAge(patient.birthDate)}"
                     Column {
                         Text(
                             text = "Household members",
                             style = MaterialTheme.typography.titleLarge
                         )
-                        Text(text = "$name, $subTitle", style = MaterialTheme.typography.bodyLarge)
+                        Text(text = "${Constants.GetFullName(patient.firstName, patient.middleName, patient.lastName)}, $subTitle", style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         content = {
             Box(modifier = Modifier.padding(it)) {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -89,7 +83,7 @@ fun HouseholdMembersScreen(
                     }
                     when (viewModel.tabIndex) {
                         0 -> MembersScreen(patient)
-                        1 -> SuggestionsScreen()
+                        1 -> SuggestionsScreen(snackbarHostState, scope)
                     }
                 }
             }
