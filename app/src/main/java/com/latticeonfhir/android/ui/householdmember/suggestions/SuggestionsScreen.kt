@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -15,15 +17,24 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.*
+import androidx.paging.compose.items
 import com.latticeonfhir.android.data.local.constants.Constants
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.ui.common.PatientItemCard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun SuggestionsScreen(snackbarHostState: SnackbarHostState, scope: CoroutineScope, viewModel: SuggestionsScreenViewModel = viewModel()) {
+fun SuggestionsScreen(
+    patient: PatientResponse,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope,
+    viewModel: SuggestionsScreenViewModel = viewModel()
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -33,22 +44,22 @@ fun SuggestionsScreen(snackbarHostState: SnackbarHostState, scope: CoroutineScop
             text = "Here are patients with similar addresses or nearby locations.",
             style = MaterialTheme.typography.bodyLarge
         )
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .weight(1f)
-                .padding(bottom = 20.dp)
-        ) {
-            repeat(5) {
-                SuggestedMembersCard(scope, snackbarHostState, viewModel)
+        LazyColumn() {
+            items(viewModel.suggestedMembersList) { member ->
+                SuggestedMembersCard(scope, snackbarHostState, viewModel, member, patient)
             }
-
         }
     }
 }
 
 @Composable
-fun SuggestedMembersCard(scope: CoroutineScope, snackbarHostState: SnackbarHostState, viewModel: SuggestionsScreenViewModel) {
+fun SuggestedMembersCard(
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    viewModel: SuggestionsScreenViewModel,
+    member: PatientResponse,
+    patient: PatientResponse
+) {
     var showConnectDialog by remember {
         mutableStateOf(false)
     }
@@ -73,33 +84,47 @@ fun SuggestedMembersCard(scope: CoroutineScope, snackbarHostState: SnackbarHostS
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Prashant Pandey",
+                    text = Constants.GetFullName(
+                        member.firstName,
+                        member.middleName,
+                        member.lastName
+                    ),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "M/32",
+                    text = "${member.gender[0].uppercase()}/${Constants.GetAge(member.birthDate)}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Text(
-                text = "A-45, Rajendra Nagar, Delhi\n" +
-                        "+91-99000-88222 · PID 12345",
+                text = Constants.GetAddress(member.permanentAddress),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "+91-${member.mobileNumber} · PID ${member.fhirId}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
     if (showConnectDialog) {
-        ConnectDialog(snackbarHostState, scope) {
+        ConnectDialog(snackbarHostState, scope, member, patient) {
             showConnectDialog = false
         }
     }
 }
 
 @Composable
-fun ConnectDialog(snackbarHostState: SnackbarHostState, scope: CoroutineScope, closeDialog: () -> (Unit)) {
+fun ConnectDialog(
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope,
+    member: PatientResponse,
+    patient: PatientResponse,
+    closeDialog: () -> (Unit)
+) {
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -119,7 +144,7 @@ fun ConnectDialog(snackbarHostState: SnackbarHostState, scope: CoroutineScope, c
         text = {
             Column {
                 Text(
-                    "Vikram Kumar Pandey",
+                    Constants.GetFullName(patient.firstName, patient.middleName, patient.lastName),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(23.dp))
@@ -194,7 +219,13 @@ fun ConnectDialog(snackbarHostState: SnackbarHostState, scope: CoroutineScope, c
                 }
                 Spacer(modifier = Modifier.height(23.dp))
                 Text(
-                    text = "of Prashant Pandey.",
+                    text = "of ${
+                        Constants.GetFullName(
+                            member.firstName,
+                            member.middleName,
+                            member.lastName
+                        )
+                    }.",
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
@@ -202,9 +233,16 @@ fun ConnectDialog(snackbarHostState: SnackbarHostState, scope: CoroutineScope, c
         confirmButton = {
             TextButton(
                 onClick = {
+                    // call add member to household function here
                     scope.launch {
                         snackbarHostState.showSnackbar(
-                            message = "Prashant Pandey added to the household.",
+                            message = "${
+                                Constants.GetFullName(
+                                    member.firstName,
+                                    member.middleName,
+                                    member.lastName
+                                )
+                            } added to the household.",
                             withDismissAction = true
                         )
                     }

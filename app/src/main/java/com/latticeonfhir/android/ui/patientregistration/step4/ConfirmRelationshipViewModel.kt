@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.patientregistration.step4
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -33,7 +34,9 @@ class ConfirmRelationshipViewModel @Inject constructor(
 
     var patient by mutableStateOf<PatientResponse?>(null)
     var relative by mutableStateOf<PatientResponse?>(null)
-    var relationBetween by mutableStateOf<List<RelationView>?>(null)
+    //var relationBetween by mutableStateOf<List<RelationView>?>(null)
+    var relationBetween by mutableStateOf(listOf<RelationView>())
+   // var relationBetween = mutableStateListOf<RelationView>()
 
     internal fun getPatientData(id: String, patientResponse: (PatientResponse) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {

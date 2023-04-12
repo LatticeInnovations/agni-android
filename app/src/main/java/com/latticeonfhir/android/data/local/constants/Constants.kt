@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.data.local.constants
 
+import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import java.time.Instant
 import java.time.LocalDate
@@ -24,6 +25,16 @@ object Constants {
                 .toLocalDate(),
             LocalDate.now()
         ).years
+    }
+
+    internal fun GetAddress(addressResponse: PatientAddressResponse): String {
+        return addressResponse.addressLine1 +
+                if (addressResponse.addressLine2.isNullOrEmpty()) "" else {
+                    ", "+ addressResponse.addressLine2
+                } +", "+ addressResponse.city +
+                if (addressResponse.district.isNullOrEmpty()) "" else {
+                    ", "+ addressResponse.district
+                } +", "+ addressResponse.state +", "+ addressResponse.postalCode
     }
 
     internal fun GetStateList() : List<String> {
