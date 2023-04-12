@@ -14,6 +14,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.SearchHistoryEntity
 import com.latticeonfhir.android.data.local.roomdb.typeconverters.TypeConverter
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import net.sqlcipher.database.SQLiteDatabase
@@ -21,7 +22,7 @@ import net.sqlcipher.database.SupportFactory
 import java.util.UUID
 
 @Database(
-    entities = [PatientEntity::class, GenericEntity::class, IdentifierEntity::class, RelationEntity::class],
+    entities = [PatientEntity::class, GenericEntity::class, IdentifierEntity::class, RelationEntity::class, SearchHistoryEntity::class],
     version = 1,
     exportSchema = true
 )

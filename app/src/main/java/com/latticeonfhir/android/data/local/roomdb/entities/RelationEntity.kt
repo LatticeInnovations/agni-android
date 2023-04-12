@@ -1,11 +1,13 @@
 package com.latticeonfhir.android.data.local.roomdb.entities
 
+import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 
+@Keep
 @Entity(
     indices = [Index("fromId", "toId")],
     foreignKeys = [ForeignKey(

@@ -1,5 +1,8 @@
 package com.latticeonfhir.android.data.local.roomdb.entities
 
+import androidx.annotation.Keep
+
+@Keep
 data class PermanentAddressEntity(
     val addressLine1: String,
     val city: String?,
