@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.patientregistration.step4
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,8 +8,8 @@ import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.model.RelationBetween
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
+import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.relation.Relation.getStringFromRelationEnum
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,7 +33,7 @@ class ConfirmRelationshipViewModel @Inject constructor(
 
     var patient by mutableStateOf<PatientResponse?>(null)
     var relative by mutableStateOf<PatientResponse?>(null)
-    var relationBetween by mutableStateOf<RelationBetween?>(null)
+    var relationBetween by mutableStateOf<List<RelationView>?>(null)
 
     internal fun getPatientData(id: String, patientResponse: (PatientResponse) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -42,12 +41,18 @@ class ConfirmRelationshipViewModel @Inject constructor(
         }
     }
 
-    internal fun getRelationBetween(patientId: String, relativeId: String, relationBetween: (RelationBetween) -> Unit) {
+    internal fun getRelationBetween(
+        patientId: String,
+        relativeId: String,
+        relationBetween: (List<RelationView>) -> Unit
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
-            relationBetween(relationRepository.getRelationBetween(
-                patientId,
-                relativeId
-            ))
+            relationBetween(
+                relationRepository.getRelationBetween(
+                    patientId,
+                    relativeId
+                )
+            )
         }
     }
 

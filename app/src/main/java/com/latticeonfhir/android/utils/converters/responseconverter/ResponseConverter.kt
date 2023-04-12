@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
 import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
@@ -11,11 +12,10 @@ import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
-import com.latticeonfhir.android.utils.relation.Relation.getInverseRelation
+import com.latticeonfhir.android.utils.relation.RelationConverter.getInverseRelation
 import java.util.Date
 
 fun PatientResponse.toPatientEntity(): PatientEntity {
@@ -116,7 +116,7 @@ fun List<GenericEntity>.toListOfId(): List<String> {
     return this.map { it.id }
 }
 
-fun Relationship.toRelationEntity(): RelationEntity {
+fun Relation.toRelationEntity(): RelationEntity {
     return RelationEntity(
         id = UUIDBuilder.generateUUID(),
         fromId = patientId,
@@ -125,8 +125,8 @@ fun Relationship.toRelationEntity(): RelationEntity {
     )
 }
 
-fun RelationEntity.toRelationship(): Relationship {
-    return Relationship(
+fun RelationEntity.toRelation(): Relation {
+    return Relation(
         patientId = fromId, relativeId = toId, relation = relation.value
     )
 }

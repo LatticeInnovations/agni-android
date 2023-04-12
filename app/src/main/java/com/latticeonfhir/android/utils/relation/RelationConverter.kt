@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.utils.relation
 
 import android.content.Context
-import android.widget.TextView
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.data.local.enums.RelationEnum
@@ -11,7 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-object Relation {
+object RelationConverter {
 
     internal fun getInverseRelation(
         relationEntity: RelationEntity,
@@ -219,44 +218,6 @@ object Relation {
             "Unknown" -> RelationEnum.UNKNOWN.value
             else -> {
                 RelationEnum.UNKNOWN.value
-            }
-        }
-    }
-
-    internal fun getStringFromRelationEnum(relation: String?): String {
-        return when (relation) {
-            RelationEnum.FATHER.value -> "Father"
-            RelationEnum.MOTHER.value -> "Mother"
-            RelationEnum.GRAND_FATHER.value -> "Grand Father"
-            RelationEnum.GRAND_MOTHER.value -> "Grand Mother"
-            RelationEnum.BROTHER.value -> "Brother"
-            RelationEnum.SISTER.value -> "Sister"
-            RelationEnum.WIFE.value -> "Wife"
-            RelationEnum.SON.value -> "Son"
-            RelationEnum.DAUGHTER.value -> "Daughter"
-            RelationEnum.GRAND_SON.value -> "Grand Son"
-            RelationEnum.GRAND_DAUGHTER.value -> "Grand Daughter"
-            RelationEnum.UNCLE.value -> "Uncle"
-            RelationEnum.AUNTY.value -> "Aunty"
-            RelationEnum.BROTHER_IN_LAW.value -> "Brother-in-law"
-            RelationEnum.SISTER_IN_LAW.value -> "Sister-in-law"
-            RelationEnum.FATHER_IN_LAW.value -> "Father-in-law"
-            RelationEnum.MOTHER_IN_LAW.value -> "Mother-in-law"
-            RelationEnum.SON_IN_LAW.value -> "Son-in-law"
-            RelationEnum.NEPHEW.value -> "Nephew"
-            RelationEnum.HUSBAND.value -> "Husband"
-            RelationEnum.CHILD.value -> "Child"
-            RelationEnum.GRAND_CHILD.value -> "Grand Child"
-            RelationEnum.SIBLING.value -> "Sibling"
-            RelationEnum.SPOUSE.value -> "Spouse"
-            RelationEnum.PARENT.value -> "Parent"
-            RelationEnum.GRAND_PARENT.value -> "Grand Parent"
-            RelationEnum.NIECE.value -> "Niece"
-            RelationEnum.IN_LAW.value -> "In-Law"
-            RelationEnum.DAUGHTER_IN_LAW.value -> "Daughter-in-law"
-            RelationEnum.UNKNOWN.value -> "Unknown"
-            else -> {
-                "Unknown"
             }
         }
     }

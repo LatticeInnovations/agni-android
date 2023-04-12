@@ -1,10 +1,8 @@
 package com.latticeonfhir.android.ui.main.patientregistration
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -15,25 +13,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreviewViewModel
-import com.latticeonfhir.android.ui.theme.Primary70
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
+import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
-import com.latticeonfhir.android.utils.relation.Relation.getRelationEnumFromString
+import com.latticeonfhir.android.utils.relation.RelationConverter.getRelationEnumFromString
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -207,7 +200,7 @@ fun PatientRegistrationPreview(
                     if (viewModel.fromHouseholdMember){
                         // adding relation
                         viewModel.addRelation(
-                            Relationship(
+                            Relation(
                                 patientId = viewModel.patientFromId,
                                 relativeId = viewModel.relativeId,
                                 relation = getRelationEnumFromString(viewModel.relation)
