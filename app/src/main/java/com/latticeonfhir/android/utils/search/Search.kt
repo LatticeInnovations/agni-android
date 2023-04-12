@@ -28,7 +28,7 @@ object Search {
             }
             if (!patientId.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    FuzzySearch.ratio(patientId, it.identifiers.find { identifier -> identifier.identifierNumber == patientId }?.identifierNumber ?: "") > matchingRatio
+                    FuzzySearch.ratio(patientId, it.patientEntity.fhirId ?: "") > matchingRatio
                 } as MutableList<PatientAndIdentifierEntity>
             }
             if (minAge != null && maxAge != null) {
