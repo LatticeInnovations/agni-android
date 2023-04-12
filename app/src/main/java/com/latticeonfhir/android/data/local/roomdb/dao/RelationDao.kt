@@ -18,7 +18,7 @@ interface RelationDao {
 
     @Transaction
     @Query("SELECT relation FROM RelationEntity WHERE fromId=:fromId AND toId=:toId")
-    suspend fun getRelation(fromId: String, toId: String): LiveData<RelationEnum>
+    fun getRelation(fromId: String, toId: String): LiveData<RelationEnum>
 
     @Transaction
     @Query("SELECT * FROM RelationEntity WHERE fromId=:patientId")

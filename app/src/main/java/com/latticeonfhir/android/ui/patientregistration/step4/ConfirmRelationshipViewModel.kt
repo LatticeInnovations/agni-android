@@ -53,7 +53,6 @@ class ConfirmRelationshipViewModel @Inject constructor(
     }
 
     internal fun deleteRelation(fromId: String, toId: String) {
-        Log.d("manseeyy", fromId +" "+ toId +" relation deleted")
         viewModelScope.launch(Dispatchers.IO) {
             relationRepository.deleteRelation(
                 fromId,

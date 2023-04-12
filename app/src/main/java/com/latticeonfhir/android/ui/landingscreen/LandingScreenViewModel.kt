@@ -43,7 +43,7 @@ class LandingScreenViewModel @Inject constructor(
     var patientList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf<PagingData<PatientResponse>>())
     var searchResultList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf<PagingData<PatientResponse>>())
     var searchParameters by mutableStateOf<SearchParameters?>(null)
-
+    var previousSearchList = mutableListOf<String>()
 
     fun getPatientList() {
         viewModelScope.launch {
@@ -57,6 +57,18 @@ class LandingScreenViewModel @Inject constructor(
             else searchPatient(searchParameters!!)
         } else{
             getPatientList()
+        }
+    }
+
+    internal fun getPreviousSearches(){
+        viewModelScope.launch(Dispatchers.IO) {
+            previousSearchList = searchRepository.getRecentSearches() as MutableList<String>
+        }
+    }
+
+    internal fun insertRecentSearch(){
+        viewModelScope.launch(Dispatchers.IO) {
+            searchRepository.insertRecentSearch(searchQuery)
         }
     }
 

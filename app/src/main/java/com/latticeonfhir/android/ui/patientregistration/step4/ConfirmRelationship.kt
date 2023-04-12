@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.patientregistration.step4
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -16,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -31,6 +33,7 @@ import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.common.PatientItemCard
 import com.latticeonfhir.android.utils.relation.Relation
+import com.latticeonfhir.android.utils.relation.Relation.getRelationFromRelationEnum
 import com.latticeonfhir.android.utils.relation.Relation.getStringFromRelationEnum
 import timber.log.Timber
 
@@ -40,6 +43,7 @@ fun ConfirmRelationship(
     navController: NavController,
     viewModel: ConfirmRelationshipViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     viewModel.relation = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
         key = "relation"
     )!!
@@ -102,7 +106,7 @@ fun ConfirmRelationship(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                ConfirmRelationshipScreen(navController, viewModel)
+                ConfirmRelationshipScreen(context, navController, viewModel)
                 if (viewModel.discardAllRelationDialog){
                     AlertDialog(
                         onDismissRequest = {
@@ -166,6 +170,7 @@ fun ConfirmRelationship(
 
 @Composable
 fun ConfirmRelationshipScreen(
+    context : Context,
     navController: NavController,
     viewModel: ConfirmRelationshipViewModel
 ) {
@@ -196,22 +201,23 @@ fun ConfirmRelationshipScreen(
                 .verticalScroll(rememberScrollState())
                 .weight(1f)
         ) {
-            if (viewModel.showRelationCard) {
-                MemberCard(
-                    viewModel.patient, getStringFromRelationEnum(
-                        viewModel.relationBetween?.patientIs?.value
-                    ),
-                    viewModel.relative,
-                    viewModel
-                ){
-                    viewModel.showRelationCard = false
+            viewModel.relationBetween?.patientIs?.value?.run {
+                    MemberCard(
+                        viewModel.patient, getRelationFromRelationEnum(
+                            context,
+                            this
+                        ),
+                        viewModel.relative,
+                        viewModel
+                    ){
+                        viewModel.showRelationCard = false
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-            }
             if (viewModel.showInverseRelationCard) {
                 MemberCard(
                     viewModel.relative,
-                    getStringFromRelationEnum(viewModel.relationBetween?.relativeIs?.value),
+                    getStringFromRelationEnum(viewModel.relationBetween?.relativeIs?.value?.value),
                     viewModel.patient,
                     viewModel
                 ){
