@@ -44,11 +44,6 @@ fun HouseholdMembersScreen(
                 ),
                 navigationIcon = {
                     IconButton(onClick = {
-//                        navController.currentBackStackEntry?.savedStateHandle?.set(
-//                            "patient",
-//                            patient
-//                        )
-//                        navController.navigate(Screen.PatientLandingScreen.route)
                         navController.popBackStack()
                     }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "back icon")
@@ -93,7 +88,7 @@ fun HouseholdMembersScreen(
                         }
                     }
                     when (viewModel.tabIndex) {
-                        0 -> MembersScreen()
+                        0 -> MembersScreen(patient)
                         1 -> SuggestionsScreen()
                     }
                 }
