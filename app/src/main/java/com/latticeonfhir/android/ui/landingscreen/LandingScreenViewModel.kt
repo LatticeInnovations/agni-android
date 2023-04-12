@@ -81,7 +81,6 @@ class LandingScreenViewModel @Inject constructor(
     internal fun searchPatientByQuery() {
         viewModelScope.launch(Dispatchers.IO) {
             searchResultList = searchRepository.searchPatientByQuery(searchQuery).cachedIn(viewModelScope)
-            searchQuery = ""
         }
     }
 }

@@ -44,23 +44,31 @@ fun ConfirmRelationship(
     viewModel: ConfirmRelationshipViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    viewModel.relation = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-        key = "relation"
-    )!!
-    viewModel.patientId = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-        key = "patientId"
-    )!!
-    viewModel.relativeId = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-        key = "relativeId"
-    )!!
-    viewModel.getPatientData(viewModel.patientId) {
-        viewModel.patient = it
-    }
-    viewModel.getPatientData(viewModel.relativeId) {
-        viewModel.relative = it
-    }
-    viewModel.getRelationBetween(viewModel.patientId, viewModel.relativeId) {
-        viewModel.relationBetween = it
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            viewModel.relation =
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                    key = "relation"
+                )!!
+            viewModel.patientId =
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                    key = "patientId"
+                )!!
+            viewModel.relativeId =
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                    key = "relativeId"
+                )!!
+            viewModel.getPatientData(viewModel.patientId) {
+                viewModel.patient = it
+            }
+            viewModel.getPatientData(viewModel.relativeId) {
+                viewModel.relative = it
+            }
+            viewModel.getRelationBetween(viewModel.patientId, viewModel.relativeId) {
+                viewModel.relationBetween = it
+            }
+        }
+        viewModel.isLaunched = true
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -107,7 +115,7 @@ fun ConfirmRelationship(
                     .padding(it)
             ) {
                 ConfirmRelationshipScreen(context, navController, viewModel)
-                if (viewModel.discardAllRelationDialog){
+                if (viewModel.discardAllRelationDialog) {
                     AlertDialog(
                         onDismissRequest = {
                             viewModel.discardAllRelationDialog = false
@@ -120,31 +128,17 @@ fun ConfirmRelationship(
                             )
                         },
                         text = {
-                                Text(
-                                    "Are you sure you want to discard this patient record?",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                            Text(
+                                "Are you sure you want to discard this patient record?",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         },
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    //viewModel.deleteRelation(fromPatient!!.id, toPatient!!.id)
                                     viewModel.discardAllRelationDialog = false
                                     viewModel.deleteAllRelation(viewModel.patientId)
-                                    Timber.tag("manseeyy").d("deleted all relations")
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "patientId",
-                                        viewModel.patientId
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "relativeId",
-                                        viewModel.relativeId
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "relation",
-                                        viewModel.relation
-                                    )
-                                    navController.navigate(Screen.LandingScreen.route)
+                                    navController.popBackStack(Screen.LandingScreen.route, false)
                                 }) {
                                 Text(
                                     "Yes, discard"
@@ -170,7 +164,7 @@ fun ConfirmRelationship(
 
 @Composable
 fun ConfirmRelationshipScreen(
-    context : Context,
+    context: Context,
     navController: NavController,
     viewModel: ConfirmRelationshipViewModel
 ) {
@@ -202,45 +196,45 @@ fun ConfirmRelationshipScreen(
                 .weight(1f)
         ) {
             viewModel.relationBetween?.patientIs?.value?.run {
-                    MemberCard(
-                        viewModel.patient, getRelationFromRelationEnum(
-                            context,
-                            this
-                        ),
-                        viewModel.relative,
-                        viewModel
-                    ){
-                        viewModel.showRelationCard = false
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
+                MemberCard(
+                    viewModel.patient, getRelationFromRelationEnum(
+                        context,
+                        this
+                    ),
+                    viewModel.relative,
+                    viewModel
+                ) {
+                    viewModel.showRelationCard = false
                 }
+                Spacer(modifier = Modifier.height(24.dp))
+            }
             if (viewModel.showInverseRelationCard) {
                 MemberCard(
                     viewModel.relative,
                     getStringFromRelationEnum(viewModel.relationBetween?.relativeIs?.value?.value),
                     viewModel.patient,
                     viewModel
-                ){
+                ) {
                     viewModel.showInverseRelationCard = false
                 }
             }
         }
         Button(
             onClick = {
-                // add to relation table here
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "patientId",
-                    viewModel.patientId
-                )
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "relativeId",
-                    viewModel.relativeId
-                )
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "relation",
-                    viewModel.relation
-                )
-                navController.navigate(Screen.LandingScreen.route)
+//                navController.currentBackStackEntry?.savedStateHandle?.set(
+//                    "patientId",
+//                    viewModel.patientId
+//                )
+//                navController.currentBackStackEntry?.savedStateHandle?.set(
+//                    "relativeId",
+//                    viewModel.relativeId
+//                )
+//                navController.currentBackStackEntry?.savedStateHandle?.set(
+//                    "relation",
+//                    viewModel.relation
+//                )
+//                navController.navigate(Screen.LandingScreen.route)
+                navController.popBackStack(Screen.PatientLandingScreen.route, false)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -295,13 +289,20 @@ fun MemberCard(
     }
 
     if (openDeleteDialog) {
-        DeleteDialog(fromPatient, relation, toPatient, viewModel, openDeleteDialog, updateVisibility){
+        DeleteDialog(
+            fromPatient,
+            relation,
+            toPatient,
+            viewModel,
+            openDeleteDialog,
+            updateVisibility
+        ) {
             openDeleteDialog = false
         }
     }
 
     if (openEditDialog) {
-        EditDialog(fromPatient, relation, toPatient, viewModel, openEditDialog){
+        EditDialog(fromPatient, relation, toPatient, viewModel, openEditDialog) {
             openEditDialog = false
         }
     }
@@ -320,7 +321,7 @@ fun DeleteDialog(
     AlertDialog(
         onDismissRequest = {
             //viewModel.openDeleteDialog = false
-                           closeDialog()
+            closeDialog()
         },
         title = {
             Text(
@@ -498,13 +499,13 @@ fun EditDialog(
                             }
                         }
                     }
-                    }
-                    Spacer(modifier = Modifier.height(23.dp))
-                    Text(
-                        text = "of ${toPatient?.firstName}.",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
                 }
+                Spacer(modifier = Modifier.height(23.dp))
+                Text(
+                    text = "of ${toPatient?.firstName}.",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         },
         confirmButton = {
             TextButton(
