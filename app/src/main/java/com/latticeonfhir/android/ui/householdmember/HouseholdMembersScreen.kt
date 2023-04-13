@@ -21,6 +21,7 @@ import java.time.Period
 import java.time.ZoneId
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.ui.householdmember.HouseholdMemberViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import java.time.Instant
@@ -31,9 +32,17 @@ fun HouseholdMembersScreen(
     navController: NavController,
     viewModel: HouseholdMemberViewModel = viewModel()
 ) {
-    val patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-        "patient"
-    )!!
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                "patient"
+            )
+        }
+        viewModel.isLaunched = true
+    }
+
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -44,41 +53,32 @@ fun HouseholdMembersScreen(
                 ),
                 navigationIcon = {
                     IconButton(onClick = {
-//                        navController.currentBackStackEntry?.savedStateHandle?.set(
-//                            "patient",
-//                            patient
-//                        )
-//                        navController.navigate(Screen.PatientLandingScreen.route)
                         navController.popBackStack()
                     }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "back icon")
                     }
                 },
                 title = {
-                    val name = patient.firstName +
-                            if (patient.middleName.isNullOrEmpty()) "" else {
-                                " " + patient.middleName
-                            } +
-                            if (patient.lastName.isNullOrEmpty()) "" else {
-                                " " + patient.lastName
-                            }
-                    val age = Period.between(
-                        Instant.ofEpochMilli(patient.birthDate.toTimeInMilli()).atZone(ZoneId.systemDefault()).toLocalDate(),
-                        LocalDate.now()
-                    ).years
-                    val subTitle = "${patient.gender[0].uppercase()}/$age"
+                    val subTitle = "${viewModel.patient?.gender?.get(0)?.uppercase()}/${viewModel.patient?.birthDate?.let {
+                        Constants.GetAge(
+                            it
+                        )
+                    }}"
                     Column {
                         Text(
                             text = "Household members",
                             style = MaterialTheme.typography.titleLarge
                         )
-                        Text(text = "$name, $subTitle", style = MaterialTheme.typography.bodyLarge)
+                        Text(text = "${Constants.GetFullName(viewModel.patient?.firstName, viewModel.patient?.middleName, viewModel.patient?.lastName)}, $subTitle", style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         content = {
             Box(modifier = Modifier.padding(it)) {
+
+                val tabIndicatorHeight = 2.dp
                 Column(modifier = Modifier.fillMaxWidth()) {
                     TabRow(
                         selectedTabIndex = viewModel.tabIndex
@@ -91,10 +91,18 @@ fun HouseholdMembersScreen(
                                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+//                        Box(
+//                            modifier = Modifier
+//                                .align(Alignment.BottomStart)
+//                                .height(tabIndicatorHeight)
+//                                .fillMaxWidth(fraction = 1f / viewModel.tabs.size)
+//                                .offset(x = viewModel..value * (1f / tabTitles.size))
+//                                .background(Color.Black)
+//                        )
                     }
                     when (viewModel.tabIndex) {
-                        0 -> MembersScreen()
-                        1 -> SuggestionsScreen()
+                        0 -> viewModel.patient?.let { it1 -> MembersScreen(it1) }
+                        1 -> viewModel.patient?.let { it1 -> SuggestionsScreen(it1, snackbarHostState, scope) }
                     }
                 }
             }
@@ -127,7 +135,7 @@ fun HouseholdMembersScreen(
                                 onClick = {
                                     navController.currentBackStackEntry?.savedStateHandle?.set(
                                         "patient",
-                                        patient
+                                        viewModel.patient
                                     )
                                     navController.navigate(Screen.AddHouseholdMember.route)
                                 },

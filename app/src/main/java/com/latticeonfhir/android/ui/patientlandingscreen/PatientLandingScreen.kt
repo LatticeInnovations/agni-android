@@ -24,6 +24,7 @@ import java.time.LocalDate
 import java.time.Period
 import java.time.ZoneId
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.ui.patientlandingscreen.PatientLandingScreenViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
@@ -49,31 +50,16 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
                 ),
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "patient",
-                            viewModel.patient
-                        )
-                        navController.navigate(Screen.LandingScreen.route)
+                        navController.popBackStack()
                     }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "back icon")
                     }
                 },
                 title = {
-                    val name = viewModel.patient?.firstName +
-                            if (viewModel.patient?.middleName.isNullOrEmpty()) "" else {
-                                " " + viewModel.patient?.middleName
-                            } +
-                            if (viewModel.patient?.lastName.isNullOrEmpty()) "" else {
-                                " " + viewModel.patient?.lastName
-                            }
-                    val age = viewModel.patient?.birthDate?.toTimeInMilli()
-                        ?.let { Period.between(
-                        Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate() ,
-                        LocalDate.now()
-                    ).years}
+                    val age = viewModel.patient?.birthDate?.let { Constants.GetAge(it) }
                     val subTitle = "${viewModel.patient?.gender?.get(0)?.uppercase()}/$age · ${viewModel.patient?.fhirId}"
                     Column {
-                        Text(text = name, style = MaterialTheme.typography.titleLarge)
+                        Text(text = Constants.GetFullName(viewModel.patient?.firstName, viewModel.patient?.middleName, viewModel.patient?.lastName), style = MaterialTheme.typography.titleLarge)
                         Text(text = subTitle, style = MaterialTheme.typography.bodyLarge)
                     }
                 },

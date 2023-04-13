@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
@@ -20,19 +21,7 @@ import java.time.ZoneId
 
 @Composable
 fun PatientItemCard(navController: NavController, patient: PatientResponse) {
-    val name = patient.firstName +
-            if (patient.middleName.isNullOrEmpty()) "" else {
-                " " + patient.middleName
-            } +
-            if (patient.lastName.isNullOrEmpty()) "" else {
-                " " + patient.lastName
-            }
-    val age = Period.between(
-        Instant.ofEpochMilli(patient.birthDate.toTimeInMilli()).atZone(ZoneId.systemDefault())
-            .toLocalDate(),
-        LocalDate.now()
-    ).years
-    val subtitle = "${patient.gender[0].uppercase()}/$age · PID ${patient.fhirId}"
+    val subtitle = "${patient.gender[0].uppercase()}/${Constants.GetAge(patient.birthDate)} · PID ${patient.fhirId}"
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -48,7 +37,7 @@ fun PatientItemCard(navController: NavController, patient: PatientResponse) {
     ) {
         Column(modifier = Modifier.weight(8f)) {
             Text(
-                text = name,
+                text = Constants.GetFullName(patient.firstName, patient.middleName, patient.lastName),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,
