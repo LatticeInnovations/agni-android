@@ -8,6 +8,7 @@ import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 
 class HouseholdMemberViewModel: BaseViewModel() {
+    var isLaunched by mutableStateOf(false)
 
     var tabIndex by mutableStateOf(0)
 

@@ -1,21 +1,40 @@
 package com.latticeonfhir.android.ui.main.patientlandingscreen
 
+import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.*
+import androidx.paging.compose.items
+import com.latticeonfhir.android.data.local.constants.Constants
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.ui.common.PatientItemCard
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun SuggestionsScreen(viewModel: SuggestionsScreenViewModel = viewModel()) {
+fun SuggestionsScreen(
+    patient: PatientResponse,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope,
+    viewModel: SuggestionsScreenViewModel = viewModel()
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -25,38 +44,31 @@ fun SuggestionsScreen(viewModel: SuggestionsScreenViewModel = viewModel()) {
             text = "Here are patients with similar addresses or nearby locations.",
             style = MaterialTheme.typography.bodyLarge
         )
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .weight(1f)
-                .padding(bottom = 20.dp)
-        ) {
-            SuggestedMembersCard(viewModel)
-            SuggestedMembersCard(viewModel)
-            SuggestedMembersCard(viewModel)
-            SuggestedMembersCard(viewModel)
-            SuggestedMembersCard(viewModel)
-            SuggestedMembersCard(viewModel)
-            SuggestedMembersCard(viewModel)
-            SuggestedMembersCard(viewModel)
-            SuggestedMembersCard(viewModel)
-            SuggestedMembersCard(viewModel)
-
+        LazyColumn() {
+            items(viewModel.suggestedMembersList) { member ->
+                SuggestedMembersCard(scope, snackbarHostState, viewModel, member, patient)
+            }
         }
-    }
-    if (viewModel.showConnectDialog){
-
     }
 }
 
 @Composable
-fun SuggestedMembersCard(viewModel: SuggestionsScreenViewModel) {
+fun SuggestedMembersCard(
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    viewModel: SuggestionsScreenViewModel,
+    member: PatientResponse,
+    patient: PatientResponse
+) {
+    var showConnectDialog by remember {
+        mutableStateOf(false)
+    }
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 10.dp)
             .clickable {
-                viewModel.showConnectDialog = true
+                showConnectDialog = true
             },
         shape = RoundedCornerShape(1.dp),
         color = MaterialTheme.colorScheme.surface,
@@ -72,22 +84,187 @@ fun SuggestedMembersCard(viewModel: SuggestionsScreenViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Prashant Pandey",
+                    text = Constants.GetFullName(
+                        member.firstName,
+                        member.middleName,
+                        member.lastName
+                    ),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "M/32",
+                    text = "${member.gender[0].uppercase()}/${Constants.GetAge(member.birthDate)}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Text(
-                text = "A-45, Rajendra Nagar, Delhi\n" +
-                        "+91-99000-88222 · PID 12345",
+                text = Constants.GetAddress(member.permanentAddress),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "+91-${member.mobileNumber} · PID ${member.fhirId}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
+    if (showConnectDialog) {
+        ConnectDialog(snackbarHostState, scope, member, patient) {
+            showConnectDialog = false
+        }
+    }
+}
+
+@Composable
+fun ConnectDialog(
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope,
+    member: PatientResponse,
+    patient: PatientResponse,
+    closeDialog: () -> (Unit)
+) {
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+    var relation by remember {
+        mutableStateOf("")
+    }
+    AlertDialog(
+        onDismissRequest = {
+            closeDialog()
+        },
+        title = {
+            Text(
+                text = "Connect patient",
+                style = MaterialTheme.typography.headlineSmall
+            )
+        },
+        text = {
+            Column {
+                Text(
+                    Constants.GetFullName(patient.firstName, patient.middleName, patient.lastName),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.height(23.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "is the",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        val relationsList =
+                            Constants.GetRelationshipList("male")
+                        TextField(
+                            value = relation,
+                            onValueChange = {},
+                            trailingIcon = {
+                                IconButton(onClick = { expanded = !expanded }) {
+                                    Icon(
+                                        Icons.Default.ArrowDropDown,
+                                        contentDescription = ""
+                                    )
+                                }
+                            },
+                            readOnly = true,
+                            textStyle = MaterialTheme.typography.bodyLarge,
+                            placeholder = {
+                                Text(
+                                    text = "e.g. ${relationsList[0]}",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            },
+                            interactionSource = remember {
+                                MutableInteractionSource()
+                            }.also { interactionSource ->
+                                LaunchedEffect(interactionSource) {
+                                    interactionSource.interactions.collect {
+                                        if (it is PressInteraction.Release) {
+                                            expanded = !expanded
+                                        }
+                                    }
+                                }
+                            },
+                        )
+                        DropdownMenu(
+                            modifier = Modifier
+                                .fillMaxWidth(0.5f)
+                                .fillMaxHeight(0.4f),
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                        ) {
+                            relationsList.forEach { label ->
+                                DropdownMenuItem(
+                                    onClick = {
+                                        expanded = false
+                                        relation = label
+                                    },
+                                    text = {
+                                        Text(
+                                            text = label,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                }
+                Spacer(modifier = Modifier.height(23.dp))
+                Text(
+                    text = "of ${
+                        Constants.GetFullName(
+                            member.firstName,
+                            member.middleName,
+                            member.lastName
+                        )
+                    }.",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    // call add member to household function here
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "${
+                                Constants.GetFullName(
+                                    member.firstName,
+                                    member.middleName,
+                                    member.lastName
+                                )
+                            } added to the household.",
+                            withDismissAction = true
+                        )
+                    }
+                    closeDialog()
+                },
+                enabled = relation.isNotEmpty()
+            ) {
+                Text(
+                    "Create"
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    closeDialog()
+                }) {
+                Text(
+                    "Go back"
+                )
+            }
+        }
+    )
+
 }

@@ -4,40 +4,43 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
+import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 
 class SuggestionsScreenViewModel: BaseViewModel() {
     var showConnectDialog by mutableStateOf(false)
 
-    val list = listOf(
-        DummyData(
-            "Prashant Pandey",
-            "M/32",
-            "A-45, Rajendra Nagar, Delhi\n" +
-                    "+91-99000-88222 · PID 12345"
+    val patient = PatientResponse(
+        id = "d138ada3-82f7-4b96-914f-decd5933b61d",
+        firstName = "Mansi",
+        middleName = null,
+        lastName = "Kalra",
+        active = true,
+        birthDate = "2001-01-23",
+        email = null,
+        fhirId = null,
+        gender = "female",
+        mobileNumber = 9999999999,
+        permanentAddress = PatientAddressResponse(
+            addressLine1 = "hbghhg",
+            addressLine2 = null,
+            postalCode = "999999",
+            city = "vggh",
+            country = "India",
+            district = null,
+            state = "Uttarakhand"
         ),
-        DummyData(
-            "Shashank Pandey",
-            "M/24",
-            "A-45, Rajendar Nagar, Delhi\n" +
-                    "+91-99000-88222 · PID 12345"
-        ),
-        DummyData(
-            "Deepak Pandey",
-            "M/31",
-            "A45, RajendarNagar, Delhi\n" +
-                    "+91-99000-88222 · PID 12345"
-        ),
-        DummyData(
-            "Prashant Pandey",
-            "M/28",
-            "A-45, Rajendr Nagar, Delhi\n" +
-                    "+91-99000-88222 · PID 12345"
+        identifier = listOf(
+            PatientIdentifier(
+                code = null,
+                identifierType = "https://www.apollohospitals.com/",
+                identifierNumber = "XXXXXXXXXX"
+            )
         )
     )
-}
 
-data class DummyData(
-    val name: String,
-    val age: String,
-    val address: String
-)
+    val suggestedMembersList = listOf(patient, patient, patient)
+
+    //var suggestedMembersList by mutableStateOf(listOf<PatientResponse>())
+}

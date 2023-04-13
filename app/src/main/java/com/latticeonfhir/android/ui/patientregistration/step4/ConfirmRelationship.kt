@@ -1,9 +1,12 @@
 package com.latticeonfhir.android.ui.patientregistration.step4
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -11,6 +14,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,8 +26,12 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
+import androidx.paging.compose.items
+import com.latticeonfhir.android.data.local.constants.Constants
+import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.PatientItemCard
 import com.latticeonfhir.android.utils.relation.RelationConverter.getRelationFromRelationEnum
 import timber.log.Timber
 
@@ -34,23 +42,32 @@ fun ConfirmRelationship(
     viewModel: ConfirmRelationshipViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    viewModel.relation = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-        key = "relation"
-    )!!
-    viewModel.patientId = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-        key = "patientId"
-    )!!
-    viewModel.relativeId = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-        key = "relativeId"
-    )!!
-    viewModel.getPatientData(viewModel.patientId) {
-        viewModel.patient = it
-    }
-    viewModel.getPatientData(viewModel.relativeId) {
-        viewModel.relative = it
-    }
-    viewModel.getRelationBetween(viewModel.patientId, viewModel.relativeId) {
-        viewModel.relationBetween = it
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            viewModel.relation =
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                    key = "relation"
+                )!!
+            viewModel.patientId =
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                    key = "patientId"
+                )!!
+            viewModel.relativeId =
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                    key = "relativeId"
+                )!!
+            viewModel.getPatientData(viewModel.patientId) {
+                viewModel.patient = it
+            }
+            viewModel.getPatientData(viewModel.relativeId) {
+                viewModel.relative = it
+            }
+            viewModel.getRelationBetween(viewModel.patientId, viewModel.relativeId) {
+                // it is not returning anything
+                viewModel.relationBetween = it
+            }
+        }
+        viewModel.isLaunched = true
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -118,23 +135,9 @@ fun ConfirmRelationship(
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    //viewModel.deleteRelation(fromPatient!!.id, toPatient!!.id)
                                     viewModel.discardAllRelationDialog = false
                                     viewModel.deleteAllRelation(viewModel.patientId)
-                                    Timber.tag("manseeyy").d("deleted all relations")
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "patientId",
-                                        viewModel.patientId
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "relativeId",
-                                        viewModel.relativeId
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "relation",
-                                        viewModel.relation
-                                    )
-                                    navController.navigate(Screen.LandingScreen.route)
+                                    navController.popBackStack(Screen.LandingScreen.route, false)
                                 }) {
                                 Text(
                                     "Yes, discard"
@@ -186,11 +189,14 @@ fun ConfirmRelationshipScreen(
             )
         }
         Spacer(modifier = Modifier.height(32.dp))
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .weight(1f)
-        ) {
+            LazyColumn() {
+                items(viewModel.relationBetween) { relationView ->
+                    Log.d("manseeyy", relationView.patientFirstName)
+                    Log.d("manseeyy", relationView.relativeFirstName)
+                    MemberCard(relationView, viewModel)
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
 //            viewModel.relationBetween?.patientIs?.value?.run {
 //                MemberCard(
 //                    viewModel.patient, getRelationFromRelationEnum(
@@ -215,23 +221,23 @@ fun ConfirmRelationshipScreen(
 //                    viewModel.showInverseRelationCard = false
 //                }
 //            }
-        }
+        //}
         Button(
             onClick = {
-                // add to relation table here
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "patientId",
-                    viewModel.patientId
-                )
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "relativeId",
-                    viewModel.relativeId
-                )
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "relation",
-                    viewModel.relation
-                )
-                navController.navigate(Screen.LandingScreen.route)
+//                navController.currentBackStackEntry?.savedStateHandle?.set(
+//                    "patientId",
+//                    viewModel.patientId
+//                )
+//                navController.currentBackStackEntry?.savedStateHandle?.set(
+//                    "relativeId",
+//                    viewModel.relativeId
+//                )
+//                navController.currentBackStackEntry?.savedStateHandle?.set(
+//                    "relation",
+//                    viewModel.relation
+//                )
+//                navController.navigate(Screen.LandingScreen.route)
+                navController.popBackStack(Screen.PatientLandingScreen.route, false)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -244,13 +250,7 @@ fun ConfirmRelationshipScreen(
 }
 
 @Composable
-fun MemberCard(
-    fromPatient: PatientResponse?,
-    relation: String?,
-    toPatient: PatientResponse?,
-    viewModel: ConfirmRelationshipViewModel,
-    updateVisibility: () -> (Unit)
-) {
+fun MemberCard(relationView: RelationView, viewModel: ConfirmRelationshipViewModel) {
     var openDeleteDialog by remember {
         mutableStateOf(false)
     }
@@ -261,7 +261,9 @@ fun MemberCard(
         modifier = Modifier.padding(14.dp)
     ) {
         Text(
-            text = "${fromPatient?.firstName} is the $relation of ${toPatient?.firstName}",
+            text = "${Constants.GetFullName(relationView.patientFirstName, relationView.patientMiddleName, relationView.patientLastName)} " +
+                    "is the ${relationView.relation} of " +
+                    "${Constants.GetFullName(relationView.relativeFirstName, relationView.relativeMiddleName, relationView.relativeLastName)}",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f)
         )
@@ -287,19 +289,18 @@ fun MemberCard(
 
     if (openDeleteDialog) {
         DeleteDialog(
-            fromPatient,
-            relation,
-            toPatient,
-            viewModel,
-            openDeleteDialog,
-            updateVisibility
+            relationView,
+            viewModel
         ) {
             openDeleteDialog = false
         }
     }
 
     if (openEditDialog) {
-        EditDialog(fromPatient, relation, toPatient, viewModel, openEditDialog) {
+        EditDialog(
+            relationView,
+            viewModel
+        ) {
             openEditDialog = false
         }
     }
@@ -307,12 +308,8 @@ fun MemberCard(
 
 @Composable
 fun DeleteDialog(
-    fromPatient: PatientResponse?,
-    relation: String?,
-    toPatient: PatientResponse?,
+    relationView: RelationView,
     viewModel: ConfirmRelationshipViewModel,
-    openDialog: Boolean,
-    updateVisibility: () -> Unit,
     closeDialog: () -> Unit
 ) {
     AlertDialog(
@@ -335,7 +332,9 @@ fun DeleteDialog(
                     modifier = Modifier.testTag("delete dialog description 1")
                 )
                 Text(
-                    "${fromPatient?.firstName} is the $relation of ${toPatient?.firstName}",
+                    "${Constants.GetFullName(relationView.patientFirstName, relationView.patientMiddleName, relationView.patientLastName)} " +
+                            "is the ${relationView.relation} of " +
+                            "${Constants.GetFullName(relationView.relativeFirstName, relationView.relativeMiddleName, relationView.relativeLastName)}",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
                         .testTag("delete dialog description 2")
@@ -346,9 +345,8 @@ fun DeleteDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    viewModel.deleteRelation(fromPatient!!.id, toPatient!!.id)
+                    viewModel.deleteRelation(relationView.patientId, relationView.relativeId)
                     closeDialog()
-                    updateVisibility()
                 }) {
                 Text(
                     "Confirm",
@@ -359,12 +357,10 @@ fun DeleteDialog(
         dismissButton = {
             TextButton(
                 onClick = {
-                    //viewModel.openDeleteDialog = false
                     closeDialog()
                 }) {
                 Text(
-                    "Cancel",
-                    modifier = Modifier.testTag("delete dialog cancel btn")
+                    "Cancel"
                 )
             }
         }
@@ -373,11 +369,8 @@ fun DeleteDialog(
 
 @Composable
 fun EditDialog(
-    fromPatient: PatientResponse?,
-    relation: String?,
-    toPatient: PatientResponse?,
+    relationView: RelationView,
     viewModel: ConfirmRelationshipViewModel,
-    openDialog: Boolean,
     closeDialog: () -> Unit
 ) {
     var expanded by remember {
@@ -385,7 +378,6 @@ fun EditDialog(
     }
     AlertDialog(
         onDismissRequest = {
-            //viewModel.openEditDialog = false
             closeDialog()
         },
         title = {
@@ -398,9 +390,8 @@ fun EditDialog(
         text = {
             Column {
                 Text(
-                    "${fromPatient?.firstName}",
+                    Constants.GetFullName(relationView.patientFirstName, relationView.patientMiddleName, relationView.patientLastName),
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.testTag("edit dialog description 1")
                 )
                 Spacer(modifier = Modifier.height(23.dp))
                 Row(
@@ -413,45 +404,58 @@ fun EditDialog(
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Column() {
-                        val relationsList =
-                            if (fromPatient?.gender == "male") listOf(
-                                "Son",
-                                "Father",
-                                "Grand Father",
-                                "Brother",
-                                "Grand Son",
-                                "Uncle",
-                                "Brother-in-law",
-                                "Father-in-law",
-                                "Son-in-law",
-                                "Nephew",
-                                "Husband"
-                            )
-                            else if (fromPatient?.gender == "female") listOf(
-                                "Daughter",
-                                "Mother",
-                                "Grand Mother",
-                                "Sister",
-                                "Grand Daughter",
-                                "Aunty",
-                                "Sister-in-law",
-                                "Mother-in-law",
-                                "Daughter-in-law",
-                                "Niece",
-                                "Wife"
-                            )
-                            else listOf(
-                                "Child",
-                                "Parent",
-                                "Grand Parent",
-                                "Sibling",
-                                "Grand Child",
-                                "In-Law",
-                                "Spouse"
-                            )
+                        val relationsList = listOf(
+                            "Son",
+                            "Father",
+                            "Grand Father",
+                            "Brother",
+                            "Grand Son",
+                            "Uncle",
+                            "Brother-in-law",
+                            "Father-in-law",
+                            "Son-in-law",
+                            "Nephew",
+                            "Husband"
+                        )
+                        // gender is required here to make relationship list
+//                            if (fromPatient?.gender == "male") listOf(
+//                                "Son",
+//                                "Father",
+//                                "Grand Father",
+//                                "Brother",
+//                                "Grand Son",
+//                                "Uncle",
+//                                "Brother-in-law",
+//                                "Father-in-law",
+//                                "Son-in-law",
+//                                "Nephew",
+//                                "Husband"
+//                            )
+//                            else if (fromPatient?.gender == "female") listOf(
+//                                "Daughter",
+//                                "Mother",
+//                                "Grand Mother",
+//                                "Sister",
+//                                "Grand Daughter",
+//                                "Aunty",
+//                                "Sister-in-law",
+//                                "Mother-in-law",
+//                                "Daughter-in-law",
+//                                "Niece",
+//                                "Wife"
+//                            )
+//                            else listOf(
+//                                "Child",
+//                                "Parent",
+//                                "Grand Parent",
+//                                "Sibling",
+//                                "Grand Child",
+//                                "In-Law",
+//                                "Spouse"
+//                            )
 
                         TextField(
-                            value = "$relation",
+                            value = relationView.relation.value,
                             onValueChange = {
                                 viewModel.relation = it
                             },
@@ -499,7 +503,7 @@ fun EditDialog(
                 }
                 Spacer(modifier = Modifier.height(23.dp))
                 Text(
-                    text = "of ${toPatient?.firstName}.",
+                    text = "of ${Constants.GetFullName(relationView.relativeFirstName, relationView.relativeMiddleName, relationView.relativeLastName)}.",
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
@@ -507,24 +511,20 @@ fun EditDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    //viewModel.openEditDialog = false
                     closeDialog()
                 }) {
                 Text(
-                    "Save",
-                    modifier = Modifier.testTag("edit dialog save btn")
+                    "Save"
                 )
             }
         },
         dismissButton = {
             TextButton(
                 onClick = {
-                    //viewModel.openEditDialog = false
                     closeDialog()
                 }) {
                 Text(
-                    "Cancel",
-                    modifier = Modifier.testTag("edit dialog cancel btn")
+                    "Cancel"
                 )
             }
         }

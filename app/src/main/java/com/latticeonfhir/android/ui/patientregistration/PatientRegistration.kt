@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.data.local.constants.Constants
+import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
 import com.latticeonfhir.android.ui.patientregistration.step2.PatientRegistrationStepTwo
@@ -135,15 +137,8 @@ fun PatientRegistration(
                     },
                     text = {
                         Column {
-                            val name = viewModel.patientFrom?.firstName +
-                                    if (viewModel.patientFrom?.middleName.isNullOrEmpty()) "" else {
-                                        " " + viewModel.patientFrom?.middleName
-                                    } +
-                                    if (viewModel.patientFrom?.lastName.isNullOrEmpty()) "" else {
-                                        " " + viewModel.patientFrom?.lastName
-                                    }
                             Text(
-                                name,
+                                Constants.GetFullName(viewModel.patientFrom?.firstName, viewModel.patientFrom?.middleName, viewModel.patientFrom?.lastName),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Spacer(modifier = Modifier.height(23.dp))
@@ -156,43 +151,8 @@ fun PatientRegistration(
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
-                                Column() {
-                                    val relationsList =
-                                        if (viewModel.patientFrom?.gender == "male") listOf(
-                                            "Son",
-                                            "Father",
-                                            "Grand Father",
-                                            "Brother",
-                                            "Grand Son",
-                                            "Uncle",
-                                            "Brother-in-law",
-                                            "Father-in-law",
-                                            "Son-in-law",
-                                            "Nephew",
-                                            "Husband"
-                                        )
-                                        else if (viewModel.patientFrom?.gender == "female") listOf(
-                                            "Daughter",
-                                            "Mother",
-                                            "Grand Mother",
-                                            "Sister",
-                                            "Grand Daughter",
-                                            "Aunty",
-                                            "Sister-in-law",
-                                            "Mother-in-law",
-                                            "Daughter-in-law",
-                                            "Niece",
-                                            "Wife"
-                                        )
-                                        else listOf(
-                                            "Child",
-                                            "Parent",
-                                            "Grand Parent",
-                                            "Sibling",
-                                            "Grand Child",
-                                            "In-Law",
-                                            "Spouse"
-                                        )
+                                Column {
+                                    val relationsList = Constants.GetRelationshipList(viewModel.patientFrom?.gender!!)
 
                                     TextField(
                                         value = viewModel.relation,
@@ -226,7 +186,9 @@ fun PatientRegistration(
                                         },
                                     )
                                     DropdownMenu(
-                                        modifier = Modifier.fillMaxHeight(0.4f),
+                                        modifier = Modifier
+                                            .fillMaxWidth(0.5f)
+                                            .fillMaxHeight(0.4f),
                                         expanded = expanded,
                                         onDismissRequest = { expanded = false },
                                     ) {

@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 
 @Composable
@@ -87,11 +88,7 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
                 }
             )
 
-            val statesList = listOf("Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar",
-                "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
-                "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya",
-                "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
-                "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal")
+            val statesList = Constants.GetStateList()
 
             DropdownMenu(
                 modifier = Modifier.fillMaxHeight(0.5f),
