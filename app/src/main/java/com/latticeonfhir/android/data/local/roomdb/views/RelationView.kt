@@ -13,11 +13,11 @@ import com.latticeonfhir.android.data.local.enums.RelationEnum
 data class RelationView(
     val patientId: String,
     val patientFirstName: String,
-    val patientMiddleName: String,
-    val patientLastName: String,
+    val patientMiddleName: String?,
+    val patientLastName: String?,
     val relativeId: String,
     val relativeFirstName: String,
-    val relativeMiddleName: String,
-    val relativeLastName: String,
+    val relativeMiddleName: String?,
+    val relativeLastName: String?,
     val relation: RelationEnum
 )

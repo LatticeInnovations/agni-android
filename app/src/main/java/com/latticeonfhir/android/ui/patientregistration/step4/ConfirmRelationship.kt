@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,10 +63,7 @@ fun ConfirmRelationship(
             viewModel.getPatientData(viewModel.relativeId) {
                 viewModel.relative = it
             }
-            viewModel.getRelationBetween(viewModel.patientId, viewModel.relativeId) {
-                // it is not returning anything
-                viewModel.relationBetween = it
-            }
+            viewModel.getRelationBetween(viewModel.patientId, viewModel.relativeId)
         }
         viewModel.isLaunched = true
     }

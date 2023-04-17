@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.data.local.repository.relation
 
+import androidx.lifecycle.LiveData
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.model.RelationBetween
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -38,7 +39,7 @@ class RelationRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getRelationBetween(fromId: String, toId: String): List<RelationView> {
+    override suspend fun getRelationBetween(fromId: String, toId: String): LiveData<List<RelationView>> {
         return relationDao.getRelation(fromId, toId)
     }
 
