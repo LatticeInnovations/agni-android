@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.householdmember.members
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -19,11 +20,12 @@ class MembersScreenViewModel @Inject constructor(
     private val relationRepository: RelationRepository,
     private val patientRepository: PatientRepository
 ): BaseViewModel() {
-    var relationsList = mutableListOf<RelationEntity>()
+    var relationsList = mutableStateListOf<RelationEntity>()
 
     internal fun getAllRelations(patientId: String){
         viewModelScope.launch {
-            relationsList = relationRepository.getAllRelationOfPatient(patientId) as MutableList<RelationEntity>
+            //relationsList.clear()
+            relationsList.addAll(relationRepository.getAllRelationOfPatient(patientId))
         }
     }
 

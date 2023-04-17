@@ -91,14 +91,6 @@ fun HouseholdMembersScreen(
                                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-//                        Box(
-//                            modifier = Modifier
-//                                .align(Alignment.BottomStart)
-//                                .height(tabIndicatorHeight)
-//                                .fillMaxWidth(fraction = 1f / viewModel.tabs.size)
-//                                .offset(x = viewModel..value * (1f / tabTitles.size))
-//                                .background(Color.Black)
-//                        )
                     }
                     when (viewModel.tabIndex) {
                         0 -> viewModel.patient?.let { it1 -> MembersScreen(it1) }
