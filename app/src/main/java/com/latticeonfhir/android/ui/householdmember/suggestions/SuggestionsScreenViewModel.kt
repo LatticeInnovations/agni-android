@@ -53,7 +53,7 @@ class SuggestionsScreenViewModel @Inject constructor(
         gender = "female",
         mobileNumber = 9999999999,
         permanentAddress = PatientAddressResponse(
-            addressLine1 = "hbghhg",
+            addressLine1 = "534 Erewhon St",
             addressLine2 = null,
             postalCode = "999999",
             city = "vggh",
