@@ -31,6 +31,7 @@ fun SuggestionsScreen(
     scope: CoroutineScope,
     viewModel: SuggestionsScreenViewModel = hiltViewModel()
 ) {
+    viewModel.getQueueItems(patient)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -157,7 +158,7 @@ fun ConnectDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         val relationsList =
-                            Constants.GetRelationshipList("male")
+                            Constants.GetRelationshipList(patient.gender)
                         TextField(
                             value = relation,
                             onValueChange = {},
@@ -240,7 +241,7 @@ fun ConnectDialog(
                         ),
                         member.id
                     )
-                    viewModel.updateQueue()
+                    //viewModel.updateQueue()
                     scope.launch {
                         snackbarHostState.showSnackbar(
                             message = "${
