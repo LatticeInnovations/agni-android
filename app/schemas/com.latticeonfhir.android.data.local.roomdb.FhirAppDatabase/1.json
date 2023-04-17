@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6da0ae0531a7786771d6828e2615464c",
+    "identityHash": "206a0758a10444c185bde3f890e8624a",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -331,12 +331,12 @@
     "views": [
       {
         "viewName": "RelationView",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select pat1.id as patientId , pat1.firstName as patientFirstName, pat1.middleName as patientMiddleName, pat1.lastName as patientLastName, pat2.id as relativeId ,pat2.firstName as relativeFirstName, pat2.middleName as relativeMiddleName, pat2.lastName as relativeLastName, rel.relation   as relation from RelationEntity rel \ninner join PatientEntity pat1 on rel.fromId = pat1.id\ninner join PatientEntity pat2 on rel.toId = pat2.id"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select pat1.id as patientId , pat1.firstName as patientFirstName, pat1.middleName as patientMiddleName, pat1.lastName as patientLastName, pat1.gender as patientGender, pat2.id as relativeId ,pat2.firstName as relativeFirstName, pat2.middleName as relativeMiddleName, pat2.lastName as relativeLastName,pat2.gender as relativeGender , rel.relation   as relation from RelationEntity rel \ninner join PatientEntity pat1 on rel.fromId = pat1.id\ninner join PatientEntity pat2 on rel.toId = pat2.id"
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6da0ae0531a7786771d6828e2615464c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '206a0758a10444c185bde3f890e8624a')"
     ]
   }
 }
