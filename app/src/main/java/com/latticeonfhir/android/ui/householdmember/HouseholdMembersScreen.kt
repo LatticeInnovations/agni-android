@@ -138,6 +138,7 @@ fun HouseholdMembersScreen(
                                         viewModel.patient
                                     )
                                     navController.navigate(Screen.AddHouseholdMember.route)
+                                    viewModel.isUpdateSelected = false
                                 },
                                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer

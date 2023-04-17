@@ -19,7 +19,7 @@ interface RelationDao {
 
     @Transaction
     @Query("SELECT * FROM (SELECT * FROM RelationView WHERE patientId=:fromId AND relativeId=:toId) UNION SELECT * FROM (SELECT * FROM RelationView WHERE patientId=:toId AND relativeId=:fromId)")
-    suspend fun getRelation(fromId: String, toId: String): LiveData<List<RelationView>>
+    suspend fun getRelation(fromId: String, toId: String): List<RelationView>
 
     @Transaction
     @Query("SELECT * FROM RelationEntity WHERE fromId=:patientId")
