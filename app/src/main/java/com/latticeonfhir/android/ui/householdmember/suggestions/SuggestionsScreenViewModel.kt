@@ -23,6 +23,7 @@ import com.latticeonfhir.android.utils.relation.RelationConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.SynchronousQueue
 import javax.inject.Inject
 
@@ -36,64 +37,68 @@ class SuggestionsScreenViewModel @Inject constructor(
     BaseViewModel() {
     var showConnectDialog by mutableStateOf(false)
 
-    private val queue = SynchronousQueue<PatientResponse>()
+    private val queue = ConcurrentLinkedQueue<PatientResponse>()
     private var i = 0
 
     //private lateinit var listOfSuggestions: List<PatientResponse>
     var listOfSuggestions by mutableStateOf(listOf<PatientResponse>())
     var suggestedMembersList by mutableStateOf(listOf<PatientResponse>())
 
-    val patient = PatientResponse(
-        id = "d138ada3-82f7-4b96-914f-decd5933b61d",
-        firstName = "Mansi",
-        middleName = null,
-        lastName = "Kalra",
-        active = true,
-        birthDate = "2001-01-23",
-        email = null,
-        fhirId = null,
-        gender = "female",
-        mobileNumber = 9999999999,
-        permanentAddress = PatientAddressResponse(
-            addressLine1 = "534 Erewhon St",
-            addressLine2 = null,
-            postalCode = "999999",
-            city = "vggh",
-            country = "India",
-            district = null,
-            state = "Uttarakhand"
-        ),
-        identifier = listOf(
-            PatientIdentifier(
-                code = null,
-                identifierType = "https://www.apollohospitals.com/",
-                identifierNumber = "XXXXXXXXXX"
-            )
-        )
-    )
+//    val patient = PatientResponse(
+//        id = "d138ada3-82f7-4b96-914f-decd5933b61d",
+//        firstName = "Mansi",
+//        middleName = null,
+//        lastName = "Kalra",
+//        active = true,
+//        birthDate = "2001-01-23",
+//        email = null,
+//        fhirId = null,
+//        gender = "female",
+//        mobileNumber = 9999999999,
+//        permanentAddress = PatientAddressResponse(
+//            addressLine1 = "534 Erewhon St",
+//            addressLine2 = null,
+//            postalCode = "999999",
+//            city = "vggh",
+//            country = "India",
+//            district = null,
+//            state = "Uttarakhand"
+//        ),
+//        identifier = listOf(
+//            PatientIdentifier(
+//                code = null,
+//                identifierType = "https://www.apollohospitals.com/",
+//                identifierNumber = "XXXXXXXXXX"
+//            )
+//        )
+//    )
 
     //val suggestedMembersList = listOf(patient, patient, patient)
 
 
-    internal fun getQueueItems() {
-        while (queue.size < 5) {
-            queue.add(
-                listOfSuggestions[i]
-            )
-            i++
-        }
-        suggestedMembersList = queue.toList()
-    }
+//    internal fun getQueueItems() {
+//        if (listOfSuggestions.isNotEmpty()) {
+//            while (queue.size < 5) {
+//                queue.add(
+//                    listOfSuggestions[i]
+//                )
+//                i++
+//            }
+//            suggestedMembersList = queue.toList()
+//        }
+//    }
 
     internal fun updateQueue() {
-        queue.poll()
-        queue.offer(listOfSuggestions[i])
-        i++
-        suggestedMembersList = queue.toList()
+        if (listOfSuggestions.isNotEmpty()) {
+            queue.poll()
+            queue.offer(listOfSuggestions[i])
+            i++
+            suggestedMembersList = queue.toList()
+        }
     }
 
 
-    init {
+    internal fun getQueueItems(patient: PatientResponse)  {
         viewModelScope.launch(Dispatchers.IO) {
             listOfSuggestions = searchRepository.getSuggestedMembers(
                 patient.id,
@@ -113,8 +118,15 @@ class SuggestionsScreenViewModel @Inject constructor(
                 )
             )
         }
-        Log.d("manseeyy", listOfSuggestions.toString())
-        //getQueueItems()
+        if (listOfSuggestions.isNotEmpty()) {
+            while (queue.size < 5) {
+                queue.add(
+                    listOfSuggestions[i]
+                )
+                i++
+            }
+            suggestedMembersList = queue.toList()
+        }
     }
 
     fun addRelation(relation: Relation, relativeId: String) {

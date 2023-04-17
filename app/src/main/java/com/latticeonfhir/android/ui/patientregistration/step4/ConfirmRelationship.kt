@@ -137,7 +137,7 @@ fun ConfirmRelationship(
                                 onClick = {
                                     viewModel.discardAllRelationDialog = false
                                     viewModel.deleteAllRelation(viewModel.patientId)
-                                    navController.popBackStack(Screen.LandingScreen.route, false)
+                                    navController.popBackStack(Screen.HouseholdMembersScreen.route, false)
                                 }) {
                                 Text(
                                     "Yes, discard"

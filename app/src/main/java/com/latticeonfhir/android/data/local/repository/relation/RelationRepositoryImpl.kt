@@ -40,18 +40,20 @@ class RelationRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun updateRelation(relation: Relation): Int {
-        return relationDao.updateRelation(
+    override suspend fun updateRelation(relation: Relation, relationUpdated: (Int) -> Unit) {
+        relationDao.updateRelation(
             relationEnum = RelationEnum.fromString(relation.relation),
             fromId = relation.patientId,
             toId = relation.relativeId
         ).also {
             relation.toRelationEntity().toReverseRelation(patientDao) { relationEntity ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    relationDao.updateRelation(
-                        relationEnum = relationEntity.relation,
-                        fromId = relationEntity.fromId,
-                        toId = relationEntity.toId
+                    relationUpdated(
+                        relationDao.updateRelation(
+                            relationEnum = relationEntity.relation,
+                            fromId = relationEntity.fromId,
+                            toId = relationEntity.toId
+                        )
                     )
                 }
             }
@@ -71,7 +73,7 @@ class RelationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteRelation(fromId: String, toId: String): Int {
-        return relationDao.deleteRelation(fromId,toId)
+        return relationDao.deleteRelation(fromId, toId)
     }
 
     override suspend fun deleteAllRelationOfPatient(patientId: String): Int {
