@@ -18,8 +18,8 @@ interface RelationDao {
     suspend fun insertRelation(vararg relationEntity: RelationEntity): List<Long>
 
     @Transaction
-    @Query("SELECT * FROM (SELECT * FROM RelationView WHERE patientId=:fromId AND relation=:toId) UNION SELECT * FROM (SELECT * FROM RelationView WHERE patientId=:toId AND relation=:fromId)")
-    suspend fun getRelation(fromId: String, toId: String): List<RelationView>
+    @Query("SELECT * FROM (SELECT * FROM RelationView WHERE patientId=:fromId AND relativeId=:toId) UNION SELECT * FROM (SELECT * FROM RelationView WHERE patientId=:toId AND relativeId=:fromId)")
+    suspend fun getRelation(fromId: String, toId: String): LiveData<List<RelationView>>
 
     @Transaction
     @Query("SELECT * FROM RelationEntity WHERE fromId=:patientId")
