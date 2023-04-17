@@ -127,7 +127,7 @@ class SearchRepositoryImpl @Inject constructor(
         patientId: String,
         searchParameters: SearchParameters
     ): List<PatientResponse> {
-        val existingMembers = relationDao.getAllRelationOfPatient(patientId).map { it.toId }.toSet()
+        val existingMembers = relationDao.getAllRelationOfPatient(patientId).map { it.toId }.toMutableSet().apply { add(patientId) }
         return getFuzzySearchList(
             getSearchList(),
             searchParameters,
