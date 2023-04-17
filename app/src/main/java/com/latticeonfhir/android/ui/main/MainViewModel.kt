@@ -32,36 +32,27 @@ class MainViewModel @Inject constructor(
         FhirApp.syncRepository = syncRepository
 
         viewModelScope.launch(Dispatchers.IO) {
-            //Upload Worker
-            Sync.periodicSync<PatientUploadSyncWorkerImpl>(
-                getApplication<Application>().applicationContext,
-                PeriodicSyncConfiguration(
-                    syncConstraints = Constraints.Builder().setRequiresBatteryNotLow(true).build(),
-                    repeat = RepeatInterval(10, TimeUnit.SECONDS),
-                    retryConfiguration = RetryConfiguration(
-                        BackoffCriteria(
-                            BackoffPolicy.LINEAR,
-                            10,
-                            TimeUnit.SECONDS
-                        ), 5
-                    )
-                )
-            )
-
-            //Download Worker
-            Sync.periodicSync<PatientDownloadSyncWorkerImpl>(
-                getApplication<Application>().applicationContext, PeriodicSyncConfiguration(
-                    syncConstraints = Constraints.Builder().setRequiresBatteryNotLow(true).build(),
-                    repeat = RepeatInterval(5, TimeUnit.MINUTES),
-                    retryConfiguration = RetryConfiguration(
-                        BackoffCriteria(
-                            BackoffPolicy.LINEAR,
-                            5,
-                            TimeUnit.MINUTES
-                        ), 5
-                    )
-                )
-            )
+            setWorker()
         }
     }
+
+    private fun setWorker() {
+        //Upload Worker
+        Sync.periodicSync<PatientUploadSyncWorkerImpl>(
+            getApplication<Application>().applicationContext,
+            PeriodicSyncConfiguration(
+                syncConstraints = Constraints.Builder().setRequiresBatteryNotLow(true).build(),
+                repeat = RepeatInterval(45, TimeUnit.SECONDS),
+            )
+        )
+
+        //Download Worker
+        Sync.periodicSync<PatientDownloadSyncWorkerImpl>(
+            getApplication<Application>().applicationContext, PeriodicSyncConfiguration(
+                syncConstraints = Constraints.Builder().setRequiresBatteryNotLow(true).build(),
+                repeat = RepeatInterval(45, TimeUnit.SECONDS)
+            )
+        )
+    }
+
 }
