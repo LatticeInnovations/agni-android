@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 
@@ -36,4 +37,8 @@ interface RelationDao {
     @Transaction
     @Query("DELETE FROM RelationEntity WHERE fromId=:patientId")
     suspend fun deleteAllRelationOfPatient(patientId: String): Int
+
+    @Transaction
+    @Query("UPDATE RelationEntity SET relation=:relation WHERE fromId=:fromId AND toId=:toId")
+    suspend fun updateRelation(relation: String, fromId: String, toId: String): Int
 }
