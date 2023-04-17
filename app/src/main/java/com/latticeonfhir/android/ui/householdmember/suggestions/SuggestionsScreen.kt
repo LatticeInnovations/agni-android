@@ -14,10 +14,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.data.local.constants.Constants
+import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreenViewModel
+import com.latticeonfhir.android.utils.relation.RelationConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -26,7 +29,7 @@ fun SuggestionsScreen(
     patient: PatientResponse,
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope,
-    viewModel: SuggestionsScreenViewModel = viewModel()
+    viewModel: SuggestionsScreenViewModel = hiltViewModel()
 ) {
     Column(
         modifier = Modifier
@@ -37,8 +40,9 @@ fun SuggestionsScreen(
             text = "Here are patients with similar addresses or nearby locations.",
             style = MaterialTheme.typography.bodyLarge
         )
-        LazyColumn() {
-            items(viewModel.suggestedMembersList) { member ->
+        LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
+            //items(viewModel.suggestedMembersList) { member ->
+            items(viewModel.listOfSuggestions) { member ->
                 SuggestedMembersCard(scope, snackbarHostState, viewModel, member, patient)
             }
         }
@@ -104,7 +108,7 @@ fun SuggestedMembersCard(
         }
     }
     if (showConnectDialog) {
-        ConnectDialog(snackbarHostState, scope, member, patient) {
+        ConnectDialog(snackbarHostState, scope, member, patient, viewModel) {
             showConnectDialog = false
         }
     }
@@ -116,6 +120,7 @@ fun ConnectDialog(
     scope: CoroutineScope,
     member: PatientResponse,
     patient: PatientResponse,
+    viewModel: SuggestionsScreenViewModel,
     closeDialog: () -> (Unit)
 ) {
     var expanded by remember {
@@ -227,6 +232,14 @@ fun ConnectDialog(
             TextButton(
                 onClick = {
                     // call add member to household function here
+                    viewModel.addRelation(
+                        Relation(
+                            patientId = patient.id,
+                            relativeId = member.id,
+                            relation = RelationConverter.getRelationEnumFromString(relation)
+                        ),
+                        member.id
+                    )
                     scope.launch {
                         snackbarHostState.showSnackbar(
                             message = "${

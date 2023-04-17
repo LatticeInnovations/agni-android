@@ -14,13 +14,13 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -187,39 +187,16 @@ fun ConfirmRelationshipScreen(
             )
         }
         Spacer(modifier = Modifier.height(32.dp))
-            LazyColumn() {
-                items(viewModel.relationBetween) { relationView ->
-                    Log.d("manseeyy", relationView.patientFirstName)
-                    Log.d("manseeyy", relationView.relativeFirstName)
-                    MemberCard(relationView, viewModel)
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
+        LazyColumn(modifier = Modifier
+            .fillMaxWidth()
+            .weight(1f)) {
+            items(viewModel.relationBetween) { relationView ->
+                Log.d("manseeyy", relationView.patientFirstName)
+                Log.d("manseeyy", relationView.relativeFirstName)
+                MemberCard(relationView, viewModel)
+                Spacer(modifier = Modifier.height(24.dp))
             }
-//            viewModel.relationBetween?.patientIs?.value?.run {
-//                MemberCard(
-//                    viewModel.patient, getRelationFromRelationEnum(
-//                        context,
-//                        this
-//                    ),
-//                    viewModel.relative,
-//                    viewModel
-//                ) {
-//                    viewModel.showRelationCard = false
-//                }
-//                Spacer(modifier = Modifier.height(24.dp))
-//            }
-
-//            viewModel.relationBetween?.relativeIs?.value?.run {
-//                MemberCard(
-//                    viewModel.relative,
-//                    getRelationFromRelationEnum(context,this),
-//                    viewModel.patient,
-//                    viewModel
-//                ) {
-//                    viewModel.showInverseRelationCard = false
-//                }
-//            }
-        //}
+        }
         Button(
             onClick = {
 //                navController.currentBackStackEntry?.savedStateHandle?.set(
@@ -235,7 +212,7 @@ fun ConfirmRelationshipScreen(
 //                    viewModel.relation
 //                )
 //                navController.navigate(Screen.LandingScreen.route)
-                navController.popBackStack(Screen.PatientLandingScreen.route, false)
+                navController.popBackStack(Screen.HouseholdMembersScreen.route, false)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -255,13 +232,26 @@ fun MemberCard(relationView: RelationView, viewModel: ConfirmRelationshipViewMod
     var openEditDialog by remember {
         mutableStateOf(false)
     }
+    val context = LocalContext.current
     Row(
         modifier = Modifier.padding(14.dp)
     ) {
         Text(
-            text = "${Constants.GetFullName(relationView.patientFirstName, relationView.patientMiddleName, relationView.patientLastName)} " +
-                    "is the ${relationView.relation} of " +
-                    "${Constants.GetFullName(relationView.relativeFirstName, relationView.relativeMiddleName, relationView.relativeLastName)}",
+            text = "${
+                Constants.GetFullName(
+                    relationView.patientFirstName,
+                    relationView.patientMiddleName,
+                    relationView.patientLastName
+                )
+            } " +
+                    "is the ${getRelationFromRelationEnum(context, relationView.relation)} of " +
+                    "${
+                        Constants.GetFullName(
+                            relationView.relativeFirstName,
+                            relationView.relativeMiddleName,
+                            relationView.relativeLastName
+                        )
+                    }.",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f)
         )
@@ -287,6 +277,7 @@ fun MemberCard(relationView: RelationView, viewModel: ConfirmRelationshipViewMod
 
     if (openDeleteDialog) {
         DeleteDialog(
+            context,
             relationView,
             viewModel
         ) {
@@ -296,6 +287,7 @@ fun MemberCard(relationView: RelationView, viewModel: ConfirmRelationshipViewMod
 
     if (openEditDialog) {
         EditDialog(
+            context,
             relationView,
             viewModel
         ) {
@@ -306,6 +298,7 @@ fun MemberCard(relationView: RelationView, viewModel: ConfirmRelationshipViewMod
 
 @Composable
 fun DeleteDialog(
+    context: Context,
     relationView: RelationView,
     viewModel: ConfirmRelationshipViewModel,
     closeDialog: () -> Unit
@@ -318,24 +311,33 @@ fun DeleteDialog(
         title = {
             Text(
                 text = "Remove relationship?",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.testTag("delete dialog title")
+                style = MaterialTheme.typography.headlineSmall
             )
         },
         text = {
             Column() {
                 Text(
                     "Are you sure you want to remove this relationship? Patient records will not be affected.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.testTag("delete dialog description 1")
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    "${Constants.GetFullName(relationView.patientFirstName, relationView.patientMiddleName, relationView.patientLastName)} " +
-                            "is the ${relationView.relation} of " +
-                            "${Constants.GetFullName(relationView.relativeFirstName, relationView.relativeMiddleName, relationView.relativeLastName)}",
+                    "${
+                        Constants.GetFullName(
+                            relationView.patientFirstName,
+                            relationView.patientMiddleName,
+                            relationView.patientLastName
+                        )
+                    } " +
+                            "is the ${getRelationFromRelationEnum(context, relationView.relation)} of " +
+                            "${
+                                Constants.GetFullName(
+                                    relationView.relativeFirstName,
+                                    relationView.relativeMiddleName,
+                                    relationView.relativeLastName
+                                )
+                            }.",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
-                        .testTag("delete dialog description 2")
                         .padding(start = 10.dp, top = 10.dp)
                 )
             }
@@ -344,11 +346,11 @@ fun DeleteDialog(
             TextButton(
                 onClick = {
                     viewModel.deleteRelation(relationView.patientId, relationView.relativeId)
+                    viewModel.getRelationBetween(relationView.patientId, relationView.relativeId)
                     closeDialog()
                 }) {
                 Text(
-                    "Confirm",
-                    modifier = Modifier.testTag("delete dialog confirm btn")
+                    "Confirm"
                 )
             }
         },
@@ -367,6 +369,7 @@ fun DeleteDialog(
 
 @Composable
 fun EditDialog(
+    context: Context,
     relationView: RelationView,
     viewModel: ConfirmRelationshipViewModel,
     closeDialog: () -> Unit
@@ -381,14 +384,17 @@ fun EditDialog(
         title = {
             Text(
                 text = "Edit relationship",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.testTag("edit dialog title")
+                style = MaterialTheme.typography.headlineSmall
             )
         },
         text = {
             Column {
                 Text(
-                    Constants.GetFullName(relationView.patientFirstName, relationView.patientMiddleName, relationView.patientLastName),
+                    Constants.GetFullName(
+                        relationView.patientFirstName,
+                        relationView.patientMiddleName,
+                        relationView.patientLastName
+                    ),
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 Spacer(modifier = Modifier.height(23.dp))
@@ -452,10 +458,13 @@ fun EditDialog(
 //                                "Spouse"
 //                            )
 
+                        var relation by remember {
+                            mutableStateOf(getRelationFromRelationEnum(context, relationView.relation).capitalize())
+                        }
                         TextField(
-                            value = relationView.relation.value,
+                            value = relation,
                             onValueChange = {
-                                viewModel.relation = it
+                                relation = it
                             },
                             trailingIcon = {
                                 IconButton(onClick = { expanded = !expanded }) {
@@ -485,7 +494,7 @@ fun EditDialog(
                                 DropdownMenuItem(
                                     onClick = {
                                         expanded = false
-                                        viewModel.relation = label
+                                        relation = label
                                     },
                                     text = {
                                         Text(
@@ -501,7 +510,13 @@ fun EditDialog(
                 }
                 Spacer(modifier = Modifier.height(23.dp))
                 Text(
-                    text = "of ${Constants.GetFullName(relationView.relativeFirstName, relationView.relativeMiddleName, relationView.relativeLastName)}.",
+                    text = "of ${
+                        Constants.GetFullName(
+                            relationView.relativeFirstName,
+                            relationView.relativeMiddleName,
+                            relationView.relativeLastName
+                        )
+                    }.",
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
