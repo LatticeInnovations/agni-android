@@ -31,6 +31,7 @@ fun SuggestionsScreen(
     scope: CoroutineScope,
     viewModel: SuggestionsScreenViewModel = hiltViewModel()
 ) {
+    viewModel.getQueueItems(patient)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -42,7 +43,7 @@ fun SuggestionsScreen(
         )
         LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
             //items(viewModel.suggestedMembersList) { member ->
-            items(viewModel.listOfSuggestions) { member ->
+            items(viewModel.suggestedMembersList) { member ->
                 SuggestedMembersCard(scope, snackbarHostState, viewModel, member, patient)
             }
         }
@@ -157,7 +158,7 @@ fun ConnectDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         val relationsList =
-                            Constants.GetRelationshipList("male")
+                            Constants.GetRelationshipList(patient.gender)
                         TextField(
                             value = relation,
                             onValueChange = {},
@@ -240,6 +241,7 @@ fun ConnectDialog(
                         ),
                         member.id
                     )
+                    //viewModel.updateQueue()
                     scope.launch {
                         snackbarHostState.showSnackbar(
                             message = "${

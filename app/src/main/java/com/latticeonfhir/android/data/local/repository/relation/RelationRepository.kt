@@ -9,7 +9,7 @@ interface RelationRepository {
 
     suspend fun addRelation(relation: Relation): List<Long>
     suspend fun addListOfRelation(listOfRelations: List<RelationEntity>): List<Long>
-    suspend fun updateRelation(relation: Relation): Int
+    suspend fun updateRelation(relation: Relation, relationUpdated: (Int) -> Unit)
     suspend fun getRelationBetween(fromId: String, toId: String): List<RelationView>
     suspend fun getAllRelationOfPatient(patientId: String): List<RelationEntity>
     suspend fun deleteRelation(vararg relationId: String): Int
