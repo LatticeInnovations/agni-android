@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.householdmember.suggestions
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,6 +41,7 @@ class SuggestionsScreenViewModel @Inject constructor(
 
     //private lateinit var listOfSuggestions: List<PatientResponse>
     var listOfSuggestions by mutableStateOf(listOf<PatientResponse>())
+    var suggestedMembersList by mutableStateOf(listOf<PatientResponse>())
 
     val patient = PatientResponse(
         id = "d138ada3-82f7-4b96-914f-decd5933b61d",
@@ -70,7 +72,7 @@ class SuggestionsScreenViewModel @Inject constructor(
         )
     )
 
-    val suggestedMembersList = listOf(patient, patient, patient)
+    //val suggestedMembersList = listOf(patient, patient, patient)
 
 
     internal fun getQueueItems() {
@@ -80,12 +82,14 @@ class SuggestionsScreenViewModel @Inject constructor(
             )
             i++
         }
+        suggestedMembersList = queue.toList()
     }
 
     internal fun updateQueue() {
         queue.poll()
         queue.offer(listOfSuggestions[i])
         i++
+        suggestedMembersList = queue.toList()
     }
 
 
@@ -109,6 +113,8 @@ class SuggestionsScreenViewModel @Inject constructor(
                 )
             )
         }
+        Log.d("manseeyy", listOfSuggestions.toString())
+        //getQueueItems()
     }
 
     fun addRelation(relation: Relation, relativeId: String) {

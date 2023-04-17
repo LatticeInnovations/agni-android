@@ -29,10 +29,12 @@ import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.paging.compose.items
 import com.latticeonfhir.android.data.local.constants.Constants
+import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.PatientItemCard
+import com.latticeonfhir.android.utils.relation.RelationConverter.getRelationEnumFromString
 import com.latticeonfhir.android.utils.relation.RelationConverter.getRelationFromRelationEnum
 import timber.log.Timber
 
@@ -193,7 +195,7 @@ fun ConfirmRelationshipScreen(
             items(viewModel.relationBetween) { relationView ->
                 Log.d("manseeyy", relationView.patientFirstName)
                 Log.d("manseeyy", relationView.relativeFirstName)
-                MemberCard(relationView, viewModel)
+                MemberCard(context, relationView, viewModel)
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
@@ -225,14 +227,13 @@ fun ConfirmRelationshipScreen(
 }
 
 @Composable
-fun MemberCard(relationView: RelationView, viewModel: ConfirmRelationshipViewModel) {
+fun MemberCard(context: Context, relationView: RelationView, viewModel: ConfirmRelationshipViewModel) {
     var openDeleteDialog by remember {
         mutableStateOf(false)
     }
     var openEditDialog by remember {
         mutableStateOf(false)
     }
-    val context = LocalContext.current
     Row(
         modifier = Modifier.padding(14.dp)
     ) {
@@ -305,7 +306,6 @@ fun DeleteDialog(
 ) {
     AlertDialog(
         onDismissRequest = {
-            //viewModel.openDeleteDialog = false
             closeDialog()
         },
         title = {
@@ -346,7 +346,7 @@ fun DeleteDialog(
             TextButton(
                 onClick = {
                     viewModel.deleteRelation(relationView.patientId, relationView.relativeId)
-                    viewModel.getRelationBetween(relationView.patientId, relationView.relativeId)
+                    viewModel.getRelationBetween(viewModel.patientId, viewModel.relativeId)
                     closeDialog()
                 }) {
                 Text(
@@ -376,6 +376,9 @@ fun EditDialog(
 ) {
     var expanded by remember {
         mutableStateOf(false)
+    }
+    var relation by remember {
+        mutableStateOf(getRelationFromRelationEnum(context, relationView.relation).capitalize())
     }
     AlertDialog(
         onDismissRequest = {
@@ -408,59 +411,8 @@ fun EditDialog(
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Column() {
-                        val relationsList = listOf(
-                            "Son",
-                            "Father",
-                            "Grand Father",
-                            "Brother",
-                            "Grand Son",
-                            "Uncle",
-                            "Brother-in-law",
-                            "Father-in-law",
-                            "Son-in-law",
-                            "Nephew",
-                            "Husband"
-                        )
-                        // gender is required here to make relationship list
-//                            if (fromPatient?.gender == "male") listOf(
-//                                "Son",
-//                                "Father",
-//                                "Grand Father",
-//                                "Brother",
-//                                "Grand Son",
-//                                "Uncle",
-//                                "Brother-in-law",
-//                                "Father-in-law",
-//                                "Son-in-law",
-//                                "Nephew",
-//                                "Husband"
-//                            )
-//                            else if (fromPatient?.gender == "female") listOf(
-//                                "Daughter",
-//                                "Mother",
-//                                "Grand Mother",
-//                                "Sister",
-//                                "Grand Daughter",
-//                                "Aunty",
-//                                "Sister-in-law",
-//                                "Mother-in-law",
-//                                "Daughter-in-law",
-//                                "Niece",
-//                                "Wife"
-//                            )
-//                            else listOf(
-//                                "Child",
-//                                "Parent",
-//                                "Grand Parent",
-//                                "Sibling",
-//                                "Grand Child",
-//                                "In-Law",
-//                                "Spouse"
-//                            )
+                        val relationsList = Constants.GetRelationshipList(relationView.patientGender)
 
-                        var relation by remember {
-                            mutableStateOf(getRelationFromRelationEnum(context, relationView.relation).capitalize())
-                        }
                         TextField(
                             value = relation,
                             onValueChange = {
@@ -524,6 +476,13 @@ fun EditDialog(
         confirmButton = {
             TextButton(
                 onClick = {
+                    viewModel.updateRelation(
+                        Relation(
+                            patientId = relationView.patientId,
+                            relation = getRelationEnumFromString(relation) ,
+                            relativeId = relationView.relativeId
+                        )
+                    )
                     closeDialog()
                 }) {
                 Text(
