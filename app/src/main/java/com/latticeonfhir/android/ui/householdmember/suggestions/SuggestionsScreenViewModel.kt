@@ -1,15 +1,29 @@
-package com.latticeonfhir.android.ui.main.patientlandingscreen
+package com.latticeonfhir.android.ui.householdmember.suggestions
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.model.SearchParameters
+import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.concurrent.SynchronousQueue
+import javax.inject.Inject
 
-class SuggestionsScreenViewModel: BaseViewModel() {
+@HiltViewModel
+class SuggestionsScreenViewModel @Inject constructor(private val searchRepository: SearchRepository) :
+    BaseViewModel() {
     var showConnectDialog by mutableStateOf(false)
+
+    private val queue = SynchronousQueue<PatientResponse>()
+    private var i = 0
+    private lateinit var listOfSuggestions: List<PatientResponse>
 
     val patient = PatientResponse(
         id = "d138ada3-82f7-4b96-914f-decd5933b61d",
@@ -43,4 +57,29 @@ class SuggestionsScreenViewModel: BaseViewModel() {
     val suggestedMembersList = listOf(patient, patient, patient)
 
     //var suggestedMembersList by mutableStateOf(listOf<PatientResponse>())
+
+    internal fun getQueueItems() {
+        while (queue.size < 5) {
+            queue.add(
+                listOfSuggestions[i]
+            )
+            i++
+        }
+    }
+
+    internal fun updateQueue() {
+        queue.poll()
+        queue.offer(listOfSuggestions[i])
+        i++
+    }
+
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            listOfSuggestions = searchRepository.getSuggestedMembers(
+                patient.id,
+                SearchParameters("")
+            )
+        }
+    }
 }

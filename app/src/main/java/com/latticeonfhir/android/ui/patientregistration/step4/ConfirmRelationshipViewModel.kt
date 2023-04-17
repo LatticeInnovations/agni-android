@@ -1,9 +1,11 @@
 package com.latticeonfhir.android.ui.patientregistration.step4
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.model.RelationBetween
@@ -47,15 +49,9 @@ class ConfirmRelationshipViewModel @Inject constructor(
     internal fun getRelationBetween(
         patientId: String,
         relativeId: String,
-        relationBetween: (List<RelationView>) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            relationBetween(
-                relationRepository.getRelationBetween(
-                    patientId,
-                    relativeId
-                )
-            )
+            relationBetween = relationRepository.getRelationBetween(patientId, relativeId)
         }
     }
 

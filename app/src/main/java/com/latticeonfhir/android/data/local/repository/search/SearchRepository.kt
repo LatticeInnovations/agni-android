@@ -4,6 +4,7 @@ import androidx.paging.PagingData
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import kotlinx.coroutines.flow.Flow
+import java.util.concurrent.SynchronousQueue
 
 interface SearchRepository {
 
@@ -13,5 +14,5 @@ interface SearchRepository {
     suspend fun insertRecentSearch(searchQuery: String): Long
     suspend fun getRecentSearches(): List<String>
 
-    suspend fun getSuggestedMembers(searchParameters: SearchParameters): List<PatientResponse>
+    suspend fun getSuggestedMembers(patientId: String, searchParameters: SearchParameters): List<PatientResponse>
 }
