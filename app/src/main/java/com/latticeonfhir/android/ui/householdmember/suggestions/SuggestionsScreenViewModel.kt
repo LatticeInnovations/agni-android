@@ -2,6 +2,7 @@ package com.latticeonfhir.android.ui.householdmember.suggestions
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -23,6 +24,7 @@ import com.latticeonfhir.android.utils.relation.RelationConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.SynchronousQueue
 import javax.inject.Inject
@@ -33,30 +35,29 @@ class SuggestionsScreenViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val relationRepository: RelationRepository,
     private val patientDao: PatientDao
-    ) :
+) :
     BaseViewModel() {
-    var showConnectDialog by mutableStateOf(false)
+    var listOfSuggestions = mutableListOf<PatientResponse>()
+    var suggestedMembersList = mutableStateListOf<PatientResponse>()
 
-    private val queue = ConcurrentLinkedQueue<PatientResponse>()
-    private var i = 0
-
-    //private lateinit var listOfSuggestions: List<PatientResponse>
-    var listOfSuggestions by mutableStateOf(listOf<PatientResponse>())
-    var suggestedMembersList by mutableStateOf(listOf<PatientResponse>())
-
-    internal fun updateQueue() {
-        queue.poll()
-        if (listOfSuggestions.isNotEmpty() && listOfSuggestions.size > i) {
-            queue.offer(listOfSuggestions[i])
-            i++
+    internal fun updateQueue(patient: PatientResponse) {
+        listOfSuggestions.remove(patient)
+        suggestedMembersList.clear()
+        if (listOfSuggestions.size > 5) {
+            suggestedMembersList.add(listOfSuggestions[0])
+            suggestedMembersList.add(listOfSuggestions[1])
+            suggestedMembersList.add(listOfSuggestions[2])
+            suggestedMembersList.add(listOfSuggestions[3])
+            suggestedMembersList.add(listOfSuggestions[4])
+        } else {
+            suggestedMembersList.addAll(listOfSuggestions)
         }
-        suggestedMembersList = queue.toList()
     }
 
 
-    internal fun getQueueItems(patient: PatientResponse)  {
+    internal fun getQueueItems(patient: PatientResponse) {
         viewModelScope.launch(Dispatchers.IO) {
-            listOfSuggestions = searchRepository.getSuggestedMembers(
+            searchRepository.getSuggestedMembers(
                 patient.id,
                 SearchParameters(
                     null,
@@ -72,17 +73,19 @@ class SuggestionsScreenViewModel @Inject constructor(
                     patient.permanentAddress.postalCode,
                     patient.permanentAddress.addressLine2
                 )
-            )
-        }
-        if (listOfSuggestions.isNotEmpty()) {
-            while (listOfSuggestions.size > i) {
-                queue.add(
-                    listOfSuggestions[i]
-                )
-                i++
-                if(queue.size == 5) break
+            ) {
+                listOfSuggestions = it
+                suggestedMembersList.clear()
+                if (listOfSuggestions.size > 5) {
+                    suggestedMembersList.add(listOfSuggestions[0])
+                    suggestedMembersList.add(listOfSuggestions[1])
+                    suggestedMembersList.add(listOfSuggestions[2])
+                    suggestedMembersList.add(listOfSuggestions[3])
+                    suggestedMembersList.add(listOfSuggestions[4])
+                } else {
+                    suggestedMembersList.addAll(listOfSuggestions)
+                }
             }
-            suggestedMembersList = queue.toList()
         }
     }
 
