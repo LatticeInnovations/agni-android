@@ -44,57 +44,13 @@ class SuggestionsScreenViewModel @Inject constructor(
     var listOfSuggestions by mutableStateOf(listOf<PatientResponse>())
     var suggestedMembersList by mutableStateOf(listOf<PatientResponse>())
 
-//    val patient = PatientResponse(
-//        id = "d138ada3-82f7-4b96-914f-decd5933b61d",
-//        firstName = "Mansi",
-//        middleName = null,
-//        lastName = "Kalra",
-//        active = true,
-//        birthDate = "2001-01-23",
-//        email = null,
-//        fhirId = null,
-//        gender = "female",
-//        mobileNumber = 9999999999,
-//        permanentAddress = PatientAddressResponse(
-//            addressLine1 = "534 Erewhon St",
-//            addressLine2 = null,
-//            postalCode = "999999",
-//            city = "vggh",
-//            country = "India",
-//            district = null,
-//            state = "Uttarakhand"
-//        ),
-//        identifier = listOf(
-//            PatientIdentifier(
-//                code = null,
-//                identifierType = "https://www.apollohospitals.com/",
-//                identifierNumber = "XXXXXXXXXX"
-//            )
-//        )
-//    )
-
-    //val suggestedMembersList = listOf(patient, patient, patient)
-
-
-//    internal fun getQueueItems() {
-//        if (listOfSuggestions.isNotEmpty()) {
-//            while (queue.size < 5) {
-//                queue.add(
-//                    listOfSuggestions[i]
-//                )
-//                i++
-//            }
-//            suggestedMembersList = queue.toList()
-//        }
-//    }
-
     internal fun updateQueue() {
-        if (listOfSuggestions.isNotEmpty()) {
-            queue.poll()
+        queue.poll()
+        if (listOfSuggestions.isNotEmpty() && listOfSuggestions.size > i) {
             queue.offer(listOfSuggestions[i])
             i++
-            suggestedMembersList = queue.toList()
         }
+        suggestedMembersList = queue.toList()
     }
 
 
@@ -119,11 +75,12 @@ class SuggestionsScreenViewModel @Inject constructor(
             )
         }
         if (listOfSuggestions.isNotEmpty()) {
-            while (queue.size < 5) {
+            while (listOfSuggestions.size > i) {
                 queue.add(
                     listOfSuggestions[i]
                 )
                 i++
+                if(queue.size == 5) break
             }
             suggestedMembersList = queue.toList()
         }
