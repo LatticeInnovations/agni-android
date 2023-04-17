@@ -39,7 +39,7 @@ class RelationRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getRelationBetween(fromId: String, toId: String): LiveData<List<RelationView>> {
+    override suspend fun getRelationBetween(fromId: String, toId: String): List<RelationView> {
         return relationDao.getRelation(fromId, toId)
     }
 

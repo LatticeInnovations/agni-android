@@ -25,9 +25,6 @@ class ConfirmRelationshipViewModel @Inject constructor(
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
-    var showRelationCard by mutableStateOf(true)
-    var showInverseRelationCard by mutableStateOf(true)
-
     var discardAllRelationDialog by mutableStateOf(false)
 
     var patientId by mutableStateOf("")
@@ -36,9 +33,7 @@ class ConfirmRelationshipViewModel @Inject constructor(
 
     var patient by mutableStateOf<PatientResponse?>(null)
     var relative by mutableStateOf<PatientResponse?>(null)
-    //var relationBetween by mutableStateOf<List<RelationView>?>(null)
     var relationBetween by mutableStateOf(listOf<RelationView>())
-   // var relationBetween = mutableStateListOf<RelationView>()
 
     internal fun getPatientData(id: String, patientResponse: (PatientResponse) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
