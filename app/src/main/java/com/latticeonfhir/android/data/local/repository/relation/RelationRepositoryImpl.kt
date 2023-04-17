@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.repository.relation
 
 import androidx.lifecycle.LiveData
+import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.model.RelationBetween
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -41,14 +42,14 @@ class RelationRepositoryImpl @Inject constructor(
 
     override suspend fun updateRelation(relation: Relation): Int {
         return relationDao.updateRelation(
-            relation = relation.relation,
+            relationEnum = RelationEnum.fromString(relation.relation),
             fromId = relation.patientId,
             toId = relation.relativeId
         ).also {
             relation.toRelationEntity().toReverseRelation(patientDao) { relationEntity ->
                 CoroutineScope(Dispatchers.IO).launch {
                     relationDao.updateRelation(
-                        relation = relationEntity.relation.value,
+                        relationEnum = relationEntity.relation,
                         fromId = relationEntity.fromId,
                         toId = relationEntity.toId
                     )

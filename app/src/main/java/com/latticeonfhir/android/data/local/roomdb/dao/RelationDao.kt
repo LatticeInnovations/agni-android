@@ -39,6 +39,6 @@ interface RelationDao {
     suspend fun deleteAllRelationOfPatient(patientId: String): Int
 
     @Transaction
-    @Query("UPDATE RelationEntity SET relation=:relation WHERE fromId=:fromId AND toId=:toId")
-    suspend fun updateRelation(relation: String, fromId: String, toId: String): Int
+    @Query("UPDATE RelationEntity SET relation=:relationEnum WHERE fromId=:fromId AND toId=:toId")
+    suspend fun updateRelation(relationEnum: RelationEnum, fromId: String, toId: String): Int
 }
