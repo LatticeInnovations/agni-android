@@ -42,7 +42,7 @@ fun SuggestionsScreen(
         )
         LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
             //items(viewModel.suggestedMembersList) { member ->
-            items(viewModel.listOfSuggestions) { member ->
+            items(viewModel.suggestedMembersList) { member ->
                 SuggestedMembersCard(scope, snackbarHostState, viewModel, member, patient)
             }
         }
@@ -240,6 +240,7 @@ fun ConnectDialog(
                         ),
                         member.id
                     )
+                    viewModel.updateQueue()
                     scope.launch {
                         snackbarHostState.showSnackbar(
                             message = "${

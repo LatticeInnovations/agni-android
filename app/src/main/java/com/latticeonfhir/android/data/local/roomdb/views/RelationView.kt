@@ -15,6 +15,7 @@ data class RelationView(
     val patientFirstName: String,
     val patientMiddleName: String?,
     val patientLastName: String?,
+    val patientGender: String,
     val relativeId: String,
     val relativeFirstName: String,
     val relativeMiddleName: String?,
