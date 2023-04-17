@@ -39,6 +39,24 @@ class RelationRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun updateRelation(relation: Relation): Int {
+        return relationDao.updateRelation(
+            relation = relation.relation,
+            fromId = relation.patientId,
+            toId = relation.relativeId
+        ).also {
+            relation.toRelationEntity().toReverseRelation(patientDao) { relationEntity ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    relationDao.updateRelation(
+                        relation = relationEntity.relation.value,
+                        fromId = relationEntity.fromId,
+                        toId = relationEntity.toId
+                    )
+                }
+            }
+        }
+    }
+
     override suspend fun getRelationBetween(fromId: String, toId: String): List<RelationView> {
         return relationDao.getRelation(fromId, toId)
     }
