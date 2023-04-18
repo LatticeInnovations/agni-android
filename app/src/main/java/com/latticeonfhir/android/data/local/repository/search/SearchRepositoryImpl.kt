@@ -16,7 +16,9 @@ import com.latticeonfhir.android.utils.paging.SearchPagingSource
 import com.latticeonfhir.android.utils.search.Search.getFuzzySearchList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import java.util.Date
+import java.util.LinkedList
 import java.util.Queue
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.SynchronousQueue
@@ -125,15 +127,24 @@ class SearchRepositoryImpl @Inject constructor(
 
     override suspend fun getSuggestedMembers(
         patientId: String,
-        searchParameters: SearchParameters
-    ): List<PatientResponse> {
-        val existingMembers = relationDao.getAllRelationOfPatient(patientId).map { it.toId }.toMutableSet().apply { add(patientId) }
-        return getFuzzySearchList(
+        searchParameters: SearchParameters,
+        returnList: (LinkedList<PatientResponse>) -> Unit
+    ) {
+        val linkedList = LinkedList<PatientResponse>()
+        val existingMembers =
+            relationDao.getAllRelationOfPatient(patientId).map { it.toId }.toMutableSet()
+                .apply { add(patientId) }
+        getFuzzySearchList(
             getSearchList(),
             searchParameters,
             90
-        ).map { it.toPatientResponse() }.filter {
-            !existingMembers.contains(it.id)
+        ).filter {
+            !existingMembers.contains(it.patientEntity.id)
+        }.map {
+        linkedList.add(it.toPatientResponse())
         }
+        returnList(
+            linkedList
+        )
     }
 }

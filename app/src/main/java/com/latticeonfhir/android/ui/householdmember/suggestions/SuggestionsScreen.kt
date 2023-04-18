@@ -41,8 +41,11 @@ fun SuggestionsScreen(
             text = "Here are patients with similar addresses or nearby locations.",
             style = MaterialTheme.typography.bodyLarge
         )
-        LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
-            //items(viewModel.suggestedMembersList) { member ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
             items(viewModel.suggestedMembersList) { member ->
                 SuggestedMembersCard(scope, snackbarHostState, viewModel, member, patient)
             }
@@ -241,7 +244,6 @@ fun ConnectDialog(
                         ),
                         member.id
                     )
-                    //viewModel.updateQueue()
                     scope.launch {
                         snackbarHostState.showSnackbar(
                             message = "${
@@ -254,6 +256,7 @@ fun ConnectDialog(
                             withDismissAction = true
                         )
                     }
+                    viewModel.updateQueue(member)
                     closeDialog()
                 },
                 enabled = relation.isNotEmpty()
