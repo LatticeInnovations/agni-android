@@ -54,9 +54,7 @@ class SyncRepositoryImpl @Inject constructor(
                             .toTypedArray())
                     }
                 }
-                CoroutineScope(Dispatchers.IO).launch {
-//                    getAndInsertListPatientData(offset + 100)
-                }
+                getAndInsertListPatientData(offset + 100)
             }
             if (this is ApiEndResponse) {
                 patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
@@ -107,24 +105,21 @@ class SyncRepositoryImpl @Inject constructor(
             else ApiResponseConverter.convert(
                 apiService.createData(
                     PATIENT,
-                    map { it.payload.fromJson<LinkedTreeMap<*,*>>().mapToObject(PatientResponse::class.java) as Any }
+                    map {
+                        it.payload.fromJson<LinkedTreeMap<*, *>>()
+                            .mapToObject(PatientResponse::class.java) as Any
+                    }
                 )
             ).apply {
                 if (this is ApiContinueResponse) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        genericDao.deleteSyncPayload(this@run.toListOfId()).also {
-                            if (it > 0) sendPersonPostData()
-                        }
+                    genericDao.deleteSyncPayload(this@run.toListOfId()).also {
+                        if (it > 0) sendPersonPostData()
                     }
-                    body
                 }
-                if(this is ApiEndResponse) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        genericDao.deleteSyncPayload(this@run.toListOfId()).also {
-                            if (it > 0) sendPersonPostData()
-                        }
+                if (this is ApiEndResponse) {
+                    genericDao.deleteSyncPayload(this@run.toListOfId()).also {
+                        if (it > 0) sendPersonPostData()
                     }
-                    body
                 }
                 if (this is ApiErrorResponse) {
                     errorMessage
@@ -142,24 +137,21 @@ class SyncRepositoryImpl @Inject constructor(
             else ApiResponseConverter.convert(
                 apiService.createData(
                     PATIENT,
-                    map { it.payload.fromJson<LinkedTreeMap<*,*>>().mapToObject(RelatedPersonResponse::class.java) as Any }
+                    map {
+                        it.payload.fromJson<LinkedTreeMap<*, *>>()
+                            .mapToObject(RelatedPersonResponse::class.java) as Any
+                    }
                 )
             ).apply {
                 if (this is ApiContinueResponse) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        genericDao.deleteSyncPayload(this@run.toListOfId()).also {
-                            if (it > 0) sendRelatedPersonPostData()
-                        }
+                    genericDao.deleteSyncPayload(this@run.toListOfId()).also {
+                        if (it > 0) sendRelatedPersonPostData()
                     }
-                    body
                 }
-                if(this is ApiEndResponse) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        genericDao.deleteSyncPayload(this@run.toListOfId()).also {
-                            if (it > 0) sendRelatedPersonPostData()
-                        }
+                if (this is ApiEndResponse) {
+                    genericDao.deleteSyncPayload(this@run.toListOfId()).also {
+                        if (it > 0) sendRelatedPersonPostData()
                     }
-                    body
                 }
                 if (this is ApiErrorResponse) {
                     errorMessage
@@ -189,7 +181,7 @@ class SyncRepositoryImpl @Inject constructor(
                         }
                         body
                     }
-                    if(this is ApiEndResponse) {
+                    if (this is ApiEndResponse) {
                         CoroutineScope(Dispatchers.IO).launch {
                             genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                                 if (it > 0) sendPersonPatchData()
@@ -224,7 +216,7 @@ class SyncRepositoryImpl @Inject constructor(
                             }
                             body
                         }
-                        if(this is ApiEndResponse) {
+                        if (this is ApiEndResponse) {
                             CoroutineScope(Dispatchers.IO).launch {
                                 genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                                     if (it > 0) sendRelatedPersonPatchData()
