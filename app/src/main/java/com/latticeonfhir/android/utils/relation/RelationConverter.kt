@@ -33,6 +33,9 @@ object RelationConverter {
                                 RelationEnum.UNCLE -> RelationEnum.NEPHEW
                                 RelationEnum.BROTHER_IN_LAW -> RelationEnum.BROTHER_IN_LAW
                                 RelationEnum.FATHER_IN_LAW -> RelationEnum.SON_IN_LAW
+                                RelationEnum.HUSBAND -> RelationEnum.HUSBAND
+                                RelationEnum.SON_IN_LAW -> RelationEnum.FATHER_IN_LAW
+                                RelationEnum.NEPHEW -> RelationEnum.UNCLE
                                 else -> {
                                     RelationEnum.UNKNOWN
                                 }
@@ -46,6 +49,9 @@ object RelationConverter {
                                 RelationEnum.SON -> RelationEnum.MOTHER
                                 RelationEnum.GRAND_SON -> RelationEnum.GRAND_MOTHER
                                 RelationEnum.UNCLE -> RelationEnum.NIECE
+                                RelationEnum.HUSBAND -> RelationEnum.WIFE
+                                RelationEnum.SON_IN_LAW -> RelationEnum.MOTHER_IN_LAW
+                                RelationEnum.NEPHEW -> RelationEnum.AUNTY
                                 RelationEnum.BROTHER_IN_LAW -> RelationEnum.SISTER_IN_LAW
                                 RelationEnum.FATHER_IN_LAW -> RelationEnum.DAUGHTER_IN_LAW
                                 else -> {
@@ -63,6 +69,8 @@ object RelationConverter {
                                 RelationEnum.UNCLE -> RelationEnum.NEPHEW
                                 RelationEnum.BROTHER_IN_LAW -> RelationEnum.IN_LAW
                                 RelationEnum.FATHER_IN_LAW -> RelationEnum.IN_LAW
+                                RelationEnum.HUSBAND -> RelationEnum.SPOUSE
+                                RelationEnum.SON_IN_LAW -> RelationEnum.IN_LAW
                                 else -> {
                                     RelationEnum.UNKNOWN
                                 }
@@ -85,6 +93,9 @@ object RelationConverter {
                                 RelationEnum.AUNTY -> RelationEnum.NEPHEW
                                 RelationEnum.SISTER_IN_LAW -> RelationEnum.BROTHER_IN_LAW
                                 RelationEnum.MOTHER_IN_LAW -> RelationEnum.SON_IN_LAW
+                                RelationEnum.DAUGHTER_IN_LAW -> RelationEnum.FATHER_IN_LAW
+                                RelationEnum.NIECE -> RelationEnum.UNCLE
+                                RelationEnum.WIFE -> RelationEnum.HUSBAND
                                 else -> {
                                     RelationEnum.UNKNOWN
                                 }
@@ -100,6 +111,9 @@ object RelationConverter {
                                 RelationEnum.AUNTY -> RelationEnum.NIECE
                                 RelationEnum.SISTER_IN_LAW -> RelationEnum.SISTER_IN_LAW
                                 RelationEnum.MOTHER_IN_LAW -> RelationEnum.DAUGHTER_IN_LAW
+                                RelationEnum.DAUGHTER_IN_LAW -> RelationEnum.MOTHER_IN_LAW
+                                RelationEnum.NIECE -> RelationEnum.AUNTY
+                                RelationEnum.WIFE -> RelationEnum.WIFE
                                 else -> {
                                     RelationEnum.UNKNOWN
                                 }
@@ -115,6 +129,8 @@ object RelationConverter {
                                 RelationEnum.AUNTY -> RelationEnum.NEPHEW
                                 RelationEnum.SISTER_IN_LAW -> RelationEnum.IN_LAW
                                 RelationEnum.MOTHER_IN_LAW -> RelationEnum.IN_LAW
+                                RelationEnum.DAUGHTER_IN_LAW -> RelationEnum.IN_LAW
+                                RelationEnum.WIFE -> RelationEnum.SPOUSE
                                 else -> {
                                     RelationEnum.UNKNOWN
                                 }

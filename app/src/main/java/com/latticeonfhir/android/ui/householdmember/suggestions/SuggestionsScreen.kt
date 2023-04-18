@@ -243,20 +243,30 @@ fun ConnectDialog(
                             relation = RelationConverter.getRelationEnumFromString(relation)
                         ),
                         member.id
-                    )
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = "${
-                                Constants.GetFullName(
-                                    member.firstName,
-                                    member.middleName,
-                                    member.lastName
+                    ){
+                        if (it.isNotEmpty()){
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "${
+                                        Constants.GetFullName(
+                                            member.firstName,
+                                            member.middleName,
+                                            member.lastName
+                                        )
+                                    } added to the household.",
+                                    withDismissAction = true
                                 )
-                            } added to the household.",
-                            withDismissAction = true
-                        )
+                            }
+                            viewModel.updateQueue(member)
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Relation not added.",
+                                    withDismissAction = true
+                                )
+                            }
+                        }
                     }
-                    viewModel.updateQueue(member)
                     closeDialog()
                 },
                 enabled = relation.isNotEmpty()

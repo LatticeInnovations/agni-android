@@ -141,7 +141,7 @@ class SearchRepositoryImpl @Inject constructor(
         ).filter {
             !existingMembers.contains(it.patientEntity.id)
         }.map {
-        linkedList.add(it.toPatientResponse())
+            linkedList.add(it.toPatientResponse())
         }
         returnList(
             linkedList

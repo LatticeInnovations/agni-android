@@ -89,7 +89,7 @@ class SuggestionsScreenViewModel @Inject constructor(
         }
     }
 
-    fun addRelation(relation: Relation, relativeId: String) {
+    fun addRelation(relation: Relation, relativeId: String, relationAdded: (List<Long>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             RelationConverter.getInverseRelation(relation.toRelationEntity(), patientDao) {
                 viewModelScope.launch(Dispatchers.IO) {
@@ -99,7 +99,7 @@ class SuggestionsScreenViewModel @Inject constructor(
                             id = relation.patientId,
                             relationship = listOf(
                                 Relationship(
-                                    patientIs = RelationConverter.getRelationEnumFromString(relation.relation),
+                                    patientIs = relation.relation,
                                     relativeId = relativeId,
                                     relativeIs = it.value
                                 )
@@ -109,7 +109,9 @@ class SuggestionsScreenViewModel @Inject constructor(
                     )
                 }
             }
-            relationRepository.addRelation(relation)
+            relationAdded(
+                relationRepository.addRelation(relation)
+            )
         }
     }
 }
