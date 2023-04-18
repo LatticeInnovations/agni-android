@@ -1,13 +1,12 @@
 package com.latticeonfhir.android.data.local.repository.relation
 
-import androidx.lifecycle.LiveData
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 
 interface RelationRepository {
 
-    suspend fun addRelation(relation: Relation): List<Long>
+    suspend fun addRelation(relation: Relation, relationAdded: (List<Long>) -> Unit)
     suspend fun addListOfRelation(listOfRelations: List<RelationEntity>): List<Long>
     suspend fun updateRelation(relation: Relation, relationUpdated: (Int) -> Unit)
     suspend fun getRelationBetween(fromId: String, toId: String): List<RelationView>

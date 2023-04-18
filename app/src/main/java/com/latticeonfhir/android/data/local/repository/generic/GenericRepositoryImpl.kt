@@ -5,14 +5,16 @@ import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.ChangeRequest
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
+import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.utils.builders.GenericEntity.processPatch
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.constants.RelationConstants.RELATIONSHIP
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import javax.inject.Inject
 
-class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) :
-    GenericRepository {
+class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) : GenericRepository {
 
     override suspend fun insertOrUpdatePostEntity(
         patientId: String,
@@ -21,7 +23,16 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
     ): Long {
         return genericDao.getGenericEntityById(patientId, typeEnum, SyncType.POST).run {
             if (this != null) {
-                genericDao.insertGenericEntity(copy(payload = entity.toJson()))
+                if (typeEnum == GenericTypeEnum.RELATION) {
+                    val existingMap = payload.fromJson<MutableMap<String, Any>>()
+                    val list = existingMap[RELATIONSHIP] as MutableList<Relationship>
+                    val newMap = entity as RelatedPersonResponse
+                    list.add(newMap.relationship[0])
+                    existingMap[RELATIONSHIP] = list
+                    genericDao.insertGenericEntity(copy(payload = existingMap.toJson()))
+                } else {
+                    genericDao.insertGenericEntity(copy(payload = entity.toJson()))
+                }
             } else {
                 genericDao.insertGenericEntity(
                     GenericEntity(

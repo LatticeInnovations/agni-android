@@ -71,7 +71,7 @@ class ConfirmRelationshipViewModel @Inject constructor(
     internal fun updateRelation(relation: Relation) {
         viewModelScope.launch(Dispatchers.IO) {
             relationRepository.updateRelation(relation){
-                if (it >= 0) {
+                if (it > 0) {
                     getRelationBetween(patientId, relativeId)
                 }
             }

@@ -205,20 +205,21 @@ fun PatientRegistrationPreview(
                                 relativeId = viewModel.relativeId,
                                 relation = getRelationEnumFromString(viewModel.relation)
                             )
-                        )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "patientId",
-                            viewModel.patientFromId
-                        )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "relativeId",
-                            viewModel.relativeId
-                        )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "relation",
-                            viewModel.relation
-                        )
-                        navController.navigate(Screen.ConfirmRelationship.route)
+                        ) {
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                "patientId",
+                                viewModel.patientFromId
+                            )
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                "relativeId",
+                                viewModel.relativeId
+                            )
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                "relation",
+                                viewModel.relation
+                            )
+                            navController.navigate(Screen.ConfirmRelationship.route)
+                        }
                     } else {
                         navController.navigate(Screen.LandingScreen.route)
                     }
