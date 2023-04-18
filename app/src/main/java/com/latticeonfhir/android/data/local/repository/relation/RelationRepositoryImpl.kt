@@ -1,9 +1,7 @@
 package com.latticeonfhir.android.data.local.repository.relation
 
-import androidx.lifecycle.LiveData
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.Relation
-import com.latticeonfhir.android.data.local.model.RelationBetween
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
@@ -20,14 +18,16 @@ class RelationRepositoryImpl @Inject constructor(
     private val patientDao: PatientDao
 ) : RelationRepository {
 
-    override suspend fun addRelation(relation: Relation): List<Long> {
-        return relationDao.insertRelation(
+    override suspend fun addRelation(relation: Relation, relationAdded: (List<Long>) -> Unit) {
+        relationDao.insertRelation(
             relation.toRelationEntity()
         ).also {
             relation.toRelationEntity().toReverseRelation(patientDao) { relationEntity ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    relationDao.insertRelation(
-                        relationEntity
+                    relationAdded(
+                        relationDao.insertRelation(
+                            relationEntity
+                        )
                     )
                 }
             }
@@ -49,10 +49,12 @@ class RelationRepositoryImpl @Inject constructor(
             relation.toRelationEntity().toReverseRelation(patientDao) { relationEntity ->
                 CoroutineScope(Dispatchers.IO).launch {
                     relationUpdated(
-                        relationDao.updateRelation(
-                            relationEnum = relationEntity.relation,
-                            fromId = relationEntity.fromId,
-                            toId = relationEntity.toId
+                        it.coerceAtLeast(
+                            relationDao.updateRelation(
+                                relationEnum = relationEntity.relation,
+                                fromId = relationEntity.fromId,
+                                toId = relationEntity.toId
+                            )
                         )
                     )
                 }

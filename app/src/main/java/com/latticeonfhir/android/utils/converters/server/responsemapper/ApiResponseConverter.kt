@@ -6,11 +6,13 @@ import timber.log.Timber
 
 object ApiResponseConverter {
 
-    fun <T> convert(response: Response<BaseResponse<T>>, paginated:Boolean=false): ResponseMapper<T> {
-        return if(response.isSuccessful){
-            Timber.e(response.toString())
+    fun <T> convert(
+        response: Response<BaseResponse<T>>,
+        paginated: Boolean = false
+    ): ResponseMapper<T> {
+        return if (response.isSuccessful) {
             ResponseMapper.create(response, paginated)
-        }else {
+        } else {
             ResponseMapper.create(Throwable("Server Error"))
         }
     }

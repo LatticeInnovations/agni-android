@@ -108,9 +108,7 @@ class SuggestionsScreenViewModel @Inject constructor(
                     )
                 }
             }
-            relationAdded(
-                relationRepository.addRelation(relation)
-            )
+            relationRepository.addRelation(relation, relationAdded)
         }
     }
 }
