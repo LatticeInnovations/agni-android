@@ -35,8 +35,7 @@ class SuggestionsScreenViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val relationRepository: RelationRepository,
     private val patientDao: PatientDao
-) :
-    BaseViewModel() {
+) : BaseViewModel() {
     var listOfSuggestions = mutableListOf<PatientResponse>()
     var suggestedMembersList = mutableStateListOf<PatientResponse>()
 
