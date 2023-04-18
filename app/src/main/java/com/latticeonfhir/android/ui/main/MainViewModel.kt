@@ -1,24 +1,16 @@
 package com.latticeonfhir.android.ui.main
 
 import android.app.Application
-import androidx.lifecycle.viewModelScope
-import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
-import com.latticeonfhir.android.service.workmanager.BackoffCriteria
 import com.latticeonfhir.android.service.workmanager.PeriodicSyncConfiguration
 import com.latticeonfhir.android.service.workmanager.RepeatInterval
-import com.latticeonfhir.android.service.workmanager.RetryConfiguration
 import com.latticeonfhir.android.service.workmanager.Sync
 import com.latticeonfhir.android.service.workmanager.workers.download.patient.PatientDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.PatientUploadSyncWorkerImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -30,10 +22,7 @@ class MainViewModel @Inject constructor(
 
     init {
         FhirApp.syncRepository = syncRepository
-
-        viewModelScope.launch(Dispatchers.IO) {
-            setWorker()
-        }
+        setWorker()
     }
 
     private fun setWorker() {
