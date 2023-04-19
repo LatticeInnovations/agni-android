@@ -16,19 +16,14 @@ import com.latticeonfhir.android.utils.paging.SearchPagingSource
 import com.latticeonfhir.android.utils.search.Search.getFuzzySearchList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 import java.util.Date
 import java.util.LinkedList
-import java.util.Queue
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.SynchronousQueue
 import javax.inject.Inject
 
 class SearchRepositoryImpl @Inject constructor(
     private val searchDao: SearchDao,
     private val relationDao: RelationDao
-) :
-    SearchRepository {
+) : SearchRepository {
 
     @Volatile
     private var searchList: List<PatientAndIdentifierEntity>? = null
