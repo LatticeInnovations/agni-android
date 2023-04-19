@@ -2,6 +2,7 @@ package com.latticeonfhir.android.ui.main.patientlandingscreen
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -113,7 +114,16 @@ fun AddHouseholdMember(
                             confirmButton = {
                                 TextButton(
                                     onClick = {
-                                              // navigate to connect patient screen
+                                        viewModel.showRelationDialogue = false
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            "patientFrom",
+                                            viewModel.patient
+                                        )
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            "selectedMembersList",
+                                            viewModel.selectedSuggestedMembersList.toMutableList()
+                                        )
+                                        navController.navigate(Screen.ConnectPatient.route)
                                     },
                                     enabled = viewModel.selectedSuggestedMembersList.isNotEmpty()
                                 ) {
@@ -199,8 +209,10 @@ fun CardLayout(
                         )
                         navController.navigate(Screen.PatientRegistrationScreen.route)
                     } else {
+                        viewModel.selectedSuggestedMembersList.clear()
                         viewModel.getSuggestions(patient) {
-                            if (viewModel.suggestedMembersList.isNotEmpty()) viewModel.showRelationDialogue = true
+                            if (viewModel.suggestedMembersList.isNotEmpty()) viewModel.showRelationDialogue =
+                                true
                             else {
                                 navController.currentBackStackEntry?.savedStateHandle?.set(
                                     "fromHouseholdMember",
@@ -229,7 +241,15 @@ fun DialogPatientRow(member: PatientResponse, viewModel: AddHouseholdMemberViewM
     Column {
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .clickable {
+                    checkedState.value = !checkedState.value
+                    if (checkedState.value) {
+                        viewModel.selectedSuggestedMembersList.add(member)
+                    } else {
+                        viewModel.selectedSuggestedMembersList.remove(member)
+                    }
+                },
             verticalAlignment = Alignment.Top
         ) {
             Checkbox(
