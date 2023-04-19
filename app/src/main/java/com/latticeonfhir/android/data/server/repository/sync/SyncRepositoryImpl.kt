@@ -44,10 +44,11 @@ class SyncRepositoryImpl @Inject constructor(
 ) : SyncRepository {
 
     override suspend fun getAndInsertListPatientData(offset: Int): ResponseMapper<List<PatientResponse>> {
-        val map = mutableMapOf<String,String>()
+        val map = mutableMapOf<String, String>()
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
-        if(preferenceRepository.getLastUpdatedDate() != 0L) map[LAST_UPDATED] = preferenceRepository.getLastUpdatedDate().toTimeStampDate()
+        if (preferenceRepository.getLastUpdatedDate() != 0L) map[LAST_UPDATED] =
+            preferenceRepository.getLastUpdatedDate().toTimeStampDate()
         return ApiResponseConverter.convert(
             apiService.getListData(
                 PATIENT,
@@ -122,14 +123,27 @@ class SyncRepositoryImpl @Inject constructor(
                 )
             ).apply {
                 if (this is ApiContinueResponse) {
-                    body.forEach {
-
+                    body.map {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            patientDao.updateFhirId(
+                                it.id!!,
+                                it.fhirId!!
+                            )
+                        }
                     }
                     genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                         if (it > 0) sendPersonPostData()
                     }
                 }
                 if (this is ApiEndResponse) {
+                    body.map {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            patientDao.updateFhirId(
+                                it.id!!,
+                                it.fhirId!!
+                            )
+                        }
+                    }
                     genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                         if (it > 0) sendPersonPostData()
                     }
