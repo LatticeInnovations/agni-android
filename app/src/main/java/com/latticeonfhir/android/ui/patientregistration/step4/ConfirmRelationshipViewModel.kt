@@ -62,9 +62,9 @@ class ConfirmRelationshipViewModel @Inject constructor(
         }
     }
 
-    internal fun deleteAllRelation(patientId: String) {
+    internal fun discardRelations() {
         viewModelScope.launch(Dispatchers.IO) {
-            relationRepository.deleteAllRelationOfPatient(patientId)
+            relationRepository.deleteRelation(*relationBetween.map { it.id }.toTypedArray())
         }
     }
 

@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.data.server.api
 
-import com.latticeonfhir.android.base.baseclass.ParcelableClass
 import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -12,11 +11,10 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.QueryMap
 
-@JvmSuppressWildcards
 interface ApiService {
 
     @GET("{endPoint}")
-    suspend fun getListData(@Path("endPoint") endPoint: String, @QueryMap map: Map<String,String>?): Response<BaseResponse<List<PatientResponse>>>
+    suspend fun getListData(@Path("endPoint") endPoint: String, @QueryMap(encoded = true) map: Map<String,String>?): Response<BaseResponse<List<PatientResponse>>>
 
     @POST("sync/{endPoint}")
     suspend fun createData(@Path("endPoint") endPoint: String, @Body patientResponses: List<Any>): Response<BaseResponse<List<CreateResponse>>>

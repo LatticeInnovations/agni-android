@@ -6,6 +6,8 @@ import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepo
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
@@ -45,4 +47,8 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideSearchRepository(searchRepositoryImpl: SearchRepositoryImpl): SearchRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun providePreferenceRepository(preferenceRepositoryImpl: PreferenceRepositoryImpl): PreferenceRepository
 }
