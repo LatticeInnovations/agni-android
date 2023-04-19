@@ -1,5 +1,7 @@
 package com.latticeonfhir.android.data.local.sharedpreferences
 
+import java.util.Date
+
 interface PreferenceStorage {
     var loginFlag: Boolean
     var defaultLanguage: Boolean
@@ -12,6 +14,7 @@ interface PreferenceStorage {
     var uuid: String
     var mobile: String
     var pin: String
+    var lastUpdatedTime: Long
 
     fun clear()
 }

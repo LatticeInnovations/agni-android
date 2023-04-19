@@ -136,7 +136,7 @@ fun ConfirmRelationship(
                             TextButton(
                                 onClick = {
                                     viewModel.discardAllRelationDialog = false
-                                    viewModel.deleteAllRelation(viewModel.patientId)
+                                    viewModel.discardRelations()
                                     navController.popBackStack(Screen.HouseholdMembersScreen.route, false)
                                 }) {
                                 Text(

@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import com.latticeonfhir.android.data.local.model.PaginationResponse
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
@@ -16,19 +17,14 @@ import com.latticeonfhir.android.utils.paging.SearchPagingSource
 import com.latticeonfhir.android.utils.search.Search.getFuzzySearchList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 import java.util.Date
 import java.util.LinkedList
-import java.util.Queue
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.SynchronousQueue
 import javax.inject.Inject
 
 class SearchRepositoryImpl @Inject constructor(
     private val searchDao: SearchDao,
     private val relationDao: RelationDao
-) :
-    SearchRepository {
+) : SearchRepository {
 
     @Volatile
     private var searchList: List<PatientAndIdentifierEntity>? = null
@@ -37,8 +33,13 @@ class SearchRepositoryImpl @Inject constructor(
         return searchList ?: searchDao.getPatientList().also { searchList = it }
     }
 
-    override suspend fun searchPatients(searchParameters: SearchParameters): Flow<PagingData<PatientResponse>> {
+    override suspend fun searchPatients(searchParameters: SearchParameters): Flow<PagingData<PaginationResponse<PatientResponse>>> {
         val searchList = getSearchList()
+        val fuzzySearchList = getFuzzySearchList(
+            searchList,
+            searchParameters,
+            70
+        )
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
@@ -46,21 +47,21 @@ class SearchRepositoryImpl @Inject constructor(
             ),
             pagingSourceFactory = {
                 SearchPagingSource(
-                    getFuzzySearchList(
-                        searchList,
-                        searchParameters,
-                        70
-                    ), PAGE_SIZE
+                    fuzzySearchList,
+                     PAGE_SIZE
                 )
             }
         ).flow.map { pagingData ->
             pagingData.map { patientAndIdentifierEntity ->
-                patientAndIdentifierEntity.toPatientResponse()
+                PaginationResponse(
+                    patientAndIdentifierEntity.toPatientResponse(),
+                    fuzzySearchList.size
+                )
             }
         }
     }
 
-    override suspend fun searchPatientByQuery(query: String): Flow<PagingData<PatientResponse>> {
+    override suspend fun searchPatientByQuery(query: String): Flow<PagingData<PaginationResponse<PatientResponse>>> {
         return if (query.contains("[0-9]".toRegex())) {
             searchPatients(
                 SearchParameters(

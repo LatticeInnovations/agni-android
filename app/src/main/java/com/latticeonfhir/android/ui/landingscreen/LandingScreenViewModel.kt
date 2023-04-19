@@ -11,7 +11,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.map
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.model.PaginationResponse
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
@@ -23,6 +25,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -44,6 +47,7 @@ class LandingScreenViewModel @Inject constructor(
     var searchResultList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf<PagingData<PatientResponse>>())
     var searchParameters by mutableStateOf<SearchParameters?>(null)
     var previousSearchList = mutableListOf<String>()
+    var size by mutableStateOf(0)
 
     fun getPatientList() {
         viewModelScope.launch {
@@ -51,22 +55,22 @@ class LandingScreenViewModel @Inject constructor(
         }
     }
 
-    fun populateList(){
-        if(isSearchResult){
+    fun populateList() {
+        if (isSearchResult) {
             if (isSearchingByQuery) searchPatientByQuery()
             else searchPatient(searchParameters!!)
-        } else{
+        } else {
             getPatientList()
         }
     }
 
-    internal fun getPreviousSearches(){
+    internal fun getPreviousSearches() {
         viewModelScope.launch(Dispatchers.IO) {
             previousSearchList = searchRepository.getRecentSearches() as MutableList<String>
         }
     }
 
-    internal fun insertRecentSearch(){
+    internal fun insertRecentSearch() {
         viewModelScope.launch(Dispatchers.IO) {
             searchRepository.insertRecentSearch(searchQuery)
         }
@@ -74,13 +78,23 @@ class LandingScreenViewModel @Inject constructor(
 
     internal fun searchPatient(searchParameters: SearchParameters) {
         viewModelScope.launch(Dispatchers.IO) {
-            searchResultList = searchRepository.searchPatients(searchParameters).cachedIn(viewModelScope)
+            searchResultList = searchRepository.searchPatients(searchParameters).map {
+                it.map {
+                    if (size == 0) size = it.size
+                    it.data
+                }
+            }.cachedIn(viewModelScope)
         }
     }
 
     internal fun searchPatientByQuery() {
         viewModelScope.launch(Dispatchers.IO) {
-            searchResultList = searchRepository.searchPatientByQuery(searchQuery).cachedIn(viewModelScope)
+            searchResultList = searchRepository.searchPatientByQuery(searchQuery).map {
+                it.map {
+                    if (size == 0) size = it.size
+                    it.data
+                }
+            }.cachedIn(viewModelScope)
         }
     }
 }
