@@ -31,6 +31,9 @@ class ConnectPatientViewModel @Inject constructor(
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
+    var discardAllRelationDialog by mutableStateOf(false)
+    var showConfirmDialog by mutableStateOf(false)
+
     var patientFrom by mutableStateOf<PatientResponse?>(null)
     var selectedMembersList = mutableListOf<PatientResponse?>(null)
     var connectedMembersList = mutableStateListOf<RelationView>()
@@ -53,6 +56,12 @@ class ConnectPatientViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             connectedMembersList.removeAll(relationRepository.getRelationBetween(patientId, relativeId))
             Timber.d("manseeyy connected patients : ${connectedMembersList.toList()}")
+        }
+    }
+
+    internal fun discardRelations() {
+        viewModelScope.launch(Dispatchers.IO) {
+            relationRepository.deleteRelation(*connectedMembersList.map { it.id }.toTypedArray())
         }
     }
 

@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.householdmember.searchresult
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -64,7 +65,7 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "${viewModel.searchResultList.collectAsLazyPagingItems().itemCount} results")
+                    Text(text = "${viewModel.size} results")
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -142,10 +143,18 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
 
 @Composable
 fun SearchResultRow(patient: PatientResponse, viewModel: SearchResultViewModel) {
-    val checkedState = remember { mutableStateOf(viewModel.selectedMembersList.contains(patient) )}
+    val checkedState = remember { mutableStateOf(viewModel.selectedMembersList.contains(patient)) }
     Row(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable {
+                checkedState.value = !checkedState.value
+                if (checkedState.value) {
+                    viewModel.selectedMembersList.add(patient)
+                } else {
+                    viewModel.selectedMembersList.remove(patient)
+                }
+            },
         verticalAlignment = Alignment.Top
     ) {
         Checkbox(
