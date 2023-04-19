@@ -74,7 +74,7 @@ fun LandingScreen(
                     TopAppBar(
                         title = {
                             Text(
-                                text = "${viewModel.searchResultList.collectAsLazyPagingItems().itemCount} matches found",
+                                text = "${viewModel.size} matches found",
                                 style = MaterialTheme.typography.titleLarge
                             )
                         },
