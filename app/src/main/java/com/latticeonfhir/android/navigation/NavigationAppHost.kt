@@ -6,6 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.latticeonfhir.android.LandingScreen
+import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatient
+import com.latticeonfhir.android.ui.householdmember.searchresult.SearchResult
 import com.latticeonfhir.android.ui.main.patientlandingscreen.AddHouseholdMember
 import com.latticeonfhir.android.ui.main.patientlandingscreen.HouseholdMembersScreen
 import com.latticeonfhir.android.ui.main.patientlandingscreen.PatientLandingScreen
@@ -25,5 +27,7 @@ fun NavigationAppHost(navController: NavController) {
         composable(Screen.HouseholdMembersScreen.route){ HouseholdMembersScreen(navController = navController) }
         composable(Screen.AddHouseholdMember.route){ AddHouseholdMember(navController = navController) }
         composable(Screen.ConfirmRelationship.route){ ConfirmRelationship(navController = navController) }
+        composable(Screen.SearchResult.route){ SearchResult(navController = navController) }
+        composable(Screen.ConnectPatient.route){ ConnectPatient(navController = navController) }
     }
 }
