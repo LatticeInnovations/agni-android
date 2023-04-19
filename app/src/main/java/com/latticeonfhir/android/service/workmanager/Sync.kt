@@ -18,11 +18,13 @@ package com.latticeonfhir.android.service.workmanager
 
 import android.content.Context
 import androidx.lifecycle.asFlow
+import androidx.lifecycle.map
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.hasKeyWithValueOfType
 import com.latticeonfhir.android.FhirApp.Companion.gson
@@ -47,7 +49,7 @@ object Sync {
   inline fun <reified W : SyncWorker> oneTimeSync(
     context: Context,
     retryConfiguration: RetryConfiguration? = defaultRetryConfiguration
-  ): Flow<SyncJobStatus> {
+  ): Flow<WorkInfo.State?> {
     val flow = getWorkerInfo<W>(context)
     WorkManager.getInstance(context)
       .enqueueUniqueWork(
@@ -72,7 +74,7 @@ object Sync {
   inline fun <reified W : SyncWorker> periodicSync(
     context: Context,
     periodicSyncConfiguration: PeriodicSyncConfiguration
-  ): Flow<SyncJobStatus> {
+  ): Flow<WorkInfo.State?> {
     val flow = getWorkerInfo<W>(context)
     WorkManager.getInstance(context)
       .enqueueUniquePeriodicWork(
@@ -87,17 +89,19 @@ object Sync {
   inline fun <reified W : SyncWorker> getWorkerInfo(context: Context) =
     WorkManager.getInstance(context)
       .getWorkInfosForUniqueWorkLiveData(W::class.java.name)
+      .map { it.lastOrNull() }
+      .map { it?.state }
       .asFlow()
-      .flatMapConcat { it.asFlow() }
-      .mapNotNull { workInfo ->
-        workInfo.progress
-          .takeIf { it.keyValueMap.isNotEmpty() && it.hasKeyWithValueOfType<String>("StateType") }
-          ?.let {
-            val state = it.getString("StateType")!!
-            val stateData = it.getString("State")
-            gson.fromJson(stateData, Class.forName(state)) as SyncJobStatus
-          }
-      }
+//      .flatMapConcat { it.asFlow() }
+//      .mapNotNull { workInfo ->
+//        workInfo.progress
+//          .takeIf { it.keyValueMap.isNotEmpty() && it.hasKeyWithValueOfType<String>("StateType") }
+//          ?.let {
+//            val state = it.getString("StateType")!!
+//            val stateData = it.getString("State")
+//            gson.fromJson(stateData, Class.forName(state)) as SyncJobStatus
+//          }
+//      }
 
   @PublishedApi
   internal inline fun <W : SyncWorker> createOneTimeWorkRequest(
