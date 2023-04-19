@@ -4,4 +4,5 @@ object QueryParameters {
     const val ID = "_id"
     const val COUNT = "_count"
     const val OFFSET = "_offset"
+    const val LAST_UPDATED = "_lastUpdated>"
 }

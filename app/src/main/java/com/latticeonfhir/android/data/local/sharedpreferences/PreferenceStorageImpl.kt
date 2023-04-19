@@ -5,6 +5,7 @@ import androidx.core.content.edit
 import com.latticeonfhir.android.utils.sharedpreference.BooleanPreference
 import com.latticeonfhir.android.utils.sharedpreference.LongPreference
 import com.latticeonfhir.android.utils.sharedpreference.StringPreference
+import java.util.Date
 
 class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : PreferenceStorage {
 
@@ -19,6 +20,7 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
     override var uuid by StringPreference(sharedPreferences, PREF_UUID, "")
     override var mobile by StringPreference(sharedPreferences, PREF_MOBILE, "")
     override var pin by StringPreference(sharedPreferences, PREF_PIN, "")
+    override var lastUpdatedTime by LongPreference(sharedPreferences, PREF_LAST_UPDATED_TIME,0L)
 
     override fun clear() {
         sharedPreferences.edit {
@@ -40,5 +42,6 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         const val PREF_MOBILE = "pref_mobile"
         const val PREF_HOSPITAL = "pref_hospital_id"
         const val PREF_PIN = "pref_pin"
+        const val PREF_LAST_UPDATED_TIME = "pref_last_updated_time"
     }
 }
