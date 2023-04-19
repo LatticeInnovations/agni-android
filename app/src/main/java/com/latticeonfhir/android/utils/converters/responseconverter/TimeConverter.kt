@@ -71,6 +71,17 @@ object TimeConverter {
         }
     }
 
+    internal fun Long.toTimeStampDate(): String {
+        return if (this != 0.toLong()) {
+            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault())
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = this
+            formatter.format(calendar.time)
+        } else {
+            ""
+        }
+    }
+
     internal fun String.toTimeInMilli(): Long {
         val myDate = this
         val sdf = SimpleDateFormat("yyyy-MM-dd",Locale.getDefault())

@@ -1,20 +1,21 @@
 package com.latticeonfhir.android.ui.main
 
-import android.content.Context
 import android.os.Bundle
-import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.latticeonfhir.android.base.activity.BaseActivity
 import com.latticeonfhir.android.navigation.NavigationAppHost
 import com.latticeonfhir.android.ui.theme.FHIRAndroidTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
 
-    //private lateinit var binding: ActivityMainBinding
     private val viewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,14 +26,7 @@ class MainActivity : BaseActivity() {
                 NavigationAppHost(navController = navController)
             }
         }
-//        binding = ActivityMainBinding.inflate(layoutInflater)
-//        setContentView(binding.root)
-
         viewModel.toString()
-//
-//        binding.helloText.setOnClickListener {
-//            viewModel.getUserData()
-//        }
     }
 
     override fun viewModel() = viewModel

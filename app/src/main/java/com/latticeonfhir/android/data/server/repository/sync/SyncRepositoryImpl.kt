@@ -4,6 +4,7 @@ import com.google.gson.internal.LinkedTreeMap
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.IdentifierCodeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
+import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.api.ApiService
@@ -12,12 +13,16 @@ import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.EndPoints.RELATED_PERSON
 import com.latticeonfhir.android.data.server.constants.QueryParameters.COUNT
 import com.latticeonfhir.android.data.server.constants.QueryParameters.ID
+import com.latticeonfhir.android.data.server.constants.QueryParameters.LAST_UPDATED
 import com.latticeonfhir.android.data.server.constants.QueryParameters.OFFSET
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
@@ -30,19 +35,25 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 class SyncRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val patientDao: PatientDao,
-    private val genericDao: GenericDao
+    private val genericDao: GenericDao,
+    private val preferenceRepository: PreferenceRepository
 ) : SyncRepository {
 
     override suspend fun getAndInsertListPatientData(offset: Int): ResponseMapper<List<PatientResponse>> {
+        val map = mutableMapOf<String,String>()
+        map[COUNT] = COUNT_VALUE.toString()
+        map[OFFSET] = offset.toString()
+        if(preferenceRepository.getLastUpdatedDate() != 0L) map[LAST_UPDATED] = preferenceRepository.getLastUpdatedDate().toTimeStampDate()
         return ApiResponseConverter.convert(
             apiService.getListData(
                 PATIENT,
-                mapOf(Pair(COUNT, COUNT_VALUE.toString()), Pair(OFFSET, offset.toString()))
+                map
             ),
             true
         ).apply {
@@ -54,9 +65,10 @@ class SyncRepositoryImpl @Inject constructor(
                             .toTypedArray())
                     }
                 }
-                getAndInsertListPatientData(offset + 100)
+                getAndInsertListPatientData(offset + 1000)
             }
             if (this is ApiEndResponse) {
+                preferenceRepository.setLastUpdatedDate(Date().time)
                 patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
                 body.map { patientResponse ->
                     patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
