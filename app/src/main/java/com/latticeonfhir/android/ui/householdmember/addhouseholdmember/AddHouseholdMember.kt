@@ -126,6 +126,14 @@ fun AddHouseholdMember(
                                 TextButton(
                                     onClick = {
                                         viewModel.showRelationDialogue = false
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            "fromHouseholdMember",
+                                            true
+                                        )
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            "patient",
+                                            viewModel.patient
+                                        )
                                         navController.navigate(Screen.SearchPatientScreen.route)
                                     }) {
                                     Text(

@@ -77,26 +77,36 @@ fun SearchPatient(
             Button(
                 onClick = {
                     val searchParameters = SearchParameters(
-                        name = if(viewModel.patientName.isEmpty()) null else viewModel.patientName,
-                        patientId = if(viewModel.patientId.isEmpty()) null else viewModel.patientId,
+                        name = if (viewModel.patientName.isEmpty()) null else viewModel.patientName,
+                        patientId = if (viewModel.patientId.isEmpty()) null else viewModel.patientId,
                         minAge = viewModel.minAge.toInt(),
                         maxAge = viewModel.maxAge.toInt(),
-                        addressLine1 = if(viewModel.address.addressLine1.isEmpty()) null else viewModel.address.addressLine1,
-                        addressLine2 = if(viewModel.address.addressLine2.isEmpty()) null else viewModel.address.addressLine2,
-                        postalCode = if(viewModel.address.pincode.isEmpty()) null else viewModel.address.pincode,
-                        state = if(viewModel.address.state.isEmpty()) null else viewModel.address.state,
-                        district = if(viewModel.address.district.isEmpty()) null else viewModel.address.district,
-                        city = if(viewModel.address.city.isEmpty()) null else viewModel.address.city,
+                        addressLine1 = if (viewModel.address.addressLine1.isEmpty()) null else viewModel.address.addressLine1,
+                        addressLine2 = if (viewModel.address.addressLine2.isEmpty()) null else viewModel.address.addressLine2,
+                        postalCode = if (viewModel.address.pincode.isEmpty()) null else viewModel.address.pincode,
+                        state = if (viewModel.address.state.isEmpty()) null else viewModel.address.state,
+                        district = if (viewModel.address.district.isEmpty()) null else viewModel.address.district,
+                        city = if (viewModel.address.city.isEmpty()) null else viewModel.address.city,
                         lastFacilityVisit = viewModel.visitSelected,
-                        gender = if(viewModel.gender.isEmpty()) null else viewModel.gender
+                        gender = if (viewModel.gender.isEmpty()) null else viewModel.gender
                     )
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        "isSearchResult", true
-                    )
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        "searchParameters", searchParameters
-                    )
-                    navController.navigate(Screen.LandingScreen.route)
+                    if (viewModel.fromHouseholdMember){
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "searchParameters", searchParameters
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "patient", viewModel.patientFrom
+                        )
+                        navController.navigate(Screen.SearchResult.route)
+                    } else {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "isSearchResult", true
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "searchParameters", searchParameters
+                        )
+                        navController.navigate(Screen.LandingScreen.route)
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()

@@ -27,6 +27,10 @@ import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.relation.RelationConverter.getRelationEnumFromString
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -206,19 +210,24 @@ fun PatientRegistrationPreview(
                                 relation = getRelationEnumFromString(viewModel.relation)
                             )
                         ) {
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                "patientId",
-                                viewModel.patientFromId
-                            )
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                "relativeId",
-                                viewModel.relativeId
-                            )
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                "relation",
-                                viewModel.relation
-                            )
-                            navController.navigate(Screen.ConfirmRelationship.route)
+                            CoroutineScope(Dispatchers.Main).launch{
+                                withContext(Dispatchers.Main){
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "patientId",
+                                        viewModel.patientFromId
+                                    )
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "relativeId",
+                                        viewModel.relativeId
+                                    )
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "relation",
+                                        viewModel.relation
+                                    )
+                                    navController.navigate(Screen.ConfirmRelationship.route)
+                                }
+                            }
+
                         }
                     } else {
                         navController.navigate(Screen.LandingScreen.route)
