@@ -20,8 +20,6 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
@@ -124,6 +122,9 @@ class SyncRepositoryImpl @Inject constructor(
                 )
             ).apply {
                 if (this is ApiContinueResponse) {
+                    body.forEach {
+
+                    }
                     genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                         if (it > 0) sendPersonPostData()
                     }
