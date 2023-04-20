@@ -2,5 +2,5 @@ package com.latticeonfhir.android.data.server.constants
 
 object ConstantValues {
 
-    const val COUNT_VALUE = 1000
+    const val COUNT_VALUE = 700
 }
