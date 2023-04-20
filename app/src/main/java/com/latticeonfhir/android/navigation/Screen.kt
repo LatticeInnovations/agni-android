@@ -10,4 +10,6 @@ sealed class Screen(val route: String){
     object HouseholdMembersScreen: Screen("household_members")
     object AddHouseholdMember: Screen("add_household_members")
     object ConfirmRelationship: Screen("confirm_relationship")
+    object SearchResult: Screen("search_result")
+    object ConnectPatient: Screen("connect_patient")
 }

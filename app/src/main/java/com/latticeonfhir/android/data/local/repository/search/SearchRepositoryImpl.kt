@@ -48,7 +48,42 @@ class SearchRepositoryImpl @Inject constructor(
             pagingSourceFactory = {
                 SearchPagingSource(
                     fuzzySearchList,
-                     PAGE_SIZE
+                    PAGE_SIZE
+                )
+            }
+        ).flow.map { pagingData ->
+            pagingData.map { patientAndIdentifierEntity ->
+                PaginationResponse(
+                    patientAndIdentifierEntity.toPatientResponse(),
+                    fuzzySearchList.size
+                )
+            }
+        }
+    }
+
+    override suspend fun filteredSearchPatients(
+        patientId: String, searchParameters: SearchParameters
+    ): Flow<PagingData<PaginationResponse<PatientResponse>>> {
+        val searchList = getSearchList()
+        val existingMembers =
+            relationDao.getAllRelationOfPatient(patientId).map { it.toId }.toMutableSet()
+                .apply { add(patientId) }
+        val fuzzySearchList = getFuzzySearchList(
+            searchList,
+            searchParameters,
+            70
+        ).filter {
+            !existingMembers.contains(it.patientEntity.id)
+        }
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                SearchPagingSource(
+                    fuzzySearchList,
+                    PAGE_SIZE
                 )
             }
         ).flow.map { pagingData ->

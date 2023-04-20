@@ -193,27 +193,12 @@ fun ConfirmRelationshipScreen(
             .fillMaxWidth()
             .weight(1f)) {
             items(viewModel.relationBetween) { relationView ->
-                Log.d("manseeyy", relationView.patientFirstName)
-                Log.d("manseeyy", relationView.relativeFirstName)
                 MemberCard(context, relationView, viewModel)
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
         Button(
             onClick = {
-//                navController.currentBackStackEntry?.savedStateHandle?.set(
-//                    "patientId",
-//                    viewModel.patientId
-//                )
-//                navController.currentBackStackEntry?.savedStateHandle?.set(
-//                    "relativeId",
-//                    viewModel.relativeId
-//                )
-//                navController.currentBackStackEntry?.savedStateHandle?.set(
-//                    "relation",
-//                    viewModel.relation
-//                )
-//                navController.navigate(Screen.LandingScreen.route)
                 navController.popBackStack(Screen.HouseholdMembersScreen.route, false)
             },
             modifier = Modifier

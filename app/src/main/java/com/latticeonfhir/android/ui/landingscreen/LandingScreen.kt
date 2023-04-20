@@ -67,6 +67,7 @@ fun LandingScreen(
             .fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
+        if (viewModel.searchResultList.collectAsLazyPagingItems().itemCount == 0) viewModel.size = 0
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
@@ -279,6 +280,7 @@ fun LandingScreen(
                             )
                         }
                     }
+                    if (viewModel.previousSearchList.isEmpty()) Spacer(modifier = Modifier.height(10.dp))
                     OutlinedButton(
                         modifier = Modifier
                             .fillMaxWidth()

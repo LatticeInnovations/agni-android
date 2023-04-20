@@ -111,9 +111,7 @@ fun PatientRegistration(
                     mutableStateOf(false)
                 }
                 AlertDialog(
-                    onDismissRequest = {
-                        viewModel.showRelationDialogue = false
-                    },
+                    onDismissRequest = { },
                     title = {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
