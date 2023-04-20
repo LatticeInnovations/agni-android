@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.map
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.model.PaginationResponse
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
@@ -80,7 +82,7 @@ class LandingScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             searchResultList = searchRepository.searchPatients(searchParameters).map {
                 it.map {
-                    if (size == 0) size = it.size
+                    size = it.size
                     it.data
                 }
             }.cachedIn(viewModelScope)
@@ -91,7 +93,7 @@ class LandingScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             searchResultList = searchRepository.searchPatientByQuery(searchQuery).map {
                 it.map {
-                    if (size == 0) size = it.size
+                    size = it.size
                     it.data
                 }
             }.cachedIn(viewModelScope)

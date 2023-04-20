@@ -1,35 +1,50 @@
 package com.latticeonfhir.android.ui.searchpatient
 
-import android.util.Log
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.paging.compose.collectAsLazyPagingItems
-import com.latticeonfhir.android.data.local.enums.GenderEnum
+import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.data.local.model.SearchParameters
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchPatient(
     navController: NavController,
-    searchPatientViewModel: SearchPatientViewModel = viewModel()
+    viewModel : SearchPatientViewModel = viewModel()
 ) {
+    LaunchedEffect(viewModel.isLaunched) {
+        if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                "fromHouseholdMember"
+            ) == true
+        ) {
+            viewModel.fromHouseholdMember = true
+            viewModel.patientFrom =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    "patient"
+                )
+        }
+        viewModel.isLaunched = true
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Advanced Search",
+                        text = if (viewModel.fromHouseholdMember) "Search patients" else "Advanced Search",
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -55,33 +70,43 @@ fun SearchPatient(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                SearchPatientForm(searchPatientViewModel = searchPatientViewModel)
+                SearchPatientForm(searchPatientViewModel = viewModel)
             }
         },
         floatingActionButton = {
             Button(
                 onClick = {
                     val searchParameters = SearchParameters(
-                        name = if(searchPatientViewModel.patientName.isEmpty()) null else searchPatientViewModel.patientName,
-                        patientId = if(searchPatientViewModel.patientId.isEmpty()) null else searchPatientViewModel.patientId,
-                        minAge = searchPatientViewModel.minAge.toInt(),
-                        maxAge = searchPatientViewModel.maxAge.toInt(),
-                        addressLine1 = if(searchPatientViewModel.address.addressLine1.isEmpty()) null else searchPatientViewModel.address.addressLine1,
-                        addressLine2 = if(searchPatientViewModel.address.addressLine2.isEmpty()) null else searchPatientViewModel.address.addressLine2,
-                        postalCode = if(searchPatientViewModel.address.pincode.isEmpty()) null else searchPatientViewModel.address.pincode,
-                        state = if(searchPatientViewModel.address.state.isEmpty()) null else searchPatientViewModel.address.state,
-                        district = if(searchPatientViewModel.address.district.isEmpty()) null else searchPatientViewModel.address.district,
-                        city = if(searchPatientViewModel.address.city.isEmpty()) null else searchPatientViewModel.address.city,
-                        lastFacilityVisit = searchPatientViewModel.visitSelected,
-                        gender = if(searchPatientViewModel.gender.isEmpty()) null else searchPatientViewModel.gender
+                        name = if (viewModel.patientName.isEmpty()) null else viewModel.patientName,
+                        patientId = if (viewModel.patientId.isEmpty()) null else viewModel.patientId,
+                        minAge = viewModel.minAge.toInt(),
+                        maxAge = viewModel.maxAge.toInt(),
+                        addressLine1 = if (viewModel.address.addressLine1.isEmpty()) null else viewModel.address.addressLine1,
+                        addressLine2 = if (viewModel.address.addressLine2.isEmpty()) null else viewModel.address.addressLine2,
+                        postalCode = if (viewModel.address.pincode.isEmpty()) null else viewModel.address.pincode,
+                        state = if (viewModel.address.state.isEmpty()) null else viewModel.address.state,
+                        district = if (viewModel.address.district.isEmpty()) null else viewModel.address.district,
+                        city = if (viewModel.address.city.isEmpty()) null else viewModel.address.city,
+                        lastFacilityVisit = viewModel.visitSelected,
+                        gender = if (viewModel.gender.isEmpty()) null else viewModel.gender
                     )
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        "isSearchResult", true
-                    )
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        "searchParameters", searchParameters
-                    )
-                    navController.navigate(Screen.LandingScreen.route)
+                    if (viewModel.fromHouseholdMember){
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "searchParameters", searchParameters
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "patient", viewModel.patientFrom
+                        )
+                        navController.navigate(Screen.SearchResult.route)
+                    } else {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "isSearchResult", true
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "searchParameters", searchParameters
+                        )
+                        navController.navigate(Screen.LandingScreen.route)
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()

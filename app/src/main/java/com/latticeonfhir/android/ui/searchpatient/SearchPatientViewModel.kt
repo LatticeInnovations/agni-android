@@ -4,13 +4,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchPatientViewModel @Inject constructor(): BaseViewModel() {
-    var step by mutableStateOf(1)
+    var isLaunched by mutableStateOf(false)
+    var fromHouseholdMember by mutableStateOf(false)
+    var patientFrom by mutableStateOf<PatientResponse?>(null)
     var patientName by mutableStateOf("")
     var patientId by mutableStateOf("")
     var gender by mutableStateOf("")

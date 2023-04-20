@@ -11,6 +11,7 @@ import java.util.concurrent.SynchronousQueue
 interface SearchRepository {
 
     suspend fun searchPatients(searchParameters: SearchParameters): Flow<PagingData<PaginationResponse<PatientResponse>>>
+    suspend fun filteredSearchPatients(patientId: String, searchParameters: SearchParameters): Flow<PagingData<PaginationResponse<PatientResponse>>>
     suspend fun searchPatientByQuery(query: String): Flow<PagingData<PaginationResponse<PatientResponse>>>
 
     suspend fun insertRecentSearch(searchQuery: String): Long
