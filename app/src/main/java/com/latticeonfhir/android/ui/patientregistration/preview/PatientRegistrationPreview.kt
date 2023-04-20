@@ -230,7 +230,7 @@ fun PatientRegistrationPreview(
 
                         }
                     } else {
-                        navController.navigate(Screen.LandingScreen.route)
+                        navController.popBackStack(Screen.LandingScreen.route, false)
                     }
                 },
                 modifier = Modifier

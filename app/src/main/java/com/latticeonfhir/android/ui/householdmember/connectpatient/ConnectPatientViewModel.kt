@@ -44,18 +44,30 @@ class ConnectPatientViewModel @Inject constructor(
         relativeId: String,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            connectedMembersList.addAll(relationRepository.getRelationBetween(patientId, relativeId))
-            Timber.d("manseeyy connected patients : ${connectedMembersList.toList()}")
+            connectedMembersList.addAll(
+                relationRepository.getRelationBetween(
+                    patientId,
+                    relativeId
+                )
+            )
+            Timber.d("manseeyy added to connected patients : ${connectedMembersList.toList()}")
         }
     }
 
     internal fun removeRelationBetween(
         patientId: String,
         relativeId: String,
+        removed: (Boolean) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            connectedMembersList.removeAll(relationRepository.getRelationBetween(patientId, relativeId))
-            Timber.d("manseeyy connected patients : ${connectedMembersList.toList()}")
+            removed(
+                connectedMembersList.removeAll(
+                    relationRepository.getRelationBetween(
+                        patientId,
+                        relativeId
+                    )
+                )
+            )
         }
     }
 
@@ -65,18 +77,20 @@ class ConnectPatientViewModel @Inject constructor(
         }
     }
 
-    internal fun deleteRelation(fromId: String, toId: String) {
+    internal fun deleteRelation(fromId: String, toId: String, relationDeleted: (Int) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            relationRepository.deleteRelation(
-                fromId,
-                toId
+            relationDeleted(
+                relationRepository.deleteRelation(
+                    fromId,
+                    toId
+                )
             )
         }
     }
 
     internal fun updateRelation(relation: Relation) {
         viewModelScope.launch(Dispatchers.IO) {
-            relationRepository.updateRelation(relation){
+            relationRepository.updateRelation(relation) {
                 if (it > 0) {
                     getRelationBetween(relation.patientId, relation.relativeId)
                 }
@@ -102,9 +116,9 @@ class ConnectPatientViewModel @Inject constructor(
                         ),
                         typeEnum = GenericTypeEnum.RELATION
                     )
+                    relationRepository.addRelation(relation, relationAdded)
                 }
             }
-            relationRepository.addRelation(relation, relationAdded)
         }
     }
 }

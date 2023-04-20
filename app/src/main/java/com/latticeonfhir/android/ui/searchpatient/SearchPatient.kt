@@ -44,7 +44,7 @@ fun SearchPatient(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Advanced Search",
+                        text = if (viewModel.fromHouseholdMember) "Search patients" else "Advanced Search",
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
