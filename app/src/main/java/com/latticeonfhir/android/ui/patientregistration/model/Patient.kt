@@ -8,6 +8,7 @@ data class PatientRegister(
     var lastName: String? = "",
     var phoneNumber: String? = "",
     var email: String? = "",
+    var dobAgeSelector:String? = "dob",
     var dobDay: String? = "",
     var dobMonth: String? = "",
     var dobYear: String? = "",

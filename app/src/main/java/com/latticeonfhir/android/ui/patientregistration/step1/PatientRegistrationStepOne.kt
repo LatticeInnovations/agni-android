@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -24,6 +25,7 @@ import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
+import timber.log.Timber
 
 @Composable
 fun PatientRegistrationStepOne(
@@ -39,6 +41,7 @@ fun PatientRegistrationStepOne(
                 viewModel.lastName = lastName.toString()
                 viewModel.phoneNumber = phoneNumber.toString()
                 viewModel.email = email.toString()
+                viewModel.dobAgeSelector = dobAgeSelector.toString()
                 viewModel.dobDay = dobDay.toString()
                 viewModel.dobMonth = dobMonth.toString()
                 viewModel.dobYear = dobYear.toString()
@@ -84,7 +87,8 @@ fun PatientRegistrationStepOne(
                 1f,
                 viewModel.maxFirstNameLength,
                 viewModel.isNameValid,
-                "Name length should be between 3 and 150."
+                "Name length should be between 3 and 100.",
+                KeyboardType.Text
             ) {
                 viewModel.firstName = it
                 viewModel.isNameValid =
@@ -97,7 +101,8 @@ fun PatientRegistrationStepOne(
                 1f,
                 viewModel.maxMiddleNameLength,
                 false,
-                ""
+                "",
+                KeyboardType.Text
             ) {
                 viewModel.middleName = it
             }
@@ -108,7 +113,8 @@ fun PatientRegistrationStepOne(
                 1f,
                 viewModel.maxLastNameLength,
                 false,
-                ""
+                "",
+                KeyboardType.Text
             ) {
                 viewModel.lastName = it
             }
@@ -116,10 +122,16 @@ fun PatientRegistrationStepOne(
             Row(modifier = Modifier.fillMaxWidth()) {
                 CustomFilterChip(viewModel.dobAgeSelector, "dob", "Date of Birth") {
                     viewModel.dobAgeSelector = it
+                    viewModel.days = ""
+                    viewModel.months = ""
+                    viewModel.years = ""
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 CustomFilterChip(viewModel.dobAgeSelector, "age", "Age") {
                     viewModel.dobAgeSelector = it
+                    viewModel.dobDay = ""
+                    viewModel.dobMonth = ""
+                    viewModel.dobYear = ""
                 }
             }
             if (viewModel.dobAgeSelector == "dob") {
@@ -139,7 +151,8 @@ fun PatientRegistrationStepOne(
                 1F,
                 viewModel.maxEmailLength,
                 viewModel.isEmailValid,
-                "Enter valid email (eg., abc123@gmail.com)"
+                "Enter valid email (eg., abc123@gmail.com)",
+                KeyboardType.Email
             ) {
                 viewModel.email = it
                 viewModel.isEmailValid = !Patterns.EMAIL_ADDRESS.matcher(viewModel.email).matches()
@@ -152,9 +165,10 @@ fun PatientRegistrationStepOne(
         Button(
             onClick = {
                 patientRegister.run {
-                    firstName = viewModel.firstName
-                    middleName = viewModel.middleName
-                    lastName = viewModel.lastName
+                    firstName = viewModel.firstName.capitalize()
+                    middleName = viewModel.middleName.capitalize()
+                    lastName = viewModel.lastName.capitalize()
+                    dobAgeSelector = viewModel.dobAgeSelector
                     dobDay = viewModel.dobDay
                     dobMonth = viewModel.dobMonth
                     dobYear = viewModel.dobYear
@@ -184,7 +198,7 @@ fun ValueLength(value: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 5.dp, end = 15.dp),
-        text = if (value.isEmpty()) "" else "${value.length}/150",
+        text = if (value.isEmpty()) "" else "${value.length}/100",
         style = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Right,
         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -198,15 +212,30 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
             .fillMaxWidth()
     ) {
         var monthExpanded by remember { mutableStateOf(false) }
+        var errorMsg by remember {
+            mutableStateOf("")
+        }
         CustomTextField(
             value = viewModel.dobDay,
             label = "Day",
             weight = 0.23f,
             maxLength = 2,
-            isError = false,
-            error = ""
-        ){
-            viewModel.dobDay = it
+            isError = viewModel.isDobDayValid,
+            error = errorMsg,
+            KeyboardType.Number
+        ) {
+            if (it.matches(viewModel.onlyNumbers)|| it.length == 0) viewModel.dobDay = it
+            if (viewModel.dobDay.isNotEmpty()) {
+                viewModel.isDobDayValid =
+                    viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 31
+                errorMsg = "Enter valid day between 1 and 31."
+                if (viewModel.dobMonth == "February") {
+                    viewModel.isDobDayValid =
+                        viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 29
+                    errorMsg = "Enter valid day between 1 and 29."
+                }
+                viewModel.getMonthsList()
+            }
         }
         Spacer(modifier = Modifier.width(10.dp))
         Column(
@@ -267,10 +296,15 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
             label = "Year",
             weight = 1f,
             maxLength = 4,
-            isError = false,
-            error = ""
-        ){
-            viewModel.dobYear = it
+            isError = viewModel.isDobYearValid,
+            error = "Enter valid year between 1900 and 2023",
+            KeyboardType.Number
+        ) {
+            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.dobYear = it
+            if (viewModel.dobYear.isNotEmpty()) {
+                viewModel.isDobYearValid =
+                    viewModel.dobYear.toInt() < 1900 || viewModel.dobYear.toInt() > 2023
+            }
         }
     }
 }
@@ -280,16 +314,27 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
-        CustomTextField(viewModel.years, label = "Years", 0.25F, 3, false, "") {
-            viewModel.years = it
+        CustomTextField(
+            viewModel.years, label = "Years", 0.25F, 3, false, "",
+            KeyboardType.Number
+        ) {
+            if (it.matches(viewModel.onlyNumbers)|| it.length == 0) viewModel.years = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomTextField(viewModel.months, label = "Months", 0.36F, 2, false, "") {
-            viewModel.months = it
+        CustomTextField(
+            viewModel.months, label = "Months", 0.36F, 2, viewModel.isAgeMonthsValid, "Enter valid input between 1 and 11.",
+            KeyboardType.Number
+        ) {
+            if (it.matches(viewModel.onlyNumbers)|| it.length == 0) viewModel.months = it
+            if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid = viewModel.months.toInt() < 1 || viewModel.months.toInt() > 11
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomTextField(viewModel.days, label = "Days", 0.5F, 2, false, "") {
-            viewModel.days = it
+        CustomTextField(
+            viewModel.days, label = "Days", 0.5F, 2, viewModel.isAgeDaysValid, "Enter valid input between 1 and 30.",
+            KeyboardType.Number
+        ) {
+            if (it.matches(viewModel.onlyNumbers)|| it.length == 0) viewModel.days = it
+            if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid = viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
         }
     }
 }
@@ -314,7 +359,7 @@ fun ContactTextField(viewModel: PatientRegistrationStepOneViewModel) {
             value = viewModel.phoneNumber,
             onValueChange = {
                 viewModel.isPhoneValid = it.length < 10
-                if (it.length <= 10)
+                if (it.length <= 10 && (it.matches(viewModel.onlyNumbers)|| it.length == 0))
                     viewModel.phoneNumber = it
             },
             modifier = Modifier
