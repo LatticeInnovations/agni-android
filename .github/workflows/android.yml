@@ -10,19 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Fetch Sources
-      uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2.3.3
+
+    - name: Set up our JDK environment
+      uses: actions/setup-java@v1.4.3
       with:
-       # Number of commits to fetch. 0 indicates all history for all branches and tags.
-         fetch-depth: 0
-    
-    - name: Setup JDK
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'zulu'
-        java-version: '11'
+        java-version: 1.8
         
     - name: Setup Android SDK
       uses: android-actions/setup-android@v2
