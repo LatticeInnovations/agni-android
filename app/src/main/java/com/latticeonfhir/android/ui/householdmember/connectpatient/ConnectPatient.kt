@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,7 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
@@ -125,19 +128,24 @@ fun ConnectPatient(
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
+                        .fillMaxSize()
+                        .padding(top=20.dp, start = 20.dp, end = 20.dp, bottom = 55.dp)
+                        .verticalScroll(rememberScrollState())
                 ) {
                     if (viewModel.connectedMembersList.isNotEmpty()) {
                         Text(
                             text = "Connected Patients",
                             style = MaterialTheme.typography.bodyLarge
                         )
-                        LazyColumn(modifier = Modifier.wrapContentHeight()) {
-                            items(viewModel.connectedMembersList) { relationView ->
-                                ConnectedMemberCard(context, relationView, viewModel)
-                                Spacer(modifier = Modifier.height(24.dp))
-                            }
+//                        LazyColumn(modifier = Modifier.wrapContentHeight()) {
+//                            items(viewModel.connectedMembersList) { relationView ->
+//                                ConnectedMemberCard(context, relationView, viewModel)
+//                                Spacer(modifier = Modifier.height(24.dp))
+//                            }
+//                        }
+                        viewModel.connectedMembersList.forEach { relationView ->
+                            ConnectedMemberCard(context, relationView, viewModel)
+                            Spacer(modifier = Modifier.height(24.dp))
                         }
                     }
                     if (viewModel.membersList.isNotEmpty()) {
@@ -145,11 +153,16 @@ fun ConnectPatient(
                             text = "Patients to connect",
                             style = MaterialTheme.typography.bodyLarge
                         )
-                        LazyColumn(modifier = Modifier.wrapContentHeight()) {
-                            items(viewModel.membersList) { member ->
-                                if (member != null) {
-                                    PatientRow(member, viewModel)
-                                }
+//                        LazyColumn(modifier = Modifier.wrapContentHeight()) {
+//                            items(viewModel.membersList) { member ->
+//                                if (member != null) {
+//                                    PatientRow(member, viewModel)
+//                                }
+//                            }
+//                        }
+                        viewModel.membersList.forEach{ member ->
+                            if (member != null) {
+                                PatientRow(member, viewModel)
                             }
                         }
                     }
@@ -434,9 +447,14 @@ fun DeleteDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    viewModel.removeRelationBetween(relationView.patientId, relationView.relativeId)
-                    viewModel.deleteRelation(relationView.patientId, relationView.relativeId)
-                    viewModel.getRelationBetween(relationView.patientId, relationView.relativeId)
+                    viewModel.removeRelationBetween(relationView.patientId, relationView.relativeId) {
+                        viewModel.deleteRelation(relationView.patientId, relationView.relativeId) {
+                            viewModel.getRelationBetween(
+                                relationView.patientId,
+                                relationView.relativeId
+                            )
+                        }
+                    }
                     closeDialog()
                 }) {
                 Text(
@@ -570,14 +588,15 @@ fun EditDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    viewModel.removeRelationBetween(relationView.patientId, relationView.relativeId)
-                    viewModel.updateRelation(
-                        Relation(
-                            patientId = relationView.patientId,
-                            relation = RelationConverter.getRelationEnumFromString(relation),
-                            relativeId = relationView.relativeId
+                    viewModel.removeRelationBetween(relationView.patientId, relationView.relativeId) {
+                        viewModel.updateRelation(
+                            Relation(
+                                patientId = relationView.patientId,
+                                relation = RelationConverter.getRelationEnumFromString(relation),
+                                relativeId = relationView.relativeId
+                            )
                         )
-                    )
+                    }
                     closeDialog()
                 }) {
                 Text(
@@ -606,7 +625,7 @@ fun PatientRow(member: PatientResponse, viewModel: ConnectPatientViewModel) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 10.dp)
+            .padding(bottom = 10.dp)
             .clickable {
                 showConnectDialog = true
             },

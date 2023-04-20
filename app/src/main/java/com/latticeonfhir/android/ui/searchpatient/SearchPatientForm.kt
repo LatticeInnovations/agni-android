@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.searchpatient
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
@@ -20,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.common.AddressComposable
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
-import com.latticeonfhir.android.ui.theme.Secondary60
 
 @Composable
 fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
@@ -39,6 +37,8 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(15.dp))
+            GenderComposable(viewModel = searchPatientViewModel)
+            Spacer(modifier = Modifier.height(20.dp))
             CustomTextField(
                 value = searchPatientViewModel.patientName,
                 label = "Patient Name",
@@ -91,8 +91,6 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             Spacer(modifier = Modifier.height(10.dp))
             AgeRangeSlider(viewModel = searchPatientViewModel)
             Spacer(modifier = Modifier.height(10.dp))
-            GenderComposable(viewModel = searchPatientViewModel)
-            Spacer(modifier = Modifier.height(20.dp))
             VisitDropdown(searchPatientViewModel)
             Spacer(modifier = Modifier.height(30.dp))
             AddressComposable(label = "Address", address = searchPatientViewModel.address) {}
