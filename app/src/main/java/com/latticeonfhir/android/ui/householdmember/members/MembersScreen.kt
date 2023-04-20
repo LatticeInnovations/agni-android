@@ -32,9 +32,8 @@ import java.time.ZoneId
 
 @Composable
 fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = hiltViewModel()) {
-    viewModel.relationsList.clear()
-    viewModel.getAllRelations(patientId = patient.id)
     val context = LocalContext.current
+    viewModel.getAllRelations(patientId = patient.id)
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()

@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 fun CustomTextField(
@@ -18,6 +19,7 @@ fun CustomTextField(
     maxLength: Int,
     isError: Boolean,
     error: String,
+    keyboardType: KeyboardType,
     updateValue: (String) -> Unit
 ) {
     OutlinedTextField(
@@ -38,7 +40,8 @@ fun CustomTextField(
         },
         singleLine = true,
         keyboardOptions = KeyboardOptions(
-            imeAction = if(label == "Email") ImeAction.Done else ImeAction.Next
+            imeAction = if(label == "Email") ImeAction.Done else ImeAction.Next,
+            keyboardType = keyboardType
         ),
         isError = isError,
         supportingText = {

@@ -81,7 +81,7 @@ fun PatientRegistrationStepThree(navController: NavController, patientRegister: 
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            if (!viewModel.addWorkAddress) {
+            if (viewModel.addWorkAddress) {
                 OutlinedButton(
                     onClick = { viewModel.addWorkAddress = true },
                     modifier = Modifier
@@ -114,17 +114,17 @@ fun PatientRegistrationStepThree(navController: NavController, patientRegister: 
             onClick = {
                 patientRegister.run {
                     homePostalCode = viewModel.homeAddress.pincode
-                    homeAddressLine1 = viewModel.homeAddress.addressLine1
-                    homeAddressLine2 = viewModel.homeAddress.addressLine2
+                    homeAddressLine1 = viewModel.homeAddress.addressLine1.capitalize()
+                    homeAddressLine2 = viewModel.homeAddress.addressLine2.capitalize()
                     homeState = viewModel.homeAddress.state
-                    homeCity = viewModel.homeAddress.city
-                    homeDistrict = viewModel.homeAddress.district
+                    homeCity = viewModel.homeAddress.city.capitalize()
+                    homeDistrict = viewModel.homeAddress.district.capitalize()
                     workPostalCode = viewModel.workAddress.pincode
-                    workAddressLine1 = viewModel.workAddress.addressLine1
-                    workAddressLine2 = viewModel.workAddress.addressLine2
+                    workAddressLine1 = viewModel.workAddress.addressLine1.capitalize()
+                    workAddressLine2 = viewModel.workAddress.addressLine2.capitalize()
                     workState = viewModel.workAddress.state
-                    workCity = viewModel.workAddress.city
-                    workDistrict = viewModel.workAddress.district
+                    workCity = viewModel.workAddress.city.capitalize()
+                    workDistrict = viewModel.workAddress.district.capitalize()
                 }
                 navController.currentBackStackEntry?.savedStateHandle?.set(
                     key = "patient_register_details",

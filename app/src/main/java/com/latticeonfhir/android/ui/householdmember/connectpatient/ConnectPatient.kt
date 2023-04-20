@@ -1,6 +1,13 @@
 package com.latticeonfhir.android.ui.householdmember.connectpatient
 
 import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -129,23 +136,23 @@ fun ConnectPatient(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(top=20.dp, start = 20.dp, end = 20.dp, bottom = 55.dp)
+                        .padding(top = 20.dp, start = 20.dp, end = 20.dp, bottom = 55.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    if (viewModel.connectedMembersList.isNotEmpty()) {
-                        Text(
-                            text = "Connected Patients",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-//                        LazyColumn(modifier = Modifier.wrapContentHeight()) {
-//                            items(viewModel.connectedMembersList) { relationView ->
-//                                ConnectedMemberCard(context, relationView, viewModel)
-//                                Spacer(modifier = Modifier.height(24.dp))
-//                            }
-//                        }
-                        viewModel.connectedMembersList.forEach { relationView ->
-                            ConnectedMemberCard(context, relationView, viewModel)
-                            Spacer(modifier = Modifier.height(24.dp))
+                    AnimatedVisibility(
+                        visible = viewModel.connectedMembersList.isNotEmpty(),
+                        enter = expandVertically(),
+                        exit = shrinkVertically()
+                    ) {
+                        Column() {
+                            Text(
+                                text = "Connected Patients",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            viewModel.connectedMembersList.forEach { relationView ->
+                                ConnectedMemberCard(context, relationView, viewModel)
+                                Spacer(modifier = Modifier.height(24.dp))
+                            }
                         }
                     }
                     if (viewModel.membersList.isNotEmpty()) {
@@ -153,14 +160,7 @@ fun ConnectPatient(
                             text = "Patients to connect",
                             style = MaterialTheme.typography.bodyLarge
                         )
-//                        LazyColumn(modifier = Modifier.wrapContentHeight()) {
-//                            items(viewModel.membersList) { member ->
-//                                if (member != null) {
-//                                    PatientRow(member, viewModel)
-//                                }
-//                            }
-//                        }
-                        viewModel.membersList.forEach{ member ->
+                        viewModel.membersList.forEach { member ->
                             if (member != null) {
                                 PatientRow(member, viewModel)
                             }
@@ -447,7 +447,10 @@ fun DeleteDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    viewModel.removeRelationBetween(relationView.patientId, relationView.relativeId) {
+                    viewModel.removeRelationBetween(
+                        relationView.patientId,
+                        relationView.relativeId
+                    ) {
                         viewModel.deleteRelation(relationView.patientId, relationView.relativeId) {
                             viewModel.getRelationBetween(
                                 relationView.patientId,
@@ -588,7 +591,10 @@ fun EditDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    viewModel.removeRelationBetween(relationView.patientId, relationView.relativeId) {
+                    viewModel.removeRelationBetween(
+                        relationView.patientId,
+                        relationView.relativeId
+                    ) {
                         viewModel.updateRelation(
                             Relation(
                                 patientId = relationView.patientId,
