@@ -38,6 +38,7 @@ class SuggestionsScreenViewModel @Inject constructor(
 ) : BaseViewModel() {
     var listOfSuggestions = mutableListOf<PatientResponse>()
     var suggestedMembersList = mutableStateListOf<PatientResponse>()
+    var membersList by mutableStateOf(listOf<PatientResponse>())
 
     internal fun updateQueue(patient: PatientResponse) {
         listOfSuggestions.remove(patient)
@@ -51,6 +52,7 @@ class SuggestionsScreenViewModel @Inject constructor(
         } else {
             suggestedMembersList.addAll(listOfSuggestions)
         }
+        membersList = suggestedMembersList
     }
 
 
@@ -84,6 +86,7 @@ class SuggestionsScreenViewModel @Inject constructor(
                 } else {
                     suggestedMembersList.addAll(listOfSuggestions)
                 }
+                membersList = suggestedMembersList
             }
         }
     }

@@ -58,6 +58,7 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     fun populateList() {
+        size = 0
         if (isSearchResult) {
             if (isSearchingByQuery) searchPatientByQuery()
             else searchPatient(searchParameters!!)
