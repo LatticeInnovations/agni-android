@@ -59,6 +59,7 @@ class ConfirmRelationshipViewModel @Inject constructor(
                 fromId,
                 toId
             )
+            getRelationBetween(fromId,toId)
         }
     }
 

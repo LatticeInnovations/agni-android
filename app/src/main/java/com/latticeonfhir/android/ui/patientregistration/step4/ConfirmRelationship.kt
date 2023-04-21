@@ -331,7 +331,6 @@ fun DeleteDialog(
             TextButton(
                 onClick = {
                     viewModel.deleteRelation(relationView.patientId, relationView.relativeId)
-                    viewModel.getRelationBetween(viewModel.patientId, viewModel.relativeId)
                     closeDialog()
                 }) {
                 Text(
