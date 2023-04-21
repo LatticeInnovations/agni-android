@@ -39,7 +39,8 @@ fun SuggestionsScreen(
     ) {
         Text(
             text = "Here are patients with similar addresses or nearby locations.",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(10.dp))
         LazyColumn(
@@ -47,7 +48,7 @@ fun SuggestionsScreen(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            items(viewModel.suggestedMembersList) { member ->
+            items(viewModel.membersList) { member ->
                 SuggestedMembersCard(scope, snackbarHostState, viewModel, member, patient)
             }
         }

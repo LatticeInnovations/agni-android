@@ -400,14 +400,14 @@ fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDia
         },
         title = {
             Text(
-                text = "Discard Changes ?",
+                text = "Discard Changes?",
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.testTag("alert dialog title")
             )
         },
         text = {
             Text(
-                "Are you sure you want to cancel preview and discard any changes you have made?",
+                "Are you sure you want to discard this patient record?",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.testTag("alert dialog description")
             )
@@ -421,7 +421,7 @@ fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDia
                     else navController.popBackStack(Screen.LandingScreen.route, false)
                 }) {
                 Text(
-                    "Confirm",
+                    "Yes, discard",
                     modifier = Modifier.testTag("alert dialog confirm btn")
                 )
             }
@@ -432,7 +432,7 @@ fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDia
                     closeDialog()
                 }) {
                 Text(
-                    "Cancel",
+                    "No, go back",
                     modifier = Modifier.testTag("alert dialog cancel btn")
                 )
             }

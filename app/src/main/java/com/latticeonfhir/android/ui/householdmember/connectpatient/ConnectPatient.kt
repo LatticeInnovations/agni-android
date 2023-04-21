@@ -160,6 +160,7 @@ fun ConnectPatient(
                             text = "Patients to connect",
                             style = MaterialTheme.typography.bodyLarge
                         )
+                        Spacer(modifier = Modifier.height(10.dp))
                         viewModel.membersList.forEach { member ->
                             if (member != null) {
                                 PatientRow(member, viewModel)
