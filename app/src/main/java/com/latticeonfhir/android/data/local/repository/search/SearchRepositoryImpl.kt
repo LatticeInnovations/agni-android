@@ -38,7 +38,7 @@ class SearchRepositoryImpl @Inject constructor(
         val fuzzySearchList = getFuzzySearchList(
             searchList,
             searchParameters,
-            70
+            68
         )
         return Pager(
             config = PagingConfig(
@@ -71,7 +71,7 @@ class SearchRepositoryImpl @Inject constructor(
         val fuzzySearchList = getFuzzySearchList(
             searchList,
             searchParameters,
-            70
+            68
         ).filter {
             !existingMembers.contains(it.patientEntity.id)
         }
