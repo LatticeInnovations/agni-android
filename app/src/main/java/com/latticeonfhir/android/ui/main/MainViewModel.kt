@@ -13,7 +13,9 @@ import com.latticeonfhir.android.service.workmanager.RepeatInterval
 import com.latticeonfhir.android.service.workmanager.Sync
 import com.latticeonfhir.android.service.workmanager.SyncJobStatus
 import com.latticeonfhir.android.service.workmanager.workers.download.patient.PatientDownloadSyncWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.download.relation.RelationDownloadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.PatientUploadSyncWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.upload.relation.RelationUploadSyncWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -48,6 +50,21 @@ class MainViewModel @Inject constructor(
             if (it == WorkInfo.State.ENQUEUED) {
                 //Download Worker
                 Sync.oneTimeSync<PatientDownloadSyncWorkerImpl>(
+                    getApplication<Application>().applicationContext
+                )
+            }
+        }
+        //Upload Worker
+        Sync.periodicSync<RelationUploadSyncWorker>(
+            getApplication<Application>().applicationContext,
+            PeriodicSyncConfiguration(
+                syncConstraints = Constraints.Builder().setRequiresBatteryNotLow(true).build(),
+                repeat = RepeatInterval(15, TimeUnit.MINUTES),
+            )
+        ).collectLatest {
+            if (it == WorkInfo.State.ENQUEUED) {
+                //Download Worker
+                Sync.oneTimeSync<RelationDownloadSyncWorker>(
                     getApplication<Application>().applicationContext
                 )
             }

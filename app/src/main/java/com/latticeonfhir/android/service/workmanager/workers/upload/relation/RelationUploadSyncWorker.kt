@@ -11,7 +11,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiError
 abstract class RelationUploadSyncWorker(context: Context, workerParameters: WorkerParameters) : SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
-        return when (getSyncRepository().sendRelatedPersonPatchData()) {
+        return when (getSyncRepository().sendRelatedPersonPostData()) {
             is ApiContinueResponse -> Result.success()
             is ApiEndResponse -> Result.success()
             is ApiErrorResponse -> Result.failure()
