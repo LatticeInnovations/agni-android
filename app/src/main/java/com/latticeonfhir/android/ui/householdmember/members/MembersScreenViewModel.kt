@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
@@ -20,12 +21,11 @@ class MembersScreenViewModel @Inject constructor(
     private val relationRepository: RelationRepository,
     private val patientRepository: PatientRepository
 ): BaseViewModel() {
-    var relationsList = mutableStateListOf<RelationEntity>()
+    var relationsList by mutableStateOf(listOf<RelationEntity>())
 
     internal fun getAllRelations(patientId: String){
         viewModelScope.launch {
-            //relationsList.clear()
-            relationsList.addAll(relationRepository.getAllRelationOfPatient(patientId))
+            relationsList = relationRepository.getAllRelationOfPatient(patientId)
         }
     }
 

@@ -41,6 +41,7 @@ fun SuggestionsScreen(
             text = "Here are patients with similar addresses or nearby locations.",
             style = MaterialTheme.typography.bodyLarge
         )
+        Spacer(modifier = Modifier.height(10.dp))
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -67,7 +68,7 @@ fun SuggestedMembersCard(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 10.dp)
+            .padding(bottom = 10.dp)
             .clickable {
                 showConnectDialog = true
             },

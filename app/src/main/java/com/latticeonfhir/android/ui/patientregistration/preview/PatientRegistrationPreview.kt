@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreviewViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
+import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
@@ -31,7 +32,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.time.LocalDate
+import java.time.Period
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -46,16 +49,19 @@ fun PatientRegistrationPreview(
         navController.previousBackStackEntry?.savedStateHandle?.get<PatientRegister>(
             key = "patient_register_details"
         )
+    var date: LocalDate? = null
     if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
             key = "fromHouseholdMember"
-        ) == true) {
+        ) == true
+    ) {
         viewModel.fromHouseholdMember = true
         viewModel.relation = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
             key = "relation"
         )!!
-        viewModel.patientFrom = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-            key = "patientFrom"
-        )!!
+        viewModel.patientFrom =
+            navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                key = "patientFrom"
+            )!!
         viewModel.patientFromId = viewModel.patientFrom!!.id
     }
     patientRegisterDetails
@@ -88,8 +94,17 @@ fun PatientRegistrationPreview(
             viewModel.workAddress.city = workCity.toString()
             viewModel.workAddress.district = workDistrict.toString()
 
-            viewModel.dob =
-                "${viewModel.dobDay}-${viewModel.dobMonth.subSequence(0, 3)}-${viewModel.dobYear}"
+            if (dobAgeSelector == "dob") {
+                viewModel.dob = "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
+                val formatter = DateTimeFormatter.ofPattern("d-MMMM-yyyy", Locale.getDefault())
+                date = LocalDate.parse(viewModel.dob, formatter)
+            } else {
+                val today = LocalDate.now()
+                val age = Period.of(years!!.toInt(), months!!.toInt(), days!!.toInt())
+                date = today.minus(age)
+                val formatter = DateTimeFormatter.ofPattern("d-MMMM-yyyy", Locale.ENGLISH)
+                viewModel.dob = date!!.format(formatter)
+            }
         }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -174,8 +189,6 @@ fun PatientRegistrationPreview(
                             )
                         )
                     }
-                    val formatter = DateTimeFormatter.ofPattern("d-MMM-yyyy", Locale.getDefault())
-                    val date = LocalDate.parse(viewModel.dob, formatter)
                     viewModel.relativeId = UUIDBuilder.generateUUID()
                     viewModel.addPatient(
                         PatientResponse(
@@ -183,7 +196,9 @@ fun PatientRegistrationPreview(
                             firstName = patientRegisterDetails?.firstName!!,
                             middleName = if (patientRegisterDetails.middleName!!.isEmpty()) null else patientRegisterDetails.middleName,
                             lastName = if (patientRegisterDetails.lastName!!.isEmpty()) null else patientRegisterDetails.lastName,
-                            birthDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()).time.toPatientDate(),
+                            birthDate = Date.from(
+                                date!!.atStartOfDay(ZoneId.systemDefault()).toInstant()
+                            ).time.toPatientDate(),
                             email = if (patientRegisterDetails.email!!.isEmpty()) null else patientRegisterDetails.email,
                             active = true,
                             gender = patientRegisterDetails.gender!!,
@@ -201,7 +216,7 @@ fun PatientRegistrationPreview(
                             identifier = viewModel.identifierList
                         )
                     )
-                    if (viewModel.fromHouseholdMember){
+                    if (viewModel.fromHouseholdMember) {
                         // adding relation
                         viewModel.addRelation(
                             Relation(
@@ -210,8 +225,8 @@ fun PatientRegistrationPreview(
                                 relation = getRelationEnumFromString(viewModel.relation)
                             )
                         ) {
-                            CoroutineScope(Dispatchers.Main).launch{
-                                withContext(Dispatchers.Main){
+                            CoroutineScope(Dispatchers.Main).launch {
+                                withContext(Dispatchers.Main) {
                                     navController.currentBackStackEntry?.savedStateHandle?.set(
                                         "patientId",
                                         viewModel.patientFromId
@@ -250,171 +265,188 @@ fun PreviewScreen(
     patientRegister: PatientRegister
 ) {
     Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(15.dp)
-                .verticalScroll(rememberScrollState())
-                .testTag("columnLayout")
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(15.dp)
+            .verticalScroll(rememberScrollState())
+            .testTag("columnLayout")
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth()
             ) {
-                val name = viewModel.firstName.capitalize() +
-                        if (viewModel.middleName.isEmpty()) "" else {
-                            " " + viewModel.middleName.capitalize()
-                        } +
-                        if (viewModel.lastName.isEmpty()) "" else {
-                            " " + viewModel.lastName.capitalize()
-                        }
-                Column(
-                    modifier = Modifier
-                        .padding(20.dp)
-                        .fillMaxWidth()
-                ) {
-                    Heading("Basic Information", 1, patientRegister, navController)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "$name, ${viewModel.gender.capitalize()}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Label("Date of birth")
-                    Detail("${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}")
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Label("Phone No.")
-                    Detail("+91 ${viewModel.phoneNumber}")
-                    if (viewModel.email.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Label("Email")
-                        Detail(viewModel.email)
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(20.dp)
-                        .fillMaxWidth()
-                ) {
-                    Heading("Identification", 2, patientRegister, navController)
-                    if (viewModel.passportId.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Label("Passport ID")
-                        Detail(viewModel.passportId)
-                    }
-                    if (viewModel.voterId.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Label("Voter ID")
-                        Detail(viewModel.voterId)
-                    }
-                    if (viewModel.patientId.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Label("Patient ID")
-                        Detail(viewModel.patientId)
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-            ) {
-                val homeAddressLine1 = viewModel.homeAddress.addressLine1 +
-                        if (viewModel.homeAddress.addressLine2.isEmpty()) "" else {
-                            ", " + viewModel.homeAddress.addressLine2
-                        }
-                val homeAddressLine2 = viewModel.homeAddress.city +
-                        if (viewModel.homeAddress.district.isEmpty()) "" else {
-                            ", " + viewModel.homeAddress.district
-                        }
-                val homeAddressLine3 = "${viewModel.homeAddress.state}, ${viewModel.homeAddress.pincode}"
-                Column(
-                    modifier = Modifier
-                        .padding(20.dp)
-                        .fillMaxWidth()
-                ) {
-                    Heading("Addresses", 3, patientRegister, navController)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Label("Home Address")
-                    Detail(homeAddressLine1)
-                    Detail(homeAddressLine2)
-                    Detail(homeAddressLine3)
-                    if (viewModel.workAddress.pincode.isNotEmpty()) {
-                        val workAddressLine1 = viewModel.workAddress.addressLine1 +
-                                if (viewModel.workAddress.addressLine2.isEmpty()) "" else {
-                                    ", " + viewModel.workAddress.addressLine2
-                                }
-                        val workAddressLine2 = viewModel.workAddress.city +
-                                if (viewModel.workAddress.district.isEmpty()) "" else {
-                                    ", " + viewModel.workAddress.district
-                                }
-                        val workAddressLine3 = "${viewModel.workAddress.state}, ${viewModel.workAddress.pincode}"
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Label("Work Address")
-                        Detail(workAddressLine1)
-                        Detail(workAddressLine2)
-                        Detail(workAddressLine3)
-                    }
-                }
-            }
-            if (viewModel.openDialog) {
-                AlertDialog(
-                    onDismissRequest = {
-                        viewModel.openDialog = false
-                    },
-                    title = {
-                        Text(
-                            text = "Discard Changes ?",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.testTag("alert dialog title")
+                Heading("Basic Information", 1, patientRegister, navController)
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "${
+                        Constants.GetFullName(
+                            viewModel.firstName,
+                            viewModel.middleName,
+                            viewModel.lastName
                         )
-                    },
-                    text = {
-                        Text(
-                            "Are you sure you want to cancel preview and discard any changes you have made?",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.testTag("alert dialog description")
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                viewModel.openDialog = false
-                                navController.navigate(Screen.LandingScreen.route)
-                            }) {
-                            Text(
-                                "Confirm",
-                                modifier = Modifier.testTag("alert dialog confirm btn")
-                            )
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = {
-                                viewModel.openDialog = false
-                            }) {
-                            Text(
-                                "Cancel",
-                                modifier = Modifier.testTag("alert dialog cancel btn")
-                            )
-                        }
-                    }
+                    }, ${viewModel.gender.capitalize()}",
+                    style = MaterialTheme.typography.bodyLarge
                 )
+                Spacer(modifier = Modifier.height(10.dp))
+                Label("Date of birth")
+                Detail(viewModel.dob)
+                Spacer(modifier = Modifier.height(10.dp))
+                Label("Phone No.")
+                Detail("+91 ${viewModel.phoneNumber}")
+                if (viewModel.email.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Label("Email")
+                    Detail(viewModel.email)
+                }
             }
-            Spacer(modifier = Modifier
-                .padding(bottom = 60.dp)
-                .testTag("end of page"))
         }
+        Spacer(modifier = Modifier.height(10.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth()
+            ) {
+                Heading("Identification", 2, patientRegister, navController)
+                if (viewModel.passportId.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Label("Passport ID")
+                    Detail(viewModel.passportId)
+                }
+                if (viewModel.voterId.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Label("Voter ID")
+                    Detail(viewModel.voterId)
+                }
+                if (viewModel.patientId.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Label("Patient ID")
+                    Detail(viewModel.patientId)
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        ) {
+            val homeAddressLine1 = viewModel.homeAddress.addressLine1 +
+                    if (viewModel.homeAddress.addressLine2.isEmpty()) "" else {
+                        ", " + viewModel.homeAddress.addressLine2
+                    }
+            val homeAddressLine2 = viewModel.homeAddress.city +
+                    if (viewModel.homeAddress.district.isEmpty()) "" else {
+                        ", " + viewModel.homeAddress.district
+                    }
+            val homeAddressLine3 =
+                "${viewModel.homeAddress.state}, ${viewModel.homeAddress.pincode}"
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth()
+            ) {
+                Heading("Addresses", 3, patientRegister, navController)
+                Spacer(modifier = Modifier.height(10.dp))
+                Label("Home Address")
+                Detail(homeAddressLine1)
+                Detail(homeAddressLine2)
+                Detail(homeAddressLine3)
+                if (viewModel.workAddress.pincode.isNotEmpty()) {
+                    val workAddressLine1 = viewModel.workAddress.addressLine1 +
+                            if (viewModel.workAddress.addressLine2.isEmpty()) "" else {
+                                ", " + viewModel.workAddress.addressLine2
+                            }
+                    val workAddressLine2 = viewModel.workAddress.city +
+                            if (viewModel.workAddress.district.isEmpty()) "" else {
+                                ", " + viewModel.workAddress.district
+                            }
+                    val workAddressLine3 =
+                        "${viewModel.workAddress.state}, ${viewModel.workAddress.pincode}"
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Label("Work Address")
+                    Detail(workAddressLine1)
+                    Detail(workAddressLine2)
+                    Detail(workAddressLine3)
+                }
+            }
+        }
+        if (viewModel.openDialog) {
+            DiscardDialog(navController, viewModel.fromHouseholdMember){
+                viewModel.openDialog = false
+            }
+        }
+        Spacer(
+            modifier = Modifier
+                .padding(bottom = 60.dp)
+                .testTag("end of page")
+        )
+    }
 
 }
 
 @Composable
-fun Heading(heading: String, step: Int, patientRegister: PatientRegister, navController: NavController) {
+fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDialog:()->Unit){
+    AlertDialog(
+        onDismissRequest = {
+            closeDialog()
+        },
+        title = {
+            Text(
+                text = "Discard Changes ?",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.testTag("alert dialog title")
+            )
+        },
+        text = {
+            Text(
+                "Are you sure you want to cancel preview and discard any changes you have made?",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.testTag("alert dialog description")
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    closeDialog()
+                    if (fromHousehold)
+                        navController.popBackStack(Screen.AddHouseholdMember.route, false)
+                    else navController.popBackStack(Screen.LandingScreen.route, false)
+                }) {
+                Text(
+                    "Confirm",
+                    modifier = Modifier.testTag("alert dialog confirm btn")
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    closeDialog()
+                }) {
+                Text(
+                    "Cancel",
+                    modifier = Modifier.testTag("alert dialog cancel btn")
+                )
+            }
+        }
+    )
+}
+
+@Composable
+fun Heading(
+    heading: String,
+    step: Int,
+    patientRegister: PatientRegister,
+    navController: NavController
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,

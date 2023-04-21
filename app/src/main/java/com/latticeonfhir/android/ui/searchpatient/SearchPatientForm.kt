@@ -43,8 +43,9 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
                 value = searchPatientViewModel.patientName,
                 label = "Patient Name",
                 weight = 1f,
-                maxLength = 150, searchPatientViewModel.isNameValid,
-                "Name length should be between 3 and 150."
+                maxLength = 100, searchPatientViewModel.isNameValid,
+                "Name length should be between 3 and 100.",
+                KeyboardType.Text
             ) {
                 searchPatientViewModel.patientName = it
                 searchPatientViewModel.isNameValid =
@@ -55,8 +56,9 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
                 value = searchPatientViewModel.patientId,
                 label = "Patient Id",
                 weight = 1f,
-                maxLength = 150, searchPatientViewModel.isPatientIdValid,
-                "Enter valid Patient Id."
+                maxLength = 10, searchPatientViewModel.isPatientIdValid,
+                "Enter valid Patient Id.",
+                KeyboardType.Text
             ) {
                 searchPatientViewModel.patientId = it
                 searchPatientViewModel.isPatientIdValid =

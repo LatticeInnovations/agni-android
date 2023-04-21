@@ -1,5 +1,14 @@
 package com.latticeonfhir.android.ui.main.patientlandingscreen
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentScope.SlideDirection.Companion.Down
+import androidx.compose.animation.AnimatedContentScope.SlideDirection.Companion.Left
+import androidx.compose.animation.AnimatedContentScope.SlideDirection.Companion.Right
+import androidx.compose.animation.AnimatedContentScope.SlideDirection.Companion.Up
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.with
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -26,7 +35,7 @@ import com.latticeonfhir.android.ui.householdmember.HouseholdMemberViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import java.time.Instant
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HouseholdMembersScreen(
     navController: NavController,
@@ -92,9 +101,36 @@ fun HouseholdMembersScreen(
                             )
                         }
                     }
-                    when (viewModel.tabIndex) {
-                        0 -> viewModel.patient?.let { it1 -> MembersScreen(it1) }
-                        1 -> viewModel.patient?.let { it1 -> SuggestionsScreen(it1, snackbarHostState, scope) }
+                    AnimatedContent(
+                        targetState = viewModel.tabIndex,
+                        transitionSpec = {
+                            if (viewModel.tabIndex == 0) {
+                                slideIntoContainer(
+                                    animationSpec = tween(300, easing = EaseIn),
+                                    towards = Right
+                                ).with(
+                                    slideOutOfContainer(
+                                        animationSpec = tween(300, easing = EaseIn),
+                                        towards = Right
+                                    )
+                                )
+                            } else {
+                                slideIntoContainer(
+                                    animationSpec = tween(300, easing = EaseIn),
+                                    towards = Left
+                                ).with(
+                                    slideOutOfContainer(
+                                        animationSpec = tween(300, easing = EaseIn),
+                                        towards = Left
+                                    )
+                                )
+                            }
+                        }
+                    ) { targetState ->
+                        when (targetState) {
+                            0 -> viewModel.patient?.let { it1 -> MembersScreen(it1) }
+                            1 -> viewModel.patient?.let { it1 -> SuggestionsScreen(it1, snackbarHostState, scope) }
+                        }
                     }
                 }
             }

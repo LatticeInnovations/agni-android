@@ -18,9 +18,12 @@ import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.main.patientregistration.DiscardDialog
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
 import com.latticeonfhir.android.ui.patientregistration.step2.PatientRegistrationStepTwo
 import com.latticeonfhir.android.ui.patientregistration.step3.PatientRegistrationStepThree
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,8 +89,8 @@ fun PatientRegistration(
                 ),
                 actions = {
                     IconButton(onClick = {
-                        //navController.navigate(Screen.LandingScreen.route)
-                        navController.popBackStack()
+                        if (viewModel.currentStep == 1) navController.popBackStack()
+                        else viewModel.openDialog = true
                     }) {
                         Icon(Icons.Default.Clear, contentDescription = "clear icon")
                     }
@@ -104,6 +107,11 @@ fun PatientRegistration(
                     1 -> PatientRegistrationStepOne(patientRegister)
                     2 -> PatientRegistrationStepTwo(patientRegister)
                     3 -> PatientRegistrationStepThree(navController, patientRegister)
+                }
+                if (viewModel.openDialog) {
+                    DiscardDialog(navController, viewModel.fromHouseholdMember){
+                        viewModel.openDialog = false
+                    }
                 }
             }
             if (viewModel.showRelationDialogue) {
