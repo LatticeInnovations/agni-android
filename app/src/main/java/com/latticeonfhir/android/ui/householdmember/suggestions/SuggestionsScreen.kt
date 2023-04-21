@@ -19,9 +19,11 @@ import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreenViewModel
 import com.latticeonfhir.android.utils.relation.RelationConverter
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -31,25 +33,50 @@ fun SuggestionsScreen(
     scope: CoroutineScope,
     viewModel: SuggestionsScreenViewModel = hiltViewModel()
 ) {
-    viewModel.getQueueItems(patient)
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 20.dp, start = 20.dp, end = 20.dp)
-    ) {
-        Text(
-            text = "Here are patients with similar addresses or nearby locations.",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            items(viewModel.membersList) { member ->
-                SuggestedMembersCard(scope, snackbarHostState, viewModel, member, patient)
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            viewModel.getQueueItems(patient)
+        }
+        viewModel.isLaunched = true
+    }
+    if (viewModel.loading){
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            Loader()
+        }
+    }
+    else{
+        if (viewModel.membersList.isEmpty()){
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
+                Text(text = "No suggested members.")
+            }
+        }
+        else{
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 20.dp, start = 20.dp, end = 20.dp)
+            ) {
+                Text(
+                    text = "Here are patients with similar addresses or nearby locations.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    items(viewModel.membersList) { member ->
+                        SuggestedMembersCard(scope, snackbarHostState, viewModel, member, patient)
+                    }
+                }
             }
         }
     }
@@ -245,8 +272,8 @@ fun ConnectDialog(
                             relation = RelationConverter.getRelationEnumFromString(relation)
                         ),
                         member.id
-                    ){
-                        if (it.isNotEmpty()){
+                    ) {
+                        if (it.isNotEmpty()) {
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     message = "${

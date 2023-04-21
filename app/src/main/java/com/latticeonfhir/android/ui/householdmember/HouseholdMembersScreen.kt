@@ -1,10 +1,9 @@
 package com.latticeonfhir.android.ui.main.patientlandingscreen
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope.SlideDirection.Companion.Down
 import androidx.compose.animation.AnimatedContentScope.SlideDirection.Companion.Left
 import androidx.compose.animation.AnimatedContentScope.SlideDirection.Companion.Right
-import androidx.compose.animation.AnimatedContentScope.SlideDirection.Companion.Up
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.tween
@@ -25,15 +24,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import java.time.LocalDate
-import java.time.Period
-import java.time.ZoneId
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.ui.householdmember.HouseholdMemberViewModel
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
-import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -137,7 +131,8 @@ fun HouseholdMembersScreen(
         },
         floatingActionButton = {
             if (viewModel.tabIndex == 0) {
-                if (!viewModel.isUpdateSelected) {
+                //if (!viewModel.isUpdateSelected) {
+                AnimatedVisibility(visible = !viewModel.isUpdateSelected) {
                     FloatingActionButton(
                         onClick = { viewModel.isUpdateSelected = true },
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -156,7 +151,10 @@ fun HouseholdMembersScreen(
                             Text(text = "Update")
                         }
                     }
-                } else {
+                }
+                //else {
+                AnimatedVisibility(visible = viewModel.isUpdateSelected) {
+
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                         Column {
                             FloatingActionButton(
@@ -216,6 +214,7 @@ fun HouseholdMembersScreen(
                         }
                     }
                 }
+
             }
         }
     )
