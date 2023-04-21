@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientResponse
 import kotlinx.coroutines.runBlocking
@@ -25,7 +26,7 @@ class PatientDaoTest: BaseClass() {
     fun getPatientDataByIdTest() = runBlocking{
         patientDao.insertPatientData(patientResponse.toPatientEntity())
         val patient = patientDao.getPatientDataById(id)
-        Assert.assertEquals("The patient requested is not returned.", id, patient.toPatientResponse().id)
+        Assert.assertEquals("The patient requested is not returned.", id, patient[0].toPatientResponse().id)
     }
 
     @Test
@@ -46,7 +47,7 @@ class PatientDaoTest: BaseClass() {
             firstName = "Test",
             middleName = null,
             lastName = "Updated",
-            birthDate = Date(469823400000),
+            birthDate = Date(469823400000).time.toPatientDate(),
             email = "test@gmail.com",
             active = true,
             gender = "male",
