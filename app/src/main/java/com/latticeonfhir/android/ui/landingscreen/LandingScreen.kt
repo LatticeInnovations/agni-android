@@ -67,7 +67,6 @@ fun LandingScreen(
             .fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
-        if (viewModel.searchResultList.collectAsLazyPagingItems().itemCount == 0) viewModel.size = 0
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
