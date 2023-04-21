@@ -10,6 +10,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientAddressRespons
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import org.junit.After
 import org.junit.Before
 import java.util.*
@@ -32,7 +33,7 @@ open class BaseClass {
         firstName = "Test",
         middleName = null,
         lastName = null,
-        birthDate = Date(469823400000),
+        birthDate = Date(469823400000).time.toPatientDate(),
         email = "test@gmail.com",
         active = true,
         gender = "male",

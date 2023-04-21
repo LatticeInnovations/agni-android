@@ -12,8 +12,7 @@ import androidx.room.PrimaryKey
     foreignKeys = [ForeignKey(
         entity = PatientEntity::class,
         parentColumns = arrayOf("id"),
-        childColumns = arrayOf("patientId"),
-        onDelete = ForeignKey.CASCADE
+        childColumns = arrayOf("patientId")
     )]
 )
 data class IdentifierEntity(
