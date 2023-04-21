@@ -3,6 +3,7 @@ package com.latticeonfhir.android.data.local.roomdb.entities
 import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.latticeonfhir.android.data.local.enums.RelationEnum
@@ -13,8 +14,7 @@ import com.latticeonfhir.android.data.local.enums.RelationEnum
     foreignKeys = [ForeignKey(
         entity = PatientEntity::class,
         parentColumns = arrayOf("id"),
-        childColumns = arrayOf("fromId"),
-        onDelete = ForeignKey.CASCADE
+        childColumns = arrayOf("fromId")
     )]
 )
 data class RelationEntity(
