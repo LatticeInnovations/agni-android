@@ -17,4 +17,5 @@ class PatientRegistrationViewModel: BaseViewModel(), DefaultLifecycleObserver {
     var showRelationDialogue by mutableStateOf(false)
     var relation by mutableStateOf("")
     var patientFrom by mutableStateOf<PatientResponse?>(null)
+    var openDialog by mutableStateOf(false)
 }

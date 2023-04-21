@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.common
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
@@ -37,15 +39,17 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
     Row(
         modifier = Modifier.padding(top = 10.dp)
     ) {
+        val onlyNumbers = Regex("^\\d+\$")
         CustomTextField(
             value = address.pincode,
             label = "Postal Code *",
             weight = 0.4f,
             maxLength = 6,
             address.isPostalCodeValid,
-            "Enter valid 6 digit postal code"
+            "Enter valid 6 digit postal code",
+            KeyboardType.Number
         ) {
-            address.pincode = it
+            if (it.matches(onlyNumbers) || it.length == 0) address.pincode = it
             address.isPostalCodeValid = address.pincode.length < 6
         }
         Spacer(modifier = Modifier.width(15.dp))
@@ -93,12 +97,12 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
             DropdownMenu(
                 modifier = Modifier.fillMaxHeight(0.5f),
                 expanded = expanded,
-                onDismissRequest = { expanded = false },
+                onDismissRequest = { expanded = !expanded },
             ) {
                 statesList.forEach { label ->
                     DropdownMenuItem(
                         onClick = {
-                            expanded = false
+                            expanded = !expanded
                             address.state = label
                         },
                         text = {
@@ -119,7 +123,8 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
         label = "Address Line 1 *",
         weight = 1f,
         maxLength = 150, address.isAddressLine1Valid,
-        "Please enter your address."
+        "Please enter your address.",
+        KeyboardType.Text
     ) {
         address.addressLine1 = it
         address.isAddressLine1Valid = address.addressLine1.isEmpty()
@@ -130,7 +135,8 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
         label = "Address Line 2",
         weight = 1f,
         maxLength = 150, false,
-        "Enter valid input."
+        "Enter valid input.",
+        KeyboardType.Text
     ) {
         address.addressLine2 = it
     }
@@ -140,7 +146,8 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
         label = "City *",
         weight = 1f,
         maxLength = 150, address.isCityValid,
-        "Please enter your city."
+        "Please enter your city.",
+        KeyboardType.Text
     ) {
         address.city = it
         address.isCityValid = address.city.isEmpty()
@@ -151,7 +158,8 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
         label = "District",
         weight = 1f,
         maxLength = 150, false,
-        "Please enter your district."
+        "Please enter your district.",
+        KeyboardType.Text
     ) {
         address.district = it
     }

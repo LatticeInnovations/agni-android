@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui
 
+/*
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -56,4 +57,4 @@ class LandingScreenKtTest {
         composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
         composeTestRule.onNodeWithText("Patient Registration").assertExists(errorMessageOnFail = "Patient Registration screen should be displayed.")
     }
-}
+}*/

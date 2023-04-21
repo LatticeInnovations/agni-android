@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.theme.Neutral40
@@ -90,7 +91,8 @@ fun PatientRegistrationStepTwo(
                     weight = 1f,
                     viewModel.maxPassportIdLength,
                     viewModel.isPassportValid,
-                    "Enter valid Passport ID (eg., A1098765)"
+                    "Enter valid Passport ID (eg., A1098765)",
+                    KeyboardType.Text
                 ) {
                     viewModel.passportId = it
                     viewModel.isPassportValid =
@@ -106,7 +108,8 @@ fun PatientRegistrationStepTwo(
                     weight = 1f,
                     viewModel.maxVoterIdLength,
                     viewModel.isVoterValid,
-                    "Enter valid Voter Id (eg., XYZ9876543)"
+                    "Enter valid Voter Id (eg., XYZ9876543)",
+                    KeyboardType.Text
                 ) {
                     viewModel.voterId = it
                     viewModel.isVoterValid = !viewModel.voterPattern.matches(viewModel.voterId)
@@ -121,7 +124,8 @@ fun PatientRegistrationStepTwo(
                     weight = 1f,
                     viewModel.maxPatientIdLength,
                     viewModel.isPatientValid,
-                    "Enter valid Patient Id"
+                    "Enter valid Patient Id",
+                    KeyboardType.Text
                 ) {
                     viewModel.patientId = it
                     viewModel.isPatientValid = viewModel.patientId.length < 10
