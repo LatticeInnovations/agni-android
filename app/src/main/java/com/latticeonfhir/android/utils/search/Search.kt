@@ -21,14 +21,13 @@ object Search {
             }
             if (!name.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    FuzzySearch.ratio(name, it.patientEntity.firstName) > matchingRatio ||
-                    FuzzySearch.ratio(name,it.patientEntity.middleName ?: "") > matchingRatio ||
-                    FuzzySearch.ratio(name,it.patientEntity.lastName ?: "") > matchingRatio
+                    val fullName = "${it.patientEntity.firstName}${it.patientEntity.middleName ?: ""}${it.patientEntity.lastName ?: ""}"
+                    FuzzySearch.weightedRatio(name.replace(" ","").trim(), fullName) > matchingRatio
                 } as MutableList<PatientAndIdentifierEntity>
             }
             if (!patientId.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    FuzzySearch.ratio(patientId, it.patientEntity.fhirId ?: "") > matchingRatio
+                    FuzzySearch.weightedRatio(patientId, it.patientEntity.fhirId ?: "") > matchingRatio
                 } as MutableList<PatientAndIdentifierEntity>
             }
             if (minAge != null && maxAge != null) {
@@ -43,7 +42,7 @@ object Search {
             }
             if (!addressLine1.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    FuzzySearch.ratio(
+                    FuzzySearch.weightedRatio(
                         addressLine1,
                         it.patientEntity.permanentAddress.addressLine1
                     ) > matchingRatio
@@ -51,7 +50,7 @@ object Search {
             }
             if (!city.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    FuzzySearch.ratio(
+                    FuzzySearch.weightedRatio(
                         city,
                         it.patientEntity.permanentAddress.city ?: ""
                     ) > matchingRatio
@@ -59,7 +58,7 @@ object Search {
             }
             if (!district.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    FuzzySearch.ratio(
+                    FuzzySearch.weightedRatio(
                         district,
                         it.patientEntity.permanentAddress.district ?: ""
                     ) > matchingRatio
@@ -67,7 +66,7 @@ object Search {
             }
             if (!state.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    FuzzySearch.ratio(
+                    FuzzySearch.weightedRatio(
                         state,
                         it.patientEntity.permanentAddress.state
                     ) > matchingRatio
@@ -75,7 +74,7 @@ object Search {
             }
             if (!postalCode.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    FuzzySearch.ratio(
+                    FuzzySearch.weightedRatio(
                         postalCode,
                         it.patientEntity.permanentAddress.postalCode
                     ) > matchingRatio
@@ -83,7 +82,7 @@ object Search {
             }
             if (!addressLine2.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    FuzzySearch.ratio(
+                    FuzzySearch.weightedRatio(
                         addressLine2,
                         it.patientEntity.permanentAddress.addressLine2 ?: ""
                     ) > matchingRatio
