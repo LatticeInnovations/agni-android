@@ -7,6 +7,6 @@ import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
 abstract class RelationDownloadSyncWorker(context: Context, workerParameters: WorkerParameters): SyncWorker(context,workerParameters) {
 
     override suspend fun doWork(): Result {
-        return Result.failure()
+        return Result.success()
     }
 }
