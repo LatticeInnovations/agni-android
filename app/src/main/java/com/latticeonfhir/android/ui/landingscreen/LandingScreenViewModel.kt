@@ -75,7 +75,7 @@ class LandingScreenViewModel @Inject constructor(
 
     internal fun insertRecentSearch() {
         viewModelScope.launch(Dispatchers.IO) {
-            searchRepository.insertRecentSearch(searchQuery)
+            searchRepository.insertRecentSearch(searchQuery.trim())
         }
     }
 
@@ -92,7 +92,7 @@ class LandingScreenViewModel @Inject constructor(
 
     internal fun searchPatientByQuery() {
         viewModelScope.launch(Dispatchers.IO) {
-            searchResultList = searchRepository.searchPatientByQuery(searchQuery).map {
+            searchResultList = searchRepository.searchPatientByQuery(searchQuery.trim()).map {
                 it.map {
                     size = it.size
                     it.data
