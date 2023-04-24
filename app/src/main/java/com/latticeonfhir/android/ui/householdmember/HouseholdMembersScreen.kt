@@ -80,8 +80,6 @@ fun HouseholdMembersScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         content = {
             Box(modifier = Modifier.padding(it)) {
-
-                val tabIndicatorHeight = 2.dp
                 Column(modifier = Modifier.fillMaxWidth()) {
                     TabRow(
                         selectedTabIndex = viewModel.tabIndex

@@ -59,6 +59,7 @@ class LandingScreenViewModel @Inject constructor(
 
     fun populateList() {
         size = 0
+        searchResultList = flowOf()
         if (isSearchResult) {
             if (isSearchingByQuery) searchPatientByQuery()
             else searchPatient(searchParameters!!)
