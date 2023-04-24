@@ -23,6 +23,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEn
 import com.latticeonfhir.android.utils.relation.RelationConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -36,6 +37,8 @@ class SuggestionsScreenViewModel @Inject constructor(
     private val relationRepository: RelationRepository,
     private val patientDao: PatientDao
 ) : BaseViewModel() {
+    var isLaunched by mutableStateOf(false)
+    var loading by mutableStateOf(true)
     var listOfSuggestions = mutableListOf<PatientResponse>()
     var suggestedMembersList = mutableStateListOf<PatientResponse>()
     var membersList by mutableStateOf(listOf<PatientResponse>())
@@ -87,6 +90,7 @@ class SuggestionsScreenViewModel @Inject constructor(
                     suggestedMembersList.addAll(listOfSuggestions)
                 }
                 membersList = suggestedMembersList
+                loading = false
             }
         }
     }

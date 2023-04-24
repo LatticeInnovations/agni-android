@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -22,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.*
 import androidx.paging.compose.items
 import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.common.PatientItemCard
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.relation.RelationConverter
@@ -34,23 +36,46 @@ import java.time.ZoneId
 fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = hiltViewModel()) {
     val context = LocalContext.current
     viewModel.getAllRelations(patientId = patient.id)
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-    ) {
-        items(viewModel.relationsList) { relation ->
-            var relative by remember {
-                mutableStateOf<PatientResponse?>(null)
+    if (viewModel.loading){
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            Loader()
+        }
+    }
+    else{
+        if (viewModel.relationsList.isEmpty()){
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
+                Text(text = "No household members.")
             }
-            viewModel.getPatientData(relation.toId) {
-                relative = it
-            }
-            relative?.let {
-                MembersCard(
-                    RelationConverter.getRelationFromRelationEnum(context, relation.relation).capitalize(),
-                    it
-                )
+        }
+        else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            ) {
+                items(viewModel.relationsList) { relation ->
+                    var relative by remember {
+                        mutableStateOf<PatientResponse?>(null)
+                    }
+                    viewModel.getPatientData(relation.toId) {
+                        relative = it
+                    }
+                    relative?.let {
+                        MembersCard(
+                            RelationConverter.getRelationFromRelationEnum(
+                                context,
+                                relation.relation
+                            ).capitalize(),
+                            it
+                        )
+                    }
+                }
             }
         }
     }

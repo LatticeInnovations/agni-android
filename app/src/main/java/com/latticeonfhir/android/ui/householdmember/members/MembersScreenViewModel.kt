@@ -21,11 +21,13 @@ class MembersScreenViewModel @Inject constructor(
     private val relationRepository: RelationRepository,
     private val patientRepository: PatientRepository
 ): BaseViewModel() {
+    var loading by mutableStateOf(true)
     var relationsList by mutableStateOf(listOf<RelationEntity>())
 
     internal fun getAllRelations(patientId: String){
         viewModelScope.launch {
             relationsList = relationRepository.getAllRelationOfPatient(patientId)
+            loading = false
         }
     }
 
