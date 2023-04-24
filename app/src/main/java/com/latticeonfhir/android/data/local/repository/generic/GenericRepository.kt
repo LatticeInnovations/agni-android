@@ -6,6 +6,8 @@ import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 
 interface GenericRepository {
 
-    suspend fun insertOrUpdatePostEntity(patientId: String, entity: Any, typeEnum: GenericTypeEnum): Long
+    suspend fun insertOrUpdatePostEntity(patientId: String, entity: Any, typeEnum: GenericTypeEnum, replace: Boolean = false): Long
     suspend fun insertOrUpdatePatchEntity(patientId: String,map: Map<String,Any>, typeEnum: GenericTypeEnum): Long
+
+    suspend fun getNonSyncedPostRelations(): List<GenericEntity>
 }
