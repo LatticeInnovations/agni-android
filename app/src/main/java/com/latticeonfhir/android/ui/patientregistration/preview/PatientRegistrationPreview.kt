@@ -62,7 +62,7 @@ fun PatientRegistrationPreview(
             navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                 key = "patientFrom"
             )!!
-        viewModel.patientFromId = viewModel.patientFrom!!.id
+        viewModel.patientFromId = viewModel.patientFrom?.fhirId ?: viewModel.patientFrom!!.id
     }
     patientRegisterDetails
         ?.run {

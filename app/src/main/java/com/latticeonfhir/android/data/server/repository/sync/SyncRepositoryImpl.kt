@@ -30,6 +30,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndRe
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.android.utils.relation.RelationConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -123,26 +124,16 @@ class SyncRepositoryImpl @Inject constructor(
                 )
             ).apply {
                 if (this is ApiContinueResponse) {
-                    body.map {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            patientDao.updateFhirId(
-                                it.id!!,
-                                it.fhirId!!
-                            )
-                        }
+                    body.map { createResponse ->
+                        patientDao.updateFhirId(createResponse.id!!, createResponse.fhirId!!)
                     }
                     genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                         if (it > 0) sendPersonPostData()
                     }
                 }
                 if (this is ApiEndResponse) {
-                    body.map {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            patientDao.updateFhirId(
-                                it.id!!,
-                                it.fhirId!!
-                            )
-                        }
+                    body.map { createResponse ->
+                        patientDao.updateFhirId(createResponse.id!!, createResponse.fhirId!!)
                     }
                     genericDao.deleteSyncPayload(this@run.toListOfId()).also {
                         if (it > 0) sendPersonPostData()
@@ -163,7 +154,7 @@ class SyncRepositoryImpl @Inject constructor(
             if (this.isEmpty()) ApiEmptyResponse()
             else ApiResponseConverter.convert(
                 apiService.createData(
-                    PATIENT,
+                    RELATED_PERSON,
                     map {
                         it.payload.fromJson<LinkedTreeMap<*, *>>()
                             .mapToObject(RelatedPersonResponse::class.java) as Any
