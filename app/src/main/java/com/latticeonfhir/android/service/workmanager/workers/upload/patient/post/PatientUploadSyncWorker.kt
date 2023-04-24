@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.service.workmanager.workers.upload.patient
+package com.latticeonfhir.android.service.workmanager.workers.upload.patient.post
 
 import android.content.Context
 import androidx.work.WorkerParameters
