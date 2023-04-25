@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b8454fcc695a00490259652c888f8443",
+    "identityHash": "800f59590107a44074237afa621c8a27",
     "entities": [
       {
         "tableName": "PatientEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `active` INTEGER, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER, `email` TEXT, `fhirId` TEXT, `addressLine1` TEXT NOT NULL, `city` TEXT, `district` TEXT, `state` TEXT NOT NULL, `postalCode` TEXT NOT NULL, `country` TEXT, `addressLine2` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `active` INTEGER, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER NOT NULL, `email` TEXT, `fhirId` TEXT, `addressLine1` TEXT NOT NULL, `city` TEXT NOT NULL, `district` TEXT, `state` TEXT NOT NULL, `postalCode` TEXT NOT NULL, `country` TEXT, `addressLine2` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -54,7 +54,7 @@
             "fieldPath": "mobileNumber",
             "columnName": "mobileNumber",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "email",
@@ -78,7 +78,7 @@
             "fieldPath": "permanentAddress.city",
             "columnName": "city",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "permanentAddress.district",
@@ -336,7 +336,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b8454fcc695a00490259652c888f8443')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '800f59590107a44074237afa621c8a27')"
     ]
   }
 }

@@ -88,7 +88,13 @@ data class RetryConfiguration(
   val backoffCriteria: BackoffCriteria,
 
   /** Maximum retries for a failing [FhirSyncWorker] */
-  val maxRetries: Int
+  val maxRetries: Int,
+
+  /**
+   * Constraints that specify the requirements needed before the synchronisation is triggered. E.g.
+   * network type (Wifi, 3G etc), the device should be charging etc.
+   */
+  val syncConstraints: Constraints = Constraints.Builder().build()
 )
 
 /**
