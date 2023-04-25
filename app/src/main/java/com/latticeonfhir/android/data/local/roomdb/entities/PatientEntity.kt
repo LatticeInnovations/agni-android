@@ -16,7 +16,7 @@ data class PatientEntity(
     val active: Boolean?,
     val gender: String,
     val birthDate: Long,
-    val mobileNumber: Long?,
+    val mobileNumber: Long,
     val email: String?,
     @Embedded val permanentAddress: PermanentAddressEntity,
     val fhirId: String?

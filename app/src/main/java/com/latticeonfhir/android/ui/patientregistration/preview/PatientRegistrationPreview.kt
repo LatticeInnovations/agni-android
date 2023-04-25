@@ -209,7 +209,7 @@ fun PatientRegistrationPreview(
                                 state = patientRegisterDetails.homeState!!,
                                 addressLine1 = patientRegisterDetails.homeAddressLine1!!,
                                 addressLine2 = if (patientRegisterDetails.homeAddressLine2!!.isEmpty()) null else patientRegisterDetails.homeAddressLine2,
-                                city = patientRegisterDetails.homeCity,
+                                city = patientRegisterDetails.homeCity!!,
                                 country = "India",
                                 district = if (patientRegisterDetails.homeDistrict!!.isEmpty()) null else patientRegisterDetails.homeDistrict
                             ),

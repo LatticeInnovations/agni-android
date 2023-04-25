@@ -65,7 +65,7 @@ class SyncRepositoryImpl @Inject constructor(
                             .toTypedArray())
                     }
                 }
-                getAndInsertListPatientData(offset + 700)
+//                getAndInsertListPatientData(offset + 700)
             }
             if (this is ApiEndResponse) {
                 preferenceRepository.setLastUpdatedDate(Date().time)
