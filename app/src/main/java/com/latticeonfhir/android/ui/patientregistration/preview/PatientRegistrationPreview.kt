@@ -290,18 +290,19 @@ fun PreviewScreen(
                             viewModel.lastName
                         )
                     }, ${viewModel.gender.capitalize()}",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.testTag("NAME_TAG")
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Label("Date of birth")
-                Detail(viewModel.dob)
+                Detail(viewModel.dob, "DOB_TAG")
                 Spacer(modifier = Modifier.height(10.dp))
                 Label("Phone No.")
-                Detail("+91 ${viewModel.phoneNumber}")
+                Detail("+91 ${viewModel.phoneNumber}", "PHONE_NO_TAG")
                 if (viewModel.email.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label("Email")
-                    Detail(viewModel.email)
+                    Detail(viewModel.email, "EMAIL_TAG")
                 }
             }
         }
@@ -319,17 +320,17 @@ fun PreviewScreen(
                 if (viewModel.passportId.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label("Passport ID")
-                    Detail(viewModel.passportId)
+                    Detail(viewModel.passportId, "PASSPORT_ID_TAG")
                 }
                 if (viewModel.voterId.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label("Voter ID")
-                    Detail(viewModel.voterId)
+                    Detail(viewModel.voterId, "VOTER_ID_TAG")
                 }
                 if (viewModel.patientId.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label("Patient ID")
-                    Detail(viewModel.patientId)
+                    Detail(viewModel.patientId, "PATIENT_ID_TAG")
                 }
             }
         }
@@ -356,26 +357,26 @@ fun PreviewScreen(
                 Heading("Addresses", 3, patientRegister, navController)
                 Spacer(modifier = Modifier.height(10.dp))
                 Label("Home Address")
-                Detail(homeAddressLine1)
-                Detail(homeAddressLine2)
-                Detail(homeAddressLine3)
-                if (viewModel.workAddress.pincode.isNotEmpty()) {
-                    val workAddressLine1 = viewModel.workAddress.addressLine1 +
-                            if (viewModel.workAddress.addressLine2.isEmpty()) "" else {
-                                ", " + viewModel.workAddress.addressLine2
-                            }
-                    val workAddressLine2 = viewModel.workAddress.city +
-                            if (viewModel.workAddress.district.isEmpty()) "" else {
-                                ", " + viewModel.workAddress.district
-                            }
-                    val workAddressLine3 =
-                        "${viewModel.workAddress.state}, ${viewModel.workAddress.pincode}"
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Label("Work Address")
-                    Detail(workAddressLine1)
-                    Detail(workAddressLine2)
-                    Detail(workAddressLine3)
-                }
+                Detail(homeAddressLine1, "ADDRESS_LINE1_TAG")
+                Detail(homeAddressLine2, "ADDRESS_LINE2_TAG")
+                Detail(homeAddressLine3, "ADDRESS_LINE3_TAG")
+//                if (viewModel.workAddress.pincode.isNotEmpty()) {
+//                    val workAddressLine1 = viewModel.workAddress.addressLine1 +
+//                            if (viewModel.workAddress.addressLine2.isEmpty()) "" else {
+//                                ", " + viewModel.workAddress.addressLine2
+//                            }
+//                    val workAddressLine2 = viewModel.workAddress.city +
+//                            if (viewModel.workAddress.district.isEmpty()) "" else {
+//                                ", " + viewModel.workAddress.district
+//                            }
+//                    val workAddressLine3 =
+//                        "${viewModel.workAddress.state}, ${viewModel.workAddress.pincode}"
+//                    Spacer(modifier = Modifier.height(10.dp))
+//                    Label("Work Address")
+//                    Detail(workAddressLine1)
+//                    Detail(workAddressLine2)
+//                    Detail(workAddressLine3)
+//                }
             }
         }
         if (viewModel.openDialog) {
@@ -498,6 +499,6 @@ fun Label(label: String) {
 }
 
 @Composable
-fun Detail(detail: String) {
-    Text(text = detail, style = MaterialTheme.typography.bodyLarge)
+fun Detail(detail: String, tag: String) {
+    Text(text = detail, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag(tag))
 }
