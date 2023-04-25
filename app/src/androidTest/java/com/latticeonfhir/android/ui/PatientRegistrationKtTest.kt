@@ -1,11 +1,9 @@
 package com.latticeonfhir.android.ui
-/*
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.latticeonfhir.android.ui.main.MainActivity
-import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -549,4 +547,4 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(alertDialogConfirmBtn, true).performClick()
         composeTestRule.onNodeWithText("My Patients").assertExists("Should be navigated to My Patients page.")
     }
-}*/
+}

@@ -74,8 +74,9 @@ fun LandingScreen(
                     TopAppBar(
                         title = {
                             Text(
-                                text = "${viewModel.size} matches found",
-                                style = MaterialTheme.typography.titleLarge
+                                text = if (viewModel.isLoading) "Searching..." else "${viewModel.size} matches found",
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.testTag("SEARCH_TITLE_TEXT")
                             )
                         },
                         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -87,7 +88,7 @@ fun LandingScreen(
                                 navController.navigate(Screen.SearchPatientScreen.route)
                             }) {
                                 Icon(
-                                    Icons.Default.Search, contentDescription = null
+                                    Icons.Default.Search, contentDescription = "SEARCH_ICON"
                                 )
                             }
                         },
@@ -98,8 +99,7 @@ fun LandingScreen(
                                 navController.popBackStack(Screen.LandingScreen.route, false)
                             }) {
                                 Icon(
-                                    Icons.Default.Clear, contentDescription = null,
-                                    modifier = Modifier.testTag("clear icon")
+                                    Icons.Default.Clear, contentDescription = "CLEAR_ICON"
                                 )
                             }
                         }
@@ -123,8 +123,7 @@ fun LandingScreen(
                                     viewModel.getPreviousSearches()
                                 }) {
                                     Icon(
-                                        Icons.Default.Search, contentDescription = null,
-                                        modifier = Modifier.testTag("search icon")
+                                        Icons.Default.Search, contentDescription = "SEARCH_ICON"
                                     )
                                 }
                         },
@@ -145,10 +144,9 @@ fun LandingScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.person_add),
-                                    contentDescription = null,
+                                    contentDescription = "ADD_PATIENT_ICON",
                                     modifier = Modifier
-                                        .size(25.dp, 23.dp)
-                                        .testTag("add patient icon"),
+                                        .size(25.dp, 23.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
@@ -156,7 +154,7 @@ fun LandingScreen(
                                     text = "Add Patient",
                                     style = MaterialTheme.typography.labelLarge,
                                     color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.testTag("add patient text")
+                                    modifier = Modifier.testTag("ADD_PATIENT_TEXT")
                                 )
                             }
                         },
@@ -165,7 +163,9 @@ fun LandingScreen(
                 }
             },
             bottomBar = {
-                NavigationBar {
+                NavigationBar(
+                    modifier = Modifier.testTag("BOTTOM_NAV_BAR")
+                ) {
                     val icons =
                         listOf(
                             R.drawable.patient_list,
@@ -190,7 +190,8 @@ fun LandingScreen(
                                 )
                             },
                             selected = viewModel.selectedIndex == index,
-                            onClick = { viewModel.selectedIndex = index }
+                            onClick = { viewModel.selectedIndex = index },
+                            modifier = Modifier.testTag(item + " tab")
                         )
                     }
                 }
@@ -224,7 +225,8 @@ fun LandingScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)),
+                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
+                        .testTag("SEARCH_LAYOUT"),
                     verticalArrangement = Arrangement.Top
                 ) {
                     TextField(
@@ -237,7 +239,7 @@ fun LandingScreen(
                                 viewModel.searchQuery = ""
                                 viewModel.isSearching = false
                             }) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "")
+                                Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
                             }
                         },
                         trailingIcon = {
@@ -245,7 +247,7 @@ fun LandingScreen(
                                 IconButton(onClick = {
                                     viewModel.searchQuery = ""
                                 }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "")
+                                    Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
                                 }
                             }
                         },
@@ -254,7 +256,8 @@ fun LandingScreen(
                             .focusRequester(focusRequester)
                             .onGloballyPositioned {
                                 focusRequester.requestFocus()
-                            },
+                            }
+                            .testTag("SEARCH_TEXT_FIELD"),
                         colors = TextFieldDefaults.textFieldColors(
                             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                         ),
@@ -272,7 +275,7 @@ fun LandingScreen(
                         ),
                         singleLine = true
                     )
-                    LazyColumn(modifier = Modifier.testTag("patients list")) {
+                    LazyColumn(modifier = Modifier.testTag("PREVIOUS_SEARCHES")) {
                         items(viewModel.previousSearchList) { listItem ->
                             PreviousSearches(
                                 listItem, viewModel
