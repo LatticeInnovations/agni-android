@@ -31,4 +31,8 @@ interface GenericDao {
     @Transaction
     @Query("DELETE FROM GenericEntity WHERE id IN (:ids)")
     suspend fun deleteSyncPayload(ids: List<String>): Int
+
+    @Transaction
+    @Query("SELECT * FROM GenericEntity WHERE type=:genericTypeEnum AND syncType=:syncType")
+    suspend fun getNotSyncedPostRelation(genericTypeEnum: GenericTypeEnum = GenericTypeEnum.RELATION, syncType: SyncType = SyncType.POST): List<GenericEntity>
 }

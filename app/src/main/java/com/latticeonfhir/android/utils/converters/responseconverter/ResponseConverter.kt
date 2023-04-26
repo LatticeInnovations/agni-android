@@ -9,12 +9,19 @@ import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifier
 import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.PermanentAddressEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
+import com.latticeonfhir.android.data.server.api.ApiService
+import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
+import com.latticeonfhir.android.data.server.constants.QueryParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.relation.RelationConverter.getInverseRelation
 import java.util.Date
 
@@ -129,4 +136,34 @@ fun RelationEntity.toRelation(): Relation {
     return Relation(
         patientId = fromId, relativeId = toId, relation = relation.value
     )
+}
+
+internal suspend fun Relationship.toRelationEntity(
+    fromFhirId: String,
+    patientDao: PatientDao,
+    apiService: ApiService
+): RelationEntity {
+    return RelationEntity(
+        id = UUIDBuilder.generateUUID(),
+        fromId = patientDao.getPatientIdByFhirId(fromFhirId)!!,
+        toId = patientDao.getPatientIdByFhirId(relativeId) ?: getRelativeId(fromFhirId,apiService),
+        relation = RelationEnum.fromString(patientIs)
+    )
+}
+
+private suspend fun getRelativeId(relativeFhirId: String, apiService: ApiService): String {
+    var relativeId = ""
+    ApiResponseConverter.convert(
+        apiService.getListData(
+            PATIENT,
+            mapOf(Pair(QueryParameters.ID, relativeFhirId))
+        )
+    ).apply {
+        if (this is ApiEndResponse) {
+            body.map {
+                relativeId = it.id
+            }
+        }
+    }
+    return relativeId
 }
