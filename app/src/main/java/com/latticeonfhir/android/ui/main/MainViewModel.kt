@@ -57,42 +57,15 @@ class MainViewModel @Inject constructor(
 
         // Post Sync Worker
         viewModelScope.launch(Dispatchers.IO) {
-            Sync.oneTimeSync<PatientDownloadSyncWorkerImpl>(
-                getApplication<Application>().applicationContext,
-                defaultRetryConfiguration.copy(
-                    syncConstraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true)
-                        .build()
-                )
-            )
-
-            WorkManager.getInstance(getApplication<Application>().applicationContext)
-                .getWorkInfosForUniqueWorkLiveData(PatientDownloadSyncWorkerImpl::class.java.name)
-                .asFlow()
-                .flatMapConcat { it.asFlow() }
-                .mapNotNull { workInfo ->
-                    workInfo.progress.takeIf {
-                        it.keyValueMap.isNotEmpty()
-                    }?.let {
-                            val state = it.getString("StateType")
-//                            val stateData = it.getString("State")
-//                            gson.fromJson(stateData, Class.forName(state)) as SyncJobStatus
-                            it
-                        }
-                }.collectLatest {
-                    Timber.d("Kingdom ${it.keyValueMap}")
-                }
-//            setPatientWorker()
+            setPatientWorker()
         }
-
         // Patch Sync Workers
-//        viewModelScope.launch(Dispatchers.IO) {
-//            setPatientPatchWorker()
-//        }
-//        viewModelScope.launch(Dispatchers.IO) {
-//            setRelationPatchWorker()
-//        }
+        viewModelScope.launch(Dispatchers.IO) {
+            setPatientPatchWorker()
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            setRelationPatchWorker()
+        }
     }
 
     //Patient Post Sync Worker
@@ -109,12 +82,6 @@ class MainViewModel @Inject constructor(
             )
         ).collectLatest {
             if (it == WorkInfo.State.ENQUEUED) {
-                /** Update Fhir Id in Generic Entity */
-                updateFhirIdInRelation()
-
-                /** Start Relation Worker */
-                setRelationWorker()
-
                 /** Download Worker */
                 Sync.oneTimeSync<PatientDownloadSyncWorkerImpl>(
                     getApplication<Application>().applicationContext,
@@ -198,7 +165,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private suspend fun updateFhirIdInRelation() {
+    internal suspend fun updateFhirIdInRelation() {
         genericRepository.getNonSyncedPostRelations().forEach { genericEntity ->
             val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>()
                 .mapToObject(RelatedPersonResponse::class.java)
@@ -220,5 +187,7 @@ class MainViewModel @Inject constructor(
                 )
             }
         }
+        /** Start Relation Worker */
+        setRelationWorker()
     }
 }
