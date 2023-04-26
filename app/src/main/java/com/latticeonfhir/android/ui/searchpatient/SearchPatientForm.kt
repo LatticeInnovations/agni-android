@@ -29,7 +29,7 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             .padding(vertical = 15.dp)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 15.dp)
+            modifier = Modifier.padding(horizontal = 15.dp).testTag("ROOT_LAYOUT")
         ) {
             Text(
                 text = "Search using any of the field below",
@@ -96,7 +96,7 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             VisitDropdown(searchPatientViewModel)
             Spacer(modifier = Modifier.height(30.dp))
             AddressComposable(label = "Address", address = searchPatientViewModel.address) {}
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(50.dp).testTag("END_OF_SCREEN"))
         }
     }
 
@@ -118,7 +118,8 @@ fun AgeBox(age: String, label: String, updateAge: (String) -> Unit) {
             ),
             modifier = Modifier
                 .width(75.dp)
-                .padding(end = 5.dp),
+                .padding(end = 5.dp)
+                .testTag("${label.uppercase()}_VALUE"),
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number

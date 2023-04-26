@@ -57,8 +57,7 @@ fun SearchPatient(
                     }) {
                         Icon(
                             Icons.Default.Clear,
-                            contentDescription = null,
-                            modifier = Modifier.testTag("back icon")
+                            contentDescription = "CLEAR_ICON"
                         )
                     }
                 }

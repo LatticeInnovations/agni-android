@@ -69,7 +69,7 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .testTag("State"),
+                    .testTag("State *"),
                 readOnly = true,
                 interactionSource = remember {
                     MutableInteractionSource()

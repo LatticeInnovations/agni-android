@@ -82,22 +82,6 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
 
     fun addRelation(relation: Relation, relationAdded: (List<Long>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            RelationConverter.getInverseRelation(relation.toRelationEntity(), patientDao){
-                viewModelScope.launch(Dispatchers.IO) {
-                    genericRepository.insertOrUpdatePostEntity(
-                        patientId = relation.patientId,
-                        entity = RelatedPersonResponse(
-                            id = relation.patientId,
-                            relationship = listOf(Relationship(
-                                patientIs = relation.relation,
-                                relativeId = relativeId,
-                                relativeIs = it.value
-                            ))
-                        ),
-                        typeEnum = GenericTypeEnum.RELATION
-                    )
-                }
-            }
             relationRepository.addRelation(relation, relationAdded)
         }
     }
