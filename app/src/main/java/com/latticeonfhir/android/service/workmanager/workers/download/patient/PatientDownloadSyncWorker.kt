@@ -7,24 +7,25 @@ import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
+import kotlinx.coroutines.delay
 
 abstract class PatientDownloadSyncWorker(context: Context, workerParameters: WorkerParameters) : SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
-        setProgress(workDataOf(Progress to 0))
+        setProgress(workDataOf(PatientDownloadProgress to 0))
         return when(getSyncRepository().getAndInsertListPatientData(0)) {
-            is ApiContinueResponse -> {
-                setProgress(workDataOf(Progress to 100))
+            is ApiContinueResponse -> Result.success()
+            is ApiEndResponse -> {
+                setProgress(workDataOf(PatientDownloadProgress to 100))
                 Result.success()
             }
-            is ApiEndResponse -> Result.success()
             is ApiErrorResponse -> Result.failure()
             else -> Result.retry()
         }
     }
 
     companion object {
-        const val Progress = "Progress"
+        const val PatientDownloadProgress = "PatientDownloadProgress"
         private const val delayDuration = 1L
     }
 }
