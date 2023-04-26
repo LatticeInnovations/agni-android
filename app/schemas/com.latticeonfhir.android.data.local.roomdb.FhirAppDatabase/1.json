@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "800f59590107a44074237afa621c8a27",
+    "identityHash": "3f1e08555ec60a0bb208c81af0901c55",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -117,7 +117,17 @@
             "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_PatientEntity_fhirId",
+            "unique": false,
+            "columnNames": [
+              "fhirId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_PatientEntity_fhirId` ON `${TABLE_NAME}` (`fhirId`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
@@ -336,7 +346,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '800f59590107a44074237afa621c8a27')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3f1e08555ec60a0bb208c81af0901c55')"
     ]
   }
 }
