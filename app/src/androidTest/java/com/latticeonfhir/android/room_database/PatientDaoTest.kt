@@ -80,4 +80,18 @@ class PatientDaoTest: BaseClass() {
         val result = patientDao.updateIdentifiers(updatedIdentifierEntity)
         Assert.assertNotEquals("Identifier entity not updated.",-1, result)
     }
+
+    @Test
+    fun updateFhirIdTest() = runBlocking {
+        patientDao.insertPatientData(patientResponse.toPatientEntity())
+        val result = patientDao.updateFhirId(patientResponse.id, "1234")
+        Assert.assertEquals("On successful updation, number of rows affected should be 1.",1, result)
+    }
+
+    @Test
+    fun getPatientIdByFhirIdTest() = runBlocking {
+        updateFhirIdTest()
+        val result = patientDao.getPatientIdByFhirId("1234")
+        Assert.assertEquals("id returned does not match the id of patient", patientResponse.id, result)
+    }
 }

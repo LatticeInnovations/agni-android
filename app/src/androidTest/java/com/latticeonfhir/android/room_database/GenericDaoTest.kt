@@ -10,35 +10,70 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 
-class GenericDaoTest: BaseClass() {
+class GenericDaoTest : BaseClass() {
+
+    val genericId = UUIDBuilder.generateUUID()
+    val genericEntity = GenericEntity(
+        id = genericId,
+        patientId = id,
+        payload = patientResponse.toPatientEntity().toJson(),
+        type = GenericTypeEnum.PATIENT,
+        syncType = SyncType.POST
+    )
+
+    val relationGenericEntity = GenericEntity(
+        id = UUIDBuilder.generateUUID(),
+        patientId = id,
+        payload = relationEntity.toJson(),
+        type = GenericTypeEnum.RELATION,
+        syncType = SyncType.POST
+    )
 
     @Test
-    fun insertGenericEntityTest() = runBlocking{
-        val result = genericDao.insertGenericEntity(
-            GenericEntity(
-                id = UUIDBuilder.generateUUID(),
-                patientId = id,
-                payload = patientResponse.toPatientEntity().toJson(),
-                type = GenericTypeEnum.PATIENT,
-                syncType = SyncType.POST
-            )
-        )
+    fun insertGenericEntityTest() = runBlocking {
+        val result = genericDao.insertGenericEntity(genericEntity)
         Assert.assertNotEquals("Generic entity not inserted.", -1, result)
     }
 
     @Test
-    fun getGenericEntityByIdTest() = runBlocking{
-        genericDao.insertGenericEntity(
-            GenericEntity(
-                id = UUIDBuilder.generateUUID(),
-                patientId = id,
-                payload = patientResponse.toPatientEntity().toJson(),
-                type = GenericTypeEnum.PATIENT,
-                syncType = SyncType.POST
-            )
-        )
-        val genericEntity = genericDao.getGenericEntityById(id, GenericTypeEnum.PATIENT, SyncType.POST)
+    fun getGenericEntityByIdTest() = runBlocking {
+        genericDao.insertGenericEntity(genericEntity)
+        val result = genericDao.getGenericEntityById(id, GenericTypeEnum.PATIENT, SyncType.POST)
 
-        Assert.assertEquals("The requested generic entity of given id is not returned.", id, genericEntity?.patientId)
+        Assert.assertEquals(
+            "The requested generic entity of given id is not returned.",
+            id,
+            result?.patientId
+        )
+    }
+
+    @Test
+    fun getChangeRequestPayloadByIdTest() = runBlocking {
+        genericDao.insertGenericEntity(genericEntity)
+        val result = genericDao.getChangeRequestPayloadById(genericId)
+        Assert.assertEquals("payload returned is not correct", genericEntity.payload, result)
+    }
+
+    @Test
+    fun getSameTypeGenericEntityPayloadTest() = runBlocking {
+        genericDao.insertGenericEntity(genericEntity)
+        val result = genericDao.getSameTypeGenericEntityPayload(
+            GenericTypeEnum.PATIENT, SyncType.POST
+        )
+        Assert.assertEquals("genericEntity returned not correct", listOf(genericEntity) , result)
+    }
+
+    @Test
+    fun deleteSyncPayloadTest() = runBlocking{
+        genericDao.insertGenericEntity(genericEntity)
+        val result = genericDao.deleteSyncPayload(listOf(genericId))
+        Assert.assertEquals("sync payload not deleted", 1 , result)
+    }
+
+    @Test
+    fun getNotSyncedPostRelationTest() = runBlocking {
+        genericDao.insertGenericEntity(relationGenericEntity)
+        val result = genericDao.getNotSyncedPostRelation()
+        Assert.assertEquals("list of generic entity not returned correctly", listOf(relationGenericEntity), result)
     }
 }
