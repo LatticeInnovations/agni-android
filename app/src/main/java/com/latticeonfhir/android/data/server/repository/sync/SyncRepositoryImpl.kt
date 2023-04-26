@@ -7,6 +7,9 @@ import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
+import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
 import com.latticeonfhir.android.data.server.api.ApiService
 import com.latticeonfhir.android.data.server.constants.ConstantValues.COUNT_VALUE
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
@@ -15,6 +18,8 @@ import com.latticeonfhir.android.data.server.constants.QueryParameters.COUNT
 import com.latticeonfhir.android.data.server.constants.QueryParameters.ID
 import com.latticeonfhir.android.data.server.constants.QueryParameters.LAST_UPDATED
 import com.latticeonfhir.android.data.server.constants.QueryParameters.OFFSET
+import com.latticeonfhir.android.data.server.constants.QueryParameters.PATIENT_ID
+import com.latticeonfhir.android.data.server.constants.QueryParameters.SORT
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
@@ -24,16 +29,17 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
-import com.latticeonfhir.android.utils.relation.RelationConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
@@ -41,13 +47,17 @@ class SyncRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val patientDao: PatientDao,
     private val genericDao: GenericDao,
-    private val preferenceRepository: PreferenceRepository
+    private val preferenceRepository: PreferenceRepository,
+    private val relationDao: RelationDao
 ) : SyncRepository {
+
+    private val identifierList = mutableListOf<IdentifierEntity>()
 
     override suspend fun getAndInsertListPatientData(offset: Int): ResponseMapper<List<PatientResponse>> {
         val map = mutableMapOf<String, String>()
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
+        map[SORT] = "-$ID"
         if (preferenceRepository.getLastUpdatedDate() != 0L) map[LAST_UPDATED] =
             preferenceRepository.getLastUpdatedDate().toTimeStampDate()
         return ApiResponseConverter.convert(
@@ -59,23 +69,33 @@ class SyncRepositoryImpl @Inject constructor(
         ).apply {
             if (this is ApiContinueResponse) {
                 patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
-                body.map { patientResponse ->
+                val patientIds = body.map { patientResponse ->
                     patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
-                        patientDao.insertIdentifiers(*listOfIdentifiers.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
-                            .toTypedArray())
+                        identifierList.addAll(listOfIdentifiers)
                     }
+                    patientResponse.fhirId
                 }
-//                getAndInsertListPatientData(offset + 700)
+                patientDao.insertIdentifiers(*identifierList.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
+                    .toTypedArray())
+                getAndInsertRelation(
+                    patientIds.toString().replace("[", "").replace("]", "").replace(" ", "")
+                )
+                getAndInsertListPatientData(offset + 700)
             }
             if (this is ApiEndResponse) {
                 preferenceRepository.setLastUpdatedDate(Date().time)
                 patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
-                body.map { patientResponse ->
+                val patientIds = body.map { patientResponse ->
                     patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
-                        patientDao.insertIdentifiers(*listOfIdentifiers.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
-                            .toTypedArray())
+                        identifierList.addAll(listOfIdentifiers)
                     }
+                    patientResponse.fhirId
                 }
+                patientDao.insertIdentifiers(*identifierList.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
+                    .toTypedArray())
+                getAndInsertRelation(
+                    patientIds.toString().replace("[", "").replace("]", "").replace(" ", "")
+                )
             }
         }
     }
@@ -103,6 +123,40 @@ class SyncRepositoryImpl @Inject constructor(
                         patientDao.insertIdentifiers(*listOfIdentifiers.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
                             .toTypedArray())
                     }
+                }
+            }
+        }
+    }
+
+    override suspend fun getAndInsertRelation(patientId: String): ResponseMapper<List<RelatedPersonResponse>> {
+        val map = mutableMapOf<String, String>()
+        map[PATIENT_ID] = patientId
+        map[COUNT] = 5000.toString()
+        return ApiResponseConverter.convert(
+            apiService.getRelationData(
+                RELATED_PERSON,
+                map
+            )
+        ).apply {
+            if (this is ApiEndResponse) {
+                val relationEntity = mutableListOf<RelationEntity>()
+                body.map { relatedPersonResponse ->
+                    if (relatedPersonResponse.relationship.isNotEmpty()) {
+                        relatedPersonResponse.relationship.map { relationship ->
+                            relationEntity.add(
+                                relationship.toRelationEntity(
+                                    relatedPersonResponse.id,
+                                    patientDao,
+                                    apiService
+                                )
+                            )
+                        }
+                    }
+                }
+                if(relationEntity.isNotEmpty()) {
+                    relationDao.insertRelation(
+                        *relationEntity.toTypedArray()
+                    )
                 }
             }
         }

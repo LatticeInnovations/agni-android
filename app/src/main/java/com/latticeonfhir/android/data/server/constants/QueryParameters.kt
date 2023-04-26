@@ -5,4 +5,6 @@ object QueryParameters {
     const val COUNT = "_count"
     const val OFFSET = "_offset"
     const val LAST_UPDATED = "_lastUpdated>"
+    const val PATIENT_ID = "patientId"
+    const val SORT = "_sort"
 }
