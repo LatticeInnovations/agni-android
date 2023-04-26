@@ -199,6 +199,13 @@ fun ConfirmRelationshipScreen(
         }
         Button(
             onClick = {
+                viewModel.connectPatient(
+                    Relation(
+                        patientId = viewModel.patientId,
+                        relativeId = viewModel.relativeId,
+                        relation = getRelationEnumFromString(viewModel.relation)
+                    )
+                )
                 navController.popBackStack(Screen.HouseholdMembersScreen.route, false)
             },
             modifier = Modifier
@@ -460,6 +467,7 @@ fun EditDialog(
         confirmButton = {
             TextButton(
                 onClick = {
+                    viewModel.relation = relation
                     viewModel.updateRelation(
                         Relation(
                             patientId = relationView.patientId,
