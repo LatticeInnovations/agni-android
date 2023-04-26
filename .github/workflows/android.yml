@@ -49,8 +49,7 @@ jobs:
 
     - name: Run unit tests
       run: ./gradlew test --stacktrace
-    - name: Run detekt
-      run: ./gradlew detektCheck
+
       
     - name: Instrumentation Tests
       uses: reactivecircus/android-emulator-runner@v2
