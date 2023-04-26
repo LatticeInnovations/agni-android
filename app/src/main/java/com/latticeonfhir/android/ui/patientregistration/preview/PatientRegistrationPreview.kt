@@ -193,25 +193,25 @@ fun PatientRegistrationPreview(
                     viewModel.addPatient(
                         PatientResponse(
                             id = viewModel.relativeId,
-                            firstName = patientRegisterDetails?.firstName!!,
-                            middleName = if (patientRegisterDetails.middleName!!.isEmpty()) null else patientRegisterDetails.middleName,
-                            lastName = if (patientRegisterDetails.lastName!!.isEmpty()) null else patientRegisterDetails.lastName,
+                            firstName = viewModel.firstName,
+                            middleName = if (viewModel.middleName.isEmpty()) null else viewModel.middleName,
+                            lastName = if (viewModel.lastName.isEmpty()) null else viewModel.lastName,
                             birthDate = Date.from(
                                 date!!.atStartOfDay(ZoneId.systemDefault()).toInstant()
                             ).time.toPatientDate(),
-                            email = if (patientRegisterDetails.email!!.isEmpty()) null else patientRegisterDetails.email,
+                            email = if (viewModel.email.isEmpty()) null else viewModel.email,
                             active = true,
-                            gender = patientRegisterDetails.gender!!,
-                            mobileNumber = patientRegisterDetails.phoneNumber!!.toLong(),
+                            gender = viewModel.gender,
+                            mobileNumber = viewModel.phoneNumber.toLong(),
                             fhirId = null,
                             permanentAddress = PatientAddressResponse(
-                                postalCode = patientRegisterDetails.homePostalCode!!,
-                                state = patientRegisterDetails.homeState!!,
-                                addressLine1 = patientRegisterDetails.homeAddressLine1!!,
-                                addressLine2 = if (patientRegisterDetails.homeAddressLine2!!.isEmpty()) null else patientRegisterDetails.homeAddressLine2,
-                                city = patientRegisterDetails.homeCity!!,
+                                postalCode = viewModel.homeAddress.pincode,
+                                state = viewModel.homeAddress.state,
+                                addressLine1 = viewModel.homeAddress.addressLine1,
+                                addressLine2 = if (viewModel.homeAddress.addressLine2.isEmpty()) null else viewModel.homeAddress.addressLine2,
+                                city = viewModel.homeAddress.city,
                                 country = "India",
-                                district = if (patientRegisterDetails.homeDistrict!!.isEmpty()) null else patientRegisterDetails.homeDistrict
+                                district = if (viewModel.homeAddress.district.isEmpty()) null else viewModel.homeAddress.district
                             ),
                             identifier = viewModel.identifierList
                         )
