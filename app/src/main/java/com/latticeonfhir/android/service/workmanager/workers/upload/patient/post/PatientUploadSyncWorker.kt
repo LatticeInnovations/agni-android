@@ -13,15 +13,19 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmpty
 abstract class PatientUploadSyncWorker(context: Context, workerParameters: WorkerParameters): SyncWorker(context,workerParameters) {
 
     override suspend fun doWork(): Result {
-        setProgress(workDataOf(PatientDownloadSyncWorker.Progress to 0))
+        setProgress(workDataOf(PatientUploadProgress to 0))
         return when(getSyncRepository().sendPersonPostData()) {
             is ApiContinueResponse -> Result.success()
             is ApiEndResponse -> Result.success()
             is ApiErrorResponse -> Result.failure()
             is ApiEmptyResponse -> {
-                setProgress(workDataOf(PatientDownloadSyncWorker.Progress to 100))
+                setProgress(workDataOf(PatientUploadProgress to 100))
                 Result.success()
             }
         }
+    }
+
+    companion object {
+        const val PatientUploadProgress = "patentUploadProgress"
     }
 }
