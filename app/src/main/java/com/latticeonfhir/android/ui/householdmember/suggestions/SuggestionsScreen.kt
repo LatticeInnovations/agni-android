@@ -267,8 +267,8 @@ fun ConnectDialog(
                     // call add member to household function here
                     viewModel.addRelation(
                         Relation(
-                            patientId = patient.id,
-                            relativeId = member.id,
+                            patientId = patient.fhirId ?: patient.id,
+                            relativeId = member.fhirId ?: member.id,
                             relation = RelationConverter.getRelationEnumFromString(relation)
                         ),
                         member.id

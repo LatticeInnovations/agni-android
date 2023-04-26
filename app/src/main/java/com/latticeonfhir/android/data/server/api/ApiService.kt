@@ -3,6 +3,7 @@ package com.latticeonfhir.android.data.server.api
 import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -25,4 +26,7 @@ interface ApiService {
 
     @PATCH("sync/{endPoint}")
     suspend fun patchListOfChanges(@Path("endPoint") endPoint: String, @Body patchLogs: List<Map<String, Any>>): Response<BaseResponse<List<CreateResponse>>>
+
+    @GET("{endPoint}")
+    suspend fun getRelationData(@Path("endPoint") endPoint: String, @QueryMap(encoded = true) map: Map<String,String>?): Response<BaseResponse<List<RelatedPersonResponse>>>
 }

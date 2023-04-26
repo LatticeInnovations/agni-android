@@ -3,10 +3,11 @@ package com.latticeonfhir.android.data.local.roomdb.entities
 import androidx.annotation.Keep
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Keep
-@Entity
+@Entity(indices = [Index("fhirId")])
 data class PatientEntity(
     @PrimaryKey
     val id: String,
@@ -16,7 +17,7 @@ data class PatientEntity(
     val active: Boolean?,
     val gender: String,
     val birthDate: Long,
-    val mobileNumber: Long?,
+    val mobileNumber: Long,
     val email: String?,
     @Embedded val permanentAddress: PermanentAddressEntity,
     val fhirId: String?

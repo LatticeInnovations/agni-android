@@ -6,7 +6,7 @@ import com.latticeonfhir.android.base.baseclass.ParcelableClass
 @Keep
 data class PatientAddressResponse(
     val addressLine1: String,
-    val city: String?,
+    val city: String,
     val district: String?,
     val state: String,
     val postalCode: String,
