@@ -118,6 +118,9 @@ object Sync {
       oneTimeWorkRequestBuilder.setInputData(
         Data.Builder().putInt(MAX_RETRIES_ALLOWED, it.maxRetries).build()
       )
+      oneTimeWorkRequestBuilder.setConstraints(
+        it.syncConstraints
+      )
     }
     return oneTimeWorkRequestBuilder.build()
   }
