@@ -13,7 +13,7 @@ data class PatientResponse(
     val active: Boolean?,
     val gender: String,
     val birthDate: String,
-    val mobileNumber: Long?,
+    val mobileNumber: Long,
     val email: String?,
     val permanentAddress: PatientAddressResponse,
     val fhirId: String?

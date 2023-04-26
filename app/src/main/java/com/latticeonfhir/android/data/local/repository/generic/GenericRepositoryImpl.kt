@@ -19,11 +19,12 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
     override suspend fun insertOrUpdatePostEntity(
         patientId: String,
         entity: Any,
-        typeEnum: GenericTypeEnum
+        typeEnum: GenericTypeEnum,
+        replace: Boolean
     ): Long {
         return genericDao.getGenericEntityById(patientId, typeEnum, SyncType.POST).run {
             if (this != null) {
-                if (typeEnum == GenericTypeEnum.RELATION) {
+                if (typeEnum == GenericTypeEnum.RELATION && !replace) {
                     val existingMap = payload.fromJson<MutableMap<String, Any>>()
                     val list = existingMap[RELATIONSHIP] as MutableList<Relationship>
                     val newMap = entity as RelatedPersonResponse
@@ -81,5 +82,9 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                 )
             }
         }
+    }
+
+    override suspend fun getNonSyncedPostRelations(): List<GenericEntity> {
+        return genericDao.getNotSyncedPostRelation()
     }
 }

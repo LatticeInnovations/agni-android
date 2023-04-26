@@ -19,7 +19,7 @@ sealed class ResponseMapper<T> {
             return if (response == null) {
                 return ApiEmptyResponse()
             } else if (response.isSuccessful) {
-                if (response.body()?.status == 1) {
+                if (response.body()?.status != 0) {
                     if (response.body()?.data == null) {
                         ApiEmptyResponse()
                     } else {
