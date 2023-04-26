@@ -47,17 +47,11 @@ jobs:
 #     - name: Run Unit Tests
 #       run: ./gradlew testStagingDebugUnitTest
 
-    - name: Build app
-      run: ./gradlew assembleDebug assembleAndroidTest
-    - name: Run tests
-      uses: emulator-wtf/run-tests@master
+    - name: Instrumentation Tests
+      uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-token: ${{ secrets.EW_API_TOKEN }}
-        app: app/build/outputs/apk/debug/app-debug.apk
-        test: app/build/outputs/apk/androidTest/app-debug-androidTest.apk
-        outputs-dir: build/test-results
-    - name: Publish test report
-      uses: mikepenz/action-junit-report@v2
-      if: always() # always run even if the tests fail
-      with:
-        report_paths: 'build/test-results/**/*.xml'
+        api-level: 29
+        target: default
+        arch: x86
+        profile: Nexus 6
+        script: ./gradlew connectedCheck --stacktrace
