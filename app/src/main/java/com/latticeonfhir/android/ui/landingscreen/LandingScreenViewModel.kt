@@ -39,6 +39,7 @@ class LandingScreenViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     var isLaunched by mutableStateOf(false)
+    var isLoading by mutableStateOf(true)
     val items = listOf("My Patients", "Queue", "Profile")
     var isSearching by mutableStateOf(false)
     var isSearchingByQuery by mutableStateOf(false)
@@ -60,6 +61,7 @@ class LandingScreenViewModel @Inject constructor(
     fun populateList() {
         size = 0
         searchResultList = flowOf()
+        isLoading = true
         if (isSearchResult) {
             if (isSearchingByQuery) searchPatientByQuery()
             else searchPatient(searchParameters!!)
@@ -88,6 +90,7 @@ class LandingScreenViewModel @Inject constructor(
                     it.data
                 }
             }.cachedIn(viewModelScope)
+            isLoading = false
         }
     }
 
@@ -99,6 +102,7 @@ class LandingScreenViewModel @Inject constructor(
                     it.data
                 }
             }.cachedIn(viewModelScope)
+            isLoading = false
         }
     }
 }

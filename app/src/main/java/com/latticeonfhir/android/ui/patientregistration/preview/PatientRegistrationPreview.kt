@@ -193,25 +193,25 @@ fun PatientRegistrationPreview(
                     viewModel.addPatient(
                         PatientResponse(
                             id = viewModel.relativeId,
-                            firstName = patientRegisterDetails?.firstName!!,
-                            middleName = if (patientRegisterDetails.middleName!!.isEmpty()) null else patientRegisterDetails.middleName,
-                            lastName = if (patientRegisterDetails.lastName!!.isEmpty()) null else patientRegisterDetails.lastName,
+                            firstName = viewModel.firstName,
+                            middleName = if (viewModel.middleName.isEmpty()) null else viewModel.middleName,
+                            lastName = if (viewModel.lastName.isEmpty()) null else viewModel.lastName,
                             birthDate = Date.from(
                                 date!!.atStartOfDay(ZoneId.systemDefault()).toInstant()
                             ).time.toPatientDate(),
-                            email = if (patientRegisterDetails.email!!.isEmpty()) null else patientRegisterDetails.email,
+                            email = if (viewModel.email.isEmpty()) null else viewModel.email,
                             active = true,
-                            gender = patientRegisterDetails.gender!!,
-                            mobileNumber = patientRegisterDetails.phoneNumber!!.toLong(),
+                            gender = viewModel.gender,
+                            mobileNumber = viewModel.phoneNumber.toLong(),
                             fhirId = null,
                             permanentAddress = PatientAddressResponse(
-                                postalCode = patientRegisterDetails.homePostalCode!!,
-                                state = patientRegisterDetails.homeState!!,
-                                addressLine1 = patientRegisterDetails.homeAddressLine1!!,
-                                addressLine2 = if (patientRegisterDetails.homeAddressLine2!!.isEmpty()) null else patientRegisterDetails.homeAddressLine2,
-                                city = patientRegisterDetails.homeCity!!,
+                                postalCode = viewModel.homeAddress.pincode,
+                                state = viewModel.homeAddress.state,
+                                addressLine1 = viewModel.homeAddress.addressLine1,
+                                addressLine2 = if (viewModel.homeAddress.addressLine2.isEmpty()) null else viewModel.homeAddress.addressLine2,
+                                city = viewModel.homeAddress.city,
                                 country = "India",
-                                district = if (patientRegisterDetails.homeDistrict!!.isEmpty()) null else patientRegisterDetails.homeDistrict
+                                district = if (viewModel.homeAddress.district.isEmpty()) null else viewModel.homeAddress.district
                             ),
                             identifier = viewModel.identifierList
                         )
@@ -290,18 +290,19 @@ fun PreviewScreen(
                             viewModel.lastName
                         )
                     }, ${viewModel.gender.capitalize()}",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.testTag("NAME_TAG")
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Label("Date of birth")
-                Detail(viewModel.dob)
+                Detail(viewModel.dob, "DOB_TAG")
                 Spacer(modifier = Modifier.height(10.dp))
                 Label("Phone No.")
-                Detail("+91 ${viewModel.phoneNumber}")
+                Detail("+91 ${viewModel.phoneNumber}", "PHONE_NO_TAG")
                 if (viewModel.email.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label("Email")
-                    Detail(viewModel.email)
+                    Detail(viewModel.email, "EMAIL_TAG")
                 }
             }
         }
@@ -319,17 +320,17 @@ fun PreviewScreen(
                 if (viewModel.passportId.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label("Passport ID")
-                    Detail(viewModel.passportId)
+                    Detail(viewModel.passportId, "PASSPORT_ID_TAG")
                 }
                 if (viewModel.voterId.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label("Voter ID")
-                    Detail(viewModel.voterId)
+                    Detail(viewModel.voterId, "VOTER_ID_TAG")
                 }
                 if (viewModel.patientId.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label("Patient ID")
-                    Detail(viewModel.patientId)
+                    Detail(viewModel.patientId, "PATIENT_ID_TAG")
                 }
             }
         }
@@ -356,26 +357,26 @@ fun PreviewScreen(
                 Heading("Addresses", 3, patientRegister, navController)
                 Spacer(modifier = Modifier.height(10.dp))
                 Label("Home Address")
-                Detail(homeAddressLine1)
-                Detail(homeAddressLine2)
-                Detail(homeAddressLine3)
-                if (viewModel.workAddress.pincode.isNotEmpty()) {
-                    val workAddressLine1 = viewModel.workAddress.addressLine1 +
-                            if (viewModel.workAddress.addressLine2.isEmpty()) "" else {
-                                ", " + viewModel.workAddress.addressLine2
-                            }
-                    val workAddressLine2 = viewModel.workAddress.city +
-                            if (viewModel.workAddress.district.isEmpty()) "" else {
-                                ", " + viewModel.workAddress.district
-                            }
-                    val workAddressLine3 =
-                        "${viewModel.workAddress.state}, ${viewModel.workAddress.pincode}"
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Label("Work Address")
-                    Detail(workAddressLine1)
-                    Detail(workAddressLine2)
-                    Detail(workAddressLine3)
-                }
+                Detail(homeAddressLine1, "ADDRESS_LINE1_TAG")
+                Detail(homeAddressLine2, "ADDRESS_LINE2_TAG")
+                Detail(homeAddressLine3, "ADDRESS_LINE3_TAG")
+//                if (viewModel.workAddress.pincode.isNotEmpty()) {
+//                    val workAddressLine1 = viewModel.workAddress.addressLine1 +
+//                            if (viewModel.workAddress.addressLine2.isEmpty()) "" else {
+//                                ", " + viewModel.workAddress.addressLine2
+//                            }
+//                    val workAddressLine2 = viewModel.workAddress.city +
+//                            if (viewModel.workAddress.district.isEmpty()) "" else {
+//                                ", " + viewModel.workAddress.district
+//                            }
+//                    val workAddressLine3 =
+//                        "${viewModel.workAddress.state}, ${viewModel.workAddress.pincode}"
+//                    Spacer(modifier = Modifier.height(10.dp))
+//                    Label("Work Address")
+//                    Detail(workAddressLine1)
+//                    Detail(workAddressLine2)
+//                    Detail(workAddressLine3)
+//                }
             }
         }
         if (viewModel.openDialog) {
@@ -498,6 +499,6 @@ fun Label(label: String) {
 }
 
 @Composable
-fun Detail(detail: String) {
-    Text(text = detail, style = MaterialTheme.typography.bodyLarge)
+fun Detail(detail: String, tag: String) {
+    Text(text = detail, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag(tag))
 }

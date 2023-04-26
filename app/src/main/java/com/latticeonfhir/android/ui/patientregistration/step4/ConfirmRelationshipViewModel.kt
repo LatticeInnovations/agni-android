@@ -9,12 +9,19 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.model.RelationBetween
+import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
+import com.latticeonfhir.android.utils.relation.RelationConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -24,7 +31,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ConfirmRelationshipViewModel @Inject constructor(
     private val relationRepository: RelationRepository,
-    private val patientRepository: PatientRepository
+    private val patientRepository: PatientRepository,
+    private val genericRepository: GenericRepository,
+    private val patientDao: PatientDao
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
@@ -77,5 +86,27 @@ class ConfirmRelationshipViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    internal fun connectPatient(relation: Relation){
+        RelationConverter.getInverseRelation(relation.toRelationEntity(), patientDao){
+            viewModelScope.launch(Dispatchers.IO) {
+                genericRepository.insertOrUpdatePostEntity(
+                    patientId = relation.patientId,
+                    entity = RelatedPersonResponse(
+                        id = relation.patientId,
+                        relationship = listOf(
+                            Relationship(
+                            patientIs = relation.relation,
+                            relativeId = relativeId,
+                            relativeIs = it.value
+                        )
+                        )
+                    ),
+                    typeEnum = GenericTypeEnum.RELATION
+                )
+            }
+        }
+
     }
 }
