@@ -241,7 +241,7 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.6f)
-                .testTag("month")
+                .testTag("Month")
         ) {
             OutlinedTextField(
                 value = viewModel.dobMonth,
