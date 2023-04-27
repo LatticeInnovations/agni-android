@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -70,9 +71,11 @@ fun HouseholdMembersScreen(
                     Column {
                         Text(
                             text = "Household members",
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.testTag("TITLE")
                         )
-                        Text(text = "${Constants.GetFullName(viewModel.patient?.firstName, viewModel.patient?.middleName, viewModel.patient?.lastName)}, $subTitle", style = MaterialTheme.typography.bodyLarge)
+                        Text(text = "${Constants.GetFullName(viewModel.patient?.firstName, viewModel.patient?.middleName, viewModel.patient?.lastName)}, $subTitle", style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.testTag("SUBTITLE"))
                     }
                 }
             )
@@ -82,11 +85,13 @@ fun HouseholdMembersScreen(
             Box(modifier = Modifier.padding(it)) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     TabRow(
-                        selectedTabIndex = viewModel.tabIndex
+                        selectedTabIndex = viewModel.tabIndex,
+                        modifier = Modifier.testTag("TABS")
                     ) {
                         viewModel.tabs.forEachIndexed { index, title ->
                             Tab(
                                 text = { Text(title) },
+                                modifier = Modifier.testTag(title.uppercase()),
                                 selected = viewModel.tabIndex == index,
                                 onClick = { viewModel.tabIndex = index },
                                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -134,7 +139,8 @@ fun HouseholdMembersScreen(
                     FloatingActionButton(
                         onClick = { viewModel.isUpdateSelected = true },
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        modifier = Modifier.testTag("UPDATE_FAB")
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 15.dp),
@@ -165,7 +171,8 @@ fun HouseholdMembersScreen(
                                     viewModel.isUpdateSelected = false
                                 },
                                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                                modifier = Modifier.testTag("ADD_MEMBER_FAB")
                             ) {
                                 Row(
                                     modifier = Modifier.padding(10.dp),
@@ -183,7 +190,8 @@ fun HouseholdMembersScreen(
                             FloatingActionButton(
                                 onClick = { },
                                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                                modifier = Modifier.testTag("EDIT_EXISTING_FAB")
                             ) {
                                 Row(
                                     modifier = Modifier.padding(10.dp),
@@ -202,7 +210,8 @@ fun HouseholdMembersScreen(
                             FloatingActionButton(
                                 onClick = { viewModel.isUpdateSelected = false },
                                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                                modifier = Modifier.testTag("CLEAR_FAB")
                             ) {
                                 Icon(
                                     Icons.Default.Clear,
