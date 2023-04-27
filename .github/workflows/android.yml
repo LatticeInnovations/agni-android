@@ -6,6 +6,7 @@ on:
   push: 
     branches: [ dev ]
 
+
 jobs:
   build:
 
@@ -46,3 +47,13 @@ jobs:
 
 #     - name: Run Unit Tests
 #       run: ./gradlew testStagingDebugUnitTest
+
+      
+    - name: Instrumentation Tests
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+            api-level: 23
+            target: default
+            arch: x86_64
+            profile: Nexus 6
+            script: ./gradlew connectedCheck --stacktrace
