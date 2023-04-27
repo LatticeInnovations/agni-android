@@ -98,27 +98,47 @@ class ConnectPatientViewModel @Inject constructor(
         }
     }
 
-    fun addRelation(relation: Relation, relativeId: String, relationAdded: (List<Long>) -> Unit) {
+    fun addRelation(relation: Relation, relationAdded: (List<Long>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            RelationConverter.getInverseRelation(relation.toRelationEntity(), patientDao) {
-                viewModelScope.launch(Dispatchers.IO) {
-                    genericRepository.insertOrUpdatePostEntity(
+            relationRepository.addRelation(relation, relationAdded)
+        }
+    }
+
+    internal fun addRelationsToGenericEntity() {
+        val listOfRelation = mutableStateListOf<Relationship>()
+        val relationToBeUploaded = connectedMembersList.filter { relationView -> relationView.patientId == connectedMembersList[0].patientId }
+        relationToBeUploaded.forEach { relation ->
+                RelationConverter.getInverseRelation(
+                    Relation(
                         patientId = relation.patientId,
-                        entity = RelatedPersonResponse(
-                            id = relation.patientId,
-                            relationship = listOf(
-                                Relationship(
-                                    patientIs = relation.relation,
-                                    relativeId = relativeId,
-                                    relativeIs = it.value
-                                )
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.RELATION
+                        relativeId = relation.relativeId,
+                        relation = relation.relation.value
+                    ).toRelationEntity(), patientDao
+                ) {
+                    listOfRelation.add(
+                        Relationship(
+                            patientIs = relation.relation.value,
+                            relativeId = relation.relativeId,
+                            relativeIs = it.value
+                        )
                     )
-                    relationRepository.addRelation(relation, relationAdded)
+                    if(listOfRelation.size == relationToBeUploaded.size) {
+                        insertRelationsIntoGenericEntity(listOfRelation)
+                    }
                 }
             }
+    }
+
+    private fun insertRelationsIntoGenericEntity(listOfRelation: List<Relationship>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            genericRepository.insertOrUpdatePostEntity(
+                patientId = connectedMembersList[0].patientId,
+                entity = RelatedPersonResponse(
+                    id = connectedMembersList[0].patientId,
+                    relationship = listOfRelation
+                ),
+                typeEnum = GenericTypeEnum.RELATION
+            )
         }
     }
 }
