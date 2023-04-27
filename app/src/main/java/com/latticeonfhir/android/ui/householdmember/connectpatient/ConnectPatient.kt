@@ -269,6 +269,7 @@ fun ConnectPatient(
                         confirmButton = {
                             TextButton(
                                 onClick = {
+                                    viewModel.addRelationsToGenericEntity()
                                     navController.popBackStack(
                                         Screen.HouseholdMembersScreen.route,
                                         false
@@ -303,6 +304,7 @@ fun ConnectPatient(
                     else {
                         viewModel.showConfirmDialog = true
                     }
+
                 },
                 enabled = viewModel.connectedMembersList.isNotEmpty(),
                 modifier = Modifier
@@ -797,8 +799,7 @@ fun ConnectMemberDialog(
                             patientId = viewModel.patientFrom!!.id,
                             relativeId = member.id,
                             relation = RelationConverter.getRelationEnumFromString(relation)
-                        ),
-                        member.id
+                        )
                     ) {
                         viewModel.getRelationBetween(viewModel.patientFrom?.id!!, member.id)
                         viewModel.selectedMembersList.remove(member)
