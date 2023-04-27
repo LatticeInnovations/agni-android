@@ -154,6 +154,7 @@ class LandingScreenKtTest {
         composeTestRule.onNode(searchTextField).assertTextEquals("input")
         composeTestRule.onNode(searchTextField).performImeAction()
         composeTestRule.onNode(clearIcon).performClick()
+        Thread.sleep(5000)
         composeTestRule.onNode(searchIcon).performClick()
         composeTestRule.onAllNodesWithText("input")[0].assertExists("Previous search should be present in the list.")
     }
