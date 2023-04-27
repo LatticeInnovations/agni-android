@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,8 +60,8 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
                     val age = viewModel.patient?.birthDate?.let { Constants.GetAge(it) }
                     val subTitle = "${viewModel.patient?.gender?.get(0)?.uppercase()}/$age · ${viewModel.patient?.fhirId}"
                     Column {
-                        Text(text = Constants.GetFullName(viewModel.patient?.firstName, viewModel.patient?.middleName, viewModel.patient?.lastName), style = MaterialTheme.typography.titleLarge)
-                        Text(text = subTitle, style = MaterialTheme.typography.bodyLarge)
+                        Text(text = Constants.GetFullName(viewModel.patient?.firstName, viewModel.patient?.middleName, viewModel.patient?.lastName), style = MaterialTheme.typography.titleLarge, modifier = Modifier.testTag("TITLE"))
+                        Text(text = subTitle, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag("SUBTITLE"))
                     }
                 },
                 actions = {
@@ -76,7 +77,7 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
         content = {
             Box(modifier = Modifier.padding(it)) {
                 Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 30.dp)) {
-                    CardComposable(navController, viewModel.patient)
+                    CardComposable(navController, viewModel.patient, "HOUSEHOLD_MEMBER")
                 }
             }
         }
@@ -84,7 +85,7 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
 }
 
 @Composable
-fun CardComposable(navController: NavController, patient: PatientResponse?) {
+fun CardComposable(navController: NavController, patient: PatientResponse?, tag: String) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -94,7 +95,8 @@ fun CardComposable(navController: NavController, patient: PatientResponse?) {
                     patient
                 )
                 navController.navigate(Screen.HouseholdMembersScreen.route)
-            },
+            }
+            .testTag(tag),
         shadowElevation = 5.dp,
         shape = RoundedCornerShape(4.dp)
     ) {

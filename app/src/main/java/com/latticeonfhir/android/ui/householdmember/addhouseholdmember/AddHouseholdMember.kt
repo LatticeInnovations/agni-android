@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,7 +50,7 @@ fun AddHouseholdMember(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Add a household member")
+                    Text(text = "Add a household member", modifier = Modifier.testTag("TITLE"))
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -71,13 +72,13 @@ fun AddHouseholdMember(
                         .verticalScroll(rememberScrollState())
                         .padding(vertical = 40.dp, horizontal = 60.dp)
                 ) {
-                    viewModel.patient?.let { it1 ->
+                    viewModel.patient?.let { patient ->
                         CardLayout(
                             navController,
                             R.drawable.person_add,
                             "Create a new patient, and\ninclude them in the household",
                             "Add a patient",
-                            it1,
+                            patient,
                             "register",
                             viewModel
                         )
@@ -87,7 +88,7 @@ fun AddHouseholdMember(
                             R.drawable.patient_list,
                             "Search for an existing patient, and\ninclude them in the household",
                             "Search patients",
-                            it1,
+                            patient,
                             "search",
                             viewModel
                         )
@@ -170,7 +171,8 @@ fun CardLayout(
     viewModel: AddHouseholdMemberViewModel
 ) {
     OutlinedCard(
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        modifier = Modifier.testTag(btnText)
     ) {
         Column(
             modifier = Modifier
