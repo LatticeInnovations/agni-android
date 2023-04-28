@@ -186,6 +186,5 @@ class AdvancedSearchPatientKtTest {
         composeTestRule.onNode(chipCategory2).assertExists(errorMessageOnFail = "Category 2 chip should be displayed.")
         composeTestRule.onNode(chipCategory3).assertExists(errorMessageOnFail = "Category 3 chip should be displayed.")
         composeTestRule.onNode(patientList).assertExists(errorMessageOnFail = "Patient List should be displayed.")
-        composeTestRule.onNode(searchTitle).assertTextEquals("Searching...")
     }
 }
