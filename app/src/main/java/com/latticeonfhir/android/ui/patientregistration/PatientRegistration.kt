@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
@@ -128,7 +129,8 @@ fun PatientRegistration(
                         ) {
                             Text(
                                 text = "Establish relation",
-                                style = MaterialTheme.typography.headlineSmall
+                                style = MaterialTheme.typography.headlineSmall,
+                                modifier = Modifier.testTag("DIALOG_TITLE")
                             )
                             IconButton(onClick = {
                                 viewModel.showRelationDialogue = false
@@ -137,7 +139,7 @@ fun PatientRegistration(
                                     viewModel.totalSteps = 3
                                 }
                             }) {
-                                Icon(Icons.Default.Clear, contentDescription = null)
+                                Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
                             }
                         }
                     },
@@ -157,7 +159,9 @@ fun PatientRegistration(
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
-                                Column {
+                                Column (
+                                    modifier = Modifier.testTag("RELATIONS_DROPDOWN")
+                                        ){
                                     val relationsList = Constants.GetRelationshipList(viewModel.patientFrom?.gender!!)
 
                                     TextField(
@@ -229,7 +233,8 @@ fun PatientRegistration(
                             onClick = {
                                 viewModel.showRelationDialogue = false
                             },
-                            enabled = viewModel.relation.isNotEmpty()
+                            enabled = viewModel.relation.isNotEmpty(),
+                            modifier = Modifier.testTag("POSITIVE_BTN")
                         ) {
                             Text(
                                 "Create"
@@ -241,7 +246,9 @@ fun PatientRegistration(
                             onClick = {
                                 viewModel.showRelationDialogue = false
                                 navController.popBackStack()
-                            }) {
+                            },
+                            modifier = Modifier.testTag("NEGATIVE_BTN")
+                        ) {
                             Text(
                                 "Go back"
                             )
