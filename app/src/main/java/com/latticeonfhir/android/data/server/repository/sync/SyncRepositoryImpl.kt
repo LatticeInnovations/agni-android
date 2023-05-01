@@ -97,7 +97,7 @@ class SyncRepositoryImpl @Inject constructor(
                         .toTypedArray())
 
                     //Call for next batch data
-                    getAndInsertListPatientData(offset + 500)
+                    getAndInsertListPatientData(offset + COUNT_VALUE)
                 }
 
                 is ApiEndResponse -> {
