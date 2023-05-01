@@ -26,14 +26,9 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import androidx.work.hasKeyWithValueOfType
-import com.latticeonfhir.android.FhirApp.Companion.gson
 import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.mapNotNull
 
 object Sync {
 
@@ -49,7 +44,7 @@ object Sync {
   inline fun <reified W : SyncWorker> oneTimeSync(
     context: Context,
     retryConfiguration: RetryConfiguration? = defaultRetryConfiguration
-  ): Flow<WorkInfo.State?> {
+  ): Flow<WorkInfo?> {
     val flow = getWorkerInfo<W>(context)
     WorkManager.getInstance(context)
       .enqueueUniqueWork(
@@ -74,7 +69,7 @@ object Sync {
   inline fun <reified W : SyncWorker> periodicSync(
     context: Context,
     periodicSyncConfiguration: PeriodicSyncConfiguration
-  ): Flow<WorkInfo.State?> {
+  ): Flow<WorkInfo?> {
     val flow = getWorkerInfo<W>(context)
     WorkManager.getInstance(context)
       .enqueueUniquePeriodicWork(
@@ -90,7 +85,6 @@ object Sync {
     WorkManager.getInstance(context)
       .getWorkInfosForUniqueWorkLiveData(W::class.java.name)
       .map { it.lastOrNull() }
-      .map { it?.state }
       .asFlow()
 //      .flatMapConcat { it.asFlow() }
 //      .mapNotNull { workInfo ->
