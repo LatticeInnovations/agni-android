@@ -42,7 +42,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "\"http://release.myserver.com\""
+            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
         }
     }
     compileOptions {
