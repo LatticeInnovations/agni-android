@@ -9,7 +9,7 @@ interface SyncRepository {
 
     suspend fun getAndInsertListPatientData(offset: Int): ResponseMapper<List<PatientResponse>>
     suspend fun getAndInsertPatientDataById(id: String): ResponseMapper<List<PatientResponse>>
-    suspend fun getAndInsertRelation(patientId: String): ResponseMapper<List<RelatedPersonResponse>>
+    suspend fun getAndInsertRelation(): ResponseMapper<List<RelatedPersonResponse>>
 
     //POST
     suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>>
