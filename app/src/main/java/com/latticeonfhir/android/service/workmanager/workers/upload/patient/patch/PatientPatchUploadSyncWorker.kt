@@ -2,20 +2,33 @@ package com.latticeonfhir.android.service.workmanager.workers.upload.patient.pat
 
 import android.content.Context
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
+import com.latticeonfhir.android.service.workmanager.workers.upload.patient.post.PatientUploadSyncWorker
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
+import kotlinx.coroutines.delay
 
-abstract class PatientPatchUploadSyncWorker(context: Context, workerParameters: WorkerParameters): SyncWorker(context,workerParameters) {
+abstract class PatientPatchUploadSyncWorker(context: Context, workerParameters: WorkerParameters) :
+    SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
-        return when(getSyncRepository().sendPersonPatchData()) {
+        setProgress(workDataOf(PatientPatchUpload to 0))
+        return when (getSyncRepository().sendPersonPatchData()) {
             is ApiContinueResponse -> Result.success()
             is ApiEndResponse -> Result.success()
             is ApiErrorResponse -> Result.failure()
-            is ApiEmptyResponse -> Result.success()
+            is ApiEmptyResponse -> {
+                setProgress(workDataOf(PatientPatchUpload to 100))
+                delay(1L)
+                Result.success()
+            }
         }
+    }
+
+    companion object {
+        const val PatientPatchUpload = "PatientPatchUpload"
     }
 }

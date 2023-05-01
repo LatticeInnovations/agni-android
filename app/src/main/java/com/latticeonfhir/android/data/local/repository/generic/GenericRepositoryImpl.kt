@@ -30,9 +30,9 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                     val newMap = entity as RelatedPersonResponse
                     list.add(newMap.relationship[0])
                     existingMap[RELATIONSHIP] = list
-                    genericDao.insertGenericEntity(copy(payload = existingMap.toJson()))
+                    genericDao.insertGenericEntity(copy(payload = existingMap.toJson()))[0]
                 } else {
-                    genericDao.insertGenericEntity(copy(payload = entity.toJson()))
+                    genericDao.insertGenericEntity(copy(payload = entity.toJson()))[0]
                 }
             } else {
                 genericDao.insertGenericEntity(
@@ -43,7 +43,7 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                         type = typeEnum,
                         syncType = SyncType.POST
                     )
-                )
+                )[0]
             }
         }
     }
@@ -69,7 +69,7 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                 }
                 genericDao.insertGenericEntity(
                     copy(payload = existingMap.toJson())
-                )
+                )[0]
             } else {
                 genericDao.insertGenericEntity(
                     GenericEntity(
@@ -79,7 +79,7 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                         type = typeEnum,
                         syncType = SyncType.PATCH
                     )
-                )
+                )[0]
             }
         }
     }

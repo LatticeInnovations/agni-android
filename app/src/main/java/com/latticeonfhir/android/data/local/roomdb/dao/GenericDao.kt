@@ -14,7 +14,7 @@ interface GenericDao {
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertGenericEntity(genericEntity: GenericEntity): Long
+    suspend fun insertGenericEntity(vararg genericEntity: GenericEntity): List<Long>
 
     @Transaction
     @Query("SELECT * FROM GenericEntity WHERE patientId=:patientId AND type=:genericTypeEnum AND syncType=:syncType")
