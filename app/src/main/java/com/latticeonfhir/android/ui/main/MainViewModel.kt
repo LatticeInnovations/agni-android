@@ -72,7 +72,7 @@ class MainViewModel @Inject constructor(
                     .setRequiresBatteryNotLow(true)
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build(),
-                repeat = RepeatInterval(16, TimeUnit.MINUTES),
+                repeat = RepeatInterval(1, TimeUnit.HOURS),
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
@@ -152,7 +152,7 @@ class MainViewModel @Inject constructor(
                     .setRequiresBatteryNotLow(true)
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build(),
-                repeat = RepeatInterval(15, TimeUnit.MINUTES),
+                repeat = RepeatInterval(1, TimeUnit.HOURS),
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
@@ -176,7 +176,7 @@ class MainViewModel @Inject constructor(
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresBatteryNotLow(true)
                     .build(),
-                repeat = RepeatInterval(15, TimeUnit.MINUTES),
+                repeat = RepeatInterval(1, TimeUnit.HOURS),
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
