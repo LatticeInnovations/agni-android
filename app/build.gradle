@@ -5,6 +5,26 @@ plugins {
     id 'com.google.dagger.hilt.android'
     id 'kotlin-parcelize'
     id 'kotlin-android'
+    id 'jacoco'
+}
+
+task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
+
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+
+    def fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*']
+    def debugTree = fileTree(dir: "${buildDir}/intermediates/classes/debug", excludes: fileFilter)
+    def mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories.setFrom(files([mainSrc]))
+    classDirectories.setFrom(files([debugTree]))
+    executionData.setFrom(fileTree(dir: "$buildDir", includes: [
+            "jacoco/testDebugUnitTest.exec",
+            "outputs/code-coverage/connected/*coverage.ec"
+    ]))
 }
 
 android {
@@ -30,11 +50,22 @@ android {
         }
     }
 
+    testOptions {
+        unitTests.all {
+            jacoco {
+                includeNoLocationClasses = true
+                excludes = ['jdk.internal.*']
+            }
+        }
+        unitTests.returnDefaultValues = true
+    }
+
     buildTypes {
         debug {
             debuggable true
             minifyEnabled false
             shrinkResources false
+            testCoverageEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "BASE_URL", "\"http://134.209.154.146:3000/api/v1/\""
         }
@@ -130,7 +161,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 
     //Fragment
-    implementation 'androidx.fragment:fragment-ktx:1.5.6'
+    implementation 'androidx.fragment:fragment-ktx:1.5.7'
 
     //SQL Cipher
     implementation 'net.zetetic:android-database-sqlcipher:4.5.3'
