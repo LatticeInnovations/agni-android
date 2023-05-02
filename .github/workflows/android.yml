@@ -1,16 +1,13 @@
 name: Android CI
-
-on:
+'on':
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
   push:
     branch: dev
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -19,7 +16,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '11'
-          distribution: 'zulu'
+          distribution: zulu
           cache: gradle
 
       - name: Setup Android SDK
@@ -36,17 +33,19 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-${{ hashFiles('**/*.gradle*') }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}-${{ hashFiles('**/buildSrc/**/*.kt') }}
+          key: >-
+            ${{ runner.os }}-${{ hashFiles('**/*.gradle*') }}-${{
+            hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}-${{
+            hashFiles('**/buildSrc/**/*.kt') }}
 
       - name: Execute Gradle build
         run: ./gradlew build
 
-      #     - name: Run Ktlint
-      #       run: ./gradlew ktlintStagingDebugCheck
+#      - name: Run Ktlint
+#        run: ./gradlew ktlintStagingDebugCheck
 
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
-
 
 #      - name: Instrumentation Tests
 #        uses: reactivecircus/android-emulator-runner@v2
@@ -57,26 +56,29 @@ jobs:
 #          profile: Nexus 6
 #          script: ./gradlew connectedCheck --stacktrace
 
+      - name: Build Release APK with Gradle
+        run: ./gradlew clean bundleRelease
+
       - name: Build release
         uses: r0adkll/sign-android-release@v1
         with:
           releaseDirectory: app/build/outputs/bundle/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
+          signingKeyBase64: '${{ secrets.SIGNING_KEY }}'
+          alias: '${{ secrets.ALIAS }}'
+          keyStorePassword: '${{ secrets.KEY_STORE_PASSWORD }}'
+          keyPassword: '${{ secrets.KEY_PASSWORD }}'
 
       - name: Upload Android Release to Play Store
         uses: r0adkll/upload-google-play@v1
         with:
           releaseName: TEST_VERSION
-          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+          serviceAccountJsonPlainText: '${{ secrets.SERVICE_ACCOUNT_JSON }}'
           packageName: com.latticeonfhir.android
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: internal
           status: completed
           inAppUpdatePriority: 5
-          userFraction: 1.0
+          userFraction: 1
           whatsNewDirectory: distribution/whatsnew
           mappingFile: app/build/outputs/mapping/release/mapping.txt
           debugSymbols: app/intermediates/merged_native_libs/release/out/lib
