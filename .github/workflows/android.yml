@@ -69,7 +69,7 @@ jobs:
     - name: Upload Android Release to Play Store
       uses: r0adkll/upload-google-play@v1
       with:
-        releaseName: ${{BuildConfig.VERSION_NAME}}
+        releaseName: TEST_VERSION
         serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
         packageName: com.latticeonfhir.android
         releaseFiles: app/build/outputs/bundle/release/app-release.aab
