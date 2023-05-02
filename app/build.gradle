@@ -30,7 +30,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'crea
 android {
     signingConfigs {
         release {
-            storeFile file('/home/naveen/StudioProjects/FHIR-Android/agni.jks')
+            storeFile file('../agni.jks')
             storePassword 'latticeagni'
             keyAlias 'key0'
             keyPassword 'latticeagni'
