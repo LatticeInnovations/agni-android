@@ -57,7 +57,7 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
                 label = "Patient Id",
                 weight = 1f,
                 maxLength = 10, searchPatientViewModel.isPatientIdValid,
-                "Enter valid Patient Id.",
+                "Patient Id should be of length 10.",
                 KeyboardType.Text
             ) {
                 searchPatientViewModel.patientId = it
@@ -76,14 +76,20 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 AgeBox(searchPatientViewModel.minAge, "Min") {
-                    searchPatientViewModel.minAge = it
+                    if (it.length == 0) searchPatientViewModel.minAge = it
+                    else if (it.matches(searchPatientViewModel.onlyNumbers)) {
+                        if (it.toInt()>=0 && it.toInt()<=100) searchPatientViewModel.minAge = it
+                    }
                     searchPatientViewModel.updateRange(
                         searchPatientViewModel.minAge,
                         searchPatientViewModel.maxAge
                     )
                 }
                 AgeBox(searchPatientViewModel.maxAge, "Max") {
-                    searchPatientViewModel.maxAge = it
+                    if (it.length == 0) searchPatientViewModel.maxAge = it
+                    else if (it.matches(searchPatientViewModel.onlyNumbers)) {
+                        if (it.toInt()>=0 && it.toInt()<=100) searchPatientViewModel.maxAge = it
+                    }
                     searchPatientViewModel.updateRange(
                         searchPatientViewModel.minAge,
                         searchPatientViewModel.maxAge

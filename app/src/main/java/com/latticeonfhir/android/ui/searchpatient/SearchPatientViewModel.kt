@@ -11,6 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchPatientViewModel @Inject constructor(): BaseViewModel() {
+    val onlyNumbers = Regex("^\\d+\$")
     var isLaunched by mutableStateOf(false)
     var fromHouseholdMember by mutableStateOf(false)
     var patientFrom by mutableStateOf<PatientResponse?>(null)
