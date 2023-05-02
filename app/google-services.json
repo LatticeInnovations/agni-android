@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "421740592142",
+    "project_id": "agni-f2a93",
+    "storage_bucket": "agni-f2a93.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:421740592142:android:e7811ab331a872b4b2505f",
+        "android_client_info": {
+          "package_name": "com.latticeonfhir.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "421740592142-iplin607n60ii70ukbpnc2g43msqq9hs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUG8gmWQhtMM2xzfyhDysKUFSizUJ9Mxc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "421740592142-iplin607n60ii70ukbpnc2g43msqq9hs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
