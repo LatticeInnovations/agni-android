@@ -29,23 +29,6 @@ class MainActivity : BaseActivity() {
             }
         }
         viewModel.toString()
-
-        WorkManager.getInstance(applicationContext)
-            .getWorkInfosForUniqueWorkLiveData(PatientUploadSyncWorkerImpl::class.java.name)
-            .observe(this) { work ->
-                work.forEach { workInfo ->
-                    if (workInfo != null) {
-                        val progress = workInfo.progress
-                        val value = progress.getInt(PatientUploadProgress, 0)
-                        if (value == 100) {
-                            /** Update Fhir Id in Generic Entity */
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                viewModel.updateFhirIdInRelation()
-                            }
-                        }
-                    }
-                }
-            }
     }
 
     override fun viewModel() = viewModel
