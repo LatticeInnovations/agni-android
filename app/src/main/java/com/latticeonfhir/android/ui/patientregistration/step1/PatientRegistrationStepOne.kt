@@ -315,10 +315,11 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
         modifier = Modifier.fillMaxWidth()
     ) {
         CustomTextField(
-            viewModel.years, label = "Years", 0.25F, 3, false, "",
+            viewModel.years, label = "Years", 0.25F, 3, viewModel.isAgeYearsValid, "Enter valid input between 0 to 150.",
             KeyboardType.Number
         ) {
             if (it.matches(viewModel.onlyNumbers)|| it.length == 0) viewModel.years = it
+            if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid = viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
         }
         Spacer(modifier = Modifier.width(15.dp))
         CustomTextField(
