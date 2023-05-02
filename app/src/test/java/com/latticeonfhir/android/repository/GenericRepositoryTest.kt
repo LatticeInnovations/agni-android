@@ -34,7 +34,7 @@ class GenericRepositoryTest: BaseClass() {
     @Test
     fun insertOrUpdatePostEntityTest() = runBlocking {
         `when`(genericDao.getGenericEntityById(id, GenericTypeEnum.PATIENT, SyncType.POST)).thenReturn(genericEntityPost)
-        `when`(genericDao.insertGenericEntity(genericEntityPost)).thenReturn(-1)
+        `when`(genericDao.insertGenericEntity(genericEntityPost)).thenReturn(listOf(-1))
         val actual = genericRepositoryImpl.insertOrUpdatePostEntity(id, patientResponse, GenericTypeEnum.PATIENT)
         Assert.assertEquals(-1, actual)
     }
