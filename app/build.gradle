@@ -10,7 +10,7 @@ plugins {
 android {
     signingConfigs {
         release {
-            storeFile file('/home/naveen/StudioProjects/FHIR-Android/agni.jks')
+            storeFile file('../agni.jks')
             storePassword 'latticeagni'
             keyAlias 'key0'
             keyPassword 'latticeagni'
@@ -23,8 +23,8 @@ android {
         applicationId "com.latticeonfhir.android"
         minSdk 23
         targetSdk 33
-        versionCode 3
-        versionName "1.0.1"
+        versionCode 4
+        versionName "1.0.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

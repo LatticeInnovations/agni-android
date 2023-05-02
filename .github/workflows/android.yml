@@ -3,6 +3,8 @@ name: Android CI
 on:
   pull_request:
     branches: [ main ]
+  push:
+    branch: dev
 
 jobs:
   build:
@@ -54,3 +56,27 @@ jobs:
             arch: x86_64
             profile: Nexus 6
             script: ./gradlew connectedCheck --stacktrace
+
+    - name: Build release
+      uses: r0adkll/sign-android-release@v1
+      with:
+        releaseDirectory: app/build/outputs/bundle/release
+        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+        alias: ${{ secrets.ALIAS }}
+        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+        keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+    - name: Upload Android Release to Play Store
+      uses: r0adkll/upload-google-play@v1
+      with:
+        releaseName: ${{BuildConfig.VERSION_NAME}}
+        serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+        packageName: com.latticeonfhir.android
+        releaseFiles: app/build/outputs/bundle/release/app-release.aab
+        track: internal
+        status: completed
+        inAppUpdatePriority: 5
+        userFraction: 1.0
+        whatsNewDirectory: distribution/whatsnew
+        mappingFile: app/build/outputs/mapping/release/mapping.txt
+        debugSymbols: app/intermediates/merged_native_libs/release/out/lib
