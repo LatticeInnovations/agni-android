@@ -297,10 +297,13 @@ fun ConnectPatient(
         floatingActionButton = {
             Button(
                 onClick = {
-                    if (viewModel.selectedMembersList.isEmpty()) navController.popBackStack(
-                        Screen.HouseholdMembersScreen.route,
-                        false
-                    )
+                    if (viewModel.selectedMembersList.isEmpty()) {
+                        viewModel.addRelationsToGenericEntity()
+                        navController.popBackStack(
+                            Screen.HouseholdMembersScreen.route,
+                            false
+                        )
+                    }
                     else {
                         viewModel.showConfirmDialog = true
                     }

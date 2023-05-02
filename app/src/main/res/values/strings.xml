@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FHIR-Android</string>
+    <string name="app_name">Agni</string>
     <string name="title_activity_main_compose">MainComposeActivity</string>
     <string name="title_activity_patient_registration">PatientRegistration</string>
     <string name="title_activity_patient_registration_preview">PatientRegistrationPreview</string>
