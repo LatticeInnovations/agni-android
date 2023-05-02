@@ -199,13 +199,7 @@ fun ConfirmRelationshipScreen(
         }
         Button(
             onClick = {
-                viewModel.connectPatient(
-                    Relation(
-                        patientId = viewModel.patientId,
-                        relativeId = viewModel.relativeId,
-                        relation = getRelationEnumFromString(viewModel.relation)
-                    )
-                )
+                viewModel.addRelationsToGenericEntity()
                 navController.popBackStack(Screen.HouseholdMembersScreen.route, false)
             },
             modifier = Modifier

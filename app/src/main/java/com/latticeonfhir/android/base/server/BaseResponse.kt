@@ -1,5 +1,8 @@
 package com.latticeonfhir.android.base.server
 
+import androidx.annotation.Keep
+
+@Keep
 data class BaseResponse<T>(
     val status: Int,
     val message: String,

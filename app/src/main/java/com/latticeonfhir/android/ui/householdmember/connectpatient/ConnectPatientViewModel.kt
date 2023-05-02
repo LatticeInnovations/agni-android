@@ -105,40 +105,22 @@ class ConnectPatientViewModel @Inject constructor(
     }
 
     internal fun addRelationsToGenericEntity() {
-        val listOfRelation = mutableStateListOf<Relationship>()
-        val relationToBeUploaded = connectedMembersList.filter { relationView -> relationView.patientId == connectedMembersList[0].patientId }
-        relationToBeUploaded.forEach { relation ->
-                RelationConverter.getInverseRelation(
-                    Relation(
-                        patientId = relation.patientId,
-                        relativeId = relation.relativeId,
-                        relation = relation.relation.value
-                    ).toRelationEntity(), patientDao
-                ) {
-                    listOfRelation.add(
-                        Relationship(
-                            patientIs = relation.relation.value,
-                            relativeId = relation.relativeId,
-                            relativeIs = it.value
-                        )
-                    )
-                    if(listOfRelation.size == relationToBeUploaded.size) {
-                        insertRelationsIntoGenericEntity(listOfRelation)
-                    }
-                }
-            }
-    }
-
-    private fun insertRelationsIntoGenericEntity(listOfRelation: List<Relationship>) {
         viewModelScope.launch(Dispatchers.IO) {
-            genericRepository.insertOrUpdatePostEntity(
-                patientId = connectedMembersList[0].patientId,
-                entity = RelatedPersonResponse(
-                    id = connectedMembersList[0].patientId,
-                    relationship = listOfRelation
-                ),
-                typeEnum = GenericTypeEnum.RELATION
-            )
+            connectedMembersList.forEach { relationView ->
+                genericRepository.insertOrUpdatePostEntity(
+                    patientId = relationView.patientId,
+                    entity = RelatedPersonResponse(
+                        id = relationView.patientId,
+                        relationship = listOf(
+                            Relationship(
+                                relativeId = relationView.relativeId,
+                                patientIs = relationView.relation.value
+                            )
+                        )
+                    ),
+                    typeEnum = GenericTypeEnum.RELATION
+                )
+            }
         }
     }
 }

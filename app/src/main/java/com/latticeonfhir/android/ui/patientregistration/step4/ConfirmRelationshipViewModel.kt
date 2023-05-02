@@ -68,7 +68,7 @@ class ConfirmRelationshipViewModel @Inject constructor(
                 fromId,
                 toId
             )
-            getRelationBetween(fromId,toId)
+            getRelationBetween(fromId, toId)
         }
     }
 
@@ -80,7 +80,7 @@ class ConfirmRelationshipViewModel @Inject constructor(
 
     internal fun updateRelation(relation: Relation) {
         viewModelScope.launch(Dispatchers.IO) {
-            relationRepository.updateRelation(relation){
+            relationRepository.updateRelation(relation) {
                 if (it > 0) {
                     getRelationBetween(patientId, relativeId)
                 }
@@ -88,25 +88,24 @@ class ConfirmRelationshipViewModel @Inject constructor(
         }
     }
 
-    internal fun connectPatient(relation: Relation){
-        RelationConverter.getInverseRelation(relation.toRelationEntity(), patientDao){
+
+    internal fun addRelationsToGenericEntity() {
+        relationBetween.forEach { relationView ->
             viewModelScope.launch(Dispatchers.IO) {
                 genericRepository.insertOrUpdatePostEntity(
-                    patientId = relation.patientId,
+                    patientId = relationView.patientId,
                     entity = RelatedPersonResponse(
-                        id = relation.patientId,
+                        id = relationView.patientId,
                         relationship = listOf(
                             Relationship(
-                            patientIs = relation.relation,
-                            relativeId = relativeId,
-                            relativeIs = it.value
-                        )
+                                relativeId = relationView.relativeId,
+                                patientIs = relationView.relation.value
+                            )
                         )
                     ),
                     typeEnum = GenericTypeEnum.RELATION
                 )
             }
         }
-
     }
 }
