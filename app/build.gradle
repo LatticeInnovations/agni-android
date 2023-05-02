@@ -5,6 +5,9 @@ plugins {
     id 'com.google.dagger.hilt.android'
     id 'kotlin-parcelize'
     id 'kotlin-android'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+
 }
 
 android {
@@ -157,7 +160,7 @@ dependencies {
     // date-time picker
     implementation("com.marosseleng.android:compose-material3-datetime-pickers:0.6.1")
 
-    coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:1.1.6") // Don't update this
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.6") // Don't update this
 
     //Work Manager
     implementation "androidx.work:work-runtime-ktx:2.8.1"
@@ -167,6 +170,14 @@ dependencies {
 
     // hilt- viewmodel compose
     implementation "androidx.hilt:hilt-navigation-compose:1.0.0"
+
+    // Firebase Bom
+    implementation platform('com.google.firebase:firebase-bom:31.5.0')
+
+    // Firebase Crashlytics
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+
 }
 
 kapt {
