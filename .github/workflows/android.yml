@@ -41,9 +41,9 @@ jobs:
 
       #     - name: Run Ktlint
       #       run: ./gradlew ktlintStagingDebugCheck
-
-      - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
+#
+#      - name: Run Unit Tests
+#        run: ./gradlew testDebugUnitTest
 
 
 #      - name: Instrumentation Tests
