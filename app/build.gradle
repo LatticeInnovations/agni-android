@@ -5,6 +5,9 @@ plugins {
     id 'com.google.dagger.hilt.android'
     id 'kotlin-parcelize'
     id 'kotlin-android'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+
 }
 
 android {
@@ -178,6 +181,13 @@ dependencies {
 
     // hilt- viewmodel compose
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
+    // Firebase Bom
+    implementation platform('com.google.firebase:firebase-bom:31.5.0')
+
+    // Firebase Crashlytics
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+
 }
 
 kapt {
