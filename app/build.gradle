@@ -8,6 +8,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('/home/naveen/StudioProjects/FHIR-Android/agni.jks')
+            storePassword 'latticeagni'
+            keyAlias 'key0'
+            keyPassword 'latticeagni'
+        }
+    }
     namespace 'com.latticeonfhir.android'
     compileSdk 33
 
@@ -15,8 +23,8 @@ android {
         applicationId "com.latticeonfhir.android"
         minSdk 23
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -42,7 +50,8 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "\"http://release.myserver.com\""
+            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -113,13 +122,13 @@ dependencies {
     implementation 'androidx.room:room-paging:2.5.1'
 
     //Paging 3
-    implementation 'androidx.paging:paging-runtime:3.1.1'
+    implementation 'androidx.paging:paging-runtime-ktx:3.1.1'
 
     //Jetpack Compose Paging
     implementation 'androidx.paging:paging-compose:1.0.0-alpha18'
 
     //Paging 3 Test Implementation
-    testImplementation 'androidx.paging:paging-common:3.1.1'
+    testImplementation 'androidx.paging:paging-common-ktx:3.1.1'
 
     //Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
