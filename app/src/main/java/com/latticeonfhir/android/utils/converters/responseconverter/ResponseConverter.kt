@@ -167,3 +167,7 @@ private suspend fun getRelativeId(relativeFhirId: String, apiService: ApiService
     }
     return relativeId
 }
+
+internal fun <T> List<T>.toNoBracketAndNoSpaceString(): String {
+    return this.toString().replace("[","").replace("]","").replace(" ","")
+}

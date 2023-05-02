@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.householdmember.suggestions
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -14,8 +13,6 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
-import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
-import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
@@ -23,11 +20,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEn
 import com.latticeonfhir.android.utils.relation.RelationConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.SynchronousQueue
 import javax.inject.Inject
 
 @HiltViewModel
@@ -97,7 +90,10 @@ class SuggestionsScreenViewModel @Inject constructor(
 
     fun addRelation(relation: Relation, relativeId: String, relationAdded: (List<Long>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            RelationConverter.getInverseRelation(relation.toRelationEntity(), patientDao) {
+            RelationConverter.getInverseRelation(
+                relation.toRelationEntity(),
+                patientDao
+            ) { inverseRelation ->
                 viewModelScope.launch(Dispatchers.IO) {
                     genericRepository.insertOrUpdatePostEntity(
                         patientId = relation.patientId,
@@ -106,13 +102,26 @@ class SuggestionsScreenViewModel @Inject constructor(
                             relationship = listOf(
                                 Relationship(
                                     patientIs = relation.relation,
-                                    relativeId = relativeId,
-                                    relativeIs = it.value
+                                    relativeId = relativeId
                                 )
                             )
                         ),
                         typeEnum = GenericTypeEnum.RELATION
-                    )
+                    ).also {
+                        genericRepository.insertOrUpdatePostEntity(
+                            patientId = relativeId,
+                            entity = RelatedPersonResponse(
+                                id = relativeId,
+                                relationship = listOf(
+                                    Relationship(
+                                        patientIs = inverseRelation.value,
+                                        relativeId = relation.patientId
+                                    )
+                                )
+                            ),
+                            typeEnum = GenericTypeEnum.RELATION
+                        )
+                    }
                 }
             }
             relationRepository.addRelation(relation, relationAdded)
