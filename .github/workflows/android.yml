@@ -73,11 +73,11 @@ jobs:
         with:
           releaseName: TEST_VERSION
           serviceAccountJsonPlainText: '${{ secrets.SERVICE_ACCOUNT_JSON }}'
-          packageName: 'com.latticeonfhir.android'
+          packageName: com.latticeonfhir.android
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: internal
           status: completed
           inAppUpdatePriority: 5
           whatsNewDirectory: distribution/whatsnew
           mappingFile: app/build/outputs/mapping/release/mapping.txt
-          debugSymbols: app/intermediates/merged_native_libs/release/out/lib
+          debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
