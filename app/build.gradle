@@ -44,8 +44,6 @@ android {
     buildTypes {
         debug {
             debuggable true
-            minifyEnabled false
-            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "BASE_URL", "\"https://fhir.api.thelattice.org/fhir/api/v1/\""
         }
