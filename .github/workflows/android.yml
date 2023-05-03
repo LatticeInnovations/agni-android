@@ -4,7 +4,7 @@ name: Android CI
     branches:
       - main
   push:
-    branch: dev
+    branch: workflow_test
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -90,7 +90,7 @@ jobs:
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: internal
           status: inProgress
-          userFraction: 1.00
+          userFraction: 0.99
           inAppUpdatePriority: 5
           mappingFile: app/build/outputs/mapping/release/mapping.txt
           debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
