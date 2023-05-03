@@ -11,6 +11,10 @@ plugins {
 }
 
 android {
+
+    namespace 'com.latticeonfhir.android'
+    compileSdk 33
+
     signingConfigs {
         release {
             storeFile file('../agni.jks')
@@ -19,8 +23,6 @@ android {
             keyPassword 'latticeagni'
         }
     }
-    namespace 'com.latticeonfhir.android'
-    compileSdk 33
 
     defaultConfig {
         applicationId "com.latticeonfhir.android"
