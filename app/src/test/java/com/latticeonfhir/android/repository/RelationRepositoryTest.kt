@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.repository
 
+import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -11,7 +12,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 

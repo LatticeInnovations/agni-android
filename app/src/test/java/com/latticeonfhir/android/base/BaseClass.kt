@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.repository
+package com.latticeonfhir.android.base
 
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity

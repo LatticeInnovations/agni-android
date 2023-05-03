@@ -32,8 +32,7 @@ import javax.inject.Inject
 class ConfirmRelationshipViewModel @Inject constructor(
     private val relationRepository: RelationRepository,
     private val patientRepository: PatientRepository,
-    private val genericRepository: GenericRepository,
-    private val patientDao: PatientDao
+    private val genericRepository: GenericRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 

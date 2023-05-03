@@ -92,7 +92,7 @@ fun PatientRegistrationStepOne(
             ) {
                 viewModel.firstName = it
                 viewModel.isNameValid =
-                    viewModel.firstName.length < 3 || viewModel.firstName.length > 150
+                    viewModel.firstName.length < 3 || viewModel.firstName.length > 100
             }
             ValueLength(viewModel.firstName)
             CustomTextField(

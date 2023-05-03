@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.repository
 
+import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
