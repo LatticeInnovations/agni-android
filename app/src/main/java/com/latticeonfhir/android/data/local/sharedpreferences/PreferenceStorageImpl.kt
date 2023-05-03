@@ -17,7 +17,7 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
     override var userId by StringPreference(sharedPreferences, PREF_USERID, "")
     override var usertype by LongPreference(sharedPreferences, PREF_USERTYPE, 3)
     override var hospitalId by StringPreference(sharedPreferences, PREF_HOSPITAL, "")
-    override var uuid by StringPreference(sharedPreferences, PREF_UUID, "")
+    override var roomDBEncryptionKey by StringPreference(sharedPreferences, PREF_UUID, "")
     override var mobile by StringPreference(sharedPreferences, PREF_MOBILE, "")
     override var pin by StringPreference(sharedPreferences, PREF_PIN, "")
     override var lastUpdatedTime by LongPreference(sharedPreferences, PREF_LAST_UPDATED_TIME,0L)
