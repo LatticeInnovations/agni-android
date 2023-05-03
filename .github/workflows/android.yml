@@ -85,7 +85,7 @@ jobs:
         uses: r0adkll/upload-google-play@v1
         with:
           releaseName: Version 1.0.4
-          serviceAccountJsonPlainText: '${{ secrets.SERVICE_ACCOUNT_JSON }}'
+          serviceAccountJson: service_account.json
           packageName: com.latticeonfhir.android
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: internalsharing
