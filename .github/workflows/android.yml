@@ -91,6 +91,6 @@ jobs:
           track: internal
           status: inProgress
           userFraction: 0.99
-          inAppUpdatePriority: 52
+          inAppUpdatePriority: 2
           mappingFile: app/build/outputs/mapping/release/mapping.txt
           debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
