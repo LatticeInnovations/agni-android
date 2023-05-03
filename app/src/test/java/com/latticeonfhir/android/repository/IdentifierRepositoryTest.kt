@@ -1,15 +1,14 @@
 package com.latticeonfhir.android.repository
 
+import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
