@@ -89,6 +89,8 @@ jobs:
           packageName: com.latticeonfhir.android
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: internal
-          inAppUpdatePriority: 5
+          status: inProgress
+          userFraction: 0.99
+          inAppUpdatePriority: 52
           mappingFile: app/build/outputs/mapping/release/mapping.txt
           debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
