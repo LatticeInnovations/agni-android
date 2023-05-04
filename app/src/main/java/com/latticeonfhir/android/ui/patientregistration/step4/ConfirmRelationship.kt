@@ -1,42 +1,34 @@
 package com.latticeonfhir.android.ui.patientregistration.step4
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
-import androidx.paging.compose.items
-import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.PatientItemCard
+import com.latticeonfhir.android.utils.constants.RelationshipList
+import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.relation.RelationConverter.getRelationEnumFromString
 import com.latticeonfhir.android.utils.relation.RelationConverter.getRelationFromRelationEnum
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -225,7 +217,7 @@ fun MemberCard(context: Context, relationView: RelationView, viewModel: ConfirmR
     ) {
         Text(
             text = "${
-                Constants.GetFullName(
+                NameConverter.getFullName(
                     relationView.patientFirstName,
                     relationView.patientMiddleName,
                     relationView.patientLastName
@@ -233,7 +225,7 @@ fun MemberCard(context: Context, relationView: RelationView, viewModel: ConfirmR
             } " +
                     "is the ${getRelationFromRelationEnum(context, relationView.relation)} of " +
                     "${
-                        Constants.GetFullName(
+                        NameConverter.getFullName(
                             relationView.relativeFirstName,
                             relationView.relativeMiddleName,
                             relationView.relativeLastName
@@ -308,7 +300,7 @@ fun DeleteDialog(
                 )
                 Text(
                     "${
-                        Constants.GetFullName(
+                        NameConverter.getFullName(
                             relationView.patientFirstName,
                             relationView.patientMiddleName,
                             relationView.patientLastName
@@ -316,7 +308,7 @@ fun DeleteDialog(
                     } " +
                             "is the ${getRelationFromRelationEnum(context, relationView.relation)} of " +
                             "${
-                                Constants.GetFullName(
+                                NameConverter.getFullName(
                                     relationView.relativeFirstName,
                                     relationView.relativeMiddleName,
                                     relationView.relativeLastName
@@ -378,7 +370,7 @@ fun EditDialog(
         text = {
             Column {
                 Text(
-                    Constants.GetFullName(
+                    NameConverter.getFullName(
                         relationView.patientFirstName,
                         relationView.patientMiddleName,
                         relationView.patientLastName
@@ -396,7 +388,7 @@ fun EditDialog(
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Column() {
-                        val relationsList = Constants.GetRelationshipList(relationView.patientGender)
+                        val relationsList = RelationshipList.getRelationshipList(relationView.patientGender)
 
                         TextField(
                             value = relation,
@@ -448,7 +440,7 @@ fun EditDialog(
                 Spacer(modifier = Modifier.height(23.dp))
                 Text(
                     text = "of ${
-                        Constants.GetFullName(
+                        NameConverter.getFullName(
                             relationView.relativeFirstName,
                             relationView.relativeMiddleName,
                             relationView.relativeLastName

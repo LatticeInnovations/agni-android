@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.common
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
@@ -14,8 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
+import com.latticeonfhir.android.utils.constants.States
 
 @Composable
 fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
@@ -49,7 +48,7 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
             "Enter valid 6 digit postal code",
             KeyboardType.Number
         ) {
-            if (it.matches(onlyNumbers) || it.length == 0) address.pincode = it
+            if (it.matches(onlyNumbers) || it.isEmpty()) address.pincode = it
             address.isPostalCodeValid = address.pincode.length < 6
         }
         Spacer(modifier = Modifier.width(15.dp))
@@ -92,7 +91,7 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
                 }
             )
 
-            val statesList = Constants.GetStateList()
+            val statesList = States.getStateList()
 
             DropdownMenu(
                 modifier = Modifier.fillMaxHeight(0.5f),

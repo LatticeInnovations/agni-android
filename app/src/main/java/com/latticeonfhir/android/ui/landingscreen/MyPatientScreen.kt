@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.landingscreen
 
-import android.util.Log
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,11 +23,6 @@ import androidx.paging.compose.items
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.common.PatientItemCard
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
-import java.time.Instant
-import java.time.LocalDate
-import java.time.Period
-import java.time.ZoneId
 
 @Composable
 fun MyPatientScreen(navController: NavController, viewModel: LandingScreenViewModel = hiltViewModel()) {

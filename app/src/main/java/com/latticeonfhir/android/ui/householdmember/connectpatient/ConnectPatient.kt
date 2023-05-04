@@ -2,12 +2,8 @@ package com.latticeonfhir.android.ui.householdmember.connectpatient
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -58,20 +54,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.utils.constants.RelationshipList
+import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.relation.RelationConverter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,7 +105,7 @@ fun ConnectPatient(
                             style = MaterialTheme.typography.headlineSmall
                         )
                         Text(
-                            text = Constants.GetFullName(
+                            text = NameConverter.getFullName(
                                 viewModel.patientFrom?.firstName,
                                 viewModel.patientFrom?.middleName,
                                 viewModel.patientFrom?.lastName
@@ -248,7 +247,7 @@ fun ConnectPatient(
                                                 drawCircle(color = color)
                                             }
                                             Text(
-                                                text = Constants.GetFullName(
+                                                text = NameConverter.getFullName(
                                                     member?.firstName,
                                                     member?.middleName,
                                                     member?.lastName
@@ -337,7 +336,7 @@ fun ConnectedMemberCard(
     ) {
         Text(
             text = "${
-                Constants.GetFullName(
+                NameConverter.getFullName(
                     relationView.patientFirstName,
                     relationView.patientMiddleName,
                     relationView.patientLastName
@@ -350,7 +349,7 @@ fun ConnectedMemberCard(
                         )
                     } of " +
                     "${
-                        Constants.GetFullName(
+                        NameConverter.getFullName(
                             relationView.relativeFirstName,
                             relationView.relativeMiddleName,
                             relationView.relativeLastName
@@ -425,7 +424,7 @@ fun DeleteDialog(
                 )
                 Text(
                     "${
-                        Constants.GetFullName(
+                        NameConverter.getFullName(
                             relationView.patientFirstName,
                             relationView.patientMiddleName,
                             relationView.patientLastName
@@ -438,7 +437,7 @@ fun DeleteDialog(
                                 )
                             } of " +
                             "${
-                                Constants.GetFullName(
+                                NameConverter.getFullName(
                                     relationView.relativeFirstName,
                                     relationView.relativeMiddleName,
                                     relationView.relativeLastName
@@ -513,7 +512,7 @@ fun EditDialog(
         text = {
             Column {
                 Text(
-                    Constants.GetFullName(
+                    NameConverter.getFullName(
                         relationView.patientFirstName,
                         relationView.patientMiddleName,
                         relationView.patientLastName
@@ -532,7 +531,7 @@ fun EditDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column() {
                         val relationsList =
-                            Constants.GetRelationshipList(relationView.patientGender)
+                            RelationshipList.getRelationshipList(relationView.patientGender)
 
                         TextField(
                             value = relation,
@@ -584,7 +583,7 @@ fun EditDialog(
                 Spacer(modifier = Modifier.height(23.dp))
                 Text(
                     text = "of ${
-                        Constants.GetFullName(
+                        NameConverter.getFullName(
                             relationView.relativeFirstName,
                             relationView.relativeMiddleName,
                             relationView.relativeLastName
@@ -651,7 +650,7 @@ fun PatientRow(member: PatientResponse, viewModel: ConnectPatientViewModel) {
                 .padding(15.dp)
         ) {
             Text(
-                text = Constants.GetFullName(
+                text = NameConverter.getFullName(
                     member.firstName,
                     member.middleName,
                     member.lastName
@@ -660,12 +659,12 @@ fun PatientRow(member: PatientResponse, viewModel: ConnectPatientViewModel) {
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "${member.gender[0].uppercase()}/${Constants.GetAge(member.birthDate)} · PID ${member.fhirId}",
+                text = "${member.gender[0].uppercase()}/${member.birthDate.toTimeInMilli().toAge()} · PID ${member.fhirId}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = Constants.GetAddress(member.permanentAddress),
+                text = AddressConverter.getAddress(member.permanentAddress),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -703,7 +702,7 @@ fun ConnectMemberDialog(
         text = {
             Column {
                 Text(
-                    Constants.GetFullName(
+                    NameConverter.getFullName(
                         viewModel.patientFrom?.firstName,
                         viewModel.patientFrom?.middleName,
                         viewModel.patientFrom?.lastName
@@ -722,7 +721,7 @@ fun ConnectMemberDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         val relationsList =
-                            viewModel.patientFrom?.gender?.let { Constants.GetRelationshipList(it) }
+                            viewModel.patientFrom?.gender?.let { RelationshipList.getRelationshipList(it) }
                         TextField(
                             value = relation,
                             onValueChange = {},
@@ -783,7 +782,7 @@ fun ConnectMemberDialog(
                 Spacer(modifier = Modifier.height(23.dp))
                 Text(
                     text = "of ${
-                        Constants.GetFullName(
+                        NameConverter.getFullName(
                             member.firstName,
                             member.middleName,
                             member.lastName

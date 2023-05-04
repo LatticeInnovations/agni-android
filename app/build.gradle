@@ -88,7 +88,6 @@ android {
         }
     }
     compileOptions {
-        coreLibraryDesugaringEnabled = true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -199,8 +198,6 @@ dependencies {
 
     // date-time picker
     implementation("com.marosseleng.android:compose-material3-datetime-pickers:0.6.1")
-
-    coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:1.1.6") // Don't update this
 
     //Work Manager
     implementation 'androidx.work:work-runtime-ktx:2.8.1'
