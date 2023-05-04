@@ -45,6 +45,10 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
 
+      - name: Launch emulator
+        run: |
+          emulator -avd S21 -memory 2048 -wipe-data -no-boot-anim -cache-size 1000 -noaudio -no-window -partition-size 8192 &
+          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
 
       - name: Instrumentation Tests
         uses: reactivecircus/android-emulator-runner@v2
