@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
-import com.latticeonfhir.android.utils.constants.States
+import com.latticeonfhir.android.utils.converters.responseconverter.States
 
 @Composable
 fun AddressComposable(label: String, address: Address, reset : () -> Unit) {

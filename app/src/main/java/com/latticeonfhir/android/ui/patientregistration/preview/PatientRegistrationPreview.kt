@@ -26,6 +26,7 @@ import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.relation.RelationConverter.getRelationEnumFromString
 import kotlinx.coroutines.CoroutineScope
@@ -95,13 +96,7 @@ fun PatientRegistrationPreview(
             if (dobAgeSelector == "dob") {
                 viewModel.dob = "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
             } else {
-                val calendar = Calendar.getInstance()
-                calendar.add(Calendar.YEAR, -viewModel.years.toInt())
-                calendar.add(Calendar.MONTH, -viewModel.months.toInt())
-                calendar.add(Calendar.DAY_OF_MONTH, -viewModel.days.toInt())
-                val dob = calendar.time
-                val formatter = SimpleDateFormat("dd-MMMM-yyyy", Locale.US)
-                viewModel.dob = formatter.format(dob)
+                viewModel.dob = ageToPatientDate(viewModel.years.toInt(), viewModel.months.toInt(), viewModel.days.toInt())
                 Timber.d("manseeyy ${viewModel.dob.toPatientDate()}")
             }
         }

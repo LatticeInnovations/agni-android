@@ -66,7 +66,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.utils.constants.RelationshipList
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge

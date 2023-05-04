@@ -19,7 +19,7 @@ import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreenViewModel
-import com.latticeonfhir.android.utils.constants.RelationshipList
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.constants
+package com.latticeonfhir.android.utils.converters.responseconverter
 
 object RelationshipList {
     internal fun getRelationshipList(gender: String): List<String>{
