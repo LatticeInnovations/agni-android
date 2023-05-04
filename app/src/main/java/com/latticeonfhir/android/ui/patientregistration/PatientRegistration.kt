@@ -21,7 +21,7 @@ import com.latticeonfhir.android.ui.main.patientregistration.DiscardDialog
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
 import com.latticeonfhir.android.ui.patientregistration.step2.PatientRegistrationStepTwo
 import com.latticeonfhir.android.ui.patientregistration.step3.PatientRegistrationStepThree
-import com.latticeonfhir.android.utils.constants.RelationshipList
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 
 @OptIn(ExperimentalMaterial3Api::class)
