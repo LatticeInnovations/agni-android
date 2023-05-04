@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,7 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -36,12 +34,14 @@ import androidx.lifecycle.viewmodel.compose.*
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
-import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.Loader
-import com.latticeonfhir.android.ui.common.PatientItemCard
+import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -172,7 +172,7 @@ fun SearchResultRow(patient: PatientResponse, viewModel: SearchResultViewModel) 
             modifier = Modifier.padding(10.dp)
         ) {
             Text(
-                text = Constants.GetFullName(
+                text = NameConverter.getFullName(
                     patient.firstName,
                     patient.middleName,
                     patient.lastName
@@ -181,12 +181,12 @@ fun SearchResultRow(patient: PatientResponse, viewModel: SearchResultViewModel) 
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "${patient.gender[0].uppercase()}/${Constants.GetAge(patient.birthDate)} · PID ${patient.fhirId}",
+                text = "${patient.gender[0].uppercase()}/${patient.birthDate.toTimeInMilli().toAge()} · PID ${patient.fhirId}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = Constants.GetAddress(patient.permanentAddress),
+                text = AddressConverter.getAddress(patient.permanentAddress),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

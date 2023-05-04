@@ -44,6 +44,14 @@ object TimeConverter {
         return age
     }
 
+    internal fun String.toPatientDate(): String{
+        val inputFormat = SimpleDateFormat("dd-MMMM-yyyy", Locale.US)
+        val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val date = inputFormat.parse(this)
+        val outputDate = outputFormat.format(date!!)
+        return outputDate
+    }
+
     internal fun Calendar.isLeapYear(): Boolean {
         return (this[Calendar.YEAR] % 400 == 0 ||
                 (this[Calendar.YEAR] % 4 == 0 && this[Calendar.YEAR] % 100 != 0))

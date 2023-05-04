@@ -1,7 +1,6 @@
 package com.latticeonfhir.android
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -25,11 +23,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.PatientItemCard
 import com.latticeonfhir.android.ui.landingscreen.LandingScreenViewModel
 import com.latticeonfhir.android.ui.landingscreen.MyPatientScreen
 import com.latticeonfhir.android.ui.landingscreen.ProfileScreen
