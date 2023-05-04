@@ -89,7 +89,6 @@ jobs:
           packageName: com.latticeonfhir.android
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: internalsharing
-          status: completed
           inAppUpdatePriority: 2
           mappingFile: app/build/outputs/mapping/release/mapping.txt
           debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
