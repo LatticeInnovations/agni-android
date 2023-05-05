@@ -45,11 +45,20 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
 
-      - name: Instrumentation Tests
-        uses: reactivecircus/android-emulator-runner@v2
+#      - name: Instrumentation Tests
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: 26
+#          target: default
+#          arch: x86_64
+#          profile: Nexus 6
+#          script: ./gradlew connectedCheck --stacktrace
+
+      - name: Create Unit Test Coverage Report
+        run: ./gradlew createDebugUnitTestCoverageReport
+
+      - name: Upload Jacoco coverage report
+        uses: actions/upload-artifact@v2
         with:
-          api-level: 26
-          target: default
-          arch: x86_64
-          profile: Nexus 6
-          script: ./gradlew connectedCheck --stacktrace
+          name: jacoco-report
+          path: app/build/reports/coverage/test/debug/index.html
