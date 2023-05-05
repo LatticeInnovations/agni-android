@@ -69,14 +69,11 @@ class AdvancedSearchPatientKtTest {
     // bottom nav bar
     val bottomNavBar = hasTestTag("BOTTOM_NAV_BAR")
 
-    fun navigate_to_advanced_search(){
-        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(advancedSearchButton).performClick()
-    }
 
     @Test
     fun advancedSearch_verify_if_all_views_exist() {
-        navigate_to_advanced_search()
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(title).assertExists("Title should be \"Advanced Search\".")
         composeTestRule.onNode(clearIcon, useUnmergedTree = true).assertExists("Clear icon should exists.")
         composeTestRule.onNode(patientId).assertExists("Patient Id input field should be displayed.")
@@ -104,7 +101,8 @@ class AdvancedSearchPatientKtTest {
 
     @Test
     fun advancedSearch_verify_last_facility_visit_dropdown() {
-        navigate_to_advanced_search()
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(lastFacilityVisit).performClick()
         composeTestRule.onAllNodesWithText("Last week")[1].assertExists("Last week option should be displayed.")
         composeTestRule.onNodeWithText("Last month").assertExists("Last month option should be displayed.")
@@ -114,20 +112,23 @@ class AdvancedSearchPatientKtTest {
 
     @Test
     fun advancedSearch_verify_clear_icon_click() {
-        navigate_to_advanced_search()
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(clearIcon, useUnmergedTree = true).performClick()
         composeTestRule.onAllNodesWithText("My Patients")[0].assertExists("My Patients screen should be displayed.")
     }
 
     @Test
     fun advancedSearch_check_if_search_btn_is_enabled(){
-        navigate_to_advanced_search()
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(searchBtn).assertIsEnabled()
     }
 
     @Test
     fun advancedSearch_select_single_gender_chip(){
-        navigate_to_advanced_search()
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(femaleChip).performClick()
         composeTestRule.onNode(femaleChip).assertIsSelected()
         composeTestRule.onNode(maleChip).assertIsNotSelected()
@@ -136,7 +137,8 @@ class AdvancedSearchPatientKtTest {
 
     @Test
     fun advancedSearch_select_multiple_gender_chips(){
-        navigate_to_advanced_search()
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(femaleChip).performClick()
         composeTestRule.onNode(femaleChip).assertIsSelected()
         composeTestRule.onNode(maleChip).performClick()
@@ -150,33 +152,38 @@ class AdvancedSearchPatientKtTest {
 
     @Test
     fun advancedSearch_verify_input_in_patient_name_input_field() {
-        navigate_to_advanced_search()
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(patientName).performTextInput("input123")
         composeTestRule.onNode(patientName).assertTextEquals("Patient Name", "input123")
     }
 
     @Test
     fun advancedSearch_verify_input_in_patient_id_input_field() {
-        navigate_to_advanced_search()
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(patientId).performTextInput("input12345")
         composeTestRule.onNode(patientId).assertTextEquals("Patient Id", "input12345")
     }
 
     @Test
     fun advancedSearch_default_min_age_value(){
-        navigate_to_advanced_search()
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(minValue).assertTextEquals("0")
     }
 
     @Test
     fun advancedSearch_default_max_age_value(){
-        navigate_to_advanced_search()
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(maxValue).assertTextEquals("100")
     }
 
     @Test
     fun advancedSearch_verify_search_btn_click(){
-        navigate_to_advanced_search()
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(searchBtn).performClick()
         composeTestRule.onNode(searchIcon, useUnmergedTree = true).assertExists("Search icon should be displayed.")
         composeTestRule.onNode(clearIcon, useUnmergedTree = true).assertExists("Clear icon should be displayed.")

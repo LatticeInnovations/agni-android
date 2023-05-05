@@ -31,12 +31,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PatientRegistrationPreviewViewModel @Inject constructor(
-    private val syncRepository: SyncRepository,
     private val patientRepository: PatientRepository,
     private val genericRepository: GenericRepository,
     private val identifierRepository: IdentifierRepository,
-    private val relationRepository: RelationRepository,
-    private val patientDao: PatientDao,
+    private val relationRepository: RelationRepository
 ): BaseViewModel() {
 
     var firstName by mutableStateOf("")

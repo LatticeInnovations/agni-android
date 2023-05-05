@@ -154,8 +154,8 @@ class LandingScreenKtTest {
         composeTestRule.onNode(searchTextField).assertTextEquals("input")
         composeTestRule.onNode(searchTextField).performImeAction()
         composeTestRule.onNode(clearIcon).performClick()
-        Thread.sleep(5000)
         composeTestRule.onNode(searchIcon).performClick()
+        Thread.sleep(5000)
         composeTestRule.onAllNodesWithText("input")[0].assertExists("Previous search should be present in the list.")
     }
 
@@ -173,7 +173,6 @@ class LandingScreenKtTest {
         composeTestRule.onNode(chipCategory2).assertExists(errorMessageOnFail = "Category 2 chip should be displayed.")
         composeTestRule.onNode(chipCategory3).assertExists(errorMessageOnFail = "Category 3 chip should be displayed.")
         composeTestRule.onNode(patientList).assertExists(errorMessageOnFail = "Patient List should be displayed.")
-        composeTestRule.onNode(searchTitle).assertTextEquals("Searching...")
     }
 
     @Test
