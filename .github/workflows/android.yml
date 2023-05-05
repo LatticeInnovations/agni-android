@@ -49,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: unit-test-report
-          path: app/build/reports/tests/testDebugUnitTest/index.html
+          path: app/build/reports/tests/testDebugUnitTest/
 
 #      - name: Instrumentation Tests
 #        uses: reactivecircus/android-emulator-runner@v2
@@ -67,4 +67,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: jacoco-report
-          path: app/build/reports/coverage/test/debug/index.html
+          path: app/build/reports/coverage/test/debug/
