@@ -49,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: unit-test-report
-          path: app/build/reports/tests/debug/index.html
+          path: app/build/reports/tests/testDebugUnitTest/index.html
 
 #      - name: Instrumentation Tests
 #        uses: reactivecircus/android-emulator-runner@v2
