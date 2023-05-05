@@ -48,11 +48,8 @@ jobs:
       - name: Instrumentation Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 23
+          api-level: 26
           target: default
           arch: x86_64
           profile: Nexus 6
-          script: |
-            emulator -avd S21 -memory 2048 -wipe-data -no-boot-anim -cache-size 1000 -noaudio -no-window -partition-size 8192 &
-            adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
-            ./gradlew connectedCheck --stacktrace
+          script: ./gradlew connectedCheck --stacktrace
