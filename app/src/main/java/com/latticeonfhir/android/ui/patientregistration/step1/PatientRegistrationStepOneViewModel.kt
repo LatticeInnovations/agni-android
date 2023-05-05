@@ -57,16 +57,16 @@ class PatientRegistrationStepOneViewModel: BaseViewModel(), DefaultLifecycleObse
     var isAgeYearsValid by mutableStateOf(false)
 
     fun basicInfoValidation(): Boolean{
-        if (firstName.length < 3 || firstName.length > 150)
+        if (firstName.length < 3 || firstName.length > 100)
             return false
-        if (middleName.length > 150 || lastName.length > 150)
+        if (middleName.length > 100 || lastName.length > 100)
             return false
         if (dobAgeSelector == "dob" && (isDobDayValid || isDobMonthValid || isDobYearValid))
             return false
         if (dobAgeSelector == "age" &&
             (isAgeDaysValid || isAgeMonthsValid || isAgeYearsValid))
             return false
-        if (phoneNumber.length < 10)
+        if (phoneNumber.length != 10)
             return false
         if(email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return false

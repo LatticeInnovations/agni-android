@@ -15,15 +15,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
-import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreenViewModel
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
+import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.relation.RelationConverter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -114,7 +116,7 @@ fun SuggestedMembersCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = Constants.GetFullName(
+                    text = NameConverter.getFullName(
                         member.firstName,
                         member.middleName,
                         member.lastName
@@ -123,13 +125,13 @@ fun SuggestedMembersCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${member.gender[0].uppercase()}/${Constants.GetAge(member.birthDate)}",
+                    text = "${member.gender[0].uppercase()}/${member.birthDate.toTimeInMilli().toAge()}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Text(
-                text = Constants.GetAddress(member.permanentAddress),
+                text = AddressConverter.getAddress(member.permanentAddress),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -175,7 +177,7 @@ fun ConnectDialog(
         text = {
             Column {
                 Text(
-                    Constants.GetFullName(patient.firstName, patient.middleName, patient.lastName),
+                    NameConverter.getFullName(patient.firstName, patient.middleName, patient.lastName),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(23.dp))
@@ -190,7 +192,7 @@ fun ConnectDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         val relationsList =
-                            Constants.GetRelationshipList(patient.gender)
+                            RelationshipList.getRelationshipList(patient.gender)
                         TextField(
                             value = relation,
                             onValueChange = {},
@@ -251,7 +253,7 @@ fun ConnectDialog(
                 Spacer(modifier = Modifier.height(23.dp))
                 Text(
                     text = "of ${
-                        Constants.GetFullName(
+                        NameConverter.getFullName(
                             member.firstName,
                             member.middleName,
                             member.lastName
@@ -277,7 +279,7 @@ fun ConnectDialog(
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     message = "${
-                                        Constants.GetFullName(
+                                        NameConverter.getFullName(
                                             member.firstName,
                                             member.middleName,
                                             member.lastName

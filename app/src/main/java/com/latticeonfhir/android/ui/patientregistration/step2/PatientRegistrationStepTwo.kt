@@ -124,7 +124,7 @@ fun PatientRegistrationStepTwo(
                     weight = 1f,
                     viewModel.maxPatientIdLength,
                     viewModel.isPatientValid,
-                    "Enter valid Patient Id",
+                    "Patient Id length should be 10.",
                     KeyboardType.Text
                 ) {
                     viewModel.patientId = it
