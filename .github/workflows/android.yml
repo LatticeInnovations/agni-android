@@ -48,7 +48,7 @@ jobs:
       - name: Upload Unit Test report
         uses: actions/upload-artifact@v2
         with:
-          name: uniy-test-report
+          name: unit-test-report
           path: app/build/reports/tests/debug/index.html
 
 #      - name: Instrumentation Tests
