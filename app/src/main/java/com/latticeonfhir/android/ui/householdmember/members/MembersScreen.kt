@@ -25,45 +25,35 @@ import com.latticeonfhir.android.utils.relation.RelationConverter
 fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = hiltViewModel()) {
     val context = LocalContext.current
     viewModel.getAllRelations(patientId = patient.id)
-    if (viewModel.loading){
+    if (viewModel.loading) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             Loader()
         }
-    }
-    else{
-        if (viewModel.relationsList.isEmpty()){
+    } else {
+        if (viewModel.relationsList.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Text(text = "No household members.")
             }
-        }
-        else {
+        } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
             ) {
-                items(viewModel.relationsList) { relation ->
-                    var relative by remember {
-                        mutableStateOf<PatientResponse?>(null)
-                    }
-                    viewModel.getPatientData(relation.toId) {
-                        relative = it
-                    }
-                    relative?.let {
-                        MembersCard(
-                            RelationConverter.getRelationFromRelationEnum(
-                                context,
-                                relation.relation
-                            ).capitalize(),
-                            it
-                        )
-                    }
+                items(viewModel.relationsListWithRelation) { relation ->
+                    MembersCard(
+                        RelationConverter.getRelationFromRelationEnum(
+                            context,
+                            relation.relation
+                        ).capitalize(),
+                        relation.patientResponse
+                    )
                 }
             }
         }
