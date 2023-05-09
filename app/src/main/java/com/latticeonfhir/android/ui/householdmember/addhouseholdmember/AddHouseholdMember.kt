@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.main.patientlandingscreen
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -29,7 +27,8 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.householdmember.addhouseholdmember.AddHouseholdMemberViewModel
 import androidx.lifecycle.viewmodel.compose.*
-import com.latticeonfhir.android.data.local.constants.Constants
+import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -269,7 +268,7 @@ fun DialogPatientRow(member: PatientResponse, viewModel: AddHouseholdMemberViewM
                 modifier = Modifier.padding(10.dp)
             ) {
                 Text(
-                    text = Constants.GetFullName(
+                    text = NameConverter.getFullName(
                         member.firstName,
                         member.middleName,
                         member.lastName
@@ -278,7 +277,7 @@ fun DialogPatientRow(member: PatientResponse, viewModel: AddHouseholdMemberViewM
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = Constants.GetAddress(member.permanentAddress),
+                    text = AddressConverter.getAddress(member.permanentAddress),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

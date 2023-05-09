@@ -18,7 +18,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreviewViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
-import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
@@ -26,6 +25,8 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.relation.RelationConverter.getRelationEnumFromString
 import kotlinx.coroutines.CoroutineScope
@@ -33,10 +34,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.Period
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,14 +95,9 @@ fun PatientRegistrationPreview(
 
             if (dobAgeSelector == "dob") {
                 viewModel.dob = "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
-                val formatter = DateTimeFormatter.ofPattern("d-MMMM-yyyy", Locale.getDefault())
-                date = LocalDate.parse(viewModel.dob, formatter)
             } else {
-                val today = LocalDate.now()
-                val age = Period.of(years!!.toInt(), months!!.toInt(), days!!.toInt())
-                date = today.minus(age)
-                val formatter = DateTimeFormatter.ofPattern("d-MMMM-yyyy", Locale.ENGLISH)
-                viewModel.dob = date!!.format(formatter)
+                viewModel.dob = ageToPatientDate(viewModel.years.toInt(), viewModel.months.toInt(), viewModel.days.toInt())
+                Timber.d("manseeyy ${viewModel.dob.toPatientDate()}")
             }
         }
     Scaffold(
@@ -196,9 +190,7 @@ fun PatientRegistrationPreview(
                             firstName = viewModel.firstName,
                             middleName = if (viewModel.middleName.isEmpty()) null else viewModel.middleName,
                             lastName = if (viewModel.lastName.isEmpty()) null else viewModel.lastName,
-                            birthDate = Date.from(
-                                date!!.atStartOfDay(ZoneId.systemDefault()).toInstant()
-                            ).time.toPatientDate(),
+                            birthDate = viewModel.dob.toPatientDate(),
                             email = if (viewModel.email.isEmpty()) null else viewModel.email,
                             active = true,
                             gender = viewModel.gender,
@@ -284,7 +276,7 @@ fun PreviewScreen(
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "${
-                        Constants.GetFullName(
+                        NameConverter.getFullName(
                             viewModel.firstName,
                             viewModel.middleName,
                             viewModel.lastName

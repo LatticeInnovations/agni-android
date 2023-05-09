@@ -14,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -25,7 +24,6 @@ import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import timber.log.Timber
 
 @Composable
 fun PatientRegistrationStepOne(
@@ -92,7 +90,7 @@ fun PatientRegistrationStepOne(
             ) {
                 viewModel.firstName = it
                 viewModel.isNameValid =
-                    viewModel.firstName.length < 3 || viewModel.firstName.length > 150
+                    viewModel.firstName.length < 3 || viewModel.firstName.length > 100
             }
             ValueLength(viewModel.firstName)
             CustomTextField(
@@ -315,10 +313,11 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
         modifier = Modifier.fillMaxWidth()
     ) {
         CustomTextField(
-            viewModel.years, label = "Years", 0.25F, 3, false, "",
+            viewModel.years, label = "Years", 0.25F, 3, viewModel.isAgeYearsValid, "Enter valid input between 0 to 150.",
             KeyboardType.Number
         ) {
             if (it.matches(viewModel.onlyNumbers)|| it.length == 0) viewModel.years = it
+            if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid = viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
         }
         Spacer(modifier = Modifier.width(15.dp))
         CustomTextField(

@@ -27,8 +27,10 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.constants.Constants
 import com.latticeonfhir.android.ui.householdmember.HouseholdMemberViewModel
+import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -64,9 +66,7 @@ fun HouseholdMembersScreen(
                 },
                 title = {
                     val subTitle = "${viewModel.patient?.gender?.get(0)?.uppercase()}/${viewModel.patient?.birthDate?.let {
-                        Constants.GetAge(
-                            it
-                        )
+                        it.toTimeInMilli().toAge()
                     }}"
                     Column {
                         Text(
@@ -74,7 +74,7 @@ fun HouseholdMembersScreen(
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.testTag("TITLE")
                         )
-                        Text(text = "${Constants.GetFullName(viewModel.patient?.firstName, viewModel.patient?.middleName, viewModel.patient?.lastName)}, $subTitle", style = MaterialTheme.typography.bodyLarge,
+                        Text(text = "${NameConverter.getFullName(viewModel.patient?.firstName, viewModel.patient?.middleName, viewModel.patient?.lastName)}, $subTitle", style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.testTag("SUBTITLE"))
                     }
                 }

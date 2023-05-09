@@ -16,15 +16,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import androidx.lifecycle.viewmodel.compose.*
-import com.latticeonfhir.android.data.local.constants.Constants
-import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.main.patientregistration.DiscardDialog
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
 import com.latticeonfhir.android.ui.patientregistration.step2.PatientRegistrationStepTwo
 import com.latticeonfhir.android.ui.patientregistration.step3.PatientRegistrationStepThree
-import timber.log.Timber
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
+import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -146,7 +144,7 @@ fun PatientRegistration(
                     text = {
                         Column {
                             Text(
-                                Constants.GetFullName(viewModel.patientFrom?.firstName, viewModel.patientFrom?.middleName, viewModel.patientFrom?.lastName),
+                                NameConverter.getFullName(viewModel.patientFrom?.firstName, viewModel.patientFrom?.middleName, viewModel.patientFrom?.lastName),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Spacer(modifier = Modifier.height(23.dp))
@@ -162,7 +160,7 @@ fun PatientRegistration(
                                 Column (
                                     modifier = Modifier.testTag("RELATIONS_DROPDOWN")
                                         ){
-                                    val relationsList = Constants.GetRelationshipList(viewModel.patientFrom?.gender!!)
+                                    val relationsList = RelationshipList.getRelationshipList(viewModel.patientFrom?.gender!!)
 
                                     TextField(
                                         value = viewModel.relation,
