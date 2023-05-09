@@ -26,8 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ConnectPatientViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
-    private val relationRepository: RelationRepository,
-    private val patientDao: PatientDao
+    private val relationRepository: RelationRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 

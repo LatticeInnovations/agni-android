@@ -1,6 +1,11 @@
 buildscript {
     ext {
         compose_version = '1.4.3'
+        jacocoVersion = '0.8.10'
+        kotlin_version = "1.8.10"
+    }
+    dependencies {
+        classpath "org.jacoco:org.jacoco.core:$jacocoVersion"
     }
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {

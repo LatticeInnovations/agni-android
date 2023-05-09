@@ -58,6 +58,15 @@ jobs:
 #          profile: Nexus 6
 #          script: ./gradlew connectedCheck --stacktrace
 
+      - name: Instrumentation Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 26
+          target: default
+          arch: x86_64
+          profile: Nexus 6
+          script: ./gradlew connectedCheck --stacktrace
+
 #      - name: Bump version code
 #        uses: chkfung/android-version-actions@v1.1
 #        with:
