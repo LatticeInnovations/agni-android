@@ -1,17 +1,20 @@
 package com.latticeonfhir.android.data.local.sharedpreferences
 
 interface PreferenceStorage {
-    var loginFlag: Boolean
-    var defaultLanguage: Boolean
+
+    /** Auth Token */
     var token: String
-    var empCode: String
-    var username: String
-    var userId: String
-    var usertype: Long
-    var hospitalId: String
+
+    /** User Data */
+    var userName: String
+    var userRole: String
+    var userMobile: Long
+    var userEmail: String
+
+    /** Room DB Encryption Key */
     var roomDBEncryptionKey: String
-    var mobile: String
-    var pin: String
+
+    /** Last Sync Time */
     var lastUpdatedTime: Long
 
     fun clear()
