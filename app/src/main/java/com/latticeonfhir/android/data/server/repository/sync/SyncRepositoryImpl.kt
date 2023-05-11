@@ -35,6 +35,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEn
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import java.util.Date
@@ -173,11 +174,16 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getAndInsertRelation(): ResponseMapper<List<RelatedPersonResponse>> {
-        return genericDao.getSameTypeGenericEntityPayload(GenericTypeEnum.FHIR_IDS, SyncType.POST, COUNT_VALUE).let { listOfGenericEntity ->
+        return genericDao.getSameTypeGenericEntityPayload(
+            GenericTypeEnum.FHIR_IDS,
+            SyncType.POST,
+            COUNT_VALUE
+        ).let { listOfGenericEntity ->
             if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
             else {
                 val map = mutableMapOf<String, String>()
-                map[PATIENT_ID] = listOfGenericEntity.map { it.payload }.toNoBracketAndNoSpaceString()
+                map[PATIENT_ID] =
+                    listOfGenericEntity.map { it.payload }.toNoBracketAndNoSpaceString()
                 map[COUNT] = 5000.toString()
                 ApiResponseConverter.convert(
                     apiService.getRelationData(
@@ -210,6 +216,7 @@ class SyncRepositoryImpl @Inject constructor(
                                 getAndInsertRelation()
                             }
                         }
+
                         else -> {
                             this
                         }
@@ -235,27 +242,18 @@ class SyncRepositoryImpl @Inject constructor(
                 )
             ).run {
                 when (this) {
-                    is ApiContinueResponse -> {
-                        body.map { createResponse ->
-                            patientDao.updateFhirId(createResponse.id!!, createResponse.fhirId!!)
-                        }
-                        genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).also {
-                            if (it > 0) sendPersonPostData()
-                        }
-                    }
-
                     is ApiEndResponse -> {
                         body.map { createResponse ->
                             patientDao.updateFhirId(createResponse.id!!, createResponse.fhirId!!)
                         }
-                        genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).also {
-                            if (it > 0) sendPersonPostData()
-                        }
+                        genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).let { deletedRows ->
+                                if (deletedRows > 0)
+                                    sendPersonPostData()
+                                else this
+                            }
                     }
-
-                    else -> {}
+                    else -> this
                 }
-                this
             }
         }
     }

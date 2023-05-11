@@ -16,7 +16,7 @@ abstract class PatientUploadSyncWorker(context: Context, workerParameters: Worke
     override suspend fun doWork(): Result {
         return when(getSyncRepository().sendPersonPostData()) {
             is ApiContinueResponse -> Result.success()
-            is ApiEndResponse -> Result.success()
+            is ApiEndResponse -> Result.retry()
             is ApiErrorResponse -> Result.retry()
             is ApiEmptyResponse -> {
                 setProgress(workDataOf(PatientUploadProgress to 100))
