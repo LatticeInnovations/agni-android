@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.relation
+package com.latticeonfhir.android.utils.converters.responseconverter
 
 import android.content.Context
 import com.latticeonfhir.android.R
