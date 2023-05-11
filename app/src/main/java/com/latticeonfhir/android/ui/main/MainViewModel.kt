@@ -10,6 +10,7 @@ import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.service.workmanager.PeriodicSyncConfiguration
@@ -34,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -42,7 +44,8 @@ class MainViewModel @Inject constructor(
     syncRepository: SyncRepository,
     application: Application,
     private val genericRepository: GenericRepository,
-    private val patientRepository: PatientRepository
+    private val patientRepository: PatientRepository,
+    private val preferenceRepository: PreferenceRepository
 ) : BaseAndroidViewModel(application) {
 
     init {
@@ -72,7 +75,7 @@ class MainViewModel @Inject constructor(
                     .setRequiresBatteryNotLow(true)
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build(),
-                repeat = RepeatInterval(1, TimeUnit.HOURS),
+                repeat = RepeatInterval(15, TimeUnit.MINUTES)
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
@@ -152,7 +155,7 @@ class MainViewModel @Inject constructor(
                     .setRequiresBatteryNotLow(true)
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build(),
-                repeat = RepeatInterval(1, TimeUnit.HOURS),
+                repeat = RepeatInterval(15, TimeUnit.MINUTES)
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
@@ -176,7 +179,7 @@ class MainViewModel @Inject constructor(
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresBatteryNotLow(true)
                     .build(),
-                repeat = RepeatInterval(1, TimeUnit.HOURS),
+                repeat = RepeatInterval(15, TimeUnit.MINUTES)
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {

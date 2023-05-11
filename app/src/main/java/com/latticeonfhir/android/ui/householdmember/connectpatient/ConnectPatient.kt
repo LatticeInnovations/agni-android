@@ -71,7 +71,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.AddressConve
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
-import com.latticeonfhir.android.utils.relation.RelationConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
