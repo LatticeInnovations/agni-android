@@ -21,5 +21,6 @@ data class RelationView(
     val relativeFirstName: String,
     val relativeMiddleName: String?,
     val relativeLastName: String?,
+    val relativeGender: String,
     val relation: RelationEnum
 )

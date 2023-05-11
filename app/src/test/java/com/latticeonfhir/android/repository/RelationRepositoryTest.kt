@@ -24,7 +24,7 @@ class RelationRepositoryTest: BaseClass() {
 
     @Before
     fun setUp(){
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
         relationRepositoryImpl = RelationRepositoryImpl(relationDao, patientDao)
     }
 
@@ -68,7 +68,8 @@ class RelationRepositoryTest: BaseClass() {
             relativeId = relative.id,
             relativeFirstName = relative.firstName,
             relativeMiddleName = relative.middleName,
-            relativeLastName = relative.lastName
+            relativeLastName = relative.lastName,
+            relativeGender = relative.gender
         )
         val relationView2 = RelationView(
             id = UUIDBuilder.generateUUID(),
@@ -81,7 +82,8 @@ class RelationRepositoryTest: BaseClass() {
             relativeId = patientResponse.id,
             relativeFirstName = patientResponse.firstName,
             relativeMiddleName = patientResponse.middleName,
-            relativeLastName = patientResponse.lastName
+            relativeLastName = patientResponse.lastName,
+            relativeGender = patientResponse.gender
         )
         `when`(relationDao.getRelation(id, relativeId)).thenReturn(listOf(relationView1, relationView2))
 
