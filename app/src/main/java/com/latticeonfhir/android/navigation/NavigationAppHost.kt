@@ -8,6 +8,8 @@ import androidx.navigation.compose.composable
 import com.latticeonfhir.android.LandingScreen
 import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatient
 import com.latticeonfhir.android.ui.householdmember.searchresult.SearchResult
+import com.latticeonfhir.android.ui.login.OtpScreen
+import com.latticeonfhir.android.ui.login.PhoneEmailScreen
 import com.latticeonfhir.android.ui.main.patientlandingscreen.AddHouseholdMember
 import com.latticeonfhir.android.ui.main.patientlandingscreen.HouseholdMembersScreen
 import com.latticeonfhir.android.ui.main.patientlandingscreen.PatientLandingScreen
@@ -15,10 +17,14 @@ import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistrationPreview
 import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationship
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
+import com.latticeonfhir.android.ui.splash.SplashScreen
 
 @Composable
 fun NavigationAppHost(navController: NavController) {
-    NavHost(navController = navController as NavHostController, startDestination = "landing_screen"){
+    NavHost(navController = navController as NavHostController, startDestination = Screen.SplashScreen.route){
+        composable(Screen.SplashScreen.route){ SplashScreen(navController) }
+        composable(Screen.PhoneEmailScreen.route){ PhoneEmailScreen(navController) }
+        composable(Screen.OtpScreen.route){ OtpScreen(navController) }
         composable(Screen.LandingScreen.route){ LandingScreen(navController = navController)}
         composable(Screen.SearchPatientScreen.route){ SearchPatient(navController = navController) }
         composable(Screen.PatientRegistrationScreen.route){ PatientRegistration(navController = navController) }
