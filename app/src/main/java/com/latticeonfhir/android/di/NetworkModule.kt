@@ -4,7 +4,8 @@ import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.FhirApp.Companion.gson
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import com.latticeonfhir.android.data.server.api.ApiService
-import com.latticeonfhir.android.service.authentication.TokenAuthenticator
+import com.latticeonfhir.android.utils.constants.AuthenticationConstants.BEARER_TOKEN_BUILDER
+import com.latticeonfhir.android.utils.constants.AuthenticationConstants.X_ACCESS_TOKEN
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,20 +22,16 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(tokenAuthenticator: TokenAuthenticator): OkHttpClient {
+    fun provideOkHttpClient(preferenceStorage: PreferenceStorage): OkHttpClient {
         return OkHttpClient.Builder().addInterceptor { chain ->
             chain.proceed(chain.request().newBuilder().also { requestBuilder ->
                 requestBuilder.addHeader("Accept", "application/json")
+                if(preferenceStorage.token.isNotBlank()) requestBuilder.addHeader(X_ACCESS_TOKEN, String.format(BEARER_TOKEN_BUILDER,preferenceStorage.token))
             }.build())
         }.also { client ->
-            client.authenticator(tokenAuthenticator)
             if (BuildConfig.DEBUG) {
                 val interceptor = HttpLoggingInterceptor()
-                interceptor.level = HttpLoggingInterceptor.Level.BODY
-                client.addInterceptor(interceptor)
-            } else {
-                val interceptor = HttpLoggingInterceptor()
-                interceptor.level = HttpLoggingInterceptor.Level.NONE
+                interceptor.level = HttpLoggingInterceptor.Level.HEADERS
                 client.addInterceptor(interceptor)
             }
         }.build()
@@ -55,9 +52,4 @@ object NetworkModule {
     fun provideApiService(retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
     }
-
-    @Provides
-    @Singleton
-    fun provideTokenAuthenticator(preferenceStorage: PreferenceStorage) =
-        TokenAuthenticator(preferenceStorage)
 }

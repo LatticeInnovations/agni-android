@@ -10,9 +10,8 @@ import com.latticeonfhir.android.data.server.model.patient.PatientAddressRespons
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreviewViewModel
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
-import com.latticeonfhir.android.utils.relation.RelationConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
