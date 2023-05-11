@@ -1,5 +1,6 @@
 name: Android CI
-'on':
+
+"on":
   pull_request:
     branches:
       - main
@@ -14,7 +15,7 @@ jobs:
       - name: set up JDK 11
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
+          java-version: "11"
           distribution: zulu
           cache: gradle
 
@@ -43,6 +44,7 @@ jobs:
       - name: Execute Gradle build
         run: ./gradlew build
 
+#TODO(@Naveen Implement Ktlint in App)
 #      - name: Run Ktlint
 #        run: ./gradlew ktlintStagingDebugCheck
 
@@ -55,15 +57,6 @@ jobs:
           name: unit-test-report
           path: app/build/reports/tests/testDebugUnitTest/
 
-#      - name: Instrumentation Tests
-#        uses: reactivecircus/android-emulator-runner@v2
-#        with:
-#          api-level: 26
-#          target: default
-#          arch: x86_64
-#          profile: Nexus 6
-#          script: ./gradlew connectedCheck --stacktrace
-
       - name: Create Unit Test Coverage Report
         run: ./gradlew createDebugUnitTestCoverageReport
 
@@ -73,36 +66,47 @@ jobs:
           name: jacoco-report
           path: app/build/reports/coverage/test/debug/
 
-      - name: Bump version code
-        uses: chkfung/android-version-actions@v1.1
-        with:
-          gradlePath: app/build.gradle
-          versionCode: ${{github.run_number}}
 
-      - name: Build Release AAB with Gradle
-        run: ./gradlew clean bundleRelease
-
-      - name: Sign Release AAB
-        uses: r0adkll/sign-android-release@v1
-        with:
-          releaseDirectory: app/build/outputs/bundle/release
-          signingKeyBase64: '${{ secrets.SIGNING_KEY }}'
-          alias: '${{ secrets.ALIAS }}'
-          keyStorePassword: '${{ secrets.KEY_STORE_PASSWORD }}'
-          keyPassword: '${{ secrets.KEY_PASSWORD }}'
-
-      - name: Create service_account.json
-        id: createServiceAccount
-        run: echo '${{ secrets.SERVICE_ACCOUNT_JSON }}' > service_account.json
-
-      - name: Upload Android Release to Play Store
-        uses: r0adkll/upload-google-play@v1
-        with:
-          releaseName: AGNI Version 1.0.6
-          serviceAccountJson: service_account.json
-          packageName: com.latticeonfhir.android
-          releaseFiles: app/build/outputs/bundle/release/app-release.aab
-          track: internalsharing
-          inAppUpdatePriority: 5
-          mappingFile: app/build/outputs/mapping/release/mapping.txt
-          debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
+#TODO(@mansikalraa,@naveen -> Find Solution to run Instrumentation test on actions)
+#      - name: Instrumentation Tests
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: 26
+#          target: default
+#          arch: x86_64
+#          profile: Nexus 6
+#          script: ./gradlew connectedCheck --stacktrace
+### Commented Deployment to Playstore
+#      - name: Bump version code
+#        uses: chkfung/android-version-actions@v1.1
+#        with:
+#          gradlePath: app/build.gradle
+#          versionCode: ${{github.run_number}}
+#
+#      - name: Build Release AAB with Gradle
+#        run: ./gradlew clean bundleRelease
+#
+#      - name: Sign Release AAB
+#        uses: r0adkll/sign-android-release@v1
+#        with:
+#          releaseDirectory: app/build/outputs/bundle/release
+#          signingKeyBase64: "${{ secrets.SIGNING_KEY }}"
+#          alias: "${{ secrets.ALIAS }}"
+#          keyStorePassword: "${{ secrets.KEY_STORE_PASSWORD }}"
+#          keyPassword: "${{ secrets.KEY_PASSWORD }}"
+#
+#      - name: Create service_account.json
+#        id: createServiceAccount
+#        run: echo '${{ secrets.SERVICE_ACCOUNT_JSON }}' > service_account.json
+#
+#      - name: Upload Android Release to Play Store
+#        uses: r0adkll/upload-google-play@v1
+#        with:
+#          releaseName: AGNI Version 1.0.6
+#          serviceAccountJson: service_account.json
+#          packageName: com.latticeonfhir.android
+#          releaseFiles: app/build/outputs/bundle/release/app-release.aab
+#          track: internalsharing
+#          inAppUpdatePriority: 5
+#          mappingFile: app/build/outputs/mapping/release/mapping.txt
+#          debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
