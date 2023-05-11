@@ -48,8 +48,6 @@ class MembersScreenViewModelTest: BaseClass() {
     fun getPatientDataTest() = runBlocking {
         `when`(patientRepository.getPatientById(id)).thenReturn(listOf(patientResponse))
 
-        viewModel.getPatientData(id){
-            Assert.assertEquals(patientResponse, it)
-        }
+        Assert.assertEquals(patientResponse, viewModel.getPatientData(id))
     }
 }
