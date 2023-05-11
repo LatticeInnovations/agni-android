@@ -7,7 +7,7 @@ import com.latticeonfhir.android.base.server.BaseResponse
 import retrofit2.Response
 import timber.log.Timber
 
-sealed class ResponseMapper<T> {
+sealed class ResponseMapper<out T> {
 
     companion object {
 
@@ -17,7 +17,7 @@ sealed class ResponseMapper<T> {
 
         fun <T> create(response: Response<BaseResponse<T>>?, paginated: Boolean): ResponseMapper<T> {
             return if (response == null) {
-                return ApiEmptyResponse()
+                return ApiNullResponse
             } else if (response.isSuccessful) {
                 if (response.body()?.status != 0) {
                     if (response.body()?.data == null) {
