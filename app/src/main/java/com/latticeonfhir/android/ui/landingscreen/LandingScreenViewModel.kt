@@ -51,6 +51,7 @@ class LandingScreenViewModel @Inject constructor(
     var searchParameters by mutableStateOf<SearchParameters?>(null)
     var previousSearchList = mutableListOf<String>()
     var size by mutableStateOf(0)
+    var isLoggingOut by mutableStateOf(false)
 
     private fun getPatientList() {
         viewModelScope.launch {
