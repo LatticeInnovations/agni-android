@@ -3,7 +3,8 @@ package com.latticeonfhir.android.di
 import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.FhirApp.Companion.gson
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
-import com.latticeonfhir.android.data.server.api.ApiService
+import com.latticeonfhir.android.data.server.api.AuthenticationApiService
+import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.utils.constants.AuthenticationConstants.BEARER_TOKEN_BUILDER
 import com.latticeonfhir.android.utils.constants.AuthenticationConstants.X_ACCESS_TOKEN
 import dagger.Module
@@ -14,6 +15,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 import javax.inject.Singleton
 
 @Module
@@ -49,7 +51,13 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideApiService(retrofit: Retrofit): ApiService {
-        return retrofit.create(ApiService::class.java)
+    fun providePatientApiService(retrofit: Retrofit): PatientApiService {
+        return retrofit.create(PatientApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthenticationApiService(retrofit: Retrofit): AuthenticationApiService {
+        return retrofit.create(AuthenticationApiService::class.java)
     }
 }
