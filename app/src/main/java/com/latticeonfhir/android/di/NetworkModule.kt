@@ -25,13 +25,13 @@ object NetworkModule {
     fun provideOkHttpClient(preferenceStorage: PreferenceStorage): OkHttpClient {
         return OkHttpClient.Builder().addInterceptor { chain ->
             chain.proceed(chain.request().newBuilder().also { requestBuilder ->
-                requestBuilder.addHeader("Accept", "application/json")
+                requestBuilder.addHeader("Content-Type", "application/json")
                 if(preferenceStorage.token.isNotBlank()) requestBuilder.addHeader(X_ACCESS_TOKEN, String.format(BEARER_TOKEN_BUILDER,preferenceStorage.token))
             }.build())
         }.also { client ->
             if (BuildConfig.DEBUG) {
                 val interceptor = HttpLoggingInterceptor()
-                interceptor.level = HttpLoggingInterceptor.Level.HEADERS
+                interceptor.level = HttpLoggingInterceptor.Level.BODY
                 client.addInterceptor(interceptor)
             }
         }.build()
