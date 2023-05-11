@@ -2,13 +2,14 @@ package com.latticeonfhir.android.ui.common
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Loader() {
+fun ButtonLoader() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -17,10 +18,10 @@ fun Loader() {
     ){
         CircularProgressIndicator(
             modifier = Modifier
-                .width(42.dp)
-                .height(42.dp)
-                .padding(8.dp),
-            strokeWidth = 3.dp
+                .width(20.dp)
+                .height(20.dp),
+            strokeWidth = 3.dp,
+            color = MaterialTheme.colorScheme.primaryContainer
         )
     }
 }

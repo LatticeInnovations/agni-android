@@ -3,6 +3,8 @@ package com.latticeonfhir.android
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,6 +32,8 @@ import com.latticeonfhir.android.ui.landingscreen.MyPatientScreen
 import com.latticeonfhir.android.ui.landingscreen.ProfileScreen
 import com.latticeonfhir.android.ui.landingscreen.QueueScreen
 import com.latticeonfhir.android.ui.landingscreen.*
+import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,6 +125,16 @@ fun LandingScreen(
                                         Icons.Default.Search, contentDescription = "SEARCH_ICON"
                                     )
                                 }
+                            else if(viewModel.selectedIndex == 2){
+                                IconButton(onClick = {
+                                    viewModel.isLoggingOut = true
+                                }) {
+                                    Icon(
+                                        painterResource(id = R.drawable.logout), contentDescription = "LOG_OUT_ICON",
+                                        Modifier.size(20.dp)
+                                    )
+                                }
+                            }
                         },
                     )
                 }
@@ -202,6 +216,42 @@ fun LandingScreen(
                         1 -> QueueScreen()
                         2 -> ProfileScreen()
                     }
+                }
+                if (viewModel.isLoggingOut){
+                    AlertDialog(
+                        onDismissRequest = { viewModel.isLoggingOut = false },
+                        title = {
+                            Text(text = "Confirm logout")
+                        },
+                        text = {
+                               Text(text = "Are you sure you want to logout ")
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    viewModel.isLoggingOut = false
+                                    // call logout function
+                                },
+                                modifier = Modifier.testTag("POSITIVE_BTN")
+                            ) {
+                                Text(
+                                    "Logout"
+                                )
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    viewModel.isLoggingOut = false
+                                },
+                                modifier = Modifier.testTag("NEGATIVE_BTN")
+                            ) {
+                                Text(
+                                    "No, go back"
+                                )
+                            }
+                        }
+                    )
                 }
             }
         )
