@@ -60,7 +60,7 @@ fun SplashScreen(navController: NavController) {
         color = Color(0xFF21005D)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_launcher_agni_foreground),
+            painter = painterResource(id = R.drawable.fhir),
             contentDescription = "logo",
             modifier = Modifier.scale(scale.value)
         )
