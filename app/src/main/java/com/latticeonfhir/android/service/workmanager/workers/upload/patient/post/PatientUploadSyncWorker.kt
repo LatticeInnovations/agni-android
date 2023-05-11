@@ -8,6 +8,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiConti
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiNullResponse
 import kotlinx.coroutines.delay
 
 abstract class PatientUploadSyncWorker(context: Context, workerParameters: WorkerParameters): SyncWorker(context,workerParameters) {
@@ -16,12 +17,13 @@ abstract class PatientUploadSyncWorker(context: Context, workerParameters: Worke
         return when(getSyncRepository().sendPersonPostData()) {
             is ApiContinueResponse -> Result.success()
             is ApiEndResponse -> Result.success()
-            is ApiErrorResponse -> Result.failure()
+            is ApiErrorResponse -> Result.retry()
             is ApiEmptyResponse -> {
                 setProgress(workDataOf(PatientUploadProgress to 100))
                 delay(10L)
                 Result.success()
             }
+            is ApiNullResponse -> Result.failure()
         }
     }
 
