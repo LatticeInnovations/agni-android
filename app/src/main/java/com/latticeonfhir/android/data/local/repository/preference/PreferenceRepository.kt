@@ -1,7 +1,5 @@
 package com.latticeonfhir.android.data.local.repository.preference
 
-import java.util.Date
-
 interface PreferenceRepository {
 
     /** Last Updated Date */
@@ -21,4 +19,7 @@ interface PreferenceRepository {
     /** Authentication Token */
     fun setAuthenticationToken(authToken: String)
     fun getAuthenticationToken(): String
+
+    /** Clear preferences */
+    fun clearPreferences()
 }

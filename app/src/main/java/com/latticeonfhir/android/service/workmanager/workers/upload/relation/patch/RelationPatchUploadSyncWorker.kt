@@ -9,6 +9,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiConti
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiNullResponse
 import kotlinx.coroutines.delay
 
 abstract class RelationPatchUploadSyncWorker(context: Context, workerParameters: WorkerParameters): SyncWorker(context, workerParameters) {
@@ -18,12 +19,13 @@ abstract class RelationPatchUploadSyncWorker(context: Context, workerParameters:
         return when (getSyncRepository().sendRelatedPersonPatchData()) {
             is ApiContinueResponse -> Result.success()
             is ApiEndResponse -> Result.success()
-            is ApiErrorResponse -> Result.failure()
+            is ApiErrorResponse -> Result.retry()
             is ApiEmptyResponse -> {
                 setProgress(workDataOf(RelationPatchUpload to 100))
                 delay(1L)
                 Result.success()
             }
+            is ApiNullResponse -> Result.failure()
         }
     }
 
