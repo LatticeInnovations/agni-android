@@ -1,8 +1,7 @@
 package com.latticeonfhir.android.data.server.repository.authentication
 
-import androidx.annotation.NonNull
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.server.api.ApiService
+import com.latticeonfhir.android.data.server.api.AuthenticationApiService
 import com.latticeonfhir.android.data.server.model.authentication.Login
 import com.latticeonfhir.android.data.server.model.authentication.Otp
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
@@ -13,13 +12,13 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.Response
 import javax.inject.Inject
 
 class AuthenticationRepositoryImpl @Inject constructor(
-    private val apiService: ApiService,
+    private val authenticationApiService: AuthenticationApiService,
     private val preferenceRepository: PreferenceRepository
 ) : AuthenticationRepository {
 
     override suspend fun login(userContact: String): ResponseMapper<String?> {
         return ApiResponseConverter.convert(
-            apiService.login(
+            authenticationApiService.login(
                 Login(
                     userContact = userContact
                 )
@@ -29,7 +28,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     override suspend fun validateOtp(userContact: String, otp: Int): ResponseMapper<TokenResponse> {
         return ApiResponseConverter.convert(
-            apiService.validateOtp(
+            authenticationApiService.validateOtp(
                 Otp(
                     userContact = userContact,
                     otp = otp
@@ -45,7 +44,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     private suspend fun getUserDetails(): ResponseMapper<UserResponse> {
         return ApiResponseConverter.convert(
-            apiService.getUserDetails()
+            authenticationApiService.getUserDetails()
         ).apply {
             if (this is ApiEndResponse) {
                 body.apply {
