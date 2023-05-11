@@ -1,12 +1,9 @@
 package com.latticeonfhir.android.ui.patientregistration.preview
 
-import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.Relation
@@ -14,16 +11,9 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
-import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
-import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
-import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
-import com.latticeonfhir.android.utils.relation.RelationConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

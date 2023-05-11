@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -50,17 +51,22 @@ abstract class FhirAppDatabase : RoomDatabase() {
             context: Context, preferenceStorage: PreferenceStorage
         ): FhirAppDatabase {
 
-            if (preferenceStorage.uuid.isEmpty()) {
-                preferenceStorage.uuid = UUID.randomUUID().toString()
+            if (preferenceStorage.roomDBEncryptionKey.isEmpty()) {
+                preferenceStorage.roomDBEncryptionKey = UUID.randomUUID().toString()
             }
 
             val passphrase: ByteArray =
-                SQLiteDatabase.getBytes(preferenceStorage.uuid.toCharArray())
+                SQLiteDatabase.getBytes(preferenceStorage.roomDBEncryptionKey.toCharArray())
             val factory = SupportFactory(passphrase)
 
-            return Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android.db")
-//                .openHelperFactory(factory)
-                .build()
+            return if (BuildConfig.DEBUG) {
+                Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android.db")
+                    .build()
+            } else {
+                Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android.db")
+                    .openHelperFactory(factory)
+                    .build()
+            }
         }
     }
 }

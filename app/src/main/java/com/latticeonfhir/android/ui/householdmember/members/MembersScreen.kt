@@ -19,7 +19,7 @@ import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
-import com.latticeonfhir.android.utils.relation.RelationConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
 
 @Composable
 fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = hiltViewModel()) {
