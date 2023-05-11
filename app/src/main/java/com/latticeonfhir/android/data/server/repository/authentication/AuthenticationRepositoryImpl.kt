@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.data.server.repository.authentication
 
+import androidx.annotation.NonNull
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.api.ApiService
 import com.latticeonfhir.android.data.server.model.authentication.Login
@@ -42,7 +43,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUserDetails(): ResponseMapper<UserResponse> {
+    private suspend fun getUserDetails(): ResponseMapper<UserResponse> {
         return ApiResponseConverter.convert(
             apiService.getUserDetails()
         ).apply {

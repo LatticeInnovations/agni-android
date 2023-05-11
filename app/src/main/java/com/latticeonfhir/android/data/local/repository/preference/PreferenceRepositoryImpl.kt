@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.data.local.repository.preference
 
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
-import java.util.Date
 import javax.inject.Inject
 
 class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage: PreferenceStorage): PreferenceRepository {
@@ -41,4 +40,8 @@ class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage
     }
 
     override fun getAuthenticationToken() = preferenceStorage.token
+
+    override fun clearPreferences() {
+        preferenceStorage.clear()
+    }
 }
