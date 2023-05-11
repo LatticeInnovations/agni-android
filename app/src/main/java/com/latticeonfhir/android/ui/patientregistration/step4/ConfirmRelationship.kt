@@ -27,8 +27,8 @@ import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.relation.RelationConverter.getRelationEnumFromString
-import com.latticeonfhir.android.utils.relation.RelationConverter.getRelationFromRelationEnum
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationFromRelationEnum
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
