@@ -1,7 +1,9 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
+import android.os.Build
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 
 object TimeConverter {
 
@@ -21,9 +23,11 @@ object TimeConverter {
             presentDay - birthDay > 0 -> {
                 yearDiff
             }
+
             presentDay - birthDay < 0 -> {
                 yearDiff - 1
             }
+
             else -> {
                 yearDiff
             }
@@ -44,7 +48,7 @@ object TimeConverter {
         return age
     }
 
-    internal fun String.toPatientDate(): String{
+    internal fun String.toPatientDate(): String {
         val inputFormat = SimpleDateFormat("dd-MMMM-yyyy", Locale.US)
         val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val date = inputFormat.parse(this)
@@ -52,7 +56,7 @@ object TimeConverter {
         return outputDate
     }
 
-    internal fun ageToPatientDate(years: Int, months: Int, days: Int): String{
+    internal fun ageToPatientDate(years: Int, months: Int, days: Int): String {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.YEAR, -years)
         calendar.add(Calendar.MONTH, -months)
@@ -90,19 +94,22 @@ object TimeConverter {
     }
 
     internal fun Long.toTimeStampDate(): String {
-        return if (this != 0.toLong()) {
-            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault())
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = this
             formatter.format(calendar.time)
         } else {
-            ""
+            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sszzz", Locale.getDefault())
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = this
+            formatter.format(calendar.time).replace("GMT","")
         }
     }
 
     internal fun String.toTimeInMilli(): Long {
         val myDate = this
-        val sdf = SimpleDateFormat("yyyy-MM-dd",Locale.getDefault())
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val date = sdf.parse(myDate)
         return date?.time ?: 0L
     }
