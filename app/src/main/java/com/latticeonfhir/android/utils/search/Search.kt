@@ -52,7 +52,7 @@ object Search {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
                         city,
-                        it.patientEntity.permanentAddress.city ?: ""
+                        it.patientEntity.permanentAddress.city
                     ) > matchingRatio
                 } as MutableList<PatientAndIdentifierEntity>
             }
