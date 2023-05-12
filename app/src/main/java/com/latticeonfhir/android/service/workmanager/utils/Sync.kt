@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.latticeonfhir.android.service.workmanager
+package com.latticeonfhir.android.service.workmanager.utils
 
 import android.content.Context
 import androidx.lifecycle.asFlow
@@ -99,8 +99,8 @@ object Sync {
 
   @PublishedApi
   internal inline fun <W : SyncWorker> createOneTimeWorkRequest(
-    retryConfiguration: RetryConfiguration?,
-    clazz: Class<W>
+      retryConfiguration: RetryConfiguration?,
+      clazz: Class<W>
   ): OneTimeWorkRequest {
     val oneTimeWorkRequestBuilder = OneTimeWorkRequest.Builder(clazz)
     retryConfiguration?.let {
@@ -121,8 +121,8 @@ object Sync {
 
   @PublishedApi
   internal inline fun <W : SyncWorker> createPeriodicWorkRequest(
-    periodicSyncConfiguration: PeriodicSyncConfiguration,
-    clazz: Class<W>
+      periodicSyncConfiguration: PeriodicSyncConfiguration,
+      clazz: Class<W>
   ): PeriodicWorkRequest {
     val periodicWorkRequestBuilder =
       PeriodicWorkRequest.Builder(

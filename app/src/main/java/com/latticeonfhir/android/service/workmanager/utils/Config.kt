@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.latticeonfhir.android.service.workmanager
+package com.latticeonfhir.android.service.workmanager.utils
 
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
@@ -50,19 +50,19 @@ object SyncDataParams {
 
 /** Configuration for period synchronisation */
 class PeriodicSyncConfiguration(
-  /**
+    /**
    * Constraints that specify the requirements needed before the synchronisation is triggered. E.g.
    * network type (Wifi, 3G etc), the device should be charging etc.
    */
   val syncConstraints: Constraints = Constraints.Builder().build(),
 
-  /**
+    /**
    * The interval at which the sync should be triggered in. It must be greater than or equal to
    * [androidx.work.PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]
    */
   val repeat: RepeatInterval,
 
-  /** Configuration for synchronization retry */
+    /** Configuration for synchronization retry */
   val retryConfiguration: RetryConfiguration? = defaultRetryConfiguration
 )
 
@@ -81,16 +81,16 @@ fun ParamMap.concatParams(): String {
 
 /** Configuration for synchronization retry */
 data class RetryConfiguration(
-  /**
+    /**
    * The criteria to retry failed synchronization work based on
    * [androidx.work.WorkRequest.Builder.setBackoffCriteria]
    */
   val backoffCriteria: BackoffCriteria,
 
-  /** Maximum retries for a failing [FhirSyncWorker] */
+    /** Maximum retries for a failing [FhirSyncWorker] */
   val maxRetries: Int,
 
-  /**
+    /**
    * Constraints that specify the requirements needed before the synchronisation is triggered. E.g.
    * network type (Wifi, 3G etc), the device should be charging etc.
    */

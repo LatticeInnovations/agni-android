@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.latticeonfhir.android.service.workmanager
+package com.latticeonfhir.android.service.workmanager.utils
 
 import com.latticeonfhir.android.data.local.enums.SyncOperation
-import java.time.OffsetDateTime
 import java.util.*
 
 sealed class SyncJobStatus {
