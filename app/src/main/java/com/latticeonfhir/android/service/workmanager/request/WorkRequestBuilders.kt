@@ -4,12 +4,10 @@ import android.content.Context
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.WorkInfo
-import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
-import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.service.workmanager.utils.PeriodicSyncConfiguration
 import com.latticeonfhir.android.service.workmanager.utils.RepeatInterval
 import com.latticeonfhir.android.service.workmanager.utils.Sync
@@ -36,13 +34,8 @@ import java.util.concurrent.TimeUnit
 class WorkRequestBuilders(
     private val applicationContext: Context,
     private val genericRepository: GenericRepository,
-    private val patientRepository: PatientRepository,
-    syncRepository: SyncRepository
+    private val patientRepository: PatientRepository
 ) {
-
-    init {
-        FhirApp.syncRepository = syncRepository
-    }
 
     /** Patient Upload Post Sync Worker */
     internal suspend fun uploadPatientWorker() {
