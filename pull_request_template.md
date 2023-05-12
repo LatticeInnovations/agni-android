@@ -1,3 +1,12 @@
+## Guidelines
+- It is mandatory to assign a reviewer to PR
+- A Pull Request must always refer to single or related usecase. Non related usecases must not be a part of same Pull request
+- If a Pull Request has mix of type of changes then the description section must point to relevent information for each type `Note : We must avoid merging multiple changes in a single PR`
+  - Bug Fix : Point to all issue id's of the bugs fixed. One commit mapped to one bug id. Do not fix multiple bugs in a single commit
+  - New Feature: Must point to a usecase or relevent documentation bug
+  - Enhancement: Must point to a usecase or relevent documentation bug
+  - Refactoring: The context of why the refactoring has been done. 
+
 ## :loudspeaker: Type of change
 <!--- Put an `x` in the boxes that apply -->
 - [ ] Bugfix
