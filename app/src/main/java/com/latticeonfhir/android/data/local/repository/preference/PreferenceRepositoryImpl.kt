@@ -41,6 +41,12 @@ class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage
 
     override fun getAuthenticationToken() = preferenceStorage.token
 
+    override fun setOtpAttemptTimeout(timeout: Long) {
+        preferenceStorage.maxOtpAttemptTimeout = timeout
+    }
+
+    override fun getOtpAttemptTimeout() = preferenceStorage.maxOtpAttemptTimeout
+
     override fun clearPreferences() {
         preferenceStorage.clear()
     }

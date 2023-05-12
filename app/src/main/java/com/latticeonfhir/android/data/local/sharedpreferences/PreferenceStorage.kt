@@ -17,5 +17,8 @@ interface PreferenceStorage {
     /** Last Sync Time */
     var lastUpdatedTime: Long
 
+    /** Max Attempts of OTP Timeout */
+    var maxOtpAttemptTimeout: Long
+
     fun clear()
 }
