@@ -1,42 +1,40 @@
 package com.latticeonfhir.android.ui.landingscreen
 
-import android.util.Log
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.map
-import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.model.PaginationResponse
+import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.model.SearchParameters
+import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
-import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
+import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
+import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class LandingScreenViewModel @Inject constructor(
+    application: Application,
+    private val syncRepository: SyncRepository,
+    private val genericRepository: GenericRepository,
     private val patientRepository: PatientRepository,
-    private val searchRepository: SearchRepository
-) : BaseViewModel() {
+    private val searchRepository: SearchRepository,
+) : BaseAndroidViewModel(application) {
+
+    private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(getApplication(),genericRepository,patientRepository,syncRepository) }
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)
@@ -52,6 +50,22 @@ class LandingScreenViewModel @Inject constructor(
     var previousSearchList = mutableListOf<String>()
     var size by mutableStateOf(0)
     var isLoggingOut by mutableStateOf(false)
+
+    init {
+
+        // Post Sync Worker
+        viewModelScope.launch(Dispatchers.IO) {
+            workRequestBuilders.uploadPatientWorker()
+        }
+
+        // Patch Sync Workers
+        viewModelScope.launch(Dispatchers.IO) {
+            workRequestBuilders.setPatientPatchWorker()
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            workRequestBuilders.setRelationPatchWorker()
+        }
+    }
 
     private fun getPatientList() {
         viewModelScope.launch {

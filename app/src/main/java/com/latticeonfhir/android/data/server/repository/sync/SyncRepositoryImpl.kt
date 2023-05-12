@@ -37,6 +37,9 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmpty
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.UUID
 import javax.inject.Inject
@@ -56,8 +59,7 @@ class SyncRepositoryImpl @Inject constructor(
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
         map[SORT] = "-$ID"
-        if (preferenceRepository.getLastUpdatedDate() != 0L) map[LAST_UPDATED] =
-            preferenceRepository.getLastUpdatedDate().toTimeStampDate()
+        if (preferenceRepository.getLastUpdatedDate() != 0L) map[LAST_UPDATED] = "ge${preferenceRepository.getLastUpdatedDate().toTimeStampDate()}"
 
         ApiResponseConverter.convert(
             patientApiService.getListData(
@@ -207,9 +209,11 @@ class SyncRepositoryImpl @Inject constructor(
                                 }
                             }
                             if (relationEntity.isNotEmpty()) {
-                                relationDao.insertRelation(
-                                    *relationEntity.toTypedArray()
-                                )
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    relationDao.insertRelation(
+                                        *relationEntity.toTypedArray()
+                                    )
+                                }
                             }
                             genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).run {
                                 getAndInsertRelation()
@@ -245,12 +249,14 @@ class SyncRepositoryImpl @Inject constructor(
                         body.map { createResponse ->
                             patientDao.updateFhirId(createResponse.id!!, createResponse.fhirId!!)
                         }
-                        genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).let { deletedRows ->
+                        genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId())
+                            .let { deletedRows ->
                                 if (deletedRows > 0)
                                     sendPersonPostData()
                                 else this
                             }
                     }
+
                     else -> this
                 }
             }
