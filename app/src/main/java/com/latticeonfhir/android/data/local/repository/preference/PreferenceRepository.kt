@@ -20,6 +20,10 @@ interface PreferenceRepository {
     fun setAuthenticationToken(authToken: String)
     fun getAuthenticationToken(): String
 
+    /** OTP Attempts Timeout */
+    fun setOtpAttemptTimeout(timeout: Long)
+    fun getOtpAttemptTimeout(): Long
+
     /** Clear preferences */
     fun clearPreferences()
 }
