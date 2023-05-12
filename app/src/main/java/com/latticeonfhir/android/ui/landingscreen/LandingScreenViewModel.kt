@@ -34,7 +34,7 @@ class LandingScreenViewModel @Inject constructor(
     private val searchRepository: SearchRepository,
 ) : BaseAndroidViewModel(application) {
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(getApplication(),genericRepository,patientRepository,syncRepository) }
+    private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(getApplication(),genericRepository,patientRepository) }
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)

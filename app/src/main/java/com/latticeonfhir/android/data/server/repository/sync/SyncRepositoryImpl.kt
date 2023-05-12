@@ -16,6 +16,7 @@ import com.latticeonfhir.android.data.server.constants.ConstantValues.COUNT_VALU
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.EndPoints.RELATED_PERSON
 import com.latticeonfhir.android.data.server.constants.QueryParameters.COUNT
+import com.latticeonfhir.android.data.server.constants.QueryParameters.GREATER_THAN_BUILDER
 import com.latticeonfhir.android.data.server.constants.QueryParameters.ID
 import com.latticeonfhir.android.data.server.constants.QueryParameters.LAST_UPDATED
 import com.latticeonfhir.android.data.server.constants.QueryParameters.OFFSET
@@ -59,7 +60,9 @@ class SyncRepositoryImpl @Inject constructor(
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
         map[SORT] = "-$ID"
-        if (preferenceRepository.getLastUpdatedDate() != 0L) map[LAST_UPDATED] = "ge${preferenceRepository.getLastUpdatedDate().toTimeStampDate()}"
+        if (preferenceRepository.getLastUpdatedDate() != 0L) map[LAST_UPDATED] = String.format(
+            GREATER_THAN_BUILDER, preferenceRepository.getLastUpdatedDate().toTimeStampDate()
+        )
 
         ApiResponseConverter.convert(
             patientApiService.getListData(
