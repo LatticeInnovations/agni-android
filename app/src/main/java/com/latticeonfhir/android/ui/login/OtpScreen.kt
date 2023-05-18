@@ -7,7 +7,12 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -29,20 +34,94 @@ import timber.log.Timber
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewModel()) {
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(
+        key1 = viewModel.secondDigit,
+    ) {
+        if (viewModel.secondDigit.isNotEmpty()) {
+            focusManager.moveFocus(
+                focusDirection = FocusDirection.Next,
+            )
+        } else {
+            focusManager.moveFocus(
+                focusDirection = FocusDirection.Previous,
+            )
+        }
+    }
+    LaunchedEffect(
+        key1 = viewModel.thirdDigit,
+    ) {
+        if (viewModel.thirdDigit.isNotEmpty()) {
+            focusManager.moveFocus(
+                focusDirection = FocusDirection.Next,
+            )
+        } else {
+            focusManager.moveFocus(
+                focusDirection = FocusDirection.Previous,
+            )
+        }
+    }
+    LaunchedEffect(
+        key1 = viewModel.fourDigit,
+    ) {
+        if (viewModel.fourDigit.isNotEmpty()) {
+            focusManager.moveFocus(
+                focusDirection = FocusDirection.Next,
+            )
+        } else {
+            focusManager.moveFocus(
+                focusDirection = FocusDirection.Previous,
+            )
+        }
+    }
+    LaunchedEffect(
+        key1 = viewModel.fiveDigit,
+    ) {
+        if (viewModel.fiveDigit.isNotEmpty()) {
+            focusManager.moveFocus(
+                focusDirection = FocusDirection.Next,
+            )
+        } else {
+            focusManager.moveFocus(
+                focusDirection = FocusDirection.Previous,
+            )
+        }
+    }
+    LaunchedEffect(
+        key1 = viewModel.sixDigit,
+    ) {
+        if (viewModel.sixDigit.isEmpty()) {
+            focusManager.moveFocus(
+                focusDirection = FocusDirection.Previous,
+            )
+        }
+    }
+    LaunchedEffect(
+        key1 = viewModel.firstDigit,
+    ) {
+        if (viewModel.firstDigit.isNotEmpty()) {
+            focusManager.moveFocus(
+                focusDirection = FocusDirection.Next,
+            )
+        } else {
+            focusRequester.requestFocus()
+        }
+    }
     LaunchedEffect(viewModel.twoMinuteTimer > 0) {
         while (viewModel.twoMinuteTimer > 0) {
             delay(1000)
             viewModel.twoMinuteTimer -= 1
         }
     }
-    LaunchedEffect(viewModel.fiveMinuteTimer >= 0) {
-        Timber.d("manseeyy ${viewModel.fiveMinuteTimer}")
-        if (viewModel.fiveMinuteTimer > 0) {
-            delay(1000)
+    LaunchedEffect(viewModel.fiveMinuteTimer > 0) {
+       while (viewModel.fiveMinuteTimer > 0) {
+           if (viewModel.fiveMinuteTimer - 1 == 0){
+               viewModel.otpAttemptsExpired = false
+               viewModel.fiveMinuteTimer = 300
+           }
+           delay(1000)
             viewModel.fiveMinuteTimer -= 1
-        } else if (viewModel.fiveMinuteTimer == 0){
-            viewModel.otpAttemptsExpired = false
-            viewModel.fiveMinuteTimer = 300
         }
     }
     LaunchedEffect(viewModel.isLaunched) {
@@ -86,37 +165,56 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             .fillMaxWidth()
                             .padding(horizontal = 10.dp)
                     ) {
-                        OtpTextField(viewModel.firstDigit, Modifier.weight(1f).padding(5.dp), viewModel.isOtpIncorrect){
+                        OtpTextField(viewModel.firstDigit,
+                            Modifier
+                                .weight(1f)
+                                .padding(5.dp)
+                                .focusRequester(focusRequester), viewModel.isOtpIncorrect){
                             if (it.isEmpty()) viewModel.firstDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.firstDigit =
                                 it
                             viewModel.updateOtp()
                         }
-                        OtpTextField(viewModel.secondDigit, Modifier.weight(1f).padding(5.dp), viewModel.isOtpIncorrect){
+                        OtpTextField(viewModel.secondDigit,
+                            Modifier
+                                .weight(1f)
+                                .padding(5.dp), viewModel.isOtpIncorrect){
                             if (it.isEmpty()) viewModel.secondDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.secondDigit =
                                 it
                             viewModel.updateOtp()
                         }
-                        OtpTextField(viewModel.thirdDigit, Modifier.weight(1f).padding(5.dp), viewModel.isOtpIncorrect){
+                        OtpTextField(viewModel.thirdDigit,
+                            Modifier
+                                .weight(1f)
+                                .padding(5.dp), viewModel.isOtpIncorrect){
                             if (it.isEmpty()) viewModel.thirdDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.thirdDigit =
                                 it
                             viewModel.updateOtp()
                         }
-                        OtpTextField(viewModel.fourDigit, Modifier.weight(1f).padding(5.dp), viewModel.isOtpIncorrect){
+                        OtpTextField(viewModel.fourDigit,
+                            Modifier
+                                .weight(1f)
+                                .padding(5.dp), viewModel.isOtpIncorrect){
                             if (it.isEmpty()) viewModel.fourDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.fourDigit =
                                 it
                             viewModel.updateOtp()
                         }
-                        OtpTextField(viewModel.fiveDigit, Modifier.weight(1f).padding(5.dp), viewModel.isOtpIncorrect){
+                        OtpTextField(viewModel.fiveDigit,
+                            Modifier
+                                .weight(1f)
+                                .padding(5.dp), viewModel.isOtpIncorrect){
                             if (it.isEmpty()) viewModel.fiveDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.fiveDigit =
                                 it
                             viewModel.updateOtp()
                         }
-                        OtpTextField(viewModel.sixDigit, Modifier.weight(1f).padding(5.dp), viewModel.isOtpIncorrect){
+                        OtpTextField(viewModel.sixDigit,
+                            Modifier
+                                .weight(1f)
+                                .padding(5.dp), viewModel.isOtpIncorrect){
                             if (it.isEmpty()) viewModel.sixDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.sixDigit =
                                 it
@@ -134,19 +232,16 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                     }
                     Spacer(modifier = Modifier.height(15.dp))
                     if (viewModel.otpAttemptsExpired) {
-                        Spacer(modifier = Modifier.height(15.dp))
                         Text(
                             text = viewModel.errorMsg,
                             style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 15.dp),
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.error
                         )
-                        Spacer(modifier = Modifier.height(15.dp))
                     }
                     else{
                         if (viewModel.twoMinuteTimer > 0) {
-                            Spacer(modifier = Modifier.height(15.dp))
                             Text(
                                 text = "${
                                     String.format(
@@ -159,14 +254,19 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                     )
                                 }",
                                 style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 15.dp),
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            Spacer(modifier = Modifier.height(15.dp))
                         } else {
-                            TextButton(
+                            if (viewModel.isResending) {
+                                Spacer(modifier = Modifier.height(15.dp))
+                                ButtonLoader()
+                                Spacer(modifier = Modifier.height(15.dp))
+                            }
+                            else TextButton(
                                 onClick = {
+                                    viewModel.isResending = true
                                     viewModel.firstDigit = ""
                                     viewModel.secondDigit = ""
                                     viewModel.thirdDigit = ""
@@ -175,9 +275,10 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                     viewModel.sixDigit = ""
                                     viewModel.isOtpIncorrect = false
                                     viewModel.updateOtp()
-                                    viewModel.resendOTP {
-                                        if (it)
+                                    viewModel.resendOTP { resent ->
+                                        if (resent) {
                                             viewModel.twoMinuteTimer = 120
+                                        }
                                     }
                                 }
                             ) {
@@ -201,14 +302,10 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                     CoroutineScope(Dispatchers.Main).launch {
                                         withContext(Dispatchers.Main){
                                             navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                "LoggedIn",
+                                                "loggedIn",
                                                 true
                                             )
-                                            navController.navigate(Screen.LandingScreen.route){
-                                                popUpTo(Screen.PhoneEmailScreen.route){
-                                                    inclusive = true
-                                                }
-                                            }
+                                            navController.navigate(Screen.LandingScreen.route)
                                         }
                                     }
                                 }
