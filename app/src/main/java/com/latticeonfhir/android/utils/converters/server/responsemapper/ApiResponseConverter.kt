@@ -13,7 +13,8 @@ object ApiResponseConverter {
         return if (response.isSuccessful) {
             ResponseMapper.create(response, paginated)
         } else {
-            ResponseMapper.create(Throwable("Server Error"))
+            //ResponseMapper.create(Throwable("Server Error"))
+            ResponseMapper.create(response, paginated)
         }
     }
 }

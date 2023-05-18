@@ -9,6 +9,7 @@ import com.latticeonfhir.android.data.server.model.user.UserResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import timber.log.Timber
 import javax.inject.Inject
 
 class AuthenticationRepositoryImpl @Inject constructor(
@@ -50,7 +51,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
                 body.apply {
                     preferenceRepository.setUserName(userName)
                     preferenceRepository.setUserRole(role)
-                    email?.let { email -> preferenceRepository.setUserEmail(email) }
+                    userEmail?.let { email -> preferenceRepository.setUserEmail(email) }
                     mobileNumber?.let { mobileNumber -> preferenceRepository.setUserMobile(mobileNumber) }
                 }
             }
