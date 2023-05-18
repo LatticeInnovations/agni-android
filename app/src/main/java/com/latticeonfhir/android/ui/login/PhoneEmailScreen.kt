@@ -55,7 +55,7 @@ fun PhoneEmailScreen(
                 }
             } else null
         )
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(45.dp))
         Button(
             onClick = {
                 viewModel.isAuthenticating = true
