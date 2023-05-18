@@ -28,7 +28,7 @@ object NetworkModule {
         return OkHttpClient.Builder().addInterceptor { chain ->
             chain.proceed(chain.request().newBuilder().also { requestBuilder ->
                 requestBuilder.addHeader("Content-Type", "application/json")
-                if(preferenceStorage.token.isNotBlank()) requestBuilder.addHeader(X_ACCESS_TOKEN, String.format(BEARER_TOKEN_BUILDER,preferenceStorage.token))
+                if(preferenceStorage.token.isNotBlank()) requestBuilder.addHeader(X_ACCESS_TOKEN, preferenceStorage.token)
             }.build())
         }.also { client ->
             if (BuildConfig.DEBUG) {

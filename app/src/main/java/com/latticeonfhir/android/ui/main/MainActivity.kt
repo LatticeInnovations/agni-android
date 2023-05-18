@@ -21,7 +21,7 @@ class MainActivity : BaseActivity() {
         setContent {
             FHIRAndroidTheme {
                 val navController = rememberNavController()
-                NavigationAppHost(navController = navController)
+                NavigationAppHost(navController = navController, startDest = viewModel.startDestination)
             }
         }
         viewModel.toString()

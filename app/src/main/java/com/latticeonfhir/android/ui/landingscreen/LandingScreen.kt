@@ -1,5 +1,7 @@
 package com.latticeonfhir.android
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
@@ -34,6 +37,8 @@ import com.latticeonfhir.android.ui.landingscreen.QueueScreen
 import com.latticeonfhir.android.ui.landingscreen.*
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +47,17 @@ fun LandingScreen(
     viewModel: LandingScreenViewModel = hiltViewModel()
 ) {
     val focusRequester = remember { FocusRequester() }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val activity = (LocalContext.current as? Activity)
 
+    BackHandler(enabled = true) {
+        if (viewModel.isSearching){
+            viewModel.isSearching = false
+        } else {
+            activity?.finish()
+        }
+    }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
@@ -54,6 +69,17 @@ fun LandingScreen(
                     navController.previousBackStackEntry?.savedStateHandle?.get<SearchParameters>(
                         "searchParameters"
                     )
+            } else if (
+                navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                    "loggedIn"
+                ) == true
+            ){
+                Timber.d("manseeyy show snackbar")
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Logged in successfully"
+                    )
+                }
             }
 
             viewModel.populateList()
@@ -68,6 +94,7 @@ fun LandingScreen(
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 if (viewModel.isSearchResult) {
                     TopAppBar(
@@ -230,7 +257,12 @@ fun LandingScreen(
                             TextButton(
                                 onClick = {
                                     viewModel.isLoggingOut = false
-                                    // call logout function
+                                    viewModel.logout()
+                                    navController.navigate(Screen.PhoneEmailScreen.route){
+                                        popUpTo(Screen.LandingScreen.route){
+                                            inclusive = true
+                                        }
+                                    }
                                 },
                                 modifier = Modifier.testTag("POSITIVE_BTN")
                             ) {

@@ -149,7 +149,7 @@ fun PatientRegistrationStepOne(
                 1F,
                 viewModel.maxEmailLength,
                 viewModel.isEmailValid,
-                "Enter valid email (eg., abc123@gmail.com)",
+                "Enter valid userEmail (eg., abc123@gmail.com)",
                 KeyboardType.Email
             ) {
                 viewModel.email = it
