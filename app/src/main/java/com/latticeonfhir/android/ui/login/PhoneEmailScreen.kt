@@ -1,9 +1,12 @@
 package com.latticeonfhir.android.ui.login
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -20,6 +23,11 @@ fun PhoneEmailScreen(
     navController: NavController,
     viewModel: PhoneEmailViewModel = hiltViewModel()
 ) {
+    val activity = LocalContext.current as Activity
+    BackHandler(enabled = true) {
+        activity.finishAffinity()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -29,7 +37,8 @@ fun PhoneEmailScreen(
         Spacer(modifier = Modifier.height(60.dp))
         Text(
             text = "Login with phone number or email address",
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(50.dp))
         OutlinedTextField(

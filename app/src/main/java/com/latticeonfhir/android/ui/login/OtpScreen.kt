@@ -29,13 +29,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewModel()) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(viewModel.isLaunched) {
+        viewModel.userInput =
+            navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput").toString()
+        viewModel.isLaunched = true
+    }
     LaunchedEffect(
         key1 = viewModel.secondDigit,
     ) {
@@ -124,11 +128,6 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
             viewModel.fiveMinuteTimer -= 1
         }
     }
-    LaunchedEffect(viewModel.isLaunched) {
-        viewModel.userInput =
-            navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput").toString()
-        viewModel.isLaunched = true
-    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -153,11 +152,13 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                 ) {
                     Text(
                         text = "Enter the OTP we sent to",
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = viewModel.userInput,
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(50.dp))
                     Row(
@@ -342,6 +343,6 @@ fun OtpTextField(value: String, modifier: Modifier, errorCondition: Boolean, upd
             keyboardType = KeyboardType.Number
         ),
         isError = errorCondition,
-        textStyle = TextStyle.Default.copy(textAlign = TextAlign.Center)
+        textStyle = MaterialTheme.typography.titleLarge.copy(textAlign = TextAlign.Center)
     )
 }
