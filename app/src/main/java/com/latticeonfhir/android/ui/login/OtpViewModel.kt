@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
-import com.latticeonfhir.android.utils.constants.ErrorConstants.RETRY_FIVE_MIN_ERROR
+import com.latticeonfhir.android.utils.constants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
@@ -69,7 +69,7 @@ class OtpViewModel @Inject constructor(
                 } else if(this is ApiErrorResponse){
                     when(errorMessage){
                         //OTP_EXPIRED -> ""
-                        RETRY_FIVE_MIN_ERROR -> {
+                        TOO_MANY_ATTEMPTS_ERROR -> {
                             //setTimeout()
                             isOtpIncorrect = false
                             otpAttemptsExpired = true
