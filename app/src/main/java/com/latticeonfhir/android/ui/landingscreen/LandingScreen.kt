@@ -5,8 +5,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,8 +33,6 @@ import com.latticeonfhir.android.ui.landingscreen.MyPatientScreen
 import com.latticeonfhir.android.ui.landingscreen.ProfileScreen
 import com.latticeonfhir.android.ui.landingscreen.QueueScreen
 import com.latticeonfhir.android.ui.landingscreen.*
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -49,13 +45,16 @@ fun LandingScreen(
     val focusRequester = remember { FocusRequester() }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val activity = (LocalContext.current as? Activity)
+    val activity = LocalContext.current as Activity
 
     BackHandler(enabled = true) {
         if (viewModel.isSearching){
             viewModel.isSearching = false
+        } else if(viewModel.isSearchResult) {
+            viewModel.isSearchResult = false
+            viewModel.populateList()
         } else {
-            activity?.finish()
+            activity.finish()
         }
     }
     LaunchedEffect(viewModel.isLaunched) {
@@ -122,7 +121,6 @@ fun LandingScreen(
                             IconButton(onClick = {
                                 viewModel.isSearchResult = false
                                 viewModel.populateList()
-                                navController.popBackStack(Screen.LandingScreen.route, false)
                             }) {
                                 Icon(
                                     Icons.Default.Clear, contentDescription = "CLEAR_ICON"

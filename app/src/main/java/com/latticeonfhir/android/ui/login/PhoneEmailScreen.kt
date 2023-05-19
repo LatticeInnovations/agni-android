@@ -46,7 +46,7 @@ fun PhoneEmailScreen(
             onValueChange = {
                 if (it.length<=50) {
                     viewModel.isPhoneNumber = it.matches(OnlyNumberRegex.onlyNumbers) && it.length <=10
-                    viewModel.inputValue = it
+                    viewModel.inputValue = it.trim()
                     viewModel.updateError()
                 }
             },
