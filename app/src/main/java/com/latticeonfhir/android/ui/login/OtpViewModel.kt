@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.utils.constants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
@@ -18,8 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OtpViewModel @Inject constructor(
-    private val authenticationRepository: AuthenticationRepository,
-    private val preferenceRepository: PreferenceRepository
+    private val authenticationRepository: AuthenticationRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var userInput by mutableStateOf("")
@@ -29,7 +27,6 @@ class OtpViewModel @Inject constructor(
     var fourDigit by mutableStateOf("")
     var fiveDigit by mutableStateOf("")
     var sixDigit by mutableStateOf("")
-    var isOtpValid by mutableStateOf(false)
     var twoMinuteTimer by mutableStateOf(120)
     var fiveMinuteTimer by mutableStateOf(0)
     var isVerifying by mutableStateOf(false)
@@ -43,7 +40,6 @@ class OtpViewModel @Inject constructor(
         otpEntered = ""
         otpEntered =
             (firstDigit + secondDigit + thirdDigit + fourDigit + fiveDigit + sixDigit).trim()
-        isOtpValid = otpEntered.length == 6
     }
 
     internal fun resendOTP(resent:(Boolean) -> Unit) {
@@ -68,9 +64,7 @@ class OtpViewModel @Inject constructor(
                     navigate(true)
                 } else if(this is ApiErrorResponse){
                     when(errorMessage){
-                        //OTP_EXPIRED -> ""
                         TOO_MANY_ATTEMPTS_ERROR -> {
-                            //setTimeout()
                             isOtpIncorrect = false
                             otpAttemptsExpired = true
                             fiveMinuteTimer = 300
@@ -83,9 +77,5 @@ class OtpViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun setTimeout(){
-        //preferenceRepository.setOtpAttemptTimeout(Date().time)
     }
 }

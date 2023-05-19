@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -23,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.ButtonLoader
+import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +36,22 @@ import kotlinx.coroutines.withContext
 fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewModel()) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
+    val activity = LocalContext.current as MainActivity
+    activity.registerBroadcastReceiver()
+    LaunchedEffect(activity.otp){
+        if (activity.otp.isNotEmpty()) {
+            viewModel.firstDigit = activity.otp[0].toString()
+            viewModel.secondDigit = activity.otp[1].toString()
+            viewModel.thirdDigit = activity.otp[2].toString()
+            viewModel.fourDigit = activity.otp[3].toString()
+            viewModel.fiveDigit = activity.otp[4].toString()
+            viewModel.sixDigit = activity.otp[5].toString()
+            viewModel.updateOtp()
+            verifyClick(navController, viewModel)
+            activity.otp = ""
+            activity.unregisterBroadcastReceiver()
+        }
+    }
     LaunchedEffect(viewModel.isLaunched) {
         viewModel.userInput =
             navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput").toString()
@@ -236,7 +253,9 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                         Text(
                             text = viewModel.errorMsg,
                             style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 15.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 15.dp),
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -255,7 +274,9 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                     )
                                 }",
                                 style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 15.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 15.dp),
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -279,6 +300,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                     viewModel.resendOTP { resent ->
                                         if (resent) {
                                             viewModel.twoMinuteTimer = 120
+                                            viewModel.isResending = false
                                         }
                                     }
                                 }
@@ -297,22 +319,9 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                         onClick = {
                             // call function of otp auth
                             // if authenticated, navigate to landing screen
-                            viewModel.isVerifying = true
-                            viewModel.validateOtp {
-                                if (it){
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        withContext(Dispatchers.Main){
-                                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                "loggedIn",
-                                                true
-                                            )
-                                            navController.navigate(Screen.LandingScreen.route)
-                                        }
-                                    }
-                                }
-                            }
+                            verifyClick(navController, viewModel)
                         },
-                        enabled = viewModel.isOtpValid && !viewModel.otpAttemptsExpired,
+                        enabled = viewModel.otpEntered.length == 6 && !viewModel.otpAttemptsExpired,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         if (viewModel.isVerifying) ButtonLoader()
@@ -322,6 +331,23 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
             }
         }
     )
+}
+
+fun verifyClick(navController: NavController, viewModel: OtpViewModel) {
+    viewModel.isVerifying = true
+    viewModel.validateOtp {
+        if (it){
+            CoroutineScope(Dispatchers.Main).launch {
+                withContext(Dispatchers.Main){
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "loggedIn",
+                        true
+                    )
+                    navController.navigate(Screen.LandingScreen.route)
+                }
+            }
+        }
+    }
 }
 
 @Composable

@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.latticeonfhir.android.smsretreiver.startSmsRetriever
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.ButtonLoader
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
@@ -27,7 +28,6 @@ fun PhoneEmailScreen(
     BackHandler(enabled = true) {
         activity.finishAffinity()
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -68,8 +68,11 @@ fun PhoneEmailScreen(
         Button(
             onClick = {
                 viewModel.isAuthenticating = true
-                viewModel.login(){
+                viewModel.login {
                     if (it) {
+                        if (viewModel.isPhoneNumber){
+                            startSmsRetriever(activity)
+                        }
                         CoroutineScope(Dispatchers.Main).launch {
                             withContext(Dispatchers.Main) {
                                 navController.currentBackStackEntry?.savedStateHandle?.set(

@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
@@ -25,7 +24,6 @@ class PhoneEmailViewModel @Inject constructor(
     var isAuthenticating by mutableStateOf(false)
     var isPhoneNumber by mutableStateOf(false)
     var isError by mutableStateOf(false)
-    var navigate by mutableStateOf(false)
     var errorMsg by mutableStateOf("")
 
     fun updateError() {
@@ -40,11 +38,9 @@ class PhoneEmailViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             authenticationRepository.login(inputValue).apply {
                 if(this is ApiEmptyResponse) {
-                    //navigate = true
                     isAuthenticating = false
                     navigate(true)
                 } else if(this is ApiErrorResponse) {
-                    Timber.d("manseeyy $errorMessage")
                     errorMsg = errorMessage
                     isError = true
                     isAuthenticating = false
