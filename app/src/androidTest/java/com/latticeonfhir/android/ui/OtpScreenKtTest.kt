@@ -1,0 +1,144 @@
+package com.latticeonfhir.android.ui
+
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import com.latticeonfhir.android.ui.main.MainActivity
+import org.junit.Rule
+import org.junit.Test
+
+class OtpScreenKtTest {
+
+    @get: Rule
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    val heading = hasTestTag("HEADING_TAG")
+    val subHeading = hasTestTag("SUB_HEADING_TAG")
+    val inputField = hasTestTag("INPUT_FIELD")
+    val button = hasTestTag("BUTTON")
+    val resendButton = hasTestTag("RESEND_BUTTON")
+    val firstDigit = hasTestTag("FIRST_DIGIT")
+    val secondDigit = hasTestTag("SECOND_DIGIT")
+    val thirdDigit = hasTestTag("THIRD_DIGIT")
+    val fourDigit = hasTestTag("FOUR_DIGIT")
+    val fiveDigit = hasTestTag("FIVE_DIGIT")
+    val sixDigit = hasTestTag("SIX_DIGIT")
+    val errorMsg = hasTestTag("ERROR_MSG")
+    val twoMinTimer = hasTestTag("TWO_MIN_TIMER")
+    val backIcon = hasContentDescription("BACK_ICON")
+
+    fun login(){
+        composeTestRule.onNode(inputField).performTextInput("9876543210")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+    }
+
+    @Test
+    fun check_message_when_login_with_number(){
+        login()
+        composeTestRule.onNode(heading).assertTextEquals("Enter the OTP we sent to")
+        composeTestRule.onNode(subHeading).assertTextEquals("9876543210")
+    }
+
+    @Test
+    fun check_message_when_login_with_email(){
+        composeTestRule.onNode(inputField).performTextInput("dev2@gmail.com")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(5000)
+        composeTestRule.onNode(heading).assertTextEquals("Enter the OTP we sent to")
+        composeTestRule.onNode(subHeading).assertTextEquals("dev2@gmail.com")
+    }
+
+    @Test
+    fun verify_fields_and_buttons() {
+        login()
+        composeTestRule.onNode(firstDigit).assertExists()
+        composeTestRule.onNode(secondDigit).assertExists()
+        composeTestRule.onNode(thirdDigit).assertExists()
+        composeTestRule.onNode(fourDigit).assertExists()
+        composeTestRule.onNode(fiveDigit).assertExists()
+        composeTestRule.onNode(sixDigit).assertExists()
+        composeTestRule.onNode(button).assertExists().assertTextEquals("Verify").assertIsNotEnabled()
+        composeTestRule.onNode(twoMinTimer).assertExists()
+    }
+
+    @Test
+    fun verify_button() {
+        login()
+        composeTestRule.onNode(button).assertIsNotEnabled()
+    }
+
+    @Test
+    fun enter_invalid_otp_check_error_message() {
+        login()
+        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(secondDigit).performTextInput("1")
+        composeTestRule.onNode(thirdDigit).performTextInput("1")
+        composeTestRule.onNode(fourDigit).performTextInput("1")
+        composeTestRule.onNode(fiveDigit).performTextInput("1")
+        composeTestRule.onNode(sixDigit).performTextInput("1")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(errorMsg).assertIsDisplayed().assertTextEquals("Invalid OTP")
+    }
+
+    @Test
+    fun enter_less_than_6_digits_and_check_btn(){
+        login()
+        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(secondDigit).performTextInput("1")
+        composeTestRule.onNode(thirdDigit).performTextInput("1")
+        composeTestRule.onNode(fourDigit).performTextInput("1")
+        composeTestRule.onNode(fiveDigit).performTextInput("1")
+        composeTestRule.onNode(button).assertIsNotEnabled()
+    }
+
+    @Test
+    fun enter_alphabets_in_otp_fields() {
+        login()
+        composeTestRule.onNode(firstDigit).performTextInput("a")
+        composeTestRule.onNode(firstDigit).assertTextEquals("")
+        composeTestRule.onNode(secondDigit).performTextInput("a")
+        composeTestRule.onNode(secondDigit).assertTextEquals("")
+        composeTestRule.onNode(thirdDigit).performTextInput("a")
+        composeTestRule.onNode(thirdDigit).assertTextEquals("")
+        composeTestRule.onNode(fourDigit).performTextInput("a")
+        composeTestRule.onNode(fourDigit).assertTextEquals("")
+        composeTestRule.onNode(fiveDigit).performTextInput("a")
+        composeTestRule.onNode(fiveDigit).assertTextEquals("")
+        composeTestRule.onNode(sixDigit).performTextInput("a")
+        composeTestRule.onNode(sixDigit).assertTextEquals("")
+    }
+
+    @Test
+    fun enter_special_characters_in_otp_fields() {
+        login()
+        composeTestRule.onNode(firstDigit).performTextInput("@")
+        composeTestRule.onNode(firstDigit).assertTextEquals("")
+        composeTestRule.onNode(secondDigit).performTextInput("!")
+        composeTestRule.onNode(secondDigit).assertTextEquals("")
+        composeTestRule.onNode(thirdDigit).performTextInput("#")
+        composeTestRule.onNode(thirdDigit).assertTextEquals("")
+        composeTestRule.onNode(fourDigit).performTextInput("^")
+        composeTestRule.onNode(fourDigit).assertTextEquals("")
+        composeTestRule.onNode(fiveDigit).performTextInput("%")
+        composeTestRule.onNode(fiveDigit).assertTextEquals("")
+        composeTestRule.onNode(sixDigit).performTextInput("*")
+        composeTestRule.onNode(sixDigit).assertTextEquals("")
+    }
+
+    @Test
+    fun click_back_and_regenerate_otp() {
+        login()
+        composeTestRule.onNode(backIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(5000)
+        composeTestRule.onNode(heading).assertTextEquals("Enter the OTP we sent to")
+    }
+}
