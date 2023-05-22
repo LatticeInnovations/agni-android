@@ -36,7 +36,6 @@ import javax.inject.Inject
 @HiltViewModel
 class LandingScreenViewModel @Inject constructor(
     application: Application,
-    private val syncRepository: SyncRepository,
     private val genericRepository: GenericRepository,
     private val patientRepository: PatientRepository,
     private val searchRepository: SearchRepository,
@@ -66,19 +65,33 @@ class LandingScreenViewModel @Inject constructor(
     var userPhoneNo by mutableStateOf("")
     var userEmail by mutableStateOf("")
 
+    var isSessionExpired by mutableStateOf(false)
+
     init {
 
         // Post Sync Worker
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.uploadPatientWorker()
+            workRequestBuilders.uploadPatientWorker(){
+                if (it){
+                    isSessionExpired = it
+                }
+            }
         }
 
         // Patch Sync Workers
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setPatientPatchWorker()
+            workRequestBuilders.setPatientPatchWorker(){
+                if (it){
+                    isSessionExpired = it
+                }
+            }
         }
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setRelationPatchWorker()
+            workRequestBuilders.setRelationPatchWorker(){
+                if (it){
+                    isSessionExpired = it
+                }
+            }
         }
 
         userName = preferenceRepository.getUserName()

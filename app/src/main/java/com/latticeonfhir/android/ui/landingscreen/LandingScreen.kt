@@ -73,7 +73,6 @@ fun LandingScreen(
                     "loggedIn"
                 ) == true
             ){
-                Timber.d("manseeyy show snackbar")
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(
                         message = "Logged in successfully"
@@ -83,6 +82,17 @@ fun LandingScreen(
 
             viewModel.populateList()
             viewModel.isLaunched = true
+        }
+    }
+
+    LaunchedEffect(viewModel.isSessionExpired){
+        if (viewModel.isSessionExpired){
+            navController.currentBackStackEntry?.savedStateHandle?.set(
+                "sessionExpired",
+                true
+            )
+            navController.navigate(Screen.PhoneEmailScreen.route)
+            viewModel.isSessionExpired = false
         }
     }
 

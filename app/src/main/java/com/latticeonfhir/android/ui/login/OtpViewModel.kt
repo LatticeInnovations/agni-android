@@ -33,11 +33,10 @@ class OtpViewModel @Inject constructor(
     var isResending by mutableStateOf(false)
     var isOtpIncorrect by mutableStateOf(false)
     var otpEntered by mutableStateOf("")
-    var errorMsg by mutableStateOf("Invalid OTP, you have 4 attempts left")
+    var errorMsg by mutableStateOf("")
     var otpAttemptsExpired by mutableStateOf(false)
 
     fun updateOtp() {
-        otpEntered = ""
         otpEntered =
             (firstDigit + secondDigit + thirdDigit + fourDigit + fiveDigit + sixDigit).trim()
     }
