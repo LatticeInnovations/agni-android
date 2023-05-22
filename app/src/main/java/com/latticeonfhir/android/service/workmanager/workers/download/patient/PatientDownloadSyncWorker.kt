@@ -13,14 +13,17 @@ abstract class PatientDownloadSyncWorker(context: Context, workerParameters: Wor
 
     override suspend fun doWork(): Result {
         setProgress(workDataOf(PatientDownloadProgress to 0))
-        return when(getSyncRepository().getAndInsertListPatientData(0)) {
-            is ApiContinueResponse -> Result.success()
-            is ApiEndResponse -> {
-                setProgress(workDataOf(PatientDownloadProgress to 100))
-                Result.success()
+        val response = getSyncRepository().getAndInsertListPatientData(0)
+        response.run {
+            return when(this) {
+                is ApiContinueResponse -> Result.success()
+                is ApiEndResponse -> {
+                    setProgress(workDataOf(PatientDownloadProgress to 100))
+                    Result.success()
+                }
+                is ApiErrorResponse -> Result.failure(workDataOf("errorMsg" to errorMessage))
+                else -> Result.retry()
             }
-            is ApiErrorResponse -> Result.failure()
-            else -> Result.retry()
         }
     }
 

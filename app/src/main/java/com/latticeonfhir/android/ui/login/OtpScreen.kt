@@ -14,6 +14,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -170,12 +171,14 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                     Text(
                         text = "Enter the OTP we sent to",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.testTag("HEADING_TAG")
                     )
                     Text(
                         text = viewModel.userInput,
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.testTag("SUB_HEADING_TAG")
                     )
                     Spacer(modifier = Modifier.height(50.dp))
                     Row(
@@ -187,7 +190,8 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             Modifier
                                 .weight(1f)
                                 .padding(5.dp)
-                                .focusRequester(focusRequester), viewModel.isOtpIncorrect){
+                                .focusRequester(focusRequester)
+                                .testTag("FIRST_DIGIT"), viewModel.isOtpIncorrect){
                             if (it.isEmpty()) viewModel.firstDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.firstDigit =
                                 it
@@ -196,7 +200,8 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                         OtpTextField(viewModel.secondDigit,
                             Modifier
                                 .weight(1f)
-                                .padding(5.dp), viewModel.isOtpIncorrect){
+                                .padding(5.dp)
+                                .testTag("SECOND_DIGIT"), viewModel.isOtpIncorrect){
                             if (it.isEmpty()) viewModel.secondDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.secondDigit =
                                 it
@@ -205,7 +210,8 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                         OtpTextField(viewModel.thirdDigit,
                             Modifier
                                 .weight(1f)
-                                .padding(5.dp), viewModel.isOtpIncorrect){
+                                .padding(5.dp)
+                                .testTag("THIRD_DIGIT"), viewModel.isOtpIncorrect){
                             if (it.isEmpty()) viewModel.thirdDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.thirdDigit =
                                 it
@@ -214,7 +220,8 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                         OtpTextField(viewModel.fourDigit,
                             Modifier
                                 .weight(1f)
-                                .padding(5.dp), viewModel.isOtpIncorrect){
+                                .padding(5.dp)
+                                .testTag("FOUR_DIGIT"), viewModel.isOtpIncorrect){
                             if (it.isEmpty()) viewModel.fourDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.fourDigit =
                                 it
@@ -223,7 +230,8 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                         OtpTextField(viewModel.fiveDigit,
                             Modifier
                                 .weight(1f)
-                                .padding(5.dp), viewModel.isOtpIncorrect){
+                                .padding(5.dp)
+                                .testTag("FIVE_DIGIT"), viewModel.isOtpIncorrect){
                             if (it.isEmpty()) viewModel.fiveDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.fiveDigit =
                                 it
@@ -232,7 +240,8 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                         OtpTextField(viewModel.sixDigit,
                             Modifier
                                 .weight(1f)
-                                .padding(5.dp), viewModel.isOtpIncorrect){
+                                .padding(5.dp)
+                                .testTag("SIX_DIGIT"), viewModel.isOtpIncorrect){
                             if (it.isEmpty()) viewModel.sixDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.sixDigit =
                                 it
@@ -244,7 +253,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             text = viewModel.errorMsg,
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().testTag("ERROR_MSG"),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -255,7 +264,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 15.dp),
+                                .padding(vertical = 15.dp).testTag("ERROR_MSG"),
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -276,7 +285,8 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 15.dp),
+                                    .padding(vertical = 15.dp)
+                                    .testTag("TWO_MIN_TIMER"),
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -308,7 +318,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                 Text(
                                     text = "Resend OTP",
                                     style = MaterialTheme.typography.labelLarge,
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier.fillMaxWidth().testTag("RESEND_BUTTON"),
                                     textAlign = TextAlign.Center
                                 )
                             }
@@ -322,7 +332,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             verifyClick(navController, viewModel)
                         },
                         enabled = viewModel.otpEntered.length == 6 && !viewModel.otpAttemptsExpired,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().testTag("BUTTON")
                     ) {
                         if (viewModel.isVerifying) ButtonLoader()
                         else Text(text = "Verify")

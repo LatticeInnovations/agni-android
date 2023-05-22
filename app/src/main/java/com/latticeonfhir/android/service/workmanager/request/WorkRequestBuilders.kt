@@ -22,6 +22,7 @@ import com.latticeonfhir.android.service.workmanager.workers.upload.relation.pat
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.patch.RelationPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.post.RelationUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.post.RelationUploadSyncWorkerImpl
+import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.constants.Id
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
@@ -29,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class WorkRequestBuilders(
@@ -38,7 +40,7 @@ class WorkRequestBuilders(
 ) {
 
     /** Patient Upload Post Sync Worker */
-    internal suspend fun uploadPatientWorker() {
+    internal suspend fun uploadPatientWorker(sessionExpired: (Boolean)-> Unit) {
         //Upload Worker
         Sync.periodicSync<PatientUploadSyncWorkerImpl>(
             applicationContext,
@@ -57,13 +59,15 @@ class WorkRequestBuilders(
                     /** Update Fhir Id in Generic Entity */
                     updateFhirIdInRelation()
                 }
-                downloadPatientWorker()
+                downloadPatientWorker {
+                    sessionExpired(true)
+                }
             }
         }
     }
 
     /** Patient Download Sync Worker */
-    private suspend fun downloadPatientWorker() {
+    private suspend fun downloadPatientWorker(sessionExpired: (Boolean)->Unit) {
         /** Download Worker */
         Sync.oneTimeSync<PatientDownloadSyncWorkerImpl>(
             applicationContext,
@@ -74,7 +78,9 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+            if (workInfo?.state == WorkInfo.State.FAILED){
+                if (workInfo.outputData.keyValueMap["errorMsg"] == ErrorConstants.SESSION_EXPIRED) sessionExpired(true)
+            }else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
                 downloadRelationWorker()
             }
         }
@@ -97,7 +103,7 @@ class WorkRequestBuilders(
                     /** Handle Progress Based Download WorkRequests Here */
                 }
                 if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                    downloadPatientWorker()
+                    downloadPatientWorker(){}
                 }
             }
         }
@@ -118,7 +124,7 @@ class WorkRequestBuilders(
     }
 
     //Patient Patch Sync
-    internal suspend fun setPatientPatchWorker() {
+    internal suspend fun setPatientPatchWorker(sessionExpired: (Boolean) -> Unit) {
         //Upload Worker
         Sync.periodicSync<PatientPatchUploadSyncWorkerImpl>(
             applicationContext,
@@ -136,13 +142,15 @@ class WorkRequestBuilders(
                 if (value == 100) {
                     /** Handle Progress Based Download WorkRequests Here */
                 }
-                downloadPatientWorker()
+                downloadPatientWorker(){
+                    sessionExpired(it)
+                }
             }
         }
     }
 
     //Relation Patch Sync
-    internal suspend fun setRelationPatchWorker() {
+    internal suspend fun setRelationPatchWorker(sessionExpired: (Boolean) -> Unit) {
         //Upload Worker
         Sync.periodicSync<RelationPatchUploadSyncWorkerImpl>(
             applicationContext,
@@ -160,7 +168,9 @@ class WorkRequestBuilders(
                 if (value == 100) {
                     /** Handle Progress Based Download WorkRequests Here */
                 }
-                downloadPatientWorker()
+                downloadPatientWorker{
+                    sessionExpired(it)
+                }
             }
         }
     }
