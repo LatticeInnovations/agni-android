@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.latticeonfhir.android.ui.main.MainActivity
@@ -161,5 +162,28 @@ class PhoneEmailScreenKtTest {
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
         composeTestRule.onNode(heading).assertTextEquals("Enter the OTP we sent to")
+    }
+
+    @Test
+    fun error_msg_on_regenerating_otp_multiple_times(){
+        composeTestRule.onNode(inputField).performTextInput("devtest@gmail.com")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNodeWithContentDescription("BACK_ICON").performClick()
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNodeWithContentDescription("BACK_ICON").performClick()
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNodeWithContentDescription("BACK_ICON").performClick()
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNodeWithContentDescription("BACK_ICON").performClick()
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNodeWithContentDescription("BACK_ICON").performClick()
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(inputField).assertTextEquals("devtest@gmail.com", "Too many attempts. Please try after 5 mins")
     }
 }

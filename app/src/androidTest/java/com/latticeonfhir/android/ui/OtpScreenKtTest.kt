@@ -5,7 +5,9 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasNoClickAction
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -32,6 +34,9 @@ class OtpScreenKtTest {
     val errorMsg = hasTestTag("ERROR_MSG")
     val twoMinTimer = hasTestTag("TWO_MIN_TIMER")
     val backIcon = hasContentDescription("BACK_ICON")
+
+    // landing screen
+    val title = hasText("My Patients") and hasNoClickAction()
 
     fun login(){
         composeTestRule.onNode(inputField).performTextInput("9876543210")
@@ -141,4 +146,83 @@ class OtpScreenKtTest {
         Thread.sleep(5000)
         composeTestRule.onNode(heading).assertTextEquals("Enter the OTP we sent to")
     }
+
+    @Test
+    fun check_error_msg_on_multiple_incorrect_attempts(){
+        composeTestRule.onNode(inputField).performTextInput("8279784095")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(secondDigit).performTextInput("1")
+        composeTestRule.onNode(thirdDigit).performTextInput("1")
+        composeTestRule.onNode(fourDigit).performTextInput("1")
+        composeTestRule.onNode(fiveDigit).performTextInput("1")
+        composeTestRule.onNode(sixDigit).performTextInput("1")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(errorMsg).assertTextEquals("Invalid OTP")
+
+        // second time
+        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(secondDigit).performTextInput("1")
+        composeTestRule.onNode(thirdDigit).performTextInput("1")
+        composeTestRule.onNode(fourDigit).performTextInput("1")
+        composeTestRule.onNode(fiveDigit).performTextInput("1")
+        composeTestRule.onNode(sixDigit).performTextInput("1")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(errorMsg).assertTextEquals("Invalid OTP")
+
+        //third time
+        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(secondDigit).performTextInput("1")
+        composeTestRule.onNode(thirdDigit).performTextInput("1")
+        composeTestRule.onNode(fourDigit).performTextInput("1")
+        composeTestRule.onNode(fiveDigit).performTextInput("1")
+        composeTestRule.onNode(sixDigit).performTextInput("1")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(errorMsg).assertTextEquals("Invalid OTP")
+
+        // fourth time
+        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(secondDigit).performTextInput("1")
+        composeTestRule.onNode(thirdDigit).performTextInput("1")
+        composeTestRule.onNode(fourDigit).performTextInput("1")
+        composeTestRule.onNode(fiveDigit).performTextInput("1")
+        composeTestRule.onNode(sixDigit).performTextInput("1")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(errorMsg).assertTextEquals("Invalid OTP")
+
+        // fifth time
+        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(secondDigit).performTextInput("1")
+        composeTestRule.onNode(thirdDigit).performTextInput("1")
+        composeTestRule.onNode(fourDigit).performTextInput("1")
+        composeTestRule.onNode(fiveDigit).performTextInput("1")
+        composeTestRule.onNode(sixDigit).performTextInput("1")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(errorMsg).assertTextEquals("Too many attempts. Please try after 5 mins")
+
+        // check button validity
+        composeTestRule.onNode(button).assertIsNotEnabled()
+    }
+
+    @Test
+    fun check_log_in_on_authorized_details(){
+        login()
+        composeTestRule.onNode(firstDigit).performTextInput("2")
+        composeTestRule.onNode(secondDigit).performTextInput("2")
+        composeTestRule.onNode(thirdDigit).performTextInput("2")
+        composeTestRule.onNode(fourDigit).performTextInput("2")
+        composeTestRule.onNode(fiveDigit).performTextInput("2")
+        composeTestRule.onNode(sixDigit).performTextInput("2")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(title).assertExists("Should navigate to \"My Patients\".")
+
+    }
+
 }
