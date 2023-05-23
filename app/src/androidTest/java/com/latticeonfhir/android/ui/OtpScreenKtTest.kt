@@ -4,17 +4,25 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasNoClickAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.latticeonfhir.android.ui.main.MainActivity
+import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.MethodSorters
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@RunWith(AndroidJUnit4::class)
 class OtpScreenKtTest {
 
     @get: Rule
@@ -37,6 +45,10 @@ class OtpScreenKtTest {
 
     // landing screen
     val title = hasText("My Patients") and hasNoClickAction()
+
+    // for logout
+    val profile_tab = hasTestTag("Profile tab") and hasClickAction()
+    val logoutIcon = hasContentDescription("LOG_OUT_ICON")
 
     fun login(){
         composeTestRule.onNode(inputField).performTextInput("9876543210")
@@ -211,7 +223,7 @@ class OtpScreenKtTest {
     }
 
     @Test
-    fun check_log_in_on_authorized_details(){
+    fun z_check_log_in_on_authorized_details(){
         login()
         composeTestRule.onNode(firstDigit).performTextInput("2")
         composeTestRule.onNode(secondDigit).performTextInput("2")
@@ -225,4 +237,10 @@ class OtpScreenKtTest {
 
     }
 
+    @Test
+    fun zzzz_logout(){
+        composeTestRule.onNode(profile_tab).performClick()
+        composeTestRule.onNode(logoutIcon).performClick()
+        composeTestRule.onNodeWithText("Logout").performClick()
+    }
 }
