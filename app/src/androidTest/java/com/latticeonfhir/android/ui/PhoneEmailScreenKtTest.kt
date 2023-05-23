@@ -150,7 +150,7 @@ class PhoneEmailScreenKtTest {
 
     @Test
     fun enter_authorized_number_and_check_btn_navigation(){
-        composeTestRule.onNode(inputField).performTextInput("1111111111")
+        composeTestRule.onNode(inputField).performTextInput("9876543210")
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
         composeTestRule.onNode(heading).assertTextEquals("Enter the OTP we sent to")
@@ -158,7 +158,7 @@ class PhoneEmailScreenKtTest {
 
     @Test
     fun enter_authorized_email_and_check_btn_navigation(){
-        composeTestRule.onNode(inputField).performTextInput("devtest@gmail.com")
+        composeTestRule.onNode(inputField).performTextInput("9876543210")
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
         composeTestRule.onNode(heading).assertTextEquals("Enter the OTP we sent to")
@@ -166,7 +166,7 @@ class PhoneEmailScreenKtTest {
 
     @Test
     fun error_msg_on_regenerating_otp_multiple_times(){
-        composeTestRule.onNode(inputField).performTextInput("devtest@gmail.com")
+        composeTestRule.onNode(inputField).performTextInput("1111111111")
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
         composeTestRule.onNodeWithContentDescription("BACK_ICON").performClick()
@@ -184,6 +184,6 @@ class PhoneEmailScreenKtTest {
         composeTestRule.onNodeWithContentDescription("BACK_ICON").performClick()
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
-        composeTestRule.onNode(inputField).assertTextEquals("devtest@gmail.com", "Too many attempts. Please try after 5 mins")
+        composeTestRule.onNode(inputField).assertTextEquals(" +91", "1111111111", "Too many attempts. Please try after 5 mins")
     }
 }
