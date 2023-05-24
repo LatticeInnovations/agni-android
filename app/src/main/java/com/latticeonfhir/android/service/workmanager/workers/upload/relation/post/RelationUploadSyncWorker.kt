@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
-import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorker
+import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
@@ -16,10 +16,15 @@ abstract class RelationUploadSyncWorker(context: Context, workerParameters: Work
 
     override suspend fun doWork(): Result {
         setProgress(workDataOf(RelationUploadProgress to 0))
-        return when (getSyncRepository().sendRelatedPersonPostData()) {
+        return when (val response = getSyncRepository().sendRelatedPersonPostData()) {
             is ApiContinueResponse -> Result.success()
             is ApiEndResponse -> Result.success()
-            is ApiErrorResponse -> Result.retry()
+            is ApiErrorResponse -> {
+                if (response.errorMessage == ErrorConstants.SESSION_EXPIRED || response.errorMessage == ErrorConstants.UNAUTHORIZED) Result.failure(
+                    workDataOf("errorMsg" to response.errorMessage)
+                )
+                else Result.retry()
+            }
             is ApiEmptyResponse -> {
                 setProgress(workDataOf(RelationUploadProgress to 100))
                 delay(1000L)

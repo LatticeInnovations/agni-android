@@ -34,7 +34,6 @@ import com.latticeonfhir.android.ui.landingscreen.ProfileScreen
 import com.latticeonfhir.android.ui.landingscreen.QueueScreen
 import com.latticeonfhir.android.ui.landingscreen.*
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,14 +84,19 @@ fun LandingScreen(
         }
     }
 
-    LaunchedEffect(viewModel.isSessionExpired){
-        if (viewModel.isSessionExpired){
+    LaunchedEffect(viewModel.logoutUser){
+        if (viewModel.logoutUser){
+            viewModel.logout()
             navController.currentBackStackEntry?.savedStateHandle?.set(
-                "sessionExpired",
-                true
+                "logoutUser",
+                viewModel.logoutUser
+            )
+            navController.currentBackStackEntry?.savedStateHandle?.set(
+                "logoutReason",
+                 viewModel.logoutReason
             )
             navController.navigate(Screen.PhoneEmailScreen.route)
-            viewModel.isSessionExpired = false
+            viewModel.logoutUser = false
         }
     }
 
