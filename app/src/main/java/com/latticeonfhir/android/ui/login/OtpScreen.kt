@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -23,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.utils.network.CheckNetwork
 import com.latticeonfhir.android.ui.common.ButtonLoader
 import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
@@ -38,6 +40,8 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
     val activity = LocalContext.current as MainActivity
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     activity.registerBroadcastReceiver()
     LaunchedEffect(activity.otp){
         if (activity.otp.isNotEmpty()) {
@@ -148,6 +152,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 modifier = Modifier.fillMaxWidth(),
@@ -329,7 +334,15 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                         onClick = {
                             // call function of otp auth
                             // if authenticated, navigate to landing screen
-                            verifyClick(navController, viewModel)
+                            if (CheckNetwork.isInternetAvailable(activity)) {
+                                verifyClick(navController, viewModel)
+                            } else {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Please connect to internet and try again"
+                                    )
+                                }
+                            }
                         },
                         enabled = viewModel.otpEntered.length == 6 && !viewModel.otpAttemptsExpired,
                         modifier = Modifier.fillMaxWidth().testTag("BUTTON")
