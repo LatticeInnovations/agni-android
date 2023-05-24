@@ -1,12 +1,9 @@
 package com.latticeonfhir.android.ui.landingscreen
 
 import android.app.Application
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -18,10 +15,7 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
-import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -29,8 +23,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -65,31 +57,35 @@ class LandingScreenViewModel @Inject constructor(
     var userPhoneNo by mutableStateOf("")
     var userEmail by mutableStateOf("")
 
-    var isSessionExpired by mutableStateOf(false)
+    var logoutUser by mutableStateOf(false)
+    var logoutReason by mutableStateOf("")
 
     init {
 
         // Post Sync Worker
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.uploadPatientWorker(){
-                if (it){
-                    isSessionExpired = it
+            workRequestBuilders.uploadPatientWorker(){ isErrorReceived, errorMsg ->
+                if (isErrorReceived){
+                    logoutUser = true
+                    logoutReason = errorMsg
                 }
             }
         }
 
         // Patch Sync Workers
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setPatientPatchWorker(){
-                if (it){
-                    isSessionExpired = it
+            workRequestBuilders.setPatientPatchWorker(){ isErrorReceived, errorMsg ->
+                if (isErrorReceived){
+                    logoutUser = true
+                    logoutReason = errorMsg
                 }
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setRelationPatchWorker(){
-                if (it){
-                    isSessionExpired = it
+            workRequestBuilders.setRelationPatchWorker(){ isErrorReceived, errorMsg ->
+                if (isErrorReceived){
+                    logoutUser = true
+                    logoutReason = errorMsg
                 }
             }
         }

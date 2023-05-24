@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.smsretreiver.startSmsRetriever
+import com.latticeonfhir.android.service.smsretreiver.startSmsRetriever
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.ButtonLoader
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
@@ -37,11 +37,10 @@ fun PhoneEmailScreen(
     }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("sessionExpired") == true) {
-                viewModel.logout()
+            if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("logoutUser") == true) {
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(
-                        message = "Session expired."
+                        message = navController.previousBackStackEntry?.savedStateHandle?.get<String>("logoutReason")!!
                     )
                 }
             }
