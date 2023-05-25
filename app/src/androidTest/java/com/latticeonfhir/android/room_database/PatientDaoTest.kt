@@ -1,8 +1,8 @@
 package com.latticeonfhir.android.room_database
 
 import androidx.paging.PagingSource
-import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
@@ -36,7 +36,9 @@ class PatientDaoTest: BaseClass() {
 
         val actual = patient.load(PagingSource.LoadParams.Refresh(null, 10, false))
 
-        Assert.assertEquals("Patient List returned is not correct.", (actual as? PagingSource.LoadResult.Page)?.data, listOf(PatientAndIdentifierEntity(patientResponse.toPatientEntity(), listOf())))
+        Assert.assertEquals("Patient List returned is not correct.", (actual as? PagingSource.LoadResult.Page)?.data, listOf(
+            PatientAndIdentifierEntity(patientResponse.toPatientEntity(), listOf())
+        ))
     }
 
     @Test
