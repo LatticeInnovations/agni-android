@@ -7,9 +7,9 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
 
 @Dao
 interface PatientDao {
@@ -24,7 +24,7 @@ interface PatientDao {
 
     @Transaction
     @Query("SELECT * FROM PatientEntity")
-    fun getListPatientData(): PagingSource<Int,PatientAndIdentifierEntity>
+    fun getListPatientData(): PagingSource<Int, PatientAndIdentifierEntity>
 
     @Transaction
     @Query("SELECT * FROM PatientEntity WHERE id IN (:patientId)")
