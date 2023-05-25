@@ -4,10 +4,13 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.latticeonfhir.android.ui.main.MainActivity
+import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.MethodSorters
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
 class PatientRegistrationKtTest {
     @get: Rule
@@ -82,6 +85,35 @@ class PatientRegistrationKtTest {
     val addressLine1Tag = hasTestTag("ADDRESS_LINE1_TAG")
     val addressLine2Tag = hasTestTag("ADDRESS_LINE2_TAG")
     val addressLine3Tag = hasTestTag("ADDRESS_LINE3_TAG")
+
+    // for login
+    val inputField = hasTestTag("INPUT_FIELD")
+    val button = hasTestTag("BUTTON")
+    val firstDigit = hasTestTag("FIRST_DIGIT")
+    val secondDigit = hasTestTag("SECOND_DIGIT")
+    val thirdDigit = hasTestTag("THIRD_DIGIT")
+    val fourDigit = hasTestTag("FOUR_DIGIT")
+    val fiveDigit = hasTestTag("FIVE_DIGIT")
+    val sixDigit = hasTestTag("SIX_DIGIT")
+
+    // for logout
+    val profile_tab = hasTestTag("Profile tab") and hasClickAction()
+    val logoutIcon = hasContentDescription("LOG_OUT_ICON")
+
+    @Test
+    fun aaaa_login(){
+        composeTestRule.onNode(inputField).performTextInput("9876543210")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(firstDigit).performTextInput("2")
+        composeTestRule.onNode(secondDigit).performTextInput("2")
+        composeTestRule.onNode(thirdDigit).performTextInput("2")
+        composeTestRule.onNode(fourDigit).performTextInput("2")
+        composeTestRule.onNode(fiveDigit).performTextInput("2")
+        composeTestRule.onNode(sixDigit).performTextInput("2")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+    }
 
     // Patient Registration Step 1 Tests
     @Test
@@ -1227,5 +1259,12 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(alertDialogConfirmBtn, true).performClick()
         composeTestRule.onNode(landingScreenTitle)
             .assertExists("Should be navigated to My Patients page.")
+    }
+
+    @Test
+    fun zzzz_logout(){
+        composeTestRule.onNode(profile_tab).performClick()
+        composeTestRule.onNode(logoutIcon).performClick()
+        composeTestRule.onNodeWithText("Logout").performClick()
     }
 }
