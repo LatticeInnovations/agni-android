@@ -17,4 +17,4 @@ data class PatientResponse(
     val email: String?,
     val permanentAddress: PatientAddressResponse,
     val fhirId: String?
-): ParcelableClass()
+)

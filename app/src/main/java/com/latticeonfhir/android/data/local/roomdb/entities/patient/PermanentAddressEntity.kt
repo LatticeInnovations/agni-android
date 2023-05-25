@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.roomdb.entities
+package com.latticeonfhir.android.data.local.roomdb.entities.patient
 
 import androidx.annotation.Keep
 

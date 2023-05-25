@@ -4,17 +4,23 @@ import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.PermanentAddressEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PermanentAddressEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.QueryParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.medication.Medication
+import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
@@ -23,6 +29,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndRe
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getInverseRelation
 import java.util.Date
+import java.util.UUID
 
 fun PatientResponse.toPatientEntity(): PatientEntity {
     return PatientEntity(
@@ -152,12 +159,18 @@ internal suspend fun Relationship.toRelationEntity(
     return RelationEntity(
         id = UUIDBuilder.generateUUID(),
         fromId = patientDao.getPatientIdByFhirId(fromFhirId)!!,
-        toId = patientDao.getPatientIdByFhirId(relativeId) ?: getRelativeId(fromFhirId,patientApiService),
+        toId = patientDao.getPatientIdByFhirId(relativeId) ?: getRelativeId(
+            fromFhirId,
+            patientApiService
+        ),
         relation = RelationEnum.fromString(patientIs)
     )
 }
 
-private suspend fun getRelativeId(relativeFhirId: String, patientApiService: PatientApiService): String {
+private suspend fun getRelativeId(
+    relativeFhirId: String,
+    patientApiService: PatientApiService
+): String {
     var relativeId = ""
     ApiResponseConverter.convert(
         patientApiService.getListData(
@@ -175,5 +188,58 @@ private suspend fun getRelativeId(relativeFhirId: String, patientApiService: Pat
 }
 
 internal fun <T> List<T>.toNoBracketAndNoSpaceString(): String {
-    return this.toString().replace("[","").replace("]","").replace(" ","")
+    return this.toString().replace("[", "").replace("]", "").replace(" ", "")
+}
+
+internal fun PrescriptionResponse.toPrescriptionEntity(): PrescriptionEntity {
+    return PrescriptionEntity(
+        id = UUID.randomUUID().toString(),
+        prescriptionDate = generatedOn,
+        patientId = patientFhirId,
+        prescriptionFhirId = prescriptionFhirId
+    )
+}
+
+internal fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(): List<PrescriptionDirectionsEntity> {
+    return prescription.map { medication ->
+        PrescriptionDirectionsEntity(
+            medFhirId = medication.medFhirId,
+            qtyPerDose = medication.qtyPerDose.toInt(),
+            dosageInstruction = medication.doseForm,
+            duration = medication.duration,
+            qtyPrescribed = medication.qtyPrescribed,
+            note = medication.note,
+            prescriptionId = prescriptionId
+        )
+    }
+}
+
+internal fun MedicationResponse.toMedicationEntity(): List<MedicationEntity> {
+    return medications.map { medication ->
+        MedicationEntity(
+            medFhirId = medication.medFhirId,
+            medCodeName = medication.medCode,
+            medName = medication.medName,
+            doseForm = medication.doseForm,
+            doseFormCode = medication.doseFormCode,
+            activeIngredient = medication.activeIngredient,
+            activeIngredientCode = medication.activeIngredientCode,
+            medUnit = medication.medUnit,
+            medNumeratorVal = medication.medNumeratorVal
+        )
+    }
+}
+
+internal fun MedicationEntity.toMedication(): Medication {
+    return Medication(
+        medFhirId = this.medFhirId,
+        medCode = this.medCodeName,
+        medName = this.medName,
+        doseForm = this.doseForm,
+        doseFormCode = this.doseFormCode,
+        activeIngredient = this.activeIngredient,
+        activeIngredientCode = this.activeIngredientCode,
+        medUnit = this.medUnit,
+        medNumeratorVal = this.medNumeratorVal
+    )
 }

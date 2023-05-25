@@ -8,13 +8,15 @@ import androidx.room.TypeConverters
 import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
+import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.PatientEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.SearchHistoryEntity
 import com.latticeonfhir.android.data.local.roomdb.typeconverters.TypeConverter
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
@@ -37,6 +39,8 @@ abstract class FhirAppDatabase : RoomDatabase() {
     abstract fun getGenericDao(): GenericDao
     abstract fun getRelationDao(): RelationDao
     abstract fun getSearchDao(): SearchDao
+    abstract fun getPrescriptionDao(): PrescriptionDao
+    abstract fun getMedicationDao(): MedicationDao
 
     companion object {
         @Volatile

@@ -2,7 +2,7 @@ package com.latticeonfhir.android.utils.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import okio.IOException
 
 class SearchPagingSource(private val fuzzyList: List<PatientAndIdentifierEntity>, private val pageSize: Int) : PagingSource<Int, PatientAndIdentifierEntity>() {

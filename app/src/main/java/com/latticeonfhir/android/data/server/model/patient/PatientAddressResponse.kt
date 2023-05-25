@@ -12,4 +12,4 @@ data class PatientAddressResponse(
     val postalCode: String,
     val country: String?,
     val addressLine2: String?
-): ParcelableClass()
+)
