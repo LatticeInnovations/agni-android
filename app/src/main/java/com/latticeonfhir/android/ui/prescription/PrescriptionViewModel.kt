@@ -11,6 +11,8 @@ class PrescriptionViewModel : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var isSearching by mutableStateOf(false)
+    var isSearchResult by mutableStateOf(false)
+
     var bottomNavExpanded by mutableStateOf(false)
 
     var tabIndex by mutableStateOf(0)
