@@ -18,8 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PhoneEmailViewModel @Inject constructor(
-    private val authenticationRepository: AuthenticationRepository,
-    private val preferenceRepository: PreferenceRepository
+    private val authenticationRepository: AuthenticationRepository
 ): BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var inputValue by mutableStateOf("")
@@ -52,9 +51,5 @@ class PhoneEmailViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    internal fun logout(){
-        preferenceRepository.clearPreferences()
     }
 }
