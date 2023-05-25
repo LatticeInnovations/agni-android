@@ -12,14 +12,12 @@ import org.mockito.MockitoAnnotations
 class PhoneEmailViewModelTest {
     @Mock
     lateinit var authenticationRepository: AuthenticationRepository
-    @Mock
-    lateinit var preferenceRepository: PreferenceRepository
     lateinit var viewModel: PhoneEmailViewModel
 
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
-        viewModel = PhoneEmailViewModel(authenticationRepository, preferenceRepository)
+        viewModel = PhoneEmailViewModel(authenticationRepository)
     }
 
     @Test
