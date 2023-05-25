@@ -18,12 +18,16 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.latticeonfhir.android.ui.main.MainActivity
+import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.MethodSorters
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
 class HouseholdMemberKtTest {
@@ -70,6 +74,35 @@ class HouseholdMemberKtTest {
     val dialogRelationDropdown = hasTestTag("RELATIONS_DROPDOWN")
     val dialogPositiveBtn = hasTestTag("POSITIVE_BTN")
     val dialogNegativeBtn = hasTestTag("NEGATIVE_BTN")
+
+    // for login
+    val inputField = hasTestTag("INPUT_FIELD")
+    val button = hasTestTag("BUTTON")
+    val firstDigit = hasTestTag("FIRST_DIGIT")
+    val secondDigit = hasTestTag("SECOND_DIGIT")
+    val thirdDigit = hasTestTag("THIRD_DIGIT")
+    val fourDigit = hasTestTag("FOUR_DIGIT")
+    val fiveDigit = hasTestTag("FIVE_DIGIT")
+    val sixDigit = hasTestTag("SIX_DIGIT")
+
+    // for logout
+    val profile_tab = hasTestTag("Profile tab") and hasClickAction()
+    val logoutIcon = hasContentDescription("LOG_OUT_ICON")
+
+    @Test
+    fun aaaa_login(){
+        composeTestRule.onNode(inputField).performTextInput("9876543210")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(firstDigit).performTextInput("2")
+        composeTestRule.onNode(secondDigit).performTextInput("2")
+        composeTestRule.onNode(thirdDigit).performTextInput("2")
+        composeTestRule.onNode(fourDigit).performTextInput("2")
+        composeTestRule.onNode(fiveDigit).performTextInput("2")
+        composeTestRule.onNode(sixDigit).performTextInput("2")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+    }
 
     @Test
     fun verify_patient_item_click_navigate_to_patient_landing_screen(){
@@ -385,5 +418,12 @@ class HouseholdMemberKtTest {
         composeTestRule.onNode(dialogDismissIcon).performClick()
         composeTestRule.onNode(clearIcon, useUnmergedTree = true).performClick()
         composeTestRule.onNode(title).assertTextEquals("Add a household member")
+    }
+
+    @Test
+    fun zzzz_logout(){
+        composeTestRule.onNode(profile_tab).performClick()
+        composeTestRule.onNode(logoutIcon).performClick()
+        composeTestRule.onNodeWithText("Logout").performClick()
     }
 }
