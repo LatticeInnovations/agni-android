@@ -16,6 +16,8 @@ import com.latticeonfhir.android.ui.main.patientlandingscreen.PatientLandingScre
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistrationPreview
 import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationship
+import com.latticeonfhir.android.ui.prescription.PrescriptionScreen
+import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 
 @Composable
@@ -33,5 +35,7 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.ConfirmRelationship.route){ ConfirmRelationship(navController = navController) }
         composable(Screen.SearchResult.route){ SearchResult(navController = navController) }
         composable(Screen.ConnectPatient.route){ ConnectPatient(navController = navController) }
+        composable(Screen.Prescription.route){ PrescriptionScreen(navController = navController) }
+        //composable(Screen.FillDetails.route){ FillDetailsScreen(navController = navController) }
     }
 }
