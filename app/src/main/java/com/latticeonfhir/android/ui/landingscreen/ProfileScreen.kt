@@ -10,12 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.ui.main.patientregistration.Detail
 import com.latticeonfhir.android.ui.main.patientregistration.Label
 
-@Preview(showBackground = true)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -31,18 +31,17 @@ fun ProfileScreen() {
                     .fillMaxWidth()
             ) {
                 Label("Name")
-                Detail(detail = "Vikram Kumar Pandey", tag = "NAME")
+                Detail(detail = viewModel.userName, tag = "NAME")
                 Spacer(modifier = Modifier.height(20.dp))
                 Label("Role")
-                Detail(detail = "Doctor", tag = "DOCTOR")
+                Detail(detail = viewModel.userRole, tag = "DOCTOR")
                 Spacer(modifier = Modifier.height(20.dp))
                 Label("Phone No.")
-                Detail(detail = "+91 8734080500", tag = "PHONE_NO")
+                Detail(detail = "+91 ${viewModel.userPhoneNo}", tag = "PHONE_NO")
                 Spacer(modifier = Modifier.height(20.dp))
                 Label("Email")
-                Detail(detail = "Abc@gmail.com", tag = "EMAIL")
+                Detail(detail = viewModel.userEmail, tag = "EMAIL")
             }
-
         }
     }
 }

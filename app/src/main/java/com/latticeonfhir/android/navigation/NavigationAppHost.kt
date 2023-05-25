@@ -19,8 +19,8 @@ import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationshi
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 
 @Composable
-fun NavigationAppHost(navController: NavController) {
-    NavHost(navController = navController as NavHostController, startDestination = Screen.PhoneEmailScreen.route){
+fun NavigationAppHost(navController: NavController, startDest: String) {
+    NavHost(navController = navController as NavHostController, startDestination = startDest){
         composable(Screen.PhoneEmailScreen.route){ PhoneEmailScreen(navController) }
         composable(Screen.OtpScreen.route){ OtpScreen(navController) }
         composable(Screen.LandingScreen.route){ LandingScreen(navController = navController)}
