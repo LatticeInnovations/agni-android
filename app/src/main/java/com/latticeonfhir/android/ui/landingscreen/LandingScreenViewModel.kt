@@ -13,9 +13,9 @@ import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,10 +28,10 @@ import javax.inject.Inject
 @HiltViewModel
 class LandingScreenViewModel @Inject constructor(
     application: Application,
-    private val syncRepository: SyncRepository,
     private val genericRepository: GenericRepository,
     private val patientRepository: PatientRepository,
     private val searchRepository: SearchRepository,
+    private val preferenceRepository: PreferenceRepository
 ) : BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(getApplication(),genericRepository,patientRepository) }
@@ -51,20 +51,49 @@ class LandingScreenViewModel @Inject constructor(
     var size by mutableStateOf(0)
     var isLoggingOut by mutableStateOf(false)
 
+    // user details
+    var userName by mutableStateOf("")
+    var userRole by mutableStateOf("")
+    var userPhoneNo by mutableStateOf("")
+    var userEmail by mutableStateOf("")
+
+    var logoutUser by mutableStateOf(false)
+    var logoutReason by mutableStateOf("")
+
     init {
 
         // Post Sync Worker
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.uploadPatientWorker()
+            workRequestBuilders.uploadPatientWorker(){ isErrorReceived, errorMsg ->
+                if (isErrorReceived){
+                    logoutUser = true
+                    logoutReason = errorMsg
+                }
+            }
         }
 
         // Patch Sync Workers
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setPatientPatchWorker()
+            workRequestBuilders.setPatientPatchWorker(){ isErrorReceived, errorMsg ->
+                if (isErrorReceived){
+                    logoutUser = true
+                    logoutReason = errorMsg
+                }
+            }
         }
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setRelationPatchWorker()
+            workRequestBuilders.setRelationPatchWorker(){ isErrorReceived, errorMsg ->
+                if (isErrorReceived){
+                    logoutUser = true
+                    logoutReason = errorMsg
+                }
+            }
         }
+
+        userName = preferenceRepository.getUserName()
+        userRole = preferenceRepository.getUserRole()
+        userPhoneNo = preferenceRepository.getUserMobile().toString()
+        userEmail = preferenceRepository.getUserEmail()
     }
 
     private fun getPatientList() {
@@ -119,5 +148,9 @@ class LandingScreenViewModel @Inject constructor(
             }.cachedIn(viewModelScope)
             isLoading = false
         }
+    }
+
+    internal fun logout() {
+        preferenceRepository.clearPreferences()
     }
 }

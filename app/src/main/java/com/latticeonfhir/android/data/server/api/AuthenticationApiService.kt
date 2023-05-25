@@ -12,12 +12,12 @@ import retrofit2.http.POST
 
 interface AuthenticationApiService {
 
-    @POST("/auth/login")
+    @POST("auth/login")
     suspend fun login(@Body login: Login): Response<BaseResponse<String?>>
 
-    @POST("/auth/otp")
+    @POST("auth/otp")
     suspend fun validateOtp(@Body otp: Otp): Response<BaseResponse<TokenResponse>>
 
-    @GET("/user")
+    @GET("user")
     suspend fun getUserDetails(): Response<BaseResponse<UserResponse>>
 }

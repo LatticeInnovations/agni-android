@@ -10,10 +10,6 @@ object ApiResponseConverter {
         response: Response<BaseResponse<T>>,
         paginated: Boolean = false
     ): ResponseMapper<T> {
-        return if (response.isSuccessful) {
-            ResponseMapper.create(response, paginated)
-        } else {
-            ResponseMapper.create(Throwable("Server Error"))
-        }
+        return ResponseMapper.create(response, paginated)
     }
 }
