@@ -39,6 +39,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -50,6 +52,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -63,6 +66,8 @@ import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPr
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
 import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -70,6 +75,8 @@ fun PrescriptionScreen(
     navController: NavController,
     viewModel: PrescriptionViewModel = viewModel()
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     Box(
         modifier = Modifier
             .fillMaxWidth(),
@@ -77,6 +84,7 @@ fun PrescriptionScreen(
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 TopAppBar(
                     modifier = Modifier.fillMaxWidth(),
@@ -189,7 +197,7 @@ fun PrescriptionScreen(
                 .background(MaterialTheme.colorScheme.outline.copy(alpha = if (viewModel.bottomNavExpanded && viewModel.selectedCompoundList.isNotEmpty()) 0.5f else 0f)),
             contentAlignment = Alignment.BottomCenter
         ) {
-            BottomNavLayout(viewModel)
+            BottomNavLayout(viewModel, snackbarHostState, coroutineScope)
         }
         Box(
             modifier = Modifier
@@ -208,7 +216,11 @@ fun PrescriptionScreen(
 }
 
 @Composable
-fun BottomNavLayout(viewModel: PrescriptionViewModel) {
+fun BottomNavLayout(
+    viewModel: PrescriptionViewModel,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope
+) {
     AnimatedVisibility(
         visible = viewModel.selectedCompoundList.isNotEmpty(),
         enter = expandVertically(),
@@ -286,7 +298,16 @@ fun BottomNavLayout(viewModel: PrescriptionViewModel) {
                     }
                     Spacer(modifier = Modifier.width(15.dp))
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = {
+                            // add medications to prescriptions
+                            viewModel.selectedCompoundList.clear()
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Prescribed successfully",
+                                    withDismissAction = true
+                                )
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(text = "Prescribe")
@@ -303,7 +324,7 @@ fun SelectedCompoundCard(viewModel: PrescriptionViewModel, drugName: String) {
     val checkedState = remember {
         mutableStateOf(true)
     }
-    Column{
+    Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
