@@ -61,6 +61,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
 import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPrescriptionsScreen
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
+import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -158,13 +159,16 @@ fun PrescriptionScreen(
             }
         )
         Box(
-            modifier =
-            Modifier
-                .matchParentSize()
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = if (viewModel.bottomNavExpanded && viewModel.selectedCompoundList.isNotEmpty()) 0.5f else 0f)),
-            contentAlignment = Alignment.BottomCenter
+            modifier = Modifier
+                .matchParentSize(),
         ) {
-            BottomNavLayout(viewModel)
+            AnimatedVisibility(
+                visible = viewModel.isSearchResult,
+                enter = slideInVertically(initialOffsetY = { it }),
+                exit = slideOutVertically(targetOffsetY = { it })
+            ) {
+                PrescriptionSearchResult(viewModel)
+            }
         }
         Box(
             modifier = Modifier
@@ -177,6 +181,15 @@ fun PrescriptionScreen(
             ) {
                 FillDetailsScreen(prescriptionViewModel = viewModel)
             }
+        }
+        Box(
+            modifier =
+            Modifier
+                .matchParentSize()
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = if (viewModel.bottomNavExpanded && viewModel.selectedCompoundList.isNotEmpty()) 0.5f else 0f)),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            BottomNavLayout(viewModel)
         }
         Box(
             modifier = Modifier

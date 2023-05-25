@@ -86,6 +86,8 @@ fun SearchPrescription(viewModel: PrescriptionViewModel){
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
+                    viewModel.isSearching = false
+                    viewModel.isSearchResult = true
                 }
             ),
             singleLine = true
