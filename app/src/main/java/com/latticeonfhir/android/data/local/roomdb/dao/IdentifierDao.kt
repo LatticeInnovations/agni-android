@@ -3,7 +3,7 @@ package com.latticeonfhir.android.data.local.roomdb.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
-import com.latticeonfhir.android.data.local.roomdb.entities.IdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 
 @Dao
 interface IdentifierDao {
