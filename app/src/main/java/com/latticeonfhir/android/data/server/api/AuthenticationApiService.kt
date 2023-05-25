@@ -12,13 +12,12 @@ import retrofit2.http.POST
 
 interface AuthenticationApiService {
 
-    // https://fhir.api.thelattice.org/fhir/api/v1/
-    @POST("/fhir/api/v1/auth/login")
+    @POST("auth/login")
     suspend fun login(@Body login: Login): Response<BaseResponse<String?>>
 
-    @POST("/fhir/api/v1/auth/otp")
+    @POST("auth/otp")
     suspend fun validateOtp(@Body otp: Otp): Response<BaseResponse<TokenResponse>>
 
-    @GET("/fhir/api/v1/user")
+    @GET("user")
     suspend fun getUserDetails(): Response<BaseResponse<UserResponse>>
 }

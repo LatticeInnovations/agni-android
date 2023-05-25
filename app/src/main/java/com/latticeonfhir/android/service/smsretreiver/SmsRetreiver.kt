@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.smsretreiver
+package com.latticeonfhir.android.service.smsretreiver
 
 import android.app.Activity
 import com.google.android.gms.auth.api.phone.SmsRetriever

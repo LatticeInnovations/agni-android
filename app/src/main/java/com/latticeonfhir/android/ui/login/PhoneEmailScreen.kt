@@ -1,6 +1,10 @@
 package com.latticeonfhir.android.ui.login
 
 import android.app.Activity
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -14,8 +18,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.smsretreiver.startSmsRetriever
+import com.latticeonfhir.android.service.smsretreiver.startSmsRetriever
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
 import com.latticeonfhir.android.ui.common.ButtonLoader
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
 import kotlinx.coroutines.CoroutineScope
@@ -37,11 +42,10 @@ fun PhoneEmailScreen(
     }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("sessionExpired") == true) {
-                viewModel.logout()
+            if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("logoutUser") == true) {
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(
-                        message = "Session expired."
+                        message = navController.previousBackStackEntry?.savedStateHandle?.get<String>("logoutReason")!!
                     )
                 }
             }
@@ -94,21 +98,29 @@ fun PhoneEmailScreen(
                     Spacer(modifier = Modifier.height(45.dp))
                     Button(
                         onClick = {
-                            viewModel.isAuthenticating = true
-                            viewModel.login {
-                                if (it) {
-                                    if (viewModel.isPhoneNumber) {
-                                        startSmsRetriever(activity)
-                                    }
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        withContext(Dispatchers.Main) {
-                                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                "userInput",
-                                                viewModel.inputValue
-                                            )
-                                            navController.navigate(Screen.OtpScreen.route)
+                            if (isInternetAvailable(activity)) {
+                                viewModel.isAuthenticating = true
+                                viewModel.login {
+                                    if (it) {
+                                        if (viewModel.isPhoneNumber) {
+                                            startSmsRetriever(activity)
+                                        }
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            withContext(Dispatchers.Main) {
+                                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                    "userInput",
+                                                    viewModel.inputValue
+                                                )
+                                                navController.navigate(Screen.OtpScreen.route)
+                                            }
                                         }
                                     }
+                                }
+                            } else {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Please connect to internet and try again"
+                                    )
                                 }
                             }
                         },

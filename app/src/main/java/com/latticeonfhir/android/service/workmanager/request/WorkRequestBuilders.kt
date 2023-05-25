@@ -40,7 +40,7 @@ class WorkRequestBuilders(
 ) {
 
     /** Patient Upload Post Sync Worker */
-    internal suspend fun uploadPatientWorker(sessionExpired: (Boolean)-> Unit) {
+    internal suspend fun uploadPatientWorker(error: (Boolean, String) -> Unit) {
         //Upload Worker
         Sync.periodicSync<PatientUploadSyncWorkerImpl>(
             applicationContext,
@@ -53,21 +53,29 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                val progress = workInfo.progress
-                val value = progress.getInt(PatientUploadSyncWorker.PatientUploadProgress, 0)
-                if (value == 100) {
-                    /** Update Fhir Id in Generic Entity */
-                    updateFhirIdInRelation()
-                }
-                downloadPatientWorker {
-                    sessionExpired(true)
+                if (workInfo.state == WorkInfo.State.FAILED) error(
+                    true,
+                    workInfo.outputData.keyValueMap["errorMsg"].toString()
+                )
+                else {
+                    val progress = workInfo.progress
+                    val value = progress.getInt(PatientUploadSyncWorker.PatientUploadProgress, 0)
+                    if (value == 100) {
+                        /** Update Fhir Id in Generic Entity */
+                        updateFhirIdInRelation(){ errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
+                    }
+                    downloadPatientWorker { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
+                    }
                 }
             }
         }
     }
 
     /** Patient Download Sync Worker */
-    private suspend fun downloadPatientWorker(sessionExpired: (Boolean)->Unit) {
+    private suspend fun downloadPatientWorker(error: (Boolean, String) -> Unit) {
         /** Download Worker */
         Sync.oneTimeSync<PatientDownloadSyncWorkerImpl>(
             applicationContext,
@@ -78,16 +86,19 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo?.state == WorkInfo.State.FAILED){
-                if (workInfo.outputData.keyValueMap["errorMsg"] == ErrorConstants.SESSION_EXPIRED) sessionExpired(true)
-            }else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                downloadRelationWorker()
+            if (workInfo?.state == WorkInfo.State.FAILED) {
+                error(true,
+                    workInfo.outputData.keyValueMap["errorMsg"].toString())
+            } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                downloadRelationWorker { errorReceived, errorMsg ->
+                    error(errorReceived, errorMsg)
+                }
             }
         }
     }
 
     /** Upload Relation Post Sync Worker */
-    private suspend fun uploadRelationWorker() {
+    private suspend fun uploadRelationWorker(error: (Boolean, String) -> Unit) {
         //Upload Worker
         Sync.oneTimeSync<RelationUploadSyncWorkerImpl>(
             applicationContext, defaultRetryConfiguration.copy(
@@ -97,20 +108,28 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                val progress = workInfo.progress
-                val value = progress.getInt(RelationUploadSyncWorker.RelationUploadProgress, 0)
-                if (value == 100) {
-                    /** Handle Progress Based Download WorkRequests Here */
-                }
-                if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                    downloadPatientWorker(){}
+                if (workInfo.state == WorkInfo.State.FAILED) error(
+                    true,
+                    workInfo.outputData.keyValueMap["errorMsg"].toString()
+                )
+                else {
+                    val progress = workInfo.progress
+                    val value = progress.getInt(RelationUploadSyncWorker.RelationUploadProgress, 0)
+                    if (value == 100) {
+                        /** Handle Progress Based Download WorkRequests Here */
+                    }
+                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                        downloadPatientWorker() { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
+                    }
                 }
             }
         }
     }
 
     /** Relation Download Sync Worker */
-    private suspend fun downloadRelationWorker() {
+    private suspend fun downloadRelationWorker(error: (Boolean, String) -> Unit) {
         //Download Worker
         Sync.oneTimeSync<RelationDownloadSyncWorkerImpl>(
             applicationContext,
@@ -120,11 +139,18 @@ class WorkRequestBuilders(
                     .setRequiresBatteryNotLow(true)
                     .build()
             )
-        )
+        ).collectLatest { workInfo ->
+            if (workInfo != null) {
+                if (workInfo.state == WorkInfo.State.FAILED) error(
+                    true,
+                    workInfo.outputData.keyValueMap["errorMsg"].toString()
+                )
+            }
+        }
     }
 
     //Patient Patch Sync
-    internal suspend fun setPatientPatchWorker(sessionExpired: (Boolean) -> Unit) {
+    internal suspend fun setPatientPatchWorker(error: (Boolean, String) -> Unit) {
         //Upload Worker
         Sync.periodicSync<PatientPatchUploadSyncWorkerImpl>(
             applicationContext,
@@ -137,20 +163,26 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                val progress = workInfo.progress
-                val value = progress.getInt(PatientPatchUploadSyncWorker.PatientPatchUpload, 0)
-                if (value == 100) {
-                    /** Handle Progress Based Download WorkRequests Here */
-                }
-                downloadPatientWorker(){
-                    sessionExpired(it)
+                if (workInfo.state == WorkInfo.State.FAILED) error(
+                    true,
+                    workInfo.outputData.keyValueMap["errorMsg"].toString()
+                )
+                else {
+                    val progress = workInfo.progress
+                    val value = progress.getInt(PatientPatchUploadSyncWorker.PatientPatchUpload, 0)
+                    if (value == 100) {
+                        /** Handle Progress Based Download WorkRequests Here */
+                    }
+                    downloadPatientWorker() { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
+                    }
                 }
             }
         }
     }
 
     //Relation Patch Sync
-    internal suspend fun setRelationPatchWorker(sessionExpired: (Boolean) -> Unit) {
+    internal suspend fun setRelationPatchWorker(error: (Boolean, String) -> Unit) {
         //Upload Worker
         Sync.periodicSync<RelationPatchUploadSyncWorkerImpl>(
             applicationContext,
@@ -163,19 +195,26 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                val progress = workInfo.progress
-                val value = progress.getInt(RelationPatchUploadSyncWorker.RelationPatchUpload, 0)
-                if (value == 100) {
-                    /** Handle Progress Based Download WorkRequests Here */
-                }
-                downloadPatientWorker{
-                    sessionExpired(it)
+                if (workInfo.state == WorkInfo.State.FAILED) error(
+                    true,
+                    workInfo.outputData.keyValueMap["errorMsg"].toString()
+                )
+                else {
+                    val progress = workInfo.progress
+                    val value =
+                        progress.getInt(RelationPatchUploadSyncWorker.RelationPatchUpload, 0)
+                    if (value == 100) {
+                        /** Handle Progress Based Download WorkRequests Here */
+                    }
+                    downloadPatientWorker { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
+                    }
                 }
             }
         }
     }
 
-    private suspend fun updateFhirIdInRelation() {
+    private suspend fun updateFhirIdInRelation(error: (Boolean, String) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
             genericRepository.getNonSyncedPostRelations().forEach { genericEntity ->
                 val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>()
@@ -199,7 +238,9 @@ class WorkRequestBuilders(
                 }
             }
             /** Start Relation Worker */
-            uploadRelationWorker()
+            uploadRelationWorker { errorReceived, errorMsg ->
+                error(errorReceived, errorMsg)
+            }
         }
     }
 }
