@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineDosageInstructionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
@@ -20,6 +21,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.Medication
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
+import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
@@ -214,8 +216,8 @@ internal fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(): List<P
     }
 }
 
-internal fun MedicationResponse.toMedicationEntity(): List<MedicationEntity> {
-    return medications.map { medication ->
+internal fun List<MedicationResponse>.toListOfMedicationEntity(): List<MedicationEntity> {
+    return this.map { medication ->
         MedicationEntity(
             medFhirId = medication.medFhirId,
             medCodeName = medication.medCode,
@@ -230,8 +232,8 @@ internal fun MedicationResponse.toMedicationEntity(): List<MedicationEntity> {
     }
 }
 
-internal fun MedicationEntity.toMedication(): Medication {
-    return Medication(
+internal fun MedicationEntity.toMedicationResponse(): MedicationResponse {
+    return MedicationResponse(
         medFhirId = this.medFhirId,
         medCode = this.medCodeName,
         medName = this.medName,
@@ -242,4 +244,13 @@ internal fun MedicationEntity.toMedication(): Medication {
         medUnit = this.medUnit,
         medNumeratorVal = this.medNumeratorVal
     )
+}
+
+internal fun List<MedicineTimeResponse>.toListOfMedicineDirectionsEntity(): List<MedicineDosageInstructionsEntity> {
+    return map { medicineTimeResponse ->
+        MedicineDosageInstructionsEntity(
+            medicalDosage = medicineTimeResponse.medInstructionVal,
+            medicalDosageId = medicineTimeResponse.medInstructionCode
+        )
+    }
 }
