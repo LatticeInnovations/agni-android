@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.data.server.model.user
 
-import com.google.errorprone.annotations.Keep
+import androidx.annotation.Keep
 
 @Keep
 data class UserResponse(
