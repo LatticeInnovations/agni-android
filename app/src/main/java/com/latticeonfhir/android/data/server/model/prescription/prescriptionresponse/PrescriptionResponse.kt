@@ -9,7 +9,7 @@ data class PrescriptionResponse(
     val patientFhirId: String,
     val generatedOn: Long,
     val prescriptionId: String,
-    val prescriptionFhirId: String,
+    val prescriptionFhirId: String?,
     val prescription: List<Medication>
 )
 

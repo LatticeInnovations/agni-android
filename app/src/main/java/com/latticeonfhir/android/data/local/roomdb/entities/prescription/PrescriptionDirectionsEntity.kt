@@ -25,6 +25,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.medication.Medicatio
 data class PrescriptionDirectionsEntity(
     val medFhirId: String,
     val qtyPerDose: Int,
+    val frequency: Int,
     val dosageInstruction: String,
     val duration: Int,
     val qtyPrescribed: Int,
