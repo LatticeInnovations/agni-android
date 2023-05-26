@@ -11,10 +11,10 @@ import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineD
 interface MedicationDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMedication(medicationEntity: MedicationEntity): Long
+    suspend fun insertMedication(vararg medicationEntity: MedicationEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMedicineDosageInstructions(medicineDosageInstructionsEntity: MedicineDosageInstructionsEntity): Long
+    suspend fun insertMedicineDosageInstructions(vararg medicineDosageInstructionsEntity: MedicineDosageInstructionsEntity): Long
 
     @Query("SELECT * FROM MedicineDosageInstructionsEntity")
     suspend fun getAllMedicineDosageInstructions(): List<MedicineDosageInstructionsEntity>

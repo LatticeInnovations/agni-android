@@ -4,7 +4,8 @@ enum class GenericTypeEnum(val number: Int, val value: String) {
     PATIENT(1,"Patient"),
     MEDICAL_RECORD(2,"Medical Record"),
     RELATION(3,"Relation"),
-    FHIR_IDS(4,"FHIR_IDS");
+    FHIR_IDS(4,"FHIR_IDS"),
+    PRESCRIPTION(5,"Prescription");
 
     companion object {
         fun fromInt(number: Int) = values().firstOrNull { it.number == number }

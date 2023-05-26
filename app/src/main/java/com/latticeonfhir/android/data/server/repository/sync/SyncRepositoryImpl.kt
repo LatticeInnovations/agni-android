@@ -6,13 +6,19 @@ import com.latticeonfhir.android.data.local.enums.IdentifierCodeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
+import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.server.api.PatientApiService
+import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.constants.ConstantValues.COUNT_VALUE
+import com.latticeonfhir.android.data.server.constants.ConstantValues.DEFAULT_MAX_COUNT_VALUE
+import com.latticeonfhir.android.data.server.constants.EndPoints.MEDICATION_REQUEST
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.EndPoints.RELATED_PERSON
 import com.latticeonfhir.android.data.server.constants.QueryParameters.COUNT
@@ -24,6 +30,7 @@ import com.latticeonfhir.android.data.server.constants.QueryParameters.SORT
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
+import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
@@ -31,8 +38,12 @@ import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicationEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicineDirectionsEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionDirectionsEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toNoBracketAndNoSpaceString
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
@@ -48,10 +59,13 @@ import javax.inject.Inject
 
 class SyncRepositoryImpl @Inject constructor(
     private val patientApiService: PatientApiService,
+    private val prescriptionApiService: PrescriptionApiService,
     private val patientDao: PatientDao,
     private val genericDao: GenericDao,
     private val preferenceRepository: PreferenceRepository,
-    private val relationDao: RelationDao
+    private val relationDao: RelationDao,
+    private val medicationDao: MedicationDao,
+    private val prescriptionDao: PrescriptionDao
 ) : SyncRepository {
 
     private val identifierList = mutableListOf<IdentifierEntity>()
@@ -61,7 +75,8 @@ class SyncRepositoryImpl @Inject constructor(
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
         map[SORT] = "-$ID"
-        if (preferenceRepository.getLastUpdatedDate() != 0L) map[LAST_UPDATED] =  preferenceRepository.getLastUpdatedDate().toTimeStampDate()
+        if (preferenceRepository.getLastUpdatedDate() != 0L) map[LAST_UPDATED] =
+            preferenceRepository.getLastUpdatedDate().toTimeStampDate()
 
         ApiResponseConverter.convert(
             patientApiService.getListData(
@@ -187,7 +202,7 @@ class SyncRepositoryImpl @Inject constructor(
                 val map = mutableMapOf<String, String>()
                 map[PATIENT_ID] =
                     listOfGenericEntity.map { it.payload }.toNoBracketAndNoSpaceString()
-                map[COUNT] = 5000.toString()
+                map[COUNT] = DEFAULT_MAX_COUNT_VALUE.toString()
                 ApiResponseConverter.convert(
                     patientApiService.getRelationData(
                         RELATED_PERSON,
@@ -231,6 +246,91 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getAndInsertPrescription(): ResponseMapper<List<PrescriptionResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            GenericTypeEnum.FHIR_IDS,
+            SyncType.POST,
+            COUNT_VALUE
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                val map = mutableMapOf<String, String>()
+                map[PATIENT_ID] =
+                    listOfGenericEntity.map { it.payload }.toNoBracketAndNoSpaceString()
+                map[COUNT] = DEFAULT_MAX_COUNT_VALUE.toString()
+
+                ApiResponseConverter.convert(
+                    prescriptionApiService.getPastPrescription(map),
+                ).run {
+                    when (this) {
+                        is ApiEndResponse -> {
+                            prescriptionDao.insertPrescription(
+                                *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity() }
+                                    .toTypedArray()
+                            )
+                            val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
+                            body.forEach { prescriptionResponse ->
+                                medicineDirections.addAll(prescriptionResponse.toListOfPrescriptionDirectionsEntity())
+                            }
+                            prescriptionDao.insertPrescriptionMedicines(
+                                *medicineDirections.toTypedArray()
+                            )
+                        }
+
+                        else -> {}
+                    }
+                    this
+                }
+            }
+        }
+    }
+
+    override suspend fun getAndInsertMedication(offset: Int): ResponseMapper<List<MedicationResponse>> {
+        val map = mutableMapOf<String, String>()
+        map[COUNT] = COUNT_VALUE.toString()
+        map[OFFSET] = offset.toString()
+
+        return ApiResponseConverter.convert(
+            prescriptionApiService.getAllMedications(),
+            true
+        ).run {
+            when (this) {
+                is ApiContinueResponse -> {
+                    medicationDao.insertMedication(
+                        *body.toListOfMedicationEntity().toTypedArray()
+                    )
+                    getAndInsertMedication(offset + COUNT_VALUE)
+                }
+
+                is ApiEndResponse -> {
+                    medicationDao.insertMedication(
+                        *body.toListOfMedicationEntity().toTypedArray()
+                    )
+                    this
+                }
+
+                else -> this
+            }
+        }
+    }
+
+    override suspend fun getMedicineTime(): ResponseMapper<List<MedicineTimeResponse>> {
+        return ApiResponseConverter.convert(
+            prescriptionApiService.getMedicineTime()
+        ).run {
+            when (this) {
+                is ApiEndResponse -> {
+                    medicationDao.insertMedicineDosageInstructions(
+                        *body.toListOfMedicineDirectionsEntity().toTypedArray()
+                    )
+                }
+
+                else -> {}
+            }
+            this
+        }
+    }
+
     override suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
             genericTypeEnum = GenericTypeEnum.PATIENT,
@@ -251,12 +351,10 @@ class SyncRepositoryImpl @Inject constructor(
                         body.map { createResponse ->
                             patientDao.updateFhirId(createResponse.id!!, createResponse.fhirId!!)
                         }
-                        genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId())
-                            .let { deletedRows ->
-                                if (deletedRows > 0)
-                                    sendPersonPostData()
-                                else this
-                            }
+                        genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).let { deletedRows ->
+                            if (deletedRows > 0) sendPersonPostData()
+                            else this
+                        }
                     }
 
                     else -> this
@@ -281,21 +379,42 @@ class SyncRepositoryImpl @Inject constructor(
                 )
             ).run {
                 when (this) {
-                    is ApiContinueResponse -> {
-                        genericDao.deleteSyncPayload(listOfRelatedEntity.toListOfId()).also {
-                            if (it > 0) sendRelatedPersonPostData()
-                        }
-                    }
-
                     is ApiEndResponse -> {
-                        genericDao.deleteSyncPayload(listOfRelatedEntity.toListOfId()).also {
-                            if (it > 0) sendRelatedPersonPostData()
+                        genericDao.deleteSyncPayload(listOfRelatedEntity.toListOfId()).let {deletedRows ->
+                            if (deletedRows > 0) sendRelatedPersonPostData() else this
                         }
                     }
 
-                    else -> {}
+                    else -> this
                 }
-                this
+            }
+        }
+    }
+
+    override suspend fun sendPrescriptionPostData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.PRESCRIPTION,
+            syncType = SyncType.POST
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    prescriptionApiService.postPrescriptionRelatedData(
+                        MEDICATION_REQUEST,
+                        listOfGenericEntity.map { it.payload.fromJson<PrescriptionResponse>() }
+                    )
+                ).run {
+                    when (this) {
+                        is ApiEndResponse -> {
+                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId())
+                                .let { deletedRows ->
+                                    if (deletedRows > 0) sendPrescriptionPostData() else this
+                                }
+                        }
+
+                        else -> this
+                    }
+                }
             }
         }
     }

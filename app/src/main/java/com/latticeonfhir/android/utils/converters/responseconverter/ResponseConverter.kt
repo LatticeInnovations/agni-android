@@ -19,7 +19,6 @@ import com.latticeonfhir.android.data.server.constants.QueryParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.prescription.medication.Medication
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
