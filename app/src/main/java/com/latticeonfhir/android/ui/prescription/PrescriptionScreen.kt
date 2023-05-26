@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -13,13 +14,17 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,12 +33,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,15 +55,19 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -66,6 +79,8 @@ import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPr
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
 import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
+import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -163,6 +178,41 @@ fun PrescriptionScreen(
                             }
                         }
                     }
+                    if (viewModel.clearAllConfirmDialog){
+                        AlertDialog(
+                            onDismissRequest = { viewModel.clearAllConfirmDialog = false },
+                            title = {
+                                Text(text = "Discard medications ?")
+                            },
+                            text = {
+                                Text(text = "Are you sure you want to discard all medications ?")
+                            },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        viewModel.selectedCompoundList.clear()
+                                        viewModel.bottomNavExpanded = false
+                                        viewModel.clearAllConfirmDialog = false
+                                    },
+                                ) {
+                                    Text(
+                                        "Yes, discard"
+                                    )
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(
+                                    onClick = {
+                                        viewModel.clearAllConfirmDialog = false
+                                    }
+                                ) {
+                                    Text(
+                                        "No, go back"
+                                    )
+                                }
+                            }
+                        )
+                    }
                 }
             }
         )
@@ -221,6 +271,10 @@ fun BottomNavLayout(
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope
 ) {
+    val rotationState by animateFloatAsState(
+        targetValue = if (viewModel.bottomNavExpanded) 180f else 0f,
+        label = "Rotation state of expand icon button",
+    )
     AnimatedVisibility(
         visible = viewModel.selectedCompoundList.isNotEmpty(),
         enter = expandVertically(),
@@ -246,8 +300,7 @@ fun BottomNavLayout(
                             Text(text = "Medication (s)")
                             Spacer(modifier = Modifier.weight(1f))
                             TextButton(onClick = {
-                                viewModel.selectedCompoundList.clear()
-                                viewModel.bottomNavExpanded = false
+                                viewModel.clearAllConfirmDialog = true
                             }) {
                                 Text(text = "Clear all")
                             }
@@ -280,7 +333,11 @@ fun BottomNavLayout(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        Modifier.weight(1f),
+                        Modifier
+                            .weight(1f)
+                            .clickable {
+                                viewModel.bottomNavExpanded = !viewModel.bottomNavExpanded
+                            },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
@@ -289,12 +346,11 @@ fun BottomNavLayout(
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        IconButton(onClick = { viewModel.bottomNavExpanded = true }) {
-                            Icon(
-                                Icons.Default.KeyboardArrowUp,
-                                contentDescription = "ARROW_UP"
-                            )
-                        }
+                        Icon(
+                            Icons.Default.KeyboardArrowUp,
+                            contentDescription = "ARROW_UP",
+                            modifier = Modifier.rotate(rotationState)
+                        )
                     }
                     Spacer(modifier = Modifier.width(15.dp))
                     Button(
@@ -329,13 +385,6 @@ fun SelectedCompoundCard(viewModel: PrescriptionViewModel, drugName: String) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
-                .clickable {
-                    checkedState.value = !checkedState.value
-                    if (checkedState.value) {
-                        viewModel.selectedCompoundList.add(drugName)
-                    } else
-                        viewModel.selectedCompoundList.remove(drugName)
-                }
         ) {
             Checkbox(
                 checked = checkedState.value,
