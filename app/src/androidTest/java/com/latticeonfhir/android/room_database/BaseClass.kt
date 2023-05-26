@@ -102,7 +102,8 @@ open class BaseClass {
         relativeFirstName = relative.firstName,
         relativeId = relativeId,
         relativeLastName = relative.lastName,
-        relativeMiddleName = relative.middleName
+        relativeMiddleName = relative.middleName,
+        relativeGender = relative.gender
     )
 
     @Before
