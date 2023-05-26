@@ -7,22 +7,26 @@ import androidx.work.WorkInfo
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.service.workmanager.utils.PeriodicSyncConfiguration
 import com.latticeonfhir.android.service.workmanager.utils.RepeatInterval
 import com.latticeonfhir.android.service.workmanager.utils.Sync
 import com.latticeonfhir.android.service.workmanager.utils.defaultRetryConfiguration
+import com.latticeonfhir.android.service.workmanager.workers.download.medication.MedicationDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.download.patient.PatientDownloadSyncWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.download.prescription.PrescriptionDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.download.relation.RelationDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.post.PatientUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.post.PatientUploadSyncWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.upload.prescription.PrescriptionUploadSyncWorker.Companion.PRESCRIPTION_UPLOAD_PROGRESS
+import com.latticeonfhir.android.service.workmanager.workers.upload.prescription.PrescriptionUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.patch.RelationPatchUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.patch.RelationPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.post.RelationUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.post.RelationUploadSyncWorkerImpl
-import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.constants.Id
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
@@ -30,7 +34,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class WorkRequestBuilders(
@@ -62,7 +65,11 @@ class WorkRequestBuilders(
                     val value = progress.getInt(PatientUploadSyncWorker.PatientUploadProgress, 0)
                     if (value == 100) {
                         /** Update Fhir Id in Generic Entity */
-                        updateFhirIdInRelation(){ errorReceived, errorMsg ->
+                        updateFhirIdInRelation { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
+
+                        updateFhirIdInPrescription { errorReceived, errorMsg ->
                             error(errorReceived, errorMsg)
                         }
                     }
@@ -243,4 +250,99 @@ class WorkRequestBuilders(
             }
         }
     }
+
+    private fun updateFhirIdInPrescription(error: (Boolean, String) -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            genericRepository.getNonSyncedPostRelations().forEach { genericEntity ->
+                val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(PrescriptionResponse::class.java)
+                if (existingMap != null) {
+                    genericRepository.insertOrUpdatePostEntity(
+                        patientId = genericEntity.patientId,
+                        entity = existingMap.copy(
+                            patientFhirId = patientRepository.getPatientById(existingMap.patientFhirId)[0].fhirId
+                                ?: Id.EMPTY_FHIR_ID
+                        ),
+                        typeEnum = GenericTypeEnum.PRESCRIPTION,
+                        replace = true
+                    )
+                }
+            }
+            /** Start Prescription Worker */
+            uploadPrescriptionSyncWorker { errorReceived, errorMsg ->
+                error(errorReceived, errorMsg)
+            }
+        }
+    }
+
+    /** Medication Worker  */
+    internal suspend fun setMedicationWorker(error: (Boolean, String) -> Unit) {
+        Sync.oneTimeSync<MedicationDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo?.state == WorkInfo.State.FAILED) {
+                error(true, workInfo.outputData.keyValueMap["errorMsg"].toString())
+            } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                /** Handle Success Here */
+            }
+        }
+    }
+
+    /** Upload Prescription Data */
+    private suspend fun uploadPrescriptionSyncWorker(error: (Boolean, String) -> Unit) {
+        //Upload Worker
+        Sync.oneTimeSync<PrescriptionUploadSyncWorkerImpl>(
+            applicationContext, defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED).setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo != null) {
+                if (workInfo.state == WorkInfo.State.FAILED) error(
+                    true,
+                    workInfo.outputData.keyValueMap["errorMsg"].toString()
+                )
+                else {
+                    val progress = workInfo.progress
+                    val value = progress.getInt(PRESCRIPTION_UPLOAD_PROGRESS, 0)
+                    if (value == 100) {
+                        /** Handle Progress Based Download WorkRequests Here */
+                    }
+                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                        downloadPrescriptionWorker { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /** Download Prescription Data */
+    private suspend fun downloadPrescriptionWorker(error: (Boolean, String) -> Unit) {
+        /** Download Worker */
+        Sync.oneTimeSync<PrescriptionDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo?.state == WorkInfo.State.FAILED) {
+                error(true,
+                    workInfo.outputData.keyValueMap["errorMsg"].toString())
+            } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+
+            }
+        }
+    }
+
 }
