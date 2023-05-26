@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.ui.common.AddressComposable
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
@@ -163,7 +164,7 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
         Spacer(modifier = Modifier.width(20.dp))
         CustomFilterChip(
             selector = viewModel.gender,
-            selected = "male",
+            selected = GenderEnum.MALE.value,
             label = "Male"
         ) {
             viewModel.gender = it
@@ -171,7 +172,7 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
         Spacer(modifier = Modifier.width(15.dp))
         CustomFilterChip(
             selector = viewModel.gender,
-            selected = "female",
+            selected = GenderEnum.FEMALE.value,
             label = "Female"
         ) {
             viewModel.gender = it
@@ -179,8 +180,8 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
         Spacer(modifier = Modifier.width(15.dp))
         CustomFilterChip(
             selector = viewModel.gender,
-            selected = "others",
-            label = "Others"
+            selected = GenderEnum.OTHER.value,
+            label = "Other"
         ) {
             viewModel.gender = it
         }
