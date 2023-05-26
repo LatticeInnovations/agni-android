@@ -24,13 +24,12 @@ import com.latticeonfhir.android.data.server.model.prescription.medication.Medic
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getInverseRelation
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getInverseRelation
 import java.util.Date
-import java.util.UUID
 
 fun PatientResponse.toPatientEntity(): PatientEntity {
     return PatientEntity(
@@ -194,7 +193,7 @@ internal fun <T> List<T>.toNoBracketAndNoSpaceString(): String {
 
 internal fun PrescriptionResponse.toPrescriptionEntity(): PrescriptionEntity {
     return PrescriptionEntity(
-        id = UUID.randomUUID().toString(),
+        id = prescriptionId,
         prescriptionDate = generatedOn,
         patientId = patientFhirId,
         prescriptionFhirId = prescriptionFhirId
@@ -206,6 +205,7 @@ internal fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(): List<P
         PrescriptionDirectionsEntity(
             medFhirId = medication.medFhirId,
             qtyPerDose = medication.qtyPerDose.toInt(),
+            frequency = medication.frequency,
             dosageInstruction = medication.doseForm,
             duration = medication.duration,
             qtyPrescribed = medication.qtyPrescribed,
