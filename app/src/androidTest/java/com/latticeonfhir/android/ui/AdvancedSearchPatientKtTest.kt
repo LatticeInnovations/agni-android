@@ -2,12 +2,16 @@ package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.latticeonfhir.android.ui.main.MainActivity
+import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.MethodSorters
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
 class AdvancedSearchPatientKtTest {
     @get: Rule
@@ -69,6 +73,34 @@ class AdvancedSearchPatientKtTest {
     // bottom nav bar
     val bottomNavBar = hasTestTag("BOTTOM_NAV_BAR")
 
+    // for login
+    val inputField = hasTestTag("INPUT_FIELD")
+    val button = hasTestTag("BUTTON")
+    val firstDigit = hasTestTag("FIRST_DIGIT")
+    val secondDigit = hasTestTag("SECOND_DIGIT")
+    val thirdDigit = hasTestTag("THIRD_DIGIT")
+    val fourDigit = hasTestTag("FOUR_DIGIT")
+    val fiveDigit = hasTestTag("FIVE_DIGIT")
+    val sixDigit = hasTestTag("SIX_DIGIT")
+
+    // for logout
+    val profile_tab = hasTestTag("Profile tab") and hasClickAction()
+    val logoutIcon = hasContentDescription("LOG_OUT_ICON")
+
+    @Test
+    fun aaaa_login(){
+        composeTestRule.onNode(inputField).performTextInput("9876543210")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(firstDigit).performTextInput("2")
+        composeTestRule.onNode(secondDigit).performTextInput("2")
+        composeTestRule.onNode(thirdDigit).performTextInput("2")
+        composeTestRule.onNode(fourDigit).performTextInput("2")
+        composeTestRule.onNode(fiveDigit).performTextInput("2")
+        composeTestRule.onNode(sixDigit).performTextInput("2")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+    }
 
     @Test
     fun advancedSearch_verify_if_all_views_exist() {
@@ -193,5 +225,12 @@ class AdvancedSearchPatientKtTest {
         composeTestRule.onNode(chipCategory2).assertExists(errorMessageOnFail = "Category 2 chip should be displayed.")
         composeTestRule.onNode(chipCategory3).assertExists(errorMessageOnFail = "Category 3 chip should be displayed.")
         composeTestRule.onNode(patientList).assertExists(errorMessageOnFail = "Patient List should be displayed.")
+    }
+
+    @Test
+    fun zzzz_logout(){
+        composeTestRule.onNode(profile_tab).performClick()
+        composeTestRule.onNode(logoutIcon).performClick()
+        composeTestRule.onNodeWithText("Logout").performClick()
     }
 }
