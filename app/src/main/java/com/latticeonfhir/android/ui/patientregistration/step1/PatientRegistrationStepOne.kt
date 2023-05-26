@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
@@ -391,15 +392,15 @@ fun GenderComposable(viewModel: PatientRegistrationStepOneViewModel) {
     ) {
         Text(text = "Gender", style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.width(20.dp))
-        CustomFilterChip(viewModel.gender, "male", "Male") {
+        CustomFilterChip(viewModel.gender, GenderEnum.MALE.value, "Male") {
             viewModel.gender = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(viewModel.gender, "female", "Female") {
+        CustomFilterChip(viewModel.gender, GenderEnum.FEMALE.value, "Female") {
             viewModel.gender = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(viewModel.gender, "others", "Others") {
+        CustomFilterChip(viewModel.gender, GenderEnum.OTHER.value, "Other") {
             viewModel.gender = it
         }
     }
