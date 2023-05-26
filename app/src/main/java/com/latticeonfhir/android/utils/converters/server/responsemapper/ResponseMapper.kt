@@ -40,9 +40,9 @@ sealed class ResponseMapper<out T> {
                     val data: BaseResponse<Any?> =
                         gson.fromJson(response.errorBody()?.string(), collectionType)
                     ApiErrorResponse(response.code(), data.message)
-                } catch (exception: Exception) {
-                    Timber.e(exception)
-                    ApiErrorResponse(0, exception.localizedMessage?.toString() ?: "Server error")
+                } catch (e: JsonSyntaxException) {
+                    Timber.e(e)
+                    ApiErrorResponse(0, "Server error")
                 }
             }
         }
