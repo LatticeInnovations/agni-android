@@ -39,13 +39,7 @@ fun CompoundRow(drugName: String, viewModel: PrescriptionViewModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)
-            .clickable {
-                checkedState.value = !checkedState.value
-                if (checkedState.value) {
-                    viewModel.checkedCompound = drugName
-                }
-            },
+            .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
