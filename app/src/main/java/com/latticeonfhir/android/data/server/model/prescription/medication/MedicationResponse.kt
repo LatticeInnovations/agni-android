@@ -4,5 +4,13 @@ import com.google.errorprone.annotations.Keep
 
 @Keep
 data class MedicationResponse(
-    val medications: List<Medication>
+    val activeIngredient: String,
+    val activeIngredientCode: String,
+    val doseForm: String,
+    val doseFormCode: String,
+    val medCode: String,
+    val medFhirId: String,
+    val medName: String,
+    val medNumeratorVal: Int,
+    val medUnit: String
 )
