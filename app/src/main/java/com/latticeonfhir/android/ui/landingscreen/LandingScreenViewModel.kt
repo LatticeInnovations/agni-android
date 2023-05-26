@@ -62,9 +62,20 @@ class LandingScreenViewModel @Inject constructor(
 
     init {
 
+        //Get Worker
+
+        viewModelScope.launch {
+            workRequestBuilders.setMedicationWorker { isErrorReceived, errorMsg ->
+                if (isErrorReceived){
+                    logoutUser = true
+                    logoutReason = errorMsg
+                }
+            }
+        }
+
         // Post Sync Worker
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.uploadPatientWorker(){ isErrorReceived, errorMsg ->
+            workRequestBuilders.uploadPatientWorker { isErrorReceived, errorMsg ->
                 if (isErrorReceived){
                     logoutUser = true
                     logoutReason = errorMsg
@@ -74,7 +85,7 @@ class LandingScreenViewModel @Inject constructor(
 
         // Patch Sync Workers
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setPatientPatchWorker(){ isErrorReceived, errorMsg ->
+            workRequestBuilders.setPatientPatchWorker { isErrorReceived, errorMsg ->
                 if (isErrorReceived){
                     logoutUser = true
                     logoutReason = errorMsg
@@ -82,7 +93,7 @@ class LandingScreenViewModel @Inject constructor(
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setRelationPatchWorker(){ isErrorReceived, errorMsg ->
+            workRequestBuilders.setRelationPatchWorker { isErrorReceived, errorMsg ->
                 if (isErrorReceived){
                     logoutUser = true
                     logoutReason = errorMsg
