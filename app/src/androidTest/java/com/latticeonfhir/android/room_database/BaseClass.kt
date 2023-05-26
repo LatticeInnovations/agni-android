@@ -103,7 +103,7 @@ open class BaseClass {
         relativeId = relativeId,
         relativeLastName = relative.lastName,
         relativeMiddleName = relative.middleName,
-        relativeGender = "male"
+        relativeGender = relative.gender
     )
 
     @Before
