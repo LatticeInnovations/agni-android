@@ -6,15 +6,11 @@ import com.google.gson.reflect.TypeToken
 import com.latticeonfhir.android.base.server.BaseResponse
 import retrofit2.Response
 import timber.log.Timber
+import java.lang.Exception
 
 sealed class ResponseMapper<out T> {
 
     companion object {
-
-        fun <T> create(error: Throwable?): ApiErrorResponse<T> {
-            return ApiErrorResponse(0, error?.message ?: "Server error")
-        }
-
         fun <T> create(response: Response<BaseResponse<T>>?, paginated: Boolean): ResponseMapper<T> {
             return if (response == null) {
                 return ApiNullResponse
@@ -43,6 +39,9 @@ sealed class ResponseMapper<out T> {
                 } catch (e: JsonSyntaxException) {
                     Timber.e(e)
                     ApiErrorResponse(0, "Server error")
+                } catch (exception: Exception) {
+                    Timber.e(exception)
+                    ApiErrorResponse(0, exception.localizedMessage?.toString()?:"Server error")
                 }
             }
         }
