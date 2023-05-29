@@ -269,6 +269,7 @@ class SyncRepositoryImpl @Inject constructor(
                 }
 
                 is ApiEndResponse -> {
+                    preferenceRepository.setLastSyncPrescription(Date().time)
                     prescriptionDao.insertPrescription(
                         *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity() }.toTypedArray()
                     )
@@ -291,6 +292,8 @@ class SyncRepositoryImpl @Inject constructor(
         val map = mutableMapOf<String, String>()
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
+        if (preferenceRepository.getLastMedicationSyncDate() != 0L) map[LAST_UPDATED] =
+            preferenceRepository.getLastMedicationSyncDate().toTimeStampDate()
 
         return ApiResponseConverter.convert(
             prescriptionApiService.getAllMedications(map),
@@ -305,6 +308,7 @@ class SyncRepositoryImpl @Inject constructor(
                 }
 
                 is ApiEndResponse -> {
+                    preferenceRepository.setLastMedicationSyncDate(Date().time)
                     medicationDao.insertMedication(
                         *body.toListOfMedicationEntity().toTypedArray()
                     )
