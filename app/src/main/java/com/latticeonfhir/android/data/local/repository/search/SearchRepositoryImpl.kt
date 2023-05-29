@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.model.pagination.PaginationResponse
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
@@ -134,15 +135,16 @@ class SearchRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun insertRecentSearch(searchQuery: String): Long {
-        return searchDao.getRecentSearches().run {
+    override suspend fun insertRecentSearch(searchQuery: String, searchTypeEnum: SearchTypeEnum): Long {
+        return searchDao.getRecentSearches(searchTypeEnum).run {
             if (size == 5) {
                 searchDao.getOldestRecentSearchId().run {
                     searchDao.deleteRecentSearch(this)
                     searchDao.insertRecentSearch(
                         SearchHistoryEntity(
                             searchQuery = searchQuery,
-                            date = Date()
+                            date = Date(),
+                            searchType = searchTypeEnum
                         )
                     )
                 }
@@ -150,15 +152,16 @@ class SearchRepositoryImpl @Inject constructor(
                 searchDao.insertRecentSearch(
                     SearchHistoryEntity(
                         searchQuery = searchQuery,
-                        date = Date()
+                        date = Date(),
+                        searchType = searchTypeEnum
                     )
                 )
             }
         }
     }
 
-    override suspend fun getRecentSearches(): List<String> {
-        return searchDao.getRecentSearches()
+    override suspend fun getRecentSearches(searchTypeEnum: SearchTypeEnum): List<String> {
+        return searchDao.getRecentSearches(searchTypeEnum)
     }
 
     override suspend fun getSuggestedMembers(

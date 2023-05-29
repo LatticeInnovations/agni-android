@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
 
@@ -20,8 +21,8 @@ interface SearchDao {
     suspend fun getPatientList(): List<PatientAndIdentifierEntity>
 
     @Transaction
-    @Query("SELECT searchQuery FROM SearchHistoryEntity ORDER BY date ASC")
-    suspend fun getRecentSearches(): List<String>
+    @Query("SELECT searchQuery FROM SearchHistoryEntity WHERE searchType = :searchTypeEnum ORDER BY date ASC")
+    suspend fun getRecentSearches(searchTypeEnum: SearchTypeEnum): List<String>
 
     @Transaction
     @Query("SELECT id FROM SearchHistoryEntity ORDER BY date ASC LIMIT 1")
