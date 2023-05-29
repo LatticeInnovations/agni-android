@@ -56,11 +56,13 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) error(
-                    true,
-                    workInfo.outputData.keyValueMap["errorMsg"].toString()
-                )
-                else {
+                if (workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                } else {
                     val progress = workInfo.progress
                     val value = progress.getInt(PatientUploadSyncWorker.PatientUploadProgress, 0)
                     if (value == 100) {
@@ -94,8 +96,11 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo?.state == WorkInfo.State.FAILED) {
-                error(true,
-                    workInfo.outputData.keyValueMap["errorMsg"].toString())
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
             } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
                 downloadRelationWorker { errorReceived, errorMsg ->
                     error(errorReceived, errorMsg)
@@ -115,11 +120,13 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) error(
-                    true,
-                    workInfo.outputData.keyValueMap["errorMsg"].toString()
-                )
-                else {
+                if (workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                } else {
                     val progress = workInfo.progress
                     val value = progress.getInt(RelationUploadSyncWorker.RelationUploadProgress, 0)
                     if (value == 100) {
@@ -148,10 +155,13 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) error(
-                    true,
-                    workInfo.outputData.keyValueMap["errorMsg"].toString()
-                )
+                if (workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                }
             }
         }
     }
@@ -170,11 +180,13 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) error(
-                    true,
-                    workInfo.outputData.keyValueMap["errorMsg"].toString()
-                )
-                else {
+                if (workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                } else {
                     val progress = workInfo.progress
                     val value = progress.getInt(PatientPatchUploadSyncWorker.PatientPatchUpload, 0)
                     if (value == 100) {
@@ -202,11 +214,13 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) error(
-                    true,
-                    workInfo.outputData.keyValueMap["errorMsg"].toString()
-                )
-                else {
+                if (workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                } else {
                     val progress = workInfo.progress
                     val value =
                         progress.getInt(RelationPatchUploadSyncWorker.RelationPatchUpload, 0)
