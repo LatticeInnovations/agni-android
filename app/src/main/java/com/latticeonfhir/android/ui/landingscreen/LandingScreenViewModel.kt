@@ -1,6 +1,8 @@
 package com.latticeonfhir.android.ui.landingscreen
 
 import android.app.Application
+import android.app.job.JobScheduler
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,8 +11,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
+import androidx.work.WorkManager
+import androidx.work.await
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
-import com.latticeonfhir.android.data.local.model.SearchParameters
+import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
@@ -62,9 +67,8 @@ class LandingScreenViewModel @Inject constructor(
 
     init {
 
-        //Get Worker
-
-        viewModelScope.launch {
+        //Medication Worker
+        viewModelScope.launch(Dispatchers.IO) {
             workRequestBuilders.setMedicationWorker { isErrorReceived, errorMsg ->
                 if (isErrorReceived){
                     logoutUser = true
@@ -73,9 +77,9 @@ class LandingScreenViewModel @Inject constructor(
             }
         }
 
-        // Post Sync Worker
+        //Medicine Dosage Worker
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.uploadPatientWorker { isErrorReceived, errorMsg ->
+            workRequestBuilders.setMedicationDosageWorker { isErrorReceived, errorMsg ->
                 if (isErrorReceived){
                     logoutUser = true
                     logoutReason = errorMsg
@@ -83,23 +87,33 @@ class LandingScreenViewModel @Inject constructor(
             }
         }
 
-        // Patch Sync Workers
-        viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setPatientPatchWorker { isErrorReceived, errorMsg ->
-                if (isErrorReceived){
-                    logoutUser = true
-                    logoutReason = errorMsg
-                }
-            }
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setRelationPatchWorker { isErrorReceived, errorMsg ->
-                if (isErrorReceived){
-                    logoutUser = true
-                    logoutReason = errorMsg
-                }
-            }
-        }
+//        // Post Sync Worker
+//        viewModelScope.launch(Dispatchers.IO) {
+//            workRequestBuilders.uploadPatientWorker { isErrorReceived, errorMsg ->
+//                if (isErrorReceived){
+//                    logoutUser = true
+//                    logoutReason = errorMsg
+//                }
+//            }
+//        }
+//
+//        // Patch Sync Workers
+//        viewModelScope.launch(Dispatchers.IO) {
+//            workRequestBuilders.setPatientPatchWorker { isErrorReceived, errorMsg ->
+//                if (isErrorReceived){
+//                    logoutUser = true
+//                    logoutReason = errorMsg
+//                }
+//            }
+//        }
+//        viewModelScope.launch(Dispatchers.IO) {
+//            workRequestBuilders.setRelationPatchWorker { isErrorReceived, errorMsg ->
+//                if (isErrorReceived){
+//                    logoutUser = true
+//                    logoutReason = errorMsg
+//                }
+//            }
+//        }
 
         userName = preferenceRepository.getUserName()
         userRole = preferenceRepository.getUserRole()
@@ -162,6 +176,11 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     internal fun logout() {
-        preferenceRepository.clearPreferences()
+        viewModelScope.launch(Dispatchers.Default) {
+            WorkManager.getInstance(getApplication<Application>().applicationContext).cancelAllWork().await().also {
+                (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
+                preferenceRepository.clearPreferences()
+            }
+        }
     }
 }

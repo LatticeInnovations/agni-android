@@ -14,6 +14,7 @@ import com.latticeonfhir.android.service.workmanager.utils.RepeatInterval
 import com.latticeonfhir.android.service.workmanager.utils.Sync
 import com.latticeonfhir.android.service.workmanager.utils.defaultRetryConfiguration
 import com.latticeonfhir.android.service.workmanager.workers.download.medication.MedicationDownloadSyncWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.download.medicinedosage.MedicineDosageDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.download.patient.PatientDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.download.prescription.PrescriptionDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.download.relation.RelationDownloadSyncWorkerImpl
@@ -27,6 +28,7 @@ import com.latticeonfhir.android.service.workmanager.workers.upload.relation.pat
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.patch.RelationPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.post.RelationUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.post.RelationUploadSyncWorkerImpl
+import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.constants.Id
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
@@ -75,8 +77,10 @@ class WorkRequestBuilders(
                             error(errorReceived, errorMsg)
                         }
                     }
-                    downloadPatientWorker { errorReceived, errorMsg ->
-                        error(errorReceived, errorMsg)
+                    if (workInfo.state == WorkInfo.State.ENQUEUED) {
+                        downloadPatientWorker { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
                     }
                 }
             }
@@ -103,6 +107,9 @@ class WorkRequestBuilders(
                 )
             } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
                 downloadRelationWorker { errorReceived, errorMsg ->
+                    error(errorReceived, errorMsg)
+                }
+                downloadPrescriptionWorker { errorReceived, errorMsg ->
                     error(errorReceived, errorMsg)
                 }
             }
@@ -133,7 +140,7 @@ class WorkRequestBuilders(
                         /** Handle Progress Based Download WorkRequests Here */
                     }
                     if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                        downloadPatientWorker() { errorReceived, errorMsg ->
+                        downloadPatientWorker { errorReceived, errorMsg ->
                             error(errorReceived, errorMsg)
                         }
                     }
@@ -191,9 +198,9 @@ class WorkRequestBuilders(
                     val value = progress.getInt(PatientPatchUploadSyncWorker.PatientPatchUpload, 0)
                     if (value == 100) {
                         /** Handle Progress Based Download WorkRequests Here */
-                    }
-                    downloadPatientWorker() { errorReceived, errorMsg ->
-                        error(errorReceived, errorMsg)
+                        downloadPatientWorker { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
                     }
                 }
             }
@@ -226,9 +233,9 @@ class WorkRequestBuilders(
                         progress.getInt(RelationPatchUploadSyncWorker.RelationPatchUpload, 0)
                     if (value == 100) {
                         /** Handle Progress Based Download WorkRequests Here */
-                    }
-                    downloadPatientWorker { errorReceived, errorMsg ->
-                        error(errorReceived, errorMsg)
+                        downloadPatientWorker { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
                     }
                 }
             }
@@ -299,10 +306,43 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo?.state == WorkInfo.State.FAILED) {
-                error(true, workInfo.outputData.keyValueMap["errorMsg"].toString())
-            } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                /** Handle Success Here */
+            if(workInfo != null) {
+                if(workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                }
+                else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    /** Handle Success Here */
+                }
+            }
+        }
+    }
+
+    /** Medication Dosage Worker  */
+    internal suspend fun setMedicationDosageWorker(error: (Boolean, String) -> Unit) {
+        Sync.oneTimeSync<MedicineDosageDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if(workInfo != null) {
+                if(workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                }
+                else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    /** Handle Success Here */
+                }
             }
         }
     }
@@ -318,10 +358,13 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) error(
-                    true,
-                    workInfo.outputData.keyValueMap["errorMsg"].toString()
-                )
+                if (workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                }
                 else {
                     val progress = workInfo.progress
                     val value = progress.getInt(PRESCRIPTION_UPLOAD_PROGRESS, 0)
@@ -350,13 +393,17 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo?.state == WorkInfo.State.FAILED) {
-                error(true,
-                    workInfo.outputData.keyValueMap["errorMsg"].toString())
-            } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+            if(workInfo != null) {
+                if (workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
 
+                }
             }
         }
     }
-
 }
