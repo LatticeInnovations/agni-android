@@ -7,7 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
-import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 
 @Dao
 interface GenericDao {

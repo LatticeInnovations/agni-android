@@ -1,7 +1,7 @@
 package com.latticeonfhir.android.data.local.repository.relation
 
 import com.latticeonfhir.android.data.local.enums.RelationEnum
-import com.latticeonfhir.android.data.local.model.Relation
+import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity

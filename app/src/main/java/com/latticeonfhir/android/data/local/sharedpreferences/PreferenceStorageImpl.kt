@@ -15,7 +15,11 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
     override var userMobile by LongPreference(sharedPreferences, PREF_USER_MOBILE,0L)
     override var userEmail by StringPreference(sharedPreferences, PREF_USER_EMAIL,"")
     override var roomDBEncryptionKey by StringPreference(sharedPreferences, PREF_ROOM_ENCRYPTION_KEY,"")
+    override var lastPatientSyncTime by LongPreference(sharedPreferences, PREF_LAST_PATIENT_SYNC_TIME,0L)
+    override var lastRelationSyncTime by LongPreference(sharedPreferences, PREF_LAST_RELATION_SYNC_TIME,0L)
+    override var lastPrescriptionSyncTime by LongPreference(sharedPreferences, PREF_LAST_PRESCRIPTION_SYNC_TIME,0L)
     override var lastUpdatedTime by LongPreference(sharedPreferences, PREF_LAST_UPDATED_TIME,0L)
+    override var medicationSyncSuccessful by BooleanPreference(sharedPreferences,PREF_MEDICATION_SYNC_SUCCESS,false)
     override var maxOtpAttemptTimeout by LongPreference(sharedPreferences, PREF_MAX_OTP_ATTEMPTS_TIMEOUT,0L)
 
     override fun clear() {
@@ -37,7 +41,12 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
 
         const val PREF_ROOM_ENCRYPTION_KEY = "pref_room_encryption_key"
 
+        const val PREF_LAST_PATIENT_SYNC_TIME = "pref_last_patient_sync_time"
+        const val PREF_LAST_RELATION_SYNC_TIME = "pref_last_relation_sync_time"
+        const val PREF_LAST_PRESCRIPTION_SYNC_TIME = "pref_last_prescription_sync_time"
         const val PREF_LAST_UPDATED_TIME = "pref_last_updated_time"
+
+        const val PREF_MEDICATION_SYNC_SUCCESS = "pref_medication_sync_success"
 
         const val PREF_MAX_OTP_ATTEMPTS_TIMEOUT = "pref_max_otp_attempts_timeout"
     }

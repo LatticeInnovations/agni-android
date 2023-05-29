@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.SearchHistoryEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
 
 @Dao
 interface SearchDao {

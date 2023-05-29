@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.roomdb.entities.prescription
 
 import androidx.annotation.Keep
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -9,20 +10,17 @@ import com.latticeonfhir.android.data.local.roomdb.entities.medication.Medicatio
 
 @Keep
 @Entity(
+    indices = [Index("prescriptionId"), Index("med_fhir_id")],
     foreignKeys = [
         ForeignKey(
             entity = PrescriptionEntity::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("prescriptionId")
-        ),
-        ForeignKey(
-            entity = MedicationEntity::class,
-            parentColumns = arrayOf("id"),
-            childColumns = arrayOf("medFhirId")
         )
     ]
 )
 data class PrescriptionDirectionsEntity(
+    @ColumnInfo("med_fhir_id")
     val medFhirId: String,
     val qtyPerDose: Int,
     val frequency: Int,

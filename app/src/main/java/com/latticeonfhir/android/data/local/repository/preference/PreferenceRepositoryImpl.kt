@@ -5,6 +5,24 @@ import javax.inject.Inject
 
 class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage: PreferenceStorage): PreferenceRepository {
 
+    override fun setLastSyncPatient(long: Long) {
+        preferenceStorage.lastPatientSyncTime = long
+    }
+
+    override fun getLastSyncPatient() = preferenceStorage.lastPatientSyncTime
+
+    override fun setLastSyncRelation(long: Long) {
+        preferenceStorage.lastRelationSyncTime = long
+    }
+
+    override fun getLastSyncRelation() = preferenceStorage.lastRelationSyncTime
+
+    override fun setLastSyncPrescription(long: Long) {
+        preferenceStorage.lastPrescriptionSyncTime = long
+    }
+
+    override fun getLastSyncPrescription() = preferenceStorage.lastPrescriptionSyncTime
+
     override fun setLastUpdatedDate(long: Long) {
         preferenceStorage.lastUpdatedTime = long
     }

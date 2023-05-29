@@ -13,11 +13,16 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
-import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.SearchHistoryEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineDosageInstructionsEntity
+import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
 import com.latticeonfhir.android.data.local.roomdb.typeconverters.TypeConverter
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
@@ -26,8 +31,17 @@ import net.sqlcipher.database.SupportFactory
 import java.util.UUID
 
 @Database(
-    entities = [PatientEntity::class, GenericEntity::class, IdentifierEntity::class, RelationEntity::class, SearchHistoryEntity::class],
-    views = [RelationView::class],
+    entities = [
+        PatientEntity::class,
+        GenericEntity::class,
+        IdentifierEntity::class,
+        RelationEntity::class,
+        SearchHistoryEntity::class,
+        MedicationEntity::class,
+        PrescriptionEntity::class,
+        PrescriptionDirectionsEntity::class,
+        MedicineDosageInstructionsEntity::class],
+    views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
     version = 1,
     exportSchema = true
 )
@@ -64,10 +78,10 @@ abstract class FhirAppDatabase : RoomDatabase() {
             val factory = SupportFactory(passphrase)
 
             return if (BuildConfig.DEBUG) {
-                Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android.db")
+                Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android")
                     .build()
             } else {
-                Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android.db")
+                Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android")
                     .openHelperFactory(factory)
                     .build()
             }

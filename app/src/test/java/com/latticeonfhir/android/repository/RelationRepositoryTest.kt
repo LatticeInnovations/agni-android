@@ -1,7 +1,7 @@
 package com.latticeonfhir.android.repository
 
 import com.latticeonfhir.android.base.BaseClass
-import com.latticeonfhir.android.data.local.model.Relation
+import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao

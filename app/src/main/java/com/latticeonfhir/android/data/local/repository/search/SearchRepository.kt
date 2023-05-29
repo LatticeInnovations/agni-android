@@ -1,12 +1,11 @@
 package com.latticeonfhir.android.data.local.repository.search
 
 import androidx.paging.PagingData
-import com.latticeonfhir.android.data.local.model.PaginationResponse
-import com.latticeonfhir.android.data.local.model.SearchParameters
+import com.latticeonfhir.android.data.local.model.pagination.PaginationResponse
+import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import kotlinx.coroutines.flow.Flow
 import java.util.LinkedList
-import java.util.concurrent.SynchronousQueue
 
 interface SearchRepository {
 

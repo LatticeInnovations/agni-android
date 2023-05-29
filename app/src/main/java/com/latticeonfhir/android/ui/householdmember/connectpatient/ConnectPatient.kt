@@ -63,7 +63,7 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.Relation
+import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
