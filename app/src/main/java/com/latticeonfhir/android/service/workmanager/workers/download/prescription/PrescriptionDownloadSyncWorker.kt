@@ -17,20 +17,18 @@ abstract class PrescriptionDownloadSyncWorker(
     override suspend fun doWork(): Result {
         setProgress(workDataOf(PRESCRIPTION_DOWNLOAD_PROGRESS to 0))
 
-        return when (val response = getSyncRepository().getAndInsertListPatientData(0)) {
+        return when (val response = getSyncRepository().getAndInsertPrescription(0)) {
             is ApiContinueResponse -> Result.retry()
             is ApiEndResponse -> {
                 setProgress(workDataOf(PRESCRIPTION_DOWNLOAD_PROGRESS to 100))
                 Result.success()
             }
-
             is ApiErrorResponse -> {
                 if (response.errorMessage == ErrorConstants.SESSION_EXPIRED || response.errorMessage == ErrorConstants.UNAUTHORIZED) Result.failure(
                     workDataOf("errorMsg" to response.errorMessage)
                 )
                 else Result.retry()
             }
-
             else -> Result.retry()
         }
     }

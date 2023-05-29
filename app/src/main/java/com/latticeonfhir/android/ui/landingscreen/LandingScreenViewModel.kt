@@ -15,6 +15,7 @@ import androidx.work.WorkManager
 import androidx.work.await
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
+import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
@@ -87,33 +88,33 @@ class LandingScreenViewModel @Inject constructor(
             }
         }
 
-//        // Post Sync Worker
-//        viewModelScope.launch(Dispatchers.IO) {
-//            workRequestBuilders.uploadPatientWorker { isErrorReceived, errorMsg ->
-//                if (isErrorReceived){
-//                    logoutUser = true
-//                    logoutReason = errorMsg
-//                }
-//            }
-//        }
-//
-//        // Patch Sync Workers
-//        viewModelScope.launch(Dispatchers.IO) {
-//            workRequestBuilders.setPatientPatchWorker { isErrorReceived, errorMsg ->
-//                if (isErrorReceived){
-//                    logoutUser = true
-//                    logoutReason = errorMsg
-//                }
-//            }
-//        }
-//        viewModelScope.launch(Dispatchers.IO) {
-//            workRequestBuilders.setRelationPatchWorker { isErrorReceived, errorMsg ->
-//                if (isErrorReceived){
-//                    logoutUser = true
-//                    logoutReason = errorMsg
-//                }
-//            }
-//        }
+        // Post Sync Worker
+        viewModelScope.launch(Dispatchers.IO) {
+            workRequestBuilders.uploadPatientWorker { isErrorReceived, errorMsg ->
+                if (isErrorReceived){
+                    logoutUser = true
+                    logoutReason = errorMsg
+                }
+            }
+        }
+
+        // Patch Sync Workers
+        viewModelScope.launch(Dispatchers.IO) {
+            workRequestBuilders.setPatientPatchWorker { isErrorReceived, errorMsg ->
+                if (isErrorReceived){
+                    logoutUser = true
+                    logoutReason = errorMsg
+                }
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            workRequestBuilders.setRelationPatchWorker { isErrorReceived, errorMsg ->
+                if (isErrorReceived){
+                    logoutUser = true
+                    logoutReason = errorMsg
+                }
+            }
+        }
 
         userName = preferenceRepository.getUserName()
         userRole = preferenceRepository.getUserRole()
@@ -141,13 +142,13 @@ class LandingScreenViewModel @Inject constructor(
 
     internal fun getPreviousSearches() {
         viewModelScope.launch(Dispatchers.IO) {
-            previousSearchList = searchRepository.getRecentSearches() as MutableList<String>
+            previousSearchList = searchRepository.getRecentPatientSearches() as MutableList<String>
         }
     }
 
     internal fun insertRecentSearch() {
         viewModelScope.launch(Dispatchers.IO) {
-            searchRepository.insertRecentSearch(searchQuery.trim())
+            searchRepository.insertRecentPatientSearch(searchQuery.trim())
         }
     }
 

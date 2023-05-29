@@ -7,15 +7,21 @@ import androidx.paging.map
 import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.model.pagination.PaginationResponse
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
+import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.utils.constants.Paging.PAGE_SIZE
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientResponse
 import com.latticeonfhir.android.utils.paging.SearchPagingSource
 import com.latticeonfhir.android.utils.search.Search.getFuzzySearchList
+import com.latticeonfhir.android.utils.search.Search.getFuzzySearchMedicationList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.Date
@@ -28,10 +34,13 @@ class SearchRepositoryImpl @Inject constructor(
 ) : SearchRepository {
 
     @Volatile
-    private var searchList: List<PatientAndIdentifierEntity>? = null
+    private var searchPatientList: List<PatientAndIdentifierEntity>? = null
+
+    @Volatile
+    private var searchMedicationList: List<MedicationEntity>? = null
 
     private suspend fun getSearchList(): List<PatientAndIdentifierEntity> {
-        return searchList ?: searchDao.getPatientList().also { searchList = it }
+        return searchPatientList ?: searchDao.getPatientList().also { searchPatientList = it }
     }
 
     override suspend fun searchPatients(searchParameters: SearchParameters): Flow<PagingData<PaginationResponse<PatientResponse>>> {
@@ -135,16 +144,20 @@ class SearchRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun insertRecentSearch(searchQuery: String, searchTypeEnum: SearchTypeEnum): Long {
-        return searchDao.getRecentSearches(searchTypeEnum).run {
+    override suspend fun searchMedication(activeIngredient: String): List<MedicationResponse> {
+        return getFuzzySearchMedicationList(activeIngredient,searchDao.getMedicationList(),60)
+    }
+
+    override suspend fun insertRecentPatientSearch(searchQuery: String): Long {
+        return searchDao.getRecentSearches(SearchTypeEnum.PATIENT).run {
             if (size == 5) {
-                searchDao.getOldestRecentSearchId().run {
+                searchDao.getOldestRecentSearchId(SearchTypeEnum.PATIENT).run {
                     searchDao.deleteRecentSearch(this)
                     searchDao.insertRecentSearch(
                         SearchHistoryEntity(
                             searchQuery = searchQuery,
                             date = Date(),
-                            searchType = searchTypeEnum
+                            searchType = SearchTypeEnum.PATIENT
                         )
                     )
                 }
@@ -153,15 +166,44 @@ class SearchRepositoryImpl @Inject constructor(
                     SearchHistoryEntity(
                         searchQuery = searchQuery,
                         date = Date(),
-                        searchType = searchTypeEnum
+                        searchType = SearchTypeEnum.PATIENT
                     )
                 )
             }
         }
     }
 
-    override suspend fun getRecentSearches(searchTypeEnum: SearchTypeEnum): List<String> {
-        return searchDao.getRecentSearches(searchTypeEnum)
+    override suspend fun getRecentPatientSearches(): List<String> {
+        return searchDao.getRecentSearches(SearchTypeEnum.PATIENT)
+    }
+
+    override suspend fun insertRecentMedicationSearch(searchQuery: String): Long {
+        return searchDao.getRecentSearches(SearchTypeEnum.MEDICATION).run {
+            if (size == 5) {
+                searchDao.getOldestRecentSearchId(SearchTypeEnum.MEDICATION).run {
+                    searchDao.deleteRecentSearch(this)
+                    searchDao.insertRecentSearch(
+                        SearchHistoryEntity(
+                            searchQuery = searchQuery,
+                            date = Date(),
+                            searchType = SearchTypeEnum.MEDICATION
+                        )
+                    )
+                }
+            } else {
+                searchDao.insertRecentSearch(
+                    SearchHistoryEntity(
+                        searchQuery = searchQuery,
+                        date = Date(),
+                        searchType = SearchTypeEnum.MEDICATION
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun getRecentMedicationSearches(): List<String> {
+        return searchDao.getRecentSearches(SearchTypeEnum.MEDICATION)
     }
 
     override suspend fun getSuggestedMembers(
