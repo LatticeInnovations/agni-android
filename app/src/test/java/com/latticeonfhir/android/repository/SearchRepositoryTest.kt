@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.repository
 
 import com.latticeonfhir.android.base.BaseClass
+import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.search.SearchRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
@@ -83,8 +84,8 @@ class SearchRepositoryTest : BaseClass() {
 
     @Test
     fun getRecentSearchesTest() = runBlocking {
-        `when`(searchDao.getRecentSearches()).thenReturn(listOf("Test"))
-        val actual = searchRepositoryImpl.getRecentSearches()
+        `when`(searchDao.getRecentSearches(SearchTypeEnum.PATIENT)).thenReturn(listOf("Test"))
+        val actual = searchRepositoryImpl.getRecentPatientSearches()
         Assert.assertEquals(listOf("Test"), actual)
     }
 
