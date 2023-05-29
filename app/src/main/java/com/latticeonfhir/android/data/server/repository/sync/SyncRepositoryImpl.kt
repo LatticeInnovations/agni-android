@@ -22,6 +22,7 @@ import com.latticeonfhir.android.data.server.constants.EndPoints.MEDICATION_REQU
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.EndPoints.RELATED_PERSON
 import com.latticeonfhir.android.data.server.constants.QueryParameters.COUNT
+import com.latticeonfhir.android.data.server.constants.QueryParameters.GREATER_THAN_BUILDER
 import com.latticeonfhir.android.data.server.constants.QueryParameters.ID
 import com.latticeonfhir.android.data.server.constants.QueryParameters.LAST_UPDATED
 import com.latticeonfhir.android.data.server.constants.QueryParameters.OFFSET
@@ -76,7 +77,10 @@ class SyncRepositoryImpl @Inject constructor(
         map[OFFSET] = offset.toString()
         map[SORT] = "-$ID"
         if (preferenceRepository.getLastSyncPatient() != 0L) map[LAST_UPDATED] =
-            preferenceRepository.getLastSyncPatient().toTimeStampDate()
+            String.format(
+                GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncPatient().toTimeStampDate()
+            )
 
         ApiResponseConverter.convert(
             patientApiService.getListData(
@@ -248,14 +252,19 @@ class SyncRepositoryImpl @Inject constructor(
         val map = mutableMapOf<String, String>()
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
-        if (preferenceRepository.getLastSyncPrescription() != 0L) map[LAST_UPDATED] = preferenceRepository.getLastSyncPrescription().toTimeStampDate()
+        if (preferenceRepository.getLastSyncPrescription() != 0L) map[LAST_UPDATED] =
+            String.format(
+                GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncPrescription().toTimeStampDate()
+            )
 
-        return ApiResponseConverter.convert(prescriptionApiService.getPastPrescription(map),).run {
+        return ApiResponseConverter.convert(prescriptionApiService.getPastPrescription(map)).run {
             when (this) {
 
                 is ApiContinueResponse -> {
                     prescriptionDao.insertPrescription(
-                        *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity() }.toTypedArray()
+                        *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity() }
+                            .toTypedArray()
                     )
 
                     val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
@@ -271,7 +280,8 @@ class SyncRepositoryImpl @Inject constructor(
                 is ApiEndResponse -> {
                     preferenceRepository.setLastSyncPrescription(Date().time)
                     prescriptionDao.insertPrescription(
-                        *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity() }.toTypedArray()
+                        *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity() }
+                            .toTypedArray()
                     )
                     val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
                     body.forEach { prescriptionResponse ->
@@ -293,7 +303,10 @@ class SyncRepositoryImpl @Inject constructor(
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
         if (preferenceRepository.getLastMedicationSyncDate() != 0L) map[LAST_UPDATED] =
-            preferenceRepository.getLastMedicationSyncDate().toTimeStampDate()
+            String.format(
+                GREATER_THAN_BUILDER,
+                preferenceRepository.getLastMedicationSyncDate().toTimeStampDate()
+            )
 
         return ApiResponseConverter.convert(
             prescriptionApiService.getAllMedications(map),
