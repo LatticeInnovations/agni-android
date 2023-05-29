@@ -6,6 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.google.errorprone.annotations.Keep
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
+import java.util.Date
 
 @Keep
 @Entity(
@@ -18,7 +19,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntit
 )
 data class PrescriptionEntity(
     @PrimaryKey val id: String,
-    val prescriptionDate: Long,
+    val prescriptionDate: Date,
     val patientId: String,
     val prescriptionFhirId: String?
 )

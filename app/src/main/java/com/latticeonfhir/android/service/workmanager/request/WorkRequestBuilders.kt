@@ -44,6 +44,15 @@ class WorkRequestBuilders(
     private val patientRepository: PatientRepository
 ) {
 
+    /**
+     *
+     *
+     * Upload Workers
+     *
+     *
+     *
+     * */
+
     /** Patient Upload Post Sync Worker */
     internal suspend fun uploadPatientWorker(error: (Boolean, String) -> Unit) {
         //Upload Worker
@@ -87,35 +96,6 @@ class WorkRequestBuilders(
         }
     }
 
-    /** Patient Download Sync Worker */
-    private suspend fun downloadPatientWorker(error: (Boolean, String) -> Unit) {
-        /** Download Worker */
-        Sync.oneTimeSync<PatientDownloadSyncWorkerImpl>(
-            applicationContext,
-            defaultRetryConfiguration.copy(
-                syncConstraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .build()
-            )
-        ).collectLatest { workInfo ->
-            if (workInfo?.state == WorkInfo.State.FAILED) {
-                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                    true,
-                    errorMsg
-                )
-            } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                downloadRelationWorker { errorReceived, errorMsg ->
-                    error(errorReceived, errorMsg)
-                }
-                downloadPrescriptionWorker { errorReceived, errorMsg ->
-                    error(errorReceived, errorMsg)
-                }
-            }
-        }
-    }
-
     /** Upload Relation Post Sync Worker */
     private suspend fun uploadRelationWorker(error: (Boolean, String) -> Unit) {
         //Upload Worker
@@ -149,6 +129,84 @@ class WorkRequestBuilders(
         }
     }
 
+    /** Upload Prescription Data */
+    private suspend fun uploadPrescriptionSyncWorker(error: (Boolean, String) -> Unit) {
+        //Upload Worker
+        Sync.oneTimeSync<PrescriptionUploadSyncWorkerImpl>(
+            applicationContext, defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED).setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo != null) {
+                if (workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                }
+                else {
+                    val progress = workInfo.progress
+                    val value = progress.getInt(PRESCRIPTION_UPLOAD_PROGRESS, 0)
+                    if (value == 100) {
+                        /** Handle Progress Based Download WorkRequests Here */
+                    }
+                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                        downloadPatientWorker { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     *
+     * Download Workers
+     *
+     *
+     *
+     * */
+
+    /** Patient Download Sync Worker */
+    private suspend fun downloadPatientWorker(error: (Boolean, String) -> Unit) {
+        /** Download Worker */
+        Sync.oneTimeSync<PatientDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo?.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
+            } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    downloadRelationWorker { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
+                    }
+                }
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    downloadPrescriptionWorker { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
+                    }
+                }
+            }
+        }
+    }
+
     /** Relation Download Sync Worker */
     private suspend fun downloadRelationWorker(error: (Boolean, String) -> Unit) {
         //Download Worker
@@ -168,10 +226,98 @@ class WorkRequestBuilders(
                         true,
                         errorMsg
                     )
+                } else if(workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    /** Handle Success Here */
                 }
             }
         }
     }
+
+    /** Download Prescription Data */
+    private suspend fun downloadPrescriptionWorker(error: (Boolean, String) -> Unit) {
+        /** Download Worker */
+        Sync.oneTimeSync<PrescriptionDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if(workInfo != null) {
+                if (workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+
+                }
+            }
+        }
+    }
+
+    /** Medication Worker  */
+    internal suspend fun setMedicationWorker(error: (Boolean, String) -> Unit) {
+        Sync.oneTimeSync<MedicationDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if(workInfo != null) {
+                if(workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                }
+                else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    /** Handle Success Here */
+                }
+            }
+        }
+    }
+
+    /** Medication Dosage Worker  */
+    internal suspend fun setMedicationDosageWorker(error: (Boolean, String) -> Unit) {
+        Sync.oneTimeSync<MedicineDosageDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if(workInfo != null) {
+                if(workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                }
+                else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    /** Handle Success Here */
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     *
+     * Patch Workers
+     *
+     *
+     * */
 
     //Patient Patch Sync
     internal suspend fun setPatientPatchWorker(error: (Boolean, String) -> Unit) {
@@ -242,6 +388,14 @@ class WorkRequestBuilders(
         }
     }
 
+    /**
+     *
+     *
+     * Update in Generic Entity Methods
+     *
+     *
+     * */
+
     private suspend fun updateFhirIdInRelation(error: (Boolean, String) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
             genericRepository.getNonSyncedPostRelations().forEach { genericEntity ->
@@ -291,118 +445,6 @@ class WorkRequestBuilders(
             /** Start Prescription Worker */
             uploadPrescriptionSyncWorker { errorReceived, errorMsg ->
                 error(errorReceived, errorMsg)
-            }
-        }
-    }
-
-    /** Medication Worker  */
-    internal suspend fun setMedicationWorker(error: (Boolean, String) -> Unit) {
-        Sync.oneTimeSync<MedicationDownloadSyncWorkerImpl>(
-            applicationContext,
-            defaultRetryConfiguration.copy(
-                syncConstraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .build()
-            )
-        ).collectLatest { workInfo ->
-            if(workInfo != null) {
-                if(workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                }
-                else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                    /** Handle Success Here */
-                }
-            }
-        }
-    }
-
-    /** Medication Dosage Worker  */
-    internal suspend fun setMedicationDosageWorker(error: (Boolean, String) -> Unit) {
-        Sync.oneTimeSync<MedicineDosageDownloadSyncWorkerImpl>(
-            applicationContext,
-            defaultRetryConfiguration.copy(
-                syncConstraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .build()
-            )
-        ).collectLatest { workInfo ->
-            if(workInfo != null) {
-                if(workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                }
-                else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                    /** Handle Success Here */
-                }
-            }
-        }
-    }
-
-    /** Upload Prescription Data */
-    private suspend fun uploadPrescriptionSyncWorker(error: (Boolean, String) -> Unit) {
-        //Upload Worker
-        Sync.oneTimeSync<PrescriptionUploadSyncWorkerImpl>(
-            applicationContext, defaultRetryConfiguration.copy(
-                syncConstraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED).setRequiresBatteryNotLow(true)
-                    .build()
-            )
-        ).collectLatest { workInfo ->
-            if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                }
-                else {
-                    val progress = workInfo.progress
-                    val value = progress.getInt(PRESCRIPTION_UPLOAD_PROGRESS, 0)
-                    if (value == 100) {
-                        /** Handle Progress Based Download WorkRequests Here */
-                    }
-                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                        downloadPrescriptionWorker { errorReceived, errorMsg ->
-                            error(errorReceived, errorMsg)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /** Download Prescription Data */
-    private suspend fun downloadPrescriptionWorker(error: (Boolean, String) -> Unit) {
-        /** Download Worker */
-        Sync.oneTimeSync<PrescriptionDownloadSyncWorkerImpl>(
-            applicationContext,
-            defaultRetryConfiguration.copy(
-                syncConstraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .build()
-            )
-        ).collectLatest { workInfo ->
-            if(workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-
-                }
             }
         }
     }
