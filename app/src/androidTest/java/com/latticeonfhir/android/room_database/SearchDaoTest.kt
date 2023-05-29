@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.room_database
 
-import com.latticeonfhir.android.data.local.roomdb.entities.SearchHistoryEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientResponse
 import kotlinx.coroutines.runBlocking

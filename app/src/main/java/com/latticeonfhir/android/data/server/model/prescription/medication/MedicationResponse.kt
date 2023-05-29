@@ -11,6 +11,6 @@ data class MedicationResponse(
     val medCode: String,
     val medFhirId: String,
     val medName: String,
-    val medNumeratorVal: Int,
+    val medNumeratorVal: Double,
     val medUnit: String
 )

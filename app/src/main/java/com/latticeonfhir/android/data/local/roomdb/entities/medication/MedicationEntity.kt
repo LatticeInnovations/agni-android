@@ -16,5 +16,5 @@ data class MedicationEntity(
     val activeIngredient: String,
     val activeIngredientCode: String,
     val medUnit: String,
-    val medNumeratorVal: Int
+    val medNumeratorVal: Double
 )

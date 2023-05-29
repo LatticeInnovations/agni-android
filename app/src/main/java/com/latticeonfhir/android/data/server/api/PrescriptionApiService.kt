@@ -14,7 +14,7 @@ import retrofit2.http.QueryMap
 interface PrescriptionApiService {
 
     @GET("Medication")
-    suspend fun getAllMedications(): Response<BaseResponse<List<MedicationResponse>>>
+    suspend fun getAllMedications(@QueryMap(encoded = true) map: Map<String,String>?): Response<BaseResponse<List<MedicationResponse>>>
 
     @POST("sync/{endPoint}")
     suspend fun postPrescriptionRelatedData(@Path("endPoint") endPoint: String, prescriptionData: List<Any>): Response<BaseResponse<List<CreateResponse>>>

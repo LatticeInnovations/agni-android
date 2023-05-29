@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.model
+package com.latticeonfhir.android.data.local.model.patch
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.Expose

@@ -2,12 +2,14 @@ package com.latticeonfhir.android.data.local.roomdb.entities.prescription
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.google.errorprone.annotations.Keep
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
 
 @Keep
 @Entity(
+    indices = [Index("patientId")],
     foreignKeys = [ForeignKey(
         entity = PatientEntity::class,
         parentColumns = arrayOf("id"),

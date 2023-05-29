@@ -10,7 +10,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
-import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
@@ -75,8 +75,7 @@ class SyncRepositoryImpl @Inject constructor(
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
         map[SORT] = "-$ID"
-        if (preferenceRepository.getLastUpdatedDate() != 0L) map[LAST_UPDATED] =
-            preferenceRepository.getLastUpdatedDate().toTimeStampDate()
+        if (preferenceRepository.getLastSyncPatient() != 0L) map[LAST_UPDATED] = preferenceRepository.getLastSyncPatient().toTimeStampDate()
 
         ApiResponseConverter.convert(
             patientApiService.getListData(
@@ -121,7 +120,7 @@ class SyncRepositoryImpl @Inject constructor(
 
                 is ApiEndResponse -> {
                     //Set Last Update Time
-                    preferenceRepository.setLastUpdatedDate(Date().time)
+                    preferenceRepository.setLastSyncPatient(Date().time)
 
                     //Insert Patient Data
                     patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
@@ -168,8 +167,6 @@ class SyncRepositoryImpl @Inject constructor(
         ).run {
             return when (this) {
                 is ApiEndResponse -> {
-                    //Set Last Update Time
-                    preferenceRepository.setLastUpdatedDate(Date().time)
                     //Insert Patient Data
                     patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
 
@@ -265,8 +262,7 @@ class SyncRepositoryImpl @Inject constructor(
                     when (this) {
                         is ApiEndResponse -> {
                             prescriptionDao.insertPrescription(
-                                *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity() }
-                                    .toTypedArray()
+                                *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity() }.toTypedArray()
                             )
                             val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
                             body.forEach { prescriptionResponse ->
@@ -291,7 +287,7 @@ class SyncRepositoryImpl @Inject constructor(
         map[OFFSET] = offset.toString()
 
         return ApiResponseConverter.convert(
-            prescriptionApiService.getAllMedications(),
+            prescriptionApiService.getAllMedications(map),
             true
         ).run {
             when (this) {
