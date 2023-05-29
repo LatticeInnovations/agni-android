@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.main.patientlandingscreen
+package com.latticeonfhir.android.ui.householdmember
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope.SlideDirection.Companion.Left
@@ -27,7 +27,8 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.ui.householdmember.HouseholdMemberViewModel
+import com.latticeonfhir.android.ui.main.patientlandingscreen.MembersScreen
+import com.latticeonfhir.android.ui.main.patientlandingscreen.SuggestionsScreen
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
