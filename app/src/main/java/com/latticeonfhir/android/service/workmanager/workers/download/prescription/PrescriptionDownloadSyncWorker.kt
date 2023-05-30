@@ -6,6 +6,7 @@ import androidx.work.workDataOf
 import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 
@@ -17,12 +18,12 @@ abstract class PrescriptionDownloadSyncWorker(
     override suspend fun doWork(): Result {
         setProgress(workDataOf(PRESCRIPTION_DOWNLOAD_PROGRESS to 0))
 
-        return when (val response = getSyncRepository().getAndInsertPrescription(0)) {
-            is ApiContinueResponse -> Result.retry()
+        return when (val response = getSyncRepository().getAndInsertPrescription(patientFhirId)) {
             is ApiEndResponse -> {
                 setProgress(workDataOf(PRESCRIPTION_DOWNLOAD_PROGRESS to 100))
                 Result.success()
             }
+            is ApiEmptyResponse -> Result.success()
             is ApiErrorResponse -> {
                 if (response.errorMessage == ErrorConstants.SESSION_EXPIRED || response.errorMessage == ErrorConstants.UNAUTHORIZED) Result.failure(
                     workDataOf("errorMsg" to response.errorMessage)
@@ -35,5 +36,6 @@ abstract class PrescriptionDownloadSyncWorker(
 
     companion object {
         const val PRESCRIPTION_DOWNLOAD_PROGRESS = "PrescriptionDownloadProgress"
+        var patientFhirId = ""
     }
 }

@@ -19,6 +19,7 @@ interface PreferenceStorage {
     var lastRelationSyncTime: Long
     var lastPrescriptionSyncTime: Long
     var lastMedicationSyncTime: Long
+    var lastMedicineDosageInstructionSyncTime: Long
 
     /** Medication Sync Successful */
     var medicationSyncSuccessful: Boolean

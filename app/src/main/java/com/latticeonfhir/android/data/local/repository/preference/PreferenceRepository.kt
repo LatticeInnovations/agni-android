@@ -14,9 +14,13 @@ interface PreferenceRepository {
     fun setLastSyncPrescription(long: Long)
     fun getLastSyncPrescription(): Long
 
-    /** Last Updated Date */
+    /** Last Medication Sync Date */
     fun setLastMedicationSyncDate(long: Long)
     fun getLastMedicationSyncDate(): Long
+
+    /** Last Medicine Dosage Instruction Sync Date */
+    fun setLastMedicineDosageInstructionSyncDate(long: Long)
+    fun getLastMedicineDosageInstructionSyncDate(): Long
 
     /** User Data */
     fun setUserName(userName: String)

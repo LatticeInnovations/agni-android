@@ -29,6 +29,12 @@ class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage
 
     override fun getLastMedicationSyncDate(): Long = preferenceStorage.lastMedicationSyncTime
 
+    override fun setLastMedicineDosageInstructionSyncDate(long: Long) {
+        preferenceStorage.lastMedicineDosageInstructionSyncTime = long
+    }
+
+    override fun getLastMedicineDosageInstructionSyncDate() = preferenceStorage.lastMedicineDosageInstructionSyncTime
+
     override fun setUserName(userName: String) {
         preferenceStorage.userName = userName
     }

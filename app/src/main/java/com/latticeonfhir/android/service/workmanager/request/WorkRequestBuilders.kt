@@ -16,6 +16,7 @@ import com.latticeonfhir.android.service.workmanager.utils.defaultRetryConfigura
 import com.latticeonfhir.android.service.workmanager.workers.download.medication.MedicationDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.download.medicinedosage.MedicineDosageDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.download.patient.PatientDownloadSyncWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.download.prescription.PrescriptionDownloadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.download.prescription.PrescriptionDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.download.relation.RelationDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorker
@@ -191,17 +192,8 @@ class WorkRequestBuilders(
                     errorMsg
                 )
             } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    downloadRelationWorker { errorReceived, errorMsg ->
-                        error(errorReceived, errorMsg)
-                    }
-                }
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    downloadPrescriptionWorker { errorReceived, errorMsg ->
-                        error(errorReceived, errorMsg)
-                    }
+                downloadRelationWorker { errorReceived, errorMsg ->
+                    error(errorReceived, errorMsg)
                 }
             }
         }
@@ -234,8 +226,9 @@ class WorkRequestBuilders(
     }
 
     /** Download Prescription Data */
-    private suspend fun downloadPrescriptionWorker(error: (Boolean, String) -> Unit) {
+    internal suspend fun downloadPrescriptionWorker(patientFhirId: String, error: (Boolean, String) -> Unit) {
         /** Download Worker */
+        PrescriptionDownloadSyncWorker.patientFhirId = patientFhirId
         Sync.oneTimeSync<PrescriptionDownloadSyncWorkerImpl>(
             applicationContext,
             defaultRetryConfiguration.copy(
