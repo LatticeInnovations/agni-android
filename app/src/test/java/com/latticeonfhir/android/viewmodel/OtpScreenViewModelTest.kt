@@ -42,7 +42,7 @@ class OtpScreenViewModelTest {
 
     @Test
     fun test_resend_otp(){
-        viewModel.userInput = "8279784095"
+        viewModel.userInput = "9876543210"
         viewModel.resendOTP {
             Assert.assertEquals("should return true on valid input", true, it)
         }
@@ -50,7 +50,7 @@ class OtpScreenViewModelTest {
 
     @Test
     fun test_validate_otp(){
-        viewModel.userInput = "8279784095"
+        viewModel.userInput = "9876543210"
         viewModel.otpEntered = "123456"
         viewModel.validateOtp {
             Assert.assertEquals("should return true on valid input", true, it)
