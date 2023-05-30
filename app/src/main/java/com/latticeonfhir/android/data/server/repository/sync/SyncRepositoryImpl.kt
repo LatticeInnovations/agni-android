@@ -248,52 +248,29 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAndInsertPrescription(offset: Int): ResponseMapper<List<PrescriptionResponse>> {
-        val map = mutableMapOf<String, String>()
-        map[COUNT] = COUNT_VALUE.toString()
-        map[OFFSET] = offset.toString()
-        if (preferenceRepository.getLastSyncPrescription() != 0L) map[LAST_UPDATED] =
-            String.format(
-                GREATER_THAN_BUILDER,
-                preferenceRepository.getLastSyncPrescription().toTimeStampDate()
-            )
-
-        return ApiResponseConverter.convert(prescriptionApiService.getPastPrescription(map)).run {
-            when (this) {
-
-                is ApiContinueResponse -> {
-                    prescriptionDao.insertPrescription(
-                        *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity() }
-                            .toTypedArray()
-                    )
-
-                    val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
-                    body.forEach { prescriptionResponse ->
-                        medicineDirections.addAll(prescriptionResponse.toListOfPrescriptionDirectionsEntity())
+    override suspend fun getAndInsertPrescription(patientFhirId: String): ResponseMapper<List<PrescriptionResponse>> {
+        return if (patientFhirId.isBlank()) ApiEmptyResponse()
+        else {
+            val map = mutableMapOf<String, String>()
+            map[PATIENT_ID] = patientFhirId
+            return ApiResponseConverter.convert(prescriptionApiService.getPastPrescription(map)).run {
+                when (this) {
+                    is ApiEndResponse -> {
+                        prescriptionDao.insertPrescription(
+                            *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity() }
+                                .toTypedArray()
+                        )
+                        val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
+                        body.forEach { prescriptionResponse ->
+                            medicineDirections.addAll(prescriptionResponse.toListOfPrescriptionDirectionsEntity())
+                        }
+                        prescriptionDao.insertPrescriptionMedicines(
+                            *medicineDirections.toTypedArray()
+                        )
                     }
-                    prescriptionDao.insertPrescriptionMedicines(
-                        *medicineDirections.toTypedArray()
-                    )
-                    getAndInsertPrescription(offset + COUNT_VALUE)
+                    else -> {}
                 }
-
-                is ApiEndResponse -> {
-                    preferenceRepository.setLastSyncPrescription(Date().time)
-                    prescriptionDao.insertPrescription(
-                        *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity() }
-                            .toTypedArray()
-                    )
-                    val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
-                    body.forEach { prescriptionResponse ->
-                        medicineDirections.addAll(prescriptionResponse.toListOfPrescriptionDirectionsEntity())
-                    }
-                    prescriptionDao.insertPrescriptionMedicines(
-                        *medicineDirections.toTypedArray()
-                    )
-                    this
-                }
-
-                else -> this
+                this
             }
         }
     }
@@ -339,6 +316,7 @@ class SyncRepositoryImpl @Inject constructor(
         ).run {
             when (this) {
                 is ApiEndResponse -> {
+                    preferenceRepository.setLastMedicineDosageInstructionSyncDate(Date().time)
                     medicationDao.insertMedicineDosageInstructions(
                         *body.toListOfMedicineDirectionsEntity().toTypedArray()
                     )

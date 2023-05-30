@@ -79,11 +79,13 @@ class LandingScreenViewModel @Inject constructor(
         }
 
         //Medicine Dosage Worker
-        viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setMedicationDosageWorker { isErrorReceived, errorMsg ->
-                if (isErrorReceived){
-                    logoutUser = true
-                    logoutReason = errorMsg
+        if (preferenceRepository.getLastMedicineDosageInstructionSyncDate() == 0L) {
+            viewModelScope.launch(Dispatchers.IO) {
+                workRequestBuilders.setMedicationDosageWorker { isErrorReceived, errorMsg ->
+                    if (isErrorReceived){
+                        logoutUser = true
+                        logoutReason = errorMsg
+                    }
                 }
             }
         }
