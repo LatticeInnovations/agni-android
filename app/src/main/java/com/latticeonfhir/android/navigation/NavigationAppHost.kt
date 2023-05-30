@@ -12,7 +12,7 @@ import com.latticeonfhir.android.ui.login.OtpScreen
 import com.latticeonfhir.android.ui.login.PhoneEmailScreen
 import com.latticeonfhir.android.ui.main.patientlandingscreen.AddHouseholdMember
 import com.latticeonfhir.android.ui.householdmember.HouseholdMembersScreen
-import com.latticeonfhir.android.ui.main.patientlandingscreen.PatientLandingScreen
+import com.latticeonfhir.android.ui.patientlandingscreen.PatientLandingScreen
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistrationPreview
 import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationship

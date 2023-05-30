@@ -1,9 +1,11 @@
 package com.latticeonfhir.android.data.local.model.search
 
+import android.os.Parcelable
 import androidx.annotation.Keep
-import com.latticeonfhir.android.base.baseclass.ParcelableClass
+import kotlinx.parcelize.Parcelize
 
 @Keep
+@Parcelize
 data class SearchParameters(
     val patientId: String?,
     val name: String?,
@@ -17,4 +19,4 @@ data class SearchParameters(
     val state: String?,
     val postalCode: String?,
     val addressLine2: String?
-): ParcelableClass()
+): Parcelable
