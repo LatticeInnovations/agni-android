@@ -10,7 +10,7 @@ import java.util.Date
 
 @Keep
 @Entity(
-    indices = [Index("patientId")],
+    indices = [Index("patientId"),Index("patientFhirId")],
     foreignKeys = [ForeignKey(
         entity = PatientEntity::class,
         parentColumns = arrayOf("id"),
@@ -21,5 +21,6 @@ data class PrescriptionEntity(
     @PrimaryKey val id: String,
     val prescriptionDate: Date,
     val patientId: String,
+    val patientFhirId: String?,
     val prescriptionFhirId: String?
 )

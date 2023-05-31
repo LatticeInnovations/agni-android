@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
 import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
@@ -68,7 +69,7 @@ fun PatientIdentifier.toIdentifierEntity(patientId: String): IdentifierEntity {
     )
 }
 
-fun PatientResponse.toListOfIdentifierEntity(): List<IdentifierEntity>? {
+fun PatientResponse.toListOfIdentifierEntity(): List<IdentifierEntity> {
     return this.identifier.map {
         it.toIdentifierEntity(this.id)
     }
@@ -94,7 +95,7 @@ fun PatientAndIdentifierEntity.toPatientResponse(): PatientResponse {
 fun PatientResponse.toPatientAndIdentifierEntityResponse(): PatientAndIdentifierEntity {
     return PatientAndIdentifierEntity(
         patientEntity = toPatientEntity(),
-        identifiers = toListOfIdentifierEntity()!!
+        identifiers = toListOfIdentifierEntity()
     )
 }
 
@@ -191,16 +192,44 @@ internal fun <T> List<T>.toNoBracketAndNoSpaceString(): String {
     return this.toString().replace("[", "").replace("]", "").replace(" ", "")
 }
 
-internal fun PrescriptionResponse.toPrescriptionEntity(): PrescriptionEntity {
+internal suspend fun PrescriptionResponse.toPrescriptionEntity(patientDao: PatientDao): PrescriptionEntity {
     return PrescriptionEntity(
         id = prescriptionId,
         prescriptionDate = generatedOn,
-        patientId = patientFhirId,
+        patientId = patientDao.getPatientIdByFhirId(patientFhirId)!!,
+        patientFhirId = patientFhirId,
         prescriptionFhirId = prescriptionFhirId
     )
 }
 
+
+internal fun PrescriptionResponseLocal.toPrescriptionEntity(): PrescriptionEntity {
+    return PrescriptionEntity(
+        id = prescriptionId,
+        prescriptionDate = generatedOn,
+        patientId = patientId,
+        patientFhirId = patientFhirId,
+        prescriptionFhirId = null
+    )
+}
+
 internal fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(): List<PrescriptionDirectionsEntity> {
+    return prescription.map { medication ->
+        PrescriptionDirectionsEntity(
+            medFhirId = medication.medFhirId,
+            qtyPerDose = medication.qtyPerDose.toInt(),
+            frequency = medication.frequency,
+            dosageInstruction = medication.doseForm,
+            duration = medication.duration,
+            qtyPrescribed = medication.qtyPrescribed,
+            note = medication.note,
+            prescriptionId = prescriptionId
+        )
+    }
+}
+
+
+internal fun PrescriptionResponseLocal.toListOfPrescriptionDirectionsEntity(): List<PrescriptionDirectionsEntity> {
     return prescription.map { medication ->
         PrescriptionDirectionsEntity(
             medFhirId = medication.medFhirId,
