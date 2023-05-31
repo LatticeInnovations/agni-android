@@ -6,6 +6,8 @@ import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.search.SearchRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
+import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -13,16 +15,19 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
+import java.util.Date
 
 class SearchRepositoryTest : BaseClass() {
 
     @Mock
     lateinit var searchDao: SearchDao
+
     @Mock
     lateinit var relationDao: RelationDao
+
     lateinit var searchRepositoryImpl: SearchRepositoryImpl
 
-    val searchParameters = SearchParameters(
+    private val searchParameters = SearchParameters(
         null,
         "Test",
         null,
@@ -37,10 +42,21 @@ class SearchRepositoryTest : BaseClass() {
         null
     )
 
+    private val searchHistoryEntity = SearchHistoryEntity(
+        searchQuery = searchParameters.name!!,
+        date = Date(),
+        searchType = SearchTypeEnum.ACTIVE_INGREDIENT
+    )
+
     @Before
     public override fun setUp() {
         MockitoAnnotations.initMocks(this)
         searchRepositoryImpl = SearchRepositoryImpl(searchDao, relationDao)
+
+        runBlocking(Dispatchers.IO) {
+            `when`(searchDao.getRecentSearches(SearchTypeEnum.PATIENT)).thenReturn(listOf("Test"))
+            `when`(searchDao.getRecentSearches(SearchTypeEnum.ACTIVE_INGREDIENT)).thenReturn(listOf("Test"))
+        }
     }
 
 //    @Test
@@ -84,10 +100,21 @@ class SearchRepositoryTest : BaseClass() {
 
     @Test
     fun getRecentSearchesTest() = runBlocking {
-        `when`(searchDao.getRecentSearches(SearchTypeEnum.PATIENT)).thenReturn(listOf("Test"))
         val actual = searchRepositoryImpl.getRecentPatientSearches()
         Assert.assertEquals(listOf("Test"), actual)
     }
+
+    @Test
+    internal fun getRecentActiveIngredientSearches() = runBlocking {
+        val actual = searchRepositoryImpl.getRecentActiveIngredientSearches()
+        Assert.assertEquals(listOf("Test"), actual)
+    }
+
+//    @Test
+//    internal fun insertRecentActiveIngredientSearch() = runBlocking {
+//        val insertActiveIngredient = searchRepositoryImpl.insertRecentActiveIngredientSearch(searchParameters.name!!)
+//        assertEquals(1L,insertActiveIngredient)
+//    }
 
 //    @Test
 //    fun getSuggestedMembersTest() = runBlocking {
