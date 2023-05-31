@@ -60,10 +60,10 @@ abstract class FhirAppDatabase : RoomDatabase() {
             val factory = SupportFactory(passphrase)
 
             return if (BuildConfig.DEBUG) {
-                Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android.db")
+                Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android")
                     .build()
             } else {
-                Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android.db")
+                Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android")
                     .openHelperFactory(factory)
                     .build()
             }
