@@ -20,6 +20,10 @@ interface MedicationDao {
     suspend fun insertMedicineDosageInstructions(vararg medicineDosageInstructionsEntity: MedicineDosageInstructionsEntity): List<Long>
 
     @Transaction
+    @Query("SELECT activeIngredient FROM MedicationEntity")
+    suspend fun getActiveIngredients(): List<String>
+
+    @Transaction
     @Query("SELECT * FROM MedicineDosageInstructionsEntity")
     suspend fun getAllMedicineDosageInstructions(): List<MedicineDosageInstructionsEntity>
 

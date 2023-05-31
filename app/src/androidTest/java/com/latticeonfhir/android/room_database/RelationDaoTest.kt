@@ -6,7 +6,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 
-class RelationDaoTest: BaseClass() {
+class RelationDaoTest: FhirAppDatabaseTest() {
 
     @Test
     fun insertRelationTest() = runBlocking {

@@ -23,7 +23,7 @@ class RelationRepositoryTest: BaseClass() {
     lateinit var relationRepositoryImpl: RelationRepositoryImpl
 
     @Before
-    fun setUp(){
+    public override fun setUp(){
         MockitoAnnotations.openMocks(this)
         relationRepositoryImpl = RelationRepositoryImpl(relationDao, patientDao)
     }

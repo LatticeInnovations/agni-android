@@ -10,7 +10,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 
-class GenericDaoTest : BaseClass() {
+class GenericDaoTest : FhirAppDatabaseTest() {
 
     val genericId = UUIDBuilder.generateUUID()
     val genericEntity = GenericEntity(

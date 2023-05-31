@@ -1,5 +1,7 @@
 package com.latticeonfhir.android.utils.converters.gson;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -12,6 +14,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 public class DateDeserializer implements JsonDeserializer<Date> {
     private static final String[] DATE_FORMATS = new String[] {
@@ -21,12 +24,13 @@ public class DateDeserializer implements JsonDeserializer<Date> {
             "yyyy-MM-dd"
     };
 
+    @NonNull
     @Override
-    public Date deserialize(JsonElement jsonElement, Type typeOF,
-                            JsonDeserializationContext context) throws JsonParseException {
+    public Date deserialize(@NonNull JsonElement jsonElement, @NonNull Type typeOF,
+                            @NonNull JsonDeserializationContext context) throws JsonParseException {
         for (String format : DATE_FORMATS) {
             try {
-                return new SimpleDateFormat(format, Locale.getDefault()).parse(jsonElement.getAsString());
+                return Objects.requireNonNull(new SimpleDateFormat(format, Locale.getDefault()).parse(jsonElement.getAsString()));
             } catch (ParseException ignored) {
             }
         }

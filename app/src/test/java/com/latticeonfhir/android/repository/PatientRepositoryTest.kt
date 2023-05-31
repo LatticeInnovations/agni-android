@@ -19,7 +19,7 @@ class PatientRepositoryTest: BaseClass() {
     lateinit var patientRepositoryImpl: PatientRepositoryImpl
 
     @Before
-    fun setUp() {
+    public override fun setUp() {
         MockitoAnnotations.initMocks(this)
         patientRepositoryImpl = PatientRepositoryImpl(patientDao)
     }

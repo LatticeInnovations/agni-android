@@ -38,7 +38,7 @@ class SearchRepositoryTest : BaseClass() {
     )
 
     @Before
-    fun setUp() {
+    public override fun setUp() {
         MockitoAnnotations.initMocks(this)
         searchRepositoryImpl = SearchRepositoryImpl(searchDao, relationDao)
     }

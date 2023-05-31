@@ -23,7 +23,7 @@ class GenericRepositoryTest: BaseClass() {
     lateinit var genericRepositoryImpl: GenericRepositoryImpl
 
     @Before
-    fun setUp() {
+    public override fun setUp() {
         MockitoAnnotations.initMocks(this)
         genericRepositoryImpl = GenericRepositoryImpl(genericDao)
     }
