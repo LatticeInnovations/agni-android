@@ -14,7 +14,7 @@ import org.junit.runners.JUnit4
 import java.util.Date
 
 @RunWith(JUnit4::class)
-open class BaseClass: TestCase() {
+abstract class BaseClass: TestCase() {
     val id = UUIDBuilder.generateUUID()
     val patientIdentifier = PatientIdentifier(
         identifierNumber = "PATIENT123",
