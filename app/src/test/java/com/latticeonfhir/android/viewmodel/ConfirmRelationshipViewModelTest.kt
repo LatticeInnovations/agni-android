@@ -23,7 +23,7 @@ class ConfirmRelationshipViewModelTest: BaseClass() {
     lateinit var viewModel: ConfirmRelationshipViewModel
 
     @Before
-    fun setUp(){
+    public override fun setUp(){
         MockitoAnnotations.initMocks(this)
         viewModel = ConfirmRelationshipViewModel(relationRepository, patientRepository, genericRepository)
     }

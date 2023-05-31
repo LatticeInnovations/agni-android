@@ -16,15 +16,15 @@ interface SearchRepository {
     suspend fun searchPatientByQuery(query: String): Flow<PagingData<PaginationResponse<PatientResponse>>>
 
     /** Medication Search */
-    suspend fun searchMedication(activeIngredient: String): List<MedicationResponse>
+    suspend fun searchActiveIngredients(activeIngredient: String): List<String>
 
     /** Recent Patient Search*/
     suspend fun insertRecentPatientSearch(searchQuery: String): Long
     suspend fun getRecentPatientSearches(): List<String>
 
     /** Recent Medication Search*/
-    suspend fun insertRecentMedicationSearch(searchQuery: String): Long
-    suspend fun getRecentMedicationSearches(): List<String>
+    suspend fun insertRecentActiveIngredientSearch(searchQuery: String): Long
+    suspend fun getRecentActiveIngredientSearches(): List<String>
 
     suspend fun getSuggestedMembers(patientId: String, searchParameters: SearchParameters, returnList: (LinkedList<PatientResponse>) -> Unit)
 }

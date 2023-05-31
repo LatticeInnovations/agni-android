@@ -27,7 +27,7 @@ class SuggestionsScreenViewModelTest: BaseClass() {
     lateinit var viewModel: SuggestionsScreenViewModel
 
     @Before
-    fun setUp(){
+    public override fun setUp(){
         MockitoAnnotations.initMocks(this)
         viewModel = SuggestionsScreenViewModel(searchRepository, genericRepository, relationRepository, patientDao)
     }

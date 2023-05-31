@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.server.model.prescription.medication.Medic
 
 interface MedicationRepository {
 
+    suspend fun getActiveIngredients(): List<String>
     suspend fun getMedicationByActiveIngredient(activeIngredient: String): List<MedicationResponse>
     suspend fun getAllMedicationDirections(): List<MedicineDosageInstructionsEntity>
 }

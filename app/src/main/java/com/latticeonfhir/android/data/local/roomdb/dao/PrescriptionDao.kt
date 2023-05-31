@@ -24,6 +24,6 @@ interface PrescriptionDao {
 //    suspend fun getPastPrescriptions(patientId: String, limit: Int = 5): List<PrescriptionAndMedicineRelation>
 
     @Transaction
-    @Query("SELECT * FROM PrescriptionEntity WHERE patientId = :patientId")
-    suspend fun getPastPrescriptions(patientId: String): List<PrescriptionAndMedicineRelation>
+    @Query("SELECT * FROM PrescriptionEntity prescription WHERE patientId = :patientId ORDER BY prescription.prescriptionDate LIMIT :limit")
+    suspend fun getPastPrescriptions(patientId: String, limit: Int = 5): List<PrescriptionAndMedicineRelation>
 }

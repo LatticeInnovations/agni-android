@@ -7,16 +7,12 @@ import androidx.paging.map
 import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.model.pagination.PaginationResponse
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
-import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
-import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.utils.constants.Paging.PAGE_SIZE
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientResponse
 import com.latticeonfhir.android.utils.paging.SearchPagingSource
@@ -144,8 +140,8 @@ class SearchRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun searchMedication(activeIngredient: String): List<MedicationResponse> {
-        return getFuzzySearchMedicationList(activeIngredient,searchDao.getMedicationList(),60)
+    override suspend fun searchActiveIngredients(activeIngredient: String): List<String> {
+        return getFuzzySearchMedicationList(activeIngredient,searchDao.getActiveIngredients(),60)
     }
 
     override suspend fun insertRecentPatientSearch(searchQuery: String): Long {
@@ -177,16 +173,16 @@ class SearchRepositoryImpl @Inject constructor(
         return searchDao.getRecentSearches(SearchTypeEnum.PATIENT)
     }
 
-    override suspend fun insertRecentMedicationSearch(searchQuery: String): Long {
-        return searchDao.getRecentSearches(SearchTypeEnum.MEDICATION).run {
+    override suspend fun insertRecentActiveIngredientSearch(searchQuery: String): Long {
+        return searchDao.getRecentSearches(SearchTypeEnum.ACTIVE_INGREDIENT).run {
             if (size == 5) {
-                searchDao.getOldestRecentSearchId(SearchTypeEnum.MEDICATION).run {
+                searchDao.getOldestRecentSearchId(SearchTypeEnum.ACTIVE_INGREDIENT).run {
                     searchDao.deleteRecentSearch(this)
                     searchDao.insertRecentSearch(
                         SearchHistoryEntity(
                             searchQuery = searchQuery,
                             date = Date(),
-                            searchType = SearchTypeEnum.MEDICATION
+                            searchType = SearchTypeEnum.ACTIVE_INGREDIENT
                         )
                     )
                 }
@@ -195,15 +191,15 @@ class SearchRepositoryImpl @Inject constructor(
                     SearchHistoryEntity(
                         searchQuery = searchQuery,
                         date = Date(),
-                        searchType = SearchTypeEnum.MEDICATION
+                        searchType = SearchTypeEnum.ACTIVE_INGREDIENT
                     )
                 )
             }
         }
     }
 
-    override suspend fun getRecentMedicationSearches(): List<String> {
-        return searchDao.getRecentSearches(SearchTypeEnum.MEDICATION)
+    override suspend fun getRecentActiveIngredientSearches(): List<String> {
+        return searchDao.getRecentSearches(SearchTypeEnum.ACTIVE_INGREDIENT)
     }
 
     override suspend fun getSuggestedMembers(

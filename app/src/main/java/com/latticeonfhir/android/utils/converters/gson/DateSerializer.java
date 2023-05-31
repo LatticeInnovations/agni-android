@@ -1,5 +1,7 @@
 package com.latticeonfhir.android.utils.converters.gson;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
@@ -12,8 +14,9 @@ import java.util.Locale;
 
 public class DateSerializer implements JsonSerializer<Date> {
 
+    @NonNull
     @Override
-    public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(@NonNull Date src, @NonNull Type typeOfSrc, @NonNull JsonSerializationContext context) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ", Locale.getDefault());
         return new JsonPrimitive(formatter.format(src.getTime()));
     }

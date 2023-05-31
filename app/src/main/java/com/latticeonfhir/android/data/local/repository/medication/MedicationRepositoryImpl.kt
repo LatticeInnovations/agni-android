@@ -8,6 +8,10 @@ import javax.inject.Inject
 
 class MedicationRepositoryImpl @Inject constructor(private val medicationDao: MedicationDao): MedicationRepository {
 
+    override suspend fun getActiveIngredients(): List<String> {
+        return medicationDao.getActiveIngredients()
+    }
+
     override suspend fun getMedicationByActiveIngredient(activeIngredient: String): List<MedicationResponse> {
         return medicationDao.getMedicationByActiveIngredient(activeIngredient).map { medicationEntity -> medicationEntity.toMedicationResponse()  }
     }

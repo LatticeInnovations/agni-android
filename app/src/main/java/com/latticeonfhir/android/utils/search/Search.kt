@@ -96,11 +96,9 @@ object Search {
         return finalList
     }
 
-    internal fun getFuzzySearchMedicationList(activeIngredient: String,medicationList: List<MedicationEntity>, matchingRatio: Int): List<MedicationResponse> {
-        return medicationList.filter { medicationEntity ->
-            FuzzySearch.partialRatio(activeIngredient,medicationEntity.activeIngredient) > matchingRatio
-        }.map { medicationEntity ->
-            medicationEntity.toMedicationResponse()
+    internal fun getFuzzySearchMedicationList(queryActiveIngredient: String,activeIngredients: List<String>, matchingRatio: Int): List<String> {
+        return activeIngredients.filter { activeIngredient ->
+            FuzzySearch.partialRatio(queryActiveIngredient,activeIngredient) > matchingRatio
         }
     }
 }

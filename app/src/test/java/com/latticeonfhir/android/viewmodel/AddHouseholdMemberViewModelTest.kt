@@ -29,7 +29,7 @@ class AddHouseholdMemberViewModelTest: BaseClass() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
-    fun setUp(){
+    public override fun setUp(){
         MockitoAnnotations.initMocks(this)
         viewModel = AddHouseholdMemberViewModel(searchRepository)
         Dispatchers.setMain(mainThreadSurrogate)

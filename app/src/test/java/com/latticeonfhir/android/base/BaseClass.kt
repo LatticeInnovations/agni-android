@@ -8,9 +8,13 @@ import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
+import junit.framework.TestCase
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import java.util.Date
 
-open class BaseClass {
+@RunWith(JUnit4::class)
+open class BaseClass: TestCase() {
     val id = UUIDBuilder.generateUUID()
     val patientIdentifier = PatientIdentifier(
         identifierNumber = "PATIENT123",

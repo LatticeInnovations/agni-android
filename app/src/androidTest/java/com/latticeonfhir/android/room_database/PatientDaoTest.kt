@@ -13,7 +13,7 @@ import org.junit.Test
 import org.junit.Assert
 import java.util.*
 
-class PatientDaoTest: BaseClass() {
+class PatientDaoTest: FhirAppDatabaseTest() {
 
     @Test
     fun addPatientTest() = runBlocking{

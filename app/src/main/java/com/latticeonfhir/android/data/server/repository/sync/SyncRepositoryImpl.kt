@@ -106,7 +106,7 @@ class SyncRepositoryImpl @Inject constructor(
                                 syncType = SyncType.POST
                             )
                         )
-                        patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
+                        patientResponse.toListOfIdentifierEntity().let { listOfIdentifiers ->
                             identifierList.addAll(listOfIdentifiers)
                         }
                     }
@@ -142,7 +142,7 @@ class SyncRepositoryImpl @Inject constructor(
                                 syncType = SyncType.POST
                             )
                         )
-                        patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
+                        patientResponse.toListOfIdentifierEntity().let { listOfIdentifiers ->
                             identifierList.addAll(listOfIdentifiers)
                         }
                     }
@@ -176,7 +176,7 @@ class SyncRepositoryImpl @Inject constructor(
                     patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
 
                     body.map { patientResponse ->
-                        patientResponse.toListOfIdentifierEntity()?.let { listOfIdentifiers ->
+                        patientResponse.toListOfIdentifierEntity().let { listOfIdentifiers ->
                             identifierList.addAll(listOfIdentifiers)
                         }
                     }
@@ -257,7 +257,7 @@ class SyncRepositoryImpl @Inject constructor(
                 when (this) {
                     is ApiEndResponse -> {
                         prescriptionDao.insertPrescription(
-                            *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity() }
+                            *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity(patientDao) }
                                 .toTypedArray()
                         )
                         val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
