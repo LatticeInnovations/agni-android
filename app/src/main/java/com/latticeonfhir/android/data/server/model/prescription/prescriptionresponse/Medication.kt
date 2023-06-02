@@ -8,8 +8,8 @@ data class Medication(
     val duration: Int,
     val frequency: Int,
     val medFhirId: String,
-    val note: String,
-    val qtyPerDose: String,
+    val note: String?,
+    val qtyPerDose: Int,
     val qtyPrescribed: Int,
-    val timing: String
+    val timing: String?
 )
