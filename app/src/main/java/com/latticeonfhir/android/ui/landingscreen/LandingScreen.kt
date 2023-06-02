@@ -22,6 +22,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -260,10 +261,10 @@ fun LandingScreen(
                     AlertDialog(
                         onDismissRequest = { viewModel.isLoggingOut = false },
                         title = {
-                            Text(text = "Confirm logout")
+                            Text(text = stringResource(id = R.string.logout_dialog_title))
                         },
                         text = {
-                               Text(text = "Are you sure you want to logout ")
+                               Text(text = stringResource(id = R.string.logout_dialog_description))
                         },
                         confirmButton = {
                             TextButton(
@@ -279,7 +280,7 @@ fun LandingScreen(
                                 modifier = Modifier.testTag("POSITIVE_BTN")
                             ) {
                                 Text(
-                                    "Logout"
+                                    stringResource(id = R.string.logout_btn)
                                 )
                             }
                         },
@@ -291,7 +292,7 @@ fun LandingScreen(
                                 modifier = Modifier.testTag("NEGATIVE_BTN")
                             ) {
                                 Text(
-                                    "No, go back"
+                                    stringResource(id = R.string.no_go_back)
                                 )
                             }
                         }

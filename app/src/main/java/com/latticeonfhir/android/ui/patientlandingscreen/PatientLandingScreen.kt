@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
@@ -94,7 +95,7 @@ fun PatientLandingScreen(
                         viewModel.patient,
                         "HOUSEHOLD_MEMBER",
                         Screen.HouseholdMembersScreen.route,
-                        "Household members",
+                        stringResource(id = R.string.household_members),
                         R.drawable.group_icon
                     )
                     CardComposable(
@@ -102,7 +103,7 @@ fun PatientLandingScreen(
                         viewModel.patient,
                         "PRESCRIPTION",
                         Screen.Prescription.route,
-                        "Prescription",
+                        stringResource(id = R.string.prescription),
                         R.drawable.prescriptions_icon
                     )
                 }

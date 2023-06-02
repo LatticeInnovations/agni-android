@@ -6,9 +6,11 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
@@ -38,7 +40,9 @@ fun SearchPatient(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (viewModel.fromHouseholdMember) "Search patients" else "Advanced Search",
+                        text = if (viewModel.fromHouseholdMember) stringResource(id = R.string.search_patients) else stringResource(
+                            id = R.string.advanced_search
+                        ),
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -105,7 +109,7 @@ fun SearchPatient(
                     .fillMaxWidth()
                     .padding(start = 30.dp)
             ) {
-                Text(text = "Search", style = MaterialTheme.typography.labelLarge)
+                Text(text = stringResource(id = R.string.search), style = MaterialTheme.typography.labelLarge)
             }
         }
     )

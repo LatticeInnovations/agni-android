@@ -10,10 +10,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.AddressComposable
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
@@ -53,7 +55,7 @@ fun PatientRegistrationStepThree(navController: NavController, patientRegister: 
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Addresses",
+                text = stringResource(id = R.string.addresses),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -70,7 +72,7 @@ fun PatientRegistrationStepThree(navController: NavController, patientRegister: 
                 .weight(1f)
                 .testTag("columnLayout")
         ) {
-            AddressComposable(label = "Home Address", address = viewModel.homeAddress){
+            AddressComposable(label = stringResource(id = R.string.home_address), address = viewModel.homeAddress){
 
             }
 
@@ -146,7 +148,7 @@ fun PatientRegistrationStepThree(navController: NavController, patientRegister: 
                 .padding(top = 15.dp),
             enabled = viewModel.addressInfoValidation()
         ) {
-            Text(text = "Submit & Preview")
+            Text(text = stringResource(id = R.string.submit_and_preview))
         }
     }
 }

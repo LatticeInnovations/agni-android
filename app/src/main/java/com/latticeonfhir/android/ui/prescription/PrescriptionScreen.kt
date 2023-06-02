@@ -14,17 +14,13 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,7 +29,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
@@ -41,8 +36,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,12 +48,10 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,8 +59,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.*
@@ -79,8 +72,6 @@ import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPr
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
 import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -107,7 +98,7 @@ fun PrescriptionScreen(
                         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                     ),
                     title = {
-                        Text(text = "Prescription", style = MaterialTheme.typography.titleLarge)
+                        Text(text = stringResource(id = R.string.prescription), style = MaterialTheme.typography.titleLarge)
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
@@ -182,10 +173,10 @@ fun PrescriptionScreen(
                         AlertDialog(
                             onDismissRequest = { viewModel.clearAllConfirmDialog = false },
                             title = {
-                                Text(text = "Discard medications ?")
+                                Text(text = stringResource(id = R.string.discard_medications_dialog_title))
                             },
                             text = {
-                                Text(text = "Are you sure you want to discard all medications ?")
+                                Text(text = stringResource(id = R.string.discard_medications_dialog_description))
                             },
                             confirmButton = {
                                 TextButton(
@@ -196,7 +187,7 @@ fun PrescriptionScreen(
                                     },
                                 ) {
                                     Text(
-                                        "Yes, discard"
+                                        stringResource(id = R.string.yes_discard)
                                     )
                                 }
                             },
@@ -207,7 +198,7 @@ fun PrescriptionScreen(
                                     }
                                 ) {
                                     Text(
-                                        "No, go back"
+                                        stringResource(id = R.string.no_go_back)
                                     )
                                 }
                             }
@@ -271,6 +262,7 @@ fun BottomNavLayout(
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope
 ) {
+    val context = LocalContext.current
     val rotationState by animateFloatAsState(
         targetValue = if (viewModel.bottomNavExpanded) 180f else 0f,
         label = "Rotation state of expand icon button",
@@ -302,7 +294,7 @@ fun BottomNavLayout(
                             TextButton(onClick = {
                                 viewModel.clearAllConfirmDialog = true
                             }) {
-                                Text(text = "Clear all")
+                                Text(text = stringResource(id = R.string.clear_all))
                             }
                         }
                         Divider()
@@ -359,14 +351,14 @@ fun BottomNavLayout(
                             viewModel.selectedCompoundList.clear()
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar(
-                                    message = "Prescribed successfully",
+                                    message = context.getString(R.string.prescribed_successfully),
                                     withDismissAction = true
                                 )
                             }
                         },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text(text = "Prescribe")
+                        Text(text = stringResource(id = R.string.prescribe))
                     }
                 }
             }
