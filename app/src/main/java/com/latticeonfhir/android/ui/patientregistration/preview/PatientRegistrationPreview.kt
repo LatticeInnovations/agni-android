@@ -12,12 +12,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreviewViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
@@ -47,7 +50,7 @@ fun PatientRegistrationPreview(
         navController.previousBackStackEntry?.savedStateHandle?.get<PatientRegister>(
             key = "patient_register_details"
         )
-    var date: LocalDate? = null
+    val context = LocalContext.current
     if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
             key = "fromHouseholdMember"
         ) == true
@@ -105,7 +108,7 @@ fun PatientRegistrationPreview(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        "Preview",
+                        stringResource(id = R.string.preview),
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -158,7 +161,7 @@ fun PatientRegistrationPreview(
                     if (viewModel.passportId.isNotEmpty()) {
                         viewModel.identifierList.add(
                             PatientIdentifier(
-                                identifierType = "https://www.passportindia.gov.in/",
+                                identifierType = context.getString(R.string.passport_id_web_link),
                                 identifierNumber = viewModel.passportId,
                                 code = null
                             )
@@ -167,7 +170,7 @@ fun PatientRegistrationPreview(
                     if (viewModel.voterId.isNotEmpty()) {
                         viewModel.identifierList.add(
                             PatientIdentifier(
-                                identifierType = "https://www.nvsp.in/",
+                                identifierType = context.getString(R.string.voter_id_web_link),
                                 identifierNumber = viewModel.voterId,
                                 code = null
                             )
@@ -176,7 +179,7 @@ fun PatientRegistrationPreview(
                     if (viewModel.patientId.isNotEmpty()) {
                         viewModel.identifierList.add(
                             PatientIdentifier(
-                                identifierType = "https://www.apollohospitals.com/",
+                                identifierType = context.getString(R.string.patient_id_web_link),
                                 identifierNumber = viewModel.patientId,
                                 code = null
                             )
@@ -243,7 +246,7 @@ fun PatientRegistrationPreview(
                     .fillMaxWidth()
                     .padding(start = 32.dp)
             ) {
-                Text(text = "Save")
+                Text(text = stringResource(id = R.string.save))
             }
         }
     )
@@ -271,7 +274,7 @@ fun PreviewScreen(
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
-                Heading("Basic Information", 1, patientRegister, navController)
+                Heading(stringResource(id = R.string.basic_information), 1, patientRegister, navController)
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "${
@@ -285,14 +288,14 @@ fun PreviewScreen(
                     modifier = Modifier.testTag("NAME_TAG")
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                Label("Date of birth")
+                Label(stringResource(id = R.string.date_of_birth))
                 Detail(viewModel.dob, "DOB_TAG")
                 Spacer(modifier = Modifier.height(10.dp))
-                Label("Phone No.")
+                Label(stringResource(id = R.string.phone_number_label))
                 Detail("+91 ${viewModel.phoneNumber}", "PHONE_NO_TAG")
                 if (viewModel.email.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
-                    Label("Email")
+                    Label(stringResource(id = R.string.email))
                     Detail(viewModel.email, "EMAIL_TAG")
                 }
             }
@@ -307,20 +310,20 @@ fun PreviewScreen(
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
-                Heading("Identification", 2, patientRegister, navController)
+                Heading(stringResource(id = R.string.identification), 2, patientRegister, navController)
                 if (viewModel.passportId.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
-                    Label("Passport ID")
+                    Label(stringResource(id = R.string.passport_id))
                     Detail(viewModel.passportId, "PASSPORT_ID_TAG")
                 }
                 if (viewModel.voterId.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
-                    Label("Voter ID")
+                    Label(stringResource(id = R.string.voter_id))
                     Detail(viewModel.voterId, "VOTER_ID_TAG")
                 }
                 if (viewModel.patientId.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
-                    Label("Patient ID")
+                    Label(stringResource(id = R.string.patient_id))
                     Detail(viewModel.patientId, "PATIENT_ID_TAG")
                 }
             }
@@ -345,9 +348,9 @@ fun PreviewScreen(
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
-                Heading("Addresses", 3, patientRegister, navController)
+                Heading(stringResource(id = R.string.addresses), 3, patientRegister, navController)
                 Spacer(modifier = Modifier.height(10.dp))
-                Label("Home Address")
+                Label(stringResource(id = R.string.home_address))
                 Detail(homeAddressLine1, "ADDRESS_LINE1_TAG")
                 Detail(homeAddressLine2, "ADDRESS_LINE2_TAG")
                 Detail(homeAddressLine3, "ADDRESS_LINE3_TAG")
@@ -392,14 +395,14 @@ fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDia
         },
         title = {
             Text(
-                text = "Discard Changes?",
+                text = stringResource(id = R.string.discard_changes),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.testTag("alert dialog title")
             )
         },
         text = {
             Text(
-                "Are you sure you want to discard this patient record?",
+                stringResource(id = R.string.discard_dialog_description),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.testTag("alert dialog description")
             )
@@ -413,7 +416,7 @@ fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDia
                     else navController.popBackStack(Screen.LandingScreen.route, false)
                 }) {
                 Text(
-                    "Yes, discard",
+                    stringResource(id = R.string.yes_discard),
                     modifier = Modifier.testTag("alert dialog confirm btn")
                 )
             }
@@ -424,7 +427,7 @@ fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDia
                     closeDialog()
                 }) {
                 Text(
-                    "No, go back",
+                    stringResource(id = R.string.no_go_back),
                     modifier = Modifier.testTag("alert dialog cancel btn")
                 )
             }
@@ -476,7 +479,7 @@ fun Heading(
             )
             Spacer(modifier = Modifier.width(5.dp))
             Text(
-                text = "Edit",
+                text = stringResource(id = R.string.edit),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )

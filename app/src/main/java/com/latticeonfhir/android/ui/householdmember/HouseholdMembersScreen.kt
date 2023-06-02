@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -70,7 +71,7 @@ fun HouseholdMembersScreen(
                     }}"
                     Column {
                         Text(
-                            text = "Household members",
+                            text = stringResource(id = R.string.household_members),
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.testTag("TITLE")
                         )
@@ -178,7 +179,7 @@ fun HouseholdMembersScreen(
                                     modifier = Modifier.padding(10.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(text = "Add member")
+                                    Text(text = stringResource(id = R.string.add_member))
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Icon(
                                         Icons.Default.Add,
@@ -197,7 +198,7 @@ fun HouseholdMembersScreen(
                                     modifier = Modifier.padding(10.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(text = "Edit existing")
+                                    Text(text = stringResource(id = R.string.edit_existing))
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Icon(
                                         painter = painterResource(id = R.drawable.edit_icon),

@@ -18,7 +18,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
 import com.latticeonfhir.android.ui.prescription.quickselect.CompoundRow
 
@@ -29,7 +31,7 @@ fun PrescriptionSearchResult(viewModel: PrescriptionViewModel) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "6 matches found", style = MaterialTheme.typography.titleLarge)
+                    Text(text = stringResource(id = R.string.match_found, "6"), style = MaterialTheme.typography.titleLarge)
                 },
                 navigationIcon = {
                     IconButton(onClick = { viewModel.isSearchResult = false }) {

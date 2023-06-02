@@ -15,9 +15,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.service.smsretreiver.startSmsRetriever
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
@@ -65,7 +67,7 @@ fun PhoneEmailScreen(
                     ) {
                     Spacer(modifier = Modifier.height(60.dp))
                     Text(
-                        text = "Login with phone number or email address",
+                        text = stringResource(id = R.string.login_helper_text),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.testTag("HEADING_TAG")
@@ -119,7 +121,7 @@ fun PhoneEmailScreen(
                             } else {
                                 coroutineScope.launch {
                                     snackbarHostState.showSnackbar(
-                                        message = "Please connect to internet and try again"
+                                        message = activity.getString(R.string.no_internet_error_msg)
                                     )
                                 }
                             }
@@ -129,7 +131,7 @@ fun PhoneEmailScreen(
                             .fillMaxWidth()
                             .testTag("BUTTON")
                     ) {
-                        if (!viewModel.isAuthenticating) Text(text = "Send me OTP")
+                        if (!viewModel.isAuthenticating) Text(text = stringResource(id = R.string.send_me_otp))
                         if (viewModel.isAuthenticating) ButtonLoader()
                     }
                 }

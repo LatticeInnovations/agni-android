@@ -16,6 +16,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.network.CheckNetwork
 import com.latticeonfhir.android.ui.common.ButtonLoader
@@ -42,6 +44,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
     val activity = LocalContext.current as MainActivity
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     activity.registerBroadcastReceiver()
     LaunchedEffect(activity.otp){
         if (activity.otp.isNotEmpty()) {
@@ -174,7 +177,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                         .padding(horizontal = 15.dp)
                 ) {
                     Text(
-                        text = "Enter the OTP we sent to",
+                        text = stringResource(id = R.string.enter_otp_helping_text),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.testTag("HEADING_TAG")
@@ -258,7 +261,9 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             text = viewModel.errorMsg,
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.fillMaxWidth().testTag("ERROR_MSG"),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("ERROR_MSG"),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -269,7 +274,8 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 15.dp).testTag("ERROR_MSG"),
+                                .padding(vertical = 15.dp)
+                                .testTag("ERROR_MSG"),
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -321,9 +327,11 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                 }
                             ) {
                                 Text(
-                                    text = "Resend OTP",
+                                    text = stringResource(id = R.string.resend_otp),
                                     style = MaterialTheme.typography.labelLarge,
-                                    modifier = Modifier.fillMaxWidth().testTag("RESEND_BUTTON"),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag("RESEND_BUTTON"),
                                     textAlign = TextAlign.Center
                                 )
                             }
@@ -339,16 +347,18 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             } else {
                                 coroutineScope.launch {
                                     snackbarHostState.showSnackbar(
-                                        message = "Please connect to internet and try again"
+                                        message = context.getString(R.string.no_internet_error_msg)
                                     )
                                 }
                             }
                         },
                         enabled = viewModel.otpEntered.length == 6 && !viewModel.otpAttemptsExpired,
-                        modifier = Modifier.fillMaxWidth().testTag("BUTTON")
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("BUTTON")
                     ) {
                         if (viewModel.isVerifying) ButtonLoader()
-                        else Text(text = "Verify")
+                        else Text(text = stringResource(id = R.string.verify))
                     }
                 }
             }

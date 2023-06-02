@@ -12,11 +12,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
@@ -49,7 +51,7 @@ fun PatientRegistrationStepTwo(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Identification",
+                text = stringResource(id = R.string.identification),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -70,15 +72,15 @@ fun PatientRegistrationStepTwo(
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState())
             ) {
-                IdSelectionChip(idSelected = viewModel.isPassportSelected, label = "Passport Id") {
+                IdSelectionChip(idSelected = viewModel.isPassportSelected, label = stringResource(id = R.string.passport_id)) {
                     viewModel.isPassportSelected = !it
                 }
                 Spacer(modifier = Modifier.width(5.dp))
-                IdSelectionChip(idSelected = viewModel.isVoterSelected, label = "Voter Id") {
+                IdSelectionChip(idSelected = viewModel.isVoterSelected, label = stringResource(id = R.string.voter_id)) {
                     viewModel.isVoterSelected = !it
                 }
                 Spacer(modifier = Modifier.width(5.dp))
-                IdSelectionChip(idSelected = viewModel.isPatientSelected, label = "Patient Id") {
+                IdSelectionChip(idSelected = viewModel.isPatientSelected, label = stringResource(id = R.string.patient_id)) {
                     viewModel.isPatientSelected = !it
                 }
             }
@@ -87,11 +89,11 @@ fun PatientRegistrationStepTwo(
                 Spacer(modifier = Modifier.height(5.dp))
                 CustomTextField(
                     value = viewModel.passportId,
-                    label = "Passport Id",
+                    label = stringResource(id = R.string.passport_id),
                     weight = 1f,
                     viewModel.maxPassportIdLength,
                     viewModel.isPassportValid,
-                    "Enter valid Passport ID (eg., A1098765)",
+                    stringResource(id = R.string.passport_id_error_msg),
                     KeyboardType.Text
                 ) {
                     viewModel.passportId = it
@@ -104,11 +106,11 @@ fun PatientRegistrationStepTwo(
                 Spacer(modifier = Modifier.height(5.dp))
                 CustomTextField(
                     value = viewModel.voterId,
-                    label = "Voter Id",
+                    label = stringResource(id = R.string.voter_id),
                     weight = 1f,
                     viewModel.maxVoterIdLength,
                     viewModel.isVoterValid,
-                    "Enter valid Voter Id (eg., XYZ9876543)",
+                    stringResource(id = R.string.voter_id_error_msg),
                     KeyboardType.Text
                 ) {
                     viewModel.voterId = it
@@ -120,11 +122,11 @@ fun PatientRegistrationStepTwo(
                 Spacer(modifier = Modifier.height(5.dp))
                 CustomTextField(
                     value = viewModel.patientId,
-                    label = "Patient Id",
+                    label = stringResource(id = R.string.patient_id),
                     weight = 1f,
                     viewModel.maxPatientIdLength,
                     viewModel.isPatientValid,
-                    "Patient Id length should be 10.",
+                    stringResource(id = R.string.patient_id_error_msg),
                     KeyboardType.Text
                 ) {
                     viewModel.patientId = it

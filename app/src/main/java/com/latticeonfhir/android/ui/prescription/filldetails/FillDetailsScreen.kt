@@ -32,12 +32,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,7 +47,7 @@ fun FillDetailsScreen(prescriptionViewModel: PrescriptionViewModel, viewModel: F
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Fill details", style = MaterialTheme.typography.titleLarge)
+                    Text(text = stringResource(id = R.string.fill_details), style = MaterialTheme.typography.titleLarge)
                 },
                 navigationIcon = {
                     IconButton(onClick = { prescriptionViewModel.checkedCompound = "" }) {
@@ -62,7 +62,7 @@ fun FillDetailsScreen(prescriptionViewModel: PrescriptionViewModel, viewModel: F
                         prescriptionViewModel.selectedCompoundList.add(prescriptionViewModel.checkedCompound)
                         prescriptionViewModel.checkedCompound = ""
                     }) {
-                        Text(text = "Done")
+                        Text(text = stringResource(id = R.string.done))
                     }
                 }
             )
@@ -81,7 +81,7 @@ fun FillDetailsScreen(prescriptionViewModel: PrescriptionViewModel, viewModel: F
                         onValueChange = {
                         },
                         label = {
-                            Text(text = "Active ingredient")
+                            Text(text = stringResource(id = R.string.active_ingredient))
                         },
                         trailingIcon = {
                             Icon(
@@ -92,7 +92,7 @@ fun FillDetailsScreen(prescriptionViewModel: PrescriptionViewModel, viewModel: F
                         readOnly = true
                     )
                     Text(
-                        text = "Formulations",
+                        text = stringResource(id = R.string.formulations),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(vertical = 15.dp)
@@ -143,10 +143,10 @@ fun FormulationsForm(viewModel: FillDetailsViewModel) {
         // quantity per dose
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = "ml",
+            value = stringResource(id = R.string.ml),
             onValueChange = {},
             label = {
-                Text(text = "Qty per dose")
+                Text(text = stringResource(id = R.string.qty_per_dose))
             },
             leadingIcon = {
                 Row(
@@ -165,10 +165,10 @@ fun FormulationsForm(viewModel: FillDetailsViewModel) {
         // frequency
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = "dose per day",
+            value = stringResource(id = R.string.dose_per_day),
             onValueChange = {},
             label = {
-                Text(text = "Frequency")
+                Text(text = stringResource(id = R.string.frequency))
             },
             leadingIcon = {
                 Row(
@@ -191,7 +191,7 @@ fun FormulationsForm(viewModel: FillDetailsViewModel) {
             value = viewModel.timing,
             onValueChange = {},
             label = {
-                Text(text = "Timing (optional)")
+                Text(text = stringResource(id = R.string.timing_optional))
             },
             trailingIcon = {
                 Icon(Icons.Default.KeyboardArrowDown, contentDescription = "DOWN_ARROW")
@@ -210,7 +210,7 @@ fun FormulationsForm(viewModel: FillDetailsViewModel) {
                     viewModel.duration = it
                 },
                 label = {
-                    Text(text = "Duration (days) *")
+                    Text(text = stringResource(id = R.string.duration_days))
                 }
             )
             Spacer(modifier = Modifier.width(10.dp))
@@ -220,7 +220,7 @@ fun FormulationsForm(viewModel: FillDetailsViewModel) {
                 value = viewModel.quantityPrescribed,
                 onValueChange = {},
                 label = {
-                    Text(text = "Quantity prescribed")
+                    Text(text = stringResource(id = R.string.quantity_prescribed))
                 },
                 readOnly = true
             )
@@ -234,7 +234,7 @@ fun FormulationsForm(viewModel: FillDetailsViewModel) {
                 viewModel.notes = it
             },
             label = {
-                Text(text = "Notes (optional)")
+                Text(text = stringResource(id = R.string.notes_optional))
             }
         )
     }

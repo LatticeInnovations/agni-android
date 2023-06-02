@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -34,6 +35,7 @@ import androidx.lifecycle.viewmodel.compose.*
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
@@ -65,7 +67,7 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "${viewModel.size} results")
+                    Text(text = stringResource(id = R.string.search_results, viewModel.size))
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -134,7 +136,7 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
                         .fillMaxWidth()
                         .padding(start = 30.dp)
                 ) {
-                    Text(text = "Connect", style = MaterialTheme.typography.labelLarge)
+                    Text(text = stringResource(id = R.string.connect), style = MaterialTheme.typography.labelLarge)
                 }
             }
         }

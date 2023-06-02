@@ -5,4 +5,146 @@
     <string name="title_activity_patient_registration_preview">PatientRegistrationPreview</string>
     <string name="title_activity_search_patient">SearchPatient</string>
     <string name="relation_builder">%s is the %s of %s</string>
+
+    <string name="prescription">Prescription</string>
+    <string name="discard_medications_dialog_title">Discard medications ?</string>
+    <string name="discard_medications_dialog_description">Are you sure you want to discard all medications ?</string>
+    <string name="yes_discard">Yes, discard</string>
+    <string name="no_go_back">No, go back</string>
+    <string name="clear_all">Clear all</string>
+    <string name="prescribed_successfully">Prescribed successfully</string>
+    <string name="prescribe">Prescribe</string>
+    <string name="fill_details">Fill details</string>
+    <string name="done">Done</string>
+    <string name="active_ingredient">Active ingredient</string>
+    <string name="formulations">Formulations</string>
+    <string name="qty_per_dose">Qty per dose</string>
+    <string name="ml">ml</string>
+    <string name="dose_per_day">dose per day</string>
+    <string name="frequency">Frequency</string>
+    <string name="timing_optional">Timing (optional)</string>
+    <string name="duration_days">Duration (days) *</string>
+    <string name="quantity_prescribed">Quantity prescribed</string>
+    <string name="notes_optional">Notes (optional)</string>
+    <string name="match_found">%s matches found</string>
+
+    <string name="postal_code">Postal Code *</string>
+    <string name="postal_code_error_msg">Enter valid 6 digit postal code</string>
+    <string name="state">State *</string>
+    <string name="state_error_msg">Please select a state.</string>
+    <string name="address_line_1">Address Line 1 *</string>
+    <string name="address_line_1_error_msg">Please enter your address.</string>
+    <string name="address_line_2">Address Line 2</string>
+    <string name="city">City *</string>
+    <string name="city_error_msg">Please enter your city.</string>
+    <string name="district">District</string>
+    <string name="district_error_msg">Please enter your district.</string>
+
+    <string name="email">Email</string>
+
+    <string name="add_household_member">Add a household member</string>
+    <string name="create_new_patient">Create a new patient, and
+include them in the household</string>
+    <string name="add_a_patient">Add a patient</string>
+    <string name="search_existing_patient">Search for an existing patient, and
+include them in the household</string>
+    <string name="search_patients">Search patients</string>
+    <string name="nearby_matches">Nearby matches</string>
+    <string name="connect_nearby">Connect nearby</string>
+
+    <string name="connect_to">Connect patient to</string>
+    <string name="connected_patients">Connected Patients</string>
+    <string name="patients_to_connect">Patients to connect</string>
+    <string name="discard_relations_dialog_title">Discard relation?</string>
+    <string name="discard_relations_dialog_description">Are you sure you want to discard this patient record?</string>
+
+    <string name="no_household_members">No household members.</string>
+    <string name="no_suggested_members">No suggested members.</string>
+    <string name="search_results">%s results</string>
+    <string name="connect">Connect</string>
+    <string name="nearby_patients_title">Here are patients with similar addresses or nearby locations.</string>
+    <string name="connect_patient">Connect patient</string>
+    <string name="create">Create</string>
+    <string name="go_back">Go back</string>
+
+    <string name="household_members">Household members</string>
+    <string name="add_member">Add member</string>
+    <string name="edit_existing">Edit existing</string>
+
+    <string name="logout_dialog_title">Confirm logout</string>
+    <string name="logout_dialog_description">Are you sure you want to logout</string>
+    <string name="logout_btn">Logout</string>
+
+    <string name="name_label">Name</string>
+    <string name="role_label">Role</string>
+    <string name="phone_number_label">Phone No.</string>
+
+    <string name="enter_otp_helping_text">Enter the OTP we sent to</string>
+    <string name="resend_otp">Resend OTP</string>
+    <string name="no_internet_error_msg">Please connect to internet and try again</string>
+    <string name="verify">Verify</string>
+
+    <string name="login_helper_text">Login with phone number or email address</string>
+    <string name="send_me_otp">Send me OTP</string>
+    <string name="advanced_search">Advanced Search</string>
+    <string name="search">Search</string>
+    <string name="search_helper_text">Search using any of the field below</string>
+
+    <string name="patient_name">Patient Name</string>
+    <string name="patient_name_error_msg">Name length should be between 3 and 100.</string>
+    <string name="patient_id">Patient ID</string>
+    <string name="patient_id_error_msg">Patient Id should be of length 10.</string>
+    <string name="select_age_range">Select age range</string>
+    <string name="gender">Gender</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
+    <string name="last_facility_visit">Last facility visit</string>
+
+    <string name="preview">Preview</string>
+    <string name="save">Save</string>
+    <string name="passport_id_web_link">https://www.passportindia.gov.in/</string>
+    <string name="voter_id_web_link">https://www.nvsp.in/</string>
+    <string name="patient_id_web_link">https://www.apollohospitals.com/</string>
+
+    <string name="basic_information">Basic Information</string>
+    <string name="date_of_birth">Date of birth</string>
+    <string name="identification">Identification</string>
+    <string name="passport_id">Passport ID</string>
+    <string name="voter_id">Voter ID</string>
+    <string name="addresses">Addresses</string>
+    <string name="home_address">Home Address</string>
+    <string name="discard_changes">Discard Changes?</string>
+    <string name="discard_dialog_description">Are you sure you want to discard this patient record?</string>
+    <string name="edit">Edit</string>
+    <string name="next">Next</string>
+    <string name="first_name">First Name</string>
+    <string name="middle_name">Middle Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="first_name_error_msg">Name length should be between 3 and 100.</string>
+    <string name="email_error_msg">Enter valid userEmail (eg., abc123@gmail.com)</string>
+    <string name="day">Day</string>
+    <string name="month">Month</string>
+    <string name="year">Year</string>
+    <string name="error_msg_1_to_31_days">Enter valid day between 1 and 31.</string>
+    <string name="error_msg_1_to_29_days">Enter valid day between 1 and 29.</string>
+    <string name="year_error_msg">Enter valid year between 1900 and 2023</string>
+
+    <string name="age_days">Days</string>
+    <string name="age_months">Months</string>
+    <string name="age_years">Years</string>
+    <string name="age_years_error_msg">Enter valid input between 0 to 150.</string>
+    <string name="age_months_error_msg">Enter valid input between 1 and 11.</string>
+    <string name="age_days_error_msg">Enter valid input between 1 and 30.</string>
+
+    <string name="enter_phone_number">Enter Phone Number</string>
+    <string name="phone_number_error_msg">Enter Valid Input</string>
+
+    <string name="passport_id_error_msg">Enter valid Passport ID (eg., A1098765)</string>
+    <string name="voter_id_error_msg">Enter valid Voter Id (eg., XYZ9876543)</string>
+
+    <string name="submit_and_preview">Submit &amp; Preview</string>
+    <string name="confirm_relationship">Confirm Relationship</string>
+    <string name="patient_registration">Patient Registration</string>
+    <string name="establish_relation">Establish relation</string>
 </resources>
