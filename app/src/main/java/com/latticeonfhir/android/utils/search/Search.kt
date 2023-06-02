@@ -1,12 +1,8 @@
 package com.latticeonfhir.android.utils.search
 
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
-import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.android.utils.converters.responseconverter.toMedicationResponse
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
 object Search {
