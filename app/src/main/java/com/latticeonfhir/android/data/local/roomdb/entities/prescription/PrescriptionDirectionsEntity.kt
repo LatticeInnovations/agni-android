@@ -6,7 +6,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 
 @Keep
 @Entity(
@@ -24,11 +23,11 @@ data class PrescriptionDirectionsEntity(
     val medFhirId: String,
     val qtyPerDose: Int,
     val frequency: Int,
-    val dosageInstruction: String,
+    val timing: String?,
     val duration: Int,
     val qtyPrescribed: Int,
-    val note: String,
-    val prescriptionId: String
+    val note: String?,
+    val prescriptionId: String,
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0

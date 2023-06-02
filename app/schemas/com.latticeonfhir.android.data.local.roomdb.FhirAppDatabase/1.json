@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "501cfb8d4fa88ca5b8cdc00efcac06e5",
+    "identityHash": "e2fdaa2f40d2ca4d1e1ac884734cdfb1",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -488,7 +488,7 @@
       },
       {
         "tableName": "PrescriptionDirectionsEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`med_fhir_id` TEXT NOT NULL, `qtyPerDose` INTEGER NOT NULL, `frequency` INTEGER NOT NULL, `dosageInstruction` TEXT NOT NULL, `duration` INTEGER NOT NULL, `qtyPrescribed` INTEGER NOT NULL, `note` TEXT NOT NULL, `prescriptionId` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`prescriptionId`) REFERENCES `PrescriptionEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`med_fhir_id` TEXT NOT NULL, `qtyPerDose` INTEGER NOT NULL, `frequency` INTEGER NOT NULL, `timing` TEXT, `duration` INTEGER NOT NULL, `qtyPrescribed` INTEGER NOT NULL, `note` TEXT, `prescriptionId` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`prescriptionId`) REFERENCES `PrescriptionEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "medFhirId",
@@ -509,10 +509,10 @@
             "notNull": true
           },
           {
-            "fieldPath": "dosageInstruction",
-            "columnName": "dosageInstruction",
+            "fieldPath": "timing",
+            "columnName": "timing",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "duration",
@@ -530,7 +530,7 @@
             "fieldPath": "note",
             "columnName": "note",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "prescriptionId",
@@ -630,7 +630,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '501cfb8d4fa88ca5b8cdc00efcac06e5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e2fdaa2f40d2ca4d1e1ac884734cdfb1')"
     ]
   }
 }
