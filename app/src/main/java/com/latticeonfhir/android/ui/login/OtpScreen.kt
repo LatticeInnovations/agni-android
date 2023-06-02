@@ -45,7 +45,14 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-    activity.registerBroadcastReceiver()
+    LaunchedEffect(viewModel.isLaunched) {
+        viewModel.userInput =
+            navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput").toString()
+        if (viewModel.userInput.matches(OnlyNumberRegex.onlyNumbers)){
+            activity.registerBroadcastReceiver()
+        }
+        viewModel.isLaunched = true
+    }
     LaunchedEffect(activity.otp){
         if (activity.otp.isNotEmpty()) {
             viewModel.firstDigit = activity.otp[0].toString()
@@ -59,11 +66,6 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
             activity.otp = ""
             activity.unregisterBroadcastReceiver()
         }
-    }
-    LaunchedEffect(viewModel.isLaunched) {
-        viewModel.userInput =
-            navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput").toString()
-        viewModel.isLaunched = true
     }
     LaunchedEffect(
         key1 = viewModel.secondDigit,
