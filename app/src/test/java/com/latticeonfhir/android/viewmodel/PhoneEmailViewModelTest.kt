@@ -95,7 +95,7 @@ class PhoneEmailViewModelTest {
 
     @Test
     fun login_on_authorised_phone () {
-        viewModel.inputValue = "8279784095"
+        viewModel.inputValue = "9876543210"
         viewModel.login {
             Assert.assertEquals("returned value should be true on valid authorised input", true, it)
             Assert.assertEquals("isError should be false when logging in with authorised email", false, viewModel.isError)
