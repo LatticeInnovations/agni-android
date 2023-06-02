@@ -51,7 +51,7 @@ class AdvancedSearchPatientKtTest {
     // Selection Chips
     val femaleChip = hasTestTag("female") and hasClickAction()
     val maleChip = hasTestTag("male") and hasClickAction()
-    val othersChip = hasTestTag("others") and hasClickAction()
+    val othersChip = hasTestTag("other") and hasClickAction()
 
     // Button
     val searchBtn = hasText("Search") and hasClickAction()
