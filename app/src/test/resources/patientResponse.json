@@ -1,0 +1,47 @@
+{
+    "status": 2,
+    "message": "details fetched successfully",
+    "total": 200,
+    "offset": 400,
+    "data": [
+        {
+            "fhirId": "20212",
+            "firstName": "Natalie",
+            "lastName": "Wiggins",
+            "identifier": [
+                {
+                    "identifierType": "https://www.thelattice.in/",
+                    "identifierNumber": "05d03012-d7f6-4fa7-919b-786573972f46",
+                    "code": "MR"
+                },
+                {
+                    "identifierType": "https://www.passportindia.gov.in/",
+                    "identifierNumber": "247075737566",
+                    "code": null
+                }
+            ],
+            "id": "05d03012-d7f6-4fa7-919b-786573972f46",
+            "active": true,
+            "gender": "female",
+            "birthDate": "2021-03-09",
+            "mobileNumber": "9134145072",
+            "email": "nataliewiggins@accel.com",
+            "permanentAddress": {
+                "city": "Villarreal",
+                "state": "Uttarakhand",
+                "postalCode": "250012",
+                "country": "India",
+                "addressLine1": "Plot number: 609",
+                "addressLine2": "Desmond Court"
+            },
+            "tempAddress": {
+                "city": "Brookfield",
+                "state": "Andhra Pradesh",
+                "postalCode": "912156",
+                "country": "India",
+                "addressLine1": "Plot number: 282",
+                "addressLine2": "Canton Court"
+            }
+        }
+    ]
+}

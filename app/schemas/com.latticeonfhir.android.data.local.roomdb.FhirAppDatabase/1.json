@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e2fdaa2f40d2ca4d1e1ac884734cdfb1",
+    "identityHash": "537b901ae6234e077602faaacd51ea8a",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -246,7 +246,7 @@
       },
       {
         "tableName": "RelationEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `fromId` TEXT NOT NULL, `toId` TEXT NOT NULL, `relation` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`fromId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `fromId` TEXT NOT NULL, `toId` TEXT NOT NULL, `relation` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`fromId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -269,7 +269,7 @@
           {
             "fieldPath": "relation",
             "columnName": "relation",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           }
         ],
@@ -630,7 +630,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e2fdaa2f40d2ca4d1e1ac884734cdfb1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '537b901ae6234e077602faaacd51ea8a')"
     ]
   }
 }

@@ -12,7 +12,8 @@ import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAn
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -39,7 +40,7 @@ class PrescriptionRepositoryTest : BaseClass() {
         medFhirId = "MED_FHIR_ID_01",
         qtyPerDose = 1,
         frequency = 2,
-        dosageInstruction = "Before Lunch",
+        timing = "Before Lunch",
         duration = 3,
         qtyPrescribed = 12,
         note = "Dummy note",
@@ -81,20 +82,21 @@ class PrescriptionRepositoryTest : BaseClass() {
                 frequency = 2,
                 medFhirId = "MED_FHIR_ID_01",
                 note = "Sone ke baad",
-                qtyPerDose = "1",
+                qtyPerDose = 1,
                 qtyPrescribed = 5,
                 timing = "After Lunch"
             )
         )
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     public override fun setUp() {
 
         MockitoAnnotations.openMocks(this)
         prescriptionRepositoryImpl = PrescriptionRepositoryImpl(prescriptionDao)
 
-        runBlocking(Dispatchers.IO) {
+        runTest(Dispatchers.IO) {
             `when`(prescriptionDao.insertPrescription(prescriptionResponseLocal.toPrescriptionEntity())).thenReturn(listOf(1L))
             `when`(prescriptionDao.insertPrescriptionMedicines(prescriptionDirectionsEntity)).thenReturn(
                 listOf(2L)
@@ -107,14 +109,17 @@ class PrescriptionRepositoryTest : BaseClass() {
         }
     }
 
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    internal fun insertPrescription() = runBlocking {
+    internal fun insertPrescription() = runTest {
         val prescriptionInserted = prescriptionRepositoryImpl.insertPrescription(prescriptionResponseLocal)
         assertEquals(1L, prescriptionInserted)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    internal fun getLastPrescription() = runBlocking {
+    internal fun getLastPrescription() = runTest {
         val lastPrescriptions = prescriptionRepositoryImpl.getLastPrescription(patientResponse.id)
         assertEquals(listOf(prescriptionAndMedicineRelation),lastPrescriptions)
     }

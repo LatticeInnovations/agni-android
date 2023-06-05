@@ -44,7 +44,7 @@ class GenericRepositoryTest: BaseClass() {
 //    fun insertOrUpdatePatchEntityTest() = runBlocking{
 //        `when`(genericDao.getGenericEntityById(id, GenericTypeEnum.PATIENT, SyncType.PATCH)).thenReturn(genericEntityPatch)
 //        `when`(genericDao.insertGenericEntity(genericEntityPatch)).thenReturn(-1)
-//        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(id, patientResponse, GenericTypeEnum.PATIENT)
+//        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(id, patientResponse.json, GenericTypeEnum.PATIENT)
 //        Assert.assertEquals(-1, actual)
 //    }
 }

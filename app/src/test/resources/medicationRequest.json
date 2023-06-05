@@ -1,0 +1,70 @@
+{
+  "status": 1,
+  "message": "details fetched successfully",
+  "total": 1,
+  "data": [
+    {
+      "prescriptionId": "78e2d936-39e4-42c3-abf4-b96274726c27",
+      "prescriptionFhirId": "21292",
+      "generatedOn": "2023-06-01T15:15:45+05:30",
+      "patientId": "20154",
+      "prescription": [
+        {
+          "medFhirId": "21117",
+          "note": "As prescribed by doctor",
+          "qtyPerDose": 1,
+          "frequency": 1,
+          "doseForm": "Tablet",
+          "doseFormCode": "421026006",
+          "duration": 7,
+          "timing": "1521000175104",
+          "qtyPrescribed": 7
+        },
+        {
+          "medFhirId": "21134",
+          "note": null,
+          "qtyPerDose": 2,
+          "frequency": 5,
+          "doseForm": "Solution for injection",
+          "doseFormCode": "385219001",
+          "duration": 7,
+          "timing": null,
+          "qtyPrescribed": 70
+        },
+        {
+          "medFhirId": "21129",
+          "note": null,
+          "qtyPerDose": 6,
+          "frequency": 7,
+          "doseForm": "Capsule",
+          "doseFormCode": "420692007",
+          "duration": 7,
+          "timing": null,
+          "qtyPrescribed": 294
+        },
+        {
+          "medFhirId": "21122",
+          "note": null,
+          "qtyPerDose": 7,
+          "frequency": 3,
+          "doseForm": "Oral suspension",
+          "doseFormCode": "385024007",
+          "duration": 7,
+          "timing": "1521000175104",
+          "qtyPrescribed": 147
+        },
+        {
+          "medFhirId": "21128",
+          "note": null,
+          "qtyPerDose": 10,
+          "frequency": 4,
+          "doseForm": "Capsule",
+          "doseFormCode": "420692007",
+          "duration": 7,
+          "timing": null,
+          "qtyPrescribed": 280
+        }
+      ]
+    }
+  ]
+}

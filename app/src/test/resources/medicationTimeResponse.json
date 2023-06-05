@@ -1,0 +1,110 @@
+{
+  "status": 1,
+  "message": "Data fetched successfully",
+  "data": [
+    {
+      "medinstructionVal": "Before meal",
+      "medinstructionCode": "307165006"
+    },
+    {
+      "medinstructionVal": "Before food",
+      "medinstructionCode": "311500009"
+    },
+    {
+      "medinstructionVal": "An hour before food or on an empty stomach",
+      "medinstructionCode": "311502001"
+    },
+    {
+      "medinstructionVal": "Half to one hour before food",
+      "medinstructionCode": "311501008"
+    },
+    {
+      "medinstructionVal": "Before lunch",
+      "medinstructionCode": "3091000175105"
+    },
+    {
+      "medinstructionVal": "Between meals",
+      "medinstructionCode": "309613002"
+    },
+    {
+      "medinstructionVal": "With snack",
+      "medinstructionCode": "1551000175109"
+    },
+    {
+      "medinstructionVal": "During meal",
+      "medinstructionCode": "309612007"
+    },
+    {
+      "medinstructionVal": "During feed",
+      "medinstructionCode": "225763002"
+    },
+    {
+      "medinstructionVal": "Postprandial",
+      "medinstructionCode": "24863003"
+    },
+    {
+      "medinstructionVal": "After feed",
+      "medinstructionCode": "309603005"
+    },
+    {
+      "medinstructionVal": "After food",
+      "medinstructionCode": "225758001"
+    },
+    {
+      "medinstructionVal": "With or after meal",
+      "medinstructionCode": "311503006"
+    },
+    {
+      "medinstructionVal": "After dinner",
+      "medinstructionCode": "1521000175104"
+    },
+    {
+      "medinstructionVal": "After lunch",
+      "medinstructionCode": "1541000175107"
+    },
+    {
+      "medinstructionVal": "Daily with breakfast",
+      "medinstructionCode": "1751000175104"
+    },
+    {
+      "medinstructionVal": "Daily with dinner",
+      "medinstructionCode": "1771000175105"
+    },
+    {
+      "medinstructionVal": "Daily with lunch",
+      "medinstructionCode": "1761000175102"
+    },
+    {
+      "medinstructionVal": "With breakfast",
+      "medinstructionCode": "769561004"
+    },
+    {
+      "medinstructionVal": "With dinner",
+      "medinstructionCode": "769559008"
+    },
+    {
+      "medinstructionVal": "With largest meal",
+      "medinstructionCode": "769556001"
+    },
+    {
+      "medinstructionVal": "With lunch",
+      "medinstructionCode": "769560003"
+    },
+    {
+      "medinstructionVal": "With meals",
+      "medinstructionCode": "769557005"
+    },
+    {
+      "medinstructionVal": "With or after food",
+      "medinstructionCode": "311504000"
+    },
+    {
+      "medinstructionVal": "With supper",
+      "medinstructionCode": "769558000"
+    },
+    {
+      "medinstructionVal": "Without regard to meals",
+      "medinstructionCode": "424616004"
+    }
+  ]
+}
