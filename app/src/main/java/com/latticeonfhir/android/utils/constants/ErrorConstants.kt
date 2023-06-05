@@ -6,4 +6,6 @@ object ErrorConstants {
     const val TOO_MANY_ATTEMPTS_ERROR = "Too many attempts. Please try after 5 mins"
     const val SESSION_EXPIRED = "Session expired."
     const val UNAUTHORIZED = "Unauthorized"
+    const val SOCKET_TIMEOUT_EXCEPTION = "Socket Timeout Exception from server"
+    const val IO_EXCEPTION = "IO Exception from server"
 }
