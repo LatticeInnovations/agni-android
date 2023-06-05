@@ -68,6 +68,7 @@ class AutheticationRepositoryTest {
         )
         val actual = authenticationRepositoryImpl.login("1234567890")
         Assert.assertEquals(true, actual is ApiErrorResponse)
+        Assert.assertEquals("Unauthorized user", (actual as ApiErrorResponse).errorMessage)
     }
 
     @Test
@@ -98,6 +99,7 @@ class AutheticationRepositoryTest {
         )
         val actual = authenticationRepositoryImpl.login("something@gmail.com")
         Assert.assertEquals(true, actual is ApiErrorResponse)
+        Assert.assertEquals("Unauthorized user", (actual as ApiErrorResponse).errorMessage)
     }
 
     @Test
@@ -110,6 +112,7 @@ class AutheticationRepositoryTest {
         )
         val actual = authenticationRepositoryImpl.validateOtp("9876543210", 111111)
         Assert.assertEquals(true, actual is ApiErrorResponse)
+        Assert.assertEquals("Invalid OTP", (actual as ApiErrorResponse).errorMessage)
     }
 
     @Test
@@ -147,5 +150,9 @@ class AutheticationRepositoryTest {
         )
         val actual = authenticationRepositoryImpl.validateOtp("9876543210", 222222)
         Assert.assertEquals(true, actual is ApiEndResponse)
+        Assert.assertEquals(
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsInVzZXJOYW1lIjoiRGV2IHRlc3QgMiIsImlhdCI6MTY4NTk1NzQ4MCwiZXhwIjoxNjg2Mzg5NDgwfQ.cUPr7qmmsfucjNP-5x2VipHi2DcGuryO643D0NnoN0A",
+            (actual as ApiEndResponse).body.token
+        )
     }
 }
