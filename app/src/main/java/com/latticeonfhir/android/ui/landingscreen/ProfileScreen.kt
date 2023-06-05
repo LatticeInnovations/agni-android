@@ -36,7 +36,7 @@ fun ProfileScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
                 Detail(detail = viewModel.userName, tag = "NAME")
                 Spacer(modifier = Modifier.height(20.dp))
                 Label(stringResource(id = R.string.role_label))
-                Detail(detail = viewModel.userRole, tag = "DOCTOR")
+                Detail(detail = viewModel.userRole, tag = "ROLE")
                 Spacer(modifier = Modifier.height(20.dp))
                 Label(stringResource(id = R.string.phone_number_label))
                 Detail(detail = "+91 ${viewModel.userPhoneNo}", tag = "PHONE_NO")
