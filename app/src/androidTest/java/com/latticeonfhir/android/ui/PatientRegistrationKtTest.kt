@@ -49,7 +49,7 @@ class PatientRegistrationKtTest {
     val ageChip = hasTestTag("age") and hasClickAction()
     val femaleChip = hasTestTag("female") and hasClickAction()
     val maleChip = hasTestTag("male") and hasClickAction()
-    val othersChip = hasTestTag("others") and hasClickAction()
+    val othersChip = hasTestTag("other") and hasClickAction()
     val passportIdChip = hasTestTag("Passport Id chip") and hasClickAction()
     val voterIdChip = hasTestTag("Voter Id chip") and hasClickAction()
     val patientIdChip = hasTestTag("Patient Id chip") and hasClickAction()

@@ -261,10 +261,10 @@ fun LandingScreen(
                     AlertDialog(
                         onDismissRequest = { viewModel.isLoggingOut = false },
                         title = {
-                            Text(text = stringResource(id = R.string.logout_dialog_title))
+                            Text(text = stringResource(id = R.string.logout_dialog_title), modifier = Modifier.testTag("DIALOG_TITLE"))
                         },
                         text = {
-                               Text(text = stringResource(id = R.string.logout_dialog_description))
+                               Text(text = stringResource(id = R.string.logout_dialog_description), modifier = Modifier.testTag("DIALOG_DESCRIPTION"))
                         },
                         confirmButton = {
                             TextButton(
