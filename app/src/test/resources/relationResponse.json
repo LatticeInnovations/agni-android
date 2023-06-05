@@ -1,0 +1,16 @@
+{
+  "status": 1,
+  "message": "details fetched successfully",
+  "total": 4,
+  "data": [
+    {
+      "id": "666",
+      "relationship": [
+        {
+          "relativeId": "21028",
+          "patientIs": "BRO"
+        }
+      ]
+    }
+  ]
+}

@@ -253,25 +253,31 @@ class SyncRepositoryImpl @Inject constructor(
         else {
             val map = mutableMapOf<String, String>()
             map[PATIENT_ID] = patientFhirId
-            return ApiResponseConverter.convert(prescriptionApiService.getPastPrescription(map)).run {
-                when (this) {
-                    is ApiEndResponse -> {
-                        prescriptionDao.insertPrescription(
-                            *body.map { prescriptionResponse -> prescriptionResponse.toPrescriptionEntity(patientDao) }
-                                .toTypedArray()
-                        )
-                        val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
-                        body.forEach { prescriptionResponse ->
-                            medicineDirections.addAll(prescriptionResponse.toListOfPrescriptionDirectionsEntity())
+            return ApiResponseConverter.convert(prescriptionApiService.getPastPrescription(map))
+                .run {
+                    when (this) {
+                        is ApiEndResponse -> {
+                            prescriptionDao.insertPrescription(
+                                *body.map { prescriptionResponse ->
+                                    prescriptionResponse.toPrescriptionEntity(
+                                        patientDao
+                                    )
+                                }
+                                    .toTypedArray()
+                            )
+                            val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
+                            body.forEach { prescriptionResponse ->
+                                medicineDirections.addAll(prescriptionResponse.toListOfPrescriptionDirectionsEntity())
+                            }
+                            prescriptionDao.insertPrescriptionMedicines(
+                                *medicineDirections.toTypedArray()
+                            )
                         }
-                        prescriptionDao.insertPrescriptionMedicines(
-                            *medicineDirections.toTypedArray()
-                        )
+
+                        else -> {}
                     }
-                    else -> {}
+                    this
                 }
-                this
-            }
         }
     }
 
@@ -400,13 +406,24 @@ class SyncRepositoryImpl @Inject constructor(
                 ApiResponseConverter.convert(
                     prescriptionApiService.postPrescriptionRelatedData(
                         MEDICATION_REQUEST,
-                        listOfGenericEntity.map { it.payload.fromJson<PrescriptionResponse>() }
+                        listOfGenericEntity.map { it.payload.fromJson<LinkedTreeMap<*, *>>().mapToObject(PrescriptionResponse::class.java) as Any }
                     )
                 ).run {
                     when (this) {
                         is ApiEndResponse -> {
-                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId())
-                                .let { deletedRows ->
+                            val idsToDelete = mutableSetOf<String>()
+                            idsToDelete.addAll(listOfGenericEntity.map { genericEntity -> genericEntity.id })
+                            body.forEach { createResponse ->
+                                if (createResponse.error == null) {
+                                    prescriptionDao.updatePrescriptionFhirId(
+                                        createResponse.id!!,
+                                        createResponse.fhirId!!
+                                    )
+                                } else {
+                                    idsToDelete.remove(createResponse.id)
+                                }
+                            }
+                            genericDao.deleteSyncPayload(idsToDelete.toList()).let { deletedRows ->
                                     if (deletedRows > 0) sendPrescriptionPostData() else this
                                 }
                         }

@@ -6,18 +6,20 @@ import com.latticeonfhir.android.data.server.model.prescription.medication.Medic
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.QueryMap
 
+@JvmSuppressWildcards
 interface PrescriptionApiService {
 
     @GET("Medication")
     suspend fun getAllMedications(@QueryMap(encoded = true) map: Map<String,String>?): Response<BaseResponse<List<MedicationResponse>>>
 
     @POST("sync/{endPoint}")
-    suspend fun postPrescriptionRelatedData(@Path("endPoint") endPoint: String, prescriptionData: List<Any>): Response<BaseResponse<List<CreateResponse>>>
+    suspend fun postPrescriptionRelatedData(@Path("endPoint") endPoint: String, @Body prescriptionData: List<Any>): Response<BaseResponse<List<CreateResponse>>>
 
     @GET("MedicationRequest")
     suspend fun getPastPrescription(@QueryMap(encoded = true) map: Map<String,String>?): Response<BaseResponse<List<PrescriptionResponse>>>
