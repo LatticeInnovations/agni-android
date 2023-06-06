@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -150,7 +151,7 @@ class LandingScreenViewModel @Inject constructor(
 
     internal fun insertRecentSearch() {
         viewModelScope.launch(Dispatchers.IO) {
-            searchRepository.insertRecentPatientSearch(searchQuery.trim())
+            searchRepository.insertRecentPatientSearch(searchQuery.trim(), Date())
         }
     }
 

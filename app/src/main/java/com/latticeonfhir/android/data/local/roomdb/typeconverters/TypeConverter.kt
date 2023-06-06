@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.data.local.roomdb.typeconverters
 
 import androidx.room.TypeConverter
-import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import java.util.Date
 

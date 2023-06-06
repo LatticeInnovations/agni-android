@@ -7,17 +7,22 @@ import com.latticeonfhir.android.data.local.repository.search.SearchRepositoryIm
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
-import com.latticeonfhir.android.utils.search.Search
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import java.util.Date
 
+@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(JUnit4::class)
 class SearchRepositoryTest : BaseClass() {
 
     @Mock
@@ -50,7 +55,6 @@ class SearchRepositoryTest : BaseClass() {
 
         runBlocking(Dispatchers.IO) {
             `when`(searchDao.getRecentSearches(SearchTypeEnum.PATIENT)).thenReturn(listOf("Test"))
-            `when`(searchDao.getRecentSearches(SearchTypeEnum.ACTIVE_INGREDIENT)).thenReturn(listOf("Test"))
         }
     }
 
@@ -106,22 +110,24 @@ class SearchRepositoryTest : BaseClass() {
     }
 
     @Test
-    internal fun insertRecentActiveIngredientSearch() = runBlocking {
+    internal fun insertRecentActiveIngredientSearch() = runTest {
         val searchQuery = "Test"
-        `when`(searchDao.deleteRecentSearch(1)).thenReturn(1)
+        val date = Date()
+        `when`(searchDao.getRecentSearches(SearchTypeEnum.ACTIVE_INGREDIENT)).thenReturn(emptyList())
         `when`(searchDao.getOldestRecentSearchId(SearchTypeEnum.ACTIVE_INGREDIENT)).thenReturn(1)
+        `when`(searchDao.deleteRecentSearch(1)).thenReturn(1)
         `when`(
             searchDao.insertRecentSearch(
                 SearchHistoryEntity(
                     searchQuery = searchQuery,
-                    date = Date(),
+                    date = date,
                     searchType = SearchTypeEnum.ACTIVE_INGREDIENT
                 )
             )
         ).thenReturn(1L)
 
-        val insertActiveIngredient = searchRepositoryImpl.insertRecentActiveIngredientSearch(searchQuery)
-        assertEquals(null, insertActiveIngredient)
+        val insertActiveIngredient = searchRepositoryImpl.insertRecentActiveIngredientSearch(searchQuery,date)
+        assertEquals(1L, insertActiveIngredient)
     }
 
 //    @Test
