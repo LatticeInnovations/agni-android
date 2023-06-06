@@ -40,6 +40,10 @@ interface PreferenceRepository {
     fun setOtpAttemptTimeout(timeout: Long)
     fun getOtpAttemptTimeout(): Long
 
+    /** RoomDB EncryptionKey */
+    fun setRoomDBEncryptionKey(encryptionKey: String)
+    fun getRoomDBEncryptionKey(): String
+
     /** Clear preferences */
     fun clearPreferences()
 }
