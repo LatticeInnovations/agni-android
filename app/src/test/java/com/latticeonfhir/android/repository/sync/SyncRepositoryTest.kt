@@ -16,12 +16,15 @@ import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntit
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.constants.ConstantValues
+import com.latticeonfhir.android.data.server.constants.EndPoints
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.EndPoints.RELATED_PERSON
 import com.latticeonfhir.android.data.server.constants.QueryParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
+import com.latticeonfhir.android.service.workmanager.workers.download.prescription.PrescriptionDownloadSyncWorker.Companion.patientFhirId
 import com.latticeonfhir.android.utils.ResponseHelper
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
@@ -155,17 +158,48 @@ class SyncRepositoryTest : BaseClass() {
         )
     )
 
+    private val listOfPrescriptionEntity = listOf(
+        GenericEntity(
+            id = "ID",
+            patientId = "PATIENT_ID",
+            payload = "{\n" +
+                    "      \"prescriptionId\": \"e3488798-ff88-4b67-88b3-3f7df487fc71\",\n" +
+                    "      \"prescriptionFhirId\": \"21214\",\n" +
+                    "      \"generatedOn\": \"2023-05-19T11:00:35+05:30\",\n" +
+                    "      \"patientId\": \"21028\",\n" +
+                    "      \"prescription\": [\n" +
+                    "        {\n" +
+                    "          \"medFhirId\": \"21117\",\n" +
+                    "          \"note\": \"Swallow with water\",\n" +
+                    "          \"qtyPerDose\": 1,\n" +
+                    "          \"frequency\": 1,\n" +
+                    "          \"doseForm\": \"Tablet\",\n" +
+                    "          \"doseFormCode\": \"421026006\",\n" +
+                    "          \"duration\": 3,\n" +
+                    "          \"timing\": \"769557005\",\n" +
+                    "          \"qtyPrescribed\": 3\n" +
+                    "        },\n" +
+                    "        {\n" +
+                    "          \"medFhirId\": \"21131\",\n" +
+                    "          \"note\": \"Swallow with water\",\n" +
+                    "          \"qtyPerDose\": 2,\n" +
+                    "          \"frequency\": 3,\n" +
+                    "          \"doseForm\": \"Tablet\",\n" +
+                    "          \"doseFormCode\": \"421026006\",\n" +
+                    "          \"duration\": 3,\n" +
+                    "          \"timing\": \"769557005\",\n" +
+                    "          \"qtyPrescribed\": 18\n" +
+                    "        }\n" +
+                    "      ]\n" +
+                    "    }",
+            GenericTypeEnum.PRESCRIPTION,
+            SyncType.POST
+        )
+    )
+
     @Before
     public override fun setUp() {
         MockitoAnnotations.openMocks(this)
-
-        mockWebServer = MockWebServer()
-
-        prescriptionApiService = Retrofit.Builder()
-            .baseUrl(mockWebServer.url("/"))
-            .addConverterFactory(GsonConverterFactory.create(FhirApp.gson))
-            .build()
-            .create(PrescriptionApiService::class.java)
 
         syncRepositoryImpl = SyncRepositoryImpl(
             patientApiService,
@@ -180,8 +214,9 @@ class SyncRepositoryTest : BaseClass() {
 
         runTest {
             `when`(preferenceRepository.getLastSyncPatient()).thenReturn(200L)
+            `when`(preferenceRepository.getLastMedicationSyncDate()).thenReturn(200L)
 
-            `when`(patientDao.getPatientIdByFhirId("21028")).thenReturn("PATIENT_ID")
+            `when`(patientDao.getPatientIdByFhirId("FHIR_ID")).thenReturn("PATIENT_ID")
 
             `when`(
                 patientDao.updateFhirId(
@@ -329,7 +364,7 @@ class SyncRepositoryTest : BaseClass() {
 
     @Test
     internal fun getAndInsertRelation_Returns_ListOfRelation() = runTest {
-        `when`(patientDao.getPatientIdByFhirId("666")).thenReturn("ID")
+        `when`(patientDao.getPatientIdByFhirId("FHIR_ID")).thenReturn("ID")
         `when`(
             genericDao.getSameTypeGenericEntityPayload(
                 GenericTypeEnum.FHIR_IDS,
@@ -339,7 +374,7 @@ class SyncRepositoryTest : BaseClass() {
         ).thenReturn(
             listOfGenericEntity
         )
-        `when`(genericDao.deleteSyncPayload(listOf("666"))).thenReturn(0)
+        `when`(genericDao.deleteSyncPayload(listOf("ID"))).thenReturn(0)
 
         val map = mutableMapOf<String, String>()
         map[QueryParameters.PATIENT_ID] =
@@ -378,76 +413,181 @@ class SyncRepositoryTest : BaseClass() {
 
     @Test
     internal fun getAndInsertPrescription_Returns_Success() = runTest {
-        val mockResponse = MockResponse().run {
-            setResponseCode(HttpsURLConnection.HTTP_OK)
-            setBody(ResponseHelper.readJsonResponse("/prescriptionResponse.json"))
-        }
-        mockWebServer.enqueue(mockResponse)
+        `when`(
+            prescriptionApiService.getPastPrescription(
+                mapOf(
+                    Pair(QueryParameters.PATIENT_ID, "FHIR_ID")
+                )
+            )
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 2,
+                    message = "Success",
+                    data = listOf(prescribedResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+
         val response = syncRepositoryImpl.getAndInsertPrescription("FHIR_ID")
-        mockWebServer.takeRequest()
         assertEquals(
             (response as ApiEndResponse).body[0].prescriptionId,
-            "e3488798-ff88-4b67-88b3-3f7df487fc71"
+            "78e2d936-39e4-42c3-abf4-b96274726c27"
         )
     }
 
     @Test
     internal fun getAndInsertPrescription_Returns_Error() = runTest {
-        val mockResponse = MockResponse().run {
-            setResponseCode(HttpsURLConnection.HTTP_OK)
-            setBody(ResponseHelper.readJsonResponse("/errorResponse.json"))
-        }
-        mockWebServer.enqueue(mockResponse)
+        `when`(
+            prescriptionApiService.getPastPrescription(
+                mapOf(
+                    Pair(QueryParameters.PATIENT_ID, "FHIR_ID")
+                )
+            )
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 0,
+                    message = "Error",
+                    data = null,
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
         val response = syncRepositoryImpl.getAndInsertPrescription("FHIR_ID")
-        mockWebServer.takeRequest()
         assertEquals((response is ApiErrorResponse), true)
     }
 
     @Test
     internal fun getAndInsertMedication_Returns_Success() = runTest {
-        val mockResponse = MockResponse().run {
-            setResponseCode(HttpsURLConnection.HTTP_OK)
-            setBody(ResponseHelper.readJsonResponse("/medicationResponse.json"))
-        }
-        mockWebServer.enqueue(mockResponse)
+        val oldMap = mutableMapOf<String, String>()
+        oldMap[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        oldMap[QueryParameters.OFFSET] = 0.toString()
+        if (preferenceRepository.getLastMedicationSyncDate() != 0L) oldMap[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastMedicationSyncDate().toTimeStampDate()
+            )
+
+        `when`(
+            prescriptionApiService.getAllMedications(
+                oldMap
+            )
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 1,
+                    message = "Success",
+                    data = listOf(medicationResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+
+        val map = mutableMapOf<String, String>()
+        map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        map[QueryParameters.OFFSET] = 200.toString()
+        if (preferenceRepository.getLastMedicationSyncDate() != 0L) map[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastMedicationSyncDate().toTimeStampDate()
+            )
+
+        `when`(
+            prescriptionApiService.getAllMedications(
+                map
+            )
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 2,
+                    message = "Success",
+                    data = listOf(medicationResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
         val response = syncRepositoryImpl.getAndInsertMedication(0)
-        mockWebServer.takeRequest()
         assertEquals((response as ApiEndResponse).body[0].medFhirId, "21111")
     }
 
     @Test
     internal fun getAndInsertMedication_Returns_Error() = runTest {
-        val mockResponse = MockResponse().run {
-            setResponseCode(HttpsURLConnection.HTTP_OK)
-            setBody(ResponseHelper.readJsonResponse("/errorResponse.json"))
-        }
-        mockWebServer.enqueue(mockResponse)
+        val map = mutableMapOf<String, String>()
+        map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        map[QueryParameters.OFFSET] = 0.toString()
+        if (preferenceRepository.getLastMedicationSyncDate() != 0L) map[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastMedicationSyncDate().toTimeStampDate()
+            )
+
+        `when`(
+            prescriptionApiService.getAllMedications(
+                map
+            )
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 0,
+                    message = "Error",
+                    data = listOf(medicationResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
         val response = syncRepositoryImpl.getAndInsertMedication(0)
-        mockWebServer.takeRequest()
         assertEquals((response is ApiErrorResponse), true)
     }
 
     @Test
     internal fun getMedicineTime_Returns_Success() = runTest {
-        val mockResponse = MockResponse().run {
-            setResponseCode(HttpsURLConnection.HTTP_OK)
-            setBody(ResponseHelper.readJsonResponse("/medicationTimeResponse.json"))
-        }
-        mockWebServer.enqueue(mockResponse)
+        `when`(
+            prescriptionApiService.getMedicineTime()
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 1,
+                    message = "Success",
+                    data = listOf(medicineTimeResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
         val response = syncRepositoryImpl.getMedicineTime()
-        mockWebServer.takeRequest()
         assertEquals((response as ApiEndResponse).body[0].medInstructionCode, "307165006")
     }
 
     @Test
     internal fun getMedicineTime_Returns_Error() = runTest {
-        val mockResponse = MockResponse().run {
-            setResponseCode(HttpsURLConnection.HTTP_OK)
-            setBody(ResponseHelper.readJsonResponse("/errorResponse.json"))
-        }
-        mockWebServer.enqueue(mockResponse)
+        `when`(
+            prescriptionApiService.getMedicineTime()
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 0,
+                    message = "Error",
+                    data = null,
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
         val response = syncRepositoryImpl.getMedicineTime()
-        mockWebServer.takeRequest()
         assertEquals((response is ApiErrorResponse), true)
     }
 
@@ -459,11 +599,6 @@ class SyncRepositoryTest : BaseClass() {
                 syncType = SyncType.POST
             )
         ).thenReturn(emptyList())
-        val mockResponse = MockResponse().run {
-            setResponseCode(HttpsURLConnection.HTTP_OK)
-            setBody(ResponseHelper.readJsonResponse("/createResponse.json"))
-        }
-        mockWebServer.enqueue(mockResponse)
         val response = syncRepositoryImpl.sendPersonPostData()
         assertEquals(true, response is ApiEmptyResponse)
     }
@@ -509,11 +644,6 @@ class SyncRepositoryTest : BaseClass() {
                 syncType = SyncType.POST
             )
         ).thenReturn(emptyList())
-        val mockResponse = MockResponse().run {
-            setResponseCode(HttpsURLConnection.HTTP_OK)
-            setBody(ResponseHelper.readJsonResponse("/createResponse.json"))
-        }
-        mockWebServer.enqueue(mockResponse)
         val response = syncRepositoryImpl.sendRelatedPersonPostData()
         assertEquals(true, response is ApiEmptyResponse)
     }
@@ -570,59 +700,34 @@ class SyncRepositoryTest : BaseClass() {
                 syncType = SyncType.POST
             )
         ).thenReturn(
-            listOf(
-                GenericEntity(
-                    id = "ID",
-                    patientId = "PATIENT_ID",
-                    payload = "{\n" +
-                            "      \"prescriptionId\": \"e3488798-ff88-4b67-88b3-3f7df487fc71\",\n" +
-                            "      \"prescriptionFhirId\": \"21214\",\n" +
-                            "      \"generatedOn\": \"2023-05-19T11:00:35+05:30\",\n" +
-                            "      \"patientId\": \"21028\",\n" +
-                            "      \"prescription\": [\n" +
-                            "        {\n" +
-                            "          \"medFhirId\": \"21117\",\n" +
-                            "          \"note\": \"Swallow with water\",\n" +
-                            "          \"qtyPerDose\": 1,\n" +
-                            "          \"frequency\": 1,\n" +
-                            "          \"doseForm\": \"Tablet\",\n" +
-                            "          \"doseFormCode\": \"421026006\",\n" +
-                            "          \"duration\": 3,\n" +
-                            "          \"timing\": \"769557005\",\n" +
-                            "          \"qtyPrescribed\": 3\n" +
-                            "        },\n" +
-                            "        {\n" +
-                            "          \"medFhirId\": \"21131\",\n" +
-                            "          \"note\": \"Swallow with water\",\n" +
-                            "          \"qtyPerDose\": 2,\n" +
-                            "          \"frequency\": 3,\n" +
-                            "          \"doseForm\": \"Tablet\",\n" +
-                            "          \"doseFormCode\": \"421026006\",\n" +
-                            "          \"duration\": 3,\n" +
-                            "          \"timing\": \"769557005\",\n" +
-                            "          \"qtyPrescribed\": 18\n" +
-                            "        }\n" +
-                            "      ]\n" +
-                            "    }",
-                    GenericTypeEnum.PRESCRIPTION,
-                    SyncType.POST
+            listOfPrescriptionEntity
+        )
+
+        `when`(
+            prescriptionApiService.postPrescriptionRelatedData(
+                EndPoints.MEDICATION_REQUEST,
+                listOfPrescriptionEntity.map {
+                    it.payload.fromJson<LinkedTreeMap<*, *>>().mapToObject(
+                        PrescriptionResponse::class.java
+                    ) as Any
+                })
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 2,
+                    message = "Success",
+                    data = listOf(createResponse),
+                    offset = null,
+                    total = null,
+                    error = null
                 )
             )
         )
-        val mockResponse = MockResponse().run {
-            setResponseCode(HttpsURLConnection.HTTP_OK)
-            setBody(ResponseHelper.readJsonResponse("/createResponse.json"))
-        }
-        mockWebServer.enqueue(mockResponse)
+
         val response = syncRepositoryImpl.sendPrescriptionPostData()
         assertEquals(
             "78e2d936-39e4-42c3-abf4-b96274726c27",
             (response as ApiEndResponse).body[0].id
         )
-    }
-
-    @After
-    public override fun tearDown() {
-        mockWebServer.shutdown()
     }
 }

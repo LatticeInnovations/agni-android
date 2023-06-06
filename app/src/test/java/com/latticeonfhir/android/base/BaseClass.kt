@@ -63,11 +63,11 @@ abstract class BaseClass : TestCase() {
     )
 
     val relationResponse = RelatedPersonResponse(
-        id = "666",
+        id = "FHIR_ID",
         relationship = listOf(
             Relationship(
                 patientIs = "BRO",
-                relativeId = "21028"
+                relativeId = "FHIR_ID"
             )
         )
     )
@@ -133,7 +133,7 @@ abstract class BaseClass : TestCase() {
         prescriptionId = "78e2d936-39e4-42c3-abf4-b96274726c27",
         prescriptionFhirId = "21292",
         generatedOn = Date(),
-        patientFhirId = "20154",
+        patientFhirId = "FHIR_ID",
         prescription = listOf(
             Medication(
                 medFhirId = "21117",
