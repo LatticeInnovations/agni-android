@@ -183,7 +183,9 @@ class LandingScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Default) {
             WorkManager.getInstance(getApplication<Application>().applicationContext).cancelAllWork().await().also {
                 (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
+                val roomDBKey = preferenceRepository.getRoomDBEncryptionKey()
                 preferenceRepository.clearPreferences()
+                preferenceRepository.setRoomDBEncryptionKey(roomDBKey)
             }
         }
     }
