@@ -21,7 +21,9 @@ public class DateDeserializer implements JsonDeserializer<Date> {
             "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'",
             "yyyy-MM-dd HH:mm:ssZ",
             "yyyy-MM-dd HH:mm:ss",
-            "yyyy-MM-dd"
+            "yyyy-MM-dd",
+            "yyyy-MM-dd'T'HH:mm:ssXXX",
+            "yyyy-MM-dd'T'HH:mm:sszzz"
     };
 
     @NonNull

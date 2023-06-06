@@ -17,7 +17,13 @@ public class DateSerializer implements JsonSerializer<Date> {
     @NonNull
     @Override
     public JsonElement serialize(@NonNull Date src, @NonNull Type typeOfSrc, @NonNull JsonSerializationContext context) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ", Locale.getDefault());
-        return new JsonPrimitive(formatter.format(src.getTime()));
+        SimpleDateFormat formatter;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault());
+            return new JsonPrimitive(formatter.format(src.getTime()));
+        } else {
+            formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sszzz", Locale.getDefault());
+            return new JsonPrimitive(formatter.format(src.getTime()).replace("GMT",""));
+        }
     }
 }
