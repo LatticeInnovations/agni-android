@@ -234,8 +234,8 @@ class SyncRepositoryImpl @Inject constructor(
                                     )
                                 }
                             }
-                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).run {
-                                getAndInsertRelation()
+                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).let {deletedRows ->
+                                if(deletedRows > 0) getAndInsertRelation() else this
                             }
                         }
 

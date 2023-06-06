@@ -6,6 +6,7 @@ import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 import java.util.LinkedList
 
 interface SearchRepository {
@@ -19,11 +20,11 @@ interface SearchRepository {
     suspend fun searchActiveIngredients(activeIngredient: String): List<String>
 
     /** Recent Patient Search*/
-    suspend fun insertRecentPatientSearch(searchQuery: String): Long
+    suspend fun insertRecentPatientSearch(searchQuery: String, date: Date): Long
     suspend fun getRecentPatientSearches(): List<String>
 
     /** Recent Medication Search*/
-    suspend fun insertRecentActiveIngredientSearch(searchQuery: String): Long
+    suspend fun insertRecentActiveIngredientSearch(searchQuery: String, date: Date): Long
     suspend fun getRecentActiveIngredientSearches(): List<String>
 
     suspend fun getSuggestedMembers(patientId: String, searchParameters: SearchParameters, returnList: (LinkedList<PatientResponse>) -> Unit)

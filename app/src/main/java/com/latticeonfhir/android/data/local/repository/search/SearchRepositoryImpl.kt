@@ -144,7 +144,7 @@ class SearchRepositoryImpl @Inject constructor(
         return getFuzzySearchMedicationList(activeIngredient,searchDao.getActiveIngredients(),60)
     }
 
-    override suspend fun insertRecentPatientSearch(searchQuery: String): Long {
+    override suspend fun insertRecentPatientSearch(searchQuery: String, date: Date): Long {
         return searchDao.getRecentSearches(SearchTypeEnum.PATIENT).run {
             if (size == 5) {
                 searchDao.getOldestRecentSearchId(SearchTypeEnum.PATIENT).run {
@@ -152,7 +152,7 @@ class SearchRepositoryImpl @Inject constructor(
                     searchDao.insertRecentSearch(
                         SearchHistoryEntity(
                             searchQuery = searchQuery,
-                            date = Date(),
+                            date = date,
                             searchType = SearchTypeEnum.PATIENT
                         )
                     )
@@ -161,7 +161,7 @@ class SearchRepositoryImpl @Inject constructor(
                 searchDao.insertRecentSearch(
                     SearchHistoryEntity(
                         searchQuery = searchQuery,
-                        date = Date(),
+                        date = date,
                         searchType = SearchTypeEnum.PATIENT
                     )
                 )
@@ -173,7 +173,7 @@ class SearchRepositoryImpl @Inject constructor(
         return searchDao.getRecentSearches(SearchTypeEnum.PATIENT)
     }
 
-    override suspend fun insertRecentActiveIngredientSearch(searchQuery: String): Long {
+    override suspend fun insertRecentActiveIngredientSearch(searchQuery: String, date: Date): Long {
         return searchDao.getRecentSearches(SearchTypeEnum.ACTIVE_INGREDIENT).run {
             if (size == 5) {
                 searchDao.getOldestRecentSearchId(SearchTypeEnum.ACTIVE_INGREDIENT).run {
@@ -181,7 +181,7 @@ class SearchRepositoryImpl @Inject constructor(
                     searchDao.insertRecentSearch(
                         SearchHistoryEntity(
                             searchQuery = searchQuery,
-                            date = Date(),
+                            date = date,
                             searchType = SearchTypeEnum.ACTIVE_INGREDIENT
                         )
                     )
@@ -190,7 +190,7 @@ class SearchRepositoryImpl @Inject constructor(
                 searchDao.insertRecentSearch(
                     SearchHistoryEntity(
                         searchQuery = searchQuery,
-                        date = Date(),
+                        date = date,
                         searchType = SearchTypeEnum.ACTIVE_INGREDIENT
                     )
                 )

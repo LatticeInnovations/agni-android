@@ -96,7 +96,7 @@ class PrescriptionRepositoryTest : BaseClass() {
         MockitoAnnotations.openMocks(this)
         prescriptionRepositoryImpl = PrescriptionRepositoryImpl(prescriptionDao)
 
-        runTest(Dispatchers.IO) {
+        runTest {
             `when`(prescriptionDao.insertPrescription(prescriptionResponseLocal.toPrescriptionEntity())).thenReturn(listOf(1L))
             `when`(prescriptionDao.insertPrescriptionMedicines(prescriptionDirectionsEntity)).thenReturn(
                 listOf(2L)
