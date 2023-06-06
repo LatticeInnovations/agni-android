@@ -11,6 +11,8 @@ import com.latticeonfhir.android.data.server.model.prescription.medication.Medic
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import junit.framework.TestCase
@@ -47,7 +49,7 @@ abstract class BaseClass : TestCase() {
         active = true,
         gender = "male",
         mobileNumber = 9876543210,
-        fhirId = null,
+        fhirId = "FHIR_ID",
         permanentAddress = PatientAddressResponse(
             postalCode = "111111",
             state = "Uttarakhand",
@@ -58,6 +60,16 @@ abstract class BaseClass : TestCase() {
             district = null
         ),
         identifier = listOf(patientIdentifier)
+    )
+
+    val relationResponse = RelatedPersonResponse(
+        id = "666",
+        relationship = listOf(
+            Relationship(
+                patientIs = "BRO",
+                relativeId = "21028"
+            )
+        )
     )
 
     val relative = PatientResponse(
@@ -101,7 +113,7 @@ abstract class BaseClass : TestCase() {
     val createResponse = CreateResponse(
         status = "200 OK",
         fhirId = "21292",
-        id = "urn:uuid:78e2d936-39e4-42c3-abf4-b96274726c27",
+        id = "78e2d936-39e4-42c3-abf4-b96274726c27",
         error = null
     )
 
