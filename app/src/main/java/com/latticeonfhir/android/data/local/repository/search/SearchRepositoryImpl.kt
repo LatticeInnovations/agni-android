@@ -208,17 +208,15 @@ class SearchRepositoryImpl @Inject constructor(
         returnList: (LinkedList<PatientResponse>) -> Unit
     ) {
         val linkedList = LinkedList<PatientResponse>()
-        val existingMembers =
-            relationDao.getAllRelationOfPatient(patientId).map { it.toId }.toMutableSet()
-                .apply { add(patientId) }
+        val existingMembers = relationDao.getAllRelationOfPatient(patientId).map { relationEntity -> relationEntity.toId }.toMutableSet().apply { add(patientId) }
         getFuzzySearchList(
             getSearchList(),
             searchParameters,
             90
         ).filter {
             !existingMembers.contains(it.patientEntity.id)
-        }.map {
-            linkedList.add(it.toPatientResponse())
+        }.map { patientAndIdentifierEntity ->
+            linkedList.add(patientAndIdentifierEntity.toPatientResponse())
         }
         returnList(
             linkedList
