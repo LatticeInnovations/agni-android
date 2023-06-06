@@ -234,9 +234,10 @@ class SyncRepositoryImpl @Inject constructor(
                                     )
                                 }
                             }
-                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).let {deletedRows ->
-                                if(deletedRows > 0) getAndInsertRelation() else this
-                            }
+                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId())
+                                .let { deletedRows ->
+                                    if (deletedRows > 0) getAndInsertRelation() else this
+                                }
                         }
 
                         else -> {
@@ -251,9 +252,14 @@ class SyncRepositoryImpl @Inject constructor(
     override suspend fun getAndInsertPrescription(patientFhirId: String): ResponseMapper<List<PrescriptionResponse>> {
         return if (patientFhirId.isBlank()) ApiEmptyResponse()
         else {
-            val map = mutableMapOf<String, String>()
-            map[PATIENT_ID] = patientFhirId
-            return ApiResponseConverter.convert(prescriptionApiService.getPastPrescription(map))
+
+            return ApiResponseConverter.convert(
+                prescriptionApiService.getPastPrescription(
+                    mapOf(
+                        Pair(PATIENT_ID, patientFhirId)
+                    )
+                )
+            )
                 .run {
                     when (this) {
                         is ApiEndResponse -> {
@@ -406,7 +412,10 @@ class SyncRepositoryImpl @Inject constructor(
                 ApiResponseConverter.convert(
                     prescriptionApiService.postPrescriptionRelatedData(
                         MEDICATION_REQUEST,
-                        listOfGenericEntity.map { it.payload.fromJson<LinkedTreeMap<*, *>>().mapToObject(PrescriptionResponse::class.java) as Any }
+                        listOfGenericEntity.map {
+                            it.payload.fromJson<LinkedTreeMap<*, *>>()
+                                .mapToObject(PrescriptionResponse::class.java) as Any
+                        }
                     )
                 ).run {
                     when (this) {
@@ -424,8 +433,8 @@ class SyncRepositoryImpl @Inject constructor(
                                 }
                             }
                             genericDao.deleteSyncPayload(idsToDelete.toList()).let { deletedRows ->
-                                    if (deletedRows > 0) sendPrescriptionPostData() else this
-                                }
+                                if (deletedRows > 0) sendPrescriptionPostData() else this
+                            }
                         }
 
                         else -> this
