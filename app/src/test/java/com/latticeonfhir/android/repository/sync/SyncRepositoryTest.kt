@@ -2,6 +2,7 @@ package com.latticeonfhir.android.repository.sync
 
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.BaseClass
+import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
@@ -14,8 +15,12 @@ import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntit
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.constants.ConstantValues
+import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
+import com.latticeonfhir.android.data.server.constants.QueryParameters
+import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import com.latticeonfhir.android.utils.ResponseHelper
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
@@ -31,6 +36,7 @@ import org.junit.runners.JUnit4
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.net.ssl.HttpsURLConnection
@@ -63,6 +69,9 @@ class SyncRepositoryTest : BaseClass() {
     @Mock
     private lateinit var prescriptionDao: PrescriptionDao
 
+    @Mock
+    private lateinit var syncRepository: SyncRepository
+
     private lateinit var syncRepositoryImpl: SyncRepositoryImpl
 
     private lateinit var mockWebServer: MockWebServer
@@ -72,11 +81,6 @@ class SyncRepositoryTest : BaseClass() {
         MockitoAnnotations.openMocks(this)
 
         mockWebServer = MockWebServer()
-        patientApiService = Retrofit.Builder()
-            .baseUrl(mockWebServer.url("/"))
-            .addConverterFactory(GsonConverterFactory.create(FhirApp.gson))
-            .build()
-            .create(PatientApiService::class.java)
 
         prescriptionApiService = Retrofit.Builder()
             .baseUrl(mockWebServer.url("/"))
@@ -113,6 +117,12 @@ class SyncRepositoryTest : BaseClass() {
 
     @Test
     internal fun getAndInsertPatientData_Returns_ListOfPatient() = runTest {
+        patientApiService = Retrofit.Builder()
+            .baseUrl(mockWebServer.url("/"))
+            .addConverterFactory(GsonConverterFactory.create(FhirApp.gson))
+            .build()
+            .create(PatientApiService::class.java)
+
         val mockResponse = MockResponse().run {
             setResponseCode(HttpsURLConnection.HTTP_OK)
             setBody(ResponseHelper.readJsonResponse("/patientResponse.json"))
@@ -128,6 +138,12 @@ class SyncRepositoryTest : BaseClass() {
 
     @Test
     internal fun getAndInsertPatientData_Returns_Error() = runTest {
+        patientApiService = Retrofit.Builder()
+            .baseUrl(mockWebServer.url("/"))
+            .addConverterFactory(GsonConverterFactory.create(FhirApp.gson))
+            .build()
+            .create(PatientApiService::class.java)
+
         val mockResponse = MockResponse().run {
             setResponseCode(HttpsURLConnection.HTTP_OK)
             setBody(ResponseHelper.readJsonResponse("/errorResponse.json"))
@@ -140,6 +156,46 @@ class SyncRepositoryTest : BaseClass() {
 
     @Test
     internal fun getAndInsertPatientData_Returns_Continue() = runTest {
+        val map = mutableMapOf<String, String>()
+        map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        map[QueryParameters.OFFSET] = 200.toString()
+        map[QueryParameters.SORT] = "-${QueryParameters.ID}"
+        if (preferenceRepository.getLastSyncPatient() != 0L) map[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncPatient().toTimeStampDate()
+            )
+        `when`(patientApiService.getListData(PATIENT,map)).thenReturn(Response.success(
+            BaseResponse(
+                status = 2,
+                message = "Success",
+                data = listOf(patientResponse),
+                offset = null,
+                total = null,
+                error = null
+            )
+        ))
+
+        val newmap = mutableMapOf<String, String>()
+        newmap[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        newmap[QueryParameters.OFFSET] = 0.toString()
+        newmap[QueryParameters.SORT] = "-${QueryParameters.ID}"
+        if (preferenceRepository.getLastSyncPatient() != 0L) map[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncPatient().toTimeStampDate()
+            )
+        `when`(patientApiService.getListData(PATIENT,newmap)).thenReturn(Response.success(
+            BaseResponse(
+                status = 1,
+                message = "Success",
+                data = listOf(patientResponse),
+                offset = null,
+                total = null,
+                error = null
+            )
+        ))
+
         val mockResponse = MockResponse().run {
             setResponseCode(HttpsURLConnection.HTTP_OK)
             setBody(ResponseHelper.readJsonResponse("/patientContinueResponse.json"))
@@ -153,6 +209,12 @@ class SyncRepositoryTest : BaseClass() {
 
     @Test
     internal fun getAndInsertPatientDataById_Returns_Patient() = runTest {
+        patientApiService = Retrofit.Builder()
+            .baseUrl(mockWebServer.url("/"))
+            .addConverterFactory(GsonConverterFactory.create(FhirApp.gson))
+            .build()
+            .create(PatientApiService::class.java)
+
         val mockResponse = MockResponse().run {
             setResponseCode(HttpsURLConnection.HTTP_OK)
             setBody(ResponseHelper.readJsonResponse("/patientResponse.json"))

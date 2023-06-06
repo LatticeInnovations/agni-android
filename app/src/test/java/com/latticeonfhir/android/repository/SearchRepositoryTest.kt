@@ -6,7 +6,10 @@ import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.search.SearchRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toIdentifierEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -53,7 +56,7 @@ class SearchRepositoryTest : BaseClass() {
         MockitoAnnotations.openMocks(this)
         searchRepositoryImpl = SearchRepositoryImpl(searchDao, relationDao)
 
-        runBlocking(Dispatchers.IO) {
+        runTest {
             `when`(searchDao.getRecentSearches(SearchTypeEnum.PATIENT)).thenReturn(listOf("Test"))
         }
     }
@@ -103,6 +106,29 @@ class SearchRepositoryTest : BaseClass() {
         Assert.assertEquals(listOf("Test"), actual)
     }
 
+
+    @Test
+    internal fun insertRecentPatient() = runTest {
+        val searchQuery = "Test"
+        val date = Date()
+        `when`(searchDao.getRecentSearches(SearchTypeEnum.PATIENT)).thenReturn(emptyList())
+        `when`(searchDao.getOldestRecentSearchId(SearchTypeEnum.PATIENT)).thenReturn(1)
+        `when`(searchDao.deleteRecentSearch(1)).thenReturn(1)
+        `when`(
+            searchDao.insertRecentSearch(
+                SearchHistoryEntity(
+                    searchQuery = searchQuery,
+                    date = date,
+                    searchType = SearchTypeEnum.PATIENT
+                )
+            )
+        ).thenReturn(1L)
+
+        val insertActiveIngredient =
+            searchRepositoryImpl.insertRecentPatientSearch(searchQuery, date)
+        assertEquals(1L, insertActiveIngredient)
+    }
+
     @Test
     internal fun getRecentActiveIngredientSearches() = runBlocking {
         val actual = searchRepositoryImpl.getRecentActiveIngredientSearches()
@@ -126,8 +152,28 @@ class SearchRepositoryTest : BaseClass() {
             )
         ).thenReturn(1L)
 
-        val insertActiveIngredient = searchRepositoryImpl.insertRecentActiveIngredientSearch(searchQuery,date)
+        val insertActiveIngredient =
+            searchRepositoryImpl.insertRecentActiveIngredientSearch(searchQuery, date)
         assertEquals(1L, insertActiveIngredient)
+    }
+
+    @Test
+    internal fun getSuggestedMembers_Returns_ListOf() = runTest {
+        `when`(searchDao.getPatientList()).thenReturn(
+            listOf(
+                PatientAndIdentifierEntity(
+                    patientEntity = patientResponse.toPatientEntity(),
+                    identifiers = listOf(patientIdentifier.toIdentifierEntity(patientResponse.id))
+                ), PatientAndIdentifierEntity(
+                    patientEntity = patientResponse.toPatientEntity().copy(id = "NEW_ID"),
+                    identifiers = listOf(patientIdentifier.toIdentifierEntity(patientResponse.id))
+                )
+            )
+        )
+        `when`(relationDao.getAllRelationOfPatient(patientResponse.id)).thenReturn(emptyList())
+        searchRepositoryImpl.getSuggestedMembers(patientResponse.id, searchParameters) { members ->
+            assertEquals(true, members.isNotEmpty())
+        }
     }
 
 //    @Test
