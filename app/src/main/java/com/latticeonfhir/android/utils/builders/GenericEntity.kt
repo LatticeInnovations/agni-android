@@ -14,50 +14,56 @@ object GenericEntity {
     ): List<ChangeRequest> {
         val existingList = mutableListOf<ChangeRequest>()
         var alreadyExist: ChangeRequest?
-        (existingMap[mapEntry.key] as List<*>).map {
-            (it as LinkedTreeMap<*, *>).mapToObject(ChangeRequest::class.java)
-                ?.let { it1 -> existingList.add(it1) }
-        }
-        entryValues.forEach { entryValue ->
-            alreadyExist = existingList.find { it.key == entryValue.key }
-            when (entryValue.operation) {
-                ChangeTypeEnum.ADD.value -> {
-                    existingList.apply {
-                        remove(alreadyExist)
-                        add(entryValue)
-                    }
-                }
-
-                ChangeTypeEnum.REPLACE.value -> {
-                    if (alreadyExist?.operation != ChangeTypeEnum.ADD.value) {
-                        existingList.apply {
-                            remove(alreadyExist)
-                            add(entryValue)
-                        }
-                    } else {
-                        existingList.apply {
-                            remove(alreadyExist)
-                            add(alreadyExist!!.copy(value = entryValue.value))
-                        }
-                    }
-                }
-
-                ChangeTypeEnum.REMOVE.value -> {
-                    if (alreadyExist?.operation == ChangeTypeEnum.ADD.value || alreadyExist?.operation == ChangeTypeEnum.REPLACE.value) {
-                        existingList.apply {
-                            remove(alreadyExist)
-                        }
-                    } else {
-                        existingList.apply {
-                            remove(alreadyExist)
-                            add(entryValue)
-                        }
-                    }
-                }
+        if(existingMap[mapEntry.key] != null) {
+            (existingMap[mapEntry.key] as List<*>).map {
+                (it as LinkedTreeMap<*, *>).mapToObject(ChangeRequest::class.java)
+                    ?.let { it1 -> existingList.add(it1) }
             }
-            alreadyExist = null
-        }
+            entryValues.forEach { entryValue ->
+                alreadyExist = existingList.find { it.key == entryValue.key }
+                when (entryValue.operation) {
+                    ChangeTypeEnum.ADD.value -> {
+                        existingList.apply {
+                            remove(alreadyExist)
+                            add(entryValue)
+                        }
+                    }
 
+                    ChangeTypeEnum.REPLACE.value -> {
+                        if (alreadyExist?.operation != ChangeTypeEnum.ADD.value) {
+                            existingList.apply {
+                                remove(alreadyExist)
+                                add(entryValue)
+                            }
+                        } else {
+                            existingList.apply {
+                                remove(alreadyExist)
+                                add(alreadyExist!!.copy(value = entryValue.value))
+                            }
+                        }
+                    }
+
+                    ChangeTypeEnum.REMOVE.value -> {
+                        if (alreadyExist?.operation == ChangeTypeEnum.ADD.value || alreadyExist?.operation == ChangeTypeEnum.REPLACE.value) {
+                            existingList.apply {
+                                remove(alreadyExist)
+                            }
+                        } else {
+                            existingList.apply {
+                                remove(alreadyExist)
+                                add(entryValue)
+                            }
+                        }
+                    }
+                }
+                alreadyExist = null
+            }
+
+        } else {
+            entryValues.forEach { entryValue ->
+                existingList.add(entryValue)
+            }
+        }
         return existingList
     }
 }
