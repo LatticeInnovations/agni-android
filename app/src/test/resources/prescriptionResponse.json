@@ -1,0 +1,37 @@
+{
+  "status": 1,
+  "message": "details fetched successfully",
+  "total": 1,
+  "data": [
+    {
+      "prescriptionId": "e3488798-ff88-4b67-88b3-3f7df487fc71",
+      "prescriptionFhirId": "21214",
+      "generatedOn": "2023-05-19T11:00:35+05:30",
+      "patientId": "21028",
+      "prescription": [
+        {
+          "medFhirId": "21117",
+          "note": "Swallow with water",
+          "qtyPerDose": 1,
+          "frequency": 1,
+          "doseForm": "Tablet",
+          "doseFormCode": "421026006",
+          "duration": 3,
+          "timing": "769557005",
+          "qtyPrescribed": 3
+        },
+        {
+          "medFhirId": "21131",
+          "note": "Swallow with water",
+          "qtyPerDose": 2,
+          "frequency": 3,
+          "doseForm": "Tablet",
+          "doseFormCode": "421026006",
+          "duration": 3,
+          "timing": "769557005",
+          "qtyPrescribed": 18
+        }
+      ]
+    }
+  ]
+}

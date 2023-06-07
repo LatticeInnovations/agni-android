@@ -18,7 +18,7 @@ class IdentifierRepositoryTest: BaseClass() {
     lateinit var identifierRepositoryImpl: IdentifierRepositoryImpl
 
     @Before
-    fun setUp() {
+    public override fun setUp() {
         MockitoAnnotations.initMocks(this)
         identifierRepositoryImpl = IdentifierRepositoryImpl(identifierDao)
     }

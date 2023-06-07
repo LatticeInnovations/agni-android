@@ -1,0 +1,12 @@
+{
+  "status": 1,
+  "message": "Data saved successfully.",
+  "data": [
+    {
+      "status": "200 OK",
+      "id": "78e2d936-39e4-42c3-abf4-b96274726c27",
+      "err": null,
+      "fhirId": "21292"
+    }
+  ]
+}

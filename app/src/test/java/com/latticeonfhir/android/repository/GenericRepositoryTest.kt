@@ -5,7 +5,7 @@ import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
-import com.latticeonfhir.android.data.local.roomdb.entities.GenericEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import kotlinx.coroutines.runBlocking
@@ -23,7 +23,7 @@ class GenericRepositoryTest: BaseClass() {
     lateinit var genericRepositoryImpl: GenericRepositoryImpl
 
     @Before
-    fun setUp() {
+    public override fun setUp() {
         MockitoAnnotations.initMocks(this)
         genericRepositoryImpl = GenericRepositoryImpl(genericDao)
     }
@@ -44,7 +44,7 @@ class GenericRepositoryTest: BaseClass() {
 //    fun insertOrUpdatePatchEntityTest() = runBlocking{
 //        `when`(genericDao.getGenericEntityById(id, GenericTypeEnum.PATIENT, SyncType.PATCH)).thenReturn(genericEntityPatch)
 //        `when`(genericDao.insertGenericEntity(genericEntityPatch)).thenReturn(-1)
-//        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(id, patientResponse, GenericTypeEnum.PATIENT)
+//        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(id, patientResponse.json, GenericTypeEnum.PATIENT)
 //        Assert.assertEquals(-1, actual)
 //    }
 }

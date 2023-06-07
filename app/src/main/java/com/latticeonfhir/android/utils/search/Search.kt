@@ -1,7 +1,7 @@
 package com.latticeonfhir.android.utils.search
 
-import com.latticeonfhir.android.data.local.model.SearchParameters
-import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
+import com.latticeonfhir.android.data.local.model.search.SearchParameters
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
@@ -90,5 +90,11 @@ object Search {
             }
         }
         return finalList
+    }
+
+    internal fun getFuzzySearchMedicationList(queryActiveIngredient: String,activeIngredients: List<String>, matchingRatio: Int): List<String> {
+        return activeIngredients.filter { activeIngredient ->
+            FuzzySearch.partialRatio(queryActiveIngredient,activeIngredient) > matchingRatio
+        }
     }
 }
