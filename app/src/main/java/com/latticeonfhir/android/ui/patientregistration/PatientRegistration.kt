@@ -12,10 +12,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.main.patientregistration.DiscardDialog
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
@@ -67,7 +69,7 @@ fun PatientRegistration(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Patient Registration",
+                        text = stringResource(id = R.string.patient_registration),
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -126,7 +128,7 @@ fun PatientRegistration(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Establish relation",
+                                text = stringResource(id = R.string.establish_relation),
                                 style = MaterialTheme.typography.headlineSmall,
                                 modifier = Modifier.testTag("DIALOG_TITLE")
                             )
@@ -235,7 +237,7 @@ fun PatientRegistration(
                             modifier = Modifier.testTag("POSITIVE_BTN")
                         ) {
                             Text(
-                                "Create"
+                                stringResource(id = R.string.create)
                             )
                         }
                     },
@@ -248,7 +250,7 @@ fun PatientRegistration(
                             modifier = Modifier.testTag("NEGATIVE_BTN")
                         ) {
                             Text(
-                                "Go back"
+                                stringResource(id = R.string.go_back)
                             )
                         }
                     }

@@ -13,8 +13,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
@@ -55,7 +57,7 @@ fun SuggestionsScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ){
-                Text(text = "No suggested members.")
+                Text(text = stringResource(id = R.string.no_suggested_members))
             }
         }
         else{
@@ -65,7 +67,7 @@ fun SuggestionsScreen(
                     .padding(top = 20.dp, start = 20.dp, end = 20.dp)
             ) {
                 Text(
-                    text = "Here are patients with similar addresses or nearby locations.",
+                    text = stringResource(id = R.string.nearby_patients_title),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -170,7 +172,7 @@ fun ConnectDialog(
         },
         title = {
             Text(
-                text = "Connect patient",
+                text = stringResource(id = R.string.connect_patient),
                 style = MaterialTheme.typography.headlineSmall
             )
         },
@@ -303,7 +305,7 @@ fun ConnectDialog(
                 enabled = relation.isNotEmpty()
             ) {
                 Text(
-                    "Create"
+                    stringResource(id = R.string.create)
                 )
             }
         },
@@ -313,7 +315,7 @@ fun ConnectDialog(
                     closeDialog()
                 }) {
                 Text(
-                    "Go back"
+                    stringResource(id = R.string.go_back)
                 )
             }
         }

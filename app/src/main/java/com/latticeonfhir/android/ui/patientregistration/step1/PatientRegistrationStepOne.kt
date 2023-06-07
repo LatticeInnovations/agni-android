@@ -13,13 +13,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
@@ -62,7 +65,7 @@ fun PatientRegistrationStepOne(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Basic Information",
+                text = stringResource(id = R.string.basic_information),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -82,11 +85,11 @@ fun PatientRegistrationStepOne(
 
             CustomTextField(
                 viewModel.firstName,
-                "First Name",
+                stringResource(id = R.string.first_name),
                 1f,
                 viewModel.maxFirstNameLength,
                 viewModel.isNameValid,
-                "Name length should be between 3 and 100.",
+                stringResource(id = R.string.first_name_error_msg),
                 KeyboardType.Text
             ) {
                 viewModel.firstName = it
@@ -96,7 +99,7 @@ fun PatientRegistrationStepOne(
             ValueLength(viewModel.firstName)
             CustomTextField(
                 viewModel.middleName,
-                "Middle Name",
+                stringResource(id = R.string.middle_name),
                 1f,
                 viewModel.maxMiddleNameLength,
                 false,
@@ -108,7 +111,7 @@ fun PatientRegistrationStepOne(
             ValueLength(viewModel.middleName)
             CustomTextField(
                 viewModel.lastName,
-                "Last Name",
+                stringResource(id = R.string.last_name),
                 1f,
                 viewModel.maxLastNameLength,
                 false,
@@ -146,11 +149,11 @@ fun PatientRegistrationStepOne(
 
             CustomTextField(
                 viewModel.email,
-                "Email",
+                stringResource(id = R.string.email),
                 1F,
                 viewModel.maxEmailLength,
                 viewModel.isEmailValid,
-                "Enter valid userEmail (eg., abc123@gmail.com)",
+                stringResource(id = R.string.email_error_msg),
                 KeyboardType.Email
             ) {
                 viewModel.email = it
@@ -186,7 +189,7 @@ fun PatientRegistrationStepOne(
                 .testTag("step2"),
             enabled = viewModel.basicInfoValidation()
         ) {
-            Text(text = "Next")
+            Text(text = stringResource(id = R.string.next))
         }
     }
 }
@@ -206,6 +209,7 @@ fun ValueLength(value: String) {
 
 @Composable
 fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -216,7 +220,7 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
         }
         CustomTextField(
             value = viewModel.dobDay,
-            label = "Day",
+            label = stringResource(id = R.string.day),
             weight = 0.23f,
             maxLength = 2,
             isError = viewModel.isDobDayValid,
@@ -227,11 +231,11 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
             if (viewModel.dobDay.isNotEmpty()) {
                 viewModel.isDobDayValid =
                     viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 31
-                errorMsg = "Enter valid day between 1 and 31."
+                errorMsg = context.getString(R.string.error_msg_1_to_31_days)
                 if (viewModel.dobMonth == "February") {
                     viewModel.isDobDayValid =
                         viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 29
-                    errorMsg = "Enter valid day between 1 and 29."
+                    errorMsg = context.getString(R.string.error_msg_1_to_29_days)
                 }
                 viewModel.getMonthsList()
             }
@@ -248,7 +252,7 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
                     viewModel.dobMonth = it
                 },
                 label = {
-                    Text(text = "Month")
+                    Text(text = stringResource(id = R.string.month))
                 },
                 trailingIcon = {
                     Icon(Icons.Default.ArrowDropDown, contentDescription = "")
@@ -292,11 +296,11 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
         Spacer(modifier = Modifier.width(10.dp))
         CustomTextField(
             value = viewModel.dobYear,
-            label = "Year",
+            label = stringResource(id = R.string.year),
             weight = 1f,
             maxLength = 4,
             isError = viewModel.isDobYearValid,
-            error = "Enter valid year between 1900 and 2023",
+            error = stringResource(id = R.string.year_error_msg),
             KeyboardType.Number
         ) {
             if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.dobYear = it
@@ -314,7 +318,9 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
         modifier = Modifier.fillMaxWidth()
     ) {
         CustomTextField(
-            viewModel.years, label = "Years", 0.25F, 3, viewModel.isAgeYearsValid, "Enter valid input between 0 to 150.",
+            viewModel.years, label = stringResource(id = R.string.age_years), 0.25F, 3, viewModel.isAgeYearsValid, stringResource(
+                id = R.string.age_years_error_msg
+            ),
             KeyboardType.Number
         ) {
             if (it.matches(viewModel.onlyNumbers)|| it.length == 0) viewModel.years = it
@@ -322,7 +328,9 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
         }
         Spacer(modifier = Modifier.width(15.dp))
         CustomTextField(
-            viewModel.months, label = "Months", 0.36F, 2, viewModel.isAgeMonthsValid, "Enter valid input between 1 and 11.",
+            viewModel.months, label = stringResource(id = R.string.age_months), 0.36F, 2, viewModel.isAgeMonthsValid, stringResource(
+                id = R.string.age_months_error_msg
+            ),
             KeyboardType.Number
         ) {
             if (it.matches(viewModel.onlyNumbers)|| it.length == 0) viewModel.months = it
@@ -330,7 +338,9 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
         }
         Spacer(modifier = Modifier.width(15.dp))
         CustomTextField(
-            viewModel.days, label = "Days", 0.5F, 2, viewModel.isAgeDaysValid, "Enter valid input between 1 and 30.",
+            viewModel.days, label = stringResource(id = R.string.age_days), 0.5F, 2, viewModel.isAgeDaysValid, stringResource(
+                id = R.string.age_days_error_msg
+            ),
             KeyboardType.Number
         ) {
             if (it.matches(viewModel.onlyNumbers)|| it.length == 0) viewModel.days = it
@@ -366,7 +376,7 @@ fun ContactTextField(viewModel: PatientRegistrationStepOneViewModel) {
                 .fillMaxWidth(1f)
                 .testTag("Phone Number"),
             placeholder = {
-                Text(text = "Enter Phone Number")
+                Text(text = stringResource(id = R.string.enter_phone_number))
             },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
@@ -376,7 +386,7 @@ fun ContactTextField(viewModel: PatientRegistrationStepOneViewModel) {
             isError = viewModel.isPhoneValid,
             supportingText = {
                 if (viewModel.isPhoneValid)
-                    Text("Enter Valid Input", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(id = R.string.phone_number_error_msg), style = MaterialTheme.typography.bodySmall)
             }
         )
     }
@@ -390,17 +400,17 @@ fun GenderComposable(viewModel: PatientRegistrationStepOneViewModel) {
             .testTag("genderRow"),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Gender", style = MaterialTheme.typography.bodyLarge)
+        Text(text = stringResource(id = R.string.gender), style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.width(20.dp))
-        CustomFilterChip(viewModel.gender, GenderEnum.MALE.value, "Male") {
+        CustomFilterChip(viewModel.gender, GenderEnum.MALE.value, stringResource(id = R.string.male)) {
             viewModel.gender = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(viewModel.gender, GenderEnum.FEMALE.value, "Female") {
+        CustomFilterChip(viewModel.gender, GenderEnum.FEMALE.value, stringResource(id = R.string.female)) {
             viewModel.gender = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(viewModel.gender, GenderEnum.OTHER.value, "Other") {
+        CustomFilterChip(viewModel.gender, GenderEnum.OTHER.value, stringResource(id = R.string.other)) {
             viewModel.gender = it
         }
     }

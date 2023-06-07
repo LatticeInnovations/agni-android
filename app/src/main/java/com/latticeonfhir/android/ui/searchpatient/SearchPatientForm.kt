@@ -13,9 +13,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.ui.common.AddressComposable
 import com.latticeonfhir.android.ui.common.CustomFilterChip
@@ -30,10 +32,12 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             .padding(vertical = 15.dp)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 15.dp).testTag("ROOT_LAYOUT")
+            modifier = Modifier
+                .padding(horizontal = 15.dp)
+                .testTag("ROOT_LAYOUT")
         ) {
             Text(
-                text = "Search using any of the field below",
+                text = stringResource(id = R.string.search_helper_text),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -42,10 +46,10 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             Spacer(modifier = Modifier.height(20.dp))
             CustomTextField(
                 value = searchPatientViewModel.patientName,
-                label = "Patient Name",
+                label = stringResource(id = R.string.patient_name),
                 weight = 1f,
                 maxLength = 100, searchPatientViewModel.isNameValid,
-                "Name length should be between 3 and 100.",
+                stringResource(id = R.string.patient_name_error_msg),
                 KeyboardType.Text
             ) {
                 searchPatientViewModel.patientName = it
@@ -55,10 +59,10 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             Spacer(modifier = Modifier.height(15.dp))
             CustomTextField(
                 value = searchPatientViewModel.patientId,
-                label = "Patient Id",
+                label = stringResource(id = R.string.patient_id),
                 weight = 1f,
                 maxLength = 10, searchPatientViewModel.isPatientIdValid,
-                "Patient Id should be of length 10.",
+                stringResource(id = R.string.patient_id_error_msg),
                 KeyboardType.Text
             ) {
                 searchPatientViewModel.patientId = it
@@ -67,7 +71,7 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             }
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                text = "Select age range",
+                text = stringResource(id = R.string.select_age_range),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -103,7 +107,9 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             VisitDropdown(searchPatientViewModel)
             Spacer(modifier = Modifier.height(30.dp))
             AddressComposable(label = "Address", address = searchPatientViewModel.address) {}
-            Spacer(modifier = Modifier.height(50.dp).testTag("END_OF_SCREEN"))
+            Spacer(modifier = Modifier
+                .height(50.dp)
+                .testTag("END_OF_SCREEN"))
         }
     }
 
@@ -160,12 +166,12 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Gender", style = MaterialTheme.typography.bodyLarge)
+        Text(text = stringResource(id = R.string.gender), style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.width(20.dp))
         CustomFilterChip(
             selector = viewModel.gender,
             selected = GenderEnum.MALE.value,
-            label = "Male"
+            label = stringResource(id = R.string.male)
         ) {
             viewModel.gender = it
         }
@@ -173,7 +179,7 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
         CustomFilterChip(
             selector = viewModel.gender,
             selected = GenderEnum.FEMALE.value,
-            label = "Female"
+            label = stringResource(id = R.string.female)
         ) {
             viewModel.gender = it
         }
@@ -181,7 +187,7 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
         CustomFilterChip(
             selector = viewModel.gender,
             selected = GenderEnum.OTHER.value,
-            label = "Other"
+            label = stringResource(id = R.string.other)
         ) {
             viewModel.gender = it
         }
@@ -214,7 +220,7 @@ fun VisitDropdown(viewModel: SearchPatientViewModel) {
                 Icon(Icons.Default.ArrowDropDown, contentDescription = "")
             },
             label = {
-                Text(text = "Last facility visit")
+                Text(text = stringResource(id = R.string.last_facility_visit))
             }
         )
         DropdownMenu(

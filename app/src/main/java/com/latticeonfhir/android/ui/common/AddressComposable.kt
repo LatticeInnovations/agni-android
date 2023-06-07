@@ -11,8 +11,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import com.latticeonfhir.android.utils.converters.responseconverter.States
 
@@ -41,11 +43,11 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
         val onlyNumbers = Regex("^\\d+\$")
         CustomTextField(
             value = address.pincode,
-            label = "Postal Code *",
+            label = stringResource(id = R.string.postal_code),
             weight = 0.4f,
             maxLength = 6,
             address.isPostalCodeValid,
-            "Enter valid 6 digit postal code",
+            stringResource(id = R.string.postal_code_error_msg),
             KeyboardType.Number
         ) {
             if (it.matches(onlyNumbers) || it.isEmpty()) address.pincode = it
@@ -61,7 +63,7 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
                 },
                 label = {
                     Text(
-                        text = "State *",
+                        text = stringResource(id = R.string.state),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -87,7 +89,7 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
                 isError = address.isStateValid,
                 supportingText = {
                     if (address.isStateValid)
-                        Text(text = "Please select a state.", style = MaterialTheme.typography.bodySmall)
+                        Text(text = stringResource(id = R.string.state_error_msg), style = MaterialTheme.typography.bodySmall)
                 }
             )
 
@@ -119,10 +121,10 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
     Spacer(modifier = Modifier.height(15.dp))
     CustomTextField(
         value = address.addressLine1,
-        label = "Address Line 1 *",
+        label = stringResource(id = R.string.address_line_1),
         weight = 1f,
         maxLength = 150, address.isAddressLine1Valid,
-        "Please enter your address.",
+        stringResource(id = R.string.address_line_1_error_msg),
         KeyboardType.Text
     ) {
         address.addressLine1 = it
@@ -131,7 +133,7 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
     Spacer(modifier = Modifier.height(15.dp))
     CustomTextField(
         value = address.addressLine2,
-        label = "Address Line 2",
+        label = stringResource(id = R.string.address_line_2),
         weight = 1f,
         maxLength = 150, false,
         "Enter valid input.",
@@ -142,10 +144,10 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
     Spacer(modifier = Modifier.height(15.dp))
     CustomTextField(
         value = address.city,
-        label = "City *",
+        label = stringResource(id = R.string.city),
         weight = 1f,
         maxLength = 150, address.isCityValid,
-        "Please enter your city.",
+        stringResource(id = R.string.city_error_msg),
         KeyboardType.Text
     ) {
         address.city = it
@@ -154,10 +156,10 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
     Spacer(modifier = Modifier.height(15.dp))
     CustomTextField(
         value = address.district,
-        label = "District",
+        label = stringResource(id = R.string.district),
         weight = 1f,
         maxLength = 150, false,
-        "Please enter your district.",
+        stringResource(id = R.string.district_error_msg),
         KeyboardType.Text
     ) {
         address.district = it

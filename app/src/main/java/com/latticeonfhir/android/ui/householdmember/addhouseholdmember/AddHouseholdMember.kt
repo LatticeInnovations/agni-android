@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,7 +50,7 @@ fun AddHouseholdMember(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Add a household member", modifier = Modifier.testTag("TITLE"))
+                    Text(text = stringResource(id = R.string.add_household_member), modifier = Modifier.testTag("TITLE"))
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -75,8 +76,8 @@ fun AddHouseholdMember(
                         CardLayout(
                             navController,
                             R.drawable.person_add,
-                            "Create a new patient, and\ninclude them in the household",
-                            "Add a patient",
+                            stringResource(id = R.string.create_new_patient),
+                            stringResource(id = R.string.add_a_patient),
                             patient,
                             "register",
                             viewModel
@@ -85,8 +86,8 @@ fun AddHouseholdMember(
                         CardLayout(
                             navController,
                             R.drawable.patient_list,
-                            "Search for an existing patient, and\ninclude them in the household",
-                            "Search patients",
+                            stringResource(id = R.string.search_existing_patient),
+                            stringResource(id = R.string.search_patients),
                             patient,
                             "search",
                             viewModel
@@ -100,7 +101,7 @@ fun AddHouseholdMember(
                             },
                             title = {
                                 Text(
-                                    text = "Nearby matches",
+                                    text = stringResource(id = R.string.nearby_matches),
                                     style = MaterialTheme.typography.headlineSmall
                                 )
                             },
@@ -128,7 +129,7 @@ fun AddHouseholdMember(
                                     enabled = viewModel.selectedSuggestedMembersList.isNotEmpty()
                                 ) {
                                     Text(
-                                        "Connect nearby"
+                                        stringResource(id = R.string.connect_nearby)
                                     )
                                 }
                             },
@@ -147,7 +148,7 @@ fun AddHouseholdMember(
                                         navController.navigate(Screen.SearchPatientScreen.route)
                                     }) {
                                     Text(
-                                        "Search patients"
+                                        stringResource(id = R.string.search_patients)
                                     )
                                 }
                             }
