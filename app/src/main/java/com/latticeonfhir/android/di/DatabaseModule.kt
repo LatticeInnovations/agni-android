@@ -4,7 +4,9 @@ import android.content.Context
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
+import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
@@ -43,15 +45,27 @@ object DatabaseModule {
         return fhirAppDatabase.getGenericDao()
     }
 
-    @Provides
     @Singleton
+    @Provides
     fun provideRelationDao(fhirAppDatabase: FhirAppDatabase): RelationDao {
         return fhirAppDatabase.getRelationDao()
     }
 
-    @Provides
     @Singleton
+    @Provides
     fun provideSearchDao(fhirAppDatabase: FhirAppDatabase): SearchDao {
         return fhirAppDatabase.getSearchDao()
+    }
+
+    @Singleton
+    @Provides
+    fun providePrescriptionDao(fhirAppDatabase: FhirAppDatabase): PrescriptionDao {
+        return fhirAppDatabase.getPrescriptionDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideMedicationDao(fhirAppDatabase: FhirAppDatabase): MedicationDao {
+        return fhirAppDatabase.getMedicationDao()
     }
 }

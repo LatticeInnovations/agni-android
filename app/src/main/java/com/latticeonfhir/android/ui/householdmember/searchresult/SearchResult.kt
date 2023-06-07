@@ -34,7 +34,7 @@ import androidx.lifecycle.viewmodel.compose.*
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
-import com.latticeonfhir.android.data.local.model.SearchParameters
+import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.Loader

@@ -7,13 +7,13 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 
-class IdentifierDaoTest: BaseClass() {
+class IdentifierDaoTest: FhirAppDatabaseTest() {
 
     @Test
     fun insertListOfIdentifierTest() = runBlocking{
         patientDao.insertPatientData(patientResponse.toPatientEntity())
         val result = identifierDao.insertListOfIdentifier(
-            patientResponse.toListOfIdentifierEntity()!!
+            patientResponse.toListOfIdentifierEntity()
         )
         Assert.assertNotEquals("Identifier entity list not inserted.", -1, result)
     }

@@ -1,6 +1,8 @@
 package com.latticeonfhir.android.ui.landingscreen
 
 import android.app.Application
+import android.app.job.JobScheduler
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,8 +11,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
+import androidx.work.WorkManager
+import androidx.work.await
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
-import com.latticeonfhir.android.data.local.model.SearchParameters
+import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
+import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
@@ -23,6 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -62,9 +69,31 @@ class LandingScreenViewModel @Inject constructor(
 
     init {
 
+        //Medication Worker
+        viewModelScope.launch(Dispatchers.IO) {
+            workRequestBuilders.setMedicationWorker { isErrorReceived, errorMsg ->
+                if (isErrorReceived){
+                    logoutUser = true
+                    logoutReason = errorMsg
+                }
+            }
+        }
+
+        //Medicine Dosage Worker
+        if (preferenceRepository.getLastMedicineDosageInstructionSyncDate() == 0L) {
+            viewModelScope.launch(Dispatchers.IO) {
+                workRequestBuilders.setMedicationDosageWorker { isErrorReceived, errorMsg ->
+                    if (isErrorReceived){
+                        logoutUser = true
+                        logoutReason = errorMsg
+                    }
+                }
+            }
+        }
+
         // Post Sync Worker
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.uploadPatientWorker(){ isErrorReceived, errorMsg ->
+            workRequestBuilders.uploadPatientWorker { isErrorReceived, errorMsg ->
                 if (isErrorReceived){
                     logoutUser = true
                     logoutReason = errorMsg
@@ -74,7 +103,7 @@ class LandingScreenViewModel @Inject constructor(
 
         // Patch Sync Workers
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setPatientPatchWorker(){ isErrorReceived, errorMsg ->
+            workRequestBuilders.setPatientPatchWorker { isErrorReceived, errorMsg ->
                 if (isErrorReceived){
                     logoutUser = true
                     logoutReason = errorMsg
@@ -82,7 +111,7 @@ class LandingScreenViewModel @Inject constructor(
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setRelationPatchWorker(){ isErrorReceived, errorMsg ->
+            workRequestBuilders.setRelationPatchWorker { isErrorReceived, errorMsg ->
                 if (isErrorReceived){
                     logoutUser = true
                     logoutReason = errorMsg
@@ -116,13 +145,13 @@ class LandingScreenViewModel @Inject constructor(
 
     internal fun getPreviousSearches() {
         viewModelScope.launch(Dispatchers.IO) {
-            previousSearchList = searchRepository.getRecentSearches() as MutableList<String>
+            previousSearchList = searchRepository.getRecentPatientSearches() as MutableList<String>
         }
     }
 
     internal fun insertRecentSearch() {
         viewModelScope.launch(Dispatchers.IO) {
-            searchRepository.insertRecentSearch(searchQuery.trim())
+            searchRepository.insertRecentPatientSearch(searchQuery.trim(), Date())
         }
     }
 
@@ -151,6 +180,13 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     internal fun logout() {
-        preferenceRepository.clearPreferences()
+        viewModelScope.launch(Dispatchers.Default) {
+            WorkManager.getInstance(getApplication<Application>().applicationContext).cancelAllWork().await().also {
+                (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
+                val roomDBKey = preferenceRepository.getRoomDBEncryptionKey()
+                preferenceRepository.clearPreferences()
+                preferenceRepository.setRoomDBEncryptionKey(roomDBKey)
+            }
+        }
     }
 }

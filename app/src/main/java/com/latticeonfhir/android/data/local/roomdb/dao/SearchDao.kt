@@ -5,8 +5,10 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.latticeonfhir.android.data.local.roomdb.entities.PatientAndIdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.SearchHistoryEntity
+import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
 
 @Dao
 interface SearchDao {
@@ -20,14 +22,18 @@ interface SearchDao {
     suspend fun getPatientList(): List<PatientAndIdentifierEntity>
 
     @Transaction
-    @Query("SELECT searchQuery FROM SearchHistoryEntity ORDER BY date ASC")
-    suspend fun getRecentSearches(): List<String>
+    @Query("SELECT searchQuery FROM SearchHistoryEntity WHERE searchType = :searchTypeEnum ORDER BY date ASC")
+    suspend fun getRecentSearches(searchTypeEnum: SearchTypeEnum): List<String>
 
     @Transaction
-    @Query("SELECT id FROM SearchHistoryEntity ORDER BY date ASC LIMIT 1")
-    suspend fun getOldestRecentSearchId(): Int
+    @Query("SELECT id FROM SearchHistoryEntity WHERE searchType = :searchTypeEnum ORDER BY date ASC LIMIT 1")
+    suspend fun getOldestRecentSearchId(searchTypeEnum: SearchTypeEnum): Int
 
     @Transaction
     @Query("DELETE FROM SearchHistoryEntity WHERE id=:id")
     suspend fun deleteRecentSearch(id: Int): Int
+
+    @Transaction
+    @Query("SELECT activeIngredient FROM MedicationEntity")
+    suspend fun getActiveIngredients(): List<String>
 }

@@ -5,7 +5,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
-import com.latticeonfhir.android.data.local.roomdb.entities.RelationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

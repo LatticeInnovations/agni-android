@@ -1,7 +1,9 @@
 package com.latticeonfhir.android.ui.patientregistration.model
 
-import com.latticeonfhir.android.base.baseclass.ParcelableClass
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class PatientRegister(
     var firstName: String? = "",
     var middleName: String? = "",
@@ -31,4 +33,4 @@ data class PatientRegister(
     var workAddressLine2: String? = "",
     var workCity: String? = "",
     var workDistrict: String? = ""
-): ParcelableClass()
+): Parcelable

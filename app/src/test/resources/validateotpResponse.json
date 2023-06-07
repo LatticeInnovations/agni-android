@@ -1,0 +1,7 @@
+{
+  "status": 1,
+  "message": "Logged in successfully",
+  "data": {
+    "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsInVzZXJOYW1lIjoiRGV2IHRlc3QgMiIsImlhdCI6MTY4NTk0MTgxOCwiZXhwIjoxNjg2MzczODE4fQ.FznpiHCc7q0gl4XtC5Q3a0WGr_OZk4DHP2i_GQ_zRJA"
+  }
+}

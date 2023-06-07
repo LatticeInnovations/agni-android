@@ -26,7 +26,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.data.local.model.SearchParameters
+import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.landingscreen.LandingScreenViewModel
 import com.latticeonfhir.android.ui.landingscreen.MyPatientScreen
