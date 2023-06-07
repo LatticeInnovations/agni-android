@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.room_database
 
-import com.latticeonfhir.android.data.local.roomdb.entities.SearchHistoryEntity
+import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
+import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientResponse
 import kotlinx.coroutines.runBlocking
@@ -8,14 +9,15 @@ import org.junit.Assert
 import org.junit.Test
 import java.util.Date
 
-class SearchDaoTest: BaseClass() {
+class SearchDaoTest: FhirAppDatabaseTest() {
 
     @Test
     fun insertRecentSearchTest() = runBlocking {
         val result = searchDao.insertRecentSearch(
             SearchHistoryEntity(
                 "mansi",
-                date = Date()
+                date = Date(),
+                SearchTypeEnum.PATIENT
             )
         )
         Assert.assertEquals("recent search not inserted", 1, result)
@@ -31,7 +33,7 @@ class SearchDaoTest: BaseClass() {
     @Test
     fun getRecentSearchesTest() = runBlocking {
         insertRecentSearchTest()
-        val result = searchDao.getRecentSearches()
+        val result = searchDao.getRecentSearches(SearchTypeEnum.PATIENT)
         Assert.assertEquals("recent search not returned correctly", listOf("mansi"), result)
     }
 
@@ -41,10 +43,11 @@ class SearchDaoTest: BaseClass() {
         searchDao.insertRecentSearch(
             SearchHistoryEntity(
                 "blah",
-                Date()
+                Date(),
+                SearchTypeEnum.PATIENT
             )
         )
-        val result = searchDao.getOldestRecentSearchId()
+        val result = searchDao.getOldestRecentSearchId(SearchTypeEnum.PATIENT)
         Assert.assertEquals("oldest id returned is not correct", 1, result)
     }
 

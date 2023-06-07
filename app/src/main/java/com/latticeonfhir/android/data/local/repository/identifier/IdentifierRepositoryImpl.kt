@@ -9,7 +9,7 @@ class IdentifierRepositoryImpl @Inject constructor(private val identifierDao: Id
     IdentifierRepository {
 
     override suspend fun insertIdentifierList(patientResponse: PatientResponse)  {
-        identifierDao.insertListOfIdentifier(patientResponse.toListOfIdentifierEntity()!!)
+        identifierDao.insertListOfIdentifier(patientResponse.toListOfIdentifierEntity())
     }
 
 }

@@ -2,7 +2,7 @@ package com.latticeonfhir.android.utils.builders
 
 import com.google.gson.internal.LinkedTreeMap
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.android.data.local.model.ChangeRequest
+import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 
 object GenericEntity {

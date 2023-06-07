@@ -4,10 +4,14 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
+import com.latticeonfhir.android.data.local.repository.medication.MedicationRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
+import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
@@ -57,4 +61,12 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideAuthenticationRepository(authenticationRepositoryImpl: AuthenticationRepositoryImpl): AuthenticationRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun providePrescriptionRepository(prescriptionRepositoryImpl: PrescriptionRepositoryImpl): PrescriptionRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideMedicationRepository(medicationRepositoryImpl: MedicationRepositoryImpl): MedicationRepository
 }

@@ -15,7 +15,14 @@ interface PreferenceStorage {
     var roomDBEncryptionKey: String
 
     /** Last Sync Time */
-    var lastUpdatedTime: Long
+    var lastPatientSyncTime: Long
+    var lastRelationSyncTime: Long
+    var lastPrescriptionSyncTime: Long
+    var lastMedicationSyncTime: Long
+    var lastMedicineDosageInstructionSyncTime: Long
+
+    /** Medication Sync Successful */
+    var medicationSyncSuccessful: Boolean
 
     /** Max Attempts of OTP Timeout */
     var maxOtpAttemptTimeout: Long

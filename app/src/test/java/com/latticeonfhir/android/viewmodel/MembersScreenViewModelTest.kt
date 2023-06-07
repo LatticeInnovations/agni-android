@@ -28,7 +28,7 @@ class MembersScreenViewModelTest: BaseClass() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
-    fun setUp(){
+    public override fun setUp(){
         MockitoAnnotations.initMocks(this)
         viewModel = MembersScreenViewModel(relationRepository, patientRepository)
         Dispatchers.setMain(mainThreadSurrogate)
