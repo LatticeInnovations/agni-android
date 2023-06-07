@@ -47,8 +47,8 @@ android {
         applicationId "com.latticeonfhir.android"
         minSdk 23
         targetSdk 33
-        versionCode 6
-        versionName "1.0.6"
+        versionCode 10
+        versionName "1.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -162,7 +162,7 @@ dependencies {
     implementation 'androidx.paging:paging-runtime-ktx:3.1.1'
 
     //Jetpack Compose Paging
-    implementation 'androidx.paging:paging-compose:1.0.0-alpha19'
+    implementation 'androidx.paging:paging-compose:1.0.0-alpha20'
 
     //Paging 3 Test Implementation
     testImplementation 'androidx.paging:paging-common-ktx:3.1.1'
@@ -190,12 +190,12 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:1.4.3"
     debugImplementation "androidx.compose.ui:ui-test-manifest:1.4.3"
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
-    implementation 'androidx.activity:activity-compose:1.7.1'
+    implementation 'androidx.activity:activity-compose:1.7.2'
     implementation "androidx.compose.ui:ui:1.4.3"
     implementation "androidx.compose.ui:ui-tooling-preview:1.4.3"
-    implementation 'androidx.compose.material3:material3:1.1.0-rc01'
+    implementation 'androidx.compose.material3:material3:1.1.0-rc01' // don't upgrade
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
-    implementation 'androidx.compose.runtime:runtime-livedata:1.5.0-alpha04'
+    implementation 'androidx.compose.runtime:runtime-livedata:1.5.0-beta01'
 
     // navigation
     implementation("androidx.navigation:navigation-compose:2.5.3")
@@ -221,7 +221,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
     // splash screen
-    implementation 'androidx.core:core-splashscreen:1.0.0-beta02'
+    implementation 'androidx.core:core-splashscreen:1.0.0-beta02' // don't upgrade
 
     // google consent api for auto detection of otp
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
