@@ -5,11 +5,35 @@ import javax.inject.Inject
 
 class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage: PreferenceStorage): PreferenceRepository {
 
-    override fun setLastUpdatedDate(long: Long) {
-        preferenceStorage.lastUpdatedTime = long
+    override fun setLastSyncPatient(long: Long) {
+        preferenceStorage.lastPatientSyncTime = long
     }
 
-    override fun getLastUpdatedDate(): Long = preferenceStorage.lastUpdatedTime
+    override fun getLastSyncPatient() = preferenceStorage.lastPatientSyncTime
+
+    override fun setLastSyncRelation(long: Long) {
+        preferenceStorage.lastRelationSyncTime = long
+    }
+
+    override fun getLastSyncRelation() = preferenceStorage.lastRelationSyncTime
+
+    override fun setLastSyncPrescription(long: Long) {
+        preferenceStorage.lastPrescriptionSyncTime = long
+    }
+
+    override fun getLastSyncPrescription() = preferenceStorage.lastPrescriptionSyncTime
+
+    override fun setLastMedicationSyncDate(long: Long) {
+        preferenceStorage.lastMedicationSyncTime = long
+    }
+
+    override fun getLastMedicationSyncDate(): Long = preferenceStorage.lastMedicationSyncTime
+
+    override fun setLastMedicineDosageInstructionSyncDate(long: Long) {
+        preferenceStorage.lastMedicineDosageInstructionSyncTime = long
+    }
+
+    override fun getLastMedicineDosageInstructionSyncDate() = preferenceStorage.lastMedicineDosageInstructionSyncTime
 
     override fun setUserName(userName: String) {
         preferenceStorage.userName = userName
@@ -46,6 +70,12 @@ class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage
     }
 
     override fun getOtpAttemptTimeout() = preferenceStorage.maxOtpAttemptTimeout
+
+    override fun setRoomDBEncryptionKey(encryptionKey: String) {
+        preferenceStorage.roomDBEncryptionKey = encryptionKey
+    }
+
+    override fun getRoomDBEncryptionKey() = preferenceStorage.roomDBEncryptionKey
 
     override fun clearPreferences() {
         preferenceStorage.clear()

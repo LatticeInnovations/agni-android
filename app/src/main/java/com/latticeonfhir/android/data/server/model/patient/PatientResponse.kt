@@ -1,9 +1,11 @@
 package com.latticeonfhir.android.data.server.model.patient
 
+import android.os.Parcelable
 import androidx.annotation.Keep
-import com.latticeonfhir.android.base.baseclass.ParcelableClass
+import kotlinx.parcelize.Parcelize
 
 @Keep
+@Parcelize
 data class PatientResponse(
     val id: String,
     val firstName: String,
@@ -17,4 +19,4 @@ data class PatientResponse(
     val email: String?,
     val permanentAddress: PatientAddressResponse,
     val fhirId: String?
-): ParcelableClass()
+): Parcelable

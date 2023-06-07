@@ -1,0 +1,12 @@
+{
+  "status": 1,
+  "message": "Data fetched successfully",
+  "data": {
+    "userId": 4,
+    "userName": "Dev test 2",
+    "userEmail": "dev2@gmail.com",
+    "mobileNumber": "9876543210",
+    "roleId": 1,
+    "role": "Doctor"
+  }
+}

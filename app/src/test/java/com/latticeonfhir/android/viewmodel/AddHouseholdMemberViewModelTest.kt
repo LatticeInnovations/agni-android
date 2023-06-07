@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.viewmodel
 
-import com.latticeonfhir.android.data.local.model.SearchParameters
+import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.base.BaseClass
@@ -29,7 +29,7 @@ class AddHouseholdMemberViewModelTest: BaseClass() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
-    fun setUp(){
+    public override fun setUp(){
         MockitoAnnotations.initMocks(this)
         viewModel = AddHouseholdMemberViewModel(searchRepository)
         Dispatchers.setMain(mainThreadSurrogate)
@@ -51,7 +51,8 @@ class AddHouseholdMemberViewModelTest: BaseClass() {
             patientResponse.permanentAddress.state,
             patientResponse.permanentAddress.postalCode,
             patientResponse.permanentAddress.addressLine2
-        )){}).thenReturn(Unit)
+        )
+        ){}).thenReturn(Unit)
         launch(Dispatchers.Main) {
             viewModel.getSuggestions(patientResponse){
                 val actual = it

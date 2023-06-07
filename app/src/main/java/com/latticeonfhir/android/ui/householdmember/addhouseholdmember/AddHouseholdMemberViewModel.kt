@@ -6,16 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.model.SearchParameters
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
+import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.LinkedList
 import javax.inject.Inject
 
 @HiltViewModel

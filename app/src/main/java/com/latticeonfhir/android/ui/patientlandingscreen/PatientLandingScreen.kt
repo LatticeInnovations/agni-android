@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.main.patientlandingscreen
+package com.latticeonfhir.android.ui.patientlandingscreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,28 +16,25 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import androidx.lifecycle.viewmodel.compose.*
-import com.latticeonfhir.android.ui.patientlandingscreen.PatientLandingScreenViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientLandingScreen(
-    navController: NavController,
-    viewModel: PatientLandingScreenViewModel = viewModel()
-) {
+fun PatientLandingScreen(navController: NavController, viewModel: PatientLandingScreenViewModel = hiltViewModel()) {
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            viewModel.patient =
-                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
-                )
+            viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                "patient"
+            )
+            viewModel.patient?.fhirId?.let { patientFhirId -> viewModel.downloadPrescriptions(patientFhirId) }
         }
         viewModel.isLaunched = true
     }

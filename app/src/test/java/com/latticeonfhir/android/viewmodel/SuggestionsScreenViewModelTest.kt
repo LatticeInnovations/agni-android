@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.viewmodel
 
-import com.latticeonfhir.android.data.local.model.Relation
+import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
@@ -27,7 +27,7 @@ class SuggestionsScreenViewModelTest: BaseClass() {
     lateinit var viewModel: SuggestionsScreenViewModel
 
     @Before
-    fun setUp(){
+    public override fun setUp(){
         MockitoAnnotations.initMocks(this)
         viewModel = SuggestionsScreenViewModel(searchRepository, genericRepository, relationRepository, patientDao)
     }
