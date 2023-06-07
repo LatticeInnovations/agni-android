@@ -8,9 +8,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.main.patientregistration.Detail
 import com.latticeonfhir.android.ui.main.patientregistration.Label
 
@@ -30,16 +32,16 @@ fun ProfileScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
-                Label("Name")
+                Label(stringResource(id = R.string.name_label))
                 Detail(detail = viewModel.userName, tag = "NAME")
                 Spacer(modifier = Modifier.height(20.dp))
-                Label("Role")
+                Label(stringResource(id = R.string.role_label))
                 Detail(detail = viewModel.userRole, tag = "ROLE")
                 Spacer(modifier = Modifier.height(20.dp))
-                Label("Phone No.")
+                Label(stringResource(id = R.string.phone_number_label))
                 Detail(detail = "+91 ${viewModel.userPhoneNo}", tag = "PHONE_NO")
                 Spacer(modifier = Modifier.height(20.dp))
-                Label("Email")
+                Label(stringResource(id = R.string.email))
                 Detail(detail = viewModel.userEmail, tag = "EMAIL")
             }
         }

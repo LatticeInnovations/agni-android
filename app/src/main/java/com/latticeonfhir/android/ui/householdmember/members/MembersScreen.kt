@@ -11,8 +11,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.householdmember.members.MembersScreenViewModel
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
@@ -38,7 +40,7 @@ fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = 
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "No household members.")
+                Text(text = stringResource(id = R.string.no_household_members))
             }
         } else {
             LazyColumn(

@@ -57,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -101,7 +102,7 @@ fun ConnectPatient(
                 title = {
                     Column {
                         Text(
-                            text = "Connect patient to",
+                            text = stringResource(id = R.string.connect_to),
                             style = MaterialTheme.typography.headlineSmall
                         )
                         Text(
@@ -145,7 +146,7 @@ fun ConnectPatient(
                     ) {
                         Column() {
                             Text(
-                                text = "Connected Patients",
+                                text = stringResource(id = R.string.connected_patients),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             viewModel.connectedMembersList.forEach { relationView ->
@@ -156,7 +157,7 @@ fun ConnectPatient(
                     }
                     if (viewModel.membersList.isNotEmpty()) {
                         Text(
-                            text = "Patients to connect",
+                            text = stringResource(id = R.string.patients_to_connect),
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Spacer(modifier = Modifier.height(10.dp))
@@ -174,14 +175,14 @@ fun ConnectPatient(
                         },
                         title = {
                             Text(
-                                text = "Discard relation?",
+                                text = stringResource(id = R.string.discard_relations_dialog_title),
                                 style = MaterialTheme.typography.headlineSmall,
                                 modifier = Modifier.testTag("delete dialog title")
                             )
                         },
                         text = {
                             Text(
-                                "Are you sure you want to discard this patient record?",
+                                stringResource(id = R.string.discard_relations_dialog_description),
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         },
@@ -193,7 +194,7 @@ fun ConnectPatient(
                                     navController.popBackStack()
                                 }) {
                                 Text(
-                                    "Yes, discard"
+                                    stringResource(id = R.string.yes_discard)
                                 )
                             }
                         },
@@ -203,7 +204,7 @@ fun ConnectPatient(
                                     viewModel.discardAllRelationDialog = false
                                 }) {
                                 Text(
-                                    "No, go back"
+                                    stringResource(id = R.string.no_go_back)
                                 )
                             }
                         }

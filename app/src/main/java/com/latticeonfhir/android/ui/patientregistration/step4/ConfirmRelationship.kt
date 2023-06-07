@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -67,7 +68,7 @@ fun ConfirmRelationship(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Confirm Relationship",
+                        text = stringResource(id = R.string.confirm_relationship),
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -113,14 +114,14 @@ fun ConfirmRelationship(
                         },
                         title = {
                             Text(
-                                text = "Discard relation?",
+                                text = stringResource(id = R.string.discard_relations_dialog_title),
                                 style = MaterialTheme.typography.headlineSmall,
                                 modifier = Modifier.testTag("delete dialog title")
                             )
                         },
                         text = {
                             Text(
-                                "Are you sure you want to discard this patient record?",
+                                stringResource(id = R.string.discard_relations_dialog_description),
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         },
@@ -132,7 +133,7 @@ fun ConfirmRelationship(
                                     navController.popBackStack(Screen.HouseholdMembersScreen.route, false)
                                 }) {
                                 Text(
-                                    "Yes, discard"
+                                    stringResource(id = R.string.yes_discard)
                                 )
                             }
                         },
@@ -142,7 +143,7 @@ fun ConfirmRelationship(
                                     viewModel.discardAllRelationDialog = false
                                 }) {
                                 Text(
-                                    "No, go back"
+                                    stringResource(id = R.string.no_go_back)
                                 )
                             }
                         }
