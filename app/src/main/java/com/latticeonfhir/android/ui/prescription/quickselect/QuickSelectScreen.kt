@@ -25,7 +25,9 @@ import java.util.Locale
 
 @Composable
 fun QuickSelectScreen(viewModel: PrescriptionViewModel = hiltViewModel()) {
-    viewModel.getActiveIngredients()
+    viewModel.getActiveIngredients {
+        viewModel.activeIngredientsList = it
+    }
     key(viewModel.selectedActiveIngredientsList) {
         Column(
             modifier = Modifier
@@ -53,6 +55,8 @@ fun CompoundRow(drugName: String, viewModel: PrescriptionViewModel) {
             onCheckedChange = {
                 if (it) {
                     viewModel.checkedActiveIngredient = drugName
+                } else {
+                    viewModel.selectedActiveIngredientsList = viewModel.selectedActiveIngredientsList - listOf(drugName).toSet()
                 }
             },
         )
