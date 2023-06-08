@@ -50,8 +50,8 @@ fun PrescriptionSearchResult(viewModel: PrescriptionViewModel) {
         content = {
             Box(modifier = Modifier.padding(it)){
                 Column {
-                    viewModel.activeIngredientsList.forEach{ drug ->
-                        CompoundRow(drugName = drug, viewModel = viewModel)
+                    viewModel.activeIngredientsList.forEach{ activeIngredient ->
+                        CompoundRow(activeIngredient = activeIngredient, viewModel = viewModel)
                     }
                 }
             }

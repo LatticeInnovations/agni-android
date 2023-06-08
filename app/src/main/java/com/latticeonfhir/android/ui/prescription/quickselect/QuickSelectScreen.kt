@@ -25,9 +25,6 @@ import java.util.Locale
 
 @Composable
 fun QuickSelectScreen(viewModel: PrescriptionViewModel = hiltViewModel()) {
-    viewModel.getActiveIngredients {
-        viewModel.activeIngredientsList = it
-    }
     key(viewModel.selectedActiveIngredientsList) {
         Column(
             modifier = Modifier
@@ -35,15 +32,15 @@ fun QuickSelectScreen(viewModel: PrescriptionViewModel = hiltViewModel()) {
                 .verticalScroll(rememberScrollState())
         ) {
             viewModel.activeIngredientsList.forEach{ drug ->
-                CompoundRow(drugName = drug, viewModel = viewModel)
+                CompoundRow(activeIngredient = drug, viewModel = viewModel)
             }
         }
     }
 }
 
 @Composable
-fun CompoundRow(drugName: String, viewModel: PrescriptionViewModel) {
-    val checkedState = remember { mutableStateOf(viewModel.selectedActiveIngredientsList.contains(drugName)) }
+fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
+    val checkedState = remember { mutableStateOf(viewModel.selectedActiveIngredientsList.contains(activeIngredient)) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -54,9 +51,14 @@ fun CompoundRow(drugName: String, viewModel: PrescriptionViewModel) {
             checked = checkedState.value,
             onCheckedChange = {
                 if (it) {
-                    viewModel.checkedActiveIngredient = drugName
+                    viewModel.checkedActiveIngredient = activeIngredient
                 } else {
-                    viewModel.selectedActiveIngredientsList = viewModel.selectedActiveIngredientsList - listOf(drugName).toSet()
+                    viewModel.selectedActiveIngredientsList = viewModel.selectedActiveIngredientsList - listOf(activeIngredient).toSet()
+                    viewModel.medicationsResponseWithMedicationList.forEach {  medication ->
+                        if (medication.activeIngredient == activeIngredient) {
+                            viewModel.medicationsResponseWithMedicationList = viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
+                        }
+                    }
                 }
             },
         )
@@ -64,7 +66,7 @@ fun CompoundRow(drugName: String, viewModel: PrescriptionViewModel) {
             modifier = Modifier.padding(10.dp)
         ) {
             Text(
-                text = drugName.capitalize(Locale.getDefault()),
+                text = activeIngredient.capitalize(Locale.getDefault()),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )

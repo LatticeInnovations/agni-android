@@ -69,7 +69,6 @@ fun FillDetailsScreen(
     }
     LaunchedEffect(viewModel.isLaunched) {
         if (prescriptionViewModel.medicationToEdit != null) {
-            Timber.d("manseeyy ${prescriptionViewModel.medicationToEdit}")
             viewModel.medSelected = prescriptionViewModel.medicationToEdit!!.medName
             viewModel.medUnit = prescriptionViewModel.medicationToEdit!!.medUnit
             viewModel.medDoseForm = prescriptionViewModel.medicationToEdit!!.medication.doseForm
@@ -135,6 +134,7 @@ fun FillDetailsScreen(
                                     )
                                 )
                             prescriptionViewModel.checkedActiveIngredient = ""
+                            prescriptionViewModel.medicationToEdit = null
                             viewModel.reset()
                         },
                         enabled = viewModel.quantityPrescribed() != ""
