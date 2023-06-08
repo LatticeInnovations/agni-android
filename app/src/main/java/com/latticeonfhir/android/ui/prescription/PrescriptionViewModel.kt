@@ -12,6 +12,7 @@ import com.latticeonfhir.android.data.local.model.prescription.medication.Medica
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineDosageInstructionsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
@@ -55,6 +56,16 @@ class PrescriptionViewModel @Inject constructor(
         "List Item 4",
         "List Item 5",
     )
+
+    var previousPrescriptionList by mutableStateOf(listOf<PrescriptionAndMedicineRelation?>(null))
+
+    internal fun getPreviousPrescription(patientId: String, previousPrescriptionList: (List<PrescriptionAndMedicineRelation>) -> Unit) {
+        viewModelScope.launch {
+            previousPrescriptionList(
+                prescriptionRepository.getLastPrescription(patientId)
+            )
+        }
+    }
 
     internal fun getActiveIngredients(activeIngredientsList: (List<String>) -> Unit) {
         viewModelScope.launch {

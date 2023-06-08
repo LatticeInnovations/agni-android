@@ -77,6 +77,7 @@ import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPr
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
 import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
+import com.latticeonfhir.android.utils.converters.responseconverter.MedicineInfoConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -91,10 +92,18 @@ fun PrescriptionScreen(
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
+            viewModel.getActiveIngredients {
+                viewModel.activeIngredientsList = it
+            }
             viewModel.patient =
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     "patient"
                 )
+            viewModel.patient?.let {
+                viewModel.getPreviousPrescription(it.id){
+                    viewModel.previousPrescriptionList = it
+                }
+            }
         }
         viewModel.getAllMedicationDirections {
             viewModel.medicationDirectionsList = it
@@ -103,7 +112,7 @@ fun PrescriptionScreen(
     }
     Box(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         Scaffold(
@@ -144,7 +153,7 @@ fun PrescriptionScreen(
                 ) {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxSize()
                     ) {
                         TabRow(
                             selectedTabIndex = viewModel.tabIndex,
@@ -376,6 +385,11 @@ fun BottomNavLayout(
                                 viewModel.selectedActiveIngredientsList = listOf()
                                 viewModel.medicationsResponseWithMedicationList = emptyList()
                                 viewModel.tabIndex = 0
+                                viewModel.patient?.let {
+                                    viewModel.getPreviousPrescription(it.id){
+                                        viewModel.previousPrescriptionList = it
+                                    }
+                                }
                                 coroutineScope.launch {
                                     snackbarHostState.showSnackbar(
                                         message = context.getString(R.string.prescribed_successfully),
@@ -430,13 +444,14 @@ fun SelectedCompoundCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${medication.medication.frequency} ${medication.medUnit} ${
-                        MedFrequencyEnum.fromInt(
-                            medication.medication.frequency
-                        )
-                    }, ${medication.medication.timing}\n" +
-                            "Duration : ${medication.medication.duration} days , Qty : ${medication.medication.qtyPerDose}" +
-                            if (medication.medication.note?.isNotEmpty() == true) "\nNotes : ${medication.medication.note}" else "",
+                    text = MedicineInfoConverter.getMedInfo(
+                        duration = medication.medication.duration,
+                        frequency = medication.medication.frequency,
+                        medUnit = medication.medUnit,
+                        timing = medication.medication.timing,
+                        note = medication.medication.note,
+                        qtyPerDose = medication.medication.qtyPerDose
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
