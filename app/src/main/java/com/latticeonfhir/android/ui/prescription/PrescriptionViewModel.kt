@@ -11,6 +11,7 @@ import com.latticeonfhir.android.data.local.model.prescription.PrescriptionRespo
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
+import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineDosageInstructionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -24,7 +25,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PrescriptionViewModel @Inject constructor(
     private val prescriptionRepository: PrescriptionRepository,
-    private val medicationRepository: MedicationRepository
+    private val medicationRepository: MedicationRepository,
+    private val searchRepository: SearchRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
@@ -49,13 +51,8 @@ class PrescriptionViewModel @Inject constructor(
     var medicationToEdit by mutableStateOf<MedicationResponseWithMedication?>(null)
 
     var searchQuery by mutableStateOf("")
-    var previousSearchList = mutableStateListOf(
-        "List Item 1",
-        "List Item 2",
-        "List Item 3",
-        "List Item 4",
-        "List Item 5",
-    )
+    var previousSearchList by mutableStateOf(listOf<String>())
+    var activeIngredientSearchList by mutableStateOf(listOf<String>())
 
     var previousPrescriptionList by mutableStateOf(listOf<PrescriptionAndMedicineRelation?>(null))
 
@@ -99,6 +96,28 @@ class PrescriptionViewModel @Inject constructor(
                         prescription = medicationsList
                     )
                 )
+            )
+        }
+    }
+
+    internal fun getPreviousSearch(previousSearches: (List<String>) -> Unit) {
+        viewModelScope.launch {
+            previousSearches(
+                searchRepository.getRecentActiveIngredientSearches()
+            )
+        }
+    }
+
+    internal fun insertRecentSearch(query: String) {
+        viewModelScope.launch {
+            searchRepository.insertRecentActiveIngredientSearch(query, Date())
+        }
+    }
+
+    internal fun getActiveIngredientSearchList(activeIngredient: String, searchList: (List<String>) -> Unit) {
+        viewModelScope.launch {
+            searchList(
+                searchRepository.searchActiveIngredients(activeIngredient)
             )
         }
     }

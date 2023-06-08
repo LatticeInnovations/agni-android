@@ -34,6 +34,6 @@ interface SearchDao {
     suspend fun deleteRecentSearch(id: Int): Int
 
     @Transaction
-    @Query("SELECT activeIngredient FROM MedicationEntity")
+    @Query("SELECT DISTINCT activeIngredient FROM MedicationEntity")
     suspend fun getActiveIngredients(): List<String>
 }

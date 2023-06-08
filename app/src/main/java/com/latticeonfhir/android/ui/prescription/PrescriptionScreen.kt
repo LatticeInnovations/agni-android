@@ -139,7 +139,12 @@ fun PrescriptionScreen(
                     },
                     actions = {
                         if (viewModel.tabIndex == 1) {
-                            IconButton(onClick = { viewModel.isSearching = true }) {
+                            IconButton(onClick = {
+                                viewModel.isSearching = true
+                                viewModel.getPreviousSearch {
+                                    viewModel.previousSearchList = it
+                                }
+                            }) {
                                 Icon(Icons.Default.Search, contentDescription = "SEARCH_ICON")
                             }
                         }
@@ -242,7 +247,8 @@ fun PrescriptionScreen(
         )
         Box(
             modifier = Modifier
-                .matchParentSize(),
+                .matchParentSize()
+                .padding(bottom = if (viewModel.selectedActiveIngredientsList.isNotEmpty()) 60.dp else 0.dp),
         ) {
             AnimatedVisibility(
                 visible = viewModel.isSearchResult,
@@ -385,6 +391,7 @@ fun BottomNavLayout(
                                 viewModel.selectedActiveIngredientsList = listOf()
                                 viewModel.medicationsResponseWithMedicationList = emptyList()
                                 viewModel.tabIndex = 0
+                                viewModel.isSearchResult = false
                                 viewModel.patient?.let {
                                     viewModel.getPreviousPrescription(it.id){
                                         viewModel.previousPrescriptionList = it

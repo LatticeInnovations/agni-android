@@ -3,6 +3,8 @@ package com.latticeonfhir.android.ui.prescription.search
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
@@ -16,6 +18,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -30,7 +33,7 @@ fun PrescriptionSearchResult(viewModel: PrescriptionViewModel) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = stringResource(id = R.string.match_found, "6"), style = MaterialTheme.typography.titleLarge)
+                    Text(text = stringResource(id = R.string.match_found, viewModel.activeIngredientSearchList.size), style = MaterialTheme.typography.titleLarge)
                 },
                 navigationIcon = {
                     IconButton(onClick = { viewModel.isSearchResult = false }) {
@@ -41,7 +44,12 @@ fun PrescriptionSearchResult(viewModel: PrescriptionViewModel) {
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                 ),
                 actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+                        viewModel.isSearching = true
+                        viewModel.getPreviousSearch {
+                            viewModel.previousSearchList = it
+                        }
+                    }) {
                         Icon(Icons.Default.Search, contentDescription = "SEARCH_ICON")
                     }
                 }
@@ -49,9 +57,13 @@ fun PrescriptionSearchResult(viewModel: PrescriptionViewModel) {
         },
         content = {
             Box(modifier = Modifier.padding(it)){
-                Column {
-                    viewModel.activeIngredientsList.forEach{ activeIngredient ->
-                        CompoundRow(activeIngredient = activeIngredient, viewModel = viewModel)
+                key(viewModel.selectedActiveIngredientsList) {
+                    Column(
+                        modifier = Modifier.verticalScroll(rememberScrollState())
+                    ) {
+                        viewModel.activeIngredientSearchList.forEach{ activeIngredient ->
+                            CompoundRow(activeIngredient = activeIngredient, viewModel = viewModel)
+                        }
                     }
                 }
             }

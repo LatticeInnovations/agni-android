@@ -88,6 +88,11 @@ fun SearchPrescription(viewModel: PrescriptionViewModel){
                 onSearch = {
                     viewModel.isSearching = false
                     viewModel.isSearchResult = true
+                    viewModel.insertRecentSearch(viewModel.searchQuery.trim())
+                    viewModel.getActiveIngredientSearchList(viewModel.searchQuery.trim()){
+                        viewModel.activeIngredientSearchList = it
+                    }
+                    viewModel.searchQuery = ""
                 }
             ),
             singleLine = true
@@ -109,6 +114,13 @@ fun PreviousSearches(listItem: String, viewModel: PrescriptionViewModel) {
             .fillMaxWidth()
             .padding(14.dp)
             .clickable {
+                viewModel.searchQuery = listItem
+                viewModel.getActiveIngredientSearchList(viewModel.searchQuery.trim()){
+                    viewModel.activeIngredientSearchList = it
+                }
+                viewModel.isSearching = false
+                viewModel.isSearchResult = true
+                viewModel.searchQuery = ""
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
