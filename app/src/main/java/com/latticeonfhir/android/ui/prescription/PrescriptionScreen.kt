@@ -68,7 +68,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.MedFrequencyEnum
+import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
 import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPrescriptionsScreen
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
@@ -76,6 +79,7 @@ import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -87,9 +91,13 @@ fun PrescriptionScreen(
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                "patient"
-            )
+            viewModel.patient =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    "patient"
+                )
+        }
+        viewModel.getAllMedicationDirections {
+            viewModel.medicationDirectionsList = it
         }
         viewModel.isLaunched = true
     }
@@ -99,7 +107,9 @@ fun PrescriptionScreen(
         contentAlignment = Alignment.Center,
     ) {
         Scaffold(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = if (viewModel.selectedActiveIngredientsList.isNotEmpty()) 60.dp else 0.dp),
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 TopAppBar(
@@ -108,7 +118,10 @@ fun PrescriptionScreen(
                         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                     ),
                     title = {
-                        Text(text = stringResource(id = R.string.prescription), style = MaterialTheme.typography.titleLarge)
+                        Text(
+                            text = stringResource(id = R.string.prescription),
+                            style = MaterialTheme.typography.titleLarge
+                        )
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
@@ -179,7 +192,7 @@ fun PrescriptionScreen(
                             }
                         }
                     }
-                    if (viewModel.clearAllConfirmDialog){
+                    if (viewModel.clearAllConfirmDialog) {
                         AlertDialog(
                             onDismissRequest = { viewModel.clearAllConfirmDialog = false },
                             title = {
@@ -192,6 +205,7 @@ fun PrescriptionScreen(
                                 TextButton(
                                     onClick = {
                                         viewModel.selectedActiveIngredientsList = listOf()
+                                        viewModel.medicationsResponseWithMedicationList = listOf()
                                         viewModel.bottomNavExpanded = false
                                         viewModel.clearAllConfirmDialog = false
                                     },
@@ -230,6 +244,15 @@ fun PrescriptionScreen(
             }
         }
         Box(
+            modifier =
+            Modifier
+                .matchParentSize()
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = if (viewModel.bottomNavExpanded && viewModel.selectedActiveIngredientsList.isNotEmpty()) 0.5f else 0f)),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            BottomNavLayout(viewModel, snackbarHostState, coroutineScope)
+        }
+        Box(
             modifier = Modifier
                 .matchParentSize(),
         ) {
@@ -240,15 +263,6 @@ fun PrescriptionScreen(
             ) {
                 FillDetailsScreen(prescriptionViewModel = viewModel)
             }
-        }
-        Box(
-            modifier =
-            Modifier
-                .matchParentSize()
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = if (viewModel.bottomNavExpanded && viewModel.selectedActiveIngredientsList.isNotEmpty()) 0.5f else 0f)),
-            contentAlignment = Alignment.BottomCenter
-        ) {
-            BottomNavLayout(viewModel, snackbarHostState, coroutineScope)
         }
         Box(
             modifier = Modifier
@@ -278,7 +292,7 @@ fun BottomNavLayout(
         label = "Rotation state of expand icon button",
     )
     AnimatedVisibility(
-        visible = viewModel.selectedActiveIngredientsList.isNotEmpty(),
+        visible = viewModel.medicationsResponseWithMedicationList.isNotEmpty(),
         enter = expandVertically(),
         exit = shrinkVertically()
     ) {
@@ -312,10 +326,10 @@ fun BottomNavLayout(
                             modifier = Modifier
                                 .heightIn(0.dp, 450.dp)
                         ) {
-                            items(viewModel.selectedActiveIngredientsList) { drug ->
+                            items(viewModel.medicationsResponseWithMedicationList) { medication ->
                                 SelectedCompoundCard(
                                     viewModel = viewModel,
-                                    drugName = drug
+                                    medication = medication
                                 )
                             }
                         }
@@ -358,12 +372,16 @@ fun BottomNavLayout(
                     Button(
                         onClick = {
                             // add medications to prescriptions
-                            viewModel.selectedActiveIngredientsList = listOf()
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = context.getString(R.string.prescribed_successfully),
-                                    withDismissAction = true
-                                )
+                            viewModel.insertPrescription {
+                                viewModel.selectedActiveIngredientsList = listOf()
+                                viewModel.medicationsResponseWithMedicationList = emptyList()
+                                viewModel.tabIndex = 0
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = context.getString(R.string.prescribed_successfully),
+                                        withDismissAction = true
+                                    )
+                                }
                             }
                         },
                         modifier = Modifier.weight(1f)
@@ -378,7 +396,10 @@ fun BottomNavLayout(
 
 
 @Composable
-fun SelectedCompoundCard(viewModel: PrescriptionViewModel, drugName: String) {
+fun SelectedCompoundCard(
+    viewModel: PrescriptionViewModel,
+    medication: MedicationResponseWithMedication
+) {
     val checkedState = remember {
         mutableStateOf(true)
     }
@@ -391,11 +412,11 @@ fun SelectedCompoundCard(viewModel: PrescriptionViewModel, drugName: String) {
             Checkbox(
                 checked = checkedState.value,
                 onCheckedChange = {
-                    checkedState.value = it
-//                    if (it) {
-//                        //viewModel.selectedActiveIngredientsList.add(drugName)
-//                    } else
-                        //viewModel.selectedActiveIngredientsList.
+                    if (!it) {
+                        viewModel.selectedActiveIngredientsList = viewModel.selectedActiveIngredientsList - listOf(medication.activeIngredient).toSet()
+                        viewModel.medicationsResponseWithMedicationList = viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
+                        if (viewModel.selectedActiveIngredientsList.isEmpty()) viewModel.bottomNavExpanded = false
+                    }
                 },
             )
             Column(
@@ -404,19 +425,26 @@ fun SelectedCompoundCard(viewModel: PrescriptionViewModel, drugName: String) {
                     .weight(1f)
             ) {
                 Text(
-                    text = drugName,
+                    text = medication.medName,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "1 ml OD, Before food\n" +
-                            "Duration : 7 days , Qty : 7 \n" +
-                            "Notes : Take rest ",
+                    text = "${medication.medication.frequency} ${medication.medUnit} ${
+                        MedFrequencyEnum.fromInt(
+                            medication.medication.frequency
+                        )
+                    }, ${medication.medication.timing}\n" +
+                            "Duration : ${medication.medication.duration} days , Qty : ${medication.medication.qtyPerDose}" +
+                            if (medication.medication.note?.isNotEmpty() == true) "\nNotes : ${medication.medication.note}" else "",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = {
+                viewModel.checkedActiveIngredient = medication.activeIngredient
+                viewModel.medicationToEdit = medication
+            }) {
                 Icon(
                     painter = painterResource(id = R.drawable.edit_icon),
                     contentDescription = "EDIT_ICON",
