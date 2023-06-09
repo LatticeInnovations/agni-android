@@ -36,6 +36,8 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
             )
             viewModel.patient?.fhirId?.let { patientFhirId -> viewModel.downloadPrescriptions(patientFhirId) }
         }
+        viewModel.patient= viewModel.getPatientData(viewModel.patient!!.id)
+
         viewModel.isLaunched = true
     }
     Scaffold(
@@ -54,31 +56,23 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
                 },
                 title = {
                     val age = viewModel.patient?.birthDate?.toTimeInMilli()?.toAge()
-                    val subTitle = "${
-                        viewModel.patient?.gender?.get(0)?.uppercase()
-                    }/$age · ${viewModel.patient?.fhirId}"
+                    val subTitle = "${viewModel.patient?.gender?.get(0)?.uppercase()}/$age . +91 ${viewModel.patient?.mobileNumber} · ${viewModel.patient?.fhirId} "
                     Column {
-                        Text(
-                            text = NameConverter.getFullName(
-                                viewModel.patient?.firstName,
-                                viewModel.patient?.middleName,
-                                viewModel.patient?.lastName
-                            ),
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.testTag("TITLE")
-                        )
-                        Text(
-                            text = subTitle,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.testTag("SUBTITLE")
-                        )
+                        Text(text = NameConverter.getFullName(viewModel.patient?.firstName, viewModel.patient?.middleName, viewModel.patient?.lastName), style = MaterialTheme.typography.titleLarge, modifier = Modifier.testTag("TITLE"))
+                        Text(text = subTitle, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag("SUBTITLE"))
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+
+                        navController.currentBackStackEntry?.savedStateHandle?.set(key = "patient_details", value = viewModel.patient)
+                        navController.navigate(Screen.EditPatient.route)
+                    }) {
                         Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = "more icon"
+                            painter = painterResource(id = R.drawable.profile_icon),
+                            contentDescription = "profile Icon",
+                            tint= MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }

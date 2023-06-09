@@ -147,4 +147,7 @@ include them in the household</string>
     <string name="confirm_relationship">Confirm Relationship</string>
     <string name="patient_registration">Patient Registration</string>
     <string name="establish_relation">Establish relation</string>
+
+    <string name="edit_btn">Edit</string>
+
 </resources>
