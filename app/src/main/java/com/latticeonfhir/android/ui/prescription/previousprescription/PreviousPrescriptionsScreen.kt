@@ -9,13 +9,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -31,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
@@ -40,7 +37,6 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.MedicineInfoConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
-import timber.log.Timber
 import java.util.Locale
 
 @Composable
@@ -89,7 +85,7 @@ fun PrescriptionCard(viewModel: PrescriptionViewModel, prescription: Prescriptio
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        expanded = !expanded
+                        if (!viewModel.bottomNavExpanded) expanded = !expanded
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -115,9 +111,7 @@ fun PrescriptionCard(viewModel: PrescriptionViewModel, prescription: Prescriptio
                     )
                     prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
                         MedicineDetails(
-                            drug = directionAndMedication.medicationEntity.activeIngredient.capitalize(
-                                Locale.getDefault()
-                            ),
+                            medName = directionAndMedication.medicationEntity.medName,
                             details = MedicineInfoConverter.getMedInfo(
                                 duration = directionAndMedication.prescriptionDirectionsEntity.duration,
                                 frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
@@ -132,6 +126,8 @@ fun PrescriptionCard(viewModel: PrescriptionViewModel, prescription: Prescriptio
                     if (isLatest) {
                         TextButton(
                             onClick = {
+                                viewModel.medicationsResponseWithMedicationList = emptyList()
+                                viewModel.selectedActiveIngredientsList = emptyList()
                                prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
                                    viewModel.selectedActiveIngredientsList = viewModel.selectedActiveIngredientsList + listOf(directionAndMedication.medicationEntity.activeIngredient)
                                    viewModel.medicationsResponseWithMedicationList = viewModel.medicationsResponseWithMedicationList + listOf(
@@ -165,12 +161,12 @@ fun PrescriptionCard(viewModel: PrescriptionViewModel, prescription: Prescriptio
 }
 
 @Composable
-fun MedicineDetails(drug: String, details: String) {
+fun MedicineDetails(medName: String, details: String) {
     Column(
         modifier = Modifier.padding(bottom = 10.dp)
     ) {
         Text(
-            text = drug,
+            text = medName,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
