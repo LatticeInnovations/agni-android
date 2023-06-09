@@ -51,7 +51,7 @@ abstract class FhirAppDatabase : RoomDatabase() {
             context: Context, preferenceStorage: PreferenceStorage
         ): FhirAppDatabase {
 
-            if (preferenceStorage.roomDBEncryptionKey.isEmpty()) {
+            if (preferenceStorage.roomDBEncryptionKey.isBlank()) {
                 preferenceStorage.roomDBEncryptionKey = UUID.randomUUID().toString()
             }
 
