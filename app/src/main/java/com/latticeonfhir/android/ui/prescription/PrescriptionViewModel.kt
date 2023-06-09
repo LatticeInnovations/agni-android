@@ -7,8 +7,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
+import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
@@ -16,8 +18,10 @@ import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineD
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -26,7 +30,8 @@ import javax.inject.Inject
 class PrescriptionViewModel @Inject constructor(
     private val prescriptionRepository: PrescriptionRepository,
     private val medicationRepository: MedicationRepository,
-    private val searchRepository: SearchRepository
+    private val searchRepository: SearchRepository,
+    private val genericRepository: GenericRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
@@ -56,8 +61,11 @@ class PrescriptionViewModel @Inject constructor(
 
     var previousPrescriptionList by mutableStateOf(listOf<PrescriptionAndMedicineRelation?>(null))
 
-    internal fun getPreviousPrescription(patientId: String, previousPrescriptionList: (List<PrescriptionAndMedicineRelation>) -> Unit) {
-        viewModelScope.launch {
+    internal fun getPreviousPrescription(
+        patientId: String,
+        previousPrescriptionList: (List<PrescriptionAndMedicineRelation>) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
             previousPrescriptionList(
                 prescriptionRepository.getLastPrescription(patientId)
             )
@@ -65,7 +73,7 @@ class PrescriptionViewModel @Inject constructor(
     }
 
     internal fun getActiveIngredients(activeIngredientsList: (List<String>) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             activeIngredientsList(
                 medicationRepository.getActiveIngredients()
             )
@@ -73,7 +81,7 @@ class PrescriptionViewModel @Inject constructor(
     }
 
     internal fun getAllMedicationDirections(medicationDirectionsList: (List<MedicineDosageInstructionsEntity>) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             medicationDirectionsList(
                 medicationRepository.getAllMedicationDirections()
             )
@@ -85,23 +93,38 @@ class PrescriptionViewModel @Inject constructor(
         medicationsResponseWithMedicationList.forEach {
             medicationsList.add(it.medication)
         }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            val prescriptionId = UUIDBuilder.generateUUID()
             inserted(
                 prescriptionRepository.insertPrescription(
                     PrescriptionResponseLocal(
-                        patientId = patient?.id!!,
+                        patientId = patient!!.id,
                         patientFhirId = patient?.fhirId,
                         generatedOn = Date(),
-                        prescriptionId = UUIDBuilder.generateUUID(),
+                        prescriptionId = prescriptionId,
                         prescription = medicationsList
                     )
-                )
+                ).also {
+                    genericRepository.insertOrUpdatePostEntity(
+                        patientId = patient!!.id,
+                        entity = listOf(
+                            PrescriptionResponse(
+                                patientFhirId = patient!!.fhirId?:patient!!.id,
+                                generatedOn = Date(),
+                                prescriptionId = prescriptionId,
+                                prescription = medicationsList,
+                                prescriptionFhirId = null
+                            )
+                        ),
+                        typeEnum = GenericTypeEnum.PRESCRIPTION
+                    )
+                }
             )
         }
     }
 
     internal fun getPreviousSearch(previousSearches: (List<String>) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             previousSearches(
                 searchRepository.getRecentActiveIngredientSearches()
             )
@@ -109,13 +132,16 @@ class PrescriptionViewModel @Inject constructor(
     }
 
     internal fun insertRecentSearch(query: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             searchRepository.insertRecentActiveIngredientSearch(query, Date())
         }
     }
 
-    internal fun getActiveIngredientSearchList(activeIngredient: String, searchList: (List<String>) -> Unit) {
-        viewModelScope.launch {
+    internal fun getActiveIngredientSearchList(
+        activeIngredient: String,
+        searchList: (List<String>) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
             searchList(
                 searchRepository.searchActiveIngredients(activeIngredient)
             )

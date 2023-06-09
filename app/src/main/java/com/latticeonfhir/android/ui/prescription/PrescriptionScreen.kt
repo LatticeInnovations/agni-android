@@ -68,10 +68,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.enums.MedFrequencyEnum
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
 import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPrescriptionsScreen
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
@@ -133,16 +131,20 @@ fun PrescriptionScreen(
                         )
                     },
                     navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
+                        IconButton(onClick = {
+                            if (!viewModel.bottomNavExpanded) navController.popBackStack()
+                        }) {
                             Icon(Icons.Default.ArrowBack, contentDescription = "ARROW_BACK")
                         }
                     },
                     actions = {
                         if (viewModel.tabIndex == 1) {
                             IconButton(onClick = {
-                                viewModel.isSearching = true
-                                viewModel.getPreviousSearch {
-                                    viewModel.previousSearchList = it
+                                if (!viewModel.bottomNavExpanded) {
+                                    viewModel.isSearching = true
+                                    viewModel.getPreviousSearch {
+                                        viewModel.previousSearchList = it
+                                    }
                                 }
                             }) {
                                 Icon(Icons.Default.Search, contentDescription = "SEARCH_ICON")
@@ -169,7 +171,7 @@ fun PrescriptionScreen(
                                     text = { Text(title) },
                                     modifier = Modifier.testTag(title.uppercase()),
                                     selected = viewModel.tabIndex == index,
-                                    onClick = { viewModel.tabIndex = index },
+                                    onClick = { if (!viewModel.bottomNavExpanded) viewModel.tabIndex = index },
                                     unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
