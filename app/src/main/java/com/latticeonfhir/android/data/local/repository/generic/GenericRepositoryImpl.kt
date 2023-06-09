@@ -9,12 +9,15 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.utils.builders.GenericEntity.processPatch
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.constants.Id.ID
 import com.latticeonfhir.android.utils.constants.RelationConstants.RELATIONSHIP
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import javax.inject.Inject
 
-class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) : GenericRepository {
+@Suppress("UNCHECKED_CAST")
+class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) :
+    GenericRepository {
 
     override suspend fun insertOrUpdatePostEntity(
         patientId: String,
@@ -49,11 +52,11 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
     }
 
     override suspend fun insertOrUpdatePatchEntity(
-        patientId: String,
+        patientFhirId: String,
         map: Map<String, Any>,
         typeEnum: GenericTypeEnum
     ): Long {
-        return genericDao.getGenericEntityById(patientId, typeEnum, SyncType.PATCH).run {
+        return genericDao.getGenericEntityById(patientFhirId, typeEnum, SyncType.PATCH).run {
             if (this != null) {
                 val existingMap = payload.fromJson<MutableMap<String, Any>>()
                 map.entries.forEach { mapEntry ->
@@ -67,6 +70,7 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                         existingMap[mapEntry.key] = mapEntry.value
                     }
                 }
+                existingMap[ID] = patientFhirId.toLong()
                 genericDao.insertGenericEntity(
                     copy(payload = existingMap.toJson())
                 )[0]
@@ -74,8 +78,11 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                 genericDao.insertGenericEntity(
                     GenericEntity(
                         id = UUIDBuilder.generateUUID(),
-                        patientId = patientId,
-                        payload = map.toJson(),
+                        patientId = patientFhirId,
+                        payload = map.toMutableMap().let { mutableMap ->
+                            mutableMap[ID] = patientFhirId.toLong()
+                            mutableMap
+                        }.toJson(),
                         type = typeEnum,
                         syncType = SyncType.PATCH
                     )
