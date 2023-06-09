@@ -410,7 +410,7 @@ class WorkRequestBuilders(
                             }
                         ),
                         typeEnum = GenericTypeEnum.RELATION,
-                        replace = true
+                        replaceEntireRow = true
                     )
                 }
             }
@@ -433,7 +433,7 @@ class WorkRequestBuilders(
                                 ?: Id.EMPTY_FHIR_ID
                         ),
                         typeEnum = GenericTypeEnum.PRESCRIPTION,
-                        replace = true
+                        replaceEntireRow = true
                     )
                 }
             }

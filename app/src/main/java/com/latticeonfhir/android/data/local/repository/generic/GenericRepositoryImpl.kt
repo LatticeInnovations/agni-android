@@ -13,6 +13,7 @@ import com.latticeonfhir.android.utils.constants.Id.ID
 import com.latticeonfhir.android.utils.constants.RelationConstants.RELATIONSHIP
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
+import java.util.UUID
 import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")
@@ -23,11 +24,11 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
         patientId: String,
         entity: Any,
         typeEnum: GenericTypeEnum,
-        replace: Boolean
+        replaceEntireRow: Boolean
     ): Long {
         return genericDao.getGenericEntityById(patientId, typeEnum, SyncType.POST).run {
-            if (this != null) {
-                if (typeEnum == GenericTypeEnum.RELATION && !replace) {
+            if (this != null && typeEnum != GenericTypeEnum.PRESCRIPTION) {
+                if (typeEnum == GenericTypeEnum.RELATION && !replaceEntireRow) {
                     val existingMap = payload.fromJson<MutableMap<String, Any>>()
                     val list = existingMap[RELATIONSHIP] as MutableList<Relationship>
                     val newMap = entity as RelatedPersonResponse
@@ -70,7 +71,7 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                         existingMap[mapEntry.key] = mapEntry.value
                     }
                 }
-                existingMap[ID] = patientFhirId.toLong()
+                existingMap[ID] = patientFhirId
                 genericDao.insertGenericEntity(
                     copy(payload = existingMap.toJson())
                 )[0]
@@ -80,7 +81,7 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                         id = UUIDBuilder.generateUUID(),
                         patientId = patientFhirId,
                         payload = map.toMutableMap().let { mutableMap ->
-                            mutableMap[ID] = patientFhirId.toLong()
+                            mutableMap[ID] = patientFhirId
                             mutableMap
                         }.toJson(),
                         type = typeEnum,
