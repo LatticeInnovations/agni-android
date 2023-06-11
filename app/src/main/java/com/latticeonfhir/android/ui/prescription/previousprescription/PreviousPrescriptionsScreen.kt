@@ -65,7 +65,11 @@ fun PreviousPrescriptionsScreen(viewModel: PrescriptionViewModel = hiltViewModel
 }
 
 @Composable
-fun PrescriptionCard(viewModel: PrescriptionViewModel, prescription: PrescriptionAndMedicineRelation, isLatest: Boolean) {
+fun PrescriptionCard(
+    viewModel: PrescriptionViewModel,
+    prescription: PrescriptionAndMedicineRelation,
+    isLatest: Boolean
+) {
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -84,9 +88,7 @@ fun PrescriptionCard(viewModel: PrescriptionViewModel, prescription: Prescriptio
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
-                        if (!viewModel.bottomNavExpanded) expanded = !expanded
-                    },
+                    .clickable { expanded = !expanded },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -128,26 +130,31 @@ fun PrescriptionCard(viewModel: PrescriptionViewModel, prescription: Prescriptio
                             onClick = {
                                 viewModel.medicationsResponseWithMedicationList = emptyList()
                                 viewModel.selectedActiveIngredientsList = emptyList()
-                               prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
-                                   viewModel.selectedActiveIngredientsList = viewModel.selectedActiveIngredientsList + listOf(directionAndMedication.medicationEntity.activeIngredient)
-                                   viewModel.medicationsResponseWithMedicationList = viewModel.medicationsResponseWithMedicationList + listOf(
-                                       MedicationResponseWithMedication(
-                                           activeIngredient = directionAndMedication.medicationEntity.activeIngredient,
-                                           medName = directionAndMedication.medicationEntity.medName,
-                                           medUnit = directionAndMedication.medicationEntity.medUnit,
-                                           medication = Medication(
-                                               doseForm = directionAndMedication.medicationEntity.doseForm,
-                                               duration = directionAndMedication.prescriptionDirectionsEntity.duration,
-                                               qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
-                                               frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
-                                               medFhirId = directionAndMedication.medicationEntity.medFhirId,
-                                               note = directionAndMedication.prescriptionDirectionsEntity.note,
-                                               timing = directionAndMedication.prescriptionDirectionsEntity.timing,
-                                               qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed
-                                           )
-                                       )
-                                   )
-                               }
+                                prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
+                                    viewModel.selectedActiveIngredientsList =
+                                        viewModel.selectedActiveIngredientsList + listOf(
+                                            directionAndMedication.medicationEntity.activeIngredient
+                                        )
+                                    viewModel.medicationsResponseWithMedicationList =
+                                        viewModel.medicationsResponseWithMedicationList + listOf(
+                                            MedicationResponseWithMedication(
+                                                activeIngredient = directionAndMedication.medicationEntity.activeIngredient,
+                                                medName = directionAndMedication.medicationEntity.medName,
+                                                medUnit = directionAndMedication.medicationEntity.medUnit,
+                                                medication = Medication(
+                                                    doseForm = directionAndMedication.medicationEntity.doseForm,
+                                                    duration = directionAndMedication.prescriptionDirectionsEntity.duration,
+                                                    qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
+                                                    frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
+                                                    medFhirId = directionAndMedication.medicationEntity.medFhirId,
+                                                    note = directionAndMedication.prescriptionDirectionsEntity.note,
+                                                    timing = directionAndMedication.prescriptionDirectionsEntity.timing,
+                                                    qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed
+                                                )
+                                            )
+                                        )
+                                }
+                                viewModel.bottomNavExpanded = false
                             },
                             modifier = Modifier.align(Alignment.End)
                         ) {

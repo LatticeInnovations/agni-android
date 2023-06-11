@@ -48,9 +48,9 @@ fun LandingScreen(
     val activity = LocalContext.current as Activity
 
     BackHandler(enabled = true) {
-        if (viewModel.isSearching){
+        if (viewModel.isSearching) {
             viewModel.isSearching = false
-        } else if(viewModel.isSearchResult) {
+        } else if (viewModel.isSearchResult) {
             viewModel.isSearchResult = false
             viewModel.populateList()
         } else {
@@ -72,7 +72,7 @@ fun LandingScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
                     "loggedIn"
                 ) == true
-            ){
+            ) {
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(
                         message = "Logged in successfully"
@@ -85,8 +85,8 @@ fun LandingScreen(
         }
     }
 
-    LaunchedEffect(viewModel.logoutUser){
-        if (viewModel.logoutUser){
+    LaunchedEffect(viewModel.logoutUser) {
+        if (viewModel.logoutUser) {
             viewModel.logout()
             navController.currentBackStackEntry?.savedStateHandle?.set(
                 "logoutUser",
@@ -94,7 +94,7 @@ fun LandingScreen(
             )
             navController.currentBackStackEntry?.savedStateHandle?.set(
                 "logoutReason",
-                 viewModel.logoutReason
+                viewModel.logoutReason
             )
             navController.navigate(Screen.PhoneEmailScreen.route)
             viewModel.logoutUser = false
@@ -165,12 +165,13 @@ fun LandingScreen(
                                         Icons.Default.Search, contentDescription = "SEARCH_ICON"
                                     )
                                 }
-                            else if(viewModel.selectedIndex == 2){
+                            else if (viewModel.selectedIndex == 2) {
                                 IconButton(onClick = {
                                     viewModel.isLoggingOut = true
                                 }) {
                                     Icon(
-                                        painterResource(id = R.drawable.logout), contentDescription = "LOG_OUT_ICON",
+                                        painterResource(id = R.drawable.logout),
+                                        contentDescription = "LOG_OUT_ICON",
                                         Modifier.size(20.dp)
                                     )
                                 }
@@ -257,22 +258,28 @@ fun LandingScreen(
                         2 -> ProfileScreen()
                     }
                 }
-                if (viewModel.isLoggingOut){
+                if (viewModel.isLoggingOut) {
                     AlertDialog(
                         onDismissRequest = { viewModel.isLoggingOut = false },
                         title = {
-                            Text(text = stringResource(id = R.string.logout_dialog_title), modifier = Modifier.testTag("DIALOG_TITLE"))
+                            Text(
+                                text = stringResource(id = R.string.logout_dialog_title),
+                                modifier = Modifier.testTag("DIALOG_TITLE")
+                            )
                         },
                         text = {
-                               Text(text = stringResource(id = R.string.logout_dialog_description), modifier = Modifier.testTag("DIALOG_DESCRIPTION"))
+                            Text(
+                                text = stringResource(id = R.string.logout_dialog_description),
+                                modifier = Modifier.testTag("DIALOG_DESCRIPTION")
+                            )
                         },
                         confirmButton = {
                             TextButton(
                                 onClick = {
                                     viewModel.isLoggingOut = false
                                     viewModel.logout()
-                                    navController.navigate(Screen.PhoneEmailScreen.route){
-                                        popUpTo(Screen.LandingScreen.route){
+                                    navController.navigate(Screen.PhoneEmailScreen.route) {
+                                        popUpTo(Screen.LandingScreen.route) {
                                             inclusive = true
                                         }
                                     }
@@ -302,9 +309,13 @@ fun LandingScreen(
         )
         Box(
             modifier =
-            Modifier
+            if (!viewModel.isSearching) Modifier
                 .matchParentSize()
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = if (viewModel.isSearching) 0.5f else 0f))
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
+            else Modifier
+                .matchParentSize()
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+                .clickable(enabled = false) {  }
 
         ) {
             AnimatedVisibility(
@@ -316,6 +327,7 @@ fun LandingScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
+                        .clickable {  }
                         .testTag("SEARCH_LAYOUT"),
                     verticalArrangement = Arrangement.Top
                 ) {

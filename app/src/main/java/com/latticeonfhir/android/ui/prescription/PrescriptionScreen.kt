@@ -98,7 +98,7 @@ fun PrescriptionScreen(
                     "patient"
                 )
             viewModel.patient?.let {
-                viewModel.getPreviousPrescription(it.id){
+                viewModel.getPreviousPrescription(it.id) {
                     viewModel.previousPrescriptionList = it
                 }
             }
@@ -131,20 +131,16 @@ fun PrescriptionScreen(
                         )
                     },
                     navigationIcon = {
-                        IconButton(onClick = {
-                            if (!viewModel.bottomNavExpanded) navController.popBackStack()
-                        }) {
+                        IconButton(onClick = { navController.popBackStack() }) {
                             Icon(Icons.Default.ArrowBack, contentDescription = "ARROW_BACK")
                         }
                     },
                     actions = {
                         if (viewModel.tabIndex == 1) {
                             IconButton(onClick = {
-                                if (!viewModel.bottomNavExpanded) {
-                                    viewModel.isSearching = true
-                                    viewModel.getPreviousSearch {
-                                        viewModel.previousSearchList = it
-                                    }
+                                viewModel.isSearching = true
+                                viewModel.getPreviousSearch {
+                                    viewModel.previousSearchList = it
                                 }
                             }) {
                                 Icon(Icons.Default.Search, contentDescription = "SEARCH_ICON")
@@ -171,7 +167,7 @@ fun PrescriptionScreen(
                                     text = { Text(title) },
                                     modifier = Modifier.testTag(title.uppercase()),
                                     selected = viewModel.tabIndex == index,
-                                    onClick = { if (!viewModel.bottomNavExpanded) viewModel.tabIndex = index },
+                                    onClick = { viewModel.tabIndex = index },
                                     unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -262,9 +258,13 @@ fun PrescriptionScreen(
         }
         Box(
             modifier =
-            Modifier
+            if (!(viewModel.bottomNavExpanded && viewModel.selectedActiveIngredientsList.isNotEmpty())) Modifier
                 .matchParentSize()
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = if (viewModel.bottomNavExpanded && viewModel.selectedActiveIngredientsList.isNotEmpty()) 0.5f else 0f)),
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
+            else Modifier
+                .matchParentSize()
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+                .clickable(enabled = false) { },
             contentAlignment = Alignment.BottomCenter
         ) {
             BottomNavLayout(viewModel, snackbarHostState, coroutineScope)
@@ -282,9 +282,13 @@ fun PrescriptionScreen(
             }
         }
         Box(
-            modifier = Modifier
+            modifier = if (!viewModel.isSearching) Modifier
                 .matchParentSize()
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = if (viewModel.isSearching) 0.5f else 0f))
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
+            else Modifier
+                .matchParentSize()
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+                .clickable(enabled = false) { }
         ) {
             AnimatedVisibility(
                 visible = viewModel.isSearching,
@@ -395,7 +399,7 @@ fun BottomNavLayout(
                                 viewModel.tabIndex = 0
                                 viewModel.isSearchResult = false
                                 viewModel.patient?.let {
-                                    viewModel.getPreviousPrescription(it.id){
+                                    viewModel.getPreviousPrescription(it.id) {
                                         viewModel.previousPrescriptionList = it
                                     }
                                 }
@@ -436,9 +440,12 @@ fun SelectedCompoundCard(
                 checked = checkedState.value,
                 onCheckedChange = {
                     if (!it) {
-                        viewModel.selectedActiveIngredientsList = viewModel.selectedActiveIngredientsList - listOf(medication.activeIngredient).toSet()
-                        viewModel.medicationsResponseWithMedicationList = viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
-                        if (viewModel.selectedActiveIngredientsList.isEmpty()) viewModel.bottomNavExpanded = false
+                        viewModel.selectedActiveIngredientsList =
+                            viewModel.selectedActiveIngredientsList - listOf(medication.activeIngredient).toSet()
+                        viewModel.medicationsResponseWithMedicationList =
+                            viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
+                        if (viewModel.selectedActiveIngredientsList.isEmpty()) viewModel.bottomNavExpanded =
+                            false
                     }
                 },
             )
