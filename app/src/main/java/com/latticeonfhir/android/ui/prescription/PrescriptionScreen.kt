@@ -480,7 +480,8 @@ fun SelectedCompoundCard(
                         medUnit = medication.medUnit,
                         timing = medication.medication.timing,
                         note = medication.medication.note,
-                        qtyPerDose = medication.medication.qtyPerDose
+                        qtyPerDose = medication.medication.qtyPerDose,
+                        qtyPrescribed = medication.medication.qtyPrescribed
                     ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant

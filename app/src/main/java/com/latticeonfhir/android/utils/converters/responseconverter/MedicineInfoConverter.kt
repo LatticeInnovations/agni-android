@@ -7,12 +7,13 @@ object MedicineInfoConverter {
         timing: String?,
         note: String?,
         qtyPerDose: Int,
-        duration: Int
+        duration: Int,
+        qtyPrescribed: Int
     ): String {
-        return "$frequency $medUnit ${
+        return "$qtyPerDose $medUnit ${
             MedFrequencyConverter.getMedFreqValue(frequency)
         }, $timing\n" +
-                "Duration : $duration days , Qty : $qtyPerDose" +
+                "Duration : $duration days , Qty : $qtyPrescribed" +
                 if (note?.isNotEmpty() == true) "\nNotes : $note" else ""
     }
 }
