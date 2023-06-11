@@ -9,7 +9,7 @@ object MedFrequencyConverter {
             2 -> MedFrequencyEnum.fromInt(2).value
             3 -> MedFrequencyEnum.fromInt(3).value
             4 -> MedFrequencyEnum.fromInt(4).value
-            else -> "dose per day"
+            else -> "$freq dose per day"
         }
     }
 }
