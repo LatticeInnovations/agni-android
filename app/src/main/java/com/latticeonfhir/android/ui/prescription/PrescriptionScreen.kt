@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.prescription
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibility
@@ -89,6 +90,15 @@ fun PrescriptionScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    BackHandler(enabled = true) {
+        if (viewModel.isSearching) viewModel.isSearching = false
+        else if (viewModel.checkedActiveIngredient.isNotEmpty()) viewModel.checkedActiveIngredient = ""
+        else if (viewModel.isSearchResult) viewModel.isSearchResult = false
+        else if (viewModel.tabIndex == 1) {
+            viewModel.tabIndex = 0
+        } else navController.popBackStack()
+    }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.getActiveIngredients {
