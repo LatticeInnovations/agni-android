@@ -46,7 +46,8 @@ fun SearchPrescription(viewModel: PrescriptionViewModel){
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
-            .testTag("SEARCH_LAYOUT"),
+            .testTag("SEARCH_LAYOUT")
+            .clickable {  },
         verticalArrangement = Arrangement.Top
     ) {
         TextField(

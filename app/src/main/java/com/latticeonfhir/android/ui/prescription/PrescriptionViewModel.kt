@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.ui.prescription
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -41,7 +40,7 @@ class PrescriptionViewModel @Inject constructor(
     var bottomNavExpanded by mutableStateOf(false)
     var clearAllConfirmDialog by mutableStateOf(false)
 
-    var tabIndex by mutableIntStateOf(0)
+    var tabIndex by mutableStateOf(0)
 
     val tabs = listOf("Previous prescription", "Quick select")
 
