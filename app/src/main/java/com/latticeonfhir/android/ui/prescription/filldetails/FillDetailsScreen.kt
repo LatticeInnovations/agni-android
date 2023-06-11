@@ -65,7 +65,9 @@ fun FillDetailsScreen(
     viewModel: FillDetailsViewModel = hiltViewModel()
 ) {
     LaunchedEffect(prescriptionViewModel.checkedActiveIngredient) {
-        viewModel.getMedicationByActiveIngredient(prescriptionViewModel.checkedActiveIngredient)
+        viewModel.getMedicationByActiveIngredient(prescriptionViewModel.checkedActiveIngredient) {
+            viewModel.formulationsList = it
+        }
         viewModel.reset()
     }
     LaunchedEffect(viewModel.isLaunched) {
@@ -108,14 +110,20 @@ fun FillDetailsScreen(
                 actions = {
                     TextButton(
                         onClick = {
-                            if (prescriptionViewModel.medicationToEdit != null){
+                            if (prescriptionViewModel.medicationToEdit != null) {
                                 prescriptionViewModel.selectedActiveIngredientsList =
-                                    prescriptionViewModel.selectedActiveIngredientsList - listOf(prescriptionViewModel.medicationToEdit!!.activeIngredient).toSet()
+                                    prescriptionViewModel.selectedActiveIngredientsList - listOf(
+                                        prescriptionViewModel.medicationToEdit!!.activeIngredient
+                                    ).toSet()
                                 prescriptionViewModel.medicationsResponseWithMedicationList =
-                                    prescriptionViewModel.medicationsResponseWithMedicationList - listOf(prescriptionViewModel.medicationToEdit!!).toSet()
+                                    prescriptionViewModel.medicationsResponseWithMedicationList - listOf(
+                                        prescriptionViewModel.medicationToEdit!!
+                                    ).toSet()
                             }
                             prescriptionViewModel.selectedActiveIngredientsList =
-                                prescriptionViewModel.selectedActiveIngredientsList + listOf(prescriptionViewModel.checkedActiveIngredient)
+                                prescriptionViewModel.selectedActiveIngredientsList + listOf(
+                                    prescriptionViewModel.checkedActiveIngredient
+                                )
                             prescriptionViewModel.medicationsResponseWithMedicationList =
                                 prescriptionViewModel.medicationsResponseWithMedicationList + listOf(
                                     MedicationResponseWithMedication(
@@ -460,8 +468,8 @@ fun FormulationsForm(
                 modifier = Modifier.weight(1f),
                 value = viewModel.duration,
                 onValueChange = {
-                    if (it.matches(OnlyNumberRegex.onlyNumbers) || it.isEmpty()) viewModel.duration =
-                        it
+                    if (it.matches(OnlyNumberRegex.onlyNumbers) && it != "0") viewModel.duration = it
+                    else if (it.isEmpty()) viewModel.duration = it
                 },
                 label = {
                     Text(text = stringResource(id = R.string.duration_days))
@@ -474,7 +482,9 @@ fun FormulationsForm(
             Spacer(modifier = Modifier.width(10.dp))
             // Quantity prescribed
             OutlinedTextField(
-                modifier = Modifier.weight(1f).clickable(enabled = false) {  },
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(enabled = false) { },
                 value = viewModel.quantityPrescribed(),
                 onValueChange = {},
                 label = {
