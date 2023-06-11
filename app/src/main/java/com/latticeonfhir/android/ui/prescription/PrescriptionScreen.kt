@@ -80,7 +80,6 @@ import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
 import com.latticeonfhir.android.utils.converters.responseconverter.MedicineInfoConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -94,6 +93,7 @@ fun PrescriptionScreen(
     BackHandler(enabled = true) {
         if (viewModel.isSearching) viewModel.isSearching = false
         else if (viewModel.checkedActiveIngredient.isNotEmpty()) viewModel.checkedActiveIngredient = ""
+        else if (viewModel.bottomNavExpanded) viewModel.bottomNavExpanded = false
         else if (viewModel.isSearchResult) viewModel.isSearchResult = false
         else if (viewModel.tabIndex == 1) {
             viewModel.tabIndex = 0

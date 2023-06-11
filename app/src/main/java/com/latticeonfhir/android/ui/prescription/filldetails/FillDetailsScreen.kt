@@ -3,6 +3,7 @@ package com.latticeonfhir.android.ui.prescription.filldetails
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -55,7 +56,6 @@ import com.latticeonfhir.android.data.local.model.prescription.medication.Medica
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
-import timber.log.Timber
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,6 +66,7 @@ fun FillDetailsScreen(
 ) {
     LaunchedEffect(prescriptionViewModel.checkedActiveIngredient) {
         viewModel.getMedicationByActiveIngredient(prescriptionViewModel.checkedActiveIngredient)
+        viewModel.reset()
     }
     LaunchedEffect(viewModel.isLaunched) {
         if (prescriptionViewModel.medicationToEdit != null) {
@@ -179,7 +180,8 @@ fun FillDetailsScreen(
                                         }
                                     }
                                 }
-                            }
+                            },
+                            singleLine = true
                         )
                         DropdownMenu(
                             modifier = Modifier
@@ -306,7 +308,8 @@ fun FormulationsForm(
                             }
                         }
                     }
-                }
+                },
+                singleLine = true
             )
             DropdownMenu(
                 modifier = Modifier
@@ -366,7 +369,8 @@ fun FormulationsForm(
                             }
                         }
                     }
-                }
+                },
+                singleLine = true
             )
             DropdownMenu(
                 modifier = Modifier
@@ -421,7 +425,8 @@ fun FormulationsForm(
                             }
                         }
                     }
-                }
+                },
+                singleLine = true
             )
             DropdownMenu(
                 modifier = Modifier
@@ -463,18 +468,20 @@ fun FormulationsForm(
                 },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number
-                )
+                ),
+                singleLine = true
             )
             Spacer(modifier = Modifier.width(10.dp))
             // Quantity prescribed
             OutlinedTextField(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).clickable(enabled = false) {  },
                 value = viewModel.quantityPrescribed(),
                 onValueChange = {},
                 label = {
                     Text(text = stringResource(id = R.string.quantity_prescribed))
                 },
-                readOnly = true
+                readOnly = true,
+                singleLine = true
             )
         }
         Spacer(modifier = Modifier.height(10.dp))
