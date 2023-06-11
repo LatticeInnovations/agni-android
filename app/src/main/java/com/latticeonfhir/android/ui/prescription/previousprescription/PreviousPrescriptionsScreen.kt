@@ -135,7 +135,8 @@ fun PrescriptionCard(
                                 medUnit = directionAndMedication.medicationEntity.medUnit,
                                 timing = directionAndMedication.prescriptionDirectionsEntity.timing,
                                 note = directionAndMedication.prescriptionDirectionsEntity.note,
-                                qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose
+                                qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
+                                qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed
                             )
                         )
 
