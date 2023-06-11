@@ -200,7 +200,7 @@ fun PrescriptionScreen(
                             }
                         ) { targetState ->
                             when (targetState) {
-                                0 -> PreviousPrescriptionsScreen()
+                                0 -> PreviousPrescriptionsScreen(snackbarHostState, coroutineScope)
                                 1 -> QuickSelectScreen()
                             }
                         }

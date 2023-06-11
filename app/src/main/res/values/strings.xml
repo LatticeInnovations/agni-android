@@ -13,6 +13,7 @@
     <string name="no_go_back">No, go back</string>
     <string name="clear_all">Clear all</string>
     <string name="prescribed_successfully">Prescribed successfully</string>
+    <string name="re_prescribed_successfully">Re-prescribed successfully</string>
     <string name="prescribe">Prescribe</string>
     <string name="fill_details">Fill details</string>
     <string name="done">Done</string>

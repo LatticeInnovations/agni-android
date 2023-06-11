@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -30,18 +31,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.MedicineInfoConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
-import java.util.Locale
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun PreviousPrescriptionsScreen(viewModel: PrescriptionViewModel = hiltViewModel()) {
+fun PreviousPrescriptionsScreen(
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    viewModel: PrescriptionViewModel = hiltViewModel()
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -58,7 +66,7 @@ fun PreviousPrescriptionsScreen(viewModel: PrescriptionViewModel = hiltViewModel
         } else {
             viewModel.previousPrescriptionList.forEachIndexed { index, previousPrescription ->
                 previousPrescription?.let { prescription ->
-                    PrescriptionCard(viewModel, prescription, index == 0)
+                    PrescriptionCard(viewModel, prescription, index == 0, snackbarHostState, coroutineScope)
                 }
             }
         }
@@ -69,8 +77,11 @@ fun PreviousPrescriptionsScreen(viewModel: PrescriptionViewModel = hiltViewModel
 fun PrescriptionCard(
     viewModel: PrescriptionViewModel,
     prescription: PrescriptionAndMedicineRelation,
-    isLatest: Boolean
+    isLatest: Boolean,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope
 ) {
+    val context = LocalContext.current
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -159,6 +170,11 @@ fun PrescriptionCard(
                                         )
                                 }
                                 viewModel.bottomNavExpanded = false
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = context.getString(R.string.re_prescribed_successfully)
+                                    )
+                                }
                             },
                             modifier = Modifier.align(Alignment.End)
                         ) {
