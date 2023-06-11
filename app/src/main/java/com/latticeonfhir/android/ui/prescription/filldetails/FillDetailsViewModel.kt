@@ -8,8 +8,8 @@ import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,12 +30,12 @@ class FillDetailsViewModel @Inject constructor(
     var medDoseForm by mutableStateOf("")
     var medFhirId by mutableStateOf("")
 
-    internal fun quantityPrescribed(): String{
+    internal fun quantityPrescribed(): String {
         return if (duration.isBlank()) ""
-         else (quantityPerDose.toInt() * frequency.toInt() * duration.toInt()).toString()
+        else (quantityPerDose.toInt() * frequency.toInt() * duration.toInt()).toString()
     }
 
-    internal fun reset(){
+    internal fun reset() {
         medSelected = ""
         quantityPerDose = "1"
         frequency = "1"
@@ -44,9 +44,14 @@ class FillDetailsViewModel @Inject constructor(
         timing = "Before food"
     }
 
-    internal fun getMedicationByActiveIngredient(activeIngredientName: String){
-        viewModelScope.launch {
-            formulationsList = medicationRepository.getMedicationByActiveIngredient(activeIngredientName)
+    internal fun getMedicationByActiveIngredient(
+        activeIngredientName: String,
+        formulationsList: (List<MedicationResponse>) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            formulationsList(
+                medicationRepository.getMedicationByActiveIngredient(activeIngredientName)
+            )
         }
     }
 }
