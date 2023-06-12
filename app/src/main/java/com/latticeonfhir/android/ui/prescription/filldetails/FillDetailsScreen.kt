@@ -46,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -146,7 +147,8 @@ fun FillDetailsScreen(
                             prescriptionViewModel.medicationToEdit = null
                             viewModel.reset()
                         },
-                        enabled = viewModel.quantityPrescribed() != ""
+                        enabled = viewModel.quantityPrescribed() != "",
+                        modifier = Modifier.testTag("DONE_BTN")
                     ) {
                         Text(text = stringResource(id = R.string.done))
                     }
@@ -245,6 +247,7 @@ fun FormulationRadioList(viewModel: FillDetailsViewModel) {
         Row(
             Modifier
                 .fillMaxWidth()
+                .testTag("FORMULATION_LIST")
                 .selectable(
                     selected = (formulation.medName == viewModel.medSelected),
                     onClick = {
@@ -288,7 +291,8 @@ fun FormulationsForm(
                 mutableStateOf(false)
             }
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .testTag("QUANTITY_PER_DOSE"),
                 value = viewModel.medUnit,
                 onValueChange = {},
                 label = {
@@ -349,7 +353,8 @@ fun FormulationsForm(
                 mutableStateOf(false)
             }
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .testTag("FREQUENCY"),
                 value = stringResource(id = R.string.dose_per_day),
                 onValueChange = {},
                 label = {
@@ -411,7 +416,8 @@ fun FormulationsForm(
                 mutableStateOf(false)
             }
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .testTag("TIMING"),
                 value = viewModel.timing,
                 onValueChange = {},
                 label = {
@@ -465,7 +471,8 @@ fun FormulationsForm(
         Row(modifier = Modifier.fillMaxWidth()) {
             // Duration
             OutlinedTextField(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
+                    .testTag("DURATION"),
                 value = viewModel.duration,
                 onValueChange = {
                     if (it.matches(OnlyNumberRegex.onlyNumbers) && it != "0") viewModel.duration = it
@@ -484,6 +491,7 @@ fun FormulationsForm(
             OutlinedTextField(
                 modifier = Modifier
                     .weight(1f)
+                    .testTag("QUANTITY_PRESCRIBED")
                     .clickable(enabled = false) { },
                 value = viewModel.quantityPrescribed(),
                 onValueChange = {},
@@ -497,7 +505,8 @@ fun FormulationsForm(
         Spacer(modifier = Modifier.height(10.dp))
         // notes
         OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
+                .testTag("NOTES"),
             value = viewModel.notes,
             onValueChange = {
                 if (it.length <= 100) viewModel.notes = it

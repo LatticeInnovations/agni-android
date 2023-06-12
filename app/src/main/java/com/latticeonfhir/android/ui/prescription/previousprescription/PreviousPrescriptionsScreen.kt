@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.R
@@ -39,8 +40,8 @@ import com.latticeonfhir.android.data.local.model.prescription.medication.Medica
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
-import com.latticeonfhir.android.utils.converters.responseconverter.MedicineInfoConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -92,7 +93,8 @@ fun PrescriptionCard(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 20.dp),
+            .padding(bottom = 20.dp)
+            .testTag("PREVIOUS_PRESCRIPTION_CARDS"),
         shadowElevation = 5.dp,
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -103,7 +105,8 @@ fun PrescriptionCard(
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
-                    ) { expanded = !expanded },
+                    ) { expanded = !expanded }
+                    .testTag("PREVIOUS_PRESCRIPTION_TITLE_ROW"),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -120,7 +123,9 @@ fun PrescriptionCard(
             AnimatedVisibility(
                 visible = expanded
             ) {
-                Column {
+                Column(
+                    modifier = Modifier.testTag("PREVIOUS_PRESCRIPTION_EXPANDED_CARD")
+                ) {
                     Divider(
                         thickness = 1.dp,
                         color = MaterialTheme.colorScheme.outlineVariant,
@@ -129,14 +134,15 @@ fun PrescriptionCard(
                     prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
                         MedicineDetails(
                             medName = directionAndMedication.medicationEntity.medName,
-                            details = MedicineInfoConverter.getMedInfo(
+                            details = getMedInfo(
                                 duration = directionAndMedication.prescriptionDirectionsEntity.duration,
                                 frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
                                 medUnit = directionAndMedication.medicationEntity.medUnit,
                                 timing = directionAndMedication.prescriptionDirectionsEntity.timing,
                                 note = directionAndMedication.prescriptionDirectionsEntity.note,
                                 qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
-                                qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed
+                                qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed,
+                                context = context
                             )
                         )
 
@@ -177,7 +183,7 @@ fun PrescriptionCard(
                                     )
                                 }
                             },
-                            modifier = Modifier.align(Alignment.End)
+                            modifier = Modifier.align(Alignment.End).testTag("RE_PRESCRIBE_BTN")
                         ) {
                             Text(text = "Re-Prescribe")
                         }

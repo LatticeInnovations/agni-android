@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,6 +49,7 @@ fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
+            modifier = Modifier.testTag("ACTIVE_INGREDIENT_CHECK_BOX"),
             checked = checkedState.value,
             onCheckedChange = {
                 if (it) {
