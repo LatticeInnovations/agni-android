@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse
 
-import com.google.errorprone.annotations.Keep
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import java.util.Date
 
