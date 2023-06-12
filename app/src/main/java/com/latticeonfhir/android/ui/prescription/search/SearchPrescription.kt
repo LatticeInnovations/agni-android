@@ -2,6 +2,7 @@ package com.latticeonfhir.android.ui.prescription.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,13 +41,14 @@ import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchPrescription(viewModel: PrescriptionViewModel){
+fun SearchPrescription(viewModel: PrescriptionViewModel) {
     val focusRequester = remember { FocusRequester() }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
-            .testTag("SEARCH_LAYOUT"),
+            .testTag("SEARCH_LAYOUT")
+            .clickable { },
         verticalArrangement = Arrangement.Top
     ) {
         TextField(
@@ -88,6 +90,11 @@ fun SearchPrescription(viewModel: PrescriptionViewModel){
                 onSearch = {
                     viewModel.isSearching = false
                     viewModel.isSearchResult = true
+                    viewModel.insertRecentSearch(viewModel.searchQuery.trim()){}
+                    viewModel.getActiveIngredientSearchList(viewModel.searchQuery.trim()) {
+                        viewModel.activeIngredientSearchList = it
+                    }
+                    viewModel.searchQuery = ""
                 }
             ),
             singleLine = true
@@ -108,7 +115,17 @@ fun PreviousSearches(listItem: String, viewModel: PrescriptionViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(14.dp)
-            .clickable {
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                viewModel.searchQuery = listItem
+                viewModel.getActiveIngredientSearchList(viewModel.searchQuery.trim()) {
+                    viewModel.activeIngredientSearchList = it
+                }
+                viewModel.isSearching = false
+                viewModel.isSearchResult = true
+                viewModel.searchQuery = ""
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
