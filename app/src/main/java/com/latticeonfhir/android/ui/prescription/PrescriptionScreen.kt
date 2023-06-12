@@ -77,7 +77,7 @@ import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPr
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
 import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
-import com.latticeonfhir.android.utils.converters.responseconverter.MedicineInfoConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -138,7 +138,8 @@ fun PrescriptionScreen(
                     title = {
                         Text(
                             text = stringResource(id = R.string.prescription),
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.testTag("HEADING")
                         )
                     },
                     navigationIcon = {
@@ -331,7 +332,8 @@ fun BottomNavLayout(
         Column {
             AnimatedVisibility(viewModel.bottomNavExpanded) {
                 Surface(
-                    color = MaterialTheme.colorScheme.surface
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.testTag("BOTTOM_NAV_EXPANDED")
                 ) {
                     Column(
                         modifier = Modifier.padding(bottom = 15.dp)
@@ -370,7 +372,8 @@ fun BottomNavLayout(
             }
             Surface(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .testTag("BOTTOM_NAV_ROW"),
                 color = MaterialTheme.colorScheme.secondaryContainer,
                 shadowElevation = 15.dp
             ) {
@@ -395,7 +398,8 @@ fun BottomNavLayout(
                         Text(
                             text = "${viewModel.selectedActiveIngredientsList.size} medication",
                             style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.testTag("MEDICATION_TEXT")
                         )
                         Icon(
                             Icons.Default.KeyboardArrowUp,
@@ -425,7 +429,7 @@ fun BottomNavLayout(
                                 }
                             }
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f).testTag("PRESCRIBE_BTN")
                     ) {
                         Text(text = stringResource(id = R.string.prescribe))
                     }
@@ -441,6 +445,7 @@ fun SelectedCompoundCard(
     viewModel: PrescriptionViewModel,
     medication: MedicationResponseWithMedication
 ) {
+    val context = LocalContext.current
     val checkedState = remember {
         mutableStateOf(true)
     }
@@ -474,14 +479,15 @@ fun SelectedCompoundCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = MedicineInfoConverter.getMedInfo(
+                    text = getMedInfo(
                         duration = medication.medication.duration,
                         frequency = medication.medication.frequency,
                         medUnit = medication.medUnit,
                         timing = medication.medication.timing,
                         note = medication.medication.note,
                         qtyPerDose = medication.medication.qtyPerDose,
-                        qtyPrescribed = medication.medication.qtyPrescribed
+                        qtyPrescribed = medication.medication.qtyPrescribed,
+                        context = context
                     ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
