@@ -23,7 +23,7 @@ object MedicationInfoConverter {
             timing,
             duration,
             qtyPrescribed,
-            if (note?.isNotEmpty() == true) "\nNotes : $note" else ""
+            if (note?.isNotEmpty() == true) context.getString(R.string.notes, note) else ""
         )
     }
 
