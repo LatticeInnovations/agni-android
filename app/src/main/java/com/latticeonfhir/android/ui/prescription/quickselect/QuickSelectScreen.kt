@@ -76,7 +76,8 @@ fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
             Text(
                 text = activeIngredient.capitalize(Locale.getDefault()),
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.testTag("ACTIVE_INGREDIENT_NAME")
             )
         }
     }

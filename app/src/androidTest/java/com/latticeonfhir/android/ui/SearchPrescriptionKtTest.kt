@@ -1,15 +1,21 @@
 package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertAny
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertHasNoClickAction
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -59,6 +65,21 @@ class SearchPrescriptionKtTest {
     val searchTextField = hasTestTag("SEARCH_TEXT_FIELD")
     val backIcon = hasContentDescription("BACK_ICON")
     val clearIcon = hasContentDescription("CLEAR_ICON")
+    val activeIngredientName = hasTestTag("ACTIVE_INGREDIENT_NAME")
+
+    // fill details
+    val activeIngredientField = hasTestTag("ACTIVE_INGREDIENT_FIELD") and hasClickAction()
+    val activeIngredientDropdownList = hasTestTag("ACTIVE_INGREDIENT_DROPDOWN_LIST")
+
+    // fill details form validations
+    val qtyPerDoseTextField = hasTestTag("QUANTITY_PER_DOSE")
+    val freqTextField = hasTestTag("FREQUENCY")
+    val timingField = hasTestTag("TIMING")
+    val durationField = hasTestTag("DURATION")
+    val qtyPrescribedField = hasTestTag("QUANTITY_PRESCRIBED")
+    val notesField = hasTestTag("NOTES")
+    val doneBtn = hasTestTag("DONE_BTN")
+    val bottomNavRow = hasTestTag("BOTTOM_NAV_ROW")
 
     @Test
     fun aaaa_login(){
@@ -159,6 +180,133 @@ class SearchPrescriptionKtTest {
         composeTestRule.onNode(searchIcon).performClick()
         composeTestRule.onNode(searchTextField).performTextInput("input")
         composeTestRule.onNode(clearIcon).assertExists()
+    }
+
+    @Test
+    fun enter_input_in_search_bar_check_result(){
+        composeTestRule.waitUntilAtLeastOneExists(
+            patient,
+            timeoutMillis = 15000
+        )
+        composeTestRule.onNode(patientList).performScrollToNode(patient)
+        composeTestRule.onAllNodes(patient)[0].performClick()
+        composeTestRule.onNode(prescriptionCard).performClick()
+        composeTestRule.onNode(quickSelectTab).performClick()
+        composeTestRule.onNode(searchIcon).performClick()
+        composeTestRule.onNode(searchTextField).performTextInput("ampicillin")
+        composeTestRule.onNode(searchTextField).performImeAction()
+        composeTestRule.onAllNodes(activeIngredientName).assertAny(hasText("ampicillin", ignoreCase = true))
+    }
+
+    @Test
+    fun check_buttons_on_search_result_screen(){
+        composeTestRule.waitUntilAtLeastOneExists(
+            patient,
+            timeoutMillis = 15000
+        )
+        composeTestRule.onNode(patientList).performScrollToNode(patient)
+        composeTestRule.onAllNodes(patient)[0].performClick()
+        composeTestRule.onNode(prescriptionCard).performClick()
+        composeTestRule.onNode(quickSelectTab).performClick()
+        composeTestRule.onNode(searchIcon).performClick()
+        composeTestRule.onNode(searchTextField).performTextInput("ampicillin")
+        composeTestRule.onNode(searchTextField).performImeAction()
+        composeTestRule.onAllNodes(searchIcon).assertCountEquals(2)
+        composeTestRule.onNode(clearIcon).assertExists()
+    }
+
+    @Test
+    fun check_click_on_any_compound_check_navigation(){
+        composeTestRule.waitUntilAtLeastOneExists(
+            patient,
+            timeoutMillis = 15000
+        )
+        composeTestRule.onNode(patientList).performScrollToNode(patient)
+        composeTestRule.onAllNodes(patient)[0].performClick()
+        composeTestRule.onNode(prescriptionCard).performClick()
+        composeTestRule.onNode(quickSelectTab).performClick()
+        composeTestRule.onNode(searchIcon).performClick()
+        composeTestRule.onNode(searchTextField).performTextInput("ampicillin")
+        composeTestRule.onNode(searchTextField).performImeAction()
+        composeTestRule.onAllNodes(checkBoxes)[0].performClick()
+        composeTestRule.onNodeWithText("Fill details").assertExists()
+    }
+
+    @Test
+    fun check_for_components_on_fill_details(){
+        composeTestRule.waitUntilAtLeastOneExists(
+            patient,
+            timeoutMillis = 15000
+        )
+        composeTestRule.onNode(patientList).performScrollToNode(patient)
+        composeTestRule.onAllNodes(patient)[0].performClick()
+        composeTestRule.onNode(prescriptionCard).performClick()
+        composeTestRule.onNode(quickSelectTab).performClick()
+        composeTestRule.onAllNodes(checkBoxes)[0].performClick()
+        composeTestRule.onNode(activeIngredientField).assertExists()
+        composeTestRule.onAllNodes(formulationsList).fetchSemanticsNodes(true)
+    }
+
+    @Test
+    fun check_for_dropdown_icon(){
+        composeTestRule.waitUntilAtLeastOneExists(
+            patient,
+            timeoutMillis = 15000
+        )
+        composeTestRule.onNode(patientList).performScrollToNode(patient)
+        composeTestRule.onAllNodes(patient)[0].performClick()
+        composeTestRule.onNode(prescriptionCard).performClick()
+        composeTestRule.onNode(quickSelectTab).performClick()
+        composeTestRule.onAllNodes(checkBoxes)[0].performClick()
+        composeTestRule.onNode(dropdownIcon, useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun check_click_on_active_ingredient_field(){
+        composeTestRule.waitUntilAtLeastOneExists(
+            patient,
+            timeoutMillis = 15000
+        )
+        composeTestRule.onNode(patientList).performScrollToNode(patient)
+        composeTestRule.onAllNodes(patient)[0].performClick()
+        composeTestRule.onNode(prescriptionCard).performClick()
+        composeTestRule.onNode(quickSelectTab).performClick()
+        composeTestRule.onAllNodes(checkBoxes)[0].performClick()
+        composeTestRule.onNode(activeIngredientField).performClick()
+        composeTestRule.onNode(activeIngredientDropdownList).assertExists()
+    }
+
+    @Test
+    fun check_formulation_form_components(){
+        composeTestRule.waitUntilAtLeastOneExists(
+            patient,
+            timeoutMillis = 15000
+        )
+        composeTestRule.onNode(patientList).performScrollToNode(patient)
+        composeTestRule.onAllNodes(patient)[0].performClick()
+        composeTestRule.onNode(prescriptionCard).performClick()
+        composeTestRule.onNode(quickSelectTab).performClick()
+        composeTestRule.onAllNodes(checkBoxes)[0].performClick()
+        composeTestRule.onNode(qtyPerDoseTextField).assertDoesNotExist()
+        composeTestRule.onNode(freqTextField).assertDoesNotExist()
+        composeTestRule.onNode(timingField).assertDoesNotExist()
+        composeTestRule.onNode(qtyPrescribedField).assertDoesNotExist()
+        composeTestRule.onNode(durationField).assertDoesNotExist()
+        composeTestRule.onNode(notesField).assertDoesNotExist()
+        composeTestRule.onAllNodes(formulationsList)[0].performClick()
+        composeTestRule.onNode(qtyPerDoseTextField).assertExists().assertTextEquals("1", "Qty per dose", includeEditableText = false)
+        composeTestRule.onNode(freqTextField).assertExists().assertTextEquals("1",  "Frequency", "dose per day")
+        composeTestRule.onNode(timingField).assertExists().assertTextEquals("Before food", "Timing (optional)")
+        composeTestRule.onNode(durationField).assertExists().assertTextEquals("Duration (days) *", includeEditableText = false)
+        composeTestRule.onNode(durationField).performTextInput("4")
+        composeTestRule.onNode(durationField).assertTextEquals("Duration (days) *", "4")
+        composeTestRule.onNode(notesField).assertExists().assertTextEquals("Notes (optional)", includeEditableText = false)
+        composeTestRule.onNode(notesField).performTextInput("input")
+        composeTestRule.onNode(notesField).assertTextEquals("Notes (optional)", "input")
+        composeTestRule.onNode(qtyPrescribedField).assertExists().assertIsNotEnabled()
+        composeTestRule.onNode(qtyPrescribedField).assertTextEquals("Quantity prescribed", "4")
+        composeTestRule.onNode(doneBtn).performClick()
+        composeTestRule.onNode(bottomNavRow).assertExists()
     }
 
     @Test
