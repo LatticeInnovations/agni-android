@@ -251,7 +251,7 @@ fun FormulationRadioList(viewModel: FillDetailsViewModel) {
                 .fillMaxWidth()
                 .testTag("FORMULATION_LIST")
                 .selectable(
-                    selected = (formulation.medName == viewModel.medSelected),
+                    selected = (formulation.medFhirId == viewModel.medFhirId),
                     onClick = {
                         viewModel.reset()
                         viewModel.medSelected = formulation.medName
@@ -264,8 +264,9 @@ fun FormulationRadioList(viewModel: FillDetailsViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             RadioButton(
-                selected = formulation.medName == viewModel.medSelected,
+                selected = formulation.medFhirId == viewModel.medFhirId,
                 onClick = {
+                    viewModel.reset()
                     viewModel.medSelected = formulation.medName
                     viewModel.medUnit = formulation.medUnit
                     viewModel.medDoseForm = formulation.doseForm
