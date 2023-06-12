@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.repository.sync
 
 import com.google.gson.internal.LinkedTreeMap
-import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
@@ -24,8 +23,6 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
-import com.latticeonfhir.android.service.workmanager.workers.download.prescription.PrescriptionDownloadSyncWorker.Companion.patientFhirId
-import com.latticeonfhir.android.utils.ResponseHelper
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
@@ -35,9 +32,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndRe
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,9 +41,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import javax.net.ssl.HttpsURLConnection
 
 @ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
@@ -345,7 +337,7 @@ class SyncRepositoryTest : BaseClass() {
         ).thenReturn(
             Response.success(
                 BaseResponse(
-                    status = 2,
+                    status = 1,
                     message = "Success",
                     data = listOf(patientResponse),
                     offset = null,
@@ -384,7 +376,7 @@ class SyncRepositoryTest : BaseClass() {
         `when`(patientApiService.getRelationData(RELATED_PERSON, map)).thenReturn(
             Response.success(
                 BaseResponse(
-                    status = 2,
+                    status = 1,
                     message = "Success",
                     data = listOf(relationResponse),
                     offset = null,
@@ -422,7 +414,7 @@ class SyncRepositoryTest : BaseClass() {
         ).thenReturn(
             Response.success(
                 BaseResponse(
-                    status = 2,
+                    status = 1,
                     message = "Success",
                     data = listOf(prescribedResponse),
                     offset = null,
@@ -620,7 +612,7 @@ class SyncRepositoryTest : BaseClass() {
         })).thenReturn(
             Response.success(
                 BaseResponse(
-                    status = 2,
+                    status = 1,
                     message = "Success",
                     data = listOf(createResponse),
                     offset = null,
@@ -664,7 +656,7 @@ class SyncRepositoryTest : BaseClass() {
         })).thenReturn(
             Response.success(
                 BaseResponse(
-                    status = 2,
+                    status = 1,
                     message = "Success",
                     data = listOf(createResponse),
                     offset = null,
@@ -714,7 +706,7 @@ class SyncRepositoryTest : BaseClass() {
         ).thenReturn(
             Response.success(
                 BaseResponse(
-                    status = 2,
+                    status = 1,
                     message = "Success",
                     data = listOf(createResponse),
                     offset = null,
