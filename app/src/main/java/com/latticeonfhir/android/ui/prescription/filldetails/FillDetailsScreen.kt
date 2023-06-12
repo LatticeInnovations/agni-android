@@ -93,7 +93,8 @@ fun FillDetailsScreen(
                 title = {
                     Text(
                         text = stringResource(id = R.string.fill_details),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.testTag("HEADING")
                     )
                 },
                 navigationIcon = {
@@ -166,7 +167,7 @@ fun FillDetailsScreen(
                     Column {
                         var formulationExpanded by remember { mutableStateOf(false) }
                         OutlinedTextField(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().testTag("ACTIVE_INGREDIENT_FIELD"),
                             value = prescriptionViewModel.checkedActiveIngredient.capitalize(Locale.getDefault()),
                             onValueChange = {
                             },
@@ -196,7 +197,8 @@ fun FillDetailsScreen(
                         DropdownMenu(
                             modifier = Modifier
                                 .fillMaxHeight(0.6f)
-                                .fillMaxWidth(0.9f),
+                                .fillMaxWidth(0.9f)
+                                .testTag("ACTIVE_INGREDIENT_DROPDOWN_LIST"),
                             expanded = formulationExpanded,
                             onDismissRequest = { formulationExpanded = !formulationExpanded },
                         ) {
