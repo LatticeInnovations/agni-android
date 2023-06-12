@@ -345,7 +345,7 @@ class SyncRepositoryTest : BaseClass() {
         ).thenReturn(
             Response.success(
                 BaseResponse(
-                    status = 2,
+                    status = 1,
                     message = "Success",
                     data = listOf(patientResponse),
                     offset = null,
@@ -384,7 +384,7 @@ class SyncRepositoryTest : BaseClass() {
         `when`(patientApiService.getRelationData(RELATED_PERSON, map)).thenReturn(
             Response.success(
                 BaseResponse(
-                    status = 2,
+                    status = 1,
                     message = "Success",
                     data = listOf(relationResponse),
                     offset = null,
@@ -422,7 +422,7 @@ class SyncRepositoryTest : BaseClass() {
         ).thenReturn(
             Response.success(
                 BaseResponse(
-                    status = 2,
+                    status = 1,
                     message = "Success",
                     data = listOf(prescribedResponse),
                     offset = null,
@@ -620,7 +620,7 @@ class SyncRepositoryTest : BaseClass() {
         })).thenReturn(
             Response.success(
                 BaseResponse(
-                    status = 2,
+                    status = 1,
                     message = "Success",
                     data = listOf(createResponse),
                     offset = null,
@@ -664,7 +664,7 @@ class SyncRepositoryTest : BaseClass() {
         })).thenReturn(
             Response.success(
                 BaseResponse(
-                    status = 2,
+                    status = 1,
                     message = "Success",
                     data = listOf(createResponse),
                     offset = null,
@@ -714,7 +714,7 @@ class SyncRepositoryTest : BaseClass() {
         ).thenReturn(
             Response.success(
                 BaseResponse(
-                    status = 2,
+                    status = 1,
                     message = "Success",
                     data = listOf(createResponse),
                     offset = null,
