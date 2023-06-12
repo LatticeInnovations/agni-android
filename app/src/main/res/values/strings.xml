@@ -151,4 +151,5 @@ include them in the household</string>
 
     <string name="freq_dose_per_day">%d dose per day</string>
     <string name="med_info">%d %s %s, %s\nDuration : %d days , Qty : %d %s</string>
+    <string name="notes">\nNote: %s</string>
 </resources>
