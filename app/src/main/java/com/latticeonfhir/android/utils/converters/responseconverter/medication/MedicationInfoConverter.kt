@@ -15,11 +15,16 @@ object MedicationInfoConverter {
         qtyPrescribed: Int,
         context: Context
     ): String {
-        return "$qtyPerDose $medUnit ${
-            getMedFreqValue(frequency, context)
-        }, $timing\n" +
-                "Duration : $duration days , Qty : $qtyPrescribed" +
-                if (note?.isNotEmpty() == true) "\nNotes : $note" else ""
+        return context.getString(
+            R.string.med_info,
+            qtyPerDose,
+            medUnit,
+            getMedFreqValue(frequency, context),
+            timing,
+            duration,
+            qtyPrescribed,
+            if (note?.isNotEmpty() == true) "\nNotes : $note" else ""
+        )
     }
 
     private fun getMedFreqValue(freq: Int, context: Context): String {
