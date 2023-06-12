@@ -31,6 +31,7 @@ fun QuickSelectScreen(viewModel: PrescriptionViewModel = hiltViewModel()) {
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .testTag("ACTIVE_INGREDIENT_LIST")
         ) {
             viewModel.activeIngredientsList.forEach{ drug ->
                 CompoundRow(activeIngredient = drug, viewModel = viewModel)
