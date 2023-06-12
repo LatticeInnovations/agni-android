@@ -3,6 +3,7 @@ package com.latticeonfhir.android.utils.converters.responseconverter
 import android.os.Build
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 object TimeConverter {
@@ -80,6 +81,11 @@ object TimeConverter {
         } else {
             ""
         }
+    }
+
+    internal fun Date.toPrescriptionDate() : String {
+        val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+        return formatter.format(this)
     }
 
     internal fun Long.toPatientDate(): String {

@@ -1,27 +1,57 @@
 package com.latticeonfhir.android.ui.prescription.filldetails
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
+import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class FillDetailsViewModel : BaseViewModel() {
+@HiltViewModel
+class FillDetailsViewModel @Inject constructor(
+    private val medicationRepository: MedicationRepository
+) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
-    var drugName by mutableStateOf("")
-    var formulationsList = mutableStateListOf(
-        "Epinephrine tartrate 100 micrograms/mL injection",
-        "Epinephrine hydrochloride 100 micrograms/mL injection",
-        "Epinephrine tartrate 1 mg/mL injection",
-        "Epinephrine hydrochloride 1 mg/mL injection",
-        "Epinephrine hydrochloride 2.5 mg/ml solution eye solution"
-    )
-    var formulationSelected by mutableStateOf("")
+    var formulationsList by mutableStateOf(listOf<MedicationResponse>())
+    var medSelected by mutableStateOf("")
 
     var quantityPerDose by mutableStateOf("1")
     var frequency by mutableStateOf("1")
+    val qtyRange = 1..10
     var timing by mutableStateOf("Before food")
-    var duration by mutableStateOf("7")
-    var quantityPrescribed by mutableStateOf("7")
+    var duration by mutableStateOf("")
     var notes by mutableStateOf("")
+    var medUnit by mutableStateOf("")
+    var medDoseForm by mutableStateOf("")
+    var medFhirId by mutableStateOf("")
+
+    internal fun quantityPrescribed(): String {
+        return if (duration.isBlank()) ""
+        else (quantityPerDose.toInt() * frequency.toInt() * duration.toInt()).toString()
+    }
+
+    internal fun reset() {
+        medSelected = ""
+        quantityPerDose = "1"
+        frequency = "1"
+        duration = ""
+        notes = ""
+        timing = "Before food"
+    }
+
+    internal fun getMedicationByActiveIngredient(
+        activeIngredientName: String,
+        formulationsList: (List<MedicationResponse>) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            formulationsList(
+                medicationRepository.getMedicationByActiveIngredient(activeIngredientName)
+            )
+        }
+    }
 }

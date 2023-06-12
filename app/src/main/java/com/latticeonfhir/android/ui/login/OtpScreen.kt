@@ -323,7 +323,6 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                     viewModel.resendOTP { resent ->
                                         if (resent) {
                                             viewModel.twoMinuteTimer = 120
-                                            viewModel.isResending = false
                                         }
                                     }
                                 }

@@ -2,10 +2,9 @@ package com.latticeonfhir.android.data.local.enums
 
 enum class GenericTypeEnum(val number: Int, val value: String) {
     PATIENT(1,"Patient"),
-    MEDICAL_RECORD(2,"Medical Record"),
-    RELATION(3,"Relation"),
-    FHIR_IDS(4,"FHIR_IDS"),
-    PRESCRIPTION(5,"Prescription");
+    RELATION(2,"Relation"),
+    FHIR_IDS(3,"FHIR_IDS"),
+    PRESCRIPTION(4,"Prescription");
 
     companion object {
         fun fromInt(number: Int) = values().firstOrNull { it.number == number }
