@@ -29,5 +29,5 @@ data class PrescriptionDirectionsEntity(
     val duration: Int,
     val qtyPrescribed: Int,
     val note: String?,
-    val prescriptionId: String,
+    val prescriptionId: String
 )
