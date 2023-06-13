@@ -22,7 +22,7 @@ interface SearchDao {
     suspend fun getPatientList(): List<PatientAndIdentifierEntity>
 
     @Transaction
-    @Query("SELECT searchQuery FROM SearchHistoryEntity WHERE searchType = :searchTypeEnum ORDER BY date ASC")
+    @Query("SELECT DISTINCT searchQuery FROM SearchHistoryEntity WHERE searchType = :searchTypeEnum ORDER BY date DESC")
     suspend fun getRecentSearches(searchTypeEnum: SearchTypeEnum): List<String>
 
     @Transaction
