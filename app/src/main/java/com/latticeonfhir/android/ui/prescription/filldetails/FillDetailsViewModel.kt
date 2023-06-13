@@ -42,6 +42,9 @@ class FillDetailsViewModel @Inject constructor(
         duration = ""
         notes = ""
         timing = "Before food"
+        medFhirId = ""
+        medDoseForm = ""
+        medUnit = ""
     }
 
     internal fun getMedicationByActiveIngredient(

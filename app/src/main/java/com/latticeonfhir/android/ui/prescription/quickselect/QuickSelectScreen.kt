@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.prescription.quickselect
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -16,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
@@ -31,6 +34,7 @@ fun QuickSelectScreen(viewModel: PrescriptionViewModel = hiltViewModel()) {
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .testTag("ACTIVE_INGREDIENT_LIST")
         ) {
             viewModel.activeIngredientsList.forEach{ drug ->
                 CompoundRow(activeIngredient = drug, viewModel = viewModel)
@@ -53,7 +57,9 @@ fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
             checked = checkedState.value,
             onCheckedChange = {
                 if (it) {
-                    viewModel.checkedActiveIngredient = activeIngredient
+                    if (viewModel.selectedActiveIngredientsList.size<10) {
+                        viewModel.checkedActiveIngredient = activeIngredient
+                    }
                 } else {
                     viewModel.selectedActiveIngredientsList = viewModel.selectedActiveIngredientsList - listOf(activeIngredient).toSet()
                     viewModel.medicationsResponseWithMedicationList.forEach {  medication ->
@@ -70,7 +76,8 @@ fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
             Text(
                 text = activeIngredient.capitalize(Locale.getDefault()),
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.testTag("ACTIVE_INGREDIENT_NAME")
             )
         }
     }
