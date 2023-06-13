@@ -24,8 +24,15 @@ object GenericEntity {
                 when (entryValue.operation) {
                     ChangeTypeEnum.ADD.value -> {
                         existingList.apply {
-                            remove(alreadyExist)
-                            add(entryValue)
+                            if(alreadyExist?.operation == ChangeTypeEnum.REMOVE.value && alreadyExist?.value == mapEntry.value) {
+                                remove(alreadyExist)
+                            } else if(alreadyExist?.operation == ChangeTypeEnum.REMOVE.value && alreadyExist?.value != mapEntry.value) {
+                                remove(alreadyExist)
+                                add(entryValue.copy(operation = ChangeTypeEnum.REPLACE.value))
+                            } else {
+                                remove(alreadyExist)
+                                add(entryValue)
+                            }
                         }
                     }
 
@@ -53,7 +60,7 @@ object GenericEntity {
                             ChangeTypeEnum.REPLACE.value -> {
                                 existingList.apply {
                                     remove(alreadyExist)
-                                    add(alreadyExist!!.copy(value = entryValue.value, operation = ChangeTypeEnum.REMOVE.value))
+                                    add(alreadyExist!!.copy(value = null, operation = entryValue.operation))
                                 }
                             }
                             else -> {
@@ -75,6 +82,7 @@ object GenericEntity {
         }
         return existingList
     }
+
 
     internal fun processPatch(existingMap: MutableMap<String, Any>, mapEntry: Map.Entry<String, Any>) {
         if (existingMap[mapEntry.key] != null) {
@@ -104,7 +112,7 @@ object GenericEntity {
                                 existingMap.remove(mapEntry.key)
                             }
                             ChangeTypeEnum.REPLACE.value -> {
-                                existingMap[mapEntry.key] = alreadyExistChangeRequest.copy(value = (mapEntry.value as ChangeRequest).value)
+                                existingMap[mapEntry.key] = alreadyExistChangeRequest.copy(value = null, operation = (mapEntry.value as ChangeRequest).operation)
                             }
                             else -> {
                                 existingMap[mapEntry.key] = mapEntry.value

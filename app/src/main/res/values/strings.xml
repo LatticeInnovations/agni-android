@@ -13,6 +13,7 @@
     <string name="no_go_back">No, go back</string>
     <string name="clear_all">Clear all</string>
     <string name="prescribed_successfully">Prescribed successfully</string>
+    <string name="re_prescribed_successfully">Re-prescribed successfully</string>
     <string name="prescribe">Prescribe</string>
     <string name="fill_details">Fill details</string>
     <string name="done">Done</string>
@@ -147,6 +148,10 @@ include them in the household</string>
     <string name="confirm_relationship">Confirm Relationship</string>
     <string name="patient_registration">Patient Registration</string>
     <string name="establish_relation">Establish relation</string>
+
+    <string name="freq_dose_per_day">%d dose per day</string>
+    <string name="med_info">%d %s %s, %s\nDuration : %d days , Qty : %d %s</string>
+    <string name="notes">\nNote: %s</string>
 
     <string name="edit_btn">Edit</string>
 
