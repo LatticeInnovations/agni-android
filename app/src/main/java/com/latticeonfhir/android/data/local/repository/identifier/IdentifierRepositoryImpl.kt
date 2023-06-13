@@ -4,6 +4,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.toIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import org.intellij.lang.annotations.Identifier
@@ -21,7 +22,6 @@ class IdentifierRepositoryImpl @Inject constructor(private val identifierDao: Id
         vararg patientIdentifier: PatientIdentifier,
         patientId: String
     ) {
-        Timber.tag("deletedIdentifier").d(patientIdentifier.toString())
         identifierDao.deleteIdentifier(*patientIdentifier.map { identifier ->
             identifier.toIdentifierEntity(patientId)}.toTypedArray())
     }

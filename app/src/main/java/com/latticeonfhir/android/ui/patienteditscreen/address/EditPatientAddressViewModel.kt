@@ -66,7 +66,7 @@ class EditPatientAddressViewModel @Inject constructor(
         val response = patientRepository.updatePatientData(patientResponse = patientResponse)
         if (response > 0) {
             if (checkIsEdit()) {
-                if(patientResponse.fhirId!=null){
+                if (patientResponse.fhirId != null) {
                     genericRepository.insertOrUpdatePatchEntity(
                         patientFhirId = patientResponse.fhirId,
                         map = mapOf(
@@ -80,10 +80,10 @@ class EditPatientAddressViewModel @Inject constructor(
                         typeEnum = GenericTypeEnum.PATIENT
                     )
 
-                }else{
+                } else {
                     genericRepository.insertOrUpdatePostEntity(
                         patientId = patientResponse.id,
-                        entity= patientResponse,
+                        entity = patientResponse,
                         typeEnum = GenericTypeEnum.PATIENT
                     )
                 }

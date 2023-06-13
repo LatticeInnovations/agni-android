@@ -1,23 +1,18 @@
 package com.latticeonfhir.android.ui.patienteditscreen.identification
 
-import android.util.Patterns
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,23 +23,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
-import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
-import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.AgeTextField
-import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.ContactTextField
-import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.DobTextField
-import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.GenderComposable
-import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.ValueLength
-import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -55,8 +40,8 @@ fun EditIdentification(
     viewModel: EditIdentificationViewModel = hiltViewModel()
 ) {
     val patientResponse =
-        navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>("patient_register_details")
-
+        navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>("patient_details")
+    viewModel.patient = patientResponse
     viewModel.isEditing = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
         "isEditing"
     ) == true
@@ -106,6 +91,8 @@ fun EditIdentification(
 
             }
             viewModel.isLaunched = true
+            FhirApp.isProfileUpdated = false
+
         }
     }
 
@@ -131,7 +118,7 @@ fun EditIdentification(
                     }) {
                         Icon(
                             Icons.Default.Clear,
-                            contentDescription = "Clear button"
+                            contentDescription = "clear icon"
                         )
                     }
 
@@ -216,6 +203,8 @@ fun EditIdentification(
                                 !viewModel.passportPattern.matches(viewModel.passportId)
                         }
                         IdLength(viewModel.passportId, viewModel.maxPassportIdLength)
+                    }else{
+                        viewModel.passportId= ""
                     }
                     if (viewModel.isVoterSelected) {
                         Spacer(modifier = Modifier.height(5.dp))
@@ -233,6 +222,8 @@ fun EditIdentification(
                                 !viewModel.voterPattern.matches(viewModel.voterId)
                         }
                         IdLength(viewModel.voterId, viewModel.maxVoterIdLength)
+                    }else{
+                        viewModel.voterId =""
                     }
                     if (viewModel.isPatientSelected) {
                         Spacer(modifier = Modifier.height(5.dp))
@@ -249,12 +240,14 @@ fun EditIdentification(
                             viewModel.isPatientValid = viewModel.patientId.length < 10
                         }
                         IdLength(viewModel.patientId, viewModel.maxPatientIdLength)
+                    }else{
+                        viewModel.patientId =""
                     }
                 }
                 viewModel.isEditing = viewModel.checkIsEdit()
                 Button(
                     onClick = {
-                        if (viewModel.passportId.isNotEmpty()) {
+                        if (viewModel.passportId.isNotEmpty() && viewModel.isPassportSelected) {
                             viewModel.identifierList.add(
                                 PatientIdentifier(
                                     identifierType = IdentificationConstants.PASSPORT_TYPE,
@@ -263,7 +256,7 @@ fun EditIdentification(
                                 )
                             )
                         }
-                        if (viewModel.voterId.isNotEmpty()) {
+                        if (viewModel.voterId.isNotEmpty() && viewModel.isVoterSelected) {
                             viewModel.identifierList.add(
                                 PatientIdentifier(
                                     identifierType = IdentificationConstants.VOTER_ID_TYPE,
@@ -272,7 +265,7 @@ fun EditIdentification(
                                 )
                             )
                         }
-                        if (viewModel.patientId.isNotEmpty()) {
+                        if (viewModel.patientId.isNotEmpty() && viewModel.isPatientSelected) {
                             viewModel.identifierList.add(
                                 PatientIdentifier(
                                     identifierType = IdentificationConstants.PATIENT_ID_TYPE,
@@ -289,9 +282,7 @@ fun EditIdentification(
                                 > 0
                             ) {
                                 navController.popBackStack()
-                                coroutineScope.launch(Dispatchers.Main) {
-                                    snackBarHostState.showSnackbar("Profile update successfully")
-                                }
+                                FhirApp.isProfileUpdated = true
 
                             }
                         }

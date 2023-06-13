@@ -9,7 +9,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
@@ -25,25 +24,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
-import com.latticeonfhir.android.ui.main.patientregistration.DiscardDialog
-import com.latticeonfhir.android.ui.patientlandingscreen.PatientLandingScreenViewModel
-import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
-import com.latticeonfhir.android.ui.patientregistration.step2.PatientRegistrationStepTwo
-import com.latticeonfhir.android.ui.patientregistration.step3.PatientRegistrationStepThree
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,8 +41,8 @@ fun EditBasicInformation(
     navController: NavController,
     viewModel: EditBasicInformationViewModel = hiltViewModel()
 ) {
-    var patientResponse =
-        navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>("patient_register_details")
+    val patientResponse =
+        navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>("patient_details")
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             patientResponse?.run {
@@ -94,6 +83,7 @@ fun EditBasicInformation(
             viewModel.monthsTemp = viewModel.months
             viewModel.yearsTemp = viewModel.years
             viewModel.genderTemp = viewModel.gender
+            FhirApp.isProfileUpdated=false
 
         }
     }
@@ -119,7 +109,7 @@ fun EditBasicInformation(
                     }) {
                         Icon(
                             Icons.Default.Clear,
-                            contentDescription = "Clear button"
+                            contentDescription = "clear icon"
                         )
                     }
 
@@ -243,6 +233,8 @@ fun EditBasicInformation(
                         viewModel.isEmailValid =
                             !Patterns.EMAIL_ADDRESS.matcher(viewModel.email).matches()
                     }
+                    ValueLengthEmail(viewModel.email)
+
 
                     Spacer(modifier = Modifier.height(10.dp))
 
@@ -270,9 +262,7 @@ fun EditBasicInformation(
                                 ) > 0
                             ) {
                                 navController.popBackStack()
-                                coroutineScope.launch(Dispatchers.Main) {
-                                    snackBarHostState.showSnackbar("Profile update successfully")
-                                }
+                               FhirApp.isProfileUpdated= true
 
                             }
                         }
@@ -298,6 +288,17 @@ fun ValueLength(value: String) {
             .fillMaxWidth()
             .padding(top = 5.dp, end = 15.dp),
         text = if (value.isEmpty()) "" else "${value.length}/100",
+        style = MaterialTheme.typography.bodySmall,
+        textAlign = TextAlign.Right,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}@Composable
+fun ValueLengthEmail(value: String) {
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 5.dp, end = 15.dp),
+        text = if (value.isEmpty()) "" else "${value.length}/150",
         style = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Right,
         color = MaterialTheme.colorScheme.onSurfaceVariant

@@ -15,6 +15,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEn
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
+import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import timber.log.Timber
 import javax.inject.Inject
@@ -46,6 +47,8 @@ class EditIdentificationViewModel @Inject constructor(
     var isPatientValid by mutableStateOf(false)
 
     val identifierList = mutableListOf<PatientIdentifier>()
+    var patient by mutableStateOf<PatientResponse?>(null)
+
 
     // temp
     var isPassportSelectedTemp by mutableStateOf(false)
@@ -88,27 +91,45 @@ class EditIdentificationViewModel @Inject constructor(
     }
 
     suspend fun updateBasicInfo(patientResponse: PatientResponse): Int {
-        Timber.tag("identifierList").d(patientResponse.toString())
         val toBeDeletedList = mutableListOf<PatientIdentifier>()
 
-        patientResponse.identifier.forEach {
-            if (it.identifierType != IdentificationConstants.PASSPORT_TYPE && it.identifierNumber != passportIdTemp) {
-                toBeDeletedList.add(it)
-            }
-            if (it.identifierType != IdentificationConstants.VOTER_ID_TYPE && it.identifierNumber != voterIdTemp) {
-                toBeDeletedList.add(it)
-            }
-            if (it.identifierType != IdentificationConstants.PATIENT_ID_TYPE && it.identifierNumber != patientIdTemp) {
-                toBeDeletedList.add(it)
-            }
+        if (passportIdTemp != passportId || !isPassportSelected) {
+            toBeDeletedList.add(
+                PatientIdentifier(
+                    identifierType = IdentificationConstants.PASSPORT_TYPE,
+                    identifierNumber = passportIdTemp,
+                    code = null
+                )
+            )
         }
-        identifierRepository.deleteIdentifier(patientIdentifier = toBeDeletedList.toTypedArray(), patientId = patientResponse.id)
-//        identifierRepository.insertIdentifierList(patientResponse = patientResponse)
+
+        if (voterIdTemp != voterId || !isPassportSelected) {
+            toBeDeletedList.add(
+                PatientIdentifier(
+                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
+                    identifierNumber = voterIdTemp,
+                    code = null
+                )
+            )
+        }
+        if (patientIdTemp != patientId || !isPassportSelected) {
+            toBeDeletedList.add(
+                PatientIdentifier(
+                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
+                    identifierNumber = patientIdTemp,
+                    code = null
+                )
+            )
+        }
+
+        identifierRepository.deleteIdentifier(
+            patientIdentifier = toBeDeletedList.toTypedArray(),
+            patientId = patientResponse.id
+        )
+
         val response = patientRepository.updatePatientData(patientResponse = patientResponse)
-
-
-
         if (response > 0) {
+            identifierRepository.insertIdentifierList(patientResponse = patientResponse)
 
 
             if (patientResponse.fhirId != null) {
@@ -119,11 +140,7 @@ class EditIdentificationViewModel @Inject constructor(
 
                     list.add(
                         ChangeRequest(
-                            value = PatientIdentifier(
-                                identifierType = IdentificationConstants.PASSPORT_TYPE,
-                                identifierNumber = passportIdTemp,
-                                code = null
-                            ), operation = ChangeTypeEnum.REMOVE.value,
+                            value = null, operation = ChangeTypeEnum.REMOVE.value,
                             key = IdentificationConstants.PASSPORT_TYPE
                         )
 
@@ -247,6 +264,8 @@ class EditIdentificationViewModel @Inject constructor(
                     ),
                     typeEnum = GenericTypeEnum.PATIENT
                 )
+
+                Timber.tag("identifier").d(list.toJson())
             } else {
                 genericRepository.insertOrUpdatePostEntity(
                     patientId = patientResponse.id,

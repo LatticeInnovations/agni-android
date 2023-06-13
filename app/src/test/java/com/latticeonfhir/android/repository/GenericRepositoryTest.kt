@@ -1,8 +1,10 @@
 package com.latticeonfhir.android.repository
 
 import com.latticeonfhir.android.base.BaseClass
+import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
+import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
@@ -13,10 +15,12 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.spy
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
-class GenericRepositoryTest: BaseClass() {
+class GenericRepositoryTest : BaseClass() {
 
     @Mock
     lateinit var genericDao: GenericDao
@@ -29,22 +33,60 @@ class GenericRepositoryTest: BaseClass() {
     }
 
     val genericId = UUIDBuilder.generateUUID()
-    val genericEntityPost = GenericEntity(genericId, id, patientResponse.toJson(), GenericTypeEnum.PATIENT, SyncType.POST)
-    val genericEntityPatch = GenericEntity(genericId, id, patientResponse.toJson(), GenericTypeEnum.PATIENT, SyncType.PATCH)
+    val genericEntityPost = GenericEntity(
+        genericId,
+        id,
+        patientResponse.toJson(),
+        GenericTypeEnum.PATIENT,
+        SyncType.POST
+    )
+    val genericEntityPatch = GenericEntity(
+        genericId,
+        id,
+        patientResponse.toJson(),
+        GenericTypeEnum.PATIENT,
+        SyncType.PATCH
+    )
 
     @Test
     fun insertOrUpdatePostEntityTest() = runBlocking {
-        `when`(genericDao.getGenericEntityById(id, GenericTypeEnum.PATIENT, SyncType.POST)).thenReturn(genericEntityPost)
+        `when`(
+            genericDao.getGenericEntityById(
+                id,
+                GenericTypeEnum.PATIENT,
+                SyncType.POST
+            )
+        ).thenReturn(genericEntityPost)
         `when`(genericDao.insertGenericEntity(genericEntityPost)).thenReturn(listOf(-1))
-        val actual = genericRepositoryImpl.insertOrUpdatePostEntity(id, patientResponse, GenericTypeEnum.PATIENT)
+        val actual = genericRepositoryImpl.insertOrUpdatePostEntity(
+            id,
+            patientResponse,
+            GenericTypeEnum.PATIENT
+        )
         Assert.assertEquals(-1, actual)
     }
+    @Test
+    fun insertOrUpdatePatchEntityTest() = runBlocking {
 
-//    @Test
-//    fun insertOrUpdatePatchEntityTest() = runBlocking{
-//        `when`(genericDao.getGenericEntityById(id, GenericTypeEnum.PATIENT, SyncType.PATCH)).thenReturn(genericEntityPatch)
-//        `when`(genericDao.insertGenericEntity(genericEntityPatch)).thenReturn(-1)
-//        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(id, patientResponse.json, GenericTypeEnum.PATIENT)
-//        Assert.assertEquals(-1, actual)
-//    }
+        `when`(genericDao.getGenericEntityById(id, GenericTypeEnum.PATIENT, SyncType.PATCH))
+            .thenReturn(genericEntityPatch)
+        `when`(genericDao.insertGenericEntity(genericEntityPatch)).thenReturn(listOf(-1L))
+
+
+        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(
+            patientFhirId = patientResponse.fhirId!!,
+            map = mapOf(
+                Pair(
+                    "permanentAddress", ChangeRequest(
+                        value = patientResponse,
+                        operation = ChangeTypeEnum.REPLACE.value
+                    )
+                )
+            ),
+            typeEnum = GenericTypeEnum.PATIENT
+        )
+
+        assertEquals(-1L, actual)
+    }
+
 }
