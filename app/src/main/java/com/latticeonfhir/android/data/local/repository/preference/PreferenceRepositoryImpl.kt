@@ -65,19 +65,19 @@ class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage
 
     override fun getAuthenticationToken() = preferenceStorage.token
 
-    override fun setOtpAttemptTimeout(timeout: Long) {
-        preferenceStorage.maxOtpAttemptTimeout = timeout
-    }
-
-    override fun getOtpAttemptTimeout() = preferenceStorage.maxOtpAttemptTimeout
-
     override fun setRoomDBEncryptionKey(encryptionKey: String) {
         preferenceStorage.roomDBEncryptionKey = encryptionKey
     }
 
     override fun getRoomDBEncryptionKey() = preferenceStorage.roomDBEncryptionKey
 
+    override fun resetAuthenticationToken() {
+        preferenceStorage.token = ""
+    }
+
     override fun clearPreferences() {
+        val roomDBEncryptionKey = preferenceStorage.roomDBEncryptionKey
         preferenceStorage.clear()
+        preferenceStorage.roomDBEncryptionKey = roomDBEncryptionKey
     }
 }
