@@ -207,6 +207,7 @@ class SyncRepositoryTest : BaseClass() {
         runTest {
             `when`(preferenceRepository.getLastSyncPatient()).thenReturn(200L)
             `when`(preferenceRepository.getLastMedicationSyncDate()).thenReturn(200L)
+            `when`(preferenceRepository.getLastMedicineDosageInstructionSyncDate()).thenReturn(200L)
 
             `when`(patientDao.getPatientIdByFhirId("FHIR_ID")).thenReturn("PATIENT_ID")
 
@@ -546,7 +547,16 @@ class SyncRepositoryTest : BaseClass() {
     @Test
     internal fun getMedicineTime_Returns_Success() = runTest {
         `when`(
-            prescriptionApiService.getMedicineTime()
+            prescriptionApiService.getMedicineTime(
+                mapOf(
+                    Pair(
+                        QueryParameters.LAST_UPDATED, String.format(
+                            QueryParameters.GREATER_THAN_BUILDER,
+                            200L.toTimeStampDate()
+                        )
+                    )
+                )
+            )
         ).thenReturn(
             Response.success(
                 BaseResponse(
@@ -566,7 +576,15 @@ class SyncRepositoryTest : BaseClass() {
     @Test
     internal fun getMedicineTime_Returns_Error() = runTest {
         `when`(
-            prescriptionApiService.getMedicineTime()
+            prescriptionApiService.getMedicineTime(
+                mapOf(
+                    Pair(
+                        QueryParameters.LAST_UPDATED, String.format(
+                            QueryParameters.GREATER_THAN_BUILDER,
+                            200L.toTimeStampDate()
+                        )
+                    )
+                )            )
         ).thenReturn(
             Response.success(
                 BaseResponse(
