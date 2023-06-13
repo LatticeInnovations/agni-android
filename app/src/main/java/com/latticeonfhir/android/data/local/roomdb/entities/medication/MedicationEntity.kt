@@ -2,7 +2,7 @@ package com.latticeonfhir.android.data.local.roomdb.entities.medication
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.errorprone.annotations.Keep
+import androidx.annotation.Keep
 
 @Keep
 @Entity

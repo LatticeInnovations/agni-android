@@ -4,10 +4,34 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
+import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
+import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
+import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
+import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
+import com.latticeonfhir.android.data.local.repository.search.SearchRepository
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineDosageInstructionsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.Date
+import javax.inject.Inject
 
-class PrescriptionViewModel : BaseViewModel() {
+@HiltViewModel
+class PrescriptionViewModel @Inject constructor(
+    private val prescriptionRepository: PrescriptionRepository,
+    private val medicationRepository: MedicationRepository,
+    private val searchRepository: SearchRepository,
+    private val genericRepository: GenericRepository
+) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var isSearching by mutableStateOf(false)
@@ -22,27 +46,105 @@ class PrescriptionViewModel : BaseViewModel() {
 
     var patient by mutableStateOf<PatientResponse?>(null)
 
-    var compoundList = mutableStateListOf(
-        "Epinephrine (adrenaline)",
-        "Enalapril",
-        "Lisinopril",
-        "Metformin",
-        "Insulin glargine",
-        "Liraglutide",
-        "Sitagliptin",
-        "Albuterol",
-        "Fluticasone",
-        "Montelukast"
-    )
-    var selectedCompoundList = mutableStateListOf<String>()
-    var checkedCompound by mutableStateOf("")
+    var activeIngredientsList by mutableStateOf(listOf<String>())
+    var selectedActiveIngredientsList by mutableStateOf(listOf<String>())
+    var checkedActiveIngredient by mutableStateOf("")
+
+    var medicationDirectionsList by mutableStateOf(listOf<MedicineDosageInstructionsEntity>())
+    var medicationsResponseWithMedicationList by mutableStateOf(listOf<MedicationResponseWithMedication>())
+    var medicationToEdit by mutableStateOf<MedicationResponseWithMedication?>(null)
 
     var searchQuery by mutableStateOf("")
-    var previousSearchList = mutableStateListOf(
-        "List Item 1",
-        "List Item 2",
-        "List Item 3",
-        "List Item 4",
-        "List Item 5",
-    )
+    var previousSearchList by mutableStateOf(listOf<String>())
+    var activeIngredientSearchList by mutableStateOf(listOf<String>())
+
+    var previousPrescriptionList by mutableStateOf(listOf<PrescriptionAndMedicineRelation?>(null))
+
+    internal fun getPreviousPrescription(
+        patientId: String,
+        previousPrescriptionList: (List<PrescriptionAndMedicineRelation>) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            previousPrescriptionList(
+                prescriptionRepository.getLastPrescription(patientId)
+            )
+        }
+    }
+
+    internal fun getActiveIngredients(activeIngredientsList: (List<String>) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            activeIngredientsList(
+                medicationRepository.getActiveIngredients()
+            )
+        }
+    }
+
+    internal fun getAllMedicationDirections(medicationDirectionsList: (List<MedicineDosageInstructionsEntity>) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            medicationDirectionsList(
+                medicationRepository.getAllMedicationDirections()
+            )
+        }
+    }
+
+    internal fun insertPrescription(inserted: (Long) -> Unit) {
+        val medicationsList = mutableListOf<Medication>()
+        medicationsResponseWithMedicationList.forEach {
+            medicationsList.add(it.medication)
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val prescriptionId = UUIDBuilder.generateUUID()
+            inserted(
+                prescriptionRepository.insertPrescription(
+                    PrescriptionResponseLocal(
+                        patientId = patient!!.id,
+                        patientFhirId = patient?.fhirId,
+                        generatedOn = Date(),
+                        prescriptionId = prescriptionId,
+                        prescription = medicationsList
+                    )
+                ).also {
+                    genericRepository.insertOrUpdatePostEntity(
+                        patientId = patient!!.id,
+                        entity = listOf(
+                            PrescriptionResponse(
+                                patientFhirId = patient!!.fhirId?:patient!!.id,
+                                generatedOn = Date(),
+                                prescriptionId = prescriptionId,
+                                prescription = medicationsList,
+                                prescriptionFhirId = null
+                            )
+                        ),
+                        typeEnum = GenericTypeEnum.PRESCRIPTION
+                    )
+                }
+            )
+        }
+    }
+
+    internal fun getPreviousSearch(previousSearches: (List<String>) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            previousSearches(
+                searchRepository.getRecentActiveIngredientSearches()
+            )
+        }
+    }
+
+    internal fun insertRecentSearch(query: String, inserted: (Long) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            inserted(
+                searchRepository.insertRecentActiveIngredientSearch(query, Date())
+            ) }
+    }
+
+    internal fun getActiveIngredientSearchList(
+        activeIngredient: String,
+        searchList: (List<String>) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            searchList(
+                searchRepository.searchActiveIngredients(activeIngredient)
+            )
+        }
+    }
 }

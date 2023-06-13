@@ -1,7 +1,5 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
-import com.google.gson.internal.LinkedTreeMap
-import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
@@ -14,10 +12,7 @@ import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.constants.Id.ID
 import com.latticeonfhir.android.utils.constants.RelationConstants.RELATIONSHIP
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
-import timber.log.Timber
-import java.util.UUID
 import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")
@@ -63,36 +58,42 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
     ): Long {
         return genericDao.getGenericEntityById(patientFhirId, typeEnum, SyncType.PATCH).run {
             if (this != null) {
+                /** Data with this record already present */
                 val existingMap = payload.fromJson<MutableMap<String, Any>>()
-                if (existingMap[ID] == null) {
+                if(existingMap[ID] == null) {
                     existingMap[ID] = patientFhirId
                 }
-
                 map.entries.forEach { mapEntry ->
                     if ((mapEntry.value is List<*>)) {
+                        /** Get Processed Data for List Change Request */
                         val processPatchData = processPatch(
                             existingMap,
                             mapEntry,
                             (mapEntry.value as List<ChangeRequest>)
                         )
+
+                        /** Check for data is empty */
                         if(processPatchData.isNotEmpty()) {
                             existingMap[mapEntry.key] = processPatchData
                         } else {
+                            /** If empty remove that key from map */
                             existingMap.remove(mapEntry.key)
                         }
                     } else {
-                        processPatch(existingMap, mapEntry)
+                       processPatch(existingMap, mapEntry)
                     }
                 }
+                /** It denotes only ID key is present in map */
                 if (existingMap.size == 1) {
                     genericDao.deleteSyncPayload(listOf(id)).toLong()
                 } else {
+                    /** Insert Updated Map */
                     genericDao.insertGenericEntity(
                         copy(payload = existingMap.toJson())
                     )[0]
                 }
-
             } else {
+                /** Insert Freshly Patch data */
                 genericDao.insertGenericEntity(
                     GenericEntity(
                         id = UUIDBuilder.generateUUID(),

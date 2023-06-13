@@ -45,10 +45,19 @@ class OtpViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             authenticationRepository.login(userInput).apply {
                 if(this is ApiEmptyResponse) {
+                    isResending = false
                     resent(true)
                 } else if(this is ApiErrorResponse) {
+                    when(errorMessage){
+                        TOO_MANY_ATTEMPTS_ERROR -> {
+                            isOtpIncorrect = false
+                            otpAttemptsExpired = true
+                            fiveMinuteTimer = 300
+                        }
+                        else -> isOtpIncorrect = true
+                    }
                     errorMsg = errorMessage
-                    isOtpIncorrect = true
+                    isResending = false
                     resent(false)
                 }
             }
