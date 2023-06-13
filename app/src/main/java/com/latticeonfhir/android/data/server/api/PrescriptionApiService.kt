@@ -25,5 +25,5 @@ interface PrescriptionApiService {
     suspend fun getPastPrescription(@QueryMap(encoded = true) map: Map<String,String>?): Response<BaseResponse<List<PrescriptionResponse>>>
 
     @GET("sct/medTime")
-    suspend fun getMedicineTime(): Response<BaseResponse<List<MedicineTimeResponse>>>
+    suspend fun getMedicineTime(@QueryMap(encoded = true) map: Map<String,String>?): Response<BaseResponse<List<MedicineTimeResponse>>>
 }

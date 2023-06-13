@@ -20,8 +20,6 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
     override var lastPrescriptionSyncTime by LongPreference(sharedPreferences, PREF_LAST_PRESCRIPTION_SYNC_TIME,0L)
     override var lastMedicationSyncTime by LongPreference(sharedPreferences, PREF_LAST_MEDICATION_SYNC_TIME,0L)
     override var lastMedicineDosageInstructionSyncTime by LongPreference(sharedPreferences, PREF_LAST_MEDICINE_DOSAGE_INSTRUCTION_SYNC_TIME,0L)
-    override var medicationSyncSuccessful by BooleanPreference(sharedPreferences,PREF_MEDICATION_SYNC_SUCCESS,false)
-    override var maxOtpAttemptTimeout by LongPreference(sharedPreferences, PREF_MAX_OTP_ATTEMPTS_TIMEOUT,0L)
 
     override fun clear() {
         sharedPreferences.edit {
@@ -47,9 +45,5 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         const val PREF_LAST_PRESCRIPTION_SYNC_TIME = "pref_last_prescription_sync_time"
         const val PREF_LAST_MEDICATION_SYNC_TIME = "pref_last_medication_sync_time"
         const val PREF_LAST_MEDICINE_DOSAGE_INSTRUCTION_SYNC_TIME = "pref_last_medication_sync_time"
-
-        const val PREF_MEDICATION_SYNC_SUCCESS = "pref_medication_sync_success"
-
-        const val PREF_MAX_OTP_ATTEMPTS_TIMEOUT = "pref_max_otp_attempts_timeout"
     }
 }

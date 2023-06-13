@@ -62,6 +62,7 @@ class PrescriptionViewModelTest : BaseClass() {
     private val date = Date()
 
     private val prescriptionDirectionsEntity = PrescriptionDirectionsEntity(
+        id = medication.medFhirId + prescribedResponse.prescriptionId,
         medFhirId = medicationResponse.medFhirId,
         qtyPerDose = medication.qtyPerDose,
         frequency = medication.frequency,
@@ -69,8 +70,7 @@ class PrescriptionViewModelTest : BaseClass() {
         duration = medication.duration,
         qtyPrescribed = medication.qtyPrescribed,
         note = medication.note,
-        prescriptionId = prescribedResponse.prescriptionId,
-        id = medicationResponse.medFhirId+prescribedResponse.prescriptionId
+        prescriptionId = prescribedResponse.prescriptionId
     )
 
     private val medicationEntity = MedicationEntity(

@@ -37,6 +37,7 @@ class PrescriptionRepositoryTest : BaseClass() {
     )
 
     private val prescriptionDirectionsEntity = PrescriptionDirectionsEntity(
+        id = "MED_FHIR_ID_01DUMMY_PRESCRIPTION_ID",
         medFhirId = "MED_FHIR_ID_01",
         qtyPerDose = 1,
         frequency = 2,
@@ -44,8 +45,7 @@ class PrescriptionRepositoryTest : BaseClass() {
         duration = 3,
         qtyPrescribed = 12,
         note = "Dummy note",
-        prescriptionId = "DUMMY_PRESCRIPTION_ID",
-        id = "MED_FHIR_ID_01"+"DUMMY_PRESCRIPTION_ID"
+        prescriptionId = "DUMMY_PRESCRIPTION_ID"
     )
 
 
