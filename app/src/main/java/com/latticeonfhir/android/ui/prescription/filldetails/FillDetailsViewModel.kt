@@ -23,7 +23,7 @@ class FillDetailsViewModel @Inject constructor(
     var quantityPerDose by mutableStateOf("1")
     var frequency by mutableStateOf("1")
     val qtyRange = 1..10
-    var timing by mutableStateOf("Before food")
+    var timing by mutableStateOf("")
     var duration by mutableStateOf("")
     var notes by mutableStateOf("")
     var medUnit by mutableStateOf("")
@@ -41,7 +41,7 @@ class FillDetailsViewModel @Inject constructor(
         frequency = "1"
         duration = ""
         notes = ""
-        timing = "Before food"
+        timing = ""
         medFhirId = ""
         medDoseForm = ""
         medUnit = ""
