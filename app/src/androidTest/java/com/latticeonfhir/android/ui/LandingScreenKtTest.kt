@@ -130,7 +130,7 @@ class LandingScreenKtTest {
         composeTestRule.onNode(backIcon, useUnmergedTree = true).assertExists("Back icon should be displayed.")
         composeTestRule.onNode(advancedSearchButton).assertExists("Advanced search button should be displayed.")
         composeTestRule.onNode(advancedSearchButton).assertIsEnabled()
-        composeTestRule.onNode(previousSearchList).assertExists("Previous serach list should be displayed.")
+        composeTestRule.onNode(previousSearchList, useUnmergedTree = true).assertExists("Previous search list should be displayed.")
     }
 
     @Test

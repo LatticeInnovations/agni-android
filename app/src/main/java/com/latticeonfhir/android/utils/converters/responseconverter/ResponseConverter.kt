@@ -229,7 +229,6 @@ internal fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(): List<P
     }
 }
 
-
 internal fun PrescriptionResponseLocal.toListOfPrescriptionDirectionsEntity(): List<PrescriptionDirectionsEntity> {
     return prescription.map { medication ->
         PrescriptionDirectionsEntity(
