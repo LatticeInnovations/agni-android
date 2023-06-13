@@ -20,7 +20,7 @@ object MedicationInfoConverter {
             qtyPerDose,
             medUnit,
             getMedFreqValue(frequency, context),
-            timing,
+            if (timing?.isNotEmpty() == true) context.getString(R.string.timing, timing) else "",
             duration,
             qtyPrescribed,
             if (note?.isNotEmpty() == true) context.getString(R.string.notes, note) else ""
