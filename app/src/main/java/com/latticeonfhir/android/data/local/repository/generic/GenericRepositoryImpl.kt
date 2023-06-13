@@ -58,29 +58,42 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
     ): Long {
         return genericDao.getGenericEntityById(patientFhirId, typeEnum, SyncType.PATCH).run {
             if (this != null) {
+                /** Data with this record already present */
                 val existingMap = payload.fromJson<MutableMap<String, Any>>()
                 if(existingMap[ID] == null) {
                     existingMap[ID] = patientFhirId
                 }
                 map.entries.forEach { mapEntry ->
                     if ((mapEntry.value is List<*>)) {
-                        existingMap[mapEntry.key] = processPatch(
+                        /** Get Processed Data for List Change Request */
+                        val processPatchData = processPatch(
                             existingMap,
                             mapEntry,
                             (mapEntry.value as List<ChangeRequest>)
                         )
+
+                        /** Check for data is empty */
+                        if(processPatchData.isNotEmpty()) {
+                            existingMap[mapEntry.key] = processPatchData
+                        } else {
+                            /** If empty remove that key from map */
+                            existingMap.remove(mapEntry.key)
+                        }
                     } else {
                        processPatch(existingMap, mapEntry)
                     }
                 }
+                /** It denotes only ID key is present in map */
                 if (existingMap.size == 1) {
                     genericDao.deleteSyncPayload(listOf(id)).toLong()
                 } else {
+                    /** Insert Updated Map */
                     genericDao.insertGenericEntity(
                         copy(payload = existingMap.toJson())
                     )[0]
                 }
             } else {
+                /** Insert Freshly Patch data */
                 genericDao.insertGenericEntity(
                     GenericEntity(
                         id = UUIDBuilder.generateUUID(),
