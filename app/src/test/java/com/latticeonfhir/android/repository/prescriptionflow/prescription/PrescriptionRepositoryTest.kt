@@ -44,7 +44,8 @@ class PrescriptionRepositoryTest : BaseClass() {
         duration = 3,
         qtyPrescribed = 12,
         note = "Dummy note",
-        prescriptionId = "DUMMY_PRESCRIPTION_ID"
+        prescriptionId = "DUMMY_PRESCRIPTION_ID",
+        id = "MED_FHIR_ID_01"+"DUMMY_PRESCRIPTION_ID"
     )
 
 

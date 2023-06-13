@@ -39,7 +39,7 @@ class AdvancedSearchPatientKtTest {
 
     // Input Fields
     val patientName = hasTestTag("Patient Name") and hasClickAction()
-    val patientId = hasTestTag("Patient Id") and hasClickAction()
+    val patientId = hasTestTag("Patient ID") and hasClickAction()
     val postalCode = hasTestTag("Postal Code *") and hasClickAction()
     val addressLine1 = hasTestTag("Address Line 1 *") and hasClickAction()
     val addressLine2 = hasTestTag("Address Line 2") and hasClickAction()
@@ -108,7 +108,7 @@ class AdvancedSearchPatientKtTest {
         composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(title).assertExists("Title should be \"Advanced Search\".")
         composeTestRule.onNode(clearIcon, useUnmergedTree = true).assertExists("Clear icon should exists.")
-        composeTestRule.onNode(patientId).assertExists("Patient Id input field should be displayed.")
+        composeTestRule.onNode(patientId).assertExists("Patient ID input field should be displayed.")
         composeTestRule.onNode(patientName).assertExists("Patient Name input field should be displayed.")
         composeTestRule.onNode(heading).assertExists("Heading \"Search using any of the field below\" should be displayed.")
         composeTestRule.onNode(ageRangeTitle).assertExists("Title \"Select age range\" should be displayed.")
@@ -195,7 +195,7 @@ class AdvancedSearchPatientKtTest {
         composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
         composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(patientId).performTextInput("input12345")
-        composeTestRule.onNode(patientId).assertTextEquals("Patient Id", "input12345")
+        composeTestRule.onNode(patientId).assertTextEquals("Patient ID", "input12345")
     }
 
     @Test

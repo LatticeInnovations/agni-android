@@ -34,9 +34,9 @@ class PatientRegistrationKtTest {
     val years = hasTestTag("Years") and hasClickAction()
     val months = hasTestTag("Months") and hasClickAction()
     val days = hasTestTag("Days") and hasClickAction()
-    val passportId = hasTestTag("Passport Id") and hasClickAction()
-    val voterId = hasTestTag("Voter Id") and hasClickAction()
-    val patientId = hasTestTag("Patient Id") and hasClickAction()
+    val passportId = hasTestTag("Passport ID") and hasClickAction()
+    val voterId = hasTestTag("Voter ID") and hasClickAction()
+    val patientId = hasTestTag("Patient ID") and hasClickAction()
     val postalCode = hasTestTag("Postal Code *") and hasClickAction()
     val state = hasTestTag("State *") and hasClickAction()
     val addressLine1 = hasTestTag("Address Line 1 *") and hasClickAction()
@@ -50,9 +50,9 @@ class PatientRegistrationKtTest {
     val femaleChip = hasTestTag("female") and hasClickAction()
     val maleChip = hasTestTag("male") and hasClickAction()
     val othersChip = hasTestTag("other") and hasClickAction()
-    val passportIdChip = hasTestTag("Passport Id chip") and hasClickAction()
-    val voterIdChip = hasTestTag("Voter Id chip") and hasClickAction()
-    val patientIdChip = hasTestTag("Patient Id chip") and hasClickAction()
+    val passportIdChip = hasTestTag("Passport ID chip") and hasClickAction()
+    val voterIdChip = hasTestTag("Voter ID chip") and hasClickAction()
+    val patientIdChip = hasTestTag("Patient ID chip") and hasClickAction()
 
     // Button
     val nextBtn = hasText("Next")
@@ -316,7 +316,7 @@ class PatientRegistrationKtTest {
         composeTestRule.onNodeWithText("Page 2/3").assertExists("Page 2/3 should be displayed.")
         composeTestRule.onNode(passportIdChip).assertIsSelected()
         composeTestRule.onNode(passportId)
-            .assertExists("Passport Id input field should be displayed.")
+            .assertExists("Passport ID input field should be displayed.")
         composeTestRule.onNode(voterIdChip).assertIsNotSelected()
         composeTestRule.onNode(voterId).assertDoesNotExist()
         composeTestRule.onNode(patientIdChip).assertIsNotSelected()
@@ -345,11 +345,11 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(nextBtn).performClick()
         composeTestRule.onNode(voterIdChip).performClick()
         composeTestRule.onNode(voterIdChip).assertIsSelected()
-        composeTestRule.onNode(voterId).assertExists("Voter Id input field should be displayed.")
+        composeTestRule.onNode(voterId).assertExists("Voter ID input field should be displayed.")
         composeTestRule.onNode(patientIdChip).performClick()
         composeTestRule.onNode(patientIdChip).assertIsSelected()
         composeTestRule.onNode(patientId)
-            .assertExists("Patient Id input field should be displayed.")
+            .assertExists("Patient ID input field should be displayed.")
     }
 
     @Test

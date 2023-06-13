@@ -69,7 +69,8 @@ class PrescriptionViewModelTest : BaseClass() {
         duration = medication.duration,
         qtyPrescribed = medication.qtyPrescribed,
         note = medication.note,
-        prescriptionId = prescribedResponse.prescriptionId
+        prescriptionId = prescribedResponse.prescriptionId,
+        id = medicationResponse.medFhirId+prescribedResponse.prescriptionId
     )
 
     private val medicationEntity = MedicationEntity(

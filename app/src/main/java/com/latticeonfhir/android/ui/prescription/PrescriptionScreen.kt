@@ -92,7 +92,8 @@ fun PrescriptionScreen(
 
     BackHandler(enabled = true) {
         if (viewModel.isSearching) viewModel.isSearching = false
-        else if (viewModel.checkedActiveIngredient.isNotEmpty()) viewModel.checkedActiveIngredient = ""
+        else if (viewModel.checkedActiveIngredient.isNotEmpty()) viewModel.checkedActiveIngredient =
+            ""
         else if (viewModel.bottomNavExpanded) viewModel.bottomNavExpanded = false
         else if (viewModel.isSearchResult) viewModel.isSearchResult = false
         else if (viewModel.tabIndex == 1) {
@@ -220,10 +221,10 @@ fun PrescriptionScreen(
                         AlertDialog(
                             onDismissRequest = { viewModel.clearAllConfirmDialog = false },
                             title = {
-                                Text(text = stringResource(id = R.string.discard_medications_dialog_title))
+                                Text(text = stringResource(id = R.string.discard_medications_dialog_title), modifier = Modifier.testTag("DIALOG_TITLE"))
                             },
                             text = {
-                                Text(text = stringResource(id = R.string.discard_medications_dialog_description))
+                                Text(text = stringResource(id = R.string.discard_medications_dialog_description), modifier = Modifier.testTag("DIALOG_DESCRIPTION"))
                             },
                             confirmButton = {
                                 TextButton(
@@ -233,6 +234,7 @@ fun PrescriptionScreen(
                                         viewModel.bottomNavExpanded = false
                                         viewModel.clearAllConfirmDialog = false
                                     },
+                                    modifier = Modifier.testTag("DIALOG_POSITIVE_BTN")
                                 ) {
                                     Text(
                                         stringResource(id = R.string.yes_discard)
@@ -243,7 +245,8 @@ fun PrescriptionScreen(
                                 TextButton(
                                     onClick = {
                                         viewModel.clearAllConfirmDialog = false
-                                    }
+                                    },
+                                    modifier = Modifier.testTag("DIALOG_NEGATIVE_BTN")
                                 ) {
                                     Text(
                                         stringResource(id = R.string.no_go_back)
@@ -347,11 +350,17 @@ fun BottomNavLayout(
                                     contentDescription = "CLEAR_ICON"
                                 )
                             }
-                            Text(text = "Medication (s)")
+                            Text(
+                                text = "Medication (s)",
+                                modifier = Modifier.testTag("MEDICATION_TITLE")
+                            )
                             Spacer(modifier = Modifier.weight(1f))
-                            TextButton(onClick = {
-                                viewModel.clearAllConfirmDialog = true
-                            }) {
+                            TextButton(
+                                onClick = {
+                                    viewModel.clearAllConfirmDialog = true
+                                },
+                                Modifier.testTag("CLEAR_ALL_BTN")
+                            ) {
                                 Text(text = stringResource(id = R.string.clear_all))
                             }
                         }
@@ -429,7 +438,9 @@ fun BottomNavLayout(
                                 }
                             }
                         },
-                        modifier = Modifier.weight(1f).testTag("PRESCRIBE_BTN")
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag("PRESCRIBE_BTN")
                     ) {
                         Text(text = stringResource(id = R.string.prescribe))
                     }
@@ -467,6 +478,7 @@ fun SelectedCompoundCard(
                             false
                     }
                 },
+                modifier = Modifier.testTag("MEDICATION_CHECKBOX")
             )
             Column(
                 modifier = Modifier
