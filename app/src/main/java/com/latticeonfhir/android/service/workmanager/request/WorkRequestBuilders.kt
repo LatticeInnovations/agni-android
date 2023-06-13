@@ -339,9 +339,6 @@ class WorkRequestBuilders(
                     val value = progress.getInt(PatientPatchUploadSyncWorker.PatientPatchUpload, 0)
                     if (value == 100) {
                         /** Handle Progress Based Download WorkRequests Here */
-                        downloadPatientWorker { errorReceived, errorMsg ->
-                            error(errorReceived, errorMsg)
-                        }
                     }
                 }
             }
@@ -374,9 +371,6 @@ class WorkRequestBuilders(
                         progress.getInt(RelationPatchUploadSyncWorker.RelationPatchUpload, 0)
                     if (value == 100) {
                         /** Handle Progress Based Download WorkRequests Here */
-                        downloadPatientWorker { errorReceived, errorMsg ->
-                            error(errorReceived, errorMsg)
-                        }
                     }
                 }
             }
