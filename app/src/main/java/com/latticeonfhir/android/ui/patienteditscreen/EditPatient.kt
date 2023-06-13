@@ -1,44 +1,32 @@
 package com.latticeonfhir.android.ui.patienteditscreen
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreviewViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
-import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.constants.IdentificationConstants
+import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.time.LocalDate
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,18 +35,18 @@ fun EditPatient(
     navController: NavController,
     viewModel: EditPatientViewModel = hiltViewModel()
 ) {
-    viewModel.patient =
+    viewModel.patient.value =
         navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
             key = "patient_details"
         )
 
 
-    LaunchedEffect(Unit) {
-        Timber.tag("PatientIds").d(viewModel.patient?.id)
-        viewModel.patient = viewModel.getPatientData(viewModel.patient!!.id)
-        Timber.tag("PatientIdsss").d(viewModel.patient?.middleName)
+    LaunchedEffect(true) {
+        viewModel.id = viewModel.patient.value!!.id
+        viewModel.patientResponse = viewModel.getPatientData(viewModel.id)
+        viewModel.patient.value = viewModel.patientResponse
 
-        viewModel.patient?.run {
+        viewModel.patient.value?.run {
             viewModel.firstName = firstName
             viewModel.middleName = middleName ?: ""
             viewModel.lastName = lastName ?: ""
@@ -66,20 +54,23 @@ fun EditPatient(
             viewModel.phoneNumber = mobileNumber.toString()
             viewModel.dob = birthDate
             viewModel.gender = gender
-            identifier.forEach { identity ->
-                Timber.tag("identifier")
-                    .d(identity.identifierType + "  " + identity.identifierNumber + " " + identity.code)
+            viewModel.identifier= identifier.toMutableList()
+            viewModel.passportId=""
+            viewModel.patientId=""
+            viewModel.voterId=""
+            viewModel.identifier.forEach { identity ->
+                Timber.tag("identifier").d(identity.identifierNumber)
                 when (identity.identifierType) {
-                    "https://www.passportindia.gov.in/" -> {
+                    IdentificationConstants.PASSPORT_TYPE -> {
                         viewModel.passportId = identity.identifierNumber
                     }
 
-                    "https://www.nvsp.in/" -> {
+                    IdentificationConstants.VOTER_ID_TYPE -> {
                         viewModel.voterId = identity.identifierNumber
 
                     }
 
-                    "https://www.apollohospitals.com/" -> {
+                    IdentificationConstants.PATIENT_ID_TYPE -> {
                         viewModel.patientId = identity.identifierNumber
                     }
 
@@ -99,8 +90,11 @@ fun EditPatient(
 
     }
 
+    val snackBarHostState = remember { SnackbarHostState() }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -115,7 +109,7 @@ fun EditPatient(
                     }) {
                         Icon(
                             Icons.Default.ArrowBack,
-                            contentDescription = "Back button"
+                            contentDescription = "back icon"
                         )
                     }
                 },
@@ -131,10 +125,18 @@ fun EditPatient(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                if (viewModel.patient != null) {
-                    PreviewScreen(navController, viewModel, viewModel.patient!!)
+                if (viewModel.patient.value != null) {
+
+                    PreviewScreen(navController, viewModel)
                 } else {
                     Timber.d("PatientResponse is empty")
+                }
+
+                if (FhirApp.isProfileUpdated) {
+                    LaunchedEffect(true) {
+                        snackBarHostState.showSnackbar("Profile update successfully")
+                        FhirApp.isProfileUpdated = false
+                    }
                 }
             }
         }
@@ -144,8 +146,7 @@ fun EditPatient(
 @Composable
 fun PreviewScreen(
     navController: NavController,
-    viewModel: EditPatientViewModel,
-    patientResponse: PatientResponse
+    viewModel: EditPatientViewModel
 ) {
     Column(
         modifier = Modifier
@@ -163,7 +164,8 @@ fun PreviewScreen(
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
-                Heading("Basic Information", 1, patientResponse, navController)
+
+                Heading("Basic Information", 1, viewModel, navController)
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "${
@@ -199,7 +201,8 @@ fun PreviewScreen(
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
-                Heading("Identification", 2, patientResponse, navController)
+
+                Heading("Identification", 2, viewModel, navController)
                 if (viewModel.passportId.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label("Passport ID")
@@ -237,7 +240,7 @@ fun PreviewScreen(
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
-                Heading("Addresses", 3, patientResponse, navController)
+                Heading("Addresses", 3, viewModel, navController)
                 Spacer(modifier = Modifier.height(10.dp))
                 Label("Home Address")
                 Detail(homeAddressLine1, "ADDRESS_LINE1_TAG")
@@ -277,58 +280,10 @@ fun PreviewScreen(
 }
 
 @Composable
-fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDialog: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = {
-            closeDialog()
-        },
-        title = {
-            Text(
-                text = "Discard Changes?",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.testTag("alert dialog title")
-            )
-        },
-        text = {
-            Text(
-                "Are you sure you want to discard this patient record?",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.testTag("alert dialog description")
-            )
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    closeDialog()
-                    if (fromHousehold)
-                        navController.popBackStack(Screen.AddHouseholdMember.route, false)
-                    else navController.popBackStack(Screen.LandingScreen.route, false)
-                }) {
-                Text(
-                    "Yes, discard",
-                    modifier = Modifier.testTag("alert dialog confirm btn")
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    closeDialog()
-                }) {
-                Text(
-                    "No, go back",
-                    modifier = Modifier.testTag("alert dialog cancel btn")
-                )
-            }
-        }
-    )
-}
-
-@Composable
 fun Heading(
     heading: String,
     step: Int,
-    patientResponse: PatientResponse,
+    viewModel: EditPatientViewModel,
     navController: NavController
 ) {
     val context = LocalContext.current
@@ -348,14 +303,12 @@ fun Heading(
                     "isEditing",
                     true
                 )
+
                 navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "currentStep",
-                    step
+                    "patient_details",
+                    viewModel.patientResponse
                 )
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "patient_register_details",
-                    patientResponse
-                )
+                Timber.tag("response").d(viewModel.patient.value.toJson())
                 when (step) {
                     1 -> navController.navigate(Screen.EditBasicInfo.route)
                     2 -> navController.navigate(Screen.EditIdentification.route)

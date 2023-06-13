@@ -19,5 +19,5 @@ interface IdentifierDao {
     suspend fun insertIdentifier(identifierEntity: IdentifierEntity): Long
     @Transaction
     @Delete
-    suspend fun deleteIdentifier(vararg identifierEntity: IdentifierEntity)
+    suspend fun deleteIdentifier(vararg identifierEntity: IdentifierEntity):Int
 }

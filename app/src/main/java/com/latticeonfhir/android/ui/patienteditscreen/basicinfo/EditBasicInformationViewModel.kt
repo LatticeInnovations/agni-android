@@ -37,7 +37,7 @@ class EditBasicInformationViewModel @Inject constructor(
     val maxFirstNameLength = 100
     val maxMiddleNameLength = 100
     val maxLastNameLength = 100
-    val maxEmailLength = 100
+    val maxEmailLength = 150
 
     var firstName by mutableStateOf("")
     var middleName by mutableStateOf("")
@@ -195,85 +195,9 @@ class EditBasicInformationViewModel @Inject constructor(
                         typeEnum = GenericTypeEnum.PATIENT
                     )
                 }
-                if (middleName != middleNameTemp && middleNameTemp.isNotEmpty() && middleName.isNotEmpty()) {
-                    genericRepository.insertOrUpdatePatchEntity(
-                        patientFhirId = patientResponse.fhirId,
-                        map = mapOf(
-                            Pair(
-                                "middleName", ChangeRequest(
-                                    value = middleName, operation = ChangeTypeEnum.REPLACE.value
-                                )
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
-                    )
-                } else if (middleName != middleNameTemp && middleNameTemp.isNotEmpty() && middleName.isEmpty()) {
-                    genericRepository.insertOrUpdatePatchEntity(
-                        patientFhirId = patientResponse.fhirId,
-                        map = mapOf(
-                            Pair(
-                                "middleName", ChangeRequest(
-                                    value = middleName, operation = ChangeTypeEnum.REMOVE.value
-                                )
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
-                    )
-
-                } else if (middleName != middleNameTemp && middleNameTemp.isEmpty() && middleName.isNotEmpty()) {
-                    genericRepository.insertOrUpdatePatchEntity(
-                        patientFhirId = patientResponse.fhirId,
-                        map = mapOf(
-                            Pair(
-                                "middleName", ChangeRequest(
-                                    value = middleName, operation = ChangeTypeEnum.ADD.value
-                                )
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
-                    )
-
-                }
-                if (lastName != lastNameTemp && lastNameTemp.isNotEmpty() && lastName.isNotEmpty()) {
-                    genericRepository.insertOrUpdatePatchEntity(
-                        patientFhirId = patientResponse.fhirId,
-                        map = mapOf(
-                            Pair(
-                                "lastName", ChangeRequest(
-                                    value = patientResponse.lastName!!,
-                                    operation = ChangeTypeEnum.REPLACE.value
-                                )
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
-                    )
-                } else if (lastName != lastNameTemp && lastNameTemp.isNotEmpty() && lastName.isEmpty()) {
-                    genericRepository.insertOrUpdatePatchEntity(
-                        patientFhirId = patientResponse.fhirId,
-                        map = mapOf(
-                            Pair(
-                                "lastName", ChangeRequest(
-                                    value = lastName, operation = ChangeTypeEnum.REMOVE.value
-                                )
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
-                    )
-
-                } else if (lastName != lastNameTemp && lastNameTemp.isEmpty() && lastName.isNotEmpty()) {
-                    genericRepository.insertOrUpdatePatchEntity(
-                        patientFhirId = patientResponse.fhirId,
-                        map = mapOf(
-                            Pair(
-                                "lastName", ChangeRequest(
-                                    value = middleName, operation = ChangeTypeEnum.ADD.value
-                                )
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
-                    )
-
-                }
+                checkIsValueChange(patientResponse, middleName, middleNameTemp, "middleName")
+                checkIsValueChange(patientResponse, lastName, lastNameTemp, "lastName")
+                checkIsValueChange(patientResponse, email, emailTemp, "email")
 
                 if (patientResponse.gender != genderTemp) {
                     genericRepository.insertOrUpdatePatchEntity(
@@ -317,6 +241,7 @@ class EditBasicInformationViewModel @Inject constructor(
                         typeEnum = GenericTypeEnum.PATIENT
                     )
                 }
+
             } else {
                 genericRepository.insertOrUpdatePostEntity(
                     patientId = patientResponse.id,
@@ -327,6 +252,55 @@ class EditBasicInformationViewModel @Inject constructor(
         }
 
         return response
+    }
+
+    private suspend fun checkIsValueChange(
+        patientResponse: PatientResponse,
+        value: String,
+        tempValue: String,
+        key: String
+    ) {
+        if (value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty()) {
+            genericRepository.insertOrUpdatePatchEntity(
+                patientFhirId = patientResponse.fhirId!!,
+                map = mapOf(
+                    Pair(
+                        key, ChangeRequest(
+                            value = value, operation = ChangeTypeEnum.REPLACE.value
+                        )
+                    )
+                ),
+                typeEnum = GenericTypeEnum.PATIENT
+            )
+        } else if (value != tempValue && tempValue.isNotEmpty() && value.isEmpty()) {
+            genericRepository.insertOrUpdatePatchEntity(
+                patientFhirId = patientResponse.fhirId!!,
+                map = mapOf(
+                    Pair(
+                        key, ChangeRequest(
+                            value = null, operation = ChangeTypeEnum.REMOVE.value
+                        )
+                    )
+                ),
+                typeEnum = GenericTypeEnum.PATIENT
+            )
+
+        } else if (value != tempValue && tempValue.isEmpty() && value.isNotEmpty()) {
+            genericRepository.insertOrUpdatePatchEntity(
+                patientFhirId = patientResponse.fhirId!!,
+                map = mapOf(
+                    Pair(
+                        key, ChangeRequest(
+                            value = value, operation = ChangeTypeEnum.ADD.value
+                        )
+                    )
+                ),
+                typeEnum = GenericTypeEnum.PATIENT
+            )
+
+        }
+
+
     }
 
 }

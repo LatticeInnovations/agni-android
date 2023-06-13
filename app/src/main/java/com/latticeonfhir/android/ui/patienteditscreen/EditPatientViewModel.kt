@@ -17,6 +17,7 @@ import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.intellij.lang.annotations.Identifier
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,6 +25,9 @@ class EditPatientViewModel @Inject constructor(
     private val patientRepository: PatientRepository
 ): BaseViewModel() {
 
+
+    var isLaunched by mutableStateOf(false)
+    var id by mutableStateOf("")
     var firstName by mutableStateOf("")
     var middleName by mutableStateOf("")
     var lastName by mutableStateOf("")
@@ -40,9 +44,11 @@ class EditPatientViewModel @Inject constructor(
     var passportId by mutableStateOf("")
     var voterId by mutableStateOf("")
     var patientId by mutableStateOf("")
+    var identifier = mutableListOf<PatientIdentifier>()
 
     var homeAddress by mutableStateOf(Address())
-    var patient by mutableStateOf<PatientResponse?>(null)
+    var patient = mutableStateOf<PatientResponse?>(null)
+    var patientResponse by mutableStateOf<PatientResponse?>(null)
 
 
 

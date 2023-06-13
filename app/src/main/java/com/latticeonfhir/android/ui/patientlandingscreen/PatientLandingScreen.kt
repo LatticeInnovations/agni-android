@@ -22,6 +22,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
@@ -39,6 +40,7 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
         viewModel.patient= viewModel.getPatientData(viewModel.patient!!.id)
 
         viewModel.isLaunched = true
+        FhirApp.isProfileUpdated=false
     }
     Scaffold(
         topBar = {
@@ -70,7 +72,7 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.profile_icon),
-                            contentDescription = "profile Icon",
+                            contentDescription = "profile icon",
                             tint= MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
                         )

@@ -1,13 +1,11 @@
 package com.latticeonfhir.android.ui.patienteditscreen.address
 
-import android.util.Patterns
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,28 +14,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.AddressComposable
-import com.latticeonfhir.android.ui.common.CustomFilterChip
-import com.latticeonfhir.android.ui.common.CustomTextField
-import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.AgeTextField
-import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.ContactTextField
-import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.DobTextField
-import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.GenderComposable
-import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.ValueLength
-import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -47,9 +32,8 @@ fun EditPatientAddress(
     navController: NavController,
     viewModel: EditPatientAddressViewModel = hiltViewModel()
 ) {
-    val patientRegistrationViewModel: PatientRegistrationViewModel = viewModel()
     val patientResponse =
-        navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(key = "patient_register_details")
+        navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(key = "patient_details")
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             patientResponse?.run {
@@ -70,6 +54,8 @@ fun EditPatientAddress(
             }
         }
         viewModel.isLaunched = true
+        FhirApp.isProfileUpdated=false
+
     }
 
     val snackBarHostState = remember { SnackbarHostState() }
@@ -93,7 +79,7 @@ fun EditPatientAddress(
                     }) {
                         Icon(
                             Icons.Default.Clear,
-                            contentDescription = "Clear button"
+                            contentDescription = "clear icon"
                         )
                     }
 
@@ -175,27 +161,25 @@ fun EditPatientAddress(
 
                 Button(
                     onClick = {
+
                         coroutineScope.launch {
                             if (viewModel.updateBasicInfo(
                                     patientResponse!!.copy(
                                         permanentAddress = PatientAddressResponse(
                                             addressLine1 = viewModel.homeAddress.addressLine1,
                                             city = viewModel.homeAddress.city,
-                                            district = viewModel.homeAddress.district,
+                                            district = viewModel.homeAddress.district.ifEmpty { null },
                                             state = viewModel.homeAddress.state,
                                             postalCode = viewModel.homeAddress.pincode,
                                             country = "India",
-                                            addressLine2 = viewModel.homeAddress.addressLine2,
+                                            addressLine2 = viewModel.homeAddress.district.ifEmpty { null },
                                         )
                                     )
                                 )
                                 > 0
                             ) {
                                 navController.popBackStack()
-                                coroutineScope.launch(Dispatchers.Main) {
-                                    snackBarHostState.showSnackbar("Profile update successfully")
-                                }
-
+                                FhirApp.isProfileUpdated = true
                             }
                         }
 

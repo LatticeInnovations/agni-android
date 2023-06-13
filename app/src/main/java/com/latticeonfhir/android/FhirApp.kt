@@ -25,11 +25,13 @@ class FhirApp : Application() {
     companion object {
         val gson: Gson by lazy {
             GsonBuilder()
-            .registerTypeAdapter(Date::class.java, DateDeserializer())
-            .registerTypeAdapter(Date::class.java, DateSerializer())
-            .create()
+                .registerTypeAdapter(Date::class.java, DateDeserializer())
+                .registerTypeAdapter(Date::class.java, DateSerializer())
+                .create()
         }
 
         lateinit var syncRepository: SyncRepository
+
+        var isProfileUpdated = false
     }
 }
