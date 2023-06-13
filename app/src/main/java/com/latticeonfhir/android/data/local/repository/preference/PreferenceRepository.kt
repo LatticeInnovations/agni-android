@@ -36,13 +36,12 @@ interface PreferenceRepository {
     fun setAuthenticationToken(authToken: String)
     fun getAuthenticationToken(): String
 
-    /** OTP Attempts Timeout */
-    fun setOtpAttemptTimeout(timeout: Long)
-    fun getOtpAttemptTimeout(): Long
-
     /** RoomDB EncryptionKey */
     fun setRoomDBEncryptionKey(encryptionKey: String)
     fun getRoomDBEncryptionKey(): String
+
+    /** Reset Authentication Token */
+    fun resetAuthenticationToken()
 
     /** Clear preferences */
     fun clearPreferences()

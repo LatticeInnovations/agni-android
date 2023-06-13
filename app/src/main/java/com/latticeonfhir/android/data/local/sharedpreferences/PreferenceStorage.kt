@@ -21,11 +21,5 @@ interface PreferenceStorage {
     var lastMedicationSyncTime: Long
     var lastMedicineDosageInstructionSyncTime: Long
 
-    /** Medication Sync Successful */
-    var medicationSyncSuccessful: Boolean
-
-    /** Max Attempts of OTP Timeout */
-    var maxOtpAttemptTimeout: Long
-
     fun clear()
 }
