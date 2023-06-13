@@ -176,7 +176,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 
     //Fragment
-    implementation 'androidx.fragment:fragment-ktx:1.5.7'
+    implementation 'androidx.fragment:fragment-ktx:1.6.0'
 
     //SQL Cipher
     implementation 'net.zetetic:android-database-sqlcipher:4.5.3'
@@ -190,15 +190,15 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:1.4.3"
     debugImplementation "androidx.compose.ui:ui-test-manifest:1.4.3"
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
-    implementation 'androidx.activity:activity-compose:1.7.1'
+    implementation 'androidx.activity:activity-compose:1.7.2'
     implementation "androidx.compose.ui:ui:1.4.3"
     implementation "androidx.compose.ui:ui-tooling-preview:1.4.3"
-    implementation 'androidx.compose.material3:material3:1.1.0-rc01'
+    implementation 'androidx.compose.material3:material3:1.1.0-rc01' // don't update
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
-    implementation 'androidx.compose.runtime:runtime-livedata:1.5.0-alpha04'
+    implementation 'androidx.compose.runtime:runtime-livedata:1.5.0-beta02'
 
     // navigation
-    implementation("androidx.navigation:navigation-compose:2.5.3")
+    implementation("androidx.navigation:navigation-compose:2.6.0")
 
     // date-time picker
     implementation("com.marosseleng.android:compose-material3-datetime-pickers:0.6.1")
@@ -221,7 +221,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
     // splash screen
-    implementation 'androidx.core:core-splashscreen:1.0.0-beta02'
+    implementation 'androidx.core:core-splashscreen:1.0.0-beta02' // don't update
 
     // google consent api for auto detection of otp
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
