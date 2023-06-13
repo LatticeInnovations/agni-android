@@ -8,5 +8,5 @@ data class ChangeRequest(
     @Expose(deserialize = false)
     val key: String? = null,
     val operation: String,
-    val value: Any
+    val value: Any?
 )
