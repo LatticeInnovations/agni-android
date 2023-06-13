@@ -13,7 +13,6 @@ import com.latticeonfhir.android.utils.constants.Id.ID
 import com.latticeonfhir.android.utils.constants.RelationConstants.RELATIONSHIP
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
-import java.util.UUID
 import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")
@@ -60,6 +59,9 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
         return genericDao.getGenericEntityById(patientFhirId, typeEnum, SyncType.PATCH).run {
             if (this != null) {
                 val existingMap = payload.fromJson<MutableMap<String, Any>>()
+                if(existingMap[ID] == null) {
+                    existingMap[ID] = patientFhirId
+                }
                 map.entries.forEach { mapEntry ->
                     if ((mapEntry.value is List<*>)) {
                         existingMap[mapEntry.key] = processPatch(
@@ -68,13 +70,16 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                             (mapEntry.value as List<ChangeRequest>)
                         )
                     } else {
-                        existingMap[mapEntry.key] = mapEntry.value
+                       processPatch(existingMap, mapEntry)
                     }
                 }
-                existingMap[ID] = patientFhirId
-                genericDao.insertGenericEntity(
-                    copy(payload = existingMap.toJson())
-                )[0]
+                if (existingMap.size == 1) {
+                    genericDao.deleteSyncPayload(listOf(id)).toLong()
+                } else {
+                    genericDao.insertGenericEntity(
+                        copy(payload = existingMap.toJson())
+                    )[0]
+                }
             } else {
                 genericDao.insertGenericEntity(
                     GenericEntity(
