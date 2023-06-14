@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineDosageInstructionsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 
 @Dao
 interface MedicationDao {
@@ -17,15 +17,15 @@ interface MedicationDao {
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMedicineDosageInstructions(vararg medicineDosageInstructionsEntity: MedicineDosageInstructionsEntity): List<Long>
+    suspend fun insertMedicineDosageInstructions(vararg medicineTimingEntity: MedicineTimingEntity): List<Long>
 
     @Transaction
     @Query("SELECT DISTINCT activeIngredient FROM MedicationEntity")
     suspend fun getActiveIngredients(): List<String>
 
     @Transaction
-    @Query("SELECT * FROM MedicineDosageInstructionsEntity")
-    suspend fun getAllMedicineDosageInstructions(): List<MedicineDosageInstructionsEntity>
+    @Query("SELECT * FROM MedicineTimingEntity")
+    suspend fun getAllMedicineDosageInstructions(): List<MedicineTimingEntity>
 
     @Transaction
     @Query("SELECT * FROM MedicationEntity WHERE activeIngredient = :activeIngredient")
