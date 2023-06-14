@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.job.JobScheduler
 import android.content.Context
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.asFlow
@@ -15,7 +16,6 @@ import androidx.work.WorkManager
 import androidx.work.await
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
-import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
@@ -50,12 +50,12 @@ class LandingScreenViewModel @Inject constructor(
     var isSearchingByQuery by mutableStateOf(false)
     var isSearchResult by mutableStateOf(false)
     var searchQuery by mutableStateOf("")
-    var selectedIndex by mutableStateOf(0)
+    var selectedIndex by mutableIntStateOf(0)
     var patientList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf())
     var searchResultList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf())
     var searchParameters by mutableStateOf<SearchParameters?>(null)
     var previousSearchList = mutableListOf<String>()
-    var size by mutableStateOf(0)
+    var size by mutableIntStateOf(0)
     var isLoggingOut by mutableStateOf(false)
 
     // user details
@@ -155,7 +155,7 @@ class LandingScreenViewModel @Inject constructor(
         }
     }
 
-    internal fun searchPatient(searchParameters: SearchParameters) {
+    private fun searchPatient(searchParameters: SearchParameters) {
         viewModelScope.launch(Dispatchers.IO) {
             searchResultList = searchRepository.searchPatients(searchParameters).map {
                 it.map {
@@ -167,7 +167,7 @@ class LandingScreenViewModel @Inject constructor(
         }
     }
 
-    internal fun searchPatientByQuery() {
+    private fun searchPatientByQuery() {
         viewModelScope.launch(Dispatchers.IO) {
             searchResultList = searchRepository.searchPatientByQuery(searchQuery.trim()).map {
                 it.map {
@@ -183,9 +183,7 @@ class LandingScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Default) {
             WorkManager.getInstance(getApplication<Application>().applicationContext).cancelAllWork().await().also {
                 (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
-                val roomDBKey = preferenceRepository.getRoomDBEncryptionKey()
-                preferenceRepository.clearPreferences()
-                preferenceRepository.setRoomDBEncryptionKey(roomDBKey)
+                preferenceRepository.resetAuthenticationToken()
             }
         }
     }
