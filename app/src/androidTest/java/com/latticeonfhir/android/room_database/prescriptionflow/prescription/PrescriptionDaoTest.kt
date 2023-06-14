@@ -21,6 +21,7 @@ class PrescriptionDaoTest: FhirAppDatabaseTest() {
     )
 
     private val prescriptionDirectionsEntity = PrescriptionDirectionsEntity(
+        id = "MED_FHIR_ID_01DUMMY_PRESCRIPTION_ID",
         medFhirId = "MED_FHIR_ID_01",
         qtyPerDose = 1,
         frequency = 2,
@@ -32,6 +33,7 @@ class PrescriptionDaoTest: FhirAppDatabaseTest() {
     )
 
     private val prescriptionDirectionsEntityOther = PrescriptionDirectionsEntity(
+        id = "MED_FHIR_ID_02DUMMY_PRESCRIPTION_ID",
         medFhirId = "MED_FHIR_ID_02",
         qtyPerDose = 1,
         frequency = 2,
