@@ -323,8 +323,17 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getMedicineTime(): ResponseMapper<List<MedicineTimeResponse>> {
+        val map = mutableMapOf<String, String>()
+        if (preferenceRepository.getLastMedicineDosageInstructionSyncDate() != 0L) map[LAST_UPDATED] =
+            String.format(
+                GREATER_THAN_BUILDER,
+                preferenceRepository.getLastMedicineDosageInstructionSyncDate().toTimeStampDate()
+            )
+
         return ApiResponseConverter.convert(
-            prescriptionApiService.getMedicineTime()
+            prescriptionApiService.getMedicineTime(
+                map
+            )
         ).run {
             when (this) {
                 is ApiEndResponse -> {

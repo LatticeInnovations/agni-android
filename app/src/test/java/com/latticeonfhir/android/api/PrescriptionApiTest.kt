@@ -3,8 +3,10 @@ package com.latticeonfhir.android.api
 import com.latticeonfhir.android.FhirApp.Companion.gson
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
+import com.latticeonfhir.android.data.server.constants.QueryParameters
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.utils.ResponseHelper
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
@@ -46,7 +48,7 @@ class PrescriptionApiTest : BaseClass() {
         val response = prescriptionApiService.getAllMedications(emptyMap())
         mockWebServer.takeRequest()
 
-        assertEquals(medicationResponse,response.body()?.data?.get(0))
+        assertEquals(medicationResponse, response.body()?.data?.get(0))
     }
 
     @Test
@@ -57,10 +59,11 @@ class PrescriptionApiTest : BaseClass() {
         }
         mockWebServer.enqueue(mockResponse)
 
-        val response = prescriptionApiService.postPrescriptionRelatedData("createPrescription", emptyList())
+        val response =
+            prescriptionApiService.postPrescriptionRelatedData("createPrescription", emptyList())
         mockWebServer.takeRequest()
 
-        assertEquals(createResponse,response.body()?.data?.get(0))
+        assertEquals(createResponse, response.body()?.data?.get(0))
     }
 
     @Test
@@ -74,7 +77,10 @@ class PrescriptionApiTest : BaseClass() {
         val response = prescriptionApiService.getPastPrescription(emptyMap())
         mockWebServer.takeRequest()
 
-        assertEquals(prescribedResponse.prescriptionId,response.body()?.data?.get(0)?.prescriptionId)
+        assertEquals(
+            prescribedResponse.prescriptionId,
+            response.body()?.data?.get(0)?.prescriptionId
+        )
     }
 
     @Test
@@ -85,10 +91,19 @@ class PrescriptionApiTest : BaseClass() {
         }
         mockWebServer.enqueue(mockResponse)
 
-        val response = prescriptionApiService.getMedicineTime()
+        val response = prescriptionApiService.getMedicineTime(
+            mapOf(
+                Pair(
+                    QueryParameters.LAST_UPDATED, String.format(
+                        QueryParameters.GREATER_THAN_BUILDER,
+                        200L.toTimeStampDate()
+                    )
+                )
+            )
+        )
         mockWebServer.takeRequest()
 
-        assertEquals(medicineTimeResponse,response.body()?.data?.get(0))
+        assertEquals(medicineTimeResponse, response.body()?.data?.get(0))
     }
 
     @After
