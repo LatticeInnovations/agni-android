@@ -47,7 +47,7 @@ class FillDetailsViewModelTest: BaseClass() {
         assertEquals("1", fillDetailsViewModel.quantityPerDose)
         assertEquals("1", fillDetailsViewModel.frequency)
         assertEquals("", fillDetailsViewModel.duration)
-        assertEquals("Before food", fillDetailsViewModel.timing)
+        assertEquals("", fillDetailsViewModel.timing)
         assertEquals("", fillDetailsViewModel.notes)
     }
 }

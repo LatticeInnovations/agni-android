@@ -311,18 +311,26 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             }
                             else TextButton(
                                 onClick = {
-                                    viewModel.isResending = true
-                                    viewModel.firstDigit = ""
-                                    viewModel.secondDigit = ""
-                                    viewModel.thirdDigit = ""
-                                    viewModel.fourDigit = ""
-                                    viewModel.fiveDigit = ""
-                                    viewModel.sixDigit = ""
-                                    viewModel.isOtpIncorrect = false
-                                    viewModel.updateOtp()
-                                    viewModel.resendOTP { resent ->
-                                        if (resent) {
-                                            viewModel.twoMinuteTimer = 120
+                                    if (CheckNetwork.isInternetAvailable(activity)) {
+                                        viewModel.isResending = true
+                                        viewModel.firstDigit = ""
+                                        viewModel.secondDigit = ""
+                                        viewModel.thirdDigit = ""
+                                        viewModel.fourDigit = ""
+                                        viewModel.fiveDigit = ""
+                                        viewModel.sixDigit = ""
+                                        viewModel.isOtpIncorrect = false
+                                        viewModel.updateOtp()
+                                        viewModel.resendOTP { resent ->
+                                            if (resent) {
+                                                viewModel.twoMinuteTimer = 120
+                                            }
+                                        }
+                                    } else {
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                message = activity.getString(R.string.no_internet_error_msg)
+                                            )
                                         }
                                     }
                                 }
