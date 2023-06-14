@@ -113,20 +113,20 @@ class EditPatientTest {
     val profile_tab = hasTestTag("Profile tab") and hasClickAction()
     val logoutIcon = hasContentDescription("LOG_OUT_ICON")
 
-//    @Test
-//    fun aaaa_login() {
-//        composeTestRule.onNode(inputField).performTextInput("1111111111")
-//        composeTestRule.onNode(button).performClick()
-//        Thread.sleep(2000)
-//        composeTestRule.onNode(firstDigit).performTextInput("1")
-//        composeTestRule.onNode(secondDigit).performTextInput("1")
-//        composeTestRule.onNode(thirdDigit).performTextInput("1")
-//        composeTestRule.onNode(fourDigit).performTextInput("1")
-//        composeTestRule.onNode(fiveDigit).performTextInput("1")
-//        composeTestRule.onNode(sixDigit).performTextInput("1")
-//        composeTestRule.onNode(button).performClick()
-//        Thread.sleep(2000)
-//    }
+    @Test
+    fun aaaa_login() {
+        composeTestRule.onNode(inputField).performTextInput("1111111111")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(secondDigit).performTextInput("1")
+        composeTestRule.onNode(thirdDigit).performTextInput("1")
+        composeTestRule.onNode(fourDigit).performTextInput("1")
+        composeTestRule.onNode(fiveDigit).performTextInput("1")
+        composeTestRule.onNode(sixDigit).performTextInput("1")
+        composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+    }
 
 
     @Test
@@ -497,7 +497,7 @@ class EditPatientTest {
         composeTestRule.onNode(months).performTextClearance()
         composeTestRule.onNode(years).performTextClearance()
         composeTestRule.onNode(days).performTextInput("23")
-        composeTestRule.onNode(months).performTextInput("5")
+        composeTestRule.onNode(months).performTextInput("7")
         composeTestRule.onNode(years).performTextInput("23")
         composeTestRule.onNode(saveBtn).assertIsEnabled()
         composeTestRule.onNode(saveBtn).performClick()
@@ -730,8 +730,7 @@ class EditPatientTest {
         composeTestRule.onNode(title).assertTextEquals("Patient profile")
         composeTestRule.onNode(editBtn3).performClick()
         composeTestRule.onNode(addressTitle).assertTextEquals("Address")
-        composeTestRule.onNode(postalCode).performTextClearance()
-        composeTestRule.onNode(postalCode).performTextInput("111114")
+        composeTestRule.onNode(addressLine2).performTextInput("ABfsfddC")
         composeTestRule.onNode(saveBtn).assertIsEnabled()
     }
 
