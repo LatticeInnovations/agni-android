@@ -41,7 +41,9 @@ fun PhoneEmailScreen(
             if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("logoutUser") == true) {
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(
-                        message = navController.previousBackStackEntry?.savedStateHandle?.get<String>("logoutReason")!!
+                        message = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                            "logoutReason"
+                        )!!
                     )
                 }
             }
@@ -95,19 +97,10 @@ fun PhoneEmailScreen(
                     Button(
                         onClick = {
                             if (isInternetAvailable(activity)) {
-                                viewModel.isAuthenticating = true
-                                viewModel.login {
-                                    if (it) {
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            withContext(Dispatchers.Main) {
-                                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                    "userInput",
-                                                    viewModel.inputValue
-                                                )
-                                                navController.navigate(Screen.OtpScreen.route)
-                                            }
-                                        }
-                                    }
+                                if (viewModel.isDifferentUserLogin()) {
+                                    viewModel.showDifferentUserLoginDialog = true
+                                } else {
+                                    navigate(viewModel, navController)
                                 }
                             } else {
                                 coroutineScope.launch {
@@ -126,8 +119,76 @@ fun PhoneEmailScreen(
                         if (viewModel.isAuthenticating) ButtonLoader()
                     }
                 }
+                if (viewModel.showDifferentUserLoginDialog) {
+                    AlertDialog(
+                        onDismissRequest = { viewModel.showDifferentUserLoginDialog = false },
+                        title = {
+                            Text(
+                                text = stringResource(id = R.string.different_user_login_dialog_title),
+                                modifier = Modifier.testTag("DIALOG_TITLE")
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = stringResource(id = R.string.different_user_login_dialog_description),
+                                modifier = Modifier.testTag("DIALOG_DESCRIPTION")
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    viewModel.showDifferentUserLoginDialog = false
+                                    if (isInternetAvailable(activity)) {
+                                        viewModel.clearAllAppData()
+                                        navigate(viewModel, navController)
+                                    } else {
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                message = activity.getString(R.string.no_internet_error_msg)
+                                            )
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.testTag("POSITIVE_BTN")
+                            ) {
+                                Text(
+                                    stringResource(id = R.string.yes_proceed)
+                                )
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    viewModel.showDifferentUserLoginDialog = false
+                                },
+                                modifier = Modifier.testTag("NEGATIVE_BTN")
+                            ) {
+                                Text(
+                                    stringResource(id = R.string.no_go_back)
+                                )
+                            }
+                        }
+                    )
+                }
             }
         }
     )
 
+}
+
+fun navigate(viewModel: PhoneEmailViewModel, navController: NavController) {
+    viewModel.isAuthenticating = true
+    viewModel.login {
+        if (it) {
+            CoroutineScope(Dispatchers.Main).launch {
+                withContext(Dispatchers.Main) {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "userInput",
+                        viewModel.inputValue
+                    )
+                    navController.navigate(Screen.OtpScreen.route)
+                }
+            }
+        }
+    }
 }
