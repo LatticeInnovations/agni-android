@@ -72,8 +72,7 @@ class EditBasicInformationViewModel @Inject constructor(
     val daysList = (1..31).toList()
     var monthsList = mutableStateListOf(
         "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    )
+        "July", "August", "September", "October", "November", "December")
 
     fun getMonthsList() {
         monthsList =
@@ -177,81 +176,82 @@ class EditBasicInformationViewModel @Inject constructor(
     }
 
 
-    suspend fun updateBasicInfo(patientResponse: PatientResponse): Int {
-        Timber.tag("PatientId").d(patientResponse.id.toString())
-        val response = patientRepository.updatePatientData(patientResponse = patientResponse)
-        if (response > 0) {
-            if (patientResponse.fhirId != null) {
-                if (firstName != firstNameTemp) {
-                    genericRepository.insertOrUpdatePatchEntity(
-                        patientFhirId = patientResponse.fhirId,
-                        map = mapOf(
-                            Pair(
-                                "firstName", ChangeRequest(
-                                    value = firstName, operation = ChangeTypeEnum.REPLACE.value
-                                )
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
-                    )
-                }
-                checkIsValueChange(patientResponse, middleName, middleNameTemp, "middleName")
-                checkIsValueChange(patientResponse, lastName, lastNameTemp, "lastName")
-                checkIsValueChange(patientResponse, email, emailTemp, "email")
+    fun updateBasicInfo(patientResponse: PatientResponse) {
 
-                if (patientResponse.gender != genderTemp) {
-                    genericRepository.insertOrUpdatePatchEntity(
-                        patientFhirId = patientResponse.fhirId,
-                        map = mapOf(
-                            Pair(
-                                "gender", ChangeRequest(
-                                    value = patientResponse.gender,
-                                    operation = ChangeTypeEnum.REPLACE.value
-                                )
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
-                    )
-                }
-                if (phoneNumber != phoneNumberTemp) {
-                    genericRepository.insertOrUpdatePatchEntity(
-                        patientFhirId = patientResponse.fhirId,
-                        map = mapOf(
-                            Pair(
-                                "mobileNumber", ChangeRequest(
-                                    value = patientResponse.mobileNumber,
-                                    operation = ChangeTypeEnum.REPLACE.value
-                                )
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
-                    )
-                }
-                if (patientResponse.birthDate != birthDate) {
-                    genericRepository.insertOrUpdatePatchEntity(
-                        patientFhirId = patientResponse.fhirId,
-                        map = mapOf(
-                            Pair(
-                                "birthDate", ChangeRequest(
-                                    value = patientResponse.birthDate,
-                                    operation = ChangeTypeEnum.REPLACE.value
-                                )
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
-                    )
-                }
+        viewModelScope.launch(Dispatchers.Main) {
 
-            } else {
-                genericRepository.insertOrUpdatePostEntity(
-                    patientId = patientResponse.id,
-                    entity = patientResponse,
-                    typeEnum = GenericTypeEnum.PATIENT
-                )
+            val response = patientRepository.updatePatientData(patientResponse = patientResponse)
+            if (response > 0) {
+                if (patientResponse.fhirId != null) {
+                    if (firstName != firstNameTemp) {
+                        genericRepository.insertOrUpdatePatchEntity(
+                            patientFhirId = patientResponse.fhirId,
+                            map = mapOf(
+                                Pair(
+                                    "firstName", ChangeRequest(
+                                        value = firstName, operation = ChangeTypeEnum.REPLACE.value
+                                    )
+                                )
+                            ),
+                            typeEnum = GenericTypeEnum.PATIENT
+                        )
+                    }
+                    checkIsValueChange(patientResponse, middleName, middleNameTemp, "middleName")
+                    checkIsValueChange(patientResponse, lastName, lastNameTemp, "lastName")
+                    checkIsValueChange(patientResponse, email, emailTemp, "email")
+
+                    if (patientResponse.gender != genderTemp) {
+                        genericRepository.insertOrUpdatePatchEntity(
+                            patientFhirId = patientResponse.fhirId,
+                            map = mapOf(
+                                Pair(
+                                    "gender", ChangeRequest(
+                                        value = patientResponse.gender,
+                                        operation = ChangeTypeEnum.REPLACE.value
+                                    )
+                                )
+                            ),
+                            typeEnum = GenericTypeEnum.PATIENT
+                        )
+                    }
+                    if (phoneNumber != phoneNumberTemp) {
+                        genericRepository.insertOrUpdatePatchEntity(
+                            patientFhirId = patientResponse.fhirId,
+                            map = mapOf(
+                                Pair(
+                                    "mobileNumber", ChangeRequest(
+                                        value = patientResponse.mobileNumber,
+                                        operation = ChangeTypeEnum.REPLACE.value
+                                    )
+                                )
+                            ),
+                            typeEnum = GenericTypeEnum.PATIENT
+                        )
+                    }
+                    if (patientResponse.birthDate != birthDate) {
+                        genericRepository.insertOrUpdatePatchEntity(
+                            patientFhirId = patientResponse.fhirId,
+                            map = mapOf(
+                                Pair(
+                                    "birthDate", ChangeRequest(
+                                        value = patientResponse.birthDate,
+                                        operation = ChangeTypeEnum.REPLACE.value
+                                    )
+                                )
+                            ),
+                            typeEnum = GenericTypeEnum.PATIENT
+                        )
+                    }
+
+                } else {
+                    genericRepository.insertOrUpdatePostEntity(
+                        patientId = patientResponse.id,
+                        entity = patientResponse,
+                        typeEnum = GenericTypeEnum.PATIENT
+                    )
+                }
             }
         }
-
-        return response
     }
 
     private suspend fun checkIsValueChange(
@@ -278,7 +278,7 @@ class EditBasicInformationViewModel @Inject constructor(
                 map = mapOf(
                     Pair(
                         key, ChangeRequest(
-                            value = null, operation = ChangeTypeEnum.REMOVE.value
+                            value = tempValue, operation = ChangeTypeEnum.REMOVE.value
                         )
                     )
                 ),
