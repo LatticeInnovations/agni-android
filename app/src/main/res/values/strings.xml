@@ -153,4 +153,8 @@ include them in the household</string>
     <string name="med_info">%d %s %s %s\nDuration : %d days , Qty : %d %s</string>
     <string name="notes">\nNote: %s</string>
     <string name="timing">, %s</string>
+
+    <string name="different_user_login_dialog_title">Log in as a different user ?</string>
+    <string name="different_user_login_dialog_description">Logging in as a different user will remove all existing data associated with the current user. This action cannot be undone. Continue?</string>
+    <string name="yes_proceed">Yes, proceed</string>
 </resources>
