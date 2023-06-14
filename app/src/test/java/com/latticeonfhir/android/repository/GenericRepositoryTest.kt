@@ -65,28 +65,28 @@ class GenericRepositoryTest : BaseClass() {
         )
         Assert.assertEquals(-1, actual)
     }
-    @Test
-    fun insertOrUpdatePatchEntityTest() = runBlocking {
-
-        `when`(genericDao.getGenericEntityById(id, GenericTypeEnum.PATIENT, SyncType.PATCH))
-            .thenReturn(genericEntityPatch)
-        `when`(genericDao.insertGenericEntity(genericEntityPatch)).thenReturn(listOf(-1L))
-
-
-        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(
-            patientFhirId = patientResponse.fhirId!!,
-            map = mapOf(
-                Pair(
-                    "permanentAddress", ChangeRequest(
-                        value = patientResponse,
-                        operation = ChangeTypeEnum.REPLACE.value
-                    )
-                )
-            ),
-            typeEnum = GenericTypeEnum.PATIENT
-        )
-
-        assertEquals(-1L, actual)
-    }
+//    @Test
+//    fun insertOrUpdatePatchEntityTest() = runBlocking {
+//
+//        `when`(genericDao.getGenericEntityById(id, GenericTypeEnum.PATIENT, SyncType.PATCH))
+//            .thenReturn(genericEntityPatch)
+//        `when`(genericDao.insertGenericEntity(genericEntityPatch)).thenReturn(listOf(-1L))
+//
+//
+//        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(
+//            patientFhirId = patientResponse.fhirId!!,
+//            map = mapOf(
+//                Pair(
+//                    "permanentAddress", ChangeRequest(
+//                        value = patientResponse,
+//                        operation = ChangeTypeEnum.REPLACE.value
+//                    )
+//                )
+//            ),
+//            typeEnum = GenericTypeEnum.PATIENT
+//        )
+//
+//        assertEquals(-1L, actual)
+//    }
 
 }

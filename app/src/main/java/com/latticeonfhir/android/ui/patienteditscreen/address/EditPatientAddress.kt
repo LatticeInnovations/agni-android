@@ -54,7 +54,7 @@ fun EditPatientAddress(
             }
         }
         viewModel.isLaunched = true
-        FhirApp.isProfileUpdated=false
+        FhirApp.isProfileUpdated = false
 
     }
 
@@ -162,26 +162,24 @@ fun EditPatientAddress(
                 Button(
                     onClick = {
 
-                        coroutineScope.launch {
-                            if (viewModel.updateBasicInfo(
-                                    patientResponse!!.copy(
-                                        permanentAddress = PatientAddressResponse(
-                                            addressLine1 = viewModel.homeAddress.addressLine1,
-                                            city = viewModel.homeAddress.city,
-                                            district = viewModel.homeAddress.district.ifEmpty { null },
-                                            state = viewModel.homeAddress.state,
-                                            postalCode = viewModel.homeAddress.pincode,
-                                            country = "India",
-                                            addressLine2 = viewModel.homeAddress.district.ifEmpty { null },
-                                        )
-                                    )
+
+                        viewModel.updateBasicInfo(
+                            patientResponse!!.copy(
+                                permanentAddress = PatientAddressResponse(
+                                    addressLine1 = viewModel.homeAddress.addressLine1,
+                                    city = viewModel.homeAddress.city,
+                                    district = viewModel.homeAddress.district.ifEmpty { null },
+                                    state = viewModel.homeAddress.state,
+                                    postalCode = viewModel.homeAddress.pincode,
+                                    country = "India",
+                                    addressLine2 = viewModel.homeAddress.addressLine2.ifEmpty { null },
                                 )
-                                > 0
-                            ) {
-                                navController.popBackStack()
-                                FhirApp.isProfileUpdated = true
-                            }
-                        }
+                            )
+                        )
+
+                        navController.popBackStack()
+                        FhirApp.isProfileUpdated = true
+
 
                     },
                     modifier = Modifier

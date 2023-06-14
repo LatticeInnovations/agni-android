@@ -199,12 +199,15 @@ fun EditIdentification(
                             KeyboardType.Text
                         ) {
                             viewModel.passportId = it
-                            viewModel.isPassportValid =
-                                !viewModel.passportPattern.matches(viewModel.passportId)
+                            if (viewModel.passportId.isNotEmpty())
+                                viewModel.isPassportValid =
+                                    !viewModel.passportPattern.matches(viewModel.passportId)
+                            else
+                                viewModel.isPassportValid = false
                         }
                         IdLength(viewModel.passportId, viewModel.maxPassportIdLength)
-                    }else{
-                        viewModel.passportId= ""
+                    } else {
+                        viewModel.passportId = ""
                     }
                     if (viewModel.isVoterSelected) {
                         Spacer(modifier = Modifier.height(5.dp))
@@ -218,12 +221,16 @@ fun EditIdentification(
                             KeyboardType.Text
                         ) {
                             viewModel.voterId = it
-                            viewModel.isVoterValid =
-                                !viewModel.voterPattern.matches(viewModel.voterId)
+                            if (viewModel.voterId.isNotEmpty())
+                                viewModel.isVoterValid =
+                                    !viewModel.voterPattern.matches(viewModel.voterId)
+                            else {
+                                viewModel.isVoterValid = false
+                            }
                         }
                         IdLength(viewModel.voterId, viewModel.maxVoterIdLength)
-                    }else{
-                        viewModel.voterId =""
+                    } else {
+                        viewModel.voterId = ""
                     }
                     if (viewModel.isPatientSelected) {
                         Spacer(modifier = Modifier.height(5.dp))
@@ -237,11 +244,14 @@ fun EditIdentification(
                             KeyboardType.Text
                         ) {
                             viewModel.patientId = it
-                            viewModel.isPatientValid = viewModel.patientId.length < 10
+                            if (viewModel.patientId.isNotEmpty())
+                                viewModel.isPatientValid = viewModel.patientId.length < 10
+                            else
+                                viewModel.isPatientValid = false
                         }
                         IdLength(viewModel.patientId, viewModel.maxPatientIdLength)
-                    }else{
-                        viewModel.patientId =""
+                    } else {
+                        viewModel.patientId = ""
                     }
                 }
                 viewModel.isEditing = viewModel.checkIsEdit()
@@ -275,18 +285,10 @@ fun EditIdentification(
                             )
                         }
 
-                        coroutineScope.launch {
-                            if (viewModel.updateBasicInfo(
-                                    patientResponse!!.copy(identifier = viewModel.identifierList)
-                                )
-                                > 0
-                            ) {
-                                navController.popBackStack()
-                                FhirApp.isProfileUpdated = true
 
-                            }
-                        }
-
+                        viewModel.updateBasicInfo(patientResponse!!.copy(identifier = viewModel.identifierList))
+                        navController.popBackStack()
+                        FhirApp.isProfileUpdated = true
                     },
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -339,7 +341,7 @@ fun IdLength(idName: String, requiredLength: Int) {
         style = MaterialTheme.typography.bodySmall,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 5.dp, end = 15.dp),
+            .padding(end = 15.dp),
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }

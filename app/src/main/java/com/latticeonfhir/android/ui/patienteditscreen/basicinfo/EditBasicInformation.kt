@@ -83,7 +83,7 @@ fun EditBasicInformation(
             viewModel.monthsTemp = viewModel.months
             viewModel.yearsTemp = viewModel.years
             viewModel.genderTemp = viewModel.gender
-            FhirApp.isProfileUpdated=false
+            FhirApp.isProfileUpdated = false
 
         }
     }
@@ -230,8 +230,12 @@ fun EditBasicInformation(
                         KeyboardType.Email
                     ) {
                         viewModel.email = it
-                        viewModel.isEmailValid =
-                            !Patterns.EMAIL_ADDRESS.matcher(viewModel.email).matches()
+                        if (viewModel.email.isNotEmpty()) {
+                            viewModel.isEmailValid =
+                                !Patterns.EMAIL_ADDRESS.matcher(viewModel.email).matches()
+                        } else {
+                            viewModel.isEmailValid = false
+                        }
                     }
                     ValueLengthEmail(viewModel.email)
 
@@ -243,29 +247,26 @@ fun EditBasicInformation(
                 }
                 Button(
                     onClick = {
-                        coroutineScope.launch {
-                            if (viewModel.updateBasicInfo(
-                                    patientResponse!!.copy(
-                                        firstName = viewModel.firstName,
-                                        middleName = viewModel.middleName,
-                                        lastName = viewModel.lastName,
-                                        mobileNumber = viewModel.phoneNumber.toLong(),
-                                        email = viewModel.email,
-                                        birthDate = if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
-                                        else ageToPatientDate(
-                                            viewModel.years.toInt(),
-                                            viewModel.months.toInt(),
-                                            viewModel.days.toInt()
-                                        ).toPatientDate(),
-                                        gender = viewModel.gender
-                                    )
-                                ) > 0
-                            ) {
-                                navController.popBackStack()
-                               FhirApp.isProfileUpdated= true
 
-                            }
-                        }
+                        viewModel.updateBasicInfo(
+                            patientResponse!!.copy(
+                                firstName = viewModel.firstName,
+                                middleName = viewModel.middleName,
+                                lastName = viewModel.lastName,
+                                mobileNumber = viewModel.phoneNumber.toLong(),
+                                email = viewModel.email,
+                                birthDate = if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
+                                else ageToPatientDate(
+                                    viewModel.years.toInt(),
+                                    viewModel.months.toInt(),
+                                    viewModel.days.toInt()
+                                ).toPatientDate(),
+                                gender = viewModel.gender
+                            )
+                        )
+                        navController.popBackStack()
+                        FhirApp.isProfileUpdated = true
+
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -286,18 +287,20 @@ fun ValueLength(value: String) {
     Text(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 5.dp, end = 15.dp),
+            .padding(end = 15.dp),
         text = if (value.isEmpty()) "" else "${value.length}/100",
         style = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Right,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
-}@Composable
+}
+
+@Composable
 fun ValueLengthEmail(value: String) {
     Text(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 5.dp, end = 15.dp),
+            .padding(end = 15.dp),
         text = if (value.isEmpty()) "" else "${value.length}/150",
         style = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Right,

@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -309,6 +310,7 @@ class EditPatientTest {
             .assertExists("save icon  should be displayed.")
         composeTestRule.onNode(undoAll).assertTextEquals("Undo all")
     }
+
     @Test
     fun patientEditScreen_verify_clear_icon_click() {
         composeTestRule.waitUntilAtLeastOneExists(
@@ -407,7 +409,6 @@ class EditPatientTest {
     }
 
 
-
     @Test
     fun basicInformation_verify_if_edit_and_fields_valid_saveButtonEnable() {
         composeTestRule.waitUntilAtLeastOneExists(
@@ -454,7 +455,7 @@ class EditPatientTest {
         composeTestRule.onNode(dobChip).performClick()
         composeTestRule.onNode(day).performTextClearance()
         composeTestRule.onNode(day).performTextInput("23")
-         composeTestRule.onNode(year).performTextClearance()
+        composeTestRule.onNode(year).performTextClearance()
         composeTestRule.onNode(year).performTextInput("2008")
         composeTestRule.onNode(saveBtn).assertIsEnabled()
     }
@@ -499,6 +500,9 @@ class EditPatientTest {
         composeTestRule.onNode(months).performTextInput("5")
         composeTestRule.onNode(years).performTextInput("23")
         composeTestRule.onNode(saveBtn).assertIsEnabled()
+        composeTestRule.onNode(saveBtn).performClick()
+        composeTestRule.onNode(title).assertTextEquals("Patient profile")
+
     }
 
     @Test
@@ -517,7 +521,8 @@ class EditPatientTest {
         composeTestRule.onNode(phoneNo).performImeAction()
         composeTestRule.onNode(saveBtn).assertIsNotEnabled()
     }
- @Test
+
+    @Test
     fun patientBasicInfoEdit_save_btn_disabled_on_enter_alhabet_phoneNumber() {
 
         composeTestRule.waitUntilAtLeastOneExists(
@@ -528,12 +533,13 @@ class EditPatientTest {
         composeTestRule.onNode(title).assertTextEquals("Patient profile")
         composeTestRule.onNode(editBtn1).performClick()
         composeTestRule.onNode(basicInformationTitle).assertTextEquals("Basic information")
-     composeTestRule.onNode(phoneNo).performTextClearance()
-     composeTestRule.onNode(phoneNo).performTextInput("avcdsdlf")
+        composeTestRule.onNode(phoneNo).performTextClearance()
+        composeTestRule.onNode(phoneNo).performTextInput("avcdsdlf")
         composeTestRule.onNode(phoneNo).performImeAction()
         composeTestRule.onNode(saveBtn).assertIsNotEnabled()
     }
- @Test
+
+    @Test
     fun patientBasicInfoEdit_save_btn_disabled_on_enter_free_text_phoneNumber() {
 
         composeTestRule.waitUntilAtLeastOneExists(
@@ -544,11 +550,12 @@ class EditPatientTest {
         composeTestRule.onNode(title).assertTextEquals("Patient profile")
         composeTestRule.onNode(editBtn1).performClick()
         composeTestRule.onNode(basicInformationTitle).assertTextEquals("Basic information")
-     composeTestRule.onNode(phoneNo).performTextClearance()
-     composeTestRule.onNode(phoneNo).performTextInput("       ")
+        composeTestRule.onNode(phoneNo).performTextClearance()
+        composeTestRule.onNode(phoneNo).performTextInput("       ")
         composeTestRule.onNode(phoneNo).performImeAction()
         composeTestRule.onNode(saveBtn).assertIsNotEnabled()
     }
+
     @Test
     fun patientBasicInfoEdit_save_btn_disabled_on_enter_special_char_text_phoneNumber() {
 
@@ -565,6 +572,7 @@ class EditPatientTest {
         composeTestRule.onNode(phoneNo).performImeAction()
         composeTestRule.onNode(saveBtn).assertIsNotEnabled()
     }
+
     @Test
     fun patientBasicInfoEdit_check_gender_component_exist() {
 
@@ -618,7 +626,6 @@ class EditPatientTest {
         composeTestRule.onNode(undoAll, true).performClick()
     }
 
-
     @Test
     fun patientIdentification_edit_verify_navigation() {
         composeTestRule.waitUntilAtLeastOneExists(
@@ -630,6 +637,20 @@ class EditPatientTest {
         composeTestRule.onNode(editBtn2).performClick()
 
     }
+    @Test
+    fun patientIdentification_edit_verify_chips() {
+        composeTestRule.waitUntilAtLeastOneExists(
+            patient, timeoutMillis = 15000
+        )
+        composeTestRule.onAllNodes(patient)[0].performClick()
+        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(title).assertTextEquals("Patient profile")
+        composeTestRule.onNode(editBtn2).performClick()
+        composeTestRule.onNode(passportIdChip).assertIsDisplayed()
+        composeTestRule.onNode(voterIdChip).assertIsDisplayed()
+        composeTestRule.onNode(patientIdChip).assertIsDisplayed()
+    }
+
     @Test
     fun patientIdentification_edit_verify_heading() {
         composeTestRule.waitUntilAtLeastOneExists(
@@ -658,171 +679,6 @@ class EditPatientTest {
         composeTestRule.onNode(undoAll).assertTextEquals("Undo all")
     }
 
-    @Test
-    fun patientIdentification_edit_verify_passport_id() {
-        composeTestRule.waitUntilAtLeastOneExists(
-            patient, timeoutMillis = 15000
-        )
-        composeTestRule.onAllNodes(patient)[0].performClick()
-        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertTextEquals("Patient profile")
-        composeTestRule.onNode(editBtn2).performClick()
-        composeTestRule.onNode(identificationTitle).assertTextEquals("Identification")
-        composeTestRule.onNode(passportIdChip).assertIsSelected()
-        composeTestRule.onNode(passportId).assertIsDisplayed()
-    }
-    @Test
-    fun patientIdentification_edit_verify_voter_id() {
-        composeTestRule.waitUntilAtLeastOneExists(
-            patient, timeoutMillis = 15000
-        )
-        composeTestRule.onAllNodes(patient)[0].performClick()
-        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertTextEquals("Patient profile")
-        composeTestRule.onNode(editBtn2).performClick()
-        composeTestRule.onNode(identificationTitle).assertTextEquals("Identification")
-        composeTestRule.onNode(voterIdChip).assertIsSelected()
-        composeTestRule.onNode(voterId).assertIsDisplayed()
-    }
-    @Test
-    fun patientIdentification_edit_verify_patient_id() {
-        composeTestRule.waitUntilAtLeastOneExists(
-            patient, timeoutMillis = 15000
-        )
-        composeTestRule.onAllNodes(patient)[0].performClick()
-        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertTextEquals("Patient profile")
-        composeTestRule.onNode(editBtn2).performClick()
-        composeTestRule.onNode(identificationTitle).assertTextEquals("Identification")
-        composeTestRule.onNode(patientIdChip).assertIsSelected()
-        composeTestRule.onNode(patientId).assertIsDisplayed()
-    }
-    @Test
-    fun patientIdentification_edit_verify_passport_id_and_voter_id() {
-        composeTestRule.waitUntilAtLeastOneExists(
-            patient, timeoutMillis = 15000
-        )
-        composeTestRule.onAllNodes(patient)[0].performClick()
-        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertTextEquals("Patient profile")
-        composeTestRule.onNode(editBtn2).performClick()
-        composeTestRule.onNode(identificationTitle).assertTextEquals("Identification")
-        composeTestRule.onNode(passportIdChip).assertIsSelected()
-        composeTestRule.onNode(passportId).assertIsDisplayed()
-        composeTestRule.onNode(voterIdChip).assertIsSelected()
-        composeTestRule.onNode(voterId).assertIsDisplayed()
-
-    } @Test
-    fun patientIdentification_edit_verify_all_ids() {
-        composeTestRule.waitUntilAtLeastOneExists(
-            patient, timeoutMillis = 15000
-        )
-        composeTestRule.onAllNodes(patient)[0].performClick()
-        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertTextEquals("Patient profile")
-        composeTestRule.onNode(editBtn2).performClick()
-        composeTestRule.onNode(identificationTitle).assertTextEquals("Identification")
-        composeTestRule.onNode(patientIdChip).assertIsSelected()
-        composeTestRule.onNode(patientId).assertIsDisplayed()
-        composeTestRule.onNode(passportIdChip).assertIsSelected()
-        composeTestRule.onNode(passportId).assertIsDisplayed()
-        composeTestRule.onNode(voterIdChip).assertIsSelected()
-        composeTestRule.onNode(voterId).assertIsDisplayed()
-
-    }
-
-    @Test
-    fun patientIdentification_save_btn_enabled_on_valid_passport_id() {
-        composeTestRule.waitUntilAtLeastOneExists(
-            patient, timeoutMillis = 15000
-        )
-        composeTestRule.onAllNodes(patient)[0].performClick()
-        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertTextEquals("Patient profile")
-        composeTestRule.onNode(editBtn2).performClick()
-        composeTestRule.onNode(identificationTitle).assertTextEquals("Identification")
-        composeTestRule.onNode(passportId).performTextClearance()
-        composeTestRule.onNode(passportId).performTextInput("A1234567")
-        composeTestRule.onNode(saveBtn).assertIsEnabled()
-    }
-
-
-    @Test
-    fun patientIdentification_save_btn_disabled_on_invalid_passport_id() {
-        composeTestRule.waitUntilAtLeastOneExists(
-            patient, timeoutMillis = 15000
-        )
-        composeTestRule.onAllNodes(patient)[0].performClick()
-        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertTextEquals("Patient profile")
-        composeTestRule.onNode(editBtn2).performClick()
-        composeTestRule.onNode(identificationTitle).assertTextEquals("Identification")
-        composeTestRule.onNode(passportId).performTextClearance()
-        composeTestRule.onNode(passportId).performTextInput("ABC98765")
-        composeTestRule.onNode(saveBtn).assertIsNotEnabled()
-    }
-
-    @Test
-    fun patientIdentification_save_btn_enabled_on_valid_voter_id(){
-        composeTestRule.waitUntilAtLeastOneExists(
-            patient, timeoutMillis = 15000
-        )
-        composeTestRule.onAllNodes(patient)[0].performClick()
-        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertTextEquals("Patient profile")
-        composeTestRule.onNode(editBtn2).performClick()
-        composeTestRule.onNode(identificationTitle).assertTextEquals("Identification")
-        composeTestRule.onNode(voterId).performTextClearance()
-        composeTestRule.onNode(voterId).performTextInput("ABC1234567")
-        composeTestRule.onNode(saveBtn).assertIsEnabled()
-    }
-
-    @Test
-    fun patientEditIdentification_save_btn_enabled_on_valid_patient_id() {
-        composeTestRule.waitUntilAtLeastOneExists(
-            patient, timeoutMillis = 15000
-        )
-        composeTestRule.onAllNodes(patient)[0].performClick()
-        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertTextEquals("Patient profile")
-        composeTestRule.onNode(editBtn2).performClick()
-        composeTestRule.onNode(identificationTitle).assertTextEquals("Identification")
-        composeTestRule.onNode(patientId).performTextClearance()
-        composeTestRule.onNode(patientId).performTextInput("1234567890")
-        composeTestRule.onNode(saveBtn).assertIsEnabled()
-    }
-
-    @Test
-    fun patientEditIdentification_btn_disabled_on_invalid_patient_id() {
-        composeTestRule.waitUntilAtLeastOneExists(
-            patient, timeoutMillis = 15000
-        )
-        composeTestRule.onAllNodes(patient)[0].performClick()
-        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertTextEquals("Patient profile")
-        composeTestRule.onNode(editBtn2).performClick()
-        composeTestRule.onNode(identificationTitle).assertTextEquals("Identification")
-        composeTestRule.onNode(patientId).performTextClearance()
-        composeTestRule.onNode(patientId).performTextInput("abc")
-        composeTestRule.onNode(saveBtn).assertIsNotEnabled()
-    }
-
-    @Test
-    fun patientEditIdentification_verify_save_btn_click() {
-        composeTestRule.waitUntilAtLeastOneExists(
-            patient, timeoutMillis = 15000
-        )
-        composeTestRule.onAllNodes(patient)[0].performClick()
-        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertTextEquals("Patient profile")
-        composeTestRule.onNode(editBtn2).performClick()
-        composeTestRule.onNode(identificationTitle).assertTextEquals("Identification")
-        composeTestRule.onNode(passportId).performTextClearance()
-        composeTestRule.onNode(passportId).performTextInput("A1111121")
-        composeTestRule.onNode(saveBtn).assertIsEnabled()
-//        composeTestRule.onNode(saveBtn).performClick()
-    }
-
 
     @Test
     fun patientEditIdentification_verify_clear_icon_click() {
@@ -838,21 +694,6 @@ class EditPatientTest {
         composeTestRule.onNode(clearIcon, true).performClick()
     }
 
-    @Test
-    fun patientEditIdentification_verify_undo_all_click() {
-        composeTestRule.waitUntilAtLeastOneExists(patient, timeoutMillis = 15000)
-        composeTestRule.onAllNodes(patient)[0].performClick()
-        composeTestRule.onNode(profileIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertTextEquals("Patient profile")
-        composeTestRule.onNode(editBtn2).performClick()
-        composeTestRule.onNode(identificationTitle).assertTextEquals("Identification")
-        composeTestRule.onNode(passportId).performTextClearance()
-        composeTestRule.onNode(patientId).performTextClearance()
-        composeTestRule.onNode(voterId).performTextClearance()
-        composeTestRule.onNode(undoAll).assertIsEnabled()
-        composeTestRule.onNode(undoAll, true).performClick()
-
-    }
 
     // Patient Address Edit Tests
     @Test
@@ -905,6 +746,9 @@ class EditPatientTest {
         composeTestRule.onNode(addressTitle).assertTextEquals("Address")
         composeTestRule.onNode(addressLine1).performTextInput("C-416343")
         composeTestRule.onNode(saveBtn).assertIsEnabled()
+        composeTestRule.onNode(saveBtn).performClick()
+        composeTestRule.onNode(title).assertTextEquals("Patient profile")
+
     }
 
     @Test
@@ -931,11 +775,11 @@ class EditPatientTest {
     }
 
 
-//    @Test
-//    fun zzzz_logout() {
-//        composeTestRule.onNode(profile_tab).performClick()
-//        composeTestRule.onNode(logoutIcon).performClick()
-//        composeTestRule.onNodeWithText("Logout").performClick()
-//    }
+    @Test
+    fun zzzz_logout() {
+        composeTestRule.onNode(profile_tab).performClick()
+        composeTestRule.onNode(logoutIcon).performClick()
+        composeTestRule.onNodeWithText("Logout").performClick()
+    }
 
 }

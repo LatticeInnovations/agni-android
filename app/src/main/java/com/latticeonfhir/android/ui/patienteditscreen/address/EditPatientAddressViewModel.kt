@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
@@ -13,6 +14,8 @@ import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -62,34 +65,106 @@ class EditPatientAddressViewModel @Inject constructor(
         return true
     }
 
-    suspend fun updateBasicInfo(patientResponse: PatientResponse): Int {
-        val response = patientRepository.updatePatientData(patientResponse = patientResponse)
-        if (response > 0) {
-            if (checkIsEdit()) {
-                if (patientResponse.fhirId != null) {
-                    genericRepository.insertOrUpdatePatchEntity(
-                        patientFhirId = patientResponse.fhirId,
-                        map = mapOf(
-                            Pair(
-                                "permanentAddress", ChangeRequest(
-                                    value = patientResponse.permanentAddress,
-                                    operation = ChangeTypeEnum.REPLACE.value
-                                )
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
-                    )
+    fun updateBasicInfo(patientResponse: PatientResponse): Unit {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = patientRepository.updatePatientData(patientResponse = patientResponse)
+            if (response > 0) {
+                if (checkIsEdit()) {
+                    if (patientResponse.fhirId != null) {
 
-                } else {
-                    genericRepository.insertOrUpdatePostEntity(
-                        patientId = patientResponse.id,
-                        entity = patientResponse,
-                        typeEnum = GenericTypeEnum.PATIENT
-                    )
+                        checkIsValueChange(
+                            patientResponse,
+                            homeAddress.pincode,
+                            homeAddressTemp.pincode
+                        )
+                        checkIsValueChange(
+                            patientResponse,
+                            homeAddress.addressLine1,
+                            homeAddressTemp.addressLine1
+                        )
+                        checkIsValueChange(
+                            patientResponse,
+                            homeAddress.addressLine2,
+                            homeAddressTemp.addressLine2
+                        )
+                        checkIsValueChange(
+                            patientResponse,
+                            homeAddress.state,
+                            homeAddressTemp.state
+                        )
+                        checkIsValueChange(
+                            patientResponse,
+                            homeAddress.city,
+                            homeAddressTemp.city
+                        )
+                        checkIsValueChange(
+                            patientResponse,
+                            homeAddress.district,
+                            homeAddressTemp.district
+                        )
+
+                    } else {
+                        genericRepository.insertOrUpdatePostEntity(
+                            patientId = patientResponse.id,
+                            entity = patientResponse,
+                            typeEnum = GenericTypeEnum.PATIENT
+                        )
+                    }
                 }
             }
         }
-        return response
+    }
+
+
+    private suspend fun checkIsValueChange(
+        patientResponse: PatientResponse,
+        value: String,
+        tempValue: String
+    ) {
+        if (value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty()) {
+            genericRepository.insertOrUpdatePatchEntity(
+                patientFhirId = patientResponse.fhirId!!,
+                map = mapOf(
+                    Pair(
+                        "permanentAddress", ChangeRequest(
+                            value = patientResponse.permanentAddress,
+                            operation = ChangeTypeEnum.REPLACE.value
+                        )
+                    )
+                ),
+                typeEnum = GenericTypeEnum.PATIENT
+            )
+        } else if (value != tempValue && tempValue.isNotEmpty() && value.isEmpty()) {
+            genericRepository.insertOrUpdatePatchEntity(
+                patientFhirId = patientResponse.fhirId!!,
+                map = mapOf(
+                    Pair(
+                        "permanentAddress", ChangeRequest(
+                            value = patientResponse.permanentAddress,
+                            operation = ChangeTypeEnum.REMOVE.value
+                        )
+                    )
+                ),
+                typeEnum = GenericTypeEnum.PATIENT
+            )
+
+        } else if (value != tempValue && tempValue.isEmpty() && value.isNotEmpty()) {
+            genericRepository.insertOrUpdatePatchEntity(
+                patientFhirId = patientResponse.fhirId!!,
+                map = mapOf(
+                    Pair(
+                        "permanentAddress", ChangeRequest(
+                            value = patientResponse.permanentAddress,
+                            operation = ChangeTypeEnum.ADD.value
+                        )
+                    )
+                ),
+                typeEnum = GenericTypeEnum.PATIENT
+            )
+
+        }
+
+
     }
 
 
