@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.ui.prescription
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -13,7 +12,7 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineDosageInstructionsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
@@ -50,7 +49,7 @@ class PrescriptionViewModel @Inject constructor(
     var selectedActiveIngredientsList by mutableStateOf(listOf<String>())
     var checkedActiveIngredient by mutableStateOf("")
 
-    var medicationDirectionsList by mutableStateOf(listOf<MedicineDosageInstructionsEntity>())
+    var medicationDirectionsList by mutableStateOf(listOf<MedicineTimingEntity>())
     var medicationsResponseWithMedicationList by mutableStateOf(listOf<MedicationResponseWithMedication>())
     var medicationToEdit by mutableStateOf<MedicationResponseWithMedication?>(null)
 
@@ -79,7 +78,7 @@ class PrescriptionViewModel @Inject constructor(
         }
     }
 
-    internal fun getAllMedicationDirections(medicationDirectionsList: (List<MedicineDosageInstructionsEntity>) -> Unit) {
+    internal fun getAllMedicationDirections(medicationDirectionsList: (List<MedicineTimingEntity>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             medicationDirectionsList(
                 medicationRepository.getAllMedicationDirections()
