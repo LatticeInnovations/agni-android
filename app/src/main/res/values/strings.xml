@@ -150,8 +150,9 @@ include them in the household</string>
     <string name="establish_relation">Establish relation</string>
 
     <string name="freq_dose_per_day">%d dose per day</string>
-    <string name="med_info">%d %s %s, %s\nDuration : %d days , Qty : %d %s</string>
+    <string name="med_info">%d %s %s %s\nDuration : %d days , Qty : %d %s</string>
     <string name="notes">\nNote: %s</string>
+    <string name="timing">, %s</string>
 
     <string name="edit_btn">Edit</string>
 
