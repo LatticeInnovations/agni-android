@@ -81,14 +81,43 @@ jobs:
 #          script: ./gradlew connectedCheck --stacktrace
 
 ### Commented Deployment to Playstore
-      - name: Retrieve Version Name
-        run: |
-          echo "VERSION_NAME=$(${{github.workspace}}/gradlew -q printVersionName)" >> $GITHUB_OUTPUT
-        id: android_version
+#      - name: Retrieve Version Name
+#        run: |
+#          echo "VERSION_NAME=$(${{github.workspace}}/gradlew -q printVersionName)" >> $GITHUB_OUTPUT
+#        id: android_version
+#
+#      - name: Save Version Name in Env
+#        run: |
+#          echo "version_name=${{steps.android_version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
 
-      - name: Save Version Name in Env
+      - name: Extract existing version code
         run: |
-          echo "version_name=${{steps.android_version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
+          # Extract version number from branch name
+          version_name=${GITHUB_REF#refs/heads/githubActions}
+            
+          # Get existing version code from build.gradle
+          version_code=$(grep "versionCode" app/build.gradle | awk '{print $2}' | tr -d '\n')
+            
+          # Increment existing version code by 1
+          version_code=$((version_code + 1))
+            
+          # Set environment variable for later use
+          echo "VERSION_NAME=$version_name" >> $GITHUB_ENV
+          echo "VERSION_CODE=$version_code" >> $GITHUB_ENV
+
+      - name: Increase version code and change version name
+        run: |
+          # Update build.gradle with new version code and name
+          echo "${{ env.VERSION_CODE }} - ${{ env.version_name }}"
+          sed -i "s/versionCode [0-9]\+/versionCode ${{ env.VERSION_CODE }}/g" app/build.gradle
+          sed -i "s/versionName \"[^\"]*\"/versionName \"${{ env.VERSION_NAME }}\"/g" app/build.gradle
+
+      - name: Commit and push changes
+        run: |
+          git config user.email "github-actions@github.com"
+          git config user.name "Github Actions"
+          git commit -am "Bump version code and change version name"
+          git push origin HEAD
 
 #      - name: Bump version code
 #        uses: chkfung/android-version-actions@v1.1
