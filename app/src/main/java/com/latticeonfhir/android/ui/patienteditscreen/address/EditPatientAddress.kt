@@ -38,7 +38,6 @@ fun EditPatientAddress(
             patientResponse?.run {
                 viewModel.homeAddress.pincode = permanentAddress.postalCode
                 viewModel.homeAddress.state = permanentAddress.state
-                Timber.tag("state").d(permanentAddress.state.toString())
                 viewModel.homeAddress.city = permanentAddress.city
                 viewModel.homeAddress.district = permanentAddress.district ?: ""
                 viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1
@@ -72,6 +71,7 @@ fun EditPatientAddress(
                 },
                 navigationIcon = {
                     IconButton(onClick = {
+                        navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated",false)
                         navController.popBackStack()
 
                     }) {

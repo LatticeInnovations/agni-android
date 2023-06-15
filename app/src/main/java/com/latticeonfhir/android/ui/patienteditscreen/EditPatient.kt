@@ -20,10 +20,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -36,61 +34,58 @@ fun EditPatient(
     navController: NavController,
     viewModel: EditPatientViewModel = hiltViewModel()
 ) {
-    viewModel.patient.value =
-        navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-            key = "patient_details"
-        )
+    viewModel.id =
+        navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+            key = "patient_detailsID"
+        ).toString()
     viewModel.isProfileUpdated =
         navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("isProfileUpdated") == true
 
 
-    LaunchedEffect(true) {
-        viewModel.id = viewModel.patient.value!!.id
+    LaunchedEffect(viewModel.isProfileUpdated) {
         withContext(Dispatchers.IO) {
+            if (viewModel.id == "null") viewModel.id = viewModel.patientResponse!!.id
             viewModel.patientResponse = viewModel.getPatientData(viewModel.id)
-        }
-        viewModel.patient.value = viewModel.patientResponse
+            viewModel.patientResponse?.run {
+                viewModel.firstName = firstName
+                viewModel.middleName = middleName ?: ""
+                viewModel.lastName = lastName ?: ""
+                viewModel.email = email ?: ""
+                viewModel.phoneNumber = mobileNumber.toString()
+                viewModel.dob = birthDate
+                viewModel.gender = gender
+                viewModel.identifier = identifier.toMutableList()
+                viewModel.passportId = ""
+                viewModel.patientId = ""
+                viewModel.voterId = ""
+                viewModel.identifier.forEach { identity ->
+                    when (identity.identifierType) {
+                        IdentificationConstants.PASSPORT_TYPE -> {
+                            viewModel.passportId = identity.identifierNumber
+                        }
 
-        viewModel.patient.value?.run {
-            viewModel.firstName = firstName
-            viewModel.middleName = middleName ?: ""
-            viewModel.lastName = lastName ?: ""
-            viewModel.email = email ?: ""
-            viewModel.phoneNumber = mobileNumber.toString()
-            viewModel.dob = birthDate
-            viewModel.gender = gender
-            viewModel.identifier = identifier.toMutableList()
-            viewModel.passportId = ""
-            viewModel.patientId = ""
-            viewModel.voterId = ""
-            viewModel.identifier.forEach { identity ->
-                Timber.tag("identifier").d(identity.identifierNumber)
-                when (identity.identifierType) {
-                    IdentificationConstants.PASSPORT_TYPE -> {
-                        viewModel.passportId = identity.identifierNumber
+                        IdentificationConstants.VOTER_ID_TYPE -> {
+                            viewModel.voterId = identity.identifierNumber
+
+                        }
+
+                        IdentificationConstants.PATIENT_ID_TYPE -> {
+                            viewModel.patientId = identity.identifierNumber
+                        }
+
+                        else -> {}
+
                     }
-
-                    IdentificationConstants.VOTER_ID_TYPE -> {
-                        viewModel.voterId = identity.identifierNumber
-
-                    }
-
-                    IdentificationConstants.PATIENT_ID_TYPE -> {
-                        viewModel.patientId = identity.identifierNumber
-                    }
-
-                    else -> {}
-
                 }
+
+                viewModel.homeAddress.pincode = permanentAddress.postalCode
+                viewModel.homeAddress.state = permanentAddress.state
+                viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1
+                viewModel.homeAddress.addressLine2 = permanentAddress.addressLine2 ?: ""
+                viewModel.homeAddress.city = permanentAddress.city
+                viewModel.homeAddress.district = permanentAddress.district ?: ""
+
             }
-
-            viewModel.homeAddress.pincode = permanentAddress.postalCode
-            viewModel.homeAddress.state = permanentAddress.state
-            viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1
-            viewModel.homeAddress.addressLine2 = permanentAddress.addressLine2 ?: ""
-            viewModel.homeAddress.city = permanentAddress.city
-            viewModel.homeAddress.district = permanentAddress.district ?: ""
-
         }
 
     }
@@ -130,7 +125,7 @@ fun EditPatient(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                if (viewModel.patient.value != null) {
+                if (viewModel.patientResponse != null) {
 
                     PreviewScreen(navController, viewModel)
                 } else {
@@ -169,6 +164,7 @@ fun PreviewScreen(
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
+
 
                 Heading("Basic Information", 1, viewModel, navController)
                 Spacer(modifier = Modifier.height(10.dp))
@@ -313,7 +309,6 @@ fun Heading(
                     "patient_details",
                     viewModel.patientResponse
                 )
-                Timber.tag("response").d(viewModel.patient.value.toJson())
                 when (step) {
                     1 -> navController.navigate(Screen.EditBasicInfo.route)
                     2 -> navController.navigate(Screen.EditIdentification.route)
