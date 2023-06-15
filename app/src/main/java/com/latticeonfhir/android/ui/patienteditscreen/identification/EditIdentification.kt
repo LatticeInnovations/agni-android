@@ -30,7 +30,6 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,12 +47,7 @@ fun EditIdentification(
         if (!viewModel.isLaunched) {
             patientResponse?.run {
                 identifier.forEach { identity ->
-                    Timber.tag("identifier")
-                        .d(
-                            "%s%s",
-                            identity.identifierType + "  " + identity.identifierNumber + " ",
-                            identity.code
-                        )
+
                     when (identity.identifierType) {
                         IdentificationConstants.PASSPORT_TYPE -> {
                             viewModel.passportId = identity.identifierNumber
@@ -111,6 +105,10 @@ fun EditIdentification(
                 },
                 navigationIcon = {
                     IconButton(onClick = {
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                            "isProfileUpdated",
+                            false
+                        )
                         navController.popBackStack()
 
                     }) {

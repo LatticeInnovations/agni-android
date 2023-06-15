@@ -3,27 +3,18 @@ package com.latticeonfhir.android.ui.patienteditscreen
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
-import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.Identifier
 import javax.inject.Inject
 
 @HiltViewModel
 class EditPatientViewModel @Inject constructor(
     private val patientRepository: PatientRepository
-): BaseViewModel() {
+) : BaseViewModel() {
 
 
     var isLaunched by mutableStateOf(false)
@@ -48,10 +39,7 @@ class EditPatientViewModel @Inject constructor(
     var identifier = mutableListOf<PatientIdentifier>()
 
     var homeAddress by mutableStateOf(Address())
-    var patient = mutableStateOf<PatientResponse?>(null)
     var patientResponse by mutableStateOf<PatientResponse?>(null)
-
-
 
     internal suspend fun getPatientData(id: String): PatientResponse {
         return patientRepository.getPatientById(id)[0]

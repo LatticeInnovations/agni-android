@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
-import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.CustomFilterChip
@@ -55,7 +54,7 @@ fun EditBasicInformation(
                     viewModel.dobAgeSelector = "dob"
                     val (day, month, year) = viewModel.splitDOB(birthDate)
                     viewModel.dobDay = day.toString()
-                    viewModel.dobMonth = month.toString()
+                    viewModel.dobMonth = month
                     viewModel.dobYear = year.toString()
                 } else if (viewModel.ageRegex.matches(birthDate)) {
                     val (day, month, year) = viewModel.splitAge(birthDate.toPatientDate())
@@ -103,6 +102,10 @@ fun EditBasicInformation(
                 },
                 navigationIcon = {
                     IconButton(onClick = {
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                            "isProfileUpdated",
+                            false
+                        )
                         navController.popBackStack()
 
                     }) {
@@ -263,7 +266,10 @@ fun EditBasicInformation(
                                 gender = viewModel.gender
                             )
                         )
-                        navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated",true)
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                            "isProfileUpdated",
+                            true
+                        )
                         navController.popBackStack()
 
 

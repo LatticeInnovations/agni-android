@@ -66,7 +66,7 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
                 actions = {
                     IconButton(onClick = {
 
-                        navController.currentBackStackEntry?.savedStateHandle?.set(key = "patient_details", value = viewModel.patient)
+                        navController.currentBackStackEntry?.savedStateHandle?.set(key = "patient_detailsID", value = viewModel.patient?.id)
                         navController.navigate(Screen.EditPatient.route)
                     }) {
                         Icon(
