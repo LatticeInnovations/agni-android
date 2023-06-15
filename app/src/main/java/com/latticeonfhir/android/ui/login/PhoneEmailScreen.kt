@@ -181,13 +181,11 @@ fun navigate(viewModel: PhoneEmailViewModel, navController: NavController) {
     viewModel.login {
         if (it) {
             CoroutineScope(Dispatchers.Main).launch {
-                withContext(Dispatchers.Main) {
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        "userInput",
-                        viewModel.inputValue
-                    )
-                    navController.navigate(Screen.OtpScreen.route)
-                }
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "userInput",
+                    viewModel.inputValue
+                )
+                navController.navigate(Screen.OtpScreen.route)
             }
         }
     }
