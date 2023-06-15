@@ -81,15 +81,6 @@ jobs:
 #          script: ./gradlew connectedCheck --stacktrace
 
 ### Commented Deployment to Playstore
-      - name: Retrieve Version Code
-        run: |
-          echo "VERSION_CODE=$(${{github.workspace}}/gradlew -q printVersionCode)" >> $GITHUB_OUTPUT
-        id: android_version_code
-
-      - name: Save Version Code in Env
-        run: |
-          echo "version_code=${{steps.android_version_code.outputs.VERSION_CODE}}" >> $GITHUB_ENV
-
       - name: Retrieve Version Name
         run: |
           echo "VERSION_NAME=$(${{github.workspace}}/gradlew -q printVersionName)" >> $GITHUB_OUTPUT
@@ -99,12 +90,12 @@ jobs:
         run: |
           echo "version_name=${{steps.android_version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
 
-      - name: Bump version code
-        uses: chkfung/android-version-actions@v1.1
-        with:
-          gradlePath: app/build.gradle
-          versionCode: ${{env.version_code}} + 1
-          versionName: ${{env.version_name}}
+#      - name: Bump version code
+#        uses: chkfung/android-version-actions@v1.1
+#        with:
+#          gradlePath: app/build.gradle
+#          versionCode: ${{env.version_code}} + 1
+#          versionName: ${{env.version_name}}
 
       - name: Build Release AAB with Gradle
         run: ./gradlew clean bundleRelease
