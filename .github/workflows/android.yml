@@ -80,11 +80,11 @@ jobs:
 #          profile: Nexus 6
 #          script: ./gradlew connectedCheck --stacktrace
 ### Commented Deployment to Playstore
-      - name: Bump version code
-        uses: chkfung/android-version-actions@v1.1
-        with:
-          gradlePath: app/build.gradle
-          versionCode: ${{github.run_number}}
+#      - name: Bump version code
+#        uses: chkfung/android-version-actions@v1.1
+#        with:
+#          gradlePath: app/build.gradle
+#          versionCode: ${{github.run_number}}
 
       - name: Build Release AAB with Gradle
         run: ./gradlew clean bundleRelease
