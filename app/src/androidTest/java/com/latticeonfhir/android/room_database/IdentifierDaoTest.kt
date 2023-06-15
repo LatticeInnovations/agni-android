@@ -4,7 +4,9 @@ import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEn
 import com.latticeonfhir.android.utils.converters.responseconverter.toIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
 
@@ -28,8 +30,9 @@ class IdentifierDaoTest : FhirAppDatabaseTest() {
         Assert.assertNotEquals("Identifier entity not inserted.", -1, result)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun deletedIdentifiersTest() = runBlocking {
+    fun deletedIdentifiersTest() = runTest {
         patientDao.insertPatientData(patientResponse.toPatientEntity())
         val deletedIdentifier = IdentifierEntity(
             identifierType = "https//nsvp.com",
