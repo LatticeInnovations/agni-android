@@ -103,7 +103,7 @@ jobs:
         uses: chkfung/android-version-actions@v1.1
         with:
           gradlePath: app/build.gradle
-          versionCode: ${{env.version_code + 1}}
+          versionCode: ${{env.version_code}} + 1
           versionName: ${{env.version_name}}
 
       - name: Build Release AAB with Gradle
