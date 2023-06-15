@@ -231,3 +231,7 @@ dependencies {
 kapt {
     correctErrorTypes true
 }
+
+task printVersionName {
+    println "${android.defaultConfig.versionCode} (${android.defaultConfig.versionName}) "
+}

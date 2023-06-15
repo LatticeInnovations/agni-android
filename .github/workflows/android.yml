@@ -79,12 +79,22 @@ jobs:
 #          arch: x86_64
 #          profile: Nexus 6
 #          script: ./gradlew connectedCheck --stacktrace
+
 ### Commented Deployment to Playstore
 #      - name: Bump version code
 #        uses: chkfung/android-version-actions@v1.1
 #        with:
 #          gradlePath: app/build.gradle
 #          versionCode: ${{github.run_number}}
+
+      - name: Retrieve Version
+        run: |
+          echo "::set-output name=VERSION_NAME::$(${{github.workspace}}/gradlew -q printVersionName)"
+        id: android_version
+
+      - name: Get version
+        run: |
+          echo "version_name=${{steps.android_version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
 
       - name: Build Release AAB with Gradle
         run: ./gradlew clean bundleRelease
@@ -105,7 +115,7 @@ jobs:
       - name: Upload Android Release to Play Store
         uses: r0adkll/upload-google-play@v1
         with:
-          releaseName: AGNI Version 1.1.2
+          releaseName: "${{env.version_name}}"
           serviceAccountJson: service_account.json
           packageName: com.latticeonfhir.android
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
