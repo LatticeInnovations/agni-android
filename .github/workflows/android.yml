@@ -119,7 +119,7 @@ jobs:
           serviceAccountJson: service_account.json
           packageName: com.latticeonfhir.android
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
-          track: internal
+          track: internalsharing
           inAppUpdatePriority: 5
           mappingFile: app/build/outputs/mapping/release/mapping.txt
           debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
