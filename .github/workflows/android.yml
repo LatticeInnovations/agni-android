@@ -69,7 +69,6 @@ jobs:
 #          name: jacoco-report
 #          path: app/build/reports/coverage/test/debug/
 
-
 #TODO(@mansikalraa,@naveen -> Find Solution to run Instrumentation test on actions)
 #      - name: Instrumentation Tests
 #        uses: reactivecircus/android-emulator-runner@v2
