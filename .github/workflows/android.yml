@@ -66,7 +66,6 @@ jobs:
           name: jacoco-report
           path: app/build/reports/coverage/test/debug/
 
-
 #TODO(@mansikalraa,@naveen -> Find Solution to run Instrumentation test on actions)
 #      - name: Instrumentation Tests
 #        uses: reactivecircus/android-emulator-runner@v2
@@ -82,7 +81,7 @@ jobs:
 #        with:
 #          gradlePath: app/build.gradle
 #          versionCode: ${{github.run_number}}
-#
+
 #      - name: Build Release AAB with Gradle
 #        run: ./gradlew clean bundleRelease
 #
@@ -102,11 +101,11 @@ jobs:
 #      - name: Upload Android Release to Play Store
 #        uses: r0adkll/upload-google-play@v1
 #        with:
-#          releaseName: AGNI Version 1.0.6
+#          releaseName: AGNI Version 1.1.2
 #          serviceAccountJson: service_account.json
 #          packageName: com.latticeonfhir.android
 #          releaseFiles: app/build/outputs/bundle/release/app-release.aab
-#          track: internalsharing
+#          track: internal
 #          inAppUpdatePriority: 5
 #          mappingFile: app/build/outputs/mapping/release/mapping.txt
 #          debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
