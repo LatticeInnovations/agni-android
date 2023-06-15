@@ -178,7 +178,7 @@ class EditBasicInformationViewModel @Inject constructor(
 
     fun updateBasicInfo(patientResponse: PatientResponse) {
 
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.IO) {
 
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (response > 0) {
