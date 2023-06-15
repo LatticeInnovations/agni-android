@@ -22,6 +22,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import junit.framework.TestCase
 import org.junit.After
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.*
 
@@ -130,6 +131,10 @@ open class FhirAppDatabaseTest: TestCase() {
         prescriptionDao = fhirAppDatabase.getPrescriptionDao()
     }
 
+    @Test
+    fun databaseBuilderTest(){
+        assertEquals(true, this::fhirAppDatabase.isInitialized)
+    }
 
     @After
     public override fun tearDown() {
