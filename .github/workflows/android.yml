@@ -6,7 +6,7 @@ name: Android CI
       - main
   push:
     branches:
-      - dev
+      - githubActions
 
 jobs:
   build:
