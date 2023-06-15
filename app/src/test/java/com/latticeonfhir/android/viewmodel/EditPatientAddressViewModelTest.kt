@@ -13,6 +13,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.Assert.*
 
@@ -22,6 +23,7 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class EditPatientAddressViewModelTest: BaseClass() {
 
     lateinit var viewModel: EditPatientAddressViewModel
@@ -184,7 +186,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
     }
 
     @Test
-    fun checkUpdateBasicInfo(): Unit = runBlocking {
+    fun checkUpdateBasicInfo(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "999999"
         viewModel.homeAddress.addressLine1 = "Address Line 1"
@@ -206,7 +208,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoPinCodeIsEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoPinCodeIsEmpty(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = ""
         viewModel.homeAddress.addressLine1 = "Address Line 1"
@@ -228,7 +230,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoPinCodeNotIsEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoPinCodeNotIsEmpty(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "4534434"
         viewModel.homeAddress.addressLine1 = "Address Line 1"
@@ -250,7 +252,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoPinCodeTempNotIsEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoPinCodeTempNotIsEmpty(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "4534434"
         viewModel.homeAddress.addressLine1 = "Address Line 1"
@@ -272,7 +274,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoAddressLine1IsEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoAddressLine1IsEmpty(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "4534434"
         viewModel.homeAddress.addressLine1 = ""
@@ -294,7 +296,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoAddressLine1NotIsEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoAddressLine1NotIsEmpty(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "4534434"
         viewModel.homeAddress.addressLine1 = "443534"
@@ -316,7 +318,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoAddressLine1TempNotIsEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoAddressLine1TempNotIsEmpty(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "4534434"
         viewModel.homeAddress.addressLine1 = ""
@@ -338,7 +340,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoAddressLine2IsEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoAddressLine2IsEmpty(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "4534434"
         viewModel.homeAddress.addressLine1 = "dsf"
@@ -360,7 +362,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoAddressLine2NotIsEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoAddressLine2NotIsEmpty(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "4534434"
         viewModel.homeAddress.addressLine1 = "dfg"
@@ -382,7 +384,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoAddressLine2TempNotIsEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoAddressLine2TempNotIsEmpty(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "4534434"
         viewModel.homeAddress.addressLine1 = ""
@@ -404,7 +406,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoStateIsEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoStateIsEmpty(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "4534434"
         viewModel.homeAddress.addressLine1 = "dsf"
@@ -426,7 +428,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoStateNotIsEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoStateNotIsEmpty(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "4534434"
         viewModel.homeAddress.addressLine1 = "dfg"
@@ -448,7 +450,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoStateTempTempNotIsEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoStateTempTempNotIsEmpty(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "4534434"
         viewModel.homeAddress.addressLine1 = ""
@@ -470,7 +472,7 @@ class EditPatientAddressViewModelTest: BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoFhirIdNull(): Unit = runBlocking {
+    fun checkUpdateBasicInfoFhirIdNull(): Unit = runTest {
         Mockito.`when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
         viewModel.homeAddress.pincode = "4534434"
         viewModel.homeAddress.addressLine1 = ""

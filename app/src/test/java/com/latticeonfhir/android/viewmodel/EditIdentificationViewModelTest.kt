@@ -10,9 +10,11 @@ import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.ui.patienteditscreen.identification.EditIdentificationViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.Assert.*
 
@@ -22,6 +24,7 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class EditIdentificationViewModelTest : BaseClass() {
 
     lateinit var viewModel: EditIdentificationViewModel
@@ -194,7 +197,7 @@ class EditIdentificationViewModelTest : BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoIsPassportIdEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoIsPassportIdEmpty(): Unit = runTest {
         viewModel.isPassportSelected = true
         viewModel.isVoterSelected = true
         viewModel.isPatientSelected = true
@@ -216,7 +219,7 @@ class EditIdentificationViewModelTest : BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoIsPassportIdNotEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoIsPassportIdNotEmpty(): Unit = runTest {
         viewModel.isPassportSelected = true
         viewModel.isVoterSelected = true
         viewModel.isPatientSelected = true
@@ -238,7 +241,7 @@ class EditIdentificationViewModelTest : BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoIsVoterIdEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoIsVoterIdEmpty(): Unit = runTest {
         viewModel.isPassportSelected = true
         viewModel.isVoterSelected = true
         viewModel.isPatientSelected = true
@@ -260,7 +263,7 @@ class EditIdentificationViewModelTest : BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoIsVoterIdNotEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoIsVoterIdNotEmpty(): Unit = runTest {
         viewModel.isPassportSelected = true
         viewModel.isVoterSelected = true
         viewModel.isPatientSelected = true
@@ -282,7 +285,7 @@ class EditIdentificationViewModelTest : BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoIsPatientIdEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoIsPatientIdEmpty(): Unit = runTest {
         viewModel.isPassportSelected = true
         viewModel.isVoterSelected = true
         viewModel.isPatientSelected = true
@@ -304,7 +307,7 @@ class EditIdentificationViewModelTest : BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoIsPatientTemIdEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoIsPatientTemIdEmpty(): Unit = runTest {
         viewModel.isPassportSelected = true
         viewModel.isVoterSelected = true
         viewModel.isPatientSelected = true
@@ -326,7 +329,7 @@ class EditIdentificationViewModelTest : BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoIsPatientIdNotEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoIsPatientIdNotEmpty(): Unit = runTest {
         viewModel.isPassportSelected = true
         viewModel.isVoterSelected = true
         viewModel.isPatientSelected = true
@@ -347,7 +350,7 @@ class EditIdentificationViewModelTest : BaseClass() {
             viewModel.updateBasicInfo(patientResponse = patientResponse)
         }
     } @Test
-    fun checkUpdateBasicInfoIsPatientIdTemNotEmpty(): Unit = runBlocking {
+    fun checkUpdateBasicInfoIsPatientIdTemNotEmpty(): Unit = runTest {
         viewModel.isPassportSelected = true
         viewModel.isVoterSelected = true
         viewModel.isPatientSelected = true
@@ -369,7 +372,7 @@ class EditIdentificationViewModelTest : BaseClass() {
         }
     }
     @Test
-    fun checkUpdateBasicInfoIsFhirIdNull(): Unit = runBlocking {
+    fun checkUpdateBasicInfoIsFhirIdNull(): Unit = runTest {
         viewModel.isPassportSelected = true
         viewModel.isVoterSelected = true
         viewModel.isPatientSelected = true
