@@ -233,5 +233,13 @@ kapt {
 }
 
 task printVersionName {
-    println "${android.defaultConfig.versionCode} (${android.defaultConfig.versionName}) "
+    doLast {
+        println "${android.defaultConfig.versionCode} (${android.defaultConfig.versionName}) "
+    }
+}
+
+task printVersionCode {
+    doLast {
+        println android.defaultConfig.versionCode
+    }
 }
