@@ -44,6 +44,7 @@ class EditPatientViewModel @Inject constructor(
     var passportId by mutableStateOf("")
     var voterId by mutableStateOf("")
     var patientId by mutableStateOf("")
+    var isProfileUpdated by mutableStateOf(false)
     var identifier = mutableListOf<PatientIdentifier>()
 
     var homeAddress by mutableStateOf(Address())

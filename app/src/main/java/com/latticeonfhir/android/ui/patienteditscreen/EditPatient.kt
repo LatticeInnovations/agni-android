@@ -19,13 +19,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
-import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.*
 
@@ -39,11 +40,15 @@ fun EditPatient(
         navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
             key = "patient_details"
         )
+    viewModel.isProfileUpdated =
+        navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("isProfileUpdated") == true
 
 
     LaunchedEffect(true) {
         viewModel.id = viewModel.patient.value!!.id
-        viewModel.patientResponse = viewModel.getPatientData(viewModel.id)
+        withContext(Dispatchers.IO) {
+            viewModel.patientResponse = viewModel.getPatientData(viewModel.id)
+        }
         viewModel.patient.value = viewModel.patientResponse
 
         viewModel.patient.value?.run {
@@ -54,10 +59,10 @@ fun EditPatient(
             viewModel.phoneNumber = mobileNumber.toString()
             viewModel.dob = birthDate
             viewModel.gender = gender
-            viewModel.identifier= identifier.toMutableList()
-            viewModel.passportId=""
-            viewModel.patientId=""
-            viewModel.voterId=""
+            viewModel.identifier = identifier.toMutableList()
+            viewModel.passportId = ""
+            viewModel.patientId = ""
+            viewModel.voterId = ""
             viewModel.identifier.forEach { identity ->
                 Timber.tag("identifier").d(identity.identifierNumber)
                 when (identity.identifierType) {
@@ -132,10 +137,10 @@ fun EditPatient(
                     Timber.d("PatientResponse is empty")
                 }
 
-                if (FhirApp.isProfileUpdated) {
+                if (viewModel.isProfileUpdated) {
                     LaunchedEffect(true) {
                         snackBarHostState.showSnackbar("Profile update successfully")
-                        FhirApp.isProfileUpdated = false
+                        viewModel.isProfileUpdated = false
                     }
                 }
             }

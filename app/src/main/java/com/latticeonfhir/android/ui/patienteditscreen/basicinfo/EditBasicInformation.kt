@@ -83,7 +83,6 @@ fun EditBasicInformation(
             viewModel.monthsTemp = viewModel.months
             viewModel.yearsTemp = viewModel.years
             viewModel.genderTemp = viewModel.gender
-            FhirApp.isProfileUpdated = false
 
         }
     }
@@ -264,8 +263,9 @@ fun EditBasicInformation(
                                 gender = viewModel.gender
                             )
                         )
+                        navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated",true)
                         navController.popBackStack()
-                        FhirApp.isProfileUpdated = true
+
 
                     },
                     modifier = Modifier

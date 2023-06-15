@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
-import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.CustomTextField
@@ -91,7 +90,6 @@ fun EditIdentification(
 
             }
             viewModel.isLaunched = true
-            FhirApp.isProfileUpdated = false
 
         }
     }
@@ -287,8 +285,11 @@ fun EditIdentification(
 
 
                         viewModel.updateBasicInfo(patientResponse!!.copy(identifier = viewModel.identifierList))
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                            "isProfileUpdated",
+                            true
+                        )
                         navController.popBackStack()
-                        FhirApp.isProfileUpdated = true
                     },
                     modifier = Modifier
                         .fillMaxWidth(),
