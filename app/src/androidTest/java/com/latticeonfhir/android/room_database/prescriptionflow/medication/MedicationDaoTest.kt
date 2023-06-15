@@ -1,7 +1,7 @@
 package com.latticeonfhir.android.room_database.prescriptionflow.medication
 
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineDosageInstructionsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.room_database.FhirAppDatabaseTest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -45,7 +45,7 @@ class MedicationDaoTest : FhirAppDatabaseTest() {
         medNumeratorVal = 2.00
     )
 
-    private val medicineDosageInstructionsEntity = MedicineDosageInstructionsEntity(
+    private val medicineTimingEntity = MedicineTimingEntity(
         medicalDosage = "Before Lunch",
         medicalDosageId = "BEF_LUN_01"
     )
@@ -86,11 +86,11 @@ class MedicationDaoTest : FhirAppDatabaseTest() {
 
     @Test
     internal fun insertAndFetchMedicineDosage() = runBlocking {
-        val medicineDosageInserted = medicationDao.insertMedicineDosageInstructions(medicineDosageInstructionsEntity)
+        val medicineDosageInserted = medicationDao.insertMedicineDosageInstructions(medicineTimingEntity)
         assertEquals(medicineDosageInserted.size,1)
         assertEquals(medicineDosageInserted[0],1L)
         val medicineDosageInstructionsEntity = medicationDao.getAllMedicineDosageInstructions()
         assertEquals(medicineDosageInstructionsEntity.size,1)
-        assertEquals(medicineDosageInstructionsEntity[0].medicalDosageId,this@MedicationDaoTest.medicineDosageInstructionsEntity.medicalDosageId)
+        assertEquals(medicineDosageInstructionsEntity[0].medicalDosageId,this@MedicationDaoTest.medicineTimingEntity.medicalDosageId)
     }
 }

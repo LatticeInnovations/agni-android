@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2808cddcf3023774752f6fca512b6024",
+    "identityHash": "bc6276971fa93352a877fbaa2a831dcf",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -586,15 +586,9 @@
         ]
       },
       {
-        "tableName": "MedicineDosageInstructionsEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`medicalDosage` TEXT NOT NULL, `medicalDosageId` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "tableName": "MedicineTimingEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`medicalDosageId` TEXT NOT NULL, `medicalDosage` TEXT NOT NULL, PRIMARY KEY(`medicalDosageId`))",
         "fields": [
-          {
-            "fieldPath": "medicalDosage",
-            "columnName": "medicalDosage",
-            "affinity": "TEXT",
-            "notNull": true
-          },
           {
             "fieldPath": "medicalDosageId",
             "columnName": "medicalDosageId",
@@ -602,16 +596,16 @@
             "notNull": true
           },
           {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
+            "fieldPath": "medicalDosage",
+            "columnName": "medicalDosage",
+            "affinity": "TEXT",
             "notNull": true
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
-            "id"
+            "medicalDosageId"
           ]
         },
         "indices": [],
@@ -630,7 +624,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2808cddcf3023774752f6fca512b6024')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bc6276971fa93352a877fbaa2a831dcf')"
     ]
   }
 }
