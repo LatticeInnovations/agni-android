@@ -40,7 +40,6 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
         viewModel.patient= viewModel.getPatientData(viewModel.patient!!.id)
 
         viewModel.isLaunched = true
-        FhirApp.isProfileUpdated=false
     }
     Scaffold(
         topBar = {

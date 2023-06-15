@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
-import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.AddressComposable
@@ -54,7 +53,6 @@ fun EditPatientAddress(
             }
         }
         viewModel.isLaunched = true
-        FhirApp.isProfileUpdated = false
 
     }
 
@@ -177,8 +175,8 @@ fun EditPatientAddress(
                             )
                         )
 
+                        navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated",true)
                         navController.popBackStack()
-                        FhirApp.isProfileUpdated = true
 
 
                     },

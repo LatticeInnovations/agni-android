@@ -31,7 +31,5 @@ class FhirApp : Application() {
         }
 
         lateinit var syncRepository: SyncRepository
-
-        var isProfileUpdated = false
     }
 }
