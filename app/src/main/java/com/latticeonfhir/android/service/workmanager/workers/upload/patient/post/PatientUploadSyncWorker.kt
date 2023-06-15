@@ -15,6 +15,8 @@ import kotlinx.coroutines.delay
 abstract class PatientUploadSyncWorker(context: Context, workerParameters: WorkerParameters): SyncWorker(context,workerParameters) {
 
     override suspend fun doWork(): Result {
+        setProgress(workDataOf(PatientUploadProgress to 0))
+        delay(1000L)
         return when(val response = getSyncRepository().sendPersonPostData()) {
             is ApiContinueResponse -> Result.success()
             is ApiEndResponse -> Result.retry()
@@ -26,7 +28,7 @@ abstract class PatientUploadSyncWorker(context: Context, workerParameters: Worke
             }
             is ApiEmptyResponse -> {
                 setProgress(workDataOf(PatientUploadProgress to 100))
-                delay(10L)
+                delay(1000L)
                 Result.success()
             }
             is ApiNullResponse -> Result.failure()
