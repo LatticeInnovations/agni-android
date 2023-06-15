@@ -88,13 +88,18 @@ fun SearchPrescription(viewModel: PrescriptionViewModel) {
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    viewModel.isSearching = false
-                    viewModel.isSearchResult = true
-                    viewModel.insertRecentSearch(viewModel.searchQuery.trim()){}
-                    viewModel.getActiveIngredientSearchList(viewModel.searchQuery.trim()) {
-                        viewModel.activeIngredientSearchList = it
+                    if (viewModel.searchQuery.isNotBlank()) {
+                        viewModel.isSearching = false
+                        viewModel.isSearchResult = true
+                        viewModel.insertRecentSearch(viewModel.searchQuery.trim()) {}
+                        viewModel.getActiveIngredientSearchList(viewModel.searchQuery.trim()) {
+                            viewModel.activeIngredientSearchList = it
+                        }
+                        viewModel.searchQuery = ""
+                    } else {
+                        viewModel.isSearching = false
+                        viewModel.searchQuery = ""
                     }
-                    viewModel.searchQuery = ""
                 }
             ),
             singleLine = true
