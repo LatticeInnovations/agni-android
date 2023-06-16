@@ -8,4 +8,5 @@ object ErrorConstants {
     const val UNAUTHORIZED = "Unauthorized"
     const val SOCKET_TIMEOUT_EXCEPTION = "Socket Timeout Exception from server"
     const val IO_EXCEPTION = "IO Exception from server"
+    const val ERROR_MESSAGE = "Error Message"
 }
