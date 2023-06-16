@@ -69,35 +69,34 @@ class SyncRepositoryImpl @Inject constructor(
     private val prescriptionDao: PrescriptionDao
 ) : SyncRepository {
 
-    private val identifierList = mutableListOf<IdentifierEntity>()
+    private var identifierList: MutableList<IdentifierEntity>? = null
+    private var prescriptionsToBeSynced: MutableList<PrescriptionResponse>? = null
+    private var listOfGenericEntity: MutableList<GenericEntity>? = null
 
     override suspend fun getAndInsertListPatientData(offset: Int): ResponseMapper<List<PatientResponse>> {
         val map = mutableMapOf<String, String>()
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
         map[SORT] = "-$ID"
-        if (preferenceRepository.getLastSyncPatient() != 0L) map[LAST_UPDATED] =
-            String.format(
-                GREATER_THAN_BUILDER,
-                preferenceRepository.getLastSyncPatient().toTimeStampDate()
-            )
+        if (preferenceRepository.getLastSyncPatient() != 0L) map[LAST_UPDATED] = String.format(
+            GREATER_THAN_BUILDER, preferenceRepository.getLastSyncPatient().toTimeStampDate()
+        )
 
         ApiResponseConverter.convert(
             patientApiService.getListData(
-                PATIENT,
-                map
-            ),
-            true
+                PATIENT, map
+            ), true
         ).run {
             return when (this) {
                 is ApiContinueResponse -> {
                     //Insert Patient Data
                     patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
 
-                    val listOfGenericEntity = mutableListOf<GenericEntity>()
+                    listOfGenericEntity = mutableListOf()
+                    identifierList = mutableListOf()
 
                     body.map { patientResponse ->
-                        listOfGenericEntity.add(
+                        listOfGenericEntity!!.add(
                             GenericEntity(
                                 id = UUID.randomUUID().toString(),
                                 patientId = patientResponse.id,
@@ -107,17 +106,20 @@ class SyncRepositoryImpl @Inject constructor(
                             )
                         )
                         patientResponse.toListOfIdentifierEntity().let { listOfIdentifiers ->
-                            identifierList.addAll(listOfIdentifiers)
+                            identifierList!!.addAll(listOfIdentifiers)
                         }
                     }
 
                     genericDao.insertGenericEntity(
-                        *listOfGenericEntity.toTypedArray()
+                        *listOfGenericEntity!!.toTypedArray()
                     )
 
                     //Insert Patient Data
-                    patientDao.insertIdentifiers(*identifierList.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
-                        .toTypedArray())
+                    patientDao.insertIdentifiers(*identifierList!!.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }.toTypedArray())
+
+                    //Clear Lists
+                    resetGenericEntityList()
+                    resetIdentifierList()
 
                     //Call for next batch data
                     getAndInsertListPatientData(offset + COUNT_VALUE)
@@ -130,10 +132,11 @@ class SyncRepositoryImpl @Inject constructor(
                     //Insert Patient Data
                     patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
 
-                    val listOfGenericEntity = mutableListOf<GenericEntity>()
+                    listOfGenericEntity = mutableListOf()
+                    identifierList = mutableListOf()
 
                     body.map { patientResponse ->
-                        listOfGenericEntity.add(
+                        listOfGenericEntity!!.add(
                             GenericEntity(
                                 id = UUID.randomUUID().toString(),
                                 patientId = patientResponse.id,
@@ -143,17 +146,21 @@ class SyncRepositoryImpl @Inject constructor(
                             )
                         )
                         patientResponse.toListOfIdentifierEntity().let { listOfIdentifiers ->
-                            identifierList.addAll(listOfIdentifiers)
+                            identifierList!!.addAll(listOfIdentifiers)
                         }
                     }
 
                     genericDao.insertGenericEntity(
-                        *listOfGenericEntity.toTypedArray()
+                        *listOfGenericEntity!!.toTypedArray()
                     )
 
                     //Insert Patient Identifiers
-                    patientDao.insertIdentifiers(*identifierList.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
+                    patientDao.insertIdentifiers(*identifierList!!.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
                         .toTypedArray())
+
+                    //Clear Lists
+                    resetGenericEntityList()
+                    resetIdentifierList()
 
                     this
                 }
@@ -166,8 +173,7 @@ class SyncRepositoryImpl @Inject constructor(
     override suspend fun getAndInsertPatientDataById(id: String): ResponseMapper<List<PatientResponse>> {
         ApiResponseConverter.convert(
             patientApiService.getListData(
-                PATIENT,
-                mapOf(Pair(ID, id))
+                PATIENT, mapOf(Pair(ID, id))
             )
         ).run {
             return when (this) {
@@ -175,15 +181,36 @@ class SyncRepositoryImpl @Inject constructor(
                     //Insert Patient Data
                     patientDao.insertPatientData(*body.map { it.toPatientEntity() }.toTypedArray())
 
+                    listOfGenericEntity = mutableListOf()
+                    identifierList = mutableListOf()
+
                     body.map { patientResponse ->
+                        listOfGenericEntity!!.add(
+                            GenericEntity(
+                                id = UUID.randomUUID().toString(),
+                                patientId = patientResponse.id,
+                                payload = patientResponse.fhirId!!,
+                                type = GenericTypeEnum.FHIR_IDS,
+                                syncType = SyncType.POST
+                            )
+                        )
                         patientResponse.toListOfIdentifierEntity().let { listOfIdentifiers ->
-                            identifierList.addAll(listOfIdentifiers)
+                            identifierList!!.addAll(listOfIdentifiers)
                         }
                     }
 
+                    //Insert Generic Entity
+                    genericDao.insertGenericEntity(
+                        *listOfGenericEntity!!.toTypedArray()
+                    )
+
                     //Insert Patient Identifiers
-                    patientDao.insertIdentifiers(*identifierList.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
+                    patientDao.insertIdentifiers(*identifierList!!.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
                         .toTypedArray())
+
+                    //Clear Lists
+                    resetIdentifierList()
+                    resetGenericEntityList()
 
                     this
                 }
@@ -195,9 +222,7 @@ class SyncRepositoryImpl @Inject constructor(
 
     override suspend fun getAndInsertRelation(): ResponseMapper<List<RelatedPersonResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
-            GenericTypeEnum.FHIR_IDS,
-            SyncType.POST,
-            COUNT_VALUE
+            GenericTypeEnum.FHIR_IDS, SyncType.POST, COUNT_VALUE
         ).let { listOfGenericEntity ->
             if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
             else {
@@ -207,8 +232,7 @@ class SyncRepositoryImpl @Inject constructor(
                 map[COUNT] = DEFAULT_MAX_COUNT_VALUE.toString()
                 ApiResponseConverter.convert(
                     patientApiService.getRelationData(
-                        RELATED_PERSON,
-                        map
+                        RELATED_PERSON, map
                     )
                 ).run {
                     when (this) {
@@ -259,31 +283,27 @@ class SyncRepositoryImpl @Inject constructor(
                         Pair(PATIENT_ID, patientFhirId)
                     )
                 )
-            )
-                .run {
-                    when (this) {
-                        is ApiEndResponse -> {
-                            prescriptionDao.insertPrescription(
-                                *body.map { prescriptionResponse ->
-                                    prescriptionResponse.toPrescriptionEntity(
-                                        patientDao
-                                    )
-                                }
-                                    .toTypedArray()
+            ).run {
+                when (this) {
+                    is ApiEndResponse -> {
+                        prescriptionDao.insertPrescription(*body.map { prescriptionResponse ->
+                            prescriptionResponse.toPrescriptionEntity(
+                                patientDao
                             )
-                            val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
-                            body.forEach { prescriptionResponse ->
-                                medicineDirections.addAll(prescriptionResponse.toListOfPrescriptionDirectionsEntity())
-                            }
-                            prescriptionDao.insertPrescriptionMedicines(
-                                *medicineDirections.toTypedArray()
-                            )
+                        }.toTypedArray())
+                        val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
+                        body.forEach { prescriptionResponse ->
+                            medicineDirections.addAll(prescriptionResponse.toListOfPrescriptionDirectionsEntity())
                         }
-
-                        else -> {}
+                        prescriptionDao.insertPrescriptionMedicines(
+                            *medicineDirections.toTypedArray()
+                        )
                     }
-                    this
+
+                    else -> {}
                 }
+                this
+            }
         }
     }
 
@@ -298,8 +318,7 @@ class SyncRepositoryImpl @Inject constructor(
             )
 
         return ApiResponseConverter.convert(
-            prescriptionApiService.getAllMedications(map),
-            true
+            prescriptionApiService.getAllMedications(map), true
         ).run {
             when (this) {
                 is ApiContinueResponse -> {
@@ -351,18 +370,14 @@ class SyncRepositoryImpl @Inject constructor(
 
     override suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
-            genericTypeEnum = GenericTypeEnum.PATIENT,
-            syncType = SyncType.POST
+            genericTypeEnum = GenericTypeEnum.PATIENT, syncType = SyncType.POST
         ).let { listOfGenericEntity ->
             if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
             else ApiResponseConverter.convert(
-                patientApiService.createData(
-                    PATIENT,
-                    listOfGenericEntity.map {
-                        it.payload.fromJson<LinkedTreeMap<*, *>>()
-                            .mapToObject(PatientResponse::class.java) as Any
-                    }
-                )
+                patientApiService.createData(PATIENT, listOfGenericEntity.map {
+                    it.payload.fromJson<LinkedTreeMap<*, *>>()
+                        .mapToObject(PatientResponse::class.java) as Any
+                })
             ).run {
                 when (this) {
                     is ApiEndResponse -> {
@@ -384,18 +399,14 @@ class SyncRepositoryImpl @Inject constructor(
 
     override suspend fun sendRelatedPersonPostData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
-            genericTypeEnum = GenericTypeEnum.RELATION,
-            syncType = SyncType.POST
+            genericTypeEnum = GenericTypeEnum.RELATION, syncType = SyncType.POST
         ).let { listOfRelatedEntity ->
             if (listOfRelatedEntity.isEmpty()) ApiEmptyResponse()
             else ApiResponseConverter.convert(
-                patientApiService.createData(
-                    RELATED_PERSON,
-                    listOfRelatedEntity.map {
-                        it.payload.fromJson<LinkedTreeMap<*, *>>()
-                            .mapToObject(RelatedPersonResponse::class.java) as Any
-                    }
-                )
+                patientApiService.createData(RELATED_PERSON, listOfRelatedEntity.map {
+                    it.payload.fromJson<LinkedTreeMap<*, *>>()
+                        .mapToObject(RelatedPersonResponse::class.java) as Any
+                })
             ).run {
                 when (this) {
                     is ApiEndResponse -> {
@@ -413,18 +424,22 @@ class SyncRepositoryImpl @Inject constructor(
 
     override suspend fun sendPrescriptionPostData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
-            genericTypeEnum = GenericTypeEnum.PRESCRIPTION,
-            syncType = SyncType.POST
+            genericTypeEnum = GenericTypeEnum.PRESCRIPTION, syncType = SyncType.POST
         ).let { listOfGenericEntity ->
             if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
             else {
+                prescriptionsToBeSynced = mutableListOf()
+                listOfGenericEntity.forEach { genericEntity ->
+                    genericEntity.payload.fromJson<List<LinkedTreeMap<*, *>>>().forEach { prescription ->
+                        prescriptionsToBeSynced!!.add(
+                            prescription.mapToObject(PrescriptionResponse::class.java)!!
+                        )
+                    }
+                }
                 ApiResponseConverter.convert(
                     prescriptionApiService.postPrescriptionRelatedData(
                         MEDICATION_REQUEST,
-                        listOfGenericEntity.map {
-                            it.payload.fromJson<LinkedTreeMap<*, *>>()
-                                .mapToObject(PrescriptionResponse::class.java) as Any
-                        }
+                        prescriptionsToBeSynced!!
                     )
                 ).run {
                     when (this) {
@@ -434,13 +449,13 @@ class SyncRepositoryImpl @Inject constructor(
                             body.forEach { createResponse ->
                                 if (createResponse.error == null) {
                                     prescriptionDao.updatePrescriptionFhirId(
-                                        createResponse.id!!,
-                                        createResponse.fhirId!!
+                                        createResponse.id!!, createResponse.fhirId!!
                                     )
                                 } else {
                                     idsToDelete.remove(createResponse.id)
                                 }
                             }
+                            resetPrescriptionsToBeSyncedList()
                             genericDao.deleteSyncPayload(idsToDelete.toList()).let { deletedRows ->
                                 if (deletedRows > 0) sendPrescriptionPostData() else this
                             }
@@ -455,16 +470,14 @@ class SyncRepositoryImpl @Inject constructor(
 
     override suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
-            genericTypeEnum = GenericTypeEnum.PATIENT,
-            syncType = SyncType.PATCH
+            genericTypeEnum = GenericTypeEnum.PATIENT, syncType = SyncType.PATCH
         ).let { listOfGenericEntity ->
             if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
             else {
                 ApiResponseConverter.convert(
                     patientApiService.patchListOfChanges(
                         PATIENT,
-                        listOfGenericEntity.map { it.payload.fromJson() }
-                    )
+                        listOfGenericEntity.map { it.payload.fromJson() })
                 ).run {
                     when (this) {
                         is ApiContinueResponse -> {
@@ -488,34 +501,46 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     override suspend fun sendRelatedPersonPatchData(): ResponseMapper<List<CreateResponse>> {
-        return genericDao.getSameTypeGenericEntityPayload(GenericTypeEnum.RELATION, SyncType.PATCH)
-            .let { lisOfGenericEntity ->
-                if (lisOfGenericEntity.isEmpty()) ApiEmptyResponse()
-                else {
-                    ApiResponseConverter.convert(
-                        patientApiService.patchListOfChanges(
-                            RELATED_PERSON,
-                            lisOfGenericEntity.map { it.payload.fromJson() }
-                        )
-                    ).run {
-                        when (this) {
-                            is ApiContinueResponse -> {
-                                genericDao.deleteSyncPayload(lisOfGenericEntity.toListOfId()).also {
-                                    if (it > 0) sendRelatedPersonPatchData()
-                                }
+        return genericDao.getSameTypeGenericEntityPayload(
+            GenericTypeEnum.RELATION, SyncType.PATCH
+        ).let { lisOfGenericEntity ->
+            if (lisOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    patientApiService.patchListOfChanges(
+                        RELATED_PERSON,
+                        lisOfGenericEntity.map { it.payload.fromJson() })
+                ).run {
+                    when (this) {
+                        is ApiContinueResponse -> {
+                            genericDao.deleteSyncPayload(lisOfGenericEntity.toListOfId()).also {
+                                if (it > 0) sendRelatedPersonPatchData()
                             }
-
-                            is ApiEndResponse -> {
-                                genericDao.deleteSyncPayload(lisOfGenericEntity.toListOfId()).also {
-                                    if (it > 0) sendRelatedPersonPatchData()
-                                }
-                            }
-
-                            else -> {}
                         }
-                        this
+
+                        is ApiEndResponse -> {
+                            genericDao.deleteSyncPayload(lisOfGenericEntity.toListOfId()).also {
+                                if (it > 0) sendRelatedPersonPatchData()
+                            }
+                        }
+
+                        else -> {}
                     }
+                    this
                 }
             }
+        }
+    }
+
+    private fun resetIdentifierList() {
+        identifierList = null
+    }
+
+    private fun resetGenericEntityList() {
+        listOfGenericEntity = null
+    }
+
+    private fun resetPrescriptionsToBeSyncedList() {
+        prescriptionsToBeSynced = null
     }
 }
