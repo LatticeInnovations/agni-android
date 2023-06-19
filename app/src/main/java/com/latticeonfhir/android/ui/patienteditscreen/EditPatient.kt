@@ -327,7 +327,7 @@ fun Heading(
             )
             Spacer(modifier = Modifier.width(5.dp))
             Text(
-                text = context.getString(R.string.edit_btn),
+                text = context.getString(R.string.edit),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
