@@ -25,6 +25,7 @@
     <string name="frequency">Frequency</string>
     <string name="timing_optional">Timing (optional)</string>
     <string name="duration_days">Duration (days) *</string>
+    <string name="duration_error_msg">Max. limit is 180 days</string>
     <string name="quantity_prescribed">Quantity prescribed</string>
     <string name="notes_optional">Notes (optional)</string>
     <string name="match_found">%s matches found</string>
