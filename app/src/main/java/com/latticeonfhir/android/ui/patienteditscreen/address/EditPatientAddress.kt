@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.patienteditscreen.address
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -54,6 +55,10 @@ fun EditPatientAddress(
         viewModel.isLaunched = true
 
     }
+    BackHandler(enabled = true) {
+        navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated", false)
+        navController.popBackStack()
+    }
 
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -71,7 +76,10 @@ fun EditPatientAddress(
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated",false)
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                            "isProfileUpdated",
+                            false
+                        )
                         navController.popBackStack()
 
                     }) {
@@ -175,7 +183,10 @@ fun EditPatientAddress(
                             )
                         )
 
-                        navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated",true)
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                            "isProfileUpdated",
+                            true
+                        )
                         navController.popBackStack()
 
 

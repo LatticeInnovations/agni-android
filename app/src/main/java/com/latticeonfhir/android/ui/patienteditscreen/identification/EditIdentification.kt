@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.patienteditscreen.identification
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -88,7 +89,10 @@ fun EditIdentification(
         }
     }
 
-
+    BackHandler(enabled = true) {
+        navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated", false)
+        navController.popBackStack()
+    }
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
