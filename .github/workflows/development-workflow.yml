@@ -3,7 +3,7 @@ name: Android CI
 "on":
   pull_request:
     branches:
-      - main
+      - development
 
 jobs:
   build:
@@ -75,37 +75,3 @@ jobs:
 #          arch: x86_64
 #          profile: Nexus 6
 #          script: ./gradlew connectedCheck --stacktrace
-### Commented Deployment to Playstore
-#      - name: Bump version code
-#        uses: chkfung/android-version-actions@v1.1
-#        with:
-#          gradlePath: app/build.gradle
-#          versionCode: ${{github.run_number}}
-
-#      - name: Build Release AAB with Gradle
-#        run: ./gradlew clean bundleRelease
-#
-#      - name: Sign Release AAB
-#        uses: r0adkll/sign-android-release@v1
-#        with:
-#          releaseDirectory: app/build/outputs/bundle/release
-#          signingKeyBase64: "${{ secrets.SIGNING_KEY }}"
-#          alias: "${{ secrets.ALIAS }}"
-#          keyStorePassword: "${{ secrets.KEY_STORE_PASSWORD }}"
-#          keyPassword: "${{ secrets.KEY_PASSWORD }}"
-#
-#      - name: Create service_account.json
-#        id: createServiceAccount
-#        run: echo '${{ secrets.SERVICE_ACCOUNT_JSON }}' > service_account.json
-#
-#      - name: Upload Android Release to Play Store
-#        uses: r0adkll/upload-google-play@v1
-#        with:
-#          releaseName: AGNI Version 1.1.2
-#          serviceAccountJson: service_account.json
-#          packageName: com.latticeonfhir.android
-#          releaseFiles: app/build/outputs/bundle/release/app-release.aab
-#          track: internal
-#          inAppUpdatePriority: 5
-#          mappingFile: app/build/outputs/mapping/release/mapping.txt
-#          debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
