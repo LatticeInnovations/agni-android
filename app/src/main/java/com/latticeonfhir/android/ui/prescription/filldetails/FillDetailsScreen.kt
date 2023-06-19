@@ -80,9 +80,9 @@ fun FillDetailsScreen(
                 prescriptionViewModel.medicationToEdit!!.medication.qtyPerDose.toString()
             viewModel.frequency =
                 prescriptionViewModel.medicationToEdit!!.medication.frequency.toString()
-            viewModel.notes = prescriptionViewModel.medicationToEdit!!.medication.note.toString()
+            viewModel.notes = prescriptionViewModel.medicationToEdit!!.medication.note?:""
             viewModel.medFhirId = prescriptionViewModel.medicationToEdit!!.medication.medFhirId
-            viewModel.timing = prescriptionViewModel.medicationToEdit!!.medication.timing.toString()
+            viewModel.timing = prescriptionViewModel.medicationToEdit!!.medication.timing?:""
             viewModel.duration =
                 prescriptionViewModel.medicationToEdit!!.medication.duration.toString()
         }
