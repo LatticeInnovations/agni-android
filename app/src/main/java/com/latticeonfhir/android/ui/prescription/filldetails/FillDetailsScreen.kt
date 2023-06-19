@@ -80,9 +80,9 @@ fun FillDetailsScreen(
                 prescriptionViewModel.medicationToEdit!!.medication.qtyPerDose.toString()
             viewModel.frequency =
                 prescriptionViewModel.medicationToEdit!!.medication.frequency.toString()
-            viewModel.notes = prescriptionViewModel.medicationToEdit!!.medication.note.toString()
+            viewModel.notes = prescriptionViewModel.medicationToEdit!!.medication.note?:""
             viewModel.medFhirId = prescriptionViewModel.medicationToEdit!!.medication.medFhirId
-            viewModel.timing = prescriptionViewModel.medicationToEdit!!.medication.timing.toString()
+            viewModel.timing = prescriptionViewModel.medicationToEdit!!.medication.timing?:""
             viewModel.duration =
                 prescriptionViewModel.medicationToEdit!!.medication.duration.toString()
         }
@@ -148,7 +148,7 @@ fun FillDetailsScreen(
                             prescriptionViewModel.medicationToEdit = null
                             viewModel.reset()
                         },
-                        enabled = viewModel.quantityPrescribed() != "",
+                        enabled = viewModel.quantityPrescribed().isNotBlank(),
                         modifier = Modifier.testTag("DONE_BTN")
                     ) {
                         Text(text = stringResource(id = R.string.done))
@@ -167,7 +167,9 @@ fun FillDetailsScreen(
                     Column {
                         var formulationExpanded by remember { mutableStateOf(false) }
                         OutlinedTextField(
-                            modifier = Modifier.fillMaxWidth().testTag("ACTIVE_INGREDIENT_FIELD"),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("ACTIVE_INGREDIENT_FIELD"),
                             value = prescriptionViewModel.checkedActiveIngredient.capitalize(Locale.getDefault()),
                             onValueChange = {
                             },
@@ -294,7 +296,8 @@ fun FormulationsForm(
                 mutableStateOf(false)
             }
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .testTag("QUANTITY_PER_DOSE"),
                 value = viewModel.medUnit,
                 onValueChange = {},
@@ -356,7 +359,8 @@ fun FormulationsForm(
                 mutableStateOf(false)
             }
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .testTag("FREQUENCY"),
                 value = stringResource(id = R.string.dose_per_day),
                 onValueChange = {},
@@ -419,7 +423,8 @@ fun FormulationsForm(
                 mutableStateOf(false)
             }
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .testTag("TIMING"),
                 value = viewModel.timing,
                 onValueChange = {},
@@ -474,12 +479,14 @@ fun FormulationsForm(
         Row(modifier = Modifier.fillMaxWidth()) {
             // Duration
             OutlinedTextField(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
                     .testTag("DURATION"),
                 value = viewModel.duration,
                 onValueChange = {
-                    if (it.matches(OnlyNumberRegex.onlyNumbers) && it != "0") viewModel.duration = it
+                    if (it.matches(OnlyNumberRegex.onlyNumbers) && it != "0" && it.length<=3) viewModel.duration = it
                     else if (it.isEmpty()) viewModel.duration = it
+                    viewModel.isDurationInvalid = viewModel.duration.isNotBlank() && viewModel.duration.toInt() > 180
                 },
                 label = {
                     Text(text = stringResource(id = R.string.duration_days))
@@ -487,7 +494,12 @@ fun FormulationsForm(
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number
                 ),
-                singleLine = true
+                singleLine = true,
+                isError = viewModel.isDurationInvalid,
+                supportingText = {
+                    if (viewModel.isDurationInvalid)
+                        Text(text = stringResource(id = R.string.duration_error_msg))
+                }
             )
             Spacer(modifier = Modifier.width(10.dp))
             // Quantity prescribed
@@ -508,7 +520,8 @@ fun FormulationsForm(
         Spacer(modifier = Modifier.height(10.dp))
         // notes
         OutlinedTextField(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .testTag("NOTES"),
             value = viewModel.notes,
             onValueChange = {

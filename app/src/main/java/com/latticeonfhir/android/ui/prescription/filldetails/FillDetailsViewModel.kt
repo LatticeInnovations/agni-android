@@ -29,9 +29,10 @@ class FillDetailsViewModel @Inject constructor(
     var medUnit by mutableStateOf("")
     var medDoseForm by mutableStateOf("")
     var medFhirId by mutableStateOf("")
+    var isDurationInvalid by mutableStateOf(false)
 
     internal fun quantityPrescribed(): String {
-        return if (duration.isBlank()) ""
+        return if (duration.isBlank() || isDurationInvalid) ""
         else (quantityPerDose.toInt() * frequency.toInt() * duration.toInt()).toString()
     }
 
@@ -45,6 +46,7 @@ class FillDetailsViewModel @Inject constructor(
         medFhirId = ""
         medDoseForm = ""
         medUnit = ""
+        isDurationInvalid = false
     }
 
     internal fun getMedicationByActiveIngredient(
