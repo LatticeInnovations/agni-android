@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.patienteditscreen.basicinfo
 
 import android.util.Patterns
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -86,6 +87,10 @@ fun EditBasicInformation(
         }
     }
 
+    BackHandler(enabled = true) {
+        navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated", false)
+        navController.popBackStack()
+    }
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
