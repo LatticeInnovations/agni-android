@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.ui.prescription.quickselect
 
-import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -18,13 +17,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
-import androidx.lifecycle.viewmodel.compose.*
 import java.util.Locale
 
 @Composable
@@ -49,7 +45,21 @@ fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp),
+            .padding(10.dp)
+            .clickable {
+                if (!checkedState.value) {
+                    if (viewModel.selectedActiveIngredientsList.size<10) {
+                        viewModel.checkedActiveIngredient = activeIngredient
+                    }
+                } else {
+                    viewModel.selectedActiveIngredientsList = viewModel.selectedActiveIngredientsList - listOf(activeIngredient).toSet()
+                    viewModel.medicationsResponseWithMedicationList.forEach {  medication ->
+                        if (medication.activeIngredient == activeIngredient) {
+                            viewModel.medicationsResponseWithMedicationList = viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
+                        }
+                    }
+                }
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
