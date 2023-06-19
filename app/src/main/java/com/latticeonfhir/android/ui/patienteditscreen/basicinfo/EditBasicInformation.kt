@@ -251,43 +251,48 @@ fun EditBasicInformation(
 
                     GenderComposable(viewModel)
                     viewModel.isEditing = viewModel.checkIsEdit()
-                }
-                Button(
-                    onClick = {
-
-                        viewModel.updateBasicInfo(
-                            patientResponse!!.copy(
-                                firstName = viewModel.firstName,
-                                middleName = viewModel.middleName,
-                                lastName = viewModel.lastName,
-                                mobileNumber = viewModel.phoneNumber.toLong(),
-                                email = viewModel.email,
-                                birthDate = if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
-                                else ageToPatientDate(
-                                    viewModel.years.toInt(),
-                                    viewModel.months.toInt(),
-                                    viewModel.days.toInt()
-                                ).toPatientDate(),
-                                gender = viewModel.gender
-                            )
-                        )
-                        navController.previousBackStackEntry?.savedStateHandle?.set(
-                            "isProfileUpdated",
-                            true
-                        )
-                        navController.popBackStack()
-
-
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp)
-                        .testTag("step2"),
-                    enabled = viewModel.basicInfoValidation() && viewModel.checkIsEdit()
-                ) {
-                    Text(text = "Save")
+                    Spacer(modifier = Modifier
+                        .height(100.dp)
+                        .testTag("END_OF_SCREEN"))
                 }
             }
+        }, floatingActionButton = {
+            Button(
+                onClick = {
+
+                    viewModel.updateBasicInfo(
+                        patientResponse!!.copy(
+                            firstName = viewModel.firstName,
+                            middleName = viewModel.middleName,
+                            lastName = viewModel.lastName,
+                            mobileNumber = viewModel.phoneNumber.toLong(),
+                            email = viewModel.email,
+                            birthDate = if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
+                            else ageToPatientDate(
+                                viewModel.years.toInt(),
+                                viewModel.months.toInt(),
+                                viewModel.days.toInt()
+                            ).toPatientDate(),
+                            gender = viewModel.gender
+                        )
+                    )
+                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                        "isProfileUpdated",
+                        true
+                    )
+                    navController.popBackStack()
+
+
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 30.dp, start = 30.dp)
+                    .testTag("step2"),
+                enabled = viewModel.basicInfoValidation() && viewModel.checkIsEdit()
+            ) {
+                Text(text = "Save")
+            }
+
         }
     )
 

@@ -165,39 +165,40 @@ fun EditPatientAddress(
                 viewModel.isEditing = viewModel.checkIsEdit()
                 Timber.tag("CheckEdit").d(viewModel.isEditing.toString())
 
-                Button(
-                    onClick = {
+            }
 
+        }, floatingActionButton = {
+            Button(
+                onClick = {
 
-                        viewModel.updateBasicInfo(
-                            patientResponse!!.copy(
-                                permanentAddress = PatientAddressResponse(
-                                    addressLine1 = viewModel.homeAddress.addressLine1,
-                                    city = viewModel.homeAddress.city,
-                                    district = viewModel.homeAddress.district.ifEmpty { null },
-                                    state = viewModel.homeAddress.state,
-                                    postalCode = viewModel.homeAddress.pincode,
-                                    country = "India",
-                                    addressLine2 = viewModel.homeAddress.addressLine2.ifEmpty { null },
-                                )
+                    viewModel.updateBasicInfo(
+                        patientResponse!!.copy(
+                            permanentAddress = PatientAddressResponse(
+                                addressLine1 = viewModel.homeAddress.addressLine1,
+                                city = viewModel.homeAddress.city,
+                                district = viewModel.homeAddress.district.ifEmpty { null },
+                                state = viewModel.homeAddress.state,
+                                postalCode = viewModel.homeAddress.pincode,
+                                country = "India",
+                                addressLine2 = viewModel.homeAddress.addressLine2.ifEmpty { null },
                             )
                         )
+                    )
 
-                        navController.previousBackStackEntry?.savedStateHandle?.set(
-                            "isProfileUpdated",
-                            true
-                        )
-                        navController.popBackStack()
+                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                        "isProfileUpdated",
+                        true
+                    )
+                    navController.popBackStack()
 
 
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 15.dp),
-                    enabled = viewModel.addressInfoValidation() && viewModel.isEditing
-                ) {
-                    Text(text = "Save")
-                }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 15.dp, start = 30.dp),
+                enabled = viewModel.addressInfoValidation() && viewModel.isEditing
+            ) {
+                Text(text = "Save")
             }
 
         }

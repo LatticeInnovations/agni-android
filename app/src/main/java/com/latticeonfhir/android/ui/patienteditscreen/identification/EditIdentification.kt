@@ -255,50 +255,53 @@ fun EditIdentification(
                     }
                 }
                 viewModel.isEditing = viewModel.checkIsEdit()
-                Button(
-                    onClick = {
-                        if (viewModel.passportId.isNotEmpty() && viewModel.isPassportSelected) {
-                            viewModel.identifierList.add(
-                                PatientIdentifier(
-                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
-                                    identifierNumber = viewModel.passportId,
-                                    code = null
-                                )
-                            )
-                        }
-                        if (viewModel.voterId.isNotEmpty() && viewModel.isVoterSelected) {
-                            viewModel.identifierList.add(
-                                PatientIdentifier(
-                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                                    identifierNumber = viewModel.voterId,
-                                    code = null
-                                )
-                            )
-                        }
-                        if (viewModel.patientId.isNotEmpty() && viewModel.isPatientSelected) {
-                            viewModel.identifierList.add(
-                                PatientIdentifier(
-                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                                    identifierNumber = viewModel.patientId,
-                                    code = null
-                                )
-                            )
-                        }
+            }
 
-
-                        viewModel.updateBasicInfo(patientResponse!!.copy(identifier = viewModel.identifierList))
-                        navController.previousBackStackEntry?.savedStateHandle?.set(
-                            "isProfileUpdated",
-                            true
+        }, floatingActionButton = {
+            Button(
+                onClick = {
+                    if (viewModel.passportId.isNotEmpty() && viewModel.isPassportSelected) {
+                        viewModel.identifierList.add(
+                            PatientIdentifier(
+                                identifierType = IdentificationConstants.PASSPORT_TYPE,
+                                identifierNumber = viewModel.passportId,
+                                code = null
+                            )
                         )
-                        navController.popBackStack()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    enabled = viewModel.identityInfoValidation() && viewModel.isEditing
-                ) {
-                    Text(text = "Save")
-                }
+                    }
+                    if (viewModel.voterId.isNotEmpty() && viewModel.isVoterSelected) {
+                        viewModel.identifierList.add(
+                            PatientIdentifier(
+                                identifierType = IdentificationConstants.VOTER_ID_TYPE,
+                                identifierNumber = viewModel.voterId,
+                                code = null
+                            )
+                        )
+                    }
+                    if (viewModel.patientId.isNotEmpty() && viewModel.isPatientSelected) {
+                        viewModel.identifierList.add(
+                            PatientIdentifier(
+                                identifierType = IdentificationConstants.PATIENT_ID_TYPE,
+                                identifierNumber = viewModel.patientId,
+                                code = null
+                            )
+                        )
+                    }
+
+
+                    viewModel.updateBasicInfo(patientResponse!!.copy(identifier = viewModel.identifierList))
+                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                        "isProfileUpdated",
+                        true
+                    )
+                    navController.popBackStack()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp, start = 30.dp),
+                enabled = viewModel.identityInfoValidation() && viewModel.isEditing
+            ) {
+                Text(text = "Save")
             }
 
         }
