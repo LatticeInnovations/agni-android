@@ -133,8 +133,8 @@ open class FhirAppDatabaseTest: TestCase() {
     }
 
     @Test
-    fun test(){
-
+    fun databaseBuilderTest(){
+        assertEquals(true, this::fhirAppDatabase.isInitialized)
     }
 
     @After

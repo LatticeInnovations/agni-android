@@ -6,10 +6,8 @@ import androidx.annotation.Keep
 
 @Keep
 @Entity
-data class MedicineDosageInstructionsEntity(
-    val medicalDosage: String,
-    val medicalDosageId: String
-) {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
-}
+data class MedicineTimingEntity(
+    @PrimaryKey
+    val medicalDosageId: String,
+    val medicalDosage: String
+)

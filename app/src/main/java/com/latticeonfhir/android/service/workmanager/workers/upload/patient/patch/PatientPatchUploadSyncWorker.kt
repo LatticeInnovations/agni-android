@@ -22,14 +22,16 @@ abstract class PatientPatchUploadSyncWorker(context: Context, workerParameters: 
             is ApiContinueResponse -> Result.success()
             is ApiEndResponse -> Result.success()
             is ApiErrorResponse -> {
-                if (response.errorMessage == ErrorConstants.SESSION_EXPIRED || response.errorMessage == ErrorConstants.UNAUTHORIZED) Result.failure(
-                    workDataOf("errorMsg" to response.errorMessage)
-                )
+                if (response.errorMessage == ErrorConstants.SESSION_EXPIRED || response.errorMessage == ErrorConstants.UNAUTHORIZED) {
+                    setProgress(workDataOf(ErrorConstants.ERROR_MESSAGE to response.errorMessage))
+                    delay(5000)
+                    Result.failure()
+                }
                 else Result.retry()
             }
             is ApiEmptyResponse -> {
                 setProgress(workDataOf(PatientPatchUpload to 100))
-                delay(1L)
+                delay(5000)
                 Result.success()
             }
             is ApiNullResponse -> Result.failure()

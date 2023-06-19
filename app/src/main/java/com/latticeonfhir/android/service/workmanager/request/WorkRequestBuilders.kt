@@ -30,6 +30,7 @@ import com.latticeonfhir.android.service.workmanager.workers.upload.relation.pat
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.post.RelationUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.post.RelationUploadSyncWorkerImpl
 import com.latticeonfhir.android.utils.constants.ErrorConstants
+import com.latticeonfhir.android.utils.constants.ErrorConstants.ERROR_MESSAGE
 import com.latticeonfhir.android.utils.constants.Id
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
@@ -38,6 +39,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -58,6 +60,7 @@ class WorkRequestBuilders(
 
     /** Patient Upload Post Sync Worker */
     internal suspend fun uploadPatientWorker(error: (Boolean, String) -> Unit) {
+        Timber.d("Worker Uncle Status at Top")
         //Upload Worker
         Sync.periodicSync<PatientUploadSyncWorkerImpl>(
             applicationContext,
@@ -70,29 +73,25 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else {
-                    val progress = workInfo.progress
-                    val value = progress.getInt(PatientUploadSyncWorker.PatientUploadProgress, 0)
-                    if (value == 100) {
-                        /** Update Fhir Id in Generic Entity */
-                        updateFhirIdInRelation { errorReceived, errorMsg ->
-                            error(errorReceived, errorMsg)
-                        }
-
-                        updateFhirIdInPrescription { errorReceived, errorMsg ->
-                            error(errorReceived, errorMsg)
-                        }
+                val errorMsgFromServer = workInfo.progress.getString(ERROR_MESSAGE) ?: ""
+                if (errorMsgFromServer == ErrorConstants.SESSION_EXPIRED || errorMsgFromServer == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsgFromServer
+                )
+                val value = workInfo.progress.getInt(PatientUploadSyncWorker.PatientUploadProgress, 0)
+                if (value == 100) {
+                    /** Update Fhir Id in Generic Entity */
+                    updateFhirIdInRelation { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
                     }
-                    if (workInfo.state == WorkInfo.State.ENQUEUED) {
-                        downloadPatientWorker { errorReceived, errorMsg ->
-                            error(errorReceived, errorMsg)
-                        }
+
+                    updateFhirIdInPrescription { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
+                    }
+                }
+                if (workInfo.state == WorkInfo.State.ENQUEUED) {
+                    downloadPatientWorker { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
                     }
                 }
             }
@@ -149,8 +148,7 @@ class WorkRequestBuilders(
                         true,
                         errorMsg
                     )
-                }
-                else {
+                } else {
                     val progress = workInfo.progress
                     val value = progress.getInt(PRESCRIPTION_UPLOAD_PROGRESS, 0)
                     if (value == 100) {
@@ -220,7 +218,7 @@ class WorkRequestBuilders(
                         true,
                         errorMsg
                     )
-                } else if(workInfo.state == WorkInfo.State.SUCCEEDED) {
+                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
                     /** Handle Success Here */
                 }
             }
@@ -228,7 +226,10 @@ class WorkRequestBuilders(
     }
 
     /** Download Prescription Data */
-    internal suspend fun downloadPrescriptionWorker(patientFhirId: String, error: (Boolean, String) -> Unit) {
+    internal suspend fun downloadPrescriptionWorker(
+        patientFhirId: String,
+        error: (Boolean, String) -> Unit
+    ) {
         /** Download Worker */
         PrescriptionDownloadSyncWorker.patientFhirId = patientFhirId
         Sync.oneTimeSync<PrescriptionDownloadSyncWorkerImpl>(
@@ -240,7 +241,7 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if(workInfo != null) {
+            if (workInfo != null) {
                 if (workInfo.state == WorkInfo.State.FAILED) {
                     val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
                     if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
@@ -265,15 +266,14 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if(workInfo != null) {
-                if(workInfo.state == WorkInfo.State.FAILED) {
+            if (workInfo != null) {
+                if (workInfo.state == WorkInfo.State.FAILED) {
                     val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
                     if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
                         true,
                         errorMsg
                     )
-                }
-                else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
                     /** Handle Success Here */
                 }
             }
@@ -291,15 +291,14 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if(workInfo != null) {
-                if(workInfo.state == WorkInfo.State.FAILED) {
+            if (workInfo != null) {
+                if (workInfo.state == WorkInfo.State.FAILED) {
                     val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
                     if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
                         true,
                         errorMsg
                     )
-                }
-                else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
                     /** Handle Success Here */
                 }
             }
@@ -328,18 +327,14 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else {
-                    val progress = workInfo.progress
-                    val value = progress.getInt(PatientPatchUploadSyncWorker.PatientPatchUpload, 0)
-                    if (value == 100) {
-                        /** Handle Progress Based Download WorkRequests Here */
-                    }
+                val errorMsgFromServer = workInfo.progress.getString(ERROR_MESSAGE) ?: ""
+                if (errorMsgFromServer == ErrorConstants.SESSION_EXPIRED || errorMsgFromServer == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsgFromServer
+                )
+                val value = workInfo.progress.getInt(PatientPatchUploadSyncWorker.PatientPatchUpload, 0)
+                if (value == 100) {
+                    /** Handle Progress Based Download WorkRequests Here */
                 }
             }
         }
@@ -359,19 +354,14 @@ class WorkRequestBuilders(
             )
         ).collectLatest { workInfo ->
             if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else {
-                    val progress = workInfo.progress
-                    val value =
-                        progress.getInt(RelationPatchUploadSyncWorker.RelationPatchUpload, 0)
-                    if (value == 100) {
-                        /** Handle Progress Based Download WorkRequests Here */
-                    }
+                val errorMsgFromServer = workInfo.progress.getString(ERROR_MESSAGE) ?: ""
+                if (errorMsgFromServer == ErrorConstants.SESSION_EXPIRED || errorMsgFromServer == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsgFromServer
+                )
+                val value = workInfo.progress.getInt(RelationPatchUploadSyncWorker.RelationPatchUpload, 0)
+                if (value == 100) {
+                    /** Handle Progress Based Download WorkRequests Here */
                 }
             }
         }
@@ -418,7 +408,8 @@ class WorkRequestBuilders(
     private fun updateFhirIdInPrescription(error: (Boolean, String) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
             genericRepository.getNonSyncedPostRelations().forEach { genericEntity ->
-                val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(PrescriptionResponse::class.java)
+                val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>()
+                    .mapToObject(PrescriptionResponse::class.java)
                 if (existingMap != null) {
                     genericRepository.insertOrUpdatePostEntity(
                         patientId = genericEntity.patientId,

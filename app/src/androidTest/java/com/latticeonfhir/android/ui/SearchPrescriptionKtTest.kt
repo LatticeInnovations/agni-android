@@ -296,7 +296,7 @@ class SearchPrescriptionKtTest {
         composeTestRule.onAllNodes(formulationsList)[0].performClick()
         composeTestRule.onNode(qtyPerDoseTextField).assertExists().assertTextEquals("1", "Qty per dose", includeEditableText = false)
         composeTestRule.onNode(freqTextField).assertExists().assertTextEquals("1",  "Frequency", "dose per day")
-        composeTestRule.onNode(timingField).assertExists().assertTextEquals("Before food", "Timing (optional)")
+        composeTestRule.onNode(timingField).assertExists().assertTextEquals("Timing (optional)", includeEditableText = false)
         composeTestRule.onNode(durationField).assertExists().assertTextEquals("Duration (days) *", includeEditableText = false)
         composeTestRule.onNode(durationField).performTextInput("4")
         composeTestRule.onNode(durationField).assertTextEquals("Duration (days) *", "4")

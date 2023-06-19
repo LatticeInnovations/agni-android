@@ -4,15 +4,12 @@ import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineDosageInstructionsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toMedicationResponse
-import junit.framework.TestCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
@@ -49,7 +46,7 @@ class MedicationRepositoryTest: BaseClass() {
     )
 
 
-    private val medicineDosageInstructionsEntity = MedicineDosageInstructionsEntity(
+    private val medicineTimingEntity = MedicineTimingEntity(
         medicalDosage = "Before Lunch",
         medicalDosageId = "BEF_LUN_01"
     )
@@ -62,7 +59,7 @@ class MedicationRepositoryTest: BaseClass() {
         runBlocking(Dispatchers.IO) {
             `when`(medicationDao.getActiveIngredients()).thenReturn(listOf("activeIngredients"))
             `when`(medicationDao.getMedicationByActiveIngredient(medicationEntityOther.activeIngredient)).thenReturn(listOf(medicationEntity))
-            `when`(medicationDao.getAllMedicineDosageInstructions()).thenReturn(listOf(medicineDosageInstructionsEntity))
+            `when`(medicationDao.getAllMedicineDosageInstructions()).thenReturn(listOf(medicineTimingEntity))
         }
     }
 
@@ -81,7 +78,7 @@ class MedicationRepositoryTest: BaseClass() {
     @Test
     internal fun getAllMedicineDosageDirections() = runBlocking {
         val medicineDosage = medicationRepositoryImpl.getAllMedicationDirections()
-        assertEquals(listOf(medicineDosageInstructionsEntity),medicineDosage)
+        assertEquals(listOf(medicineTimingEntity),medicineDosage)
     }
 
 }
