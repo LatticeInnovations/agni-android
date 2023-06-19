@@ -7,7 +7,6 @@ import com.latticeonfhir.android.data.server.repository.authentication.Authentic
 import com.latticeonfhir.android.ui.login.PhoneEmailViewModel
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -91,7 +90,7 @@ class PhoneEmailViewModelTest {
     }
 
     @Test
-    fun login_on_authorised_email () = runBlocking{
+    fun login_on_authorised_email () = runTest{
         viewModel.inputValue = "mansi@thelattice.in"
         `when`(authenticationRepository.login(viewModel.inputValue)).thenReturn(
             ResponseMapper.create(
@@ -115,7 +114,7 @@ class PhoneEmailViewModelTest {
     }
 
     @Test
-    fun login_on_unauthorised_email () = runBlocking{
+    fun login_on_unauthorised_email () = runTest{
         viewModel.inputValue = "mansi@gmail.com"
         `when`(authenticationRepository.login(viewModel.inputValue)).thenReturn(
             ResponseMapper.create(
@@ -134,7 +133,7 @@ class PhoneEmailViewModelTest {
     }
 
     @Test
-    fun login_on_authorised_phone () = runBlocking{
+    fun login_on_authorised_phone () = runTest{
         viewModel.inputValue = "9876543210"
         `when`(authenticationRepository.login(viewModel.inputValue)).thenReturn(
             ResponseMapper.create(
@@ -158,7 +157,7 @@ class PhoneEmailViewModelTest {
     }
 
     @Test
-    fun login_on_unauthorised_phone () = runBlocking{
+    fun login_on_unauthorised_phone () = runTest{
         viewModel.inputValue = "98766543210"
         `when`(authenticationRepository.login(viewModel.inputValue)).thenReturn(
             ResponseMapper.create(
