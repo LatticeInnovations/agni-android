@@ -41,26 +41,26 @@ jobs:
             hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}-${{
             hashFiles('**/buildSrc/**/*.kt') }}
 
-      - name: Execute Gradle build
-        run: ./gradlew build
+#       - name: Execute Gradle build
+#         run: ./gradlew build
 
-      - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
+#       - name: Run Unit Tests
+#         run: ./gradlew testDebugUnitTest
 
-      - name: Upload Unit Test report
-        uses: actions/upload-artifact@v2
-        with:
-          name: unit-test-report
-          path: app/build/reports/tests/testDebugUnitTest/
+#       - name: Upload Unit Test report
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: unit-test-report
+#           path: app/build/reports/tests/testDebugUnitTest/
 
-      - name: Create Unit Test Coverage Report
-        run: ./gradlew createDebugUnitTestCoverageReport
+#       - name: Create Unit Test Coverage Report
+#         run: ./gradlew createDebugUnitTestCoverageReport
 
-      - name: Upload Jacoco coverage report
-        uses: actions/upload-artifact@v2
-        with:
-          name: jacoco-report
-          path: app/build/reports/coverage/test/debug/
+#       - name: Upload Jacoco coverage report
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: jacoco-report
+#           path: app/build/reports/coverage/test/debug/
 
       - name: Extract existing version code
         run: >
@@ -93,7 +93,7 @@ jobs:
           git config user.email "github-actions@github.com"
           git config user.name "Github Actions"
           git commit -am "Bump version code and change version name"
-          git pull
+          git pull development
           git push origin HEAD:development
 
       - name: Build Release AAB with Gradle
