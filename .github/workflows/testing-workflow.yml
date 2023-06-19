@@ -93,6 +93,7 @@ jobs:
           git config user.email "github-actions@github.com"
           git config user.name "Github Actions"
           git config pull.rebase false
+          git add .
           git commit -m "Bump version code and change version name"
           git pull origin development
           git push origin development
