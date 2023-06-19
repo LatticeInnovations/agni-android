@@ -92,8 +92,10 @@ fun PrescriptionScreen(
 
     BackHandler(enabled = true) {
         if (viewModel.isSearching) viewModel.isSearching = false
-        else if (viewModel.checkedActiveIngredient.isNotEmpty()) viewModel.checkedActiveIngredient =
-            ""
+        else if (viewModel.checkedActiveIngredient.isNotEmpty()) {
+            viewModel.checkedActiveIngredient = ""
+            viewModel.medicationToEdit = null
+        }
         else if (viewModel.bottomNavExpanded) viewModel.bottomNavExpanded = false
         else if (viewModel.isSearchResult) viewModel.isSearchResult = false
         else if (viewModel.tabIndex == 1) {

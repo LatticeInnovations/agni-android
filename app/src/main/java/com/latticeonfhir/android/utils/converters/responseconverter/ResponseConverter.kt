@@ -6,7 +6,7 @@ import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineDosageInstructionsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
@@ -275,9 +275,9 @@ internal fun MedicationEntity.toMedicationResponse(): MedicationResponse {
     )
 }
 
-internal fun List<MedicineTimeResponse>.toListOfMedicineDirectionsEntity(): List<MedicineDosageInstructionsEntity> {
+internal fun List<MedicineTimeResponse>.toListOfMedicineDirectionsEntity(): List<MedicineTimingEntity> {
     return map { medicineTimeResponse ->
-        MedicineDosageInstructionsEntity(
+        MedicineTimingEntity(
             medicalDosage = medicineTimeResponse.medInstructionVal,
             medicalDosageId = medicineTimeResponse.medInstructionCode
         )

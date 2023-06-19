@@ -19,7 +19,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntit
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineDosageInstructionsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
@@ -40,7 +40,7 @@ import java.util.UUID
         MedicationEntity::class,
         PrescriptionEntity::class,
         PrescriptionDirectionsEntity::class,
-        MedicineDosageInstructionsEntity::class],
+        MedicineTimingEntity::class],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
     version = 1,
     exportSchema = true

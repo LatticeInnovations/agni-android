@@ -8,14 +8,13 @@ import com.latticeonfhir.android.data.local.repository.medication.MedicationRepo
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineDosageInstructionsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -149,7 +148,7 @@ class PrescriptionViewModelTest : BaseClass() {
     fun getAllMedicationDirectionsTest() = runTest {
         `when`(medicationRepository.getAllMedicationDirections()).thenReturn(
             listOf(
-                MedicineDosageInstructionsEntity(
+                MedicineTimingEntity(
                     medicalDosage = "Before meal",
                     medicalDosageId = "307165006"
                 )
@@ -158,7 +157,7 @@ class PrescriptionViewModelTest : BaseClass() {
         prescriptionViewModel.getAllMedicationDirections {
             assertEquals(
                 listOf(
-                    MedicineDosageInstructionsEntity(
+                    MedicineTimingEntity(
                         medicalDosage = "Before meal",
                         medicalDosageId = "307165006"
                     )
