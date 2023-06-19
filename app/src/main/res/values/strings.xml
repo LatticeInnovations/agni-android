@@ -154,6 +154,4 @@ include them in the household</string>
     <string name="notes">\nNote: %s</string>
     <string name="timing">, %s</string>
 
-    <string name="edit_btn">Edit</string>
-
 </resources>
