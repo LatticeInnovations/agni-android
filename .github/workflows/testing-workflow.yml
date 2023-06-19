@@ -94,7 +94,7 @@ jobs:
           git config user.name "Github Actions"
           git commit -am "Bump version code and change version name"
           git pull --rebase origin development
-          git push
+          git push origin HEAD: development
 
       - name: Build Release AAB with Gradle
         run: ./gradlew clean bundleRelease
