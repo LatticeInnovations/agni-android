@@ -16,7 +16,6 @@ import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,12 +33,12 @@ class EditPatientAddressViewModel @Inject constructor(
     var addWorkAddress by mutableStateOf(false)
 
     fun addressInfoValidation(): Boolean {
-        if (homeAddress.pincode.length < 6 || homeAddress.state == "" || homeAddress.addressLine1 == ""
-            || homeAddress.city == ""
+        if (homeAddress.pincode.length < 6 || homeAddress.state.isBlank() || homeAddress.addressLine1.isBlank()
+            || homeAddress.city.isBlank()
         )
             return false
-        if (addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state == "" || workAddress.addressLine1 == ""
-                    || workAddress.city == "")
+        if (addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state.isBlank() || workAddress.addressLine1.isBlank()
+                    || workAddress.city.isBlank())
         )
             return false
         return true
@@ -62,10 +61,14 @@ class EditPatientAddressViewModel @Inject constructor(
         homeAddress.district = homeAddressTemp.district
         homeAddress.addressLine1 = homeAddressTemp.addressLine1
         homeAddress.addressLine2 = homeAddressTemp.addressLine2
+        homeAddress.isPostalCodeValid = false
+        homeAddress.isAddressLine1Valid = false
+        homeAddress.isCityValid = false
+        homeAddress.isStateValid = false
         return true
     }
 
-    fun updateBasicInfo(patientResponse: PatientResponse): Unit {
+    fun updateBasicInfo(patientResponse: PatientResponse) {
         viewModelScope.launch(Dispatchers.IO) {
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (response > 0) {
