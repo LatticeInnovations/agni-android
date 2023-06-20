@@ -67,7 +67,7 @@ jobs:
           run: |
           
             # Update build.gradle with new version code and name
-            echo "${{ env.VERSION_CODE }} - ${{ env.version_name }}"
+            echo "${{ env.VERSION_CODE }} - ${{ env.VERSION_NAME }}"
             sed -i "s/versionCode [0-9]\+/versionCode ${{ env.VERSION_CODE }}/g" app/build.gradle
             sed -i "s/versionName \"[^\"]*\"/versionName \"${{ env.VERSION_NAME}}\"/g" app/build.gradle
 
@@ -75,17 +75,13 @@ jobs:
           run: |
             git config user.email "github-actions@github.com"
             git config user.name "Github Actions"
-            git commit -am "Bump version code and change version name"
+            git add app/build.gradle
+            git commit -m "Bump version code and change version name"
             git push origin HEAD
             
-        - name: Open pull request
-          uses: peter-evans/create-pull-request@v5.0.0
-          with:
-           commit-message: "Bumping to ${{ env.VERSION_CODE }}"
-           branch: "${{ github.ref }}"
-           title: "${{ env.VERSION_NAME }} - (${{ env.VERSION_CODE }})"
-           body: "${{ env.VERSION_NAME }} - (${{ env.VERSION_CODE }})"
-           base: "development"
+        - name: Push Code To Development
+          run: |
+            git push origin development
 
         - name: Build Release AAB with Gradle
           run: ./gradlew clean bundleRelease
@@ -106,7 +102,7 @@ jobs:
         - name: Upload Android Release to Play Store
           uses: r0adkll/upload-google-play@v1
           with:
-            releaseName: '${{env.version_name}}'
+            releaseName: '${{env.VERSION_NAME}}'
             serviceAccountJson: service_account.json
             packageName: com.latticeonfhir.android
             releaseFiles: app/build/outputs/bundle/release/app-release.aab
