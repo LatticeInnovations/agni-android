@@ -82,10 +82,10 @@ jobs:
           uses: peter-evans/create-pull-request@v5.0.0
           with:
             commit-message: "Bumping to ${{ env.VERSION_CODE }}"
-            branch: "origin/test"
+            branch: "development"
             title: "Version Code Updated to (${{ env.VERSION_CODE }})"
             body: "${{ env.VERSION_NAME }} - (${{ env.VERSION_CODE }})"
-            base: "origin/development"
+            base: "test"
 
 #         - name: Build Release AAB with Gradle
 #           run: ./gradlew clean bundleRelease
