@@ -44,8 +44,8 @@ jobs:
               hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}-${{
               hashFiles('**/buildSrc/**/*.kt') }}
 
-        - name: Execute Gradle build
-          run: ./gradlew build
+#         - name: Execute Gradle build
+#           run: ./gradlew build
 
         - name: Extract existing version code
           run: >
@@ -79,6 +79,15 @@ jobs:
             git config user.name "Github Actions"
             git commit -am "Bump version code and change version name"
             git push origin HEAD
+            
+        - name: Open pull request
+          uses: peter-evans/create-pull-request@v5.0.0
+          with:
+           commit-message: "Bumping to ${{ env.VERSION_CODE }}"
+           branch: "${{ github.ref }}"
+           title: "${{ env.VERSION_NAME }} - (${{ env.VERSION_CODE }})"
+           body: "${{ env.VERSION_NAME }} - (${{ env.VERSION_CODE }})"
+           base: "development"
 
         - name: Build Release AAB with Gradle
           run: ./gradlew clean bundleRelease
