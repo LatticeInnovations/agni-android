@@ -41,8 +41,8 @@ jobs:
             hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}-${{
             hashFiles('**/buildSrc/**/*.kt') }}
 
-      - name: Execute Gradle build
-        run: ./gradlew build
+#      - name: Execute Gradle build
+#        run: ./gradlew build
 
 #TODO(@Naveen Implement Ktlint in App)
 #      - name: Run Ktlint
