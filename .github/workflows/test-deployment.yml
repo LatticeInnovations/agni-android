@@ -81,12 +81,11 @@ jobs:
         - name: Open pull request
           uses: peter-evans/create-pull-request@v5.0.0
           with:
-            token: ${{ secrets.GITHUB_TOKEN }} 
             commit-message: "Bumping to ${{ env.VERSION_CODE }}"
-            branch: "${{ github.ref }}"
+            branch: "origin/test"
             title: "Version Code Updated to (${{ env.VERSION_CODE }})"
             body: "${{ env.VERSION_NAME }} - (${{ env.VERSION_CODE }})"
-            base: "development"
+            base: "origin/development"
 
 #         - name: Build Release AAB with Gradle
 #           run: ./gradlew clean bundleRelease
