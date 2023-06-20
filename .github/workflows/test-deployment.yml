@@ -49,6 +49,7 @@ jobs:
 
         - name: Extract existing version code
           run: >
+          
             # Extract version number from branch name
             version_name=$(grep "versionName" app/build.gradle | awk '{print $2}' | tr -d '\n')
   
@@ -64,6 +65,7 @@ jobs:
 
         - name: Increase version code and change version name
           run: >
+          
             # Update build.gradle with new version code and name
             echo "${{ env.VERSION_CODE }} - ${{ env.version_name }}"
             sed -i "s/versionCode [0-9]\+/versionCode ${{ env.VERSION_CODE }}/g" app/build.gradle
