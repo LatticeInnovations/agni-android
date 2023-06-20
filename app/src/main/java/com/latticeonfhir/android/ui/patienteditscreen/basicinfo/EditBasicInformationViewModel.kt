@@ -156,9 +156,6 @@ class EditBasicInformationViewModel @Inject constructor(
                 dobDay != dobDayTemp ||
                 dobMonth != dobMonthTemp ||
                 dobYear != dobYearTemp ||
-                days != daysTemp ||
-                months != monthsTemp ||
-                years != yearsTemp ||
                 gender != genderTemp
     }
 
