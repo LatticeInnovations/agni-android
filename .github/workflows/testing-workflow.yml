@@ -95,8 +95,7 @@ jobs:
           git config user.email "github-actions@github.com"
           git config user.name "Github Actions"
           git commit -a -m "Bump version code and change version name"
-          git pull --rebase origin development
-          git push origin development
+          git push origin HEAD:${{ github.head_ref }}
 
       - name: Build Release AAB with Gradle
         run: ./gradlew clean bundleRelease
