@@ -21,6 +21,7 @@ class PhoneEmailScreenKtTest {
     val subHeading = hasTestTag("SUB_HEADING_TAG")
     val inputField = hasTestTag("INPUT_FIELD")
     val button = hasTestTag("BUTTON")
+    val dialogPositiveBtn = hasTestTag("POSITIVE_BTN")
 
     @Test
     fun verify_heading(){
@@ -168,6 +169,8 @@ class PhoneEmailScreenKtTest {
     fun error_msg_on_regenerating_otp_multiple_times(){
         composeTestRule.onNode(inputField).performTextInput("1111111111")
         composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(dialogPositiveBtn).performClick()
         Thread.sleep(2000)
         composeTestRule.onNodeWithContentDescription("BACK_ICON").performClick()
         composeTestRule.onNode(button).performClick()

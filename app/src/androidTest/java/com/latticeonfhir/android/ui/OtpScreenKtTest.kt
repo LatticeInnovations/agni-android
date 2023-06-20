@@ -42,6 +42,7 @@ class OtpScreenKtTest {
     val errorMsg = hasTestTag("ERROR_MSG")
     val twoMinTimer = hasTestTag("TWO_MIN_TIMER")
     val backIcon = hasContentDescription("BACK_ICON")
+    val dialogPositiveBtn = hasTestTag("POSITIVE_BTN")
 
     // landing screen
     val title = hasText("My Patients") and hasNoClickAction()
@@ -163,6 +164,8 @@ class OtpScreenKtTest {
     fun check_error_msg_on_multiple_incorrect_attempts(){
         composeTestRule.onNode(inputField).performTextInput("8279784095")
         composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(dialogPositiveBtn).performClick()
         Thread.sleep(2000)
         composeTestRule.onNode(firstDigit).performTextInput("1")
         composeTestRule.onNode(secondDigit).performTextInput("1")

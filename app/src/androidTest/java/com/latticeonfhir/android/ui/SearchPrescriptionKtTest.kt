@@ -195,7 +195,7 @@ class SearchPrescriptionKtTest {
         composeTestRule.onNode(searchIcon).performClick()
         composeTestRule.onNode(searchTextField).performTextInput("ampicillin")
         composeTestRule.onNode(searchTextField).performImeAction()
-        composeTestRule.onAllNodes(activeIngredientName).assertAny(hasText("ampicillin", ignoreCase = true))
+        composeTestRule.onAllNodes(activeIngredientName, useUnmergedTree = true).assertAny(hasText("ampicillin", ignoreCase = true))
     }
 
     @Test
