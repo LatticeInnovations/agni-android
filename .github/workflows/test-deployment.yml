@@ -78,14 +78,14 @@ jobs:
             git commit -am "Bump version code and change version name"
             git push origin HEAD
             
-        - name: Open pull request
-          uses: peter-evans/create-pull-request@v5.0.0
-          with:
-            commit-message: "Bumping to ${{ env.VERSION_CODE }}"
-            branch: "${{ github.ref }}"
-            title: "Version Code Updated to (${{ env.VERSION_CODE }})"
-            body: "${{ env.VERSION_NAME }} - (${{ env.VERSION_CODE }})"
-            base: "development"
+#         - name: Open pull request
+#           uses: peter-evans/create-pull-request@v5.0.0
+#           with:
+#             commit-message: "Bumping to ${{ env.VERSION_CODE }}"
+#             branch: "${{ github.ref }}"
+#             title: "Version Code Updated to (${{ env.VERSION_CODE }})"
+#             body: "${{ env.VERSION_NAME }} - (${{ env.VERSION_CODE }})"
+#             base: "development"
 
         - name: Build Release AAB with Gradle
           run: ./gradlew clean bundleRelease
