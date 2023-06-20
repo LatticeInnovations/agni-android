@@ -80,7 +80,9 @@ jobs:
 #             git push origin HEAD
             
         - name: Push Code To Development
-          run: git push origin test:development
+          run: |
+            git pull origin development
+            git push origin test:development
 
         - name: Build Release AAB with Gradle
           run: ./gradlew clean bundleRelease
