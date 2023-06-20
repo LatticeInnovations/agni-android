@@ -1,11 +1,11 @@
 name: Production Deployment
 
-"on":
+'on':
   pull_request:
     types:
       - closed
     branches:
-      - test
+      - main
 
 jobs:
   build:
@@ -46,34 +46,6 @@ jobs:
 
       - name: Execute Gradle build
         run: ./gradlew build
-
-      - name: Extract existing version code
-        run: |
-          
-          # Extract version number from branch name
-          version_name=$(grep "versionName" app/build.gradle | awk '{print $2}' | tr -d '\n')
-          
-          # Get existing version code from build.gradle
-          version_code=${{github.run_number}}
-          
-          # Set environment variable for later use
-          echo "VERSION_NAME=$version_name" >> $GITHUB_ENV
-          echo "VERSION_CODE=$version_code" >> $GITHUB_ENV
-
-      - name: Increase version code and change version name
-        run: |
-          
-          # Update build.gradle with new version code and name
-          echo "${{ env.VERSION_CODE }} - ${{ env.VERSION_NAME }}"
-          sed -i "s/versionCode [0-9]\+/versionCode ${{ env.VERSION_CODE }}/g" app/build.gradle
-          sed -i "s/versionName \"[^\"]*\"/versionName \"${{ env.VERSION_NAME}}\"/g" app/build.gradle
-
-      - name: Commit and push changes
-        run: |
-          git config user.email "github-actions@github.com"
-          git config user.name "Github Actions"
-          git commit -am "Bump version code and change version name"
-          git push origin HEAD
 
       - name: Build Release AAB with Gradle
         run: ./gradlew clean bundleRelease
