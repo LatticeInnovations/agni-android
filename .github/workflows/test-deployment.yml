@@ -77,15 +77,6 @@ jobs:
             git config user.name "Github Actions"
             git commit -am "Bump version code and change version name"
             git push origin HEAD:test
-            
-        - name: Open pull request
-          uses: peter-evans/create-pull-request@v5.0.0
-          with:
-            commit-message: "Bumping to ${{ env.VERSION_CODE }}"
-            branch: "${{ github.ref }}"
-            title: "Version Code Updated to (${{ env.VERSION_CODE }})"
-            body: "${{ env.VERSION_NAME }} - (${{ env.VERSION_CODE }})"
-            base: "development"
 
         - name: Build Release AAB with Gradle
           run: ./gradlew clean bundleRelease
@@ -98,6 +89,15 @@ jobs:
             alias: '${{ secrets.ALIAS }}'
             keyStorePassword: '${{ secrets.KEY_STORE_PASSWORD }}'
             keyPassword: '${{ secrets.KEY_PASSWORD }}'
+            
+        - name: Open pull request
+          uses: peter-evans/create-pull-request@v5.0.0
+          with:
+            commit-message: "Bumping to ${{ env.VERSION_CODE }}"
+            branch: "${{ github.ref }}"
+            title: "Version Code Updated to (${{ env.VERSION_CODE }})"
+            body: "${{ env.VERSION_NAME }} - (${{ env.VERSION_CODE }})"
+            base: "development"
 
         - name: Create service_account.json
           id: createServiceAccount
