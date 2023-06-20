@@ -2,8 +2,8 @@ name: Testing Workflow
 
 'on':
   pull_request:
-    types:
-      - opened
+#     types:
+#       - opened
     branches:
       - test
 
