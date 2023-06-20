@@ -25,6 +25,7 @@
     <string name="frequency">Frequency</string>
     <string name="timing_optional">Timing (optional)</string>
     <string name="duration_days">Duration (days) *</string>
+    <string name="duration_error_msg">Max. limit is 180 days</string>
     <string name="quantity_prescribed">Quantity prescribed</string>
     <string name="notes_optional">Notes (optional)</string>
     <string name="match_found">%s matches found</string>
@@ -153,5 +154,9 @@ include them in the household</string>
     <string name="med_info">%d %s %s %s\nDuration : %d days , Qty : %d %s</string>
     <string name="notes">\nNote: %s</string>
     <string name="timing">, %s</string>
+
+    <string name="different_user_login_dialog_title">Log in as a different user ?</string>
+    <string name="different_user_login_dialog_description">Logging in as a different user will remove all existing data associated with the current user. This action cannot be undone. Continue?</string>
+    <string name="yes_proceed">Yes, proceed</string>
 
 </resources>
