@@ -94,9 +94,8 @@ jobs:
         run: |
           git config user.email "github-actions@github.com"
           git config user.name "Github Actions"
-          git add app/build.gradle
-          git commit -m "Bump version code and change version name"
-          git pull origin development
+          git commit -a -m "Bump version code and change version name"
+          git pull --rebase origin development
           git push origin development
 
       - name: Build Release AAB with Gradle
