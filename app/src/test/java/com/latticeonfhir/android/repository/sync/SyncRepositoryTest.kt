@@ -154,7 +154,7 @@ class SyncRepositoryTest : BaseClass() {
         GenericEntity(
             id = "ID",
             patientId = "PATIENT_ID",
-            payload = "{\n" +
+            payload = "[{\n" +
                     "      \"prescriptionId\": \"e3488798-ff88-4b67-88b3-3f7df487fc71\",\n" +
                     "      \"prescriptionFhirId\": \"21214\",\n" +
                     "      \"generatedOn\": \"2023-05-19T11:00:35+05:30\",\n" +
@@ -183,7 +183,7 @@ class SyncRepositoryTest : BaseClass() {
                     "          \"qtyPrescribed\": 18\n" +
                     "        }\n" +
                     "      ]\n" +
-                    "    }",
+                    "    }]",
             GenericTypeEnum.PRESCRIPTION,
             SyncType.POST
         )
@@ -584,7 +584,8 @@ class SyncRepositoryTest : BaseClass() {
                             200L.toTimeStampDate()
                         )
                     )
-                )            )
+                )
+            )
         ).thenReturn(
             Response.success(
                 BaseResponse(
@@ -713,14 +714,20 @@ class SyncRepositoryTest : BaseClass() {
             listOfPrescriptionEntity
         )
 
+        val prescriptionsToBeSynced = mutableListOf<PrescriptionResponse>()
+        listOfPrescriptionEntity.forEach { genericEntity ->
+            genericEntity.payload.fromJson<List<LinkedTreeMap<*, *>>>().forEach { prescription ->
+                prescriptionsToBeSynced.add(
+                    prescription.mapToObject(PrescriptionResponse::class.java)!!
+                )
+            }
+        }
+
         `when`(
             prescriptionApiService.postPrescriptionRelatedData(
                 EndPoints.MEDICATION_REQUEST,
-                listOfPrescriptionEntity.map {
-                    it.payload.fromJson<LinkedTreeMap<*, *>>().mapToObject(
-                        PrescriptionResponse::class.java
-                    ) as Any
-                })
+                prescriptionsToBeSynced
+            )
         ).thenReturn(
             Response.success(
                 BaseResponse(
