@@ -12,11 +12,12 @@ import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
+import com.latticeonfhir.android.utils.regex.PassportRegex
+import com.latticeonfhir.android.utils.regex.VoterRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,8 +44,8 @@ class EditIdentificationViewModel @Inject constructor(
     var voterId by mutableStateOf("")
     var patientId by mutableStateOf("")
 
-    val passportPattern = Regex("^[A-PR-WYa-pr-wy][1-9]\\d\\s?\\d{4}[1-9]$")
-    val voterPattern = Regex("^[A-Za-z]{3}[0-9]{7}$")
+    val passportPattern = PassportRegex.passportPattern
+    val voterPattern = VoterRegex.voterPattern
     var isPassportValid by mutableStateOf(false)
     var isVoterValid by mutableStateOf(false)
     var isPatientValid by mutableStateOf(false)
@@ -90,10 +91,13 @@ class EditIdentificationViewModel @Inject constructor(
         passportId = passportIdTemp
         voterId = voterIdTemp
         patientId = patientIdTemp
+        isPassportValid =false
+        isVoterValid= false
+        isPatientValid =false
         return true
     }
 
-     fun updateBasicInfo(patientResponse: PatientResponse):Unit {
+     fun updateBasicInfo(patientResponse: PatientResponse) {
          viewModelScope.launch(Dispatchers.IO) {
              val toBeDeletedList = mutableListOf<PatientIdentifier>()
              if (passportIdTemp != passportId || !isPassportSelected) {

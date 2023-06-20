@@ -218,9 +218,15 @@ fun EditBasicInformation(
                     }
                     if (viewModel.dobAgeSelector == "dob") {
                         DobTextField(viewModel)
-                    } else
+                    } else {
+                        viewModel.days = ""
+                        viewModel.months = ""
+                        viewModel.years = ""
+                        viewModel.isAgeDaysValid =false
+                        viewModel.isAgeMonthsValid =false
+                        viewModel.isAgeYearsValid =false
                         AgeTextField(viewModel)
-
+                    }
                     Spacer(modifier = Modifier.height(20.dp))
 
                     ContactTextField(viewModel)
@@ -251,9 +257,11 @@ fun EditBasicInformation(
 
                     GenderComposable(viewModel)
                     viewModel.isEditing = viewModel.checkIsEdit()
-                    Spacer(modifier = Modifier
-                        .height(100.dp)
-                        .testTag("END_OF_SCREEN"))
+                    Spacer(
+                        modifier = Modifier
+                            .height(100.dp)
+                            .testTag("END_OF_SCREEN")
+                    )
                 }
             }
         }, floatingActionButton = {
@@ -343,7 +351,7 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
             error = errorMsg,
             KeyboardType.Number
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.dobDay = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobDay = it
             if (viewModel.dobDay.isNotEmpty()) {
                 viewModel.isDobDayValid =
                     viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 31
@@ -419,7 +427,7 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
             error = "Enter valid year between 1900 and 2023",
             KeyboardType.Number
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.dobYear = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobYear = it
             if (viewModel.dobYear.isNotEmpty()) {
                 viewModel.isDobYearValid =
                     viewModel.dobYear.toInt() < 1900 || viewModel.dobYear.toInt() > 2023
@@ -442,7 +450,7 @@ fun AgeTextField(viewModel: EditBasicInformationViewModel) {
             "Enter valid input between 0 to 150.",
             KeyboardType.Number
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.years = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
             if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
                 viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
         }
@@ -456,7 +464,7 @@ fun AgeTextField(viewModel: EditBasicInformationViewModel) {
             "Enter valid input between 1 and 11.",
             KeyboardType.Number
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.months = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.months = it
             if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =
                 viewModel.months.toInt() < 1 || viewModel.months.toInt() > 11
         }
@@ -470,7 +478,7 @@ fun AgeTextField(viewModel: EditBasicInformationViewModel) {
             "Enter valid input between 1 and 30.",
             KeyboardType.Number
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.days = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
             if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
                 viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
         }
@@ -497,7 +505,7 @@ fun ContactTextField(viewModel: EditBasicInformationViewModel) {
             value = viewModel.phoneNumber,
             onValueChange = {
                 viewModel.isPhoneValid = it.length < 10
-                if (it.length <= 10 && (it.matches(viewModel.onlyNumbers) || it.length == 0))
+                if (it.length <= 10 && (it.matches(viewModel.onlyNumbers) || it.isEmpty()))
                     viewModel.phoneNumber = it
             },
             modifier = Modifier

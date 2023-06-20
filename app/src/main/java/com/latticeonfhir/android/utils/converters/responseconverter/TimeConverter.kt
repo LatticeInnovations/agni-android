@@ -56,6 +56,13 @@ object TimeConverter {
         val outputDate = outputFormat.format(date!!)
         return outputDate
     }
+    internal fun String.toPatientPreviewDate(): String {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+        val date = inputFormat.parse(this)
+        val outputDate = outputFormat.format(date!!)
+        return outputDate
+    }
 
     internal fun ageToPatientDate(years: Int, months: Int, days: Int): String {
         val calendar = Calendar.getInstance()

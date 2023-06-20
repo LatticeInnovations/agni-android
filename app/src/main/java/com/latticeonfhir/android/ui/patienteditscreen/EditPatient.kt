@@ -23,6 +23,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -52,7 +53,7 @@ fun EditPatient(
                 viewModel.lastName = lastName ?: ""
                 viewModel.email = email ?: ""
                 viewModel.phoneNumber = mobileNumber.toString()
-                viewModel.dob = birthDate
+                viewModel.dob = birthDate.toPatientPreviewDate()
                 viewModel.gender = gender
                 viewModel.identifier = identifier.toMutableList()
                 viewModel.passportId = ""
@@ -134,7 +135,7 @@ fun EditPatient(
 
                 if (viewModel.isProfileUpdated) {
                     LaunchedEffect(true) {
-                        snackBarHostState.showSnackbar("Profile update successfully")
+                        snackBarHostState.showSnackbar("Profile updated successfully")
                         viewModel.isProfileUpdated = false
                     }
                 }
@@ -185,7 +186,7 @@ fun PreviewScreen(
                 Spacer(modifier = Modifier.height(10.dp))
                 Label("Phone No.")
                 Detail("+91 ${viewModel.phoneNumber}", "PHONE_NO_TAG")
-                if (!viewModel.email.isEmpty()) {
+                if (viewModel.email.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label("Email")
                     Detail(viewModel.email, "EMAIL_TAG")

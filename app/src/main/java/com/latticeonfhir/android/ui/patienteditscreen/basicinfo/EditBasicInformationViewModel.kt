@@ -14,10 +14,12 @@ import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.utils.regex.AgeRegex
+import com.latticeonfhir.android.utils.regex.DobRegex
+import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,9 +31,9 @@ class EditBasicInformationViewModel @Inject constructor(
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
 
-    val onlyNumbers = Regex("^\\d+\$")
-    val ageRegex = Regex("^(\\d+)-(\\w+)-(\\d{4})$")
-    val dobRegex = Regex("^(\\d{4})-(\\d+)-(\\d+)$")
+    val onlyNumbers = OnlyNumberRegex.onlyNumbers
+    val ageRegex = AgeRegex.ageRegex
+    val dobRegex = DobRegex.dobRegex
 
 
     val maxFirstNameLength = 100
@@ -72,7 +74,8 @@ class EditBasicInformationViewModel @Inject constructor(
     val daysList = (1..31).toList()
     var monthsList = mutableStateListOf(
         "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December")
+        "July", "August", "September", "October", "November", "December"
+    )
 
     fun getMonthsList() {
         monthsList =
@@ -106,6 +109,7 @@ class EditBasicInformationViewModel @Inject constructor(
     var isAgeDaysValid by mutableStateOf(false)
     var isAgeMonthsValid by mutableStateOf(false)
     var isAgeYearsValid by mutableStateOf(false)
+
 
     fun basicInfoValidation(): Boolean {
         if (firstName.length < 3 || firstName.length > 100)
@@ -168,10 +172,19 @@ class EditBasicInformationViewModel @Inject constructor(
         dobDay = dobDayTemp
         dobMonth = dobMonthTemp
         dobYear = dobYearTemp
-        days = daysTemp
-        months = monthsTemp
-        years = yearsTemp
+        days = ""
+        months = ""
+        years = ""
         gender = genderTemp
+        isNameValid = false
+        isEmailValid = false
+        isPhoneValid = false
+        isDobDayValid = false
+        isDobMonthValid = false
+        isDobYearValid = false
+        isAgeDaysValid = false
+        isAgeMonthsValid = false
+        isAgeYearsValid = false
         return true
     }
 
