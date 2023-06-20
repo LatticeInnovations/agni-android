@@ -1,0 +1,104 @@
+name: Production Deployment
+
+"on":
+  pull_request:
+    types:
+      - closed
+    branches:
+      - test
+
+jobs:
+  build:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: zulu
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 7.5
+
+      - name: Grant rights
+        run: chmod +x build.gradle
+
+      - name: Setup Gradle Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: >-
+            ${{ runner.os }}-${{ hashFiles('**/*.gradle*') }}-${{
+            hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}-${{
+            hashFiles('**/buildSrc/**/*.kt') }}
+
+      - name: Execute Gradle build
+        run: ./gradlew build
+
+      - name: Extract existing version code
+        run: |
+          
+          # Extract version number from branch name
+          version_name=$(grep "versionName" app/build.gradle | awk '{print $2}' | tr -d '\n')
+          
+          # Get existing version code from build.gradle
+          version_code=${{github.run_number}}
+          
+          # Set environment variable for later use
+          echo "VERSION_NAME=$version_name" >> $GITHUB_ENV
+          echo "VERSION_CODE=$version_code" >> $GITHUB_ENV
+
+      - name: Increase version code and change version name
+        run: |
+          
+          # Update build.gradle with new version code and name
+          echo "${{ env.VERSION_CODE }} - ${{ env.VERSION_NAME }}"
+          sed -i "s/versionCode [0-9]\+/versionCode ${{ env.VERSION_CODE }}/g" app/build.gradle
+          sed -i "s/versionName \"[^\"]*\"/versionName \"${{ env.VERSION_NAME}}\"/g" app/build.gradle
+
+      - name: Commit and push changes
+        run: |
+          git config user.email "github-actions@github.com"
+          git config user.name "Github Actions"
+          git commit -am "Bump version code and change version name"
+          git push origin HEAD
+
+      - name: Build Release AAB with Gradle
+        run: ./gradlew clean bundleRelease
+
+      - name: Sign Release AAB
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/bundle/release
+          signingKeyBase64: '${{ secrets.SIGNING_KEY }}'
+          alias: '${{ secrets.ALIAS }}'
+          keyStorePassword: '${{ secrets.KEY_STORE_PASSWORD }}'
+          keyPassword: '${{ secrets.KEY_PASSWORD }}'
+
+      - name: Create service_account.json
+        id: createServiceAccount
+        run: 'echo ''${{ secrets.SERVICE_ACCOUNT_JSON }}'' > service_account.json'
+
+      - name: Upload Android Release to Play Store
+        uses: r0adkll/upload-google-play@v1
+        with:
+          releaseName: '${{env.VERSION_CODE}} (${{env.VERSION_NAME}})'
+          serviceAccountJson: service_account.json
+          packageName: com.latticeonfhir.android
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
+          track: alpha
+          inAppUpdatePriority: 5
+          mappingFile: app/build/outputs/mapping/release/mapping.txt
+          debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
