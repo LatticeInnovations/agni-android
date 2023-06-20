@@ -76,19 +76,7 @@ jobs:
             git config user.email "github-actions@github.com"
             git config user.name "Github Actions"
             git commit -am "Bump version code and change version name"
-            git push origin HEAD:test
-
-        - name: Build Release AAB with Gradle
-          run: ./gradlew clean bundleRelease
-
-        - name: Sign Release AAB
-          uses: r0adkll/sign-android-release@v1
-          with:
-            releaseDirectory: app/build/outputs/bundle/release
-            signingKeyBase64: '${{ secrets.SIGNING_KEY }}'
-            alias: '${{ secrets.ALIAS }}'
-            keyStorePassword: '${{ secrets.KEY_STORE_PASSWORD }}'
-            keyPassword: '${{ secrets.KEY_PASSWORD }}'
+            git push origin HEAD
             
         - name: Open pull request
           uses: peter-evans/create-pull-request@v5.0.0
@@ -99,18 +87,30 @@ jobs:
             body: "${{ env.VERSION_NAME }} - (${{ env.VERSION_CODE }})"
             base: "development"
 
-        - name: Create service_account.json
-          id: createServiceAccount
-          run: 'echo ''${{ secrets.SERVICE_ACCOUNT_JSON }}'' > service_account.json'
+#         - name: Build Release AAB with Gradle
+#           run: ./gradlew clean bundleRelease
 
-        - name: Upload Android Release to Play Store
-          uses: r0adkll/upload-google-play@v1
-          with:
-            releaseName: '${{env.VERSION_NAME}}'
-            serviceAccountJson: service_account.json
-            packageName: com.latticeonfhir.android
-            releaseFiles: app/build/outputs/bundle/release/app-release.aab
-            track: internal
-            inAppUpdatePriority: 5
-            mappingFile: app/build/outputs/mapping/release/mapping.txt
-            debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
+#         - name: Sign Release AAB
+#           uses: r0adkll/sign-android-release@v1
+#           with:
+#             releaseDirectory: app/build/outputs/bundle/release
+#             signingKeyBase64: '${{ secrets.SIGNING_KEY }}'
+#             alias: '${{ secrets.ALIAS }}'
+#             keyStorePassword: '${{ secrets.KEY_STORE_PASSWORD }}'
+#             keyPassword: '${{ secrets.KEY_PASSWORD }}'
+
+#         - name: Create service_account.json
+#           id: createServiceAccount
+#           run: 'echo ''${{ secrets.SERVICE_ACCOUNT_JSON }}'' > service_account.json'
+
+#         - name: Upload Android Release to Play Store
+#           uses: r0adkll/upload-google-play@v1
+#           with:
+#             releaseName: '${{env.VERSION_NAME}}'
+#             serviceAccountJson: service_account.json
+#             packageName: com.latticeonfhir.android
+#             releaseFiles: app/build/outputs/bundle/release/app-release.aab
+#             track: internal
+#             inAppUpdatePriority: 5
+#             mappingFile: app/build/outputs/mapping/release/mapping.txt
+#             debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
