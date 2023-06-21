@@ -80,7 +80,7 @@ fun PatientRegistration(
                         }) {
                             Icon(
                                 Icons.Default.ArrowBack,
-                                contentDescription = "Back button"
+                                contentDescription = "BACK_ICON"
                             )
                         }
                     }
@@ -93,7 +93,7 @@ fun PatientRegistration(
                         if (viewModel.currentStep == 1) navController.popBackStack()
                         else viewModel.openDialog = true
                     }) {
-                        Icon(Icons.Default.Clear, contentDescription = "clear icon")
+                        Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
                     }
                 }
             )
@@ -139,7 +139,7 @@ fun PatientRegistration(
                                     viewModel.totalSteps = 3
                                 }
                             }) {
-                                Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
+                                Icon(Icons.Default.Clear, contentDescription = "DIALOG_CLEAR_ICON")
                             }
                         }
                     },

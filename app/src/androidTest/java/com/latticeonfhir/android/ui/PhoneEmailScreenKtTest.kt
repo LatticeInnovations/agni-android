@@ -3,25 +3,12 @@ package com.latticeonfhir.android.ui
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.latticeonfhir.android.ui.main.MainActivity
-import org.junit.Rule
 import org.junit.Test
 
-class PhoneEmailScreenKtTest {
-
-    @get: Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
-
-    val heading = hasTestTag("HEADING_TAG")
-    val subHeading = hasTestTag("SUB_HEADING_TAG")
-    val inputField = hasTestTag("INPUT_FIELD")
-    val button = hasTestTag("BUTTON")
-    val dialogPositiveBtn = hasTestTag("POSITIVE_BTN")
+class PhoneEmailScreenKtTest: UiTestsBase() {
 
     @Test
     fun verify_heading(){

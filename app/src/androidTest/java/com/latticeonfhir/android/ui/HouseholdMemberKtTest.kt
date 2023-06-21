@@ -1,28 +1,17 @@
 package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.hasNoClickAction
-import androidx.compose.ui.test.hasScrollAction
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.latticeonfhir.android.ui.main.MainActivity
 import org.junit.FixMethodOrder
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
@@ -30,65 +19,7 @@ import org.junit.runners.MethodSorters
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
-class HouseholdMemberKtTest {
-    @get: Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
-
-    val landingScreenTitle = hasText("My Patients") and hasNoClickAction()
-    val patient = hasTestTag("PATIENT")
-    val patientList = hasTestTag("patients list") and hasScrollAction()
-    val searchicon = hasContentDescription("SEARCH_ICON")
-
-    // icons
-    val backIcon = hasContentDescription("back icon")
-    val clearIcon = hasContentDescription("clear icon")
-    val moreIcon = hasContentDescription("more icon")
-
-    // placeholders
-    val title = hasTestTag("TITLE")
-    val subtitle = hasTestTag("SUBTITLE")
-
-    // cards
-    val householdMemberCard = hasTestTag("HOUSEHOLD_MEMBER") and hasClickAction()
-    val addPatientCard = hasTestTag("Add a patient") and hasNoClickAction()
-    val searcbPatientCard = hasTestTag("Search patients") and hasNoClickAction()
-
-    // buttons
-    val addPatientBtn = hasText("Add a patient") and hasClickAction()
-    val searchPatientBtn = hasText("Search patients") and hasClickAction()
-
-    // tabs
-    val tabRow = hasTestTag("TABS")
-    val membersTab = hasTestTag("MEMBERS")
-    val suggestionsTab = hasTestTag("SUGGESTIONS")
-
-    // fabs
-    val updateFab = hasTestTag("UPDATE_FAB")
-    val addMemberFab = hasTestTag("ADD_MEMBER_FAB")
-    val editExistingFab = hasTestTag("EDIT_EXISTING_FAB")
-    val clearFab = hasTestTag("CLEAR_FAB")
-
-    // relation dialog
-    val dialogTitle = hasTestTag("DIALOG_TITLE")
-    val dialogDismissIcon = hasContentDescription("CLEAR_ICON")
-    val dialogRelationDropdown = hasTestTag("RELATIONS_DROPDOWN")
-    val dialogPositiveBtn = hasTestTag("POSITIVE_BTN")
-    val dialogNegativeBtn = hasTestTag("NEGATIVE_BTN")
-
-    // for login
-    val inputField = hasTestTag("INPUT_FIELD")
-    val button = hasTestTag("BUTTON")
-    val firstDigit = hasTestTag("FIRST_DIGIT")
-    val secondDigit = hasTestTag("SECOND_DIGIT")
-    val thirdDigit = hasTestTag("THIRD_DIGIT")
-    val fourDigit = hasTestTag("FOUR_DIGIT")
-    val fiveDigit = hasTestTag("FIVE_DIGIT")
-    val sixDigit = hasTestTag("SIX_DIGIT")
-
-    // for logout
-    val profile_tab = hasTestTag("Profile tab") and hasClickAction()
-    val logoutIcon = hasContentDescription("LOG_OUT_ICON")
-
+class HouseholdMemberKtTest: UiTestsBase() {
     @Test
     fun aaaa_login(){
         composeTestRule.onNode(inputField).performTextInput("9876543210")
@@ -112,7 +43,7 @@ class HouseholdMemberKtTest {
         )
         composeTestRule.onNode(patientList).performScrollToNode(patient)
         composeTestRule.onAllNodes(patient)[0].performClick()
-        //composeTestRule.onNode(title).assertTextEquals("Mansi")
+        //composeTestRule.onNode(titleAdvancedSearch).assertTextEquals("Mansi")
         composeTestRule.onNode(householdMemberCard).assertExists("Should have navigated to patient landing screen.")
     }
 
@@ -124,7 +55,7 @@ class HouseholdMemberKtTest {
         )
         composeTestRule.onNode(patientList).performScrollToNode(patient)
         composeTestRule.onAllNodes(patient)[0].performClick()
-        //composeTestRule.onNode(title).assertTextEquals("Mansi")
+        //composeTestRule.onNode(titleAdvancedSearch).assertTextEquals("Mansi")
         composeTestRule.onNode(backIcon, useUnmergedTree = true).assertExists("Back icon should be displayed.")
         composeTestRule.onNode(moreIcon, useUnmergedTree = true).assertExists("More icon should be displayed.")
         composeTestRule.onNode(householdMemberCard).assertExists("Household member card should be displayed.")
@@ -138,9 +69,9 @@ class HouseholdMemberKtTest {
         )
         //composeTestRule.onNode(patientList).performScrollToNode(patient)
         composeTestRule.onAllNodes(patient)[0].performClick()
-        //composeTestRule.onNode(title).assertTextEquals("Mansi")
+        //composeTestRule.onNode(titleAdvancedSearch).assertTextEquals("Mansi")
         composeTestRule.onNode(backIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(landingScreenTitle).assertExists("Should have navigated to My Patients screen.")
+        composeTestRule.onNode(titleMyPatients).assertExists("Should have navigated to My Patients screen.")
     }
 
     @Test
@@ -258,7 +189,7 @@ class HouseholdMemberKtTest {
         composeTestRule.onNode(householdMemberCard).performClick()
         composeTestRule.onNode(title).assertTextEquals("Household members")
         composeTestRule.onNode(backIcon, useUnmergedTree = true).performClick()
-        //composeTestRule.onNode(title).assertTextEquals("Mansi")
+        //composeTestRule.onNode(titleAdvancedSearch).assertTextEquals("Mansi")
         composeTestRule.onNode(householdMemberCard).assertExists("Should have navigated to patient landing screen.")
     }
 
