@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -14,7 +13,6 @@ import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
@@ -42,7 +40,7 @@ class HouseholdMemberKtTest {
     // icons
     val backIcon = hasContentDescription("back icon")
     val clearIcon = hasContentDescription("clear icon")
-    val moreIcon = hasContentDescription("more icon")
+    val profileIcon = hasContentDescription("profile icon")
 
     // placeholders
     val title = hasTestTag("TITLE")
@@ -126,7 +124,7 @@ class HouseholdMemberKtTest {
         composeTestRule.onAllNodes(patient)[0].performClick()
         //composeTestRule.onNode(title).assertTextEquals("Mansi")
         composeTestRule.onNode(backIcon, useUnmergedTree = true).assertExists("Back icon should be displayed.")
-        composeTestRule.onNode(moreIcon, useUnmergedTree = true).assertExists("More icon should be displayed.")
+        composeTestRule.onNode(profileIcon, useUnmergedTree = true).assertExists("Profile icon should be displayed.")
         composeTestRule.onNode(householdMemberCard).assertExists("Household member card should be displayed.")
     }
 

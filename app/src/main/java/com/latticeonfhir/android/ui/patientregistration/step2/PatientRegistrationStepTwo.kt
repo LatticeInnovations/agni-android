@@ -101,6 +101,8 @@ fun PatientRegistrationStepTwo(
                         !viewModel.passportPattern.matches(viewModel.passportId)
                 }
                 IdLength(viewModel.passportId, viewModel.maxPassportIdLength)
+            } else{
+                viewModel.passportId =""
             }
             if (viewModel.isVoterSelected) {
                 Spacer(modifier = Modifier.height(5.dp))
@@ -117,6 +119,8 @@ fun PatientRegistrationStepTwo(
                     viewModel.isVoterValid = !viewModel.voterPattern.matches(viewModel.voterId)
                 }
                 IdLength(viewModel.voterId, viewModel.maxVoterIdLength)
+            }else{
+                viewModel.voterId=""
             }
             if (viewModel.isPatientSelected) {
                 Spacer(modifier = Modifier.height(5.dp))
@@ -133,6 +137,8 @@ fun PatientRegistrationStepTwo(
                     viewModel.isPatientValid = viewModel.patientId.length < 10
                 }
                 IdLength(viewModel.patientId, viewModel.maxPatientIdLength)
+            }else{
+                viewModel.patientId =""
             }
         }
         Button(
