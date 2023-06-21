@@ -42,7 +42,7 @@ import java.util.UUID
         PrescriptionDirectionsEntity::class,
         MedicineTimingEntity::class],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(TypeConverter::class)
