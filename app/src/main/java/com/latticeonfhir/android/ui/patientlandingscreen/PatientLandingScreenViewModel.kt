@@ -47,4 +47,8 @@ class PatientLandingScreenViewModel @Inject constructor(
             }
         }
     }
+
+    internal suspend fun getPatientData(id: String): PatientResponse {
+        return patientRepository.getPatientById(id)[0]
+    }
 }
