@@ -47,7 +47,6 @@ android {
         applicationId "com.latticeonfhir.android"
         minSdk 23
         targetSdk 33
-
         versionCode 24
         versionName "1.2.2"
 
