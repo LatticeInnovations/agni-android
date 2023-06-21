@@ -6,20 +6,26 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 
-class PatientRegistrationStepThreeViewModel: BaseViewModel(), DefaultLifecycleObserver {
+class PatientRegistrationStepThreeViewModel : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
 
     var homeAddress by mutableStateOf(Address())
+
+    // temp
+    val homeAddressTemp by mutableStateOf(Address())
+
     var workAddress by mutableStateOf(Address())
 
     var addWorkAddress by mutableStateOf(false)
 
-    fun addressInfoValidation(): Boolean{
-        if (homeAddress.pincode.length < 6 || homeAddress.state=="" || homeAddress.addressLine1 == ""
-            || homeAddress.city == "")
+    fun addressInfoValidation(): Boolean {
+        if (homeAddress.pincode.length < 6 || homeAddress.state == "" || homeAddress.addressLine1 == ""
+            || homeAddress.city == ""
+        )
             return false
-        if (addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state=="" || workAddress.addressLine1 == ""
-                    || workAddress.city == ""))
+        if (addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state == "" || workAddress.addressLine1 == ""
+                    || workAddress.city == "")
+        )
             return false
         return true
     }

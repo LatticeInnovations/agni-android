@@ -15,6 +15,10 @@ import com.latticeonfhir.android.ui.householdmember.HouseholdMembersScreen
 import com.latticeonfhir.android.ui.patientlandingscreen.PatientLandingScreen
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistrationPreview
+import com.latticeonfhir.android.ui.patienteditscreen.EditPatient
+import com.latticeonfhir.android.ui.patienteditscreen.address.EditPatientAddress
+import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.EditBasicInformation
+import com.latticeonfhir.android.ui.patienteditscreen.identification.EditIdentification
 import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationship
 import com.latticeonfhir.android.ui.prescription.PrescriptionScreen
 import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
@@ -36,6 +40,10 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.SearchResult.route){ SearchResult(navController = navController) }
         composable(Screen.ConnectPatient.route){ ConnectPatient(navController = navController) }
         composable(Screen.Prescription.route){ PrescriptionScreen(navController = navController) }
+        composable(Screen.EditPatient.route){ EditPatient(navController = navController) }
+        composable(Screen.EditBasicInfo.route){ EditBasicInformation(navController = navController) }
+        composable(Screen.EditIdentification.route){ EditIdentification(navController = navController) }
+        composable(Screen.EditAddress.route){ EditPatientAddress(navController = navController) }
         //composable(Screen.FillDetails.route){ FillDetailsScreen(navController = navController) }
     }
 }
