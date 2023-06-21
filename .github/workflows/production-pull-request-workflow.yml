@@ -1,9 +1,9 @@
-name: Testing Workflow
+name: Production Pull Request
 
 'on':
   pull_request:
     branches:
-      - test
+      - main
 
 jobs:
   build:
@@ -41,23 +41,23 @@ jobs:
             hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}-${{
             hashFiles('**/buildSrc/**/*.kt') }}
 
-#       - name: Execute Gradle build
-#         run: ./gradlew build
+      - name: Execute Gradle build
+        run: ./gradlew build
 
-#       - name: Run Unit Tests
-#         run: ./gradlew testDebugUnitTest
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
 
-#       - name: Upload Unit Test report
-#         uses: actions/upload-artifact@v2
-#         with:
-#           name: unit-test-report
-#           path: app/build/reports/tests/testDebugUnitTest/
+      - name: Upload Unit Test report
+        uses: actions/upload-artifact@v2
+        with:
+          name: unit-test-report
+          path: app/build/reports/tests/testDebugUnitTest/
 
-#       - name: Create Unit Test Coverage Report
-#         run: ./gradlew createDebugUnitTestCoverageReport
+      - name: Create Unit Test Coverage Report
+        run: ./gradlew createDebugUnitTestCoverageReport
 
-#       - name: Upload Jacoco coverage report
-#         uses: actions/upload-artifact@v2
-#         with:
-#           name: jacoco-report
-#           path: app/build/reports/coverage/test/debug/
+      - name: Upload Jacoco coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: jacoco-report
+          path: app/build/reports/coverage/test/debug/

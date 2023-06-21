@@ -1,4 +1,4 @@
-name: Android CI
+name: Development Pull Request
 
 "on":
   pull_request:
@@ -41,30 +41,30 @@ jobs:
             hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}-${{
             hashFiles('**/buildSrc/**/*.kt') }}
 
-#      - name: Execute Gradle build
-#        run: ./gradlew build
+      - name: Execute Gradle build
+        run: ./gradlew build
 
 #TODO(@Naveen Implement Ktlint in App)
 #      - name: Run Ktlint
 #        run: ./gradlew ktlintStagingDebugCheck
 
-#      - name: Run Unit Tests
-#        run: ./gradlew testDebugUnitTest
-#
-#      - name: Upload Unit Test report
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: unit-test-report
-#          path: app/build/reports/tests/testDebugUnitTest/
-#
-#      - name: Create Unit Test Coverage Report
-#        run: ./gradlew createDebugUnitTestCoverageReport
-#
-#      - name: Upload Jacoco coverage report
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: jacoco-report
-#          path: app/build/reports/coverage/test/debug/
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Upload Unit Test report
+        uses: actions/upload-artifact@v2
+        with:
+          name: unit-test-report
+          path: app/build/reports/tests/testDebugUnitTest/
+
+      - name: Create Unit Test Coverage Report
+        run: ./gradlew createDebugUnitTestCoverageReport
+
+      - name: Upload Jacoco coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: jacoco-report
+          path: app/build/reports/coverage/test/debug/
 
 #TODO(@mansikalraa,@naveen -> Find Solution to run Instrumentation test on actions)
 #      - name: Instrumentation Tests

@@ -57,7 +57,7 @@ class HouseholdMemberKtTest: UiTestsBase() {
         composeTestRule.onAllNodes(patient)[0].performClick()
         //composeTestRule.onNode(titleAdvancedSearch).assertTextEquals("Mansi")
         composeTestRule.onNode(backIcon, useUnmergedTree = true).assertExists("Back icon should be displayed.")
-        composeTestRule.onNode(moreIcon, useUnmergedTree = true).assertExists("More icon should be displayed.")
+        composeTestRule.onNode(profileIcon, useUnmergedTree = true).assertExists("Profile icon should be displayed.")
         composeTestRule.onNode(householdMemberCard).assertExists("Household member card should be displayed.")
     }
 
