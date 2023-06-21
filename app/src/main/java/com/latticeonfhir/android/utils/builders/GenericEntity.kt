@@ -60,7 +60,7 @@ object GenericEntity {
                             ChangeTypeEnum.REPLACE.value -> {
                                 existingList.apply {
                                     remove(alreadyExist)
-                                    add(alreadyExist!!.copy(value = null, operation = entryValue.operation))
+                                    add(alreadyExist!!.copy(value = entryValue.value, operation = entryValue.operation))
                                 }
                             }
                             else -> {
@@ -112,7 +112,7 @@ object GenericEntity {
                                 existingMap.remove(mapEntry.key)
                             }
                             ChangeTypeEnum.REPLACE.value -> {
-                                existingMap[mapEntry.key] = alreadyExistChangeRequest.copy(value = null, operation = (mapEntry.value as ChangeRequest).operation)
+                                existingMap[mapEntry.key] = alreadyExistChangeRequest.copy(value = (mapEntry.value as ChangeRequest).value, operation = (mapEntry.value as ChangeRequest).operation)
                             }
                             else -> {
                                 existingMap[mapEntry.key] = mapEntry.value

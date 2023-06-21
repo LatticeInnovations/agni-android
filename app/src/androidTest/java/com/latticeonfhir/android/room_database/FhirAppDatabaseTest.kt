@@ -117,6 +117,7 @@ open class FhirAppDatabaseTest: TestCase() {
 
     @Before
     public override fun setUp() {
+        super.setUp()
         fhirAppDatabase = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             FhirAppDatabase::class.java

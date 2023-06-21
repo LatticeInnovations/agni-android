@@ -6,7 +6,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,14 +27,24 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientLandingScreen(navController: NavController, viewModel: PatientLandingScreenViewModel = hiltViewModel()) {
+fun PatientLandingScreen(
+    navController: NavController,
+    viewModel: PatientLandingScreenViewModel = hiltViewModel()
+) {
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                "patient"
-            )
-            viewModel.patient?.fhirId?.let { patientFhirId -> viewModel.downloadPrescriptions(patientFhirId) }
+            viewModel.patient =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    "patient"
+                )
+            viewModel.patient?.fhirId?.let { patientFhirId ->
+                viewModel.downloadPrescriptions(
+                    patientFhirId
+                )
+            }
         }
+        viewModel.patient = viewModel.getPatientData(viewModel.patient!!.id)
+
         viewModel.isLaunched = true
     }
     Scaffold(
@@ -56,7 +65,7 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
                     val age = viewModel.patient?.birthDate?.toTimeInMilli()?.toAge()
                     val subTitle = "${
                         viewModel.patient?.gender?.get(0)?.uppercase()
-                    }/$age · ${viewModel.patient?.fhirId}"
+                    }/$age . +91 ${viewModel.patient?.mobileNumber} ${if (viewModel.patient?.fhirId.isNullOrEmpty()) "" else ".  ${viewModel.patient?.fhirId}"} "
                     Column {
                         Text(
                             text = NameConverter.getFullName(
@@ -75,10 +84,19 @@ fun PatientLandingScreen(navController: NavController, viewModel: PatientLanding
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            key = "patient_detailsID",
+                            value = viewModel.patient?.id
+                        )
+                        navController.navigate(Screen.EditPatient.route)
+                    }) {
                         Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = "more icon"
+                            painter = painterResource(id = R.drawable.profile_icon),
+                            contentDescription = "profile icon",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
@@ -141,7 +159,7 @@ fun CardComposable(
         ) {
             Icon(
                 painter = painterResource(id = icon),
-                contentDescription = tag+"_ICON",
+                contentDescription = tag + "_ICON",
                 tint = MaterialTheme.colorScheme.surfaceTint,
                 modifier = Modifier.size(30.dp, 21.dp)
             )
