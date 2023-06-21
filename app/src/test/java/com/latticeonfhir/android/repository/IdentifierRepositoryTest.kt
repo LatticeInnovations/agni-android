@@ -26,7 +26,7 @@ class IdentifierRepositoryTest: BaseClass() {
     @Test
     fun insertIdentifierListTest() = runBlocking {
         `when`(patientResponse.toListOfIdentifierEntity()
-            ?.let { identifierDao.insertListOfIdentifier(it) }).thenReturn(Unit)
+            .let { identifierDao.insertListOfIdentifier(it) }).thenReturn(Unit)
 
         val actual = identifierRepositoryImpl.insertIdentifierList(patientResponse)
 

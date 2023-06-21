@@ -32,6 +32,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.NameConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -494,5 +495,18 @@ fun Label(label: String) {
 
 @Composable
 fun Detail(detail: String, tag: String) {
-    Text(text = detail, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag(tag))
+    if (tag == "DOB_TAG") {
+        Text(
+            text = detail.toPatientDate().toPatientPreviewDate(),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.testTag(tag)
+        )
+    }
+    else {
+        Text(
+            text = detail,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.testTag(tag)
+        )
+    }
 }
