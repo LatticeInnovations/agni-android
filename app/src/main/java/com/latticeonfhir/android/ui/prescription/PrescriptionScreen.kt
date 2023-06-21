@@ -142,12 +142,12 @@ fun PrescriptionScreen(
                         Text(
                             text = stringResource(id = R.string.prescription),
                             style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.testTag("HEADING")
+                            modifier = Modifier.testTag("HEADING_TAG")
                         )
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "ARROW_BACK")
+                            Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
                         }
                     },
                     actions = {
@@ -236,7 +236,7 @@ fun PrescriptionScreen(
                                         viewModel.bottomNavExpanded = false
                                         viewModel.clearAllConfirmDialog = false
                                     },
-                                    modifier = Modifier.testTag("DIALOG_POSITIVE_BTN")
+                                    modifier = Modifier.testTag("POSITIVE_BTN")
                                 ) {
                                     Text(
                                         stringResource(id = R.string.yes_discard)
@@ -248,7 +248,7 @@ fun PrescriptionScreen(
                                     onClick = {
                                         viewModel.clearAllConfirmDialog = false
                                     },
-                                    modifier = Modifier.testTag("DIALOG_NEGATIVE_BTN")
+                                    modifier = Modifier.testTag("NEGATIVE_BTN")
                                 ) {
                                     Text(
                                         stringResource(id = R.string.no_go_back)

@@ -130,7 +130,7 @@ fun PatientRegistrationPreview(
                     }) {
                         Icon(
                             Icons.Default.ArrowBack,
-                            contentDescription = "Back button"
+                            contentDescription = "BACK_ICON"
                         )
                     }
                 },
@@ -139,7 +139,7 @@ fun PatientRegistrationPreview(
                 ),
                 actions = {
                     IconButton(onClick = { viewModel.openDialog = true }) {
-                        Icon(Icons.Default.Clear, contentDescription = "clear icon")
+                        Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
                     }
                 }
             )

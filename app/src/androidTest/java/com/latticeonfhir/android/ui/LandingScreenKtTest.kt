@@ -1,76 +1,15 @@
 package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.latticeonfhir.android.ui.main.MainActivity
 import org.junit.FixMethodOrder
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
-class LandingScreenKtTest {
-    @get: Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
-
-    // PlaceHolders
-    val title = hasText("My Patients") and hasNoClickAction()
-    val searchTitle = hasTestTag("SEARCH_TITLE_TEXT")
-    val queueTitle = hasText("Queue") and hasNoClickAction()
-    val profileTitle = hasText("Profile") and hasNoClickAction()
-    val addPatientText = hasTestTag("ADD_PATIENT_TEXT")
-
-    // Icons
-    val searchIcon = hasContentDescription("SEARCH_ICON")
-    val addPatientIcon = hasContentDescription("ADD_PATIENT_ICON")
-    val clearIcon = hasContentDescription("CLEAR_ICON")
-    val backIcon = hasContentDescription("BACK_ICON")
-
-    // chips
-    val chipCategory1 = hasText("Category 1")
-    val chipCategory2 = hasText("Category 2")
-    val chipCategory3 = hasText("Category 3")
-
-    // list
-    val patientList = hasTestTag("patients list") and hasScrollAction()
-    val previousSearchList = hasTestTag("PREVIOUS_SEARCHES") and hasScrollAction()
-
-    // bottom nav bar
-    val bottomNavBar = hasTestTag("BOTTOM_NAV_BAR")
-
-    // bottom nav bar icons
-    val my_patients_icon = hasContentDescription("My Patients")
-    val queue_icon = hasContentDescription("Queue")
-    val profile_icon = hasContentDescription("Profile")
-
-    // bottom nav bar tabs
-    val my_patients_tab = hasTestTag("My Patients tab") and hasClickAction()
-    val queue_tab = hasTestTag("Queue tab") and hasClickAction()
-    val profile_tab = hasTestTag("Profile tab") and hasClickAction()
-
-    //search layout
-    val searchLayout = hasTestTag("SEARCH_LAYOUT")
-    val searchTextField = hasTestTag("SEARCH_TEXT_FIELD")
-
-    // buttons
-    val advancedSearchButton = hasText("Advanced search") and hasClickAction()
-
-    // for login
-    val inputField = hasTestTag("INPUT_FIELD")
-    val button = hasTestTag("BUTTON")
-    val firstDigit = hasTestTag("FIRST_DIGIT")
-    val secondDigit = hasTestTag("SECOND_DIGIT")
-    val thirdDigit = hasTestTag("THIRD_DIGIT")
-    val fourDigit = hasTestTag("FOUR_DIGIT")
-    val fiveDigit = hasTestTag("FIVE_DIGIT")
-    val sixDigit = hasTestTag("SIX_DIGIT")
-
-    // for logout
-    val logoutIcon = hasContentDescription("LOG_OUT_ICON")
-
+class LandingScreenKtTest: UiTestsBase() {
     @Test
     fun aaaa_login(){
         composeTestRule.onNode(inputField).performTextInput("9876543210")
@@ -88,7 +27,7 @@ class LandingScreenKtTest {
 
     @Test
     fun landingScreen_verify_if_all_views_exist() {
-        composeTestRule.onNode(title).assertExists(errorMessageOnFail = "Title should be \"My Patients\".")
+        composeTestRule.onNode(titleMyPatients).assertExists(errorMessageOnFail = "Title should be \"My Patients\".")
         composeTestRule.onNode(searchIcon, useUnmergedTree = true).assertExists(errorMessageOnFail = "Search Icon should be displayed.")
         composeTestRule.onNode(chipCategory1).assertExists(errorMessageOnFail = "Category 1 chip should be displayed.")
         composeTestRule.onNode(chipCategory2).assertExists(errorMessageOnFail = "Category 2 chip should be displayed.")
@@ -138,7 +77,7 @@ class LandingScreenKtTest {
         composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
         composeTestRule.onNode(backIcon).performClick()
         composeTestRule.onNode(searchLayout).assertDoesNotExist()
-        composeTestRule.onNode(title).assertExists("Should navigate back to landing screen.")
+        composeTestRule.onNode(titleMyPatients).assertExists("Should navigate back to landing screen.")
     }
 
     @Test
@@ -214,7 +153,7 @@ class LandingScreenKtTest {
         composeTestRule.onNode(searchTextField).performImeAction()
         composeTestRule.onNode(searchLayout).assertDoesNotExist()
         composeTestRule.onNode(clearIcon, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertExists(errorMessageOnFail = "Should be navigated to \"My Patients\" screen.")
+        composeTestRule.onNode(titleMyPatients).assertExists(errorMessageOnFail = "Should be navigated to \"My Patients\" screen.")
     }
 
     @Test

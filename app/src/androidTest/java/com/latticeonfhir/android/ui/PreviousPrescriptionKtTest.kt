@@ -4,21 +4,12 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.hasNoClickAction
-import androidx.compose.ui.test.hasScrollAction
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.latticeonfhir.android.ui.main.MainActivity
 import org.junit.FixMethodOrder
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
@@ -26,66 +17,7 @@ import org.junit.runners.MethodSorters
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class)
-class PreviousPrescriptionKtTest {
-    @get: Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
-
-    // for login
-    val inputField = hasTestTag("INPUT_FIELD")
-    val button = hasTestTag("BUTTON")
-    val firstDigit = hasTestTag("FIRST_DIGIT")
-    val secondDigit = hasTestTag("SECOND_DIGIT")
-    val thirdDigit = hasTestTag("THIRD_DIGIT")
-    val fourDigit = hasTestTag("FOUR_DIGIT")
-    val fiveDigit = hasTestTag("FIVE_DIGIT")
-    val sixDigit = hasTestTag("SIX_DIGIT")
-
-    // landing screen
-    val title = hasText("My Patients") and hasNoClickAction()
-    val patientList = hasTestTag("patients list") and hasScrollAction()
-    val patient = hasTestTag("PATIENT")
-
-    // prescription screen
-    val heading = hasTestTag("HEADING")
-    val previousPrescriptionTab = hasTestTag("PREVIOUS PRESCRIPTION")
-    val quickSelectTab = hasTestTag("QUICK SELECT")
-    val backIcon = hasContentDescription("ARROW_BACK")
-    val prescribeBtn = hasTestTag("PRESCRIBE_BTN")
-    val previousPrescriptionCards = hasTestTag("PREVIOUS_PRESCRIPTION_CARDS")
-    val previousPrescriptionCardsTitleRow = hasTestTag("PREVIOUS_PRESCRIPTION_TITLE_ROW")
-    val previousPrescriptionExpandedCards = hasTestTag("PREVIOUS_PRESCRIPTION_EXPANDED_CARD")
-    val represcribeBtn = hasTestTag("RE_PRESCRIBE_BTN")
-
-    val bottomNavRow = hasTestTag("BOTTOM_NAV_ROW")
-    val bottomNavExpanded = hasTestTag("BOTTOM_NAV_EXPANDED")
-    val medicationTitle = hasTestTag("MEDICATION_TITLE")
-    val upArrowIcon = hasContentDescription("ARROW_UP")
-    val clearIcon = hasContentDescription("CLEAR_ICON")
-    val editIcon = hasContentDescription("EDIT_ICON")
-    val clearAllBtn = hasTestTag("CLEAR_ALL_BTN")
-
-    // dialog
-    val dialogTitle = hasTestTag("DIALOG_TITLE")
-    val dialogDesc = hasTestTag("DIALOG_DESCRIPTION")
-    val dialogPositiveBtn = hasTestTag("DIALOG_POSITIVE_BTN")
-    val dialogNegativeBtn = hasTestTag("DIALOG_NEGATIVE_BTN")
-
-    // quick selection screen
-    val checkBoxes = hasTestTag("ACTIVE_INGREDIENT_CHECK_BOX")
-
-    // fill details
-    val formulationsList = hasTestTag("FORMULATION_LIST")
-    val duration = hasTestTag("DURATION")
-    val doneBtn = hasTestTag("DONE_BTN")
-
-    // patient landing screen
-    val householdMemberCard = hasTestTag("HOUSEHOLD_MEMBER") and hasClickAction()
-    val prescriptionCard = hasTestTag("PRESCRIPTION") and hasClickAction()
-
-    // for logout
-    val profile_tab = hasTestTag("Profile tab") and hasClickAction()
-    val logoutIcon = hasContentDescription("LOG_OUT_ICON")
-
+class PreviousPrescriptionKtTest: UiTestsBase() {
     @Test
     fun aaaa_login(){
         composeTestRule.onNode(inputField).performTextInput("9876543210")
@@ -119,7 +51,7 @@ class PreviousPrescriptionKtTest {
 
     @Test
     fun check_for_patient_list(){
-        composeTestRule.onNode(title).assertExists()
+        composeTestRule.onNode(titleMyPatients).assertExists()
         composeTestRule.onNode(patientList).assertExists("patient list should exists")
     }
 
