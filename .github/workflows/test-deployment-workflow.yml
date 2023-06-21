@@ -50,7 +50,7 @@ jobs:
         - name: Extract existing version code
           run: |          
             # Extract version number from branch name
-            version_name=$(grep "versionName" app/build.gradle | awk '{print $2}' | tr -d '\n')
+            version_name=$(grep "versionName" app/build.gradle | awk '{print $2}' | tr -d '"\n')
   
             # Get existing version code from build.gradle
             version_code=$(grep "versionCode" app/build.gradle | awk '{print $2}' | tr -d '\n')
