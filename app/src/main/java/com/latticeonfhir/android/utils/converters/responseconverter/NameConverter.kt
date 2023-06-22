@@ -5,10 +5,10 @@ object NameConverter {
     internal fun getFullName(firstName: String?, middleName: String?, lastName: String?): String{
         return firstName +
                 if (middleName.isNullOrEmpty()) "" else {
-                    " " + middleName
+                    " $middleName"
                 } +
                 if (lastName.isNullOrEmpty()) "" else {
-                    " " + lastName
+                    " $lastName"
                 }
     }
 

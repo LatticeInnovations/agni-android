@@ -144,7 +144,7 @@ class EditPatientAddressViewModel @Inject constructor(
                     Pair(
                         "permanentAddress", ChangeRequest(
                             value = patientResponse.permanentAddress,
-                            operation = ChangeTypeEnum.REMOVE.value
+                            operation = ChangeTypeEnum.REPLACE.value
                         )
                     )
                 ),
