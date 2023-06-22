@@ -126,7 +126,7 @@ class OtpScreenKtTest: UiTestsBase() {
 
     @Test
     fun check_error_msg_on_multiple_incorrect_attempts(){
-        composeTestRule.onNode(inputField).performTextInput("8279784095")
+        composeTestRule.onNode(inputField).performTextInput("9999999999")
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
         composeTestRule.onNode(dialogPositiveBtn).performClick()
