@@ -28,6 +28,7 @@ open class UiTestsBase {
     val errorMsg = hasTestTag("ERROR_MSG")
     val twoMinTimer = hasTestTag("TWO_MIN_TIMER")
     val backIcon = hasContentDescription("BACK_ICON")
+    val profileIcon = hasContentDescription("profile icon")
 
     // dialog
     val dialogTitle = hasTestTag("DIALOG_TITLE")
