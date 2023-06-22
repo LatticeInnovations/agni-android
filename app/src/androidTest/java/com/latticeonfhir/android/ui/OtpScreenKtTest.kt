@@ -131,7 +131,7 @@ class OtpScreenKtTest: UiTestsBase() {
         Thread.sleep(2000)
         composeTestRule.onNode(dialogPositiveBtn).performClick()
         Thread.sleep(2000)
-        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(firstDigit).performTextInput("2")
         composeTestRule.onNode(secondDigit).performTextInput("1")
         composeTestRule.onNode(thirdDigit).performTextInput("1")
         composeTestRule.onNode(fourDigit).performTextInput("1")
@@ -142,7 +142,7 @@ class OtpScreenKtTest: UiTestsBase() {
         composeTestRule.onNode(errorMsg).assertTextEquals("Invalid OTP")
 
         // second time
-        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(firstDigit).performTextInput("2")
         composeTestRule.onNode(secondDigit).performTextInput("1")
         composeTestRule.onNode(thirdDigit).performTextInput("1")
         composeTestRule.onNode(fourDigit).performTextInput("1")
@@ -153,7 +153,7 @@ class OtpScreenKtTest: UiTestsBase() {
         composeTestRule.onNode(errorMsg).assertTextEquals("Invalid OTP")
 
         //third time
-        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(firstDigit).performTextInput("2")
         composeTestRule.onNode(secondDigit).performTextInput("1")
         composeTestRule.onNode(thirdDigit).performTextInput("1")
         composeTestRule.onNode(fourDigit).performTextInput("1")
@@ -164,7 +164,7 @@ class OtpScreenKtTest: UiTestsBase() {
         composeTestRule.onNode(errorMsg).assertTextEquals("Invalid OTP")
 
         // fourth time
-        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(firstDigit).performTextInput("2")
         composeTestRule.onNode(secondDigit).performTextInput("1")
         composeTestRule.onNode(thirdDigit).performTextInput("1")
         composeTestRule.onNode(fourDigit).performTextInput("1")
@@ -175,7 +175,7 @@ class OtpScreenKtTest: UiTestsBase() {
         composeTestRule.onNode(errorMsg).assertTextEquals("Invalid OTP")
 
         // fifth time
-        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(firstDigit).performTextInput("2")
         composeTestRule.onNode(secondDigit).performTextInput("1")
         composeTestRule.onNode(thirdDigit).performTextInput("1")
         composeTestRule.onNode(fourDigit).performTextInput("1")
