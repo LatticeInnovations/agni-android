@@ -16,12 +16,16 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import java.util.Date
 import java.util.UUID
 
+@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(JUnit4::class)
 class PrescriptionRepositoryTest : BaseClass() {
 
     @Mock
@@ -90,7 +94,6 @@ class PrescriptionRepositoryTest : BaseClass() {
         )
     )
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     public override fun setUp() {
 
@@ -111,14 +114,12 @@ class PrescriptionRepositoryTest : BaseClass() {
     }
 
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     internal fun insertPrescription() = runTest {
         val prescriptionInserted = prescriptionRepositoryImpl.insertPrescription(prescriptionResponseLocal)
         assertEquals(1L, prescriptionInserted)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     internal fun getLastPrescription() = runTest {
         val lastPrescriptions = prescriptionRepositoryImpl.getLastPrescription(patientResponse.id)

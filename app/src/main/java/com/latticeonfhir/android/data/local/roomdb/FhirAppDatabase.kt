@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.roomdb
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -42,7 +43,10 @@ import java.util.UUID
         PrescriptionDirectionsEntity::class,
         MedicineTimingEntity::class],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
-    version = 1,
+    version = 2,
+    autoMigrations = [
+        AutoMigration(from = 1, to =  2)
+    ],
     exportSchema = true
 )
 @TypeConverters(TypeConverter::class)
