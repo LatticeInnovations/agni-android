@@ -46,7 +46,7 @@ class EditPatientTest {
     private val patientList = hasTestTag("patients list") and hasScrollAction()
 
     // icons
-    val backIcon = hasContentDescription("back icon")
+    val backIcon = hasContentDescription("BACK_ICON")
     val clearIcon = hasContentDescription("clear icon")
     val profileIcon = hasContentDescription("profile icon")
     val houseHoldMemberCard = hasTestTag("HOUSEHOLD_MEMBER") and hasClickAction()
