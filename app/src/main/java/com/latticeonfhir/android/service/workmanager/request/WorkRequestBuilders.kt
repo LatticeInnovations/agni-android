@@ -122,9 +122,7 @@ class WorkRequestBuilders(
                         /** Handle Progress Based Download WorkRequests Here */
                     }
                     if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                        downloadPatientWorker { errorReceived, errorMsg ->
-                            error(errorReceived, errorMsg)
-                        }
+
                     }
                 }
             }
@@ -155,9 +153,7 @@ class WorkRequestBuilders(
                         /** Handle Progress Based Download WorkRequests Here */
                     }
                     if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                        downloadPatientWorker { errorReceived, errorMsg ->
-                            error(errorReceived, errorMsg)
-                        }
+
                     }
                 }
             }
