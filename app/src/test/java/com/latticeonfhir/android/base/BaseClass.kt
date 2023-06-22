@@ -49,7 +49,7 @@ abstract class BaseClass : TestCase() {
         active = true,
         gender = "male",
         mobileNumber = 9876543210,
-        fhirId = "FHIR_ID",
+        fhirId = "2132",
         permanentAddress = PatientAddressResponse(
             postalCode = "111111",
             state = "Uttarakhand",

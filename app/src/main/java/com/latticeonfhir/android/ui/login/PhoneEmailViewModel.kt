@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
@@ -18,7 +19,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PhoneEmailViewModel @Inject constructor(
-    private val authenticationRepository: AuthenticationRepository
+    private val authenticationRepository: AuthenticationRepository,
+    private val preferenceRepository: PreferenceRepository,
+    private val fhirAppDatabase: FhirAppDatabase
 ): BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var inputValue by mutableStateOf("")
@@ -27,6 +30,7 @@ class PhoneEmailViewModel @Inject constructor(
     var isPhoneNumber by mutableStateOf(false)
     var isError by mutableStateOf(false)
     var errorMsg by mutableStateOf("")
+    var showDifferentUserLoginDialog by mutableStateOf(false)
 
     fun updateError() {
         errorMsg = "Enter valid phone number or Email address"
@@ -50,6 +54,19 @@ class PhoneEmailViewModel @Inject constructor(
                     navigate(false)
                 }
             }
+        }
+    }
+
+    fun isDifferentUserLogin(): Boolean {
+        return if(preferenceRepository.getUserMobile() == 0L && preferenceRepository.getUserEmail().isBlank()) {
+                false
+            } else !(preferenceRepository.getUserEmail() == inputValue || preferenceRepository.getUserMobile().toString() == inputValue)
+    }
+
+    internal fun clearAllAppData(){
+        viewModelScope.launch(Dispatchers.IO) {
+            fhirAppDatabase.clearAllTables()
+            preferenceRepository.clearPreferences()
         }
     }
 }
