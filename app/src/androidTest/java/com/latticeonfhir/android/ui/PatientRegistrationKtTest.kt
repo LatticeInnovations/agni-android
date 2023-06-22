@@ -1083,7 +1083,7 @@ class PatientRegistrationKtTest: UiTestsBase() {
         composeTestRule.onNode(submitBtn).assertIsEnabled()
         composeTestRule.onNode(submitBtn).performClick()
         composeTestRule.onNode(nameTag).assertTextEquals("Mansi, Female")
-        composeTestRule.onNode(dobTag).assertTextEquals("23-January-2001")
+        composeTestRule.onNode(dobTag).assertTextEquals("23-01-2001")
         composeTestRule.onNode(phoneNoTag).assertTextEquals("+91 9876543210")
         composeTestRule.onNode(passportIdTag).assertTextEquals("A1098765")
         composeTestRule.onNode(voterIdTag).assertTextEquals("XYZ1234567")
