@@ -110,7 +110,7 @@ fun EditPatient(
                     }) {
                         Icon(
                             Icons.Default.ArrowBack,
-                            contentDescription = "back icon"
+                            contentDescription = "BACK_ICON"
                         )
                     }
                 },

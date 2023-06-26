@@ -1,56 +1,21 @@
 package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.hasNoClickAction
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.latticeonfhir.android.ui.main.MainActivity
 import org.junit.FixMethodOrder
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
-class OtpScreenKtTest {
-
-    @get: Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
-
-    val heading = hasTestTag("HEADING_TAG")
-    val subHeading = hasTestTag("SUB_HEADING_TAG")
-    val inputField = hasTestTag("INPUT_FIELD")
-    val button = hasTestTag("BUTTON")
-    val resendButton = hasTestTag("RESEND_BUTTON")
-    val firstDigit = hasTestTag("FIRST_DIGIT")
-    val secondDigit = hasTestTag("SECOND_DIGIT")
-    val thirdDigit = hasTestTag("THIRD_DIGIT")
-    val fourDigit = hasTestTag("FOUR_DIGIT")
-    val fiveDigit = hasTestTag("FIVE_DIGIT")
-    val sixDigit = hasTestTag("SIX_DIGIT")
-    val errorMsg = hasTestTag("ERROR_MSG")
-    val twoMinTimer = hasTestTag("TWO_MIN_TIMER")
-    val backIcon = hasContentDescription("BACK_ICON")
-
-    // landing screen
-    val title = hasText("My Patients") and hasNoClickAction()
-
-    // for logout
-    val profile_tab = hasTestTag("Profile tab") and hasClickAction()
-    val logoutIcon = hasContentDescription("LOG_OUT_ICON")
-
-    fun login(){
+class OtpScreenKtTest: UiTestsBase() {
+    private fun login(){
         composeTestRule.onNode(inputField).performTextInput("9876543210")
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
@@ -161,10 +126,12 @@ class OtpScreenKtTest {
 
     @Test
     fun check_error_msg_on_multiple_incorrect_attempts(){
-        composeTestRule.onNode(inputField).performTextInput("8279784095")
+        composeTestRule.onNode(inputField).performTextInput("9999999999")
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
-        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(dialogPositiveBtn).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(firstDigit).performTextInput("2")
         composeTestRule.onNode(secondDigit).performTextInput("1")
         composeTestRule.onNode(thirdDigit).performTextInput("1")
         composeTestRule.onNode(fourDigit).performTextInput("1")
@@ -175,7 +142,7 @@ class OtpScreenKtTest {
         composeTestRule.onNode(errorMsg).assertTextEquals("Invalid OTP")
 
         // second time
-        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(firstDigit).performTextInput("2")
         composeTestRule.onNode(secondDigit).performTextInput("1")
         composeTestRule.onNode(thirdDigit).performTextInput("1")
         composeTestRule.onNode(fourDigit).performTextInput("1")
@@ -186,7 +153,7 @@ class OtpScreenKtTest {
         composeTestRule.onNode(errorMsg).assertTextEquals("Invalid OTP")
 
         //third time
-        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(firstDigit).performTextInput("2")
         composeTestRule.onNode(secondDigit).performTextInput("1")
         composeTestRule.onNode(thirdDigit).performTextInput("1")
         composeTestRule.onNode(fourDigit).performTextInput("1")
@@ -197,7 +164,7 @@ class OtpScreenKtTest {
         composeTestRule.onNode(errorMsg).assertTextEquals("Invalid OTP")
 
         // fourth time
-        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(firstDigit).performTextInput("2")
         composeTestRule.onNode(secondDigit).performTextInput("1")
         composeTestRule.onNode(thirdDigit).performTextInput("1")
         composeTestRule.onNode(fourDigit).performTextInput("1")
@@ -208,7 +175,7 @@ class OtpScreenKtTest {
         composeTestRule.onNode(errorMsg).assertTextEquals("Invalid OTP")
 
         // fifth time
-        composeTestRule.onNode(firstDigit).performTextInput("1")
+        composeTestRule.onNode(firstDigit).performTextInput("2")
         composeTestRule.onNode(secondDigit).performTextInput("1")
         composeTestRule.onNode(thirdDigit).performTextInput("1")
         composeTestRule.onNode(fourDigit).performTextInput("1")
@@ -233,13 +200,13 @@ class OtpScreenKtTest {
         composeTestRule.onNode(sixDigit).performTextInput("2")
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
-        composeTestRule.onNode(title).assertExists("Should navigate to \"My Patients\".")
+        composeTestRule.onNode(titleMyPatients).assertExists("Should navigate to \"My Patients\".")
 
     }
 
     @Test
     fun zzzz_logout(){
-        composeTestRule.onNode(profile_tab).performClick()
+        composeTestRule.onNode(profileTab).performClick()
         composeTestRule.onNode(logoutIcon).performClick()
         composeTestRule.onNodeWithText("Logout").performClick()
     }

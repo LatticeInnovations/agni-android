@@ -84,7 +84,7 @@ fun ConfirmRelationship(
 //                    }) {
 //                        Icon(
 //                            Icons.Default.ArrowBack,
-//                            contentDescription = "Back button"
+//                            contentDescription = "BACK_ICON"
 //                        )
 //                    }
 //                },
@@ -95,7 +95,7 @@ fun ConfirmRelationship(
                     IconButton(onClick = {
                         viewModel.discardAllRelationDialog = true
                     }) {
-                        Icon(Icons.Default.Clear, contentDescription = "clear icon")
+                        Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
                     }
                 }
             )
