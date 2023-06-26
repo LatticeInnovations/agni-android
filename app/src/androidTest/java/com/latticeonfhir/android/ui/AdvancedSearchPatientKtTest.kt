@@ -1,92 +1,15 @@
 package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.latticeonfhir.android.ui.main.MainActivity
 import org.junit.FixMethodOrder
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
-class AdvancedSearchPatientKtTest {
-    @get: Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
-
-    val searchIcon = hasContentDescription("SEARCH_ICON")
-    val advancedSearchButton = hasText("Advanced search") and hasClickAction()
-
-    // Placeholders
-    val title = hasText("Advanced Search")
-    val heading = hasText("Search using any of the field below")
-    val ageRangeTitle = hasText("Select age range")
-    val gender = hasText("Gender")
-    val address = hasText("Address")
-    val searchTitle = hasTestTag("SEARCH_TITLE_TEXT")
-    val addPatientText = hasTestTag("ADD_PATIENT_TEXT")
-
-    // Icons
-    val clearIcon = hasContentDescription("CLEAR_ICON")
-
-    // chips
-    val chipCategory1 = hasText("Category 1")
-    val chipCategory2 = hasText("Category 2")
-    val chipCategory3 = hasText("Category 3")
-
-    // Input Fields
-    val patientName = hasTestTag("Patient Name") and hasClickAction()
-    val patientId = hasTestTag("Patient ID") and hasClickAction()
-    val postalCode = hasTestTag("Postal Code *") and hasClickAction()
-    val addressLine1 = hasTestTag("Address Line 1 *") and hasClickAction()
-    val addressLine2 = hasTestTag("Address Line 2") and hasClickAction()
-    val city = hasTestTag("City *") and hasClickAction()
-    val district = hasTestTag("District") and hasClickAction()
-    val minValue = hasTestTag("MIN_VALUE") and hasClickAction()
-    val maxValue = hasTestTag("MAX_VALUE") and hasClickAction()
-
-    // Selection Chips
-    val femaleChip = hasTestTag("female") and hasClickAction()
-    val maleChip = hasTestTag("male") and hasClickAction()
-    val othersChip = hasTestTag("other") and hasClickAction()
-
-    // Button
-    val searchBtn = hasText("Search") and hasClickAction()
-
-    // Slider
-    val ageRangeSlider = hasTestTag("age range slider")
-
-    // list
-    val patientList = hasTestTag("patients list") and hasScrollAction()
-
-    // dropdown
-    val lastFacilityVisit = hasTestTag("last facility visit") and hasClickAction()
-    val state = hasTestTag("State *") and hasClickAction()
-
-    // end of screen
-    val endOfScreen = hasTestTag("END_OF_SCREEN")
-    val rootLayout = hasTestTag("ROOT_LAYOUT")
-
-    // bottom nav bar
-    val bottomNavBar = hasTestTag("BOTTOM_NAV_BAR")
-
-    // for login
-    val inputField = hasTestTag("INPUT_FIELD")
-    val button = hasTestTag("BUTTON")
-    val firstDigit = hasTestTag("FIRST_DIGIT")
-    val secondDigit = hasTestTag("SECOND_DIGIT")
-    val thirdDigit = hasTestTag("THIRD_DIGIT")
-    val fourDigit = hasTestTag("FOUR_DIGIT")
-    val fiveDigit = hasTestTag("FIVE_DIGIT")
-    val sixDigit = hasTestTag("SIX_DIGIT")
-
-    // for logout
-    val profile_tab = hasTestTag("Profile tab") and hasClickAction()
-    val logoutIcon = hasContentDescription("LOG_OUT_ICON")
-
+class AdvancedSearchPatientKtTest: UiTestsBase() {
     @Test
     fun aaaa_login(){
         composeTestRule.onNode(inputField).performTextInput("9876543210")
@@ -106,22 +29,22 @@ class AdvancedSearchPatientKtTest {
     fun advancedSearch_verify_if_all_views_exist() {
         composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
         composeTestRule.onNode(advancedSearchButton).performClick()
-        composeTestRule.onNode(title).assertExists("Title should be \"Advanced Search\".")
+        composeTestRule.onNode(titleAdvancedSearch).assertExists("Title should be \"Advanced Search\".")
         composeTestRule.onNode(clearIcon, useUnmergedTree = true).assertExists("Clear icon should exists.")
         composeTestRule.onNode(patientId).assertExists("Patient ID input field should be displayed.")
         composeTestRule.onNode(patientName).assertExists("Patient Name input field should be displayed.")
-        composeTestRule.onNode(heading).assertExists("Heading \"Search using any of the field below\" should be displayed.")
+        composeTestRule.onNode(headingSearch).assertExists("Heading \"Search using any of the field below\" should be displayed.")
         composeTestRule.onNode(ageRangeTitle).assertExists("Title \"Select age range\" should be displayed.")
         composeTestRule.onNode(ageRangeSlider).assertExists("Age Range Slider should be displayed.")
         composeTestRule.onNode(minValue).assertExists("Min age input field should be displayed.")
         composeTestRule.onNode(maxValue).assertExists("Max age input field should be displayed.")
-        composeTestRule.onNode(gender).assertExists("Gender title should be displayed.")
+        composeTestRule.onNode(gender).assertExists("Gender titleAdvancedSearch should be displayed.")
         composeTestRule.onNode(femaleChip).assertExists("Female gender selection chip should be displayed.")
         composeTestRule.onNode(maleChip).assertExists("Male gender selection chip should be displayed.")
         composeTestRule.onNode(othersChip).assertExists("Others gender selection chip should be displayed.")
         composeTestRule.onNode(lastFacilityVisit).assertExists("Last facility visit dropdown should be displayed.")
         composeTestRule.onNode(rootLayout).performScrollToNode(endOfScreen)
-        composeTestRule.onNode(address).assertExists("Address heading should exist.")
+        composeTestRule.onNode(address).assertExists("Address headingSearch should exist.")
         composeTestRule.onNode(postalCode).assertExists("Postal code input field should exist.")
         composeTestRule.onNode(state).assertExists("State dropdown should exist.")
         composeTestRule.onNode(addressLine1).assertExists("Address Line 1 input field should exist.")
@@ -229,7 +152,7 @@ class AdvancedSearchPatientKtTest {
 
     @Test
     fun zzzz_logout(){
-        composeTestRule.onNode(profile_tab).performClick()
+        composeTestRule.onNode(profileTab).performClick()
         composeTestRule.onNode(logoutIcon).performClick()
         composeTestRule.onNodeWithText("Logout").performClick()
     }

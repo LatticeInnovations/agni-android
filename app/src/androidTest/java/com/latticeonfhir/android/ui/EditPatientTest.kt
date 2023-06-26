@@ -46,7 +46,7 @@ class EditPatientTest {
     private val patientList = hasTestTag("patients list") and hasScrollAction()
 
     // icons
-    val backIcon = hasContentDescription("back icon")
+    val backIcon = hasContentDescription("BACK_ICON")
     val clearIcon = hasContentDescription("clear icon")
     val profileIcon = hasContentDescription("profile icon")
     val houseHoldMemberCard = hasTestTag("HOUSEHOLD_MEMBER") and hasClickAction()
@@ -115,15 +115,15 @@ class EditPatientTest {
 
     @Test
     fun aaaa_login() {
-        composeTestRule.onNode(inputField).performTextInput("1111111111")
+        composeTestRule.onNode(inputField).performTextInput("9876543210")
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
-        composeTestRule.onNode(firstDigit).performTextInput("1")
-        composeTestRule.onNode(secondDigit).performTextInput("1")
-        composeTestRule.onNode(thirdDigit).performTextInput("1")
-        composeTestRule.onNode(fourDigit).performTextInput("1")
-        composeTestRule.onNode(fiveDigit).performTextInput("1")
-        composeTestRule.onNode(sixDigit).performTextInput("1")
+        composeTestRule.onNode(firstDigit).performTextInput("2")
+        composeTestRule.onNode(secondDigit).performTextInput("2")
+        composeTestRule.onNode(thirdDigit).performTextInput("2")
+        composeTestRule.onNode(fourDigit).performTextInput("2")
+        composeTestRule.onNode(fiveDigit).performTextInput("2")
+        composeTestRule.onNode(sixDigit).performTextInput("2")
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
     }

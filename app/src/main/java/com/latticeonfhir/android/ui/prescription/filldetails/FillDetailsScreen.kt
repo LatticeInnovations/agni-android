@@ -94,7 +94,7 @@ fun FillDetailsScreen(
                     Text(
                         text = stringResource(id = R.string.fill_details),
                         style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.testTag("HEADING")
+                        modifier = Modifier.testTag("HEADING_TAG")
                     )
                 },
                 navigationIcon = {
