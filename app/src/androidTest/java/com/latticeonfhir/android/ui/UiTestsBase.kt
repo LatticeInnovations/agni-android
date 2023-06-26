@@ -89,6 +89,7 @@ open class UiTestsBase {
     // dropdown
     val lastFacilityVisit = hasTestTag("last facility visit") and hasClickAction()
     val state = hasTestTag("State *") and hasClickAction()
+    val stateDropDownList = hasTestTag("STATE_DROP_DOWN")
 
     // end of screen
     val endOfScreen = hasTestTag("END_OF_SCREEN")
@@ -130,8 +131,12 @@ open class UiTestsBase {
 
     // Input Fields
     val firstName = hasTestTag("First Name") and hasClickAction()
+    val firstNameLength = hasTestTag("FIRST_NAME_LENGTH")
     val middleName = hasTestTag("Middle Name") and hasClickAction()
+    val middleNameLength = hasTestTag("MIDDLE_NAME_LENGTH")
     val lastName = hasTestTag("Last Name") and hasClickAction()
+    val lastNameLength = hasTestTag("LAST_NAME_LENGTH")
+    val countryCode = hasTestTag("COUNTRY_CODE") and hasClickAction()
     val phoneNo = hasTestTag("Phone Number") and hasClickAction()
     val email = hasTestTag("Email") and hasClickAction()
     val year = hasTestTag("Year") and hasClickAction()
@@ -141,7 +146,10 @@ open class UiTestsBase {
     val months = hasTestTag("Months") and hasClickAction()
     val days = hasTestTag("Days") and hasClickAction()
     val passportId = hasTestTag("Passport ID") and hasClickAction()
+    val passportIdLength = hasTestTag("PASSPORT_ID_LENGTH")
     val voterId = hasTestTag("Voter ID") and hasClickAction()
+    val voterIdLength = hasTestTag("VOTER_ID_LENGTH")
+    val patientIdLength = hasTestTag("PATIENT_ID_LENGTH")
 
     // Selection Chips
     val dobChip = hasTestTag("dob") and hasClickAction()
