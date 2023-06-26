@@ -1,8 +1,11 @@
 package com.latticeonfhir.android.pagingsource
 
+import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
+import com.latticeonfhir.android.utils.constants.Paging
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientAndIdentifierEntityResponse
 import com.latticeonfhir.android.utils.paging.SearchPagingSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -15,7 +18,7 @@ import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
-class SearchPagingSourceTest: BaseClass() {
+class SearchPagingSourceTest : BaseClass() {
 
     private lateinit var searchPagingSource: SearchPagingSource
 
@@ -44,7 +47,7 @@ class SearchPagingSourceTest: BaseClass() {
     @Test
     fun `search paging source load - empty data`() = runTest {
         val patientList = emptyList<PatientAndIdentifierEntity>()
-        searchPagingSource = SearchPagingSource(patientList,10)
+        searchPagingSource = SearchPagingSource(patientList, 10)
         val expectedResult = PagingSource.LoadResult.Page(
             data = patientList.subList(0, patientList.size),
             prevKey = null,
@@ -64,7 +67,7 @@ class SearchPagingSourceTest: BaseClass() {
     @Test
     fun `search paging source load - Refresh data`() = runTest {
         val fuzzyList = patientList.map { it.toPatientAndIdentifierEntityResponse() }
-        searchPagingSource = SearchPagingSource(fuzzyList,10)
+        searchPagingSource = SearchPagingSource(fuzzyList, 10)
         val expectedResult = PagingSource.LoadResult.Page(
             data = fuzzyList.subList(0, 10),
             prevKey = null,
@@ -84,7 +87,7 @@ class SearchPagingSourceTest: BaseClass() {
     @Test
     fun `search paging source load - Append data`() = runTest {
         val fuzzyList = patientList.map { it.toPatientAndIdentifierEntityResponse() }
-        searchPagingSource = SearchPagingSource(fuzzyList,10)
+        searchPagingSource = SearchPagingSource(fuzzyList, 10)
         val expectedResult = PagingSource.LoadResult.Page(
             data = fuzzyList.subList(10, patientList.size),
             prevKey = 0,
@@ -104,7 +107,7 @@ class SearchPagingSourceTest: BaseClass() {
     @Test
     fun `search paging source load - Prepend data`() = runTest {
         val fuzzyList = patientList.map { it.toPatientAndIdentifierEntityResponse() }
-        searchPagingSource = SearchPagingSource(fuzzyList,10)
+        searchPagingSource = SearchPagingSource(fuzzyList, 10)
         val expectedResult = PagingSource.LoadResult.Page(
             data = fuzzyList.subList(0, 10),
             prevKey = null,
@@ -112,10 +115,41 @@ class SearchPagingSourceTest: BaseClass() {
         )
         assertEquals(
             expectedResult, searchPagingSource.load(
-                PagingSource.LoadParams.Append(
+                PagingSource.LoadParams.Prepend(
                     key = 0,
                     loadSize = 1,
                     placeholdersEnabled = false
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `search paging source load - Anchor Key`() = runTest {
+        val fuzzyList = patientList.map { it.toPatientAndIdentifierEntityResponse() }
+        searchPagingSource = SearchPagingSource(fuzzyList, 10)
+        val expectedResult = 0
+        assertEquals(
+            expectedResult, searchPagingSource.getRefreshKey(
+                PagingState(
+                    listOf(
+                        PagingSource.LoadResult.Page(
+                            data = fuzzyList.subList(0, 10),
+                            prevKey = null,
+                            nextKey = 1
+                        ),
+                        PagingSource.LoadResult.Page(
+                            data = fuzzyList.subList(10, patientList.size),
+                            prevKey = 0,
+                            nextKey = null
+                        )
+                    ),
+                    1,
+                    config = PagingConfig(
+                        pageSize = Paging.PAGE_SIZE,
+                        enablePlaceholders = false
+                    ),
+                    leadingPlaceholderCount = 0
                 )
             )
         )
