@@ -96,7 +96,7 @@ fun AddressComposable(label: String, address: Address, reset : () -> Unit) {
             val statesList = States.getStateList()
 
             DropdownMenu(
-                modifier = Modifier.fillMaxHeight(0.5f),
+                modifier = Modifier.fillMaxHeight(0.5f).testTag("STATE_DROP_DOWN"),
                 expanded = expanded,
                 onDismissRequest = { expanded = !expanded },
             ) {

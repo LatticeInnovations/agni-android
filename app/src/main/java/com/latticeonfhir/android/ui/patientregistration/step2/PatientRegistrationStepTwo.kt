@@ -100,7 +100,7 @@ fun PatientRegistrationStepTwo(
                     viewModel.isPassportValid =
                         !viewModel.passportPattern.matches(viewModel.passportId)
                 }
-                IdLength(viewModel.passportId, viewModel.maxPassportIdLength)
+                IdLength(viewModel.passportId, viewModel.maxPassportIdLength, "PASSPORT_ID_LENGTH")
             } else{
                 viewModel.passportId =""
             }
@@ -118,7 +118,7 @@ fun PatientRegistrationStepTwo(
                     viewModel.voterId = it
                     viewModel.isVoterValid = !viewModel.voterPattern.matches(viewModel.voterId)
                 }
-                IdLength(viewModel.voterId, viewModel.maxVoterIdLength)
+                IdLength(viewModel.voterId, viewModel.maxVoterIdLength, "VOTER_ID_LENGTH")
             }else{
                 viewModel.voterId=""
             }
@@ -136,7 +136,7 @@ fun PatientRegistrationStepTwo(
                     viewModel.patientId = it
                     viewModel.isPatientValid = viewModel.patientId.length < 10
                 }
-                IdLength(viewModel.patientId, viewModel.maxPatientIdLength)
+                IdLength(viewModel.patientId, viewModel.maxPatientIdLength, "PATIENT_ID_LENGTH")
             }else{
                 viewModel.patientId =""
             }
@@ -189,14 +189,15 @@ fun IdSelectionChip(idSelected: Boolean, label: String, updateSelection: (Boolea
 }
 
 @Composable
-fun IdLength(idName: String, requiredLength: Int) {
+fun IdLength(idName: String, requiredLength: Int, tag: String) {
     Text(
         text = "${idName.length}/$requiredLength",
         textAlign = TextAlign.Right,
         style = MaterialTheme.typography.bodySmall,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 5.dp, end = 15.dp),
+            .padding(top = 5.dp, end = 15.dp)
+            .testTag(tag),
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
