@@ -135,6 +135,7 @@ dependencies {
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.11.0'
+    testImplementation 'androidx.arch.core:core-testing:2.2.0'
 
 
     //Recycler View
@@ -148,15 +149,15 @@ dependencies {
     implementation 'androidx.security:security-crypto:1.0.0'
 
     //Room Database
-    implementation 'androidx.room:room-runtime:2.5.1'
-    implementation 'androidx.room:room-ktx:2.5.1'
-    kapt 'androidx.room:room-compiler:2.5.1'
+    implementation 'androidx.room:room-runtime:2.5.2'
+    implementation 'androidx.room:room-ktx:2.5.2'
+    kapt 'androidx.room:room-compiler:2.5.2'
 
     //Room Database Test Helpers
-    testImplementation 'androidx.room:room-testing:2.5.1'
+    testImplementation 'androidx.room:room-testing:2.5.2'
 
     //Room Database Paging Support
-    implementation 'androidx.room:room-paging:2.5.1'
+    implementation 'androidx.room:room-paging:2.5.2'
 
     //Paging 3
     implementation 'androidx.paging:paging-runtime-ktx:3.1.1'
@@ -166,6 +167,7 @@ dependencies {
 
     //Paging 3 Test Implementation
     testImplementation 'androidx.paging:paging-common-ktx:3.1.1'
+    androidTestImplementation 'androidx.paging:paging-common-ktx:3.1.1'
 
     //Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
