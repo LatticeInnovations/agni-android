@@ -96,7 +96,7 @@ fun PatientRegistrationStepOne(
                 viewModel.isNameValid =
                     viewModel.firstName.length < 3 || viewModel.firstName.length > 100
             }
-            ValueLength(viewModel.firstName)
+            ValueLength(viewModel.firstName, "FIRST_NAME_LENGTH")
             CustomTextField(
                 viewModel.middleName,
                 stringResource(id = R.string.middle_name),
@@ -108,7 +108,7 @@ fun PatientRegistrationStepOne(
             ) {
                 viewModel.middleName = it
             }
-            ValueLength(viewModel.middleName)
+            ValueLength(viewModel.middleName, "MIDDLE_NAME_LENGTH")
             CustomTextField(
                 viewModel.lastName,
                 stringResource(id = R.string.last_name),
@@ -120,7 +120,7 @@ fun PatientRegistrationStepOne(
             ) {
                 viewModel.lastName = it
             }
-            ValueLength(viewModel.lastName)
+            ValueLength(viewModel.lastName, "LAST_NAME_LENGTH")
             Row(modifier = Modifier.fillMaxWidth()) {
                 CustomFilterChip(viewModel.dobAgeSelector, "dob", "Date of Birth") {
                     viewModel.dobAgeSelector = it
@@ -195,11 +195,12 @@ fun PatientRegistrationStepOne(
 }
 
 @Composable
-fun ValueLength(value: String) {
+fun ValueLength(value: String, tag: String) {
     Text(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 5.dp, end = 15.dp),
+            .padding(top = 5.dp, end = 15.dp)
+            .testTag(tag),
         text = if (value.isEmpty()) "" else "${value.length}/100",
         style = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Right,
@@ -360,7 +361,7 @@ fun ContactTextField(viewModel: PatientRegistrationStepOneViewModel) {
             trailingIcon = {
                 Icon(Icons.Default.ArrowDropDown, contentDescription = null)
             },
-            modifier = Modifier.fillMaxWidth(0.4f),
+            modifier = Modifier.fillMaxWidth(0.4f).testTag("COUNTRY_CODE"),
             readOnly = true,
             singleLine = true
         )
