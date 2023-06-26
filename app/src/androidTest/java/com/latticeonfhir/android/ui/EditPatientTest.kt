@@ -1,11 +1,9 @@
 package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasClickAction
@@ -24,9 +22,7 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.latticeonfhir.android.ui.main.MainActivity
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import okhttp3.internal.wait
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
@@ -71,10 +67,6 @@ class EditPatientTest {
     val years = hasTestTag("Years") and hasClickAction()
     val months = hasTestTag("Months") and hasClickAction()
     val days = hasTestTag("Days") and hasClickAction()
-
-    val passportId = hasTestTag("Passport Id") and hasClickAction()
-    val voterId = hasTestTag("Voter Id") and hasClickAction()
-    val patientId = hasTestTag("Patient Id") and hasClickAction()
 
     val postalCode = hasTestTag("Postal Code *") and hasClickAction()
     val state = hasTestTag("State *") and hasClickAction()
@@ -619,8 +611,9 @@ class EditPatientTest {
         composeTestRule.onNode(title).assertTextEquals("Patient profile")
         composeTestRule.onNode(editBtn1).performClick()
         composeTestRule.onNode(basicInformationTitle).assertTextEquals("Basic information")
-        composeTestRule.onNode(middleName).performTextClearance()
-        composeTestRule.onNode(email).performTextInput("abc@gmail.com")
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(email).performTextClearance()
+        composeTestRule.onNode(email).performTextInput("${UUIDBuilder.generateUUID()}@gmail.com")
         composeTestRule.onNode(email).performImeAction()
         composeTestRule.onNode(undoAll).assertIsEnabled()
         composeTestRule.onNode(undoAll, true).performClick()
