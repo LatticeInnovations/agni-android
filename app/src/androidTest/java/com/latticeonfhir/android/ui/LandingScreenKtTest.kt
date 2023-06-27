@@ -7,6 +7,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
 
+@OptIn(ExperimentalTestApi::class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
 class LandingScreenKtTest: UiTestsBase() {
@@ -54,6 +55,16 @@ class LandingScreenKtTest: UiTestsBase() {
     fun landingScreen_verify_profile_tab_click (){
         composeTestRule.onNode(profile_tab).performClick()
         composeTestRule.onNode(profileTitle).assertExists("Should have navigated to Profile screen")
+    }
+
+    @Test
+    fun landingScreen_verify_patient_click (){
+        composeTestRule.waitUntilAtLeastOneExists(
+            patient,
+            timeoutMillis = 15000
+        )
+        composeTestRule.onAllNodes(patient)[0].performClick()
+        composeTestRule.onNode(householdMemberCard).assertExists("Should have navigated to patient landing screen.")
     }
 
     @Test
