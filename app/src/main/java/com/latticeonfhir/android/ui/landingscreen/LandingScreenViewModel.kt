@@ -151,7 +151,7 @@ class LandingScreenViewModel @Inject constructor(
 
     internal fun insertRecentSearch() {
         viewModelScope.launch(Dispatchers.IO) {
-            searchRepository.insertRecentPatientSearch(searchQuery.trim(), Date())
+            searchRepository.insertRecentPatientSearch(searchQuery.trim())
         }
     }
 

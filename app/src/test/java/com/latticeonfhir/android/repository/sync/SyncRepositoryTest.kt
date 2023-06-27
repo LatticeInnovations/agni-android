@@ -3,8 +3,10 @@ package com.latticeonfhir.android.repository.sync
 import com.google.gson.internal.LinkedTreeMap
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.base.server.BaseResponse
+import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
+import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
@@ -25,6 +27,7 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
+import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
 import com.latticeonfhir.android.utils.converters.responseconverter.toNoBracketAndNoSpaceString
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
@@ -186,6 +189,46 @@ class SyncRepositoryTest : BaseClass() {
                     "    }]",
             GenericTypeEnum.PRESCRIPTION,
             SyncType.POST
+        )
+    )
+
+    private val listOfPatchEntity = listOf(
+        GenericEntity(
+            "ID",
+            id,
+            mapOf(
+                Pair(
+                    "permanentAddress", ChangeRequest(
+                        value = patientResponse.permanentAddress,
+                        operation = ChangeTypeEnum.ADD.value
+                    )
+                ),
+                Pair(
+                    "id", patientResponse.fhirId!!
+                )
+            ).toJson(),
+            GenericTypeEnum.PATIENT,
+            SyncType.PATCH
+        )
+    )
+
+    private val listOfPatchRelatedPersonEntity = listOf(
+        GenericEntity(
+            "ID",
+            id,
+            mapOf(
+                Pair(
+                    "related", ChangeRequest(
+                        value = patientResponse.permanentAddress,
+                        operation = ChangeTypeEnum.ADD.value
+                    )
+                ),
+                Pair(
+                    "id", patientResponse.fhirId!!
+                )
+            ).toJson(),
+            GenericTypeEnum.PATIENT,
+            SyncType.PATCH
         )
     )
 
@@ -745,6 +788,87 @@ class SyncRepositoryTest : BaseClass() {
         assertEquals(
             "78e2d936-39e4-42c3-abf4-b96274726c27",
             (response as ApiEndResponse).body[0].id
+        )
+    }
+
+    @Test
+    fun `send person patch data return success`() = runTest {
+        `when`(genericDao.getSameTypeGenericEntityPayload(GenericTypeEnum.PATIENT,SyncType.PATCH)).thenReturn(
+            emptyList()
+        )
+        val response = syncRepositoryImpl.sendPersonPatchData()
+        assertEquals(true, response is ApiEmptyResponse)
+    }
+
+    @Test
+    fun `send person patch interact server return success`() = runTest {
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                genericTypeEnum = GenericTypeEnum.PATIENT,
+                syncType = SyncType.PATCH
+            )
+        ).thenReturn(
+            listOfPatchEntity
+        )
+
+        `when`(
+            patientApiService.patchListOfChanges(
+                PATIENT,
+                listOfPatchEntity.map { it.payload.fromJson() }
+            )
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 1,
+                    message = "Success",
+                    data = listOf(createResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+
+        val response = syncRepositoryImpl.sendPersonPatchData()
+        assertEquals(
+            "21292",
+            (response as ApiEndResponse).body[0].fhirId
+        )
+    }
+
+    @Test
+    fun `send person patch interact server return error`() = runTest {
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                genericTypeEnum = GenericTypeEnum.PATIENT,
+                syncType = SyncType.PATCH
+            )
+        ).thenReturn(
+            listOfPatchEntity
+        )
+
+        `when`(
+            patientApiService.patchListOfChanges(
+                PATIENT,
+                listOfPatchEntity.map { it.payload.fromJson() }
+            )
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 0,
+                    message = "Error",
+                    data = null,
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+
+        val response = syncRepositoryImpl.sendPersonPatchData()
+        assertEquals(
+            true,
+            (response is ApiErrorResponse)
         )
     }
 }
