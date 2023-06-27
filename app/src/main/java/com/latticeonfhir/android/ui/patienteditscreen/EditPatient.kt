@@ -176,7 +176,11 @@ fun PreviewScreen(
                             viewModel.middleName,
                             viewModel.lastName
                         )
-                    }, ${viewModel.gender.capitalize()}",
+                    }, ${viewModel.gender.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }}",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.testTag("NAME_TAG")
                 )
