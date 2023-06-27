@@ -62,8 +62,25 @@ class AdvancedSearchPatientKtTest: UiTestsBase() {
         composeTestRule.onNode(patientName).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvw")
         composeTestRule.onNode(patientName).assertTextEquals("", "Patient Name", includeEditableText = true)
         composeTestRule.onNode(patientName).performTextClearance()
+        composeTestRule.onNode(patientName).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv")
+        composeTestRule.onNode(patientName).assertTextEquals("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv", "Patient Name", includeEditableText = true)
+        composeTestRule.onNode(patientName).performTextClearance()
         composeTestRule.onNode(patientName).performTextInput("ma")
         composeTestRule.onNode(patientName).assertTextEquals("ma", "Patient Name", "Name length should be between 3 and 100.", includeEditableText = true)
+    }
+
+    @Test
+    fun advancedSearch_max_min_chars_in_patient_id_field(){
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
+        composeTestRule.onNode(patientId).performTextInput("12345678900")
+        composeTestRule.onNode(patientId).assertTextEquals("", "Patient ID", includeEditableText = true)
+        composeTestRule.onNode(patientId).performTextClearance()
+        composeTestRule.onNode(patientId).performTextInput("1234567890")
+        composeTestRule.onNode(patientId).assertTextEquals("1234567890", "Patient ID", includeEditableText = true)
+        composeTestRule.onNode(patientId).performTextClearance()
+        composeTestRule.onNode(patientId).performTextInput("12")
+        composeTestRule.onNode(patientId).assertTextEquals("12", "Patient ID", "Patient Id should be of length 10.", includeEditableText = true)
     }
 
     @Test
@@ -149,6 +166,15 @@ class AdvancedSearchPatientKtTest: UiTestsBase() {
     }
 
     @Test
+    fun advancedSearch_check_error_if_no_state_selected() {
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
+        composeTestRule.onNode(rootLayout).performScrollToNode(endOfScreen)
+        composeTestRule.onNode(state).performClick()
+        composeTestRule.onNode(state).assertTextEquals("", "State *", includeEditableText = true)
+    }
+
+    @Test
     fun advancedSearch_enter_free_text_address_line_1() {
         composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
         composeTestRule.onNode(advancedSearchButton).performClick()
@@ -176,6 +202,17 @@ class AdvancedSearchPatientKtTest: UiTestsBase() {
     }
 
     @Test
+    fun advancedSearch_enter_something_and_clear_data_check_error_in_address_line_1() {
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
+        composeTestRule.onNode(rootLayout).performScrollToNode(endOfScreen)
+        composeTestRule.onNode(addressLine1).performTextInput("abcd")
+        composeTestRule.onNode(addressLine1).assertTextEquals("abcd", "Address Line 1 *", includeEditableText = true)
+        composeTestRule.onNode(addressLine1).performTextClearance()
+        composeTestRule.onNode(addressLine1).assertTextEquals("", "Address Line 1 *", "Please enter your address.", includeEditableText = true)
+    }
+
+    @Test
     fun advancedSearch_enter_free_text_address_line_2() {
         composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
         composeTestRule.onNode(advancedSearchButton).performClick()
@@ -199,6 +236,17 @@ class AdvancedSearchPatientKtTest: UiTestsBase() {
         composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(rootLayout).performScrollToNode(endOfScreen)
         composeTestRule.onNode(addressLine2).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstu")
+        composeTestRule.onNode(addressLine2).assertTextEquals("", "Address Line 2", includeEditableText = true)
+    }
+
+    @Test
+    fun advancedSearch_enter_something_and_clear_data_check_error_in_address_line_2() {
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
+        composeTestRule.onNode(rootLayout).performScrollToNode(endOfScreen)
+        composeTestRule.onNode(addressLine2).performTextInput("abcd")
+        composeTestRule.onNode(addressLine2).assertTextEquals("abcd", "Address Line 2", includeEditableText = true)
+        composeTestRule.onNode(addressLine2).performTextClearance()
         composeTestRule.onNode(addressLine2).assertTextEquals("", "Address Line 2", includeEditableText = true)
     }
 
@@ -230,6 +278,17 @@ class AdvancedSearchPatientKtTest: UiTestsBase() {
     }
 
     @Test
+    fun advancedSearch_enter_something_and_clear_data_check_error_in_city() {
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
+        composeTestRule.onNode(rootLayout).performScrollToNode(endOfScreen)
+        composeTestRule.onNode(city).performTextInput("abcd")
+        composeTestRule.onNode(city).assertTextEquals("abcd", "City *", includeEditableText = true)
+        composeTestRule.onNode(city).performTextClearance()
+        composeTestRule.onNode(city).assertTextEquals("", "City *", "Please enter your city.", includeEditableText = true)
+    }
+
+    @Test
     fun advancedSearch_enter_free_text_district() {
         composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
         composeTestRule.onNode(advancedSearchButton).performClick()
@@ -253,6 +312,17 @@ class AdvancedSearchPatientKtTest: UiTestsBase() {
         composeTestRule.onNode(advancedSearchButton).performClick()
         composeTestRule.onNode(rootLayout).performScrollToNode(endOfScreen)
         composeTestRule.onNode(district).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstu")
+        composeTestRule.onNode(district).assertTextEquals("", "District", includeEditableText = true)
+    }
+
+    @Test
+    fun advancedSearch_enter_something_and_clear_data_check_error_in_district() {
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
+        composeTestRule.onNode(rootLayout).performScrollToNode(endOfScreen)
+        composeTestRule.onNode(district).performTextInput("abcd")
+        composeTestRule.onNode(district).assertTextEquals("abcd", "District", includeEditableText = true)
+        composeTestRule.onNode(district).performTextClearance()
         composeTestRule.onNode(district).assertTextEquals("", "District", includeEditableText = true)
     }
 
@@ -348,6 +418,15 @@ class AdvancedSearchPatientKtTest: UiTestsBase() {
         composeTestRule.onNode(searchBtn).performClick()
         composeTestRule.onNode(clearIcon, useUnmergedTree = true).performClick()
         composeTestRule.onNode(titleMyPatients).assertExists("Title should be \"My Patients\".")
+    }
+
+    @Test
+    fun searchResult_verify_csearch_icon_click(){
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(advancedSearchButton).performClick()
+        composeTestRule.onNode(searchBtn).performClick()
+        composeTestRule.onNode(searchIcon, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(titleAdvancedSearch).assertExists("Title should be \"Advanced Search\".")
     }
 
     @Test
