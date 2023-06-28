@@ -1,26 +1,20 @@
 package com.latticeonfhir.android.viewmodel.patientregistration
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
-import com.latticeonfhir.android.base.BaseClass
-import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationshipViewModel
 import com.latticeonfhir.android.utils.MainCoroutineRule
 import com.latticeonfhir.android.utils.converters.responseconverter.toRelation
-import kotlinx.coroutines.Dispatchers
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -91,8 +85,11 @@ class ConfirmRelationshipViewModelTest: BaseClass() {
 
     @Test
     fun `update relations`() = runTest{
+        `when`(relationRepository.updateRelation(eq(relationEntity.toRelation()) , any())).thenAnswer { invocation ->
+            val callback = invocation.getArgument<(Int) -> Unit>(1)
+            callback.invoke(1)
+        }
         val result = viewModel.updateRelation(relationEntity.toRelation())
-        delay(5000)
         assertEquals(Unit,result)
     }
 
