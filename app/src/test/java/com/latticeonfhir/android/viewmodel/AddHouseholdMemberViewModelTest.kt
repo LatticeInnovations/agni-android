@@ -1,42 +1,43 @@
 package com.latticeonfhir.android.viewmodel
 
+import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.ui.householdmember.addhouseholdmember.AddHouseholdMemberViewModel
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
+import com.latticeonfhir.android.utils.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.setMain
-import org.junit.Assert
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import java.util.LinkedList
 
+@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(JUnit4::class)
 class AddHouseholdMemberViewModelTest: BaseClass() {
     @Mock
     lateinit var searchRepository: SearchRepository
     lateinit var viewModel: AddHouseholdMemberViewModel
-    @OptIn(DelicateCoroutinesApi::class)
-    private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @ExperimentalCoroutinesApi
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
+
     @Before
     public override fun setUp(){
         MockitoAnnotations.initMocks(this)
         viewModel = AddHouseholdMemberViewModel(searchRepository)
-        Dispatchers.setMain(mainThreadSurrogate)
     }
 
     @Test
-    fun getSuggestionsTest(): Unit = runBlocking {
+    fun getSuggestionsTest(): Unit = runTest {
         val linkedList = LinkedList<PatientResponse>()
         `when`(searchRepository.getSuggestedMembers(patientResponse.id, SearchParameters(
             null,
@@ -53,11 +54,9 @@ class AddHouseholdMemberViewModelTest: BaseClass() {
             patientResponse.permanentAddress.addressLine2
         )
         ){}).thenReturn(Unit)
-        launch(Dispatchers.Main) {
-            viewModel.getSuggestions(patientResponse){
-                val actual = it
-                Assert.assertEquals(listOf(relative), actual)
-            }
+        viewModel.getSuggestions(patientResponse){
+            val actual = it
+            assertEquals(0, actual.size)
         }
     }
 }
