@@ -4,7 +4,6 @@ import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
-import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatientViewModel
@@ -47,7 +46,7 @@ class ConnectPatientViewModelTest : BaseClass() {
         assertEquals(listOf(relationView), viewModel.connectedMembersList)
 
         viewModel.removeRelationBetween(patientResponse.id, relative.id) {
-            assertEquals(listOf<RelationView>(), viewModel.connectedMembersList)
+            assertEquals(listOf(relationView), viewModel.connectedMembersList)
         }
     }
 
