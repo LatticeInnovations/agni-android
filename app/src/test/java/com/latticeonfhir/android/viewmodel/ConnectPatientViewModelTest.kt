@@ -4,6 +4,7 @@ import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
+import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatientViewModel
@@ -37,16 +38,23 @@ class ConnectPatientViewModelTest : BaseClass() {
     }
 
     @Test
-    fun getRelationBetweenAndRemoveRelationBetweenTest() = runTest {
+    fun getRelationBetweenTest() = runBlocking {
         `when`(relationRepository.getRelationBetween(patientResponse.id, relative.id)).thenReturn(
             listOf(relationView)
         )
         viewModel.getRelationBetween(patientResponse.id, relative.id)
         delay(2000)
         assertEquals(listOf(relationView), viewModel.connectedMembersList)
+    }
 
+    @Test
+    fun removeRelationBetweenTest() = runTest {
+        viewModel.connectedMembersList.add(relationView)
+        `when`(relationRepository.getRelationBetween(patientResponse.id, relative.id)).thenReturn(
+            listOf(relationView)
+        )
         viewModel.removeRelationBetween(patientResponse.id, relative.id) {
-            assertEquals(listOf(relationView), viewModel.connectedMembersList)
+            assertEquals(listOf<RelationView>(), viewModel.connectedMembersList)
         }
     }
 
