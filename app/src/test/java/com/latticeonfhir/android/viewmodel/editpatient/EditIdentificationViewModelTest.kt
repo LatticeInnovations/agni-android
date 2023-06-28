@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.viewmodel
+package com.latticeonfhir.android.viewmodel.editpatient
 
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
