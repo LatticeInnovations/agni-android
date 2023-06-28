@@ -67,9 +67,11 @@ class ConnectPatientViewModel @Inject constructor(
         }
     }
 
-    internal fun discardRelations() {
+    internal fun discardRelations(discarded: (Int)->Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            relationRepository.deleteRelation(*connectedMembersList.map { it.id }.toTypedArray())
+            discarded(
+                relationRepository.deleteRelation(*connectedMembersList.map { it.id }.toTypedArray())
+            )
         }
     }
 
