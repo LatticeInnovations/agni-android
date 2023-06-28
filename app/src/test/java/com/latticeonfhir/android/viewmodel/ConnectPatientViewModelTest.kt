@@ -54,9 +54,7 @@ class ConnectPatientViewModelTest : BaseClass() {
     fun discardRelationsTest() = runTest {
         `when`(relationRepository.deleteRelation(*viewModel.connectedMembersList.map { it.id }
             .toTypedArray())).thenReturn(1)
-        viewModel.discardRelations {
-            assertEquals(1, it)
-        }
+        viewModel.discardRelations()
     }
 
     @Test
