@@ -63,8 +63,7 @@ class PatientRegistrationStepOneViewModel: BaseViewModel(), DefaultLifecycleObse
             return false
         if (dobAgeSelector == "dob" && (isDobDayValid || isDobMonthValid || isDobYearValid))
             return false
-        if (dobAgeSelector == "age" &&
-            (isAgeDaysValid || isAgeMonthsValid || isAgeYearsValid))
+        if (dobAgeSelector == "age" && (isAgeDaysValid || isAgeMonthsValid || isAgeYearsValid))
             return false
         if (phoneNumber.length != 10)
             return false
