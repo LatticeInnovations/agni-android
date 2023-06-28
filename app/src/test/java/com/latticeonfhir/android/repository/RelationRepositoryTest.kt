@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.repository
 
 import com.latticeonfhir.android.base.BaseClass
-import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
@@ -27,8 +26,6 @@ class RelationRepositoryTest: BaseClass() {
         MockitoAnnotations.openMocks(this)
         relationRepositoryImpl = RelationRepositoryImpl(relationDao, patientDao)
     }
-
-    val relation = Relation(id, relativeId, relationSpouse.value)
 
     @Test
     fun addRelationTest() = runBlocking {

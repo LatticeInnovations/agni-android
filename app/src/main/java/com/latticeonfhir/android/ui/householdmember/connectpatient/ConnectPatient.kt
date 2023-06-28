@@ -190,7 +190,7 @@ fun ConnectPatient(
                             TextButton(
                                 onClick = {
                                     viewModel.discardAllRelationDialog = false
-                                    viewModel.discardRelations()
+                                    viewModel.discardRelations{}
                                     navController.popBackStack()
                                 }) {
                                 Text(

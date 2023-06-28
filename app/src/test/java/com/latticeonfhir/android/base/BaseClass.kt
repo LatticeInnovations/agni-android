@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.base
 
 import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
@@ -108,6 +109,12 @@ abstract class BaseClass : TestCase() {
         relativeLastName = relative.lastName,
         relativeMiddleName = relative.middleName,
         relativeGender = relative.gender
+    )
+
+    val relation = Relation(
+        patientId = patientResponse.id,
+        relativeId = relative.id,
+        relation = RelationEnum.SPOUSE.value
     )
 
     val createResponse = CreateResponse(
