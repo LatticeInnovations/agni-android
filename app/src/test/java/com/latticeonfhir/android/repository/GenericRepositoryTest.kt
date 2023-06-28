@@ -20,18 +20,17 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import retrofit2.http.POST
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GenericRepositoryTest : BaseClass() {
 
     @Mock
     lateinit var genericDao: GenericDao
-    lateinit var genericRepositoryImpl: GenericRepositoryImpl
+    private lateinit var genericRepositoryImpl: GenericRepositoryImpl
 
     @Before
     public override fun setUp() {
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
         genericRepositoryImpl = GenericRepositoryImpl(genericDao)
     }
 
@@ -55,7 +54,7 @@ class GenericRepositoryTest : BaseClass() {
 
     private val genericEntityPatch = GenericEntity(
         genericId,
-        id,
+        patientResponse.fhirId!!,
         mapOf(
             Pair(
                 "permanentAddress", ChangeRequest(
@@ -73,7 +72,7 @@ class GenericRepositoryTest : BaseClass() {
 
     private val genericEntityPatchWithoutId = GenericEntity(
         genericId,
-        id,
+        patientResponse.fhirId!!,
         mapOf(
             Pair(
                 "permanentAddress", ChangeRequest(
@@ -118,6 +117,25 @@ class GenericRepositoryTest : BaseClass() {
             id,
             patientResponse,
             GenericTypeEnum.PATIENT
+        )
+        Assert.assertEquals(1, actual)
+    }
+
+    @Test
+    fun `insert post generic entity`() = runTest {
+        `when`(
+            genericDao.getGenericEntityById(
+                id,
+                GenericTypeEnum.PATIENT,
+                SyncType.POST
+            )
+        ).thenReturn(null)
+        `when`(genericDao.insertGenericEntity(genericEntityPost)).thenReturn(listOf(1))
+        val actual = genericRepositoryImpl.insertOrUpdatePostEntity(
+            id,
+            patientResponse,
+            GenericTypeEnum.PATIENT,
+            uuid = genericId
         )
         Assert.assertEquals(1, actual)
     }
@@ -194,6 +212,35 @@ class GenericRepositoryTest : BaseClass() {
                 )
             ),
             typeEnum = GenericTypeEnum.PATIENT
+        )
+
+        assertEquals(-1L, actual)
+    }
+
+    @Test
+    fun `insert patch generic entity`() = runTest {
+
+        `when`(
+            genericDao.getGenericEntityById(
+                patientResponse.fhirId!!,
+                GenericTypeEnum.PATIENT,
+                SyncType.PATCH
+            )
+        ).thenReturn(null)
+        `when`(genericDao.insertGenericEntity(genericEntityPatch)).thenReturn(listOf(-1L))
+
+        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(
+            patientFhirId = patientResponse.fhirId!!,
+            map = mapOf(
+                Pair(
+                    "permanentAddress", ChangeRequest(
+                        value = patientResponse,
+                        operation = ChangeTypeEnum.REPLACE.value
+                    )
+                )
+            ),
+            typeEnum = GenericTypeEnum.PATIENT,
+            uuid = genericId
         )
 
         assertEquals(-1L, actual)
