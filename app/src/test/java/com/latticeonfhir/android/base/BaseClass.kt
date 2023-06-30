@@ -40,6 +40,20 @@ abstract class BaseClass : TestCase() {
         toId = relativeId,
         relation = relationSpouse
     )
+    private val relationIdBrother = UUIDBuilder.generateUUID()
+    private val relationIdInverseBrother = UUIDBuilder.generateUUID()
+    val relationEntityBrother = RelationEntity(
+        id = relationIdBrother,
+        fromId = id,
+        toId = relativeId,
+        relation = RelationEnum.BROTHER
+    )
+    val relationEntityInverseBrother = RelationEntity(
+        id = relationIdInverseBrother,
+        fromId = relativeId,
+        toId = id,
+        relation = RelationEnum.BROTHER
+    )
 
     val patientResponse = PatientResponse(
         id = id,
@@ -116,6 +130,11 @@ abstract class BaseClass : TestCase() {
         patientId = patientResponse.id,
         relativeId = relative.id,
         relation = RelationEnum.SPOUSE.value
+    )
+    val relationBrother = Relation(
+        patientId = patientResponse.id,
+        relativeId = relative.id,
+        relation = RelationEnum.BROTHER.value
     )
 
     val createResponse = CreateResponse(
