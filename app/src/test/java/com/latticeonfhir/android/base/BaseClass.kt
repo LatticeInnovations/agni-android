@@ -14,6 +14,7 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.data.server.model.user.UserResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import junit.framework.TestCase
@@ -177,5 +178,12 @@ abstract class BaseClass : TestCase() {
     val medicineTimeResponse = MedicineTimeResponse(
         medInstructionVal = "Before meal",
         medInstructionCode = "307165006"
+    )
+
+    protected val user = UserResponse(
+        userName = "USER_NAME",
+        userEmail = "USER_EMAIL",
+        mobileNumber = 9999999999,
+        role = "USER_ROLE"
     )
 }
