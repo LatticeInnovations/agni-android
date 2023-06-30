@@ -68,7 +68,7 @@ class SuggestionsScreenViewModelTest : BaseClass() {
     }
 
     @Test
-    fun getQueueItemsLessThan5Test() = runTest {
+    fun getQueueItemsLessThan5Test() = runBlocking {
         `when`(
             searchRepository.getSuggestedMembers(
                 eq(patientResponse.id),
