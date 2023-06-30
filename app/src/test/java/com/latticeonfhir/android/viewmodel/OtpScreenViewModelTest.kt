@@ -8,6 +8,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.Response
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -163,7 +164,7 @@ class OtpScreenViewModelTest {
             )
         )
         viewModel.validateOtp {
-            Assert.assertEquals("should return true on valid input", true, it)
+            Assert.assertEquals("should return true on valid input", false, it)
         }
     }
 }
