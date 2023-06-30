@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.repository
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepositoryImpl
@@ -7,6 +8,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import kotlinx.coroutines.test.*
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
+import com.latticeonfhir.android.utils.MainCoroutineRule
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientAndIdentifierEntityResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
@@ -14,6 +16,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
@@ -27,6 +30,13 @@ class RelationRepositoryTest: BaseClass() {
     lateinit var patientDao: PatientDao
     lateinit var relationRepositoryImpl: RelationRepositoryImpl
 
+    @ExperimentalCoroutinesApi
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     @Before
     public override fun setUp(){
         MockitoAnnotations.openMocks(this)
@@ -38,7 +48,7 @@ class RelationRepositoryTest: BaseClass() {
     }
 
     @Test
-    fun addRelationTest() = runTest {
+    fun addRelationTest() = runBlocking {
         `when`(relationDao.insertRelation(relationBrother.toRelationEntity())).thenReturn(listOf(-1))
         `when`(relationDao.insertRelation(relationEntityInverseBrother)).thenReturn(listOf(-1))
 
