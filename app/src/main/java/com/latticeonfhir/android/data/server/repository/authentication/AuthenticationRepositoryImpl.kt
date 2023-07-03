@@ -49,8 +49,9 @@ class AuthenticationRepositoryImpl @Inject constructor(
         ).apply {
             if (this is ApiEndResponse) {
                 body.apply {
+                    preferenceRepository.setUserFhirId(userId)
                     preferenceRepository.setUserName(userName)
-                    preferenceRepository.setUserRole(role)
+                    preferenceRepository.setUserRole(role[0].role)
                     userEmail?.let { email -> preferenceRepository.setUserEmail(email) }
                     mobileNumber?.let { mobileNumber -> preferenceRepository.setUserMobile(mobileNumber) }
                 }
