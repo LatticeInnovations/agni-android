@@ -214,7 +214,8 @@ fun PatientRegistration(
                                                         style = MaterialTheme.typography.bodyLarge,
                                                         color = MaterialTheme.colorScheme.onSurface
                                                     )
-                                                }
+                                                },
+                                                modifier = Modifier.testTag("RELATION")
                                             )
                                         }
                                     }

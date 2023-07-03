@@ -10,4 +10,5 @@ interface GenericRepository {
     suspend fun insertOrUpdatePatchEntity(patientFhirId: String,map: Map<String,Any>, typeEnum: GenericTypeEnum, uuid: String = UUIDBuilder.generateUUID()): Long
 
     suspend fun getNonSyncedPostRelations(): List<GenericEntity>
+    suspend fun getNonSyncedPostPrescriptions(): List<GenericEntity>
 }
