@@ -26,7 +26,9 @@ import com.latticeonfhir.android.utils.converters.responseconverter.RelationConv
 @Composable
 fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = hiltViewModel()) {
     val context = LocalContext.current
-    viewModel.getAllRelations(patientId = patient.id)
+    LaunchedEffect(true) {
+        viewModel.getAllRelations(patientId = patient.id)
+    }
     if (viewModel.loading) {
         Box(
             modifier = Modifier.fillMaxSize(),
