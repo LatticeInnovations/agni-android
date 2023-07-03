@@ -112,6 +112,11 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
     }
 
     override suspend fun getNonSyncedPostRelations(): List<GenericEntity> {
-        return genericDao.getNotSyncedPostRelation()
+        return genericDao.getNotSyncedData(GenericTypeEnum.RELATION)
     }
+
+    override suspend fun getNonSyncedPostPrescriptions(): List<GenericEntity> {
+        return genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION)
+    }
+
 }
