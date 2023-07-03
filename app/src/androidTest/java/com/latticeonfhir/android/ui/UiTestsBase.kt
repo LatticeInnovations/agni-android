@@ -79,6 +79,7 @@ open class UiTestsBase {
 
     // Button
     val searchBtn = hasText("Search") and hasClickAction()
+    val connectBtn = hasTestTag("CONNECT_BTN") and hasClickAction()
 
     // Slider
     val ageRangeSlider = hasTestTag("age range slider")
@@ -276,5 +277,9 @@ open class UiTestsBase {
     // relation dialog
     val dialogDismissIcon = hasContentDescription("DIALOG_CLEAR_ICON")
     val dialogRelationDropdown = hasTestTag("RELATIONS_DROPDOWN")
+    val dialogRelationList = hasTestTag("RELATION")
 
+    val memberDetailCards = hasTestTag("MEMBER_DETAIL_CARDS")
+    val deleteMemberIcon = hasContentDescription("delete member")
+    val editMemberIcon = hasContentDescription("edit member")
 }
