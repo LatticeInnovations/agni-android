@@ -438,7 +438,7 @@ class GenericRepositoryTest : BaseClass() {
 
     @Test
     fun `get non synced post relation`() = runTest {
-        `when`(genericDao.getNotSyncedPostRelation()).thenReturn(listOf(genericEntityPost))
+        `when`(genericDao.getNotSyncedData(GenericTypeEnum.RELATION)).thenReturn(listOf(genericEntityPost))
         assertEquals(listOf(genericEntityPost), genericRepositoryImpl.getNonSyncedPostRelations())
     }
 

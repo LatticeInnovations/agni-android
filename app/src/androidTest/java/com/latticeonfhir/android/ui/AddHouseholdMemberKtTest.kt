@@ -2038,7 +2038,8 @@ class AddHouseholdMemberKtTest : UiTestsBase() {
         composeTestRule.onNode(nextBtn).performClick()
         composeTestRule.onNode(postalCode).performTextInput("111111")
         composeTestRule.onNode(state).performClick()
-        composeTestRule.onNodeWithText("Andhra Pradesh").performClick()
+        composeTestRule
+            .onNodeWithText("Andhra Pradesh").performClick()
         composeTestRule.onNode(addressLine1).performTextInput("C-416")
         composeTestRule.onNode(addressLine2).performTextInput("Sarita Vihar")
         composeTestRule.onNode(city).performTextInput("South Delhi")
