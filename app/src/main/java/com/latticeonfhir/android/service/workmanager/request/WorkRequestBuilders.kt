@@ -403,9 +403,8 @@ class WorkRequestBuilders(
 
     private fun updateFhirIdInPrescription(error: (Boolean, String) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
-            genericRepository.getNonSyncedPostRelations().forEach { genericEntity ->
-                val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>()
-                    .mapToObject(PrescriptionResponse::class.java)
+            genericRepository.getNonSyncedPostPrescriptions().forEach { genericEntity ->
+                val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(PrescriptionResponse::class.java)
                 if (existingMap != null) {
                     genericRepository.insertOrUpdatePostEntity(
                         patientId = genericEntity.patientId,

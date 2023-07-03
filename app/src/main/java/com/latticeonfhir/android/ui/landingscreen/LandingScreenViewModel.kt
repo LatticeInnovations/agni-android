@@ -4,7 +4,6 @@ import android.app.Application
 import android.app.job.JobScheduler
 import android.content.Context
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.asFlow
@@ -29,7 +28,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,12 +48,12 @@ class LandingScreenViewModel @Inject constructor(
     var isSearchingByQuery by mutableStateOf(false)
     var isSearchResult by mutableStateOf(false)
     var searchQuery by mutableStateOf("")
-    var selectedIndex by mutableIntStateOf(0)
+    var selectedIndex by mutableStateOf(0)
     var patientList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf())
     var searchResultList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf())
     var searchParameters by mutableStateOf<SearchParameters?>(null)
     var previousSearchList = mutableListOf<String>()
-    var size by mutableIntStateOf(0)
+    var size by mutableStateOf(0)
     var isLoggingOut by mutableStateOf(false)
 
     // user details
@@ -126,7 +124,7 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     private fun getPatientList() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             patientList = patientRepository.getPatientList().asFlow().cachedIn(viewModelScope)
         }
     }
