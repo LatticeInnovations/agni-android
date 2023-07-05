@@ -15,6 +15,7 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.data.server.model.user.UserResponse
+import com.latticeonfhir.android.data.server.model.user.UserRoleDetails
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import junit.framework.TestCase
@@ -181,9 +182,17 @@ abstract class BaseClass : TestCase() {
     )
 
     protected val user = UserResponse(
+        userId = "USER_FHIR_ID",
         userName = "USER_NAME",
         userEmail = "USER_EMAIL",
         mobileNumber = 9999999999,
-        role = "USER_ROLE"
+        role = listOf(
+            UserRoleDetails(
+                roleId = "ROLE_ID",
+                role = "ROLE",
+                orgId = "ORG_ID",
+                orgName = "ORG_NAME"
+            )
+        )
     )
 }
