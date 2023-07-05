@@ -17,10 +17,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -28,6 +30,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.ui.common.customTabIndicatorOffset
 import com.latticeonfhir.android.ui.main.patientlandingscreen.MembersScreen
 import com.latticeonfhir.android.ui.main.patientlandingscreen.SuggestionsScreen
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
@@ -42,15 +45,26 @@ fun HouseholdMembersScreen(
 ) {
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                "patient"
-            )
+            viewModel.patient =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    "patient"
+                )
         }
         viewModel.isLaunched = true
     }
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val density = LocalDensity.current
+    val tabWidths = remember {
+        val tabWidthStateList = mutableStateListOf<Dp>()
+        repeat(viewModel.tabs.size) {
+            tabWidthStateList.add(0.dp)
+        }
+        tabWidthStateList
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -67,17 +81,26 @@ fun HouseholdMembersScreen(
                     }
                 },
                 title = {
-                    val subTitle = "${viewModel.patient?.gender?.get(0)?.uppercase()}/${viewModel.patient?.birthDate?.let {
-                        it.toTimeInMilli().toAge()
-                    }}"
+                    val subTitle = "${viewModel.patient?.gender?.get(0)?.uppercase()}/${
+                        viewModel.patient?.birthDate?.toTimeInMilli()
+                            ?.toAge()
+                    }"
                     Column {
                         Text(
                             text = stringResource(id = R.string.household_members),
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.testTag("TITLE")
                         )
-                        Text(text = "${NameConverter.getFullName(viewModel.patient?.firstName, viewModel.patient?.middleName, viewModel.patient?.lastName)}, $subTitle", style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.testTag("SUBTITLE"))
+                        Text(
+                            text = "${
+                                NameConverter.getFullName(
+                                    viewModel.patient?.firstName,
+                                    viewModel.patient?.middleName,
+                                    viewModel.patient?.lastName
+                                )
+                            }, $subTitle", style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.testTag("SUBTITLE")
+                        )
                     }
                 }
             )
@@ -88,11 +111,25 @@ fun HouseholdMembersScreen(
                 Column(modifier = Modifier.fillMaxWidth()) {
                     TabRow(
                         selectedTabIndex = viewModel.tabIndex,
-                        modifier = Modifier.testTag("TABS")
+                        modifier = Modifier.testTag("TABS"),
+                        indicator = { tabPositions ->
+                            TabRowDefaults.Indicator(
+                                modifier = Modifier.customTabIndicatorOffset(
+                                    currentTabPosition = tabPositions[viewModel.tabIndex],
+                                    tabWidth = tabWidths[viewModel.tabIndex]
+                                )
+                            )
+                        }
                     ) {
                         viewModel.tabs.forEachIndexed { index, title ->
                             Tab(
-                                text = { Text(title) },
+                                text = {
+                                    Text(title,
+                                        onTextLayout = { textLayoutResult ->
+                                            tabWidths[index] =
+                                                with(density) { textLayoutResult.size.width.toDp() - 10.dp }
+                                        })
+                                },
                                 modifier = Modifier.testTag(title.uppercase()),
                                 selected = viewModel.tabIndex == index,
                                 onClick = { viewModel.tabIndex = index },
@@ -128,7 +165,13 @@ fun HouseholdMembersScreen(
                     ) { targetState ->
                         when (targetState) {
                             0 -> viewModel.patient?.let { it1 -> MembersScreen(it1) }
-                            1 -> viewModel.patient?.let { it1 -> SuggestionsScreen(it1, snackbarHostState, scope) }
+                            1 -> viewModel.patient?.let { it1 ->
+                                SuggestionsScreen(
+                                    it1,
+                                    snackbarHostState,
+                                    scope
+                                )
+                            }
                         }
                     }
                 }
