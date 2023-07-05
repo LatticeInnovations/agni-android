@@ -7,6 +7,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorageImpl
 import com.latticeonfhir.android.data.server.model.user.UserResponse
+import com.latticeonfhir.android.data.server.model.user.UserRoleDetails
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import junit.framework.TestCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,10 +24,18 @@ class SharedPreferencesTest: TestCase() {
     private lateinit var preferenceStorageImpl: PreferenceStorageImpl
 
     private val userResponse = UserResponse(
+        userId = "User Fhir Id",
         userName = "User Name",
         userEmail = "User Email",
         mobileNumber = 9876543210,
-        role = "Doctor"
+        role = listOf(
+            UserRoleDetails(
+                roleId = "ROLE_ID",
+                role = "ROLE",
+                orgId = "ORG_ID",
+                orgName = "ORG_NAME"
+            )
+        )
     )
 
     private val lastSyncTime = 500L
@@ -61,8 +70,8 @@ class SharedPreferencesTest: TestCase() {
 
     @Test
     internal fun setAndGetUserRole() = runTest {
-        preferenceStorageImpl.userRole = userResponse.role
-        assertEquals(preferenceStorageImpl.userRole,userResponse.role)
+        preferenceStorageImpl.userRole = userResponse.role[0].role
+        assertEquals(preferenceStorageImpl.userRole,userResponse.role[0].role)
     }
 
     @Test
@@ -128,5 +137,29 @@ class SharedPreferencesTest: TestCase() {
         assertEquals(userResponse.userName,preferenceStorageImpl.userName)
         preferenceStorageImpl.clear()
         assertEquals(true,preferenceStorageImpl.userName.isBlank())
+    }
+
+    @Test
+    internal fun setAndGetUserId() {
+        preferenceStorageImpl.userFhirId = userResponse.userId
+        assertEquals(userResponse.userId,preferenceStorageImpl.userFhirId)
+    }
+
+    @Test
+    internal fun setAndGetRoleId() {
+        preferenceStorageImpl.userRoleId = userResponse.role[0].roleId
+        assertEquals(userResponse.role[0].roleId,preferenceStorageImpl.userRoleId)
+    }
+
+    @Test
+    internal fun setAndGetOrgId() {
+        preferenceStorageImpl.organizationFhirId = userResponse.role[0].orgId
+        assertEquals(userResponse.role[0].orgId,preferenceStorageImpl.organizationFhirId)
+    }
+
+    @Test
+    internal fun setAndGetOrgName() {
+        preferenceStorageImpl.organization = userResponse.role[0].orgName
+        assertEquals(userResponse.role[0].orgName, preferenceStorageImpl.organization)
     }
 }

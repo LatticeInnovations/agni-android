@@ -6,7 +6,14 @@
     "userName": "Dev test 2",
     "userEmail": "dev2@gmail.com",
     "mobileNumber": "9876543210",
-    "roleId": 1,
-    "role": "Doctor"
+    "role": [
+      {
+        "roleId": "doctor",
+        "role": "Doctor",
+        "orgId": "22539",
+        "orgName": "Indraprastha Apollo Hospital",
+        "orgType": "prov"
+      }
+    ]
   }
 }
