@@ -58,7 +58,7 @@ fun PatientLandingScreen(
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "back icon")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 },
                 title = {

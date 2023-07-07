@@ -7,6 +7,7 @@ import com.latticeonfhir.android.ui.householdmember.members.MembersScreenViewMod
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.setMain
@@ -17,32 +18,29 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
-class MembersScreenViewModelTest: BaseClass() {
+class MembersScreenViewModelTest : BaseClass() {
     @Mock
     lateinit var patientRepository: PatientRepository
+
     @Mock
     lateinit var relationRepository: RelationRepository
     lateinit var viewModel: MembersScreenViewModel
-    @OptIn(DelicateCoroutinesApi::class)
-    private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
-    public override fun setUp(){
-        MockitoAnnotations.initMocks(this)
+    public override fun setUp() {
+        MockitoAnnotations.openMocks(this)
         viewModel = MembersScreenViewModel(relationRepository, patientRepository)
-        Dispatchers.setMain(mainThreadSurrogate)
     }
 
-//    @Test
-//    fun getAllRelationsTest(): Unit = runBlocking {
-//        `when`(relationRepository.getAllRelationOfPatient(id)).thenReturn(listOf(relationEntity))
-//
-//        launch(Dispatchers.Main) {
-//            viewModel.getAllRelations(id)
-//            Assert.assertEquals(listOf(relationEntity), viewModel.relationsList)
-//        }
-//    }
+    @Test
+    fun getAllRelationsTest() = runBlocking {
+        `when`(relationRepository.getAllRelationOfPatient(id)).thenReturn(listOf(relationEntity))
+        `when`(patientRepository.getPatientById(relativeId)).thenReturn(listOf(relative))
+
+        viewModel.getAllRelations(id)
+        delay(2000)
+        Assert.assertEquals(listOf(relationEntity), viewModel.relationsList)
+    }
 
     @Test
     fun getPatientDataTest() = runBlocking {

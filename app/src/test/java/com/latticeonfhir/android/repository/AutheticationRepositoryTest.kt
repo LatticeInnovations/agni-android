@@ -7,6 +7,7 @@ import com.latticeonfhir.android.data.server.model.authentication.Login
 import com.latticeonfhir.android.data.server.model.authentication.Otp
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.data.server.model.user.UserResponse
+import com.latticeonfhir.android.data.server.model.user.UserRoleDetails
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepositoryImpl
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
@@ -139,8 +140,16 @@ class AutheticationRepositoryTest {
                     null,
                     null,
                     UserResponse(
+                        "22545",
                         "Dev Test",
-                        "Doctor",
+                        listOf(
+                            UserRoleDetails(
+                                roleId = "doctor",
+                                role = "Doctor",
+                                orgId = "22539",
+                                orgName = "Indraprastha Apollo Hospital"
+                            )
+                        ),
                         9876543210,
                         "devtest@gmail.com"
                     ),

@@ -34,5 +34,5 @@ interface GenericDao {
 
     @Transaction
     @Query("SELECT * FROM GenericEntity WHERE type=:genericTypeEnum AND syncType=:syncType")
-    suspend fun getNotSyncedPostRelation(genericTypeEnum: GenericTypeEnum = GenericTypeEnum.RELATION, syncType: SyncType = SyncType.POST): List<GenericEntity>
+    suspend fun getNotSyncedData(genericTypeEnum: GenericTypeEnum, syncType: SyncType = SyncType.POST): List<GenericEntity>
 }

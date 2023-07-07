@@ -1,11 +1,9 @@
 package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasClickAction
@@ -24,9 +22,7 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.latticeonfhir.android.ui.main.MainActivity
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import okhttp3.internal.wait
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
@@ -46,7 +42,7 @@ class EditPatientTest {
     private val patientList = hasTestTag("patients list") and hasScrollAction()
 
     // icons
-    val backIcon = hasContentDescription("back icon")
+    val backIcon = hasContentDescription("BACK_ICON")
     val clearIcon = hasContentDescription("clear icon")
     val profileIcon = hasContentDescription("profile icon")
     val houseHoldMemberCard = hasTestTag("HOUSEHOLD_MEMBER") and hasClickAction()
@@ -71,10 +67,6 @@ class EditPatientTest {
     val years = hasTestTag("Years") and hasClickAction()
     val months = hasTestTag("Months") and hasClickAction()
     val days = hasTestTag("Days") and hasClickAction()
-
-    val passportId = hasTestTag("Passport Id") and hasClickAction()
-    val voterId = hasTestTag("Voter Id") and hasClickAction()
-    val patientId = hasTestTag("Patient Id") and hasClickAction()
 
     val postalCode = hasTestTag("Postal Code *") and hasClickAction()
     val state = hasTestTag("State *") and hasClickAction()
@@ -115,15 +107,15 @@ class EditPatientTest {
 
     @Test
     fun aaaa_login() {
-        composeTestRule.onNode(inputField).performTextInput("1111111111")
+        composeTestRule.onNode(inputField).performTextInput("9876543210")
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
-        composeTestRule.onNode(firstDigit).performTextInput("1")
-        composeTestRule.onNode(secondDigit).performTextInput("1")
-        composeTestRule.onNode(thirdDigit).performTextInput("1")
-        composeTestRule.onNode(fourDigit).performTextInput("1")
-        composeTestRule.onNode(fiveDigit).performTextInput("1")
-        composeTestRule.onNode(sixDigit).performTextInput("1")
+        composeTestRule.onNode(firstDigit).performTextInput("2")
+        composeTestRule.onNode(secondDigit).performTextInput("2")
+        composeTestRule.onNode(thirdDigit).performTextInput("2")
+        composeTestRule.onNode(fourDigit).performTextInput("2")
+        composeTestRule.onNode(fiveDigit).performTextInput("2")
+        composeTestRule.onNode(sixDigit).performTextInput("2")
         composeTestRule.onNode(button).performClick()
         Thread.sleep(2000)
     }
@@ -619,8 +611,9 @@ class EditPatientTest {
         composeTestRule.onNode(title).assertTextEquals("Patient profile")
         composeTestRule.onNode(editBtn1).performClick()
         composeTestRule.onNode(basicInformationTitle).assertTextEquals("Basic information")
-        composeTestRule.onNode(middleName).performTextClearance()
-        composeTestRule.onNode(email).performTextInput("abc@gmail.com")
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(email).performTextClearance()
+        composeTestRule.onNode(email).performTextInput("${UUIDBuilder.generateUUID()}@gmail.com")
         composeTestRule.onNode(email).performImeAction()
         composeTestRule.onNode(undoAll).assertIsEnabled()
         composeTestRule.onNode(undoAll, true).performClick()

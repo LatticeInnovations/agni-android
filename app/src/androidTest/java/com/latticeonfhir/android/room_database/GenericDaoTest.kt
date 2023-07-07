@@ -73,7 +73,7 @@ class GenericDaoTest : FhirAppDatabaseTest() {
     @Test
     fun getNotSyncedPostRelationTest() = runBlocking {
         genericDao.insertGenericEntity(relationGenericEntity)
-        val result = genericDao.getNotSyncedPostRelation()
+        val result = genericDao.getNotSyncedData(GenericTypeEnum.RELATION)
         Assert.assertEquals("list of generic entity not returned correctly", listOf(relationGenericEntity), result)
     }
 }

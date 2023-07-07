@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.viewmodel
+package com.latticeonfhir.android.viewmodel.editpatient
 
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.Assert.*

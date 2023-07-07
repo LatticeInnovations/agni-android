@@ -20,12 +20,13 @@ interface SearchRepository {
     suspend fun searchActiveIngredients(activeIngredient: String): List<String>
 
     /** Recent Patient Search*/
-    suspend fun insertRecentPatientSearch(searchQuery: String, date: Date): Long
+    suspend fun insertRecentPatientSearch(searchQuery: String, date: Date = Date()): Long
     suspend fun getRecentPatientSearches(): List<String>
 
     /** Recent Medication Search*/
-    suspend fun insertRecentActiveIngredientSearch(searchQuery: String, date: Date): Long
+    suspend fun insertRecentActiveIngredientSearch(searchQuery: String, date: Date = Date()): Long
     suspend fun getRecentActiveIngredientSearches(): List<String>
 
+    /** Get Suggested Members */
     suspend fun getSuggestedMembers(patientId: String, searchParameters: SearchParameters, returnList: (LinkedList<PatientResponse>) -> Unit)
 }
