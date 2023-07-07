@@ -48,7 +48,7 @@ android {
         minSdk 23
         targetSdk 33
         versionCode 27
-        versionName "1.2.5"
+        versionName "1.2.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -131,10 +131,13 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    testImplementation 'org.mockito:mockito-core:3.6.0'
+    testImplementation 'org.mockito:mockito-core:3.11.2'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.11.0'
+    testImplementation 'androidx.arch.core:core-testing:2.2.0'
+    androidTestImplementation 'org.mockito:mockito-android:3.10.0'
+    androidTestImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
 
 
     //Recycler View
@@ -148,15 +151,15 @@ dependencies {
     implementation 'androidx.security:security-crypto:1.0.0'
 
     //Room Database
-    implementation 'androidx.room:room-runtime:2.5.1'
-    implementation 'androidx.room:room-ktx:2.5.1'
-    kapt 'androidx.room:room-compiler:2.5.1'
+    implementation 'androidx.room:room-runtime:2.5.2'
+    implementation 'androidx.room:room-ktx:2.5.2'
+    kapt 'androidx.room:room-compiler:2.5.2'
 
     //Room Database Test Helpers
-    testImplementation 'androidx.room:room-testing:2.5.1'
+    testImplementation 'androidx.room:room-testing:2.5.2'
 
     //Room Database Paging Support
-    implementation 'androidx.room:room-paging:2.5.1'
+    implementation 'androidx.room:room-paging:2.5.2'
 
     //Paging 3
     implementation 'androidx.paging:paging-runtime-ktx:3.1.1'
@@ -166,6 +169,7 @@ dependencies {
 
     //Paging 3 Test Implementation
     testImplementation 'androidx.paging:paging-common-ktx:3.1.1'
+    androidTestImplementation 'androidx.paging:paging-common-ktx:3.1.1'
 
     //Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
@@ -195,7 +199,6 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling-preview:1.4.3"
     implementation 'androidx.compose.material3:material3:1.1.0-rc01' // don't update
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
-    implementation 'androidx.compose.runtime:runtime-livedata:1.5.0-beta02'
 
     // navigation
     implementation("androidx.navigation:navigation-compose:2.6.0")
@@ -224,10 +227,15 @@ dependencies {
     implementation 'androidx.core:core-splashscreen:1.0.0-beta02' // don't update
 
     // google consent api for auto detection of otp
-    implementation 'com.google.android.gms:play-services-auth:20.5.0'
+    implementation 'com.google.android.gms:play-services-auth:20.6.0'
     implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.1'
 }
 
 kapt {
     correctErrorTypes true
+}
+allprojects {
+    configurations.all {
+        resolutionStrategy.force 'org.objenesis:objenesis:2.6'
+    }
 }

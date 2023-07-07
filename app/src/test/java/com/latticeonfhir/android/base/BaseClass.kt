@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.base
 
 import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
@@ -13,6 +14,8 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.data.server.model.user.UserResponse
+import com.latticeonfhir.android.data.server.model.user.UserRoleDetails
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import junit.framework.TestCase
@@ -37,6 +40,20 @@ abstract class BaseClass : TestCase() {
         fromId = id,
         toId = relativeId,
         relation = relationSpouse
+    )
+    private val relationIdBrother = UUIDBuilder.generateUUID()
+    private val relationIdInverseBrother = UUIDBuilder.generateUUID()
+    val relationEntityBrother = RelationEntity(
+        id = relationIdBrother,
+        fromId = id,
+        toId = relativeId,
+        relation = RelationEnum.BROTHER
+    )
+    val relationEntityInverseBrother = RelationEntity(
+        id = relationIdInverseBrother,
+        fromId = relativeId,
+        toId = id,
+        relation = RelationEnum.BROTHER
     )
 
     val patientResponse = PatientResponse(
@@ -110,6 +127,17 @@ abstract class BaseClass : TestCase() {
         relativeGender = relative.gender
     )
 
+    val relation = Relation(
+        patientId = patientResponse.id,
+        relativeId = relative.id,
+        relation = RelationEnum.SPOUSE.value
+    )
+    val relationBrother = Relation(
+        patientId = patientResponse.id,
+        relativeId = relative.id,
+        relation = RelationEnum.BROTHER.value
+    )
+
     val createResponse = CreateResponse(
         status = "200 OK",
         fhirId = "21292",
@@ -151,5 +179,20 @@ abstract class BaseClass : TestCase() {
     val medicineTimeResponse = MedicineTimeResponse(
         medInstructionVal = "Before meal",
         medInstructionCode = "307165006"
+    )
+
+    protected val user = UserResponse(
+        userId = "USER_FHIR_ID",
+        userName = "USER_NAME",
+        userEmail = "USER_EMAIL",
+        mobileNumber = 9999999999,
+        role = listOf(
+            UserRoleDetails(
+                roleId = "ROLE_ID",
+                role = "ROLE",
+                orgId = "ORG_ID",
+                orgName = "ORG_NAME"
+            )
+        )
     )
 }

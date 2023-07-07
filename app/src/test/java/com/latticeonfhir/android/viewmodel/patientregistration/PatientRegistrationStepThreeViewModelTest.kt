@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.viewmodel
+package com.latticeonfhir.android.viewmodel.patientregistration
 
 import com.latticeonfhir.android.ui.patientregistration.step3.PatientRegistrationStepThreeViewModel
 import org.junit.Assert

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.viewmodel
+package com.latticeonfhir.android.viewmodel.patientregistration
 
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.relation.Relation

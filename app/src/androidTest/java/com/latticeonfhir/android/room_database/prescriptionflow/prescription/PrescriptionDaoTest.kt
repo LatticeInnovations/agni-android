@@ -6,10 +6,13 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.Prescri
 import com.latticeonfhir.android.room_database.FhirAppDatabaseTest
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.util.Date
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class PrescriptionDaoTest: FhirAppDatabaseTest() {
 
     private val prescriptionEntity = PrescriptionEntity(
@@ -95,11 +98,18 @@ class PrescriptionDaoTest: FhirAppDatabaseTest() {
     }
 
     @Test
-    internal fun insertAndFetchPrescription() = runBlocking {
+    internal fun insertAndFetchPrescription() = runTest {
         val prescription = prescriptionDao.getPastPrescriptions("DUMMY_ID_123")
         assertEquals(prescription.size,1)
         assertEquals(prescription[0].prescriptionDirectionAndMedicineView.size,2)
         assertEquals(prescription[0].prescriptionEntity.patientId,prescriptionEntity.patientId)
         assertEquals(prescription[0].prescriptionDirectionAndMedicineView[0].prescriptionDirectionsEntity.prescriptionId,prescriptionEntity.id)
+    }
+
+    @Test
+    fun updatePrescriptionFhirId() = runTest {
+        val newFhirId = "NEW_FHIR_ID"
+        prescriptionDao.updatePrescriptionFhirId(prescriptionEntity.id,newFhirId)
+        assertEquals(newFhirId,prescriptionDao.getPastPrescriptions(prescriptionEntity.patientId).find { it.prescriptionEntity.id == prescriptionEntity.id }?.prescriptionEntity?.prescriptionFhirId)
     }
 }

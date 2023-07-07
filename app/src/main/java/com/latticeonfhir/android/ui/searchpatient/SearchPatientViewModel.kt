@@ -20,8 +20,7 @@ class SearchPatientViewModel @Inject constructor(): BaseViewModel() {
     var gender by mutableStateOf("")
     var minAge by mutableStateOf("0")
     var maxAge by mutableStateOf("100")
-    val visitIntervals =
-        listOf("Last week", "Last month", "Last 3 months", "Last year")
+    val visitIntervals = listOf("Last week", "Last month", "Last 3 months", "Last year")
     var visitSelected by mutableStateOf(visitIntervals[0])
 
     var range by mutableStateOf(minAge.toFloat()..maxAge.toFloat())

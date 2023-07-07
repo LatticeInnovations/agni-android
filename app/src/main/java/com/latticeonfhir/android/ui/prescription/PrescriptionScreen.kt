@@ -48,6 +48,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -56,6 +57,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,15 +65,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.ui.common.customTabIndicatorOffset
 import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
 import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPrescriptionsScreen
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
@@ -95,8 +100,7 @@ fun PrescriptionScreen(
         else if (viewModel.checkedActiveIngredient.isNotEmpty()) {
             viewModel.checkedActiveIngredient = ""
             viewModel.medicationToEdit = null
-        }
-        else if (viewModel.bottomNavExpanded) viewModel.bottomNavExpanded = false
+        } else if (viewModel.bottomNavExpanded) viewModel.bottomNavExpanded = false
         else if (viewModel.isSearchResult) viewModel.isSearchResult = false
         else if (viewModel.tabIndex == 1) {
             viewModel.tabIndex = 0
@@ -122,6 +126,14 @@ fun PrescriptionScreen(
         }
         viewModel.isLaunched = true
     }
+    val density = LocalDensity.current
+    val tabWidths = remember {
+        val tabWidthStateList = mutableStateListOf<Dp>()
+        repeat(viewModel.tabs.size) {
+            tabWidthStateList.add(0.dp)
+        }
+        tabWidthStateList
+    }
     Box(
         modifier = Modifier
             .fillMaxSize(),
@@ -142,12 +154,12 @@ fun PrescriptionScreen(
                         Text(
                             text = stringResource(id = R.string.prescription),
                             style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.testTag("HEADING")
+                            modifier = Modifier.testTag("HEADING_TAG")
                         )
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "ARROW_BACK")
+                            Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
                         }
                     },
                     actions = {
@@ -175,11 +187,25 @@ fun PrescriptionScreen(
                     ) {
                         TabRow(
                             selectedTabIndex = viewModel.tabIndex,
-                            modifier = Modifier.testTag("TABS")
+                            modifier = Modifier.testTag("TABS"),
+                            indicator = { tabPositions ->
+                                TabRowDefaults.Indicator(
+                                    modifier = Modifier.customTabIndicatorOffset(
+                                        currentTabPosition = tabPositions[viewModel.tabIndex],
+                                        tabWidth = tabWidths[viewModel.tabIndex]
+                                    )
+                                )
+                            }
                         ) {
                             viewModel.tabs.forEachIndexed { index, title ->
                                 Tab(
-                                    text = { Text(title) },
+                                    text = {
+                                        Text(title,
+                                            onTextLayout = { textLayoutResult ->
+                                                tabWidths[index] =
+                                                    with(density) { textLayoutResult.size.width.toDp() - 10.dp }
+                                            })
+                                    },
                                     modifier = Modifier.testTag(title.uppercase()),
                                     selected = viewModel.tabIndex == index,
                                     onClick = { viewModel.tabIndex = index },
@@ -223,10 +249,16 @@ fun PrescriptionScreen(
                         AlertDialog(
                             onDismissRequest = { viewModel.clearAllConfirmDialog = false },
                             title = {
-                                Text(text = stringResource(id = R.string.discard_medications_dialog_title), modifier = Modifier.testTag("DIALOG_TITLE"))
+                                Text(
+                                    text = stringResource(id = R.string.discard_medications_dialog_title),
+                                    modifier = Modifier.testTag("DIALOG_TITLE")
+                                )
                             },
                             text = {
-                                Text(text = stringResource(id = R.string.discard_medications_dialog_description), modifier = Modifier.testTag("DIALOG_DESCRIPTION"))
+                                Text(
+                                    text = stringResource(id = R.string.discard_medications_dialog_description),
+                                    modifier = Modifier.testTag("DIALOG_DESCRIPTION")
+                                )
                             },
                             confirmButton = {
                                 TextButton(
@@ -236,7 +268,7 @@ fun PrescriptionScreen(
                                         viewModel.bottomNavExpanded = false
                                         viewModel.clearAllConfirmDialog = false
                                     },
-                                    modifier = Modifier.testTag("DIALOG_POSITIVE_BTN")
+                                    modifier = Modifier.testTag("POSITIVE_BTN")
                                 ) {
                                     Text(
                                         stringResource(id = R.string.yes_discard)
@@ -248,7 +280,7 @@ fun PrescriptionScreen(
                                     onClick = {
                                         viewModel.clearAllConfirmDialog = false
                                     },
-                                    modifier = Modifier.testTag("DIALOG_NEGATIVE_BTN")
+                                    modifier = Modifier.testTag("NEGATIVE_BTN")
                                 ) {
                                     Text(
                                         stringResource(id = R.string.no_go_back)

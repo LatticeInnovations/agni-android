@@ -69,7 +69,8 @@ fun ConfirmRelationship(
                 title = {
                     Text(
                         text = stringResource(id = R.string.confirm_relationship),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.testTag("HEADING_TAG")
                     )
                 },
 //                navigationIcon = {
@@ -84,7 +85,7 @@ fun ConfirmRelationship(
 //                    }) {
 //                        Icon(
 //                            Icons.Default.ArrowBack,
-//                            contentDescription = "Back button"
+//                            contentDescription = "BACK_ICON"
 //                        )
 //                    }
 //                },
@@ -95,7 +96,7 @@ fun ConfirmRelationship(
                     IconButton(onClick = {
                         viewModel.discardAllRelationDialog = true
                     }) {
-                        Icon(Icons.Default.Clear, contentDescription = "clear icon")
+                        Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
                     }
                 }
             )
@@ -198,6 +199,7 @@ fun ConfirmRelationshipScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp)
+                .testTag("CONNECT_BTN")
         ) {
             Text(text = "Connect Patient")
         }
@@ -214,7 +216,7 @@ fun MemberCard(context: Context, relationView: RelationView, viewModel: ConfirmR
         mutableStateOf(false)
     }
     Row(
-        modifier = Modifier.padding(14.dp)
+        modifier = Modifier.padding(14.dp).testTag("MEMBER_DETAIL_CARDS")
     ) {
         Text(
             text = "${
@@ -290,14 +292,16 @@ fun DeleteDialog(
         title = {
             Text(
                 text = "Remove relationship?",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.testTag("DIALOG_TITLE")
             )
         },
         text = {
             Column() {
                 Text(
                     "Are you sure you want to remove this relationship? Patient records will not be affected.",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.testTag("DIALOG_SUBTITLE")
                 )
                 Text(
                     "${
@@ -326,7 +330,9 @@ fun DeleteDialog(
                 onClick = {
                     viewModel.deleteRelation(relationView.patientId, relationView.relativeId)
                     closeDialog()
-                }) {
+                },
+                modifier = Modifier.testTag("POSITIVE_BTN")
+            ) {
                 Text(
                     "Confirm"
                 )
@@ -336,7 +342,9 @@ fun DeleteDialog(
             TextButton(
                 onClick = {
                     closeDialog()
-                }) {
+                },
+                modifier = Modifier.testTag("NEGATIVE_BTN")
+            ) {
                 Text(
                     "Cancel"
                 )
@@ -365,7 +373,8 @@ fun EditDialog(
         title = {
             Text(
                 text = "Edit relationship",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.testTag("DIALOG_TITLE")
             )
         },
         text = {
@@ -388,7 +397,9 @@ fun EditDialog(
                         style = MaterialTheme.typography.bodyLarge
                     )
                     Spacer(modifier = Modifier.width(10.dp))
-                    Column() {
+                    Column(
+                        modifier = Modifier.testTag("RELATIONS_DROPDOWN")
+                    ) {
                         val relationsList = RelationshipList.getRelationshipList(relationView.patientGender)
 
                         TextField(
@@ -463,7 +474,9 @@ fun EditDialog(
                         )
                     )
                     closeDialog()
-                }) {
+                },
+                modifier = Modifier.testTag("POSITIVE_BTN")
+            ) {
                 Text(
                     "Save"
                 )
@@ -473,7 +486,9 @@ fun EditDialog(
             TextButton(
                 onClick = {
                     closeDialog()
-                }) {
+                },
+                modifier = Modifier.testTag("NEGATIVE_BTN")
+            ) {
                 Text(
                     "Cancel"
                 )
