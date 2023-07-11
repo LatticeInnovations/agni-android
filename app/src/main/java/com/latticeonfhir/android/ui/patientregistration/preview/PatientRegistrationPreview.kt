@@ -187,29 +187,30 @@ fun PatientRegistrationPreview(
                         )
                     }
                     viewModel.relativeId = UUIDBuilder.generateUUID()
+                    val patient = PatientResponse(
+                        id = viewModel.relativeId,
+                        firstName = viewModel.firstName,
+                        middleName = if (viewModel.middleName.isEmpty()) null else viewModel.middleName,
+                        lastName = if (viewModel.lastName.isEmpty()) null else viewModel.lastName,
+                        birthDate = viewModel.dob.toPatientDate(),
+                        email = if (viewModel.email.isEmpty()) null else viewModel.email,
+                        active = true,
+                        gender = viewModel.gender,
+                        mobileNumber = viewModel.phoneNumber.toLong(),
+                        fhirId = null,
+                        permanentAddress = PatientAddressResponse(
+                            postalCode = viewModel.homeAddress.pincode,
+                            state = viewModel.homeAddress.state,
+                            addressLine1 = viewModel.homeAddress.addressLine1,
+                            addressLine2 = if (viewModel.homeAddress.addressLine2.isEmpty()) null else viewModel.homeAddress.addressLine2,
+                            city = viewModel.homeAddress.city,
+                            country = "India",
+                            district = if (viewModel.homeAddress.district.isEmpty()) null else viewModel.homeAddress.district
+                        ),
+                        identifier = viewModel.identifierList
+                    )
                     viewModel.addPatient(
-                        PatientResponse(
-                            id = viewModel.relativeId,
-                            firstName = viewModel.firstName,
-                            middleName = if (viewModel.middleName.isEmpty()) null else viewModel.middleName,
-                            lastName = if (viewModel.lastName.isEmpty()) null else viewModel.lastName,
-                            birthDate = viewModel.dob.toPatientDate(),
-                            email = if (viewModel.email.isEmpty()) null else viewModel.email,
-                            active = true,
-                            gender = viewModel.gender,
-                            mobileNumber = viewModel.phoneNumber.toLong(),
-                            fhirId = null,
-                            permanentAddress = PatientAddressResponse(
-                                postalCode = viewModel.homeAddress.pincode,
-                                state = viewModel.homeAddress.state,
-                                addressLine1 = viewModel.homeAddress.addressLine1,
-                                addressLine2 = if (viewModel.homeAddress.addressLine2.isEmpty()) null else viewModel.homeAddress.addressLine2,
-                                city = viewModel.homeAddress.city,
-                                country = "India",
-                                district = if (viewModel.homeAddress.district.isEmpty()) null else viewModel.homeAddress.district
-                            ),
-                            identifier = viewModel.identifierList
-                        )
+                        patient
                     )
                     if (viewModel.fromHouseholdMember) {
                         // adding relation
@@ -241,6 +242,11 @@ fun PatientRegistrationPreview(
                         }
                     } else {
                         navController.popBackStack(Screen.LandingScreen.route, false)
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "patient",
+                            patient
+                        )
+                        navController.navigate(Screen.PatientLandingScreen.route)
                     }
                 },
                 modifier = Modifier
