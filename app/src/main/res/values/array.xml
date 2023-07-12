@@ -32,4 +32,27 @@
         <item>daughter in law</item>
         <item>unknown</item>
     </string-array>
+    <string-array name="morning_slot_timings">
+        <item>09:00 AM</item>
+        <item>09:30 AM</item>
+        <item>10:00 AM</item>
+        <item>10:30 AM</item>
+        <item>11:00 AM</item>
+        <item>11:30 AM</item>
+    </string-array>
+    <string-array name="afternoon_slot_timings">
+        <item>12:00 PM</item>
+        <item>12:30 PM</item>
+        <item>01:00 PM</item>
+        <item>01:30 PM</item>
+        <item>02:00 PM</item>
+        <item>02:30 PM</item>
+        <item>03:00 PM</item>
+        <item>03:30 PM</item>
+        <item>04:00 PM</item>
+    </string-array>
+    <string-array name="evening_slot_timings">
+        <item>04:30 PM</item>
+        <item>05:00 PM</item>
+    </string-array>
 </resources>
