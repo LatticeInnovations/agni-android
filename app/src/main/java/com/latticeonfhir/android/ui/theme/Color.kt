@@ -54,3 +54,5 @@ val NeutralVariant50 = Color(0xFF79747E)
 val NeutralVariant60 = Color(0xFF938F99)
 val NeutralVariant80 = Color(0xFFCAC4D0)
 val NeutralVariant90 = Color(0xFFE7E0EC)
+
+val Green = Color(0xFF1B7B12)

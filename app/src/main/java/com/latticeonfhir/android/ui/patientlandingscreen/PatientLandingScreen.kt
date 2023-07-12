@@ -21,6 +21,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.ui.common.AppointmentsFab
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
@@ -65,7 +66,7 @@ fun PatientLandingScreen(
                     val age = viewModel.patient?.birthDate?.toTimeInMilli()?.toAge()
                     val subTitle = "${
                         viewModel.patient?.gender?.get(0)?.uppercase()
-                    }/$age . +91 ${viewModel.patient?.mobileNumber} ${if (viewModel.patient?.fhirId.isNullOrEmpty()) "" else ".  ${viewModel.patient?.fhirId}"} "
+                    }/$age · +91 ${viewModel.patient?.mobileNumber} ${if (viewModel.patient?.fhirId.isNullOrEmpty()) "" else " · ${viewModel.patient?.fhirId}"} "
                     Column {
                         Text(
                             text = NameConverter.getFullName(
@@ -108,6 +109,16 @@ fun PatientLandingScreen(
                     CardComposable(
                         navController,
                         viewModel.patient,
+                        viewModel,
+                        "APPOINTMENTS",
+                        Screen.Appointments.route,
+                        stringResource(id = R.string.appointments),
+                        R.drawable.event_note_icon
+                    )
+                    CardComposable(
+                        navController,
+                        viewModel.patient,
+                        viewModel,
                         "HOUSEHOLD_MEMBER",
                         Screen.HouseholdMembersScreen.route,
                         stringResource(id = R.string.household_members),
@@ -116,11 +127,23 @@ fun PatientLandingScreen(
                     CardComposable(
                         navController,
                         viewModel.patient,
+                        viewModel,
                         "PRESCRIPTION",
                         Screen.Prescription.route,
                         stringResource(id = R.string.prescription),
                         R.drawable.prescriptions_icon
                     )
+                }
+            }
+        },
+        floatingActionButton = {
+            viewModel.patient?.let { patient ->
+                AppointmentsFab(
+                    navController,
+                    patient,
+                    viewModel.isFabSelected
+                ) {
+                    viewModel.isFabSelected = it
                 }
             }
         }
@@ -131,6 +154,7 @@ fun PatientLandingScreen(
 fun CardComposable(
     navController: NavController,
     patient: PatientResponse?,
+    viewModel: PatientLandingScreenViewModel,
     tag: String,
     route: String,
     label: String,
@@ -139,6 +163,7 @@ fun CardComposable(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .height(90.dp)
             .padding(bottom = 20.dp)
             .clickable {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
@@ -146,6 +171,7 @@ fun CardComposable(
                     patient
                 )
                 navController.navigate(route)
+                viewModel.isFabSelected = false
             }
             .testTag(tag),
         shadowElevation = 5.dp,
@@ -154,17 +180,29 @@ fun CardComposable(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(15.dp),
+                .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(id = icon),
-                contentDescription = tag + "_ICON",
-                tint = MaterialTheme.colorScheme.surfaceTint,
-                modifier = Modifier.size(30.dp, 21.dp)
-            )
-            Spacer(modifier = Modifier.width(15.dp))
-            Text(text = label, style = MaterialTheme.typography.bodyLarge)
+            Row {
+                Icon(
+                    painter = painterResource(id = icon),
+                    contentDescription = tag + "_ICON",
+                    tint = MaterialTheme.colorScheme.surfaceTint,
+                    modifier = Modifier.size(32.dp, 22.dp)
+                )
+                Spacer(modifier = Modifier.width(15.dp))
+                Column {
+                    Text(text = label, style = MaterialTheme.typography.bodyLarge)
+                    if (label == stringResource(id = R.string.appointments)) Text(
+                        text = stringResource(
+                            id = R.string.appointments_scheduled,
+                            viewModel.appointmentsCount
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
             Spacer(modifier = Modifier.weight(1f))
             Icon(Icons.Default.KeyboardArrowRight, contentDescription = "RIGHT_ARROW")
         }
