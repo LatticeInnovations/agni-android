@@ -39,10 +39,16 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -59,7 +65,9 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
+import kotlinx.coroutines.launch
 import java.util.Date
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,6 +75,9 @@ fun RescheduleAppointment(
     navController: NavController,
     viewModel: RescheduleAppointmentViewModel = viewModel()
 ) {
+    val dateScrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+    var scrollToPosition by remember { mutableStateOf(0F) }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.appointment =
@@ -100,6 +111,9 @@ fun RescheduleAppointment(
                 actions = {
                     FilledTonalButton(
                         onClick = {
+                            coroutineScope.launch {
+                                dateScrollState.animateScrollTo(scrollToPosition.roundToInt())
+                            }
                             viewModel.selectedDate = Date()
                             viewModel.weekList = viewModel.selectedDate.toWeekList()
                         },
@@ -168,9 +182,9 @@ fun RescheduleAppointment(
                             .height(55.dp)
                     )
                     Row(
-                        modifier = Modifier.horizontalScroll(rememberScrollState())
+                        modifier = Modifier.horizontalScroll(dateScrollState)
                     ) {
-                        viewModel.weekList.forEach { date ->
+                        viewModel.weekList.forEachIndexed { index, date ->
                             SuggestionChip(
                                 onClick = {
                                     viewModel.selectedDate = date
@@ -191,7 +205,12 @@ fun RescheduleAppointment(
                                         )
                                     }
                                 },
-                                modifier = Modifier.padding(horizontal = 5.dp),
+                                modifier = Modifier
+                                    .padding(horizontal = 5.dp)
+                                    .onGloballyPositioned { coordinates ->
+                                        if (index == 0) scrollToPosition =
+                                            coordinates.positionInRoot().x
+                                    },
                                 colors = SuggestionChipDefaults.suggestionChipColors(
                                     containerColor = if (viewModel.selectedDate == date) MaterialTheme.colorScheme.primary
                                     else MaterialTheme.colorScheme.surface,
