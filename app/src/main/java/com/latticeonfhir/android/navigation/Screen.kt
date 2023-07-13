@@ -21,5 +21,8 @@ sealed class Screen(val route: String){
     object EditBasicInfo: Screen("edit_basic_info")
     object EditIdentification: Screen("edit_identification")
     object EditAddress: Screen("edit_address")
-    //object FillDetails: Screen("fill_details")
+
+    object Appointments: Screen("appointments")
+    object ScheduleAppointments: Screen("schedule_appointments")
+    object RescheduleAppointments: Screen("reschedule_appointments")
 }
