@@ -159,4 +159,21 @@ include them in the household</string>
     <string name="different_user_login_dialog_description">Logging in as a different user will remove all existing data associated with the current user. This action cannot be undone. Continue?</string>
     <string name="yes_proceed">Yes, proceed</string>
 
+    <string name="appointments">Appointments</string>
+    <string name="appointments_scheduled">%d scheduled</string>
+    <string name="schedule_appointment">Schedule appointment</string>
+    <string name="reschedule_appointment">Reschedule appointment</string>
+    <string name="add_to_queue">Add to queue</string>
+    <string name="cancel">Cancel</string>
+    <string name="reschedule">Reschedule</string>
+    <string name="no_completed_appointments">No completed appointment</string>
+    <string name="no_upcoming_appointments">No upcoming appointments</string>
+    <string name="cancel_appointment">Cancel appointment ?</string>
+    <string name="yes_i_want_to_cancel">Yes, I want to cancel</string>
+    <string name="today">Today</string>
+    <string name="morning_slots">Morning slots</string>
+    <string name="afternoon_slots">Afternoon slots</string>
+    <string name="evening_slots">Evening slots</string>
+    <string name="confirm_appointment">Confirm appointment</string>
+    <string name="current_appointment">Current appointment:</string>
 </resources>

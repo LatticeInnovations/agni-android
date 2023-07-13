@@ -39,14 +39,11 @@ class MainActivity : BaseActivity() {
                 NavigationAppHost(navController = navController, startDest = viewModel.startDestination)
             }
         }
-        viewModel.toString()
     }
+
     private fun startSMSRetrieverClient() {
         val client = SmsRetriever.getClient(this)
         val task: Task<Void> = client.startSmsRetriever()
-        task.addOnSuccessListener { aVoid ->
-            Timber.d("manseeyy sms retriever started successfully")
-        }
         task.addOnFailureListener { e ->
             Timber.e(e.localizedMessage)
         }
@@ -61,18 +58,15 @@ class MainActivity : BaseActivity() {
                 when (retrieveSMSStatus.statusCode) {
                     CommonStatusCodes.SUCCESS -> {
                         val message = extras.get(SmsRetriever.EXTRA_SMS_MESSAGE)
-                        Timber.d("manseeyy message $message")
                         val otpPattern = Pattern.compile(otpPattern.toString())
                         val matcher = otpPattern.matcher(message.toString())
                         if (matcher.find()) {
                             otp = matcher.group(0) as String
                         }
-                        Timber.d("manseeyy otp is $otp")
                     }
 
                     CommonStatusCodes.TIMEOUT -> {
                         // Handle timeout error
-                        Timber.d("manseeyy in timeout")
                     }
                 }
             }

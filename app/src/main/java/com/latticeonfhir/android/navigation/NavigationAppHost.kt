@@ -6,6 +6,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.latticeonfhir.android.LandingScreen
+import com.latticeonfhir.android.ui.appointments.AppointmentsScreen
+import com.latticeonfhir.android.ui.appointments.reschedule.RescheduleAppointment
+import com.latticeonfhir.android.ui.appointments.schedule.ScheduleAppointments
 import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatient
 import com.latticeonfhir.android.ui.householdmember.searchresult.SearchResult
 import com.latticeonfhir.android.ui.login.OtpScreen
@@ -44,6 +47,8 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.EditBasicInfo.route){ EditBasicInformation(navController = navController) }
         composable(Screen.EditIdentification.route){ EditIdentification(navController = navController) }
         composable(Screen.EditAddress.route){ EditPatientAddress(navController = navController) }
-        //composable(Screen.FillDetails.route){ FillDetailsScreen(navController = navController) }
+        composable(Screen.Appointments.route){ AppointmentsScreen(navController = navController) }
+        composable(Screen.ScheduleAppointments.route){ ScheduleAppointments(navController = navController) }
+        composable(Screen.RescheduleAppointments.route){ RescheduleAppointment(navController = navController) }
     }
 }
