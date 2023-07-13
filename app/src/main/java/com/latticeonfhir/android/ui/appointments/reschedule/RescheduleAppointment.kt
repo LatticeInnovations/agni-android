@@ -60,6 +60,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.appointments.schedule.SlotChips
 import com.latticeonfhir.android.ui.appointments.schedule.SlotsHeading
 import com.latticeonfhir.android.ui.common.NonLazyGrid
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_DATE_AND_TIME
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonth
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekDay
@@ -81,7 +82,7 @@ fun RescheduleAppointment(
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.appointment =
-                navController.previousBackStackEntry?.savedStateHandle?.get<String>("date_and_time")
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>(APPOINTMENT_DATE_AND_TIME)
                     .toString()
         }
         viewModel.isLaunched = true
