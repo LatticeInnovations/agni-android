@@ -287,6 +287,7 @@ fun RescheduleAppointment(
             }
             if (viewModel.showDatePicker) {
                 val datePickerState = rememberDatePickerState()
+                datePickerState.setSelection(viewModel.selectedDate.time)
                 val confirmEnabled = remember {
                     derivedStateOf { datePickerState.selectedDateMillis != null }
                 }
