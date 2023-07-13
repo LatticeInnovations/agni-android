@@ -38,16 +38,11 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
@@ -67,7 +62,6 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import kotlinx.coroutines.launch
 import java.util.Date
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,7 +71,6 @@ fun ScheduleAppointments(
 ) {
     val dateScrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
-    var scrollToPosition by remember { mutableStateOf(0F) }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -104,7 +97,7 @@ fun ScheduleAppointments(
                     FilledTonalButton(
                         onClick = {
                             coroutineScope.launch {
-                                dateScrollState.animateScrollTo(scrollToPosition.roundToInt())
+                                dateScrollState.animateScrollTo(0)
                             }
                             viewModel.selectedDate = Date()
                             viewModel.weekList = viewModel.selectedDate.toWeekList()
@@ -156,7 +149,7 @@ fun ScheduleAppointments(
                     Row(
                         modifier = Modifier.horizontalScroll(dateScrollState)
                     ) {
-                        viewModel.weekList.forEachIndexed { index, date ->
+                        viewModel.weekList.forEach { date ->
                             SuggestionChip(
                                 onClick = {
                                     viewModel.selectedDate = date
@@ -178,11 +171,7 @@ fun ScheduleAppointments(
                                     }
                                 },
                                 modifier = Modifier
-                                    .padding(horizontal = 5.dp)
-                                    .onGloballyPositioned { coordinates ->
-                                        if (index == 0) scrollToPosition =
-                                            coordinates.positionInRoot().x
-                                    },
+                                    .padding(horizontal = 5.dp),
                                 colors = SuggestionChipDefaults.suggestionChipColors(
                                     containerColor = if (viewModel.selectedDate == date) MaterialTheme.colorScheme.primary
                                     else MaterialTheme.colorScheme.surface,
@@ -220,8 +209,8 @@ fun ScheduleAppointments(
                             stringArrayResource(id = R.array.morning_slot_timings),
                             viewModel.morningSlots,
                             viewModel.selectedSlot
-                        ) {
-                            viewModel.selectedSlot = it
+                        ) { slot ->
+                            viewModel.selectedSlot = slot
                         }
                     }
                     SlotsHeading(
@@ -240,8 +229,8 @@ fun ScheduleAppointments(
                             stringArrayResource(id = R.array.afternoon_slot_timings),
                             viewModel.afternoonSlots,
                             viewModel.selectedSlot
-                        ) {
-                            viewModel.selectedSlot = it
+                        ) { slot ->
+                            viewModel.selectedSlot = slot
                         }
                     }
                     SlotsHeading(
@@ -260,8 +249,8 @@ fun ScheduleAppointments(
                             stringArrayResource(id = R.array.evening_slot_timings),
                             viewModel.eveningSlots,
                             viewModel.selectedSlot
-                        ) {
-                            viewModel.selectedSlot = it
+                        ) { slot ->
+                            viewModel.selectedSlot = slot
                         }
                     }
                     if (viewModel.selectedSlot.isNotBlank()) Spacer(modifier = Modifier.height(60.dp))
