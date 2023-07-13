@@ -57,7 +57,9 @@ import com.latticeonfhir.android.ui.appointments.schedule.SlotsHeading
 import com.latticeonfhir.android.ui.common.NonLazyGrid
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_DATE_AND_TIME
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonth
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
@@ -322,7 +324,12 @@ fun RescheduleAppointment(
                         }
                     }
                 ) {
-                    DatePicker(state = datePickerState)
+                    DatePicker(
+                        state = datePickerState,
+                        dateValidator = { date ->
+                            date >= Date().toTodayStartDate() && date <= Date().toOneYearFuture().time
+                        }
+                    )
                 }
             }
         },
