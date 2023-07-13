@@ -56,6 +56,7 @@ object TimeConverter {
         val outputDate = outputFormat.format(date!!)
         return outputDate
     }
+
     internal fun String.toPatientPreviewDate(): String {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
@@ -90,9 +91,59 @@ object TimeConverter {
         }
     }
 
-    internal fun Date.toPrescriptionDate() : String {
+    internal fun Date.toPrescriptionDate(): String {
         val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         return formatter.format(this)
+    }
+
+    internal fun Date.toSlotDate(): String {
+        val formatter = SimpleDateFormat("dd MMM", Locale.getDefault())
+        return formatter.format(this)
+    }
+
+    internal fun Date.toYear(): String {
+        val formatter = SimpleDateFormat("yyyy", Locale.getDefault())
+        return formatter.format(this)
+    }
+
+    internal fun Date.toMonth(): String {
+        val formatter = SimpleDateFormat("MMM", Locale.getDefault())
+        return formatter.format(this)
+    }
+
+    internal fun Date.toWeekDay(): String {
+        val formatter = SimpleDateFormat("EEEE", Locale.getDefault())
+        return formatter.format(this)
+    }
+
+    internal fun Date.toWeekList(): List<Date> {
+        val weekList = mutableListOf<Date>()
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this.time
+        var i = 0
+        while (i < 7) {
+            weekList.add(calendar.time)
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+            i += 1
+        }
+        return weekList
+    }
+
+    internal fun Date.toOneYearFuture(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this.time
+        calendar.add(Calendar.YEAR, 1)
+        return calendar.time
+    }
+
+    internal fun Date.toTodayStartDate(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this.time
+        calendar[Calendar.HOUR_OF_DAY] = 0
+        calendar[Calendar.MINUTE] = 0
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
+        return calendar.timeInMillis
     }
 
     internal fun Long.toPatientDate(): String {
@@ -116,7 +167,7 @@ object TimeConverter {
             val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sszzz", Locale.getDefault())
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = this
-            formatter.format(calendar.time).replace("GMT","")
+            formatter.format(calendar.time).replace("GMT", "")
         }
     }
 
