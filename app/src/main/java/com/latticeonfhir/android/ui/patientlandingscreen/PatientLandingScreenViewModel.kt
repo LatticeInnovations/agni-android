@@ -29,6 +29,9 @@ class PatientLandingScreenViewModel @Inject constructor(
     var logoutUser by mutableStateOf(false)
     var logoutReason by mutableStateOf("")
 
+    var appointmentsCount by mutableStateOf(0)
+    var isFabSelected by mutableStateOf(false)
+
     private val workRequestBuilders: WorkRequestBuilders by lazy {
         WorkRequestBuilders(
             getApplication(),
