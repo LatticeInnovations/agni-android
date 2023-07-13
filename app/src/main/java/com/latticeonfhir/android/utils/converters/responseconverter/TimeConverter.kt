@@ -129,6 +129,23 @@ object TimeConverter {
         return weekList
     }
 
+    internal fun Date.toOneYearFuture(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this.time
+        calendar.add(Calendar.YEAR, 1)
+        return calendar.time
+    }
+
+    internal fun Date.toTodayStartDate(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this.time
+        calendar[Calendar.HOUR_OF_DAY] = 0
+        calendar[Calendar.MINUTE] = 0
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
+        return calendar.timeInMillis
+    }
+
     internal fun Long.toPatientDate(): String {
         return if (this != 0.toLong()) {
             val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())

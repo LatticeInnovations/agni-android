@@ -56,11 +56,14 @@ import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.NonLazyGrid
 import com.latticeonfhir.android.ui.theme.Green
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonth
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -293,7 +296,12 @@ fun ScheduleAppointments(
                         }
                     }
                 ) {
-                    DatePicker(state = datePickerState)
+                    DatePicker(
+                        state = datePickerState,
+                        dateValidator = { date ->
+                            date >= Date().toTodayStartDate() && date <= Date().toOneYearFuture().time
+                        }
+                    )
                 }
             }
         },
