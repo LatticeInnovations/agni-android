@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_DATE_AND_TIME
 
 @Composable
 fun UpcomingAppointments(navController: NavController, viewModel: AppointmentsScreenViewModel) {
@@ -96,7 +97,7 @@ fun UpcomingAppointmentCard(navController: NavController, dateAndTime: String, v
                 TextButton(onClick = {
                     viewModel.selectedAppointment = dateAndTime
                     navController.currentBackStackEntry?.savedStateHandle?.set(
-                        "date_and_time",
+                        APPOINTMENT_DATE_AND_TIME,
                         viewModel.selectedAppointment
                     )
                     navController.navigate(Screen.RescheduleAppointments.route)
