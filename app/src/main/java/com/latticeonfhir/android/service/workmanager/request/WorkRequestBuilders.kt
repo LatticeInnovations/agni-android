@@ -34,11 +34,8 @@ import com.latticeonfhir.android.utils.constants.ErrorConstants.ERROR_MESSAGE
 import com.latticeonfhir.android.utils.constants.Id
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -78,7 +75,8 @@ class WorkRequestBuilders(
                     true,
                     errorMsgFromServer
                 )
-                val value = workInfo.progress.getInt(PatientUploadSyncWorker.PatientUploadProgress, 0)
+                val value =
+                    workInfo.progress.getInt(PatientUploadSyncWorker.PatientUploadProgress, 0)
                 if (value == 100) {
                     /** Update Fhir Id in Generic Entity */
                     updateFhirIdInRelation { errorReceived, errorMsg ->
@@ -328,7 +326,8 @@ class WorkRequestBuilders(
                     true,
                     errorMsgFromServer
                 )
-                val value = workInfo.progress.getInt(PatientPatchUploadSyncWorker.PatientPatchUpload, 0)
+                val value =
+                    workInfo.progress.getInt(PatientPatchUploadSyncWorker.PatientPatchUpload, 0)
                 if (value == 100) {
                     /** Handle Progress Based Download WorkRequests Here */
                 }
@@ -355,7 +354,8 @@ class WorkRequestBuilders(
                     true,
                     errorMsgFromServer
                 )
-                val value = workInfo.progress.getInt(RelationPatchUploadSyncWorker.RelationPatchUpload, 0)
+                val value =
+                    workInfo.progress.getInt(RelationPatchUploadSyncWorker.RelationPatchUpload, 0)
                 if (value == 100) {
                     /** Handle Progress Based Download WorkRequests Here */
                 }
@@ -372,55 +372,52 @@ class WorkRequestBuilders(
      * */
 
     private suspend fun updateFhirIdInRelation(error: (Boolean, String) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            genericRepository.getNonSyncedPostRelations().forEach { genericEntity ->
-                val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>()
-                    .mapToObject(RelatedPersonResponse::class.java)
-                if (existingMap != null) {
-                    genericRepository.insertOrUpdatePostEntity(
-                        patientId = genericEntity.patientId,
-                        entity = existingMap.copy(
-                            id = patientRepository.getPatientById(existingMap.id)[0].fhirId
-                                ?: Id.EMPTY_FHIR_ID,
-                            relationship = existingMap.relationship.map { relationship ->
-                                relationship.copy(
-                                    relativeId = patientRepository.getPatientById(relationship.relativeId)[0].fhirId
-                                        ?: Id.EMPTY_FHIR_ID
-                                )
-                            }
-                        ),
-                        typeEnum = GenericTypeEnum.RELATION,
-                        replaceEntireRow = true
-                    )
-                }
+        genericRepository.getNonSyncedPostRelations().forEach { genericEntity ->
+            val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>()
+                .mapToObject(RelatedPersonResponse::class.java)
+            if (existingMap != null) {
+                genericRepository.insertOrUpdatePostEntity(
+                    patientId = genericEntity.patientId,
+                    entity = existingMap.copy(
+                        id = patientRepository.getPatientById(existingMap.id)[0].fhirId
+                            ?: Id.EMPTY_FHIR_ID,
+                        relationship = existingMap.relationship.map { relationship ->
+                            relationship.copy(
+                                relativeId = patientRepository.getPatientById(relationship.relativeId)[0].fhirId
+                                    ?: Id.EMPTY_FHIR_ID
+                            )
+                        }
+                    ),
+                    typeEnum = GenericTypeEnum.RELATION,
+                    replaceEntireRow = true
+                )
             }
-            /** Start Relation Worker */
-            uploadRelationWorker { errorReceived, errorMsg ->
-                error(errorReceived, errorMsg)
-            }
+        }
+        /** Start Relation Worker */
+        uploadRelationWorker { errorReceived, errorMsg ->
+            error(errorReceived, errorMsg)
         }
     }
 
-    private fun updateFhirIdInPrescription(error: (Boolean, String) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            genericRepository.getNonSyncedPostPrescriptions().forEach { genericEntity ->
-                val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(PrescriptionResponse::class.java)
-                if (existingMap != null) {
-                    genericRepository.insertOrUpdatePostEntity(
-                        patientId = genericEntity.patientId,
-                        entity = existingMap.copy(
-                            patientFhirId = patientRepository.getPatientById(existingMap.patientFhirId)[0].fhirId
-                                ?: Id.EMPTY_FHIR_ID
-                        ),
-                        typeEnum = GenericTypeEnum.PRESCRIPTION,
-                        replaceEntireRow = true
-                    )
-                }
+    private suspend fun updateFhirIdInPrescription(error: (Boolean, String) -> Unit) {
+        genericRepository.getNonSyncedPostPrescriptions().forEach { genericEntity ->
+            val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>()
+                .mapToObject(PrescriptionResponse::class.java)
+            if (existingMap != null) {
+                genericRepository.insertOrUpdatePostEntity(
+                    patientId = genericEntity.patientId,
+                    entity = existingMap.copy(
+                        patientFhirId = patientRepository.getPatientById(existingMap.patientFhirId)[0].fhirId
+                            ?: Id.EMPTY_FHIR_ID
+                    ),
+                    typeEnum = GenericTypeEnum.PRESCRIPTION,
+                    replaceEntireRow = true
+                )
             }
-            /** Start Prescription Worker */
-            uploadPrescriptionSyncWorker { errorReceived, errorMsg ->
-                error(errorReceived, errorMsg)
-            }
+        }
+        /** Start Prescription Worker */
+        uploadPrescriptionSyncWorker { errorReceived, errorMsg ->
+            error(errorReceived, errorMsg)
         }
     }
 }
