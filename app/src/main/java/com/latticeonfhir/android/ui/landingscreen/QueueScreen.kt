@@ -2,6 +2,7 @@
 
 package com.latticeonfhir.android.ui.landingscreen
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -19,9 +20,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AssistChip
@@ -86,6 +89,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Date
 
+@SuppressLint("FrequentlyChangedStateReadInComposition")
 @Composable
 fun QueueScreen(
     navController: NavController,
@@ -93,7 +97,7 @@ fun QueueScreen(
     dateScrollState: ScrollState,
     coroutineScope: CoroutineScope
 ) {
-    val verticalScrollState = rememberScrollState()
+    val queueListState = rememberLazyListState()
     LaunchedEffect(true) {
         dateScrollState.scrollTo(dateScrollState.maxValue / 2 + 30)
     }
@@ -101,7 +105,7 @@ fun QueueScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        AnimatedVisibility(verticalScrollState.value == 0) {
+        AnimatedVisibility(queueListState.firstVisibleItemScrollOffset == 0 && queueListState.firstVisibleItemIndex == 0) {
             Column {
                 Row(
                     modifier = Modifier
@@ -208,7 +212,11 @@ fun QueueScreen(
                     // total chip
                     InputChip(
                         selected = true,
-                        onClick = { },
+                        onClick = {
+                            coroutineScope.launch {
+                                queueListState.animateScrollToItem(0)
+                            }
+                        },
                         label = {
                             Text(text = stringResource(id = R.string.total_appointment, 10))
                         },
@@ -220,87 +228,125 @@ fun QueueScreen(
                             selectedBorderWidth = 1.dp
                         )
                     )
-                    AppointmentStatusChips(R.string.waiting_appointment, 4)
-                    AppointmentStatusChips(R.string.in_progress_appointment, 2)
+                    AppointmentStatusChips(
+                        R.string.waiting_appointment,
+                        4,
+                        queueListState,
+                        coroutineScope,
+                        0
+                    )
+                    AppointmentStatusChips(
+                        R.string.in_progress_appointment,
+                        2,
+                        queueListState,
+                        coroutineScope,
+                        1
+                    )
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    AppointmentStatusChips(R.string.scheduled_appointment, 2)
-                    AppointmentStatusChips(R.string.cancelled_appointment, 2)
-                    AppointmentStatusChips(R.string.completed_appointment, 2)
+                    AppointmentStatusChips(
+                        R.string.scheduled_appointment,
+                        2,
+                        queueListState,
+                        coroutineScope,
+                        2
+                    )
+                    AppointmentStatusChips(
+                        R.string.cancelled_appointment,
+                        2,
+                        queueListState,
+                        coroutineScope,
+                        4
+                    )
+                    AppointmentStatusChips(
+                        R.string.completed_appointment,
+                        2,
+                        queueListState,
+                        coroutineScope,
+                        3
+                    )
                 }
             }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(verticalScrollState)
-            ) {
-                Surface(
-                    color = Neutral90,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(2.dp),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(18.dp)
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.waiting),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.outline
-                        )
-                        QueuePatientCard(
-                            navController,
-                            viewModel,
-                            stringResource(id = R.string.walk_in)
-                        )
-                        QueuePatientCard(
-                            navController,
-                            viewModel,
-                            stringResource(id = R.string.arrived)
-                        )
+            LazyColumn(
+                state = queueListState,
+                content = {
+                    // waiting
+                    item {
+                        Surface(
+                            color = Neutral90,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(2.dp),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(18.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.waiting),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                                QueuePatientCard(
+                                    navController,
+                                    viewModel,
+                                    stringResource(id = R.string.walk_in)
+                                )
+                                QueuePatientCard(
+                                    navController,
+                                    viewModel,
+                                    stringResource(id = R.string.arrived)
+                                )
+                            }
+                        }
+                    }
+                    // in-progress
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .padding(18.dp)
+                        ) {
+                            QueuePatientCard(
+                                navController,
+                                viewModel,
+                                stringResource(id = R.string.in_progress_heading)
+                            )
+                        }
+                    }
+                    // scheduled
+                    item {
+                        Column(modifier = Modifier.padding(18.dp)) {
+                            QueuePatientCard(
+                                navController,
+                                viewModel,
+                                stringResource(id = R.string.scheduled)
+                            )
+                        }
+                    }
+                    // completed
+                    item {
+                        Column(modifier = Modifier.padding(18.dp)) {
+                            QueuePatientCard(
+                                navController,
+                                viewModel,
+                                stringResource(id = R.string.completed)
+                            )
+                        }
+                    }
+                    // cancelled
+                    item {
+                        Column(modifier = Modifier.padding(18.dp)) {
+                            CancelledQueueCard(
+                                stringResource(id = R.string.cancelled)
+                            )
+                        }
                     }
                 }
-                // in progress
-                Column(
-                    modifier = Modifier
-                        .padding(18.dp)
-                ) {
-                    QueuePatientCard(
-                        navController,
-                        viewModel,
-                        stringResource(id = R.string.in_progress_heading)
-                    )
-                }
-                // scheduled
-                Column(modifier = Modifier.padding(18.dp)) {
-                    QueuePatientCard(
-                        navController,
-                        viewModel,
-                        stringResource(id = R.string.scheduled)
-                    )
-                }
-
-                // completed
-                Column(modifier = Modifier.padding(18.dp)) {
-                    QueuePatientCard(
-                        navController,
-                        viewModel,
-                        stringResource(id = R.string.completed)
-                    )
-                }
-
-                // cancelled
-                Column(modifier = Modifier.padding(18.dp)) {
-                    CancelledQueueCard(
-                        stringResource(id = R.string.cancelled)
-                    )
-                }
-            }
+            )
         }
     }
 //    if (viewModel.showCancelAppointmentDialog) {
@@ -363,10 +409,19 @@ fun QueueScreen(
 }
 
 @Composable
-fun AppointmentStatusChips(label: Int, count: Int) {
+fun AppointmentStatusChips(
+    label: Int, count: Int,
+    listState: LazyListState,
+    coroutineScope: CoroutineScope,
+    index: Int
+) {
     FilterChip(
         selected = true,
-        onClick = { /*TODO*/ },
+        onClick = {
+            coroutineScope.launch {
+                listState.animateScrollToItem(index)
+            }
+        },
         label = {
             Text(text = stringResource(id = label, count))
         },
