@@ -527,6 +527,24 @@ fun QueuePatientCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                if (label == stringResource(id = R.string.arrived)) {
+                    Row(
+                        modifier = Modifier.padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.schedule_icon),
+                            contentDescription = "SCHEDULE_ICON",
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = "09:00 AM",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
+                }
             }
             if (label == stringResource(id = R.string.walk_in) || label == stringResource(id = R.string.arrived)) {
                 Icon(
