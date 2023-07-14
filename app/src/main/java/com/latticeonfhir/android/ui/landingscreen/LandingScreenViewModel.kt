@@ -22,12 +22,14 @@ import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepo
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -64,6 +66,17 @@ class LandingScreenViewModel @Inject constructor(
 
     var logoutUser by mutableStateOf(false)
     var logoutReason by mutableStateOf("")
+
+    // queue screen
+    var selectedDate by mutableStateOf(Date())
+    var weekList by mutableStateOf(selectedDate.to14DaysWeek())
+    var showDatePicker by mutableStateOf(false)
+    var appointmentsList by mutableStateOf(listOf("list"))
+    var showCancelAppointmentDialog by mutableStateOf(false)
+    var showStatusChangeLayout by mutableStateOf(false)
+    var statusList by mutableStateOf(listOf("Arrived", "In-progress", "Completed"))
+    var isSearchingInQueue by mutableStateOf(false)
+    var searchQueueQuery by mutableStateOf("")
 
     init {
 
