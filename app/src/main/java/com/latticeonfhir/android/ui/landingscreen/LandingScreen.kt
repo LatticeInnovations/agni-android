@@ -1,4 +1,4 @@
-package com.latticeonfhir.android
+package com.latticeonfhir.android.ui.landingscreen
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -27,14 +28,14 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.landingscreen.LandingScreenViewModel
-import com.latticeonfhir.android.ui.landingscreen.MyPatientScreen
-import com.latticeonfhir.android.ui.landingscreen.ProfileScreen
-import com.latticeonfhir.android.ui.landingscreen.QueueScreen
 import com.latticeonfhir.android.ui.landingscreen.*
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import kotlinx.coroutines.launch
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +47,7 @@ fun LandingScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val activity = LocalContext.current as Activity
+    val dateScrollState = rememberScrollState()
 
     BackHandler(enabled = true) {
         if (viewModel.isSearching) {
@@ -79,10 +81,9 @@ fun LandingScreen(
                     )
                 }
             }
-
             viewModel.populateList()
-            viewModel.isLaunched = true
         }
+        viewModel.isLaunched = true
     }
 
     LaunchedEffect(viewModel.logoutUser) {
@@ -139,6 +140,40 @@ fun LandingScreen(
                             }) {
                                 Icon(
                                     Icons.Default.Clear, contentDescription = "CLEAR_ICON"
+                                )
+                            }
+                        }
+                    )
+                } else if (viewModel.selectedIndex == 1) {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = viewModel.items[viewModel.selectedIndex],
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.testTag("SEARCH_TITLE_TEXT")
+                            )
+                        },
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                        ),
+                        actions = {
+                            FilledTonalButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        dateScrollState.scrollTo(dateScrollState.maxValue / 2 + 30)
+                                    }
+                                    viewModel.selectedDate = Date()
+                                    viewModel.weekList = viewModel.selectedDate.to14DaysWeek()
+                                },
+                                enabled = viewModel.selectedDate.toSlotDate() != Date().toSlotDate()
+                            ) {
+                                Text(text = stringResource(id = R.string.today))
+                            }
+                            IconButton(onClick = {
+                                viewModel.isSearchingInQueue = true
+                            }) {
+                                Icon(
+                                    Icons.Default.Search, contentDescription = "SEARCH_ICON"
                                 )
                             }
                         }
@@ -254,7 +289,7 @@ fun LandingScreen(
                 ) {
                     when (viewModel.selectedIndex) {
                         0 -> MyPatientScreen(navController)
-                        1 -> QueueScreen()
+                        1 -> QueueScreen(navController, viewModel, dateScrollState, coroutineScope)
                         2 -> ProfileScreen()
                     }
                 }
@@ -315,7 +350,7 @@ fun LandingScreen(
             else Modifier
                 .matchParentSize()
                 .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
-                .clickable(enabled = false) {  }
+                .clickable(enabled = false) { }
 
         ) {
             AnimatedVisibility(
@@ -327,7 +362,7 @@ fun LandingScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
-                        .clickable {  }
+                        .clickable { }
                         .testTag("SEARCH_LAYOUT"),
                     verticalArrangement = Arrangement.Top
                 ) {
@@ -396,6 +431,129 @@ fun LandingScreen(
                     ) {
                         Text(text = "Advanced search")
                     }
+                }
+            }
+        }
+        Box(
+            modifier = Modifier.matchParentSize()
+        ) {
+            AnimatedVisibility(
+                visible = viewModel.isSearchingInQueue,
+                enter = slideInVertically(initialOffsetY = { -it }),
+                exit = slideOutVertically(targetOffsetY = { -it })
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
+                        .clickable { }
+                        .testTag("QUEUE_SEARCH_LAYOUT"),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    TextField(
+                        value = viewModel.searchQueueQuery,
+                        onValueChange = {
+                            viewModel.searchQueueQuery = it
+                        },
+                        leadingIcon = {
+                            IconButton(onClick = {
+                                viewModel.searchQueueQuery = ""
+                                viewModel.isSearchingInQueue = false
+                            }) {
+                                Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                            }
+                        },
+                        trailingIcon = {
+                            if (viewModel.searchQueueQuery.isNotBlank()) {
+                                IconButton(onClick = {
+                                    viewModel.searchQueueQuery = ""
+                                }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(64.dp)
+                            .focusRequester(focusRequester)
+                            .onGloballyPositioned {
+                                focusRequester.requestFocus()
+                            }
+                            .testTag("SEARCH_TEXT_FIELD"),
+                        colors = TextFieldDefaults.textFieldColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Search
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSearch = {
+                                viewModel.isSearchingInQueue = false
+                            }
+                        ),
+                        singleLine = true
+                    )
+                }
+            }
+        }
+        Box(
+            modifier =
+            if (!viewModel.showStatusChangeLayout) Modifier
+                .matchParentSize()
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
+            else Modifier
+                .matchParentSize()
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+                .clickable(enabled = false) { },
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            AnimatedVisibility(
+                visible = viewModel.showStatusChangeLayout,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = MaterialTheme.colorScheme.surface)
+                        .clickable { }
+                        .testTag("CHANGE_STATUS_LAYOUT"),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.status),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            IconButton(onClick = { viewModel.showStatusChangeLayout = false }) {
+                                Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
+                            }
+                        }
+                    }
+                    viewModel.statusList.forEach { status ->
+                        Text(
+                            text = status,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                        Divider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(40.dp))
                 }
             }
         }

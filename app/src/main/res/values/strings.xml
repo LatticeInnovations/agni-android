@@ -176,4 +176,19 @@ include them in the household</string>
     <string name="evening_slots">Evening slots</string>
     <string name="confirm_appointment">Confirm appointment</string>
     <string name="current_appointment">Current appointment:</string>
+    <string name="no_appointment">No appointments available</string>
+    <string name="total_appointment">Total: %d</string>
+    <string name="waiting_appointment">Waiting: %d</string>
+    <string name="in_progress_appointment">In-progress: %d</string>
+    <string name="scheduled_appointment">Scheduled: %d</string>
+    <string name="completed_appointment">Completed: %d</string>
+    <string name="cancelled_appointment">Cancelled: %d</string>
+    <string name="waiting">Waiting</string>
+    <string name="in_progress_heading">In-progress</string>
+    <string name="scheduled">Scheduled</string>
+    <string name="completed">Completed</string>
+    <string name="cancelled">Cancelled</string>
+    <string name="walk_in">Walk-in</string>
+    <string name="arrived">Arrived</string>
+    <string name="status">Status</string>
 </resources>

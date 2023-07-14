@@ -129,10 +129,31 @@ object TimeConverter {
         return weekList
     }
 
+    internal fun Date.to14DaysWeek(): List<Date> {
+        val weekList = mutableListOf<Date>()
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this.time
+        calendar.add(Calendar.DAY_OF_YEAR, -7)
+        var i = 0
+        while (i < 16) {
+            weekList.add(calendar.time)
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+            i += 1
+        }
+        return weekList
+    }
+
     internal fun Date.toOneYearFuture(): Date {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = this.time
         calendar.add(Calendar.YEAR, 1)
+        return calendar.time
+    }
+
+    internal fun Long.toOneYearPast(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this
+        calendar.add(Calendar.YEAR, -1)
         return calendar.time
     }
 
