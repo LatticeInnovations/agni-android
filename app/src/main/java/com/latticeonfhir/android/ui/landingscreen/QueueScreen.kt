@@ -280,7 +280,7 @@ fun QueueScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(2.dp),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(18.dp)
                         ) {
                             Column(
                                 modifier = Modifier
