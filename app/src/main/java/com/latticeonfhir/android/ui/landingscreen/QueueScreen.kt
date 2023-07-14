@@ -481,7 +481,8 @@ fun QueuePatientCard(
                                     stringResource(id = R.string.completed) -> CompletedLabel
                                     stringResource(id = R.string.in_progress_heading) -> InProgressLabel
                                     else -> NoShowLabel
-                                }
+                                },
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     },
