@@ -4,7 +4,6 @@ package com.latticeonfhir.android.ui.landingscreen
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -22,6 +21,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -94,12 +95,12 @@ import java.util.Date
 fun QueueScreen(
     navController: NavController,
     viewModel: LandingScreenViewModel,
-    dateScrollState: ScrollState,
+    dateScrollState: LazyListState,
     coroutineScope: CoroutineScope
 ) {
     val queueListState = rememberLazyListState()
     LaunchedEffect(true) {
-        dateScrollState.scrollTo(dateScrollState.maxValue / 2 + 30)
+        dateScrollState.scrollToItem(7, scrollOffset = -130)
     }
     Column(
         modifier = Modifier
@@ -139,10 +140,10 @@ fun QueueScreen(
                             .width(1.dp)
                             .height(55.dp)
                     )
-                    Row(
-                        modifier = Modifier.horizontalScroll(dateScrollState)
+                    LazyRow(
+                        state = dateScrollState
                     ) {
-                        viewModel.weekList.forEach { date ->
+                        items(viewModel.weekList){ date ->
                             SuggestionChip(
                                 onClick = {
                                     viewModel.selectedDate = date
@@ -379,7 +380,7 @@ fun QueueScreen(
                             } ?: Date()
                         viewModel.weekList = viewModel.selectedDate.to14DaysWeek()
                         coroutineScope.launch {
-                            dateScrollState.scrollTo(dateScrollState.maxValue / 2 + 30)
+                            dateScrollState.scrollToItem(7, scrollOffset = -130)
                         }
                     },
                     enabled = confirmEnabled.value
