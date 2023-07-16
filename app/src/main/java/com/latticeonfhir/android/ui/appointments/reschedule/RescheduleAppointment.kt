@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.ui.appointments.reschedule
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -72,7 +74,7 @@ fun RescheduleAppointment(
     navController: NavController,
     viewModel: RescheduleAppointmentViewModel = viewModel()
 ) {
-    val dateScrollState = rememberScrollState()
+    val dateScrollState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
@@ -108,7 +110,7 @@ fun RescheduleAppointment(
                     FilledTonalButton(
                         onClick = {
                             coroutineScope.launch {
-                                dateScrollState.animateScrollTo(0)
+                                dateScrollState.animateScrollToItem(0)
                             }
                             viewModel.selectedDate = Date()
                             viewModel.weekList = viewModel.selectedDate.toWeekList()
@@ -177,10 +179,10 @@ fun RescheduleAppointment(
                             .width(1.dp)
                             .height(55.dp)
                     )
-                    Row(
-                        modifier = Modifier.horizontalScroll(dateScrollState)
+                    LazyRow(
+                        state = dateScrollState
                     ) {
-                        viewModel.weekList.forEach { date ->
+                        items(viewModel.weekList) { date ->
                             SuggestionChip(
                                 onClick = {
                                     viewModel.selectedDate = date
@@ -300,6 +302,9 @@ fun RescheduleAppointment(
                     confirmButton = {
                         TextButton(
                             onClick = {
+                                coroutineScope.launch {
+                                    dateScrollState.scrollToItem(0)
+                                }
                                 viewModel.showDatePicker = false
                                 viewModel.selectedDate =
                                     datePickerState.selectedDateMillis?.let { dateInLong ->

@@ -8,7 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -47,7 +47,7 @@ fun LandingScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val activity = LocalContext.current as Activity
-    val dateScrollState = rememberScrollState()
+    val dateScrollState = rememberLazyListState()
 
     BackHandler(enabled = true) {
         if (viewModel.isSearching) {
@@ -160,7 +160,7 @@ fun LandingScreen(
                             FilledTonalButton(
                                 onClick = {
                                     coroutineScope.launch {
-                                        dateScrollState.scrollTo(dateScrollState.maxValue / 2 + 30)
+                                        dateScrollState.animateScrollToItem(7, scrollOffset = -130)
                                     }
                                     viewModel.selectedDate = Date()
                                     viewModel.weekList = viewModel.selectedDate.to14DaysWeek()
