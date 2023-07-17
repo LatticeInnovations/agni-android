@@ -270,18 +270,18 @@ fun QueueScreen(
                         viewModel.waitingQueueList.size+3
                     )
                     AppointmentStatusChips(
-                        R.string.cancelled_appointment,
-                        2,
-                        queueListState.listState,
-                        coroutineScope,
-                        viewModel.waitingQueueList.size+5
-                    )
-                    AppointmentStatusChips(
                         R.string.completed_appointment,
                         2,
                         queueListState.listState,
                         coroutineScope,
                         viewModel.waitingQueueList.size+4
+                    )
+                    AppointmentStatusChips(
+                        R.string.cancelled_appointment,
+                        2,
+                        queueListState.listState,
+                        coroutineScope,
+                        viewModel.waitingQueueList.size+5
                     )
                 }
             }
