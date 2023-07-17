@@ -4,6 +4,7 @@ package com.latticeonfhir.android.ui.landingscreen
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,7 +25,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -54,7 +55,9 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -88,6 +91,11 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.burnoutcrew.reorderable.ReorderableItem
+import org.burnoutcrew.reorderable.ReorderableLazyListState
+import org.burnoutcrew.reorderable.detectReorder
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 import java.util.Date
 
 @SuppressLint("FrequentlyChangedStateReadInComposition")
@@ -98,7 +106,13 @@ fun QueueScreen(
     dateScrollState: LazyListState,
     coroutineScope: CoroutineScope
 ) {
-    val queueListState = rememberLazyListState()
+    val queueListState = rememberReorderableLazyListState(onMove = { from, to ->
+        if (to.index > 0 && to.index <= viewModel.waitingQueueList.size && from.index > 0 && from.index <= viewModel.waitingQueueList.size) {
+            viewModel.waitingQueueList = viewModel.waitingQueueList.toMutableList().apply {
+                add(to.index - 1, removeAt(from.index - 1))
+            }
+        }
+    })
     LaunchedEffect(true) {
         dateScrollState.scrollToItem(7, scrollOffset = -130)
     }
@@ -106,7 +120,7 @@ fun QueueScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        AnimatedVisibility(queueListState.firstVisibleItemScrollOffset == 0 && queueListState.firstVisibleItemIndex == 0) {
+        AnimatedVisibility(queueListState.listState.firstVisibleItemScrollOffset == 0 && queueListState.listState.firstVisibleItemIndex == 0) {
             Column {
                 Row(
                     modifier = Modifier
@@ -143,7 +157,7 @@ fun QueueScreen(
                     LazyRow(
                         state = dateScrollState
                     ) {
-                        items(viewModel.weekList){ date ->
+                        items(viewModel.weekList) { date ->
                             SuggestionChip(
                                 onClick = {
                                     viewModel.selectedDate = date
@@ -215,7 +229,7 @@ fun QueueScreen(
                         selected = true,
                         onClick = {
                             coroutineScope.launch {
-                                queueListState.animateScrollToItem(0)
+                                queueListState.listState.animateScrollToItem(0)
                             }
                         },
                         label = {
@@ -232,16 +246,16 @@ fun QueueScreen(
                     AppointmentStatusChips(
                         R.string.waiting_appointment,
                         4,
-                        queueListState,
+                        queueListState.listState,
                         coroutineScope,
                         0
                     )
                     AppointmentStatusChips(
                         R.string.in_progress_appointment,
                         2,
-                        queueListState,
+                        queueListState.listState,
                         coroutineScope,
-                        1
+                        viewModel.waitingQueueList.size+2
                     )
                 }
                 Row(
@@ -251,59 +265,90 @@ fun QueueScreen(
                     AppointmentStatusChips(
                         R.string.scheduled_appointment,
                         2,
-                        queueListState,
+                        queueListState.listState,
                         coroutineScope,
-                        2
+                        viewModel.waitingQueueList.size+3
                     )
                     AppointmentStatusChips(
                         R.string.cancelled_appointment,
                         2,
-                        queueListState,
+                        queueListState.listState,
                         coroutineScope,
-                        4
+                        viewModel.waitingQueueList.size+5
                     )
                     AppointmentStatusChips(
                         R.string.completed_appointment,
                         2,
-                        queueListState,
+                        queueListState.listState,
                         coroutineScope,
-                        3
+                        viewModel.waitingQueueList.size+4
                     )
                 }
             }
             LazyColumn(
-                state = queueListState,
+                state = queueListState.listState,
+                modifier = Modifier
+                    .reorderable(queueListState),
                 content = {
-                    // waiting
                     item {
                         Surface(
                             color = Neutral90,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(2.dp),
-                            shape = RoundedCornerShape(18.dp)
+                                .padding(start = 2.dp, end = 2.dp, top = 10.dp),
+                            shape = RoundedCornerShape(topEnd = 18.dp, topStart = 18.dp)
                         ) {
                             Column(
                                 modifier = Modifier
-                                    .padding(18.dp)
+                                    .padding(top = 18.dp, start = 18.dp, end = 18.dp)
                             ) {
                                 Text(
                                     text = stringResource(id = R.string.waiting),
                                     style = MaterialTheme.typography.labelLarge,
                                     color = MaterialTheme.colorScheme.outline
                                 )
+                            }
+                        }
+                    }
+                    items(viewModel.waitingQueueList, { it }) { label ->
+                        ReorderableItem(
+                            queueListState, key = label,
+                            modifier = Modifier
+                                .padding(horizontal = 2.dp)
+                                .background(Neutral90)
+                        ) { isDragging ->
+                            //val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    //.shadow(elevation.value)
+                                    .padding(horizontal = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
                                 QueuePatientCard(
                                     navController,
                                     viewModel,
-                                    stringResource(id = R.string.walk_in)
-                                )
-                                QueuePatientCard(
-                                    navController,
-                                    viewModel,
-                                    stringResource(id = R.string.arrived)
+                                    queueListState,
+                                    label
                                 )
                             }
                         }
+                    }
+
+                    item {
+                        Spacer(
+                            modifier = Modifier
+                                .padding(horizontal = 2.dp)
+                                .fillMaxWidth()
+                                .height(18.dp)
+                                .background(
+                                    color = Neutral90,
+                                    shape = RoundedCornerShape(
+                                        bottomEnd = 18.dp,
+                                        bottomStart = 18.dp
+                                    )
+                                )
+                        )
                     }
                     // in-progress
                     item {
@@ -314,6 +359,7 @@ fun QueueScreen(
                             QueuePatientCard(
                                 navController,
                                 viewModel,
+                                queueListState,
                                 stringResource(id = R.string.in_progress_heading)
                             )
                         }
@@ -324,6 +370,7 @@ fun QueueScreen(
                             QueuePatientCard(
                                 navController,
                                 viewModel,
+                                queueListState,
                                 stringResource(id = R.string.scheduled)
                             )
                         }
@@ -334,6 +381,7 @@ fun QueueScreen(
                             QueuePatientCard(
                                 navController,
                                 viewModel,
+                                queueListState,
                                 stringResource(id = R.string.completed)
                             )
                         }
@@ -441,8 +489,10 @@ fun AppointmentStatusChips(
 fun QueuePatientCard(
     navController: NavController,
     viewModel: LandingScreenViewModel,
+    queueListState: ReorderableLazyListState,
     label: String
 ) {
+    val context = LocalContext.current
     ElevatedCard(
         modifier = Modifier.padding(top = 12.dp)
     ) {
@@ -461,7 +511,7 @@ fun QueuePatientCard(
             Column {
                 AssistChip(
                     onClick = {
-                        viewModel.showStatusChangeLayout = true
+                        if (label!= context.getString(R.string.completed)) viewModel.showStatusChangeLayout = true
                     },
                     label = {
                         Text(text = label)
@@ -553,7 +603,9 @@ fun QueuePatientCard(
                     painter = painterResource(id = R.drawable.drag_handle_icon),
                     contentDescription = "DRAG_HANDLE",
                     tint = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier
+                        .size(36.dp)
+                        .detectReorder(queueListState)
                 )
             }
         }
