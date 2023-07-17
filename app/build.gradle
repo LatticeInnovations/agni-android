@@ -197,7 +197,7 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.7.2'
     implementation "androidx.compose.ui:ui:1.4.3"
     implementation "androidx.compose.ui:ui-tooling-preview:1.4.3"
-    implementation 'androidx.compose.material3:material3:1.1.0-rc01' // don't update
+    implementation 'androidx.compose.material3:material3:1.1.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
 
     // navigation
@@ -224,12 +224,13 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
     // splash screen
-    implementation 'androidx.core:core-splashscreen:1.0.0-beta02' // don't update
+    implementation 'androidx.core:core-splashscreen:1.0.1'
 
     // google consent api for auto detection of otp
     implementation 'com.google.android.gms:play-services-auth:20.6.0'
     implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.1'
 
+    // reordering in lazy column list
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
 }
 
