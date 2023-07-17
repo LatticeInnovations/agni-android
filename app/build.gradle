@@ -229,6 +229,8 @@ dependencies {
     // google consent api for auto detection of otp
     implementation 'com.google.android.gms:play-services-auth:20.6.0'
     implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.1'
+
+    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
 }
 
 kapt {

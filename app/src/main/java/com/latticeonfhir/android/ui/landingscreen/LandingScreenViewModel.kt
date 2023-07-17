@@ -77,6 +77,7 @@ class LandingScreenViewModel @Inject constructor(
     var statusList by mutableStateOf(listOf("Arrived", "In-progress", "Completed"))
     var isSearchingInQueue by mutableStateOf(false)
     var searchQueueQuery by mutableStateOf("")
+    var waitingQueueList by mutableStateOf(listOf("Walk-in", "Arrived"))
 
     init {
 
