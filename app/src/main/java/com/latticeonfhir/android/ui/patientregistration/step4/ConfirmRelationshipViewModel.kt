@@ -82,9 +82,8 @@ class ConfirmRelationshipViewModel @Inject constructor(
     internal fun addRelationsToGenericEntity() {
         relationBetween.forEach { relationView ->
             viewModelScope.launch(Dispatchers.IO) {
-                genericRepository.insertOrUpdatePostEntity(
-                    patientId = relationView.patientId,
-                    entity = RelatedPersonResponse(
+                genericRepository.insertRelation(
+                    RelatedPersonResponse(
                         id = relationView.patientId,
                         relationship = listOf(
                             Relationship(
@@ -92,8 +91,7 @@ class ConfirmRelationshipViewModel @Inject constructor(
                                 patientIs = relationView.relation.value
                             )
                         )
-                    ),
-                    typeEnum = GenericTypeEnum.RELATION
+                    )
                 )
             }
         }

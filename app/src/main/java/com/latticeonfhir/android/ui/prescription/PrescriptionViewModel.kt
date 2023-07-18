@@ -103,18 +103,14 @@ class PrescriptionViewModel @Inject constructor(
                         prescription = medicationsList
                     )
                 ).also {
-                    genericRepository.insertOrUpdatePostEntity(
-                        patientId = patient!!.id,
-                        entity = listOf(
-                            PrescriptionResponse(
-                                patientFhirId = patient!!.fhirId?:patient!!.id,
-                                generatedOn = Date(),
-                                prescriptionId = prescriptionId,
-                                prescription = medicationsList,
-                                prescriptionFhirId = null
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PRESCRIPTION
+                    genericRepository.insertPrescription(
+                        PrescriptionResponse(
+                            patientFhirId = patient!!.fhirId ?: patient!!.id,
+                            generatedOn = Date(),
+                            prescriptionId = prescriptionId,
+                            prescription = medicationsList,
+                            prescriptionFhirId = null
+                        )
                     )
                 }
             )
