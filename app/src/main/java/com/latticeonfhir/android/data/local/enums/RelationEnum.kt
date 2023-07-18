@@ -31,7 +31,9 @@ enum class RelationEnum(val number: Int, val value: String) {
     NIECE(26,"NIECE"),
     IN_LAW(27,"INLAW"),
     DAUGHTER_IN_LAW(28,"DAUINLAW"),
-    UNKNOWN(29,"U");
+    UNKNOWN(29,"U"),
+    NIECE_NEPHEW(30,"niece/nephew"),
+    GUARDIAN(31,"GUARD");
 
     companion object {
         fun fromInt(number: Int) = values().first { it.number == number }
