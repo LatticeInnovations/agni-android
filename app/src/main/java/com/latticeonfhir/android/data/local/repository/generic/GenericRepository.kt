@@ -17,7 +17,9 @@ interface GenericRepository {
     suspend fun insertPrescription(prescriptionResponse: PrescriptionResponse): Long
     suspend fun updatePrescriptionFhirId(prescriptionGenericEntity: GenericEntity, prescriptionResponse: PrescriptionResponse): Long
 
+    @Deprecated("This method was deprecated use above methods to store POST Generic Entity")
     suspend fun insertOrUpdatePostEntity(patientId: String, entity: Any, typeEnum: GenericTypeEnum, replaceEntireRow: Boolean = false, uuid: String = UUIDBuilder.generateUUID()): Long
+
     suspend fun insertOrUpdatePatchEntity(patientFhirId: String,map: Map<String,Any>, typeEnum: GenericTypeEnum, uuid: String = UUIDBuilder.generateUUID()): Long
 
     suspend fun getNonSyncedPostRelations(): List<GenericEntity>
