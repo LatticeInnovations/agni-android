@@ -106,10 +106,10 @@ class ConnectPatientViewModel @Inject constructor(
                 genericRepository.insertRelation(
                     relationView.patientId,
                     RelatedPersonResponse(
-                        id = relationView.patientId,
+                        id = relationView.patientFhirId ?: relationView.patientId,
                         relationship = listOf(
                             Relationship(
-                                relativeId = relationView.relativeId,
+                                relativeId = relationView.relativeFhirId ?: relationView.relativeId,
                                 patientIs = relationView.relation.value
                             )
                         )
