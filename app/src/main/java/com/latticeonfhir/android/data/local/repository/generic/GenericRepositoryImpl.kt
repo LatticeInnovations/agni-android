@@ -74,7 +74,7 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                 } ?: genericDao.insertGenericEntity(
                 GenericEntity(
                     id = UUIDBuilder.generateUUID(),
-                    patientId = relatedPersonResponse.id,
+                    patientId = patientId,
                     payload = relatedPersonResponse.toJson(),
                     type = GenericTypeEnum.RELATION,
                     syncType = SyncType.POST
