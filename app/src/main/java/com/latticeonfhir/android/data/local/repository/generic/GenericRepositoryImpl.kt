@@ -65,8 +65,7 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                         GenericEntity(
                             id = relationGenericEntity.id,
                             patientId = relationGenericEntity.patientId,
-                            payload = existingRelatedPersonResponse.copy(relationship = updatedRelationList)
-                                .toJson(),
+                            payload = existingRelatedPersonResponse.copy(relationship = updatedRelationList).toJson(),
                             type = GenericTypeEnum.RELATION,
                             syncType = SyncType.POST
                         )
@@ -115,6 +114,7 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
         )[0]
     }
 
+    @Deprecated("This method was deprecated use above methods to store POST Generic Entity")
     override suspend fun insertOrUpdatePostEntity(
         patientId: String,
         entity: Any,
