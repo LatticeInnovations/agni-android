@@ -291,7 +291,7 @@ fun QueueScreen(
                         ) {
                             Column(
                                 modifier = Modifier
-                                    .padding(top = 18.dp, start = 18.dp, end = 18.dp)
+                                    .padding(top = 18.dp, start = 20.dp, end = 18.dp)
                             ) {
                                 Text(
                                     text = stringResource(id = R.string.waiting),
@@ -312,7 +312,7 @@ fun QueueScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     //.shadow(elevation.value)
-                                    .padding(horizontal = 10.dp),
+                                    .padding(horizontal = 18.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 QueuePatientCard(
@@ -343,7 +343,7 @@ fun QueueScreen(
                     item {
                         Column(
                             modifier = Modifier
-                                .padding(18.dp)
+                                .padding(16.dp)
                         ) {
                             QueuePatientCard(
                                 navController,
@@ -355,7 +355,7 @@ fun QueueScreen(
                     }
                     // scheduled
                     item {
-                        Column(modifier = Modifier.padding(18.dp)) {
+                        Column(modifier = Modifier.padding(16.dp)) {
                             QueuePatientCard(
                                 navController,
                                 viewModel,
@@ -366,7 +366,7 @@ fun QueueScreen(
                     }
                     // completed
                     item {
-                        Column(modifier = Modifier.padding(18.dp)) {
+                        Column(modifier = Modifier.padding(16.dp)) {
                             QueuePatientCard(
                                 navController,
                                 viewModel,
@@ -377,7 +377,7 @@ fun QueueScreen(
                     }
                     // cancelled
                     item {
-                        Column(modifier = Modifier.padding(18.dp)) {
+                        Column(modifier = Modifier.padding(16.dp)) {
                             CancelledQueueCard(
                                 stringResource(id = R.string.cancelled)
                             )
