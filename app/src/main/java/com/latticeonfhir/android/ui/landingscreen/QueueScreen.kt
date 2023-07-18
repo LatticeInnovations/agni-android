@@ -4,7 +4,6 @@ package com.latticeonfhir.android.ui.landingscreen
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -32,6 +31,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Divider
@@ -40,8 +40,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.InputChip
-import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
@@ -55,7 +53,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -72,7 +69,6 @@ import com.latticeonfhir.android.ui.theme.CompletedContainer
 import com.latticeonfhir.android.ui.theme.CompletedLabel
 import com.latticeonfhir.android.ui.theme.InProgressContainer
 import com.latticeonfhir.android.ui.theme.InProgressLabel
-import com.latticeonfhir.android.ui.theme.Neutral90
 import com.latticeonfhir.android.ui.theme.NeutralVariant95
 import com.latticeonfhir.android.ui.theme.NoShowContainer
 import com.latticeonfhir.android.ui.theme.NoShowLabel
@@ -225,37 +221,29 @@ fun QueueScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // total chip
-                    InputChip(
-                        selected = true,
-                        onClick = {
-                            coroutineScope.launch {
-                                queueListState.listState.animateScrollToItem(0)
-                            }
-                        },
-                        label = {
-                            Text(text = stringResource(id = R.string.total_appointment, 10))
-                        },
-                        colors = InputChipDefaults.inputChipColors(
-                            selectedLabelColor = MaterialTheme.colorScheme.primary
-                        ),
-                        border = InputChipDefaults.inputChipBorder(
-                            selectedBorderColor = MaterialTheme.colorScheme.primary,
-                            selectedBorderWidth = 1.dp
-                        )
+                    AppointmentStatusChips(
+                        R.string.total_appointment,
+                        10,
+                        queueListState.listState,
+                        coroutineScope,
+                        0,
+                        viewModel
                     )
                     AppointmentStatusChips(
                         R.string.waiting_appointment,
                         4,
                         queueListState.listState,
                         coroutineScope,
-                        0
+                        0,
+                        viewModel
                     )
                     AppointmentStatusChips(
                         R.string.in_progress_appointment,
                         2,
                         queueListState.listState,
                         coroutineScope,
-                        viewModel.waitingQueueList.size+2
+                        viewModel.waitingQueueList.size + 2,
+                        viewModel
                     )
                 }
                 Row(
@@ -267,21 +255,24 @@ fun QueueScreen(
                         2,
                         queueListState.listState,
                         coroutineScope,
-                        viewModel.waitingQueueList.size+3
+                        viewModel.waitingQueueList.size + 3,
+                        viewModel
                     )
                     AppointmentStatusChips(
                         R.string.completed_appointment,
                         2,
                         queueListState.listState,
                         coroutineScope,
-                        viewModel.waitingQueueList.size+4
+                        viewModel.waitingQueueList.size + 4,
+                        viewModel
                     )
                     AppointmentStatusChips(
                         R.string.cancelled_appointment,
                         2,
                         queueListState.listState,
                         coroutineScope,
-                        viewModel.waitingQueueList.size+5
+                        viewModel.waitingQueueList.size + 5,
+                        viewModel
                     )
                 }
             }
@@ -292,10 +283,10 @@ fun QueueScreen(
                 content = {
                     item {
                         Surface(
-                            color = Neutral90,
+                            color = MaterialTheme.colorScheme.secondaryContainer,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(start = 2.dp, end = 2.dp, top = 10.dp),
+                                .padding(top = 10.dp),
                             shape = RoundedCornerShape(topEnd = 18.dp, topStart = 18.dp)
                         ) {
                             Column(
@@ -314,8 +305,7 @@ fun QueueScreen(
                         ReorderableItem(
                             queueListState, key = label,
                             modifier = Modifier
-                                .padding(horizontal = 2.dp)
-                                .background(Neutral90)
+                                .background(MaterialTheme.colorScheme.secondaryContainer)
                         ) { isDragging ->
                             //val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                             Row(
@@ -338,11 +328,10 @@ fun QueueScreen(
                     item {
                         Spacer(
                             modifier = Modifier
-                                .padding(horizontal = 2.dp)
                                 .fillMaxWidth()
                                 .height(18.dp)
                                 .background(
-                                    color = Neutral90,
+                                    color = MaterialTheme.colorScheme.secondaryContainer,
                                     shape = RoundedCornerShape(
                                         bottomEnd = 18.dp,
                                         bottomStart = 18.dp
@@ -462,11 +451,13 @@ fun AppointmentStatusChips(
     label: Int, count: Int,
     listState: LazyListState,
     coroutineScope: CoroutineScope,
-    index: Int
+    index: Int,
+    viewModel: LandingScreenViewModel
 ) {
     FilterChip(
-        selected = true,
+        selected = viewModel.selectedChip == label,
         onClick = {
+            viewModel.selectedChip = label
             coroutineScope.launch {
                 listState.animateScrollToItem(index)
             }
@@ -475,13 +466,18 @@ fun AppointmentStatusChips(
             Text(text = stringResource(id = label, count))
         },
         colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = MaterialTheme.colorScheme.onPrimary,
-            selectedLabelColor = MaterialTheme.colorScheme.outline
+            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            selectedLabelColor = MaterialTheme.colorScheme.primary,
+            containerColor = MaterialTheme.colorScheme.onPrimary,
+            labelColor = MaterialTheme.colorScheme.outline
         ),
         border = FilterChipDefaults.filterChipBorder(
             selectedBorderWidth = 1.dp,
-            selectedBorderColor = MaterialTheme.colorScheme.outline
-        )
+            selectedBorderColor = MaterialTheme.colorScheme.primary,
+            borderColor = MaterialTheme.colorScheme.outline,
+            borderWidth = 1.dp
+        ),
+        enabled = count != 0
     )
 }
 
@@ -511,7 +507,8 @@ fun QueuePatientCard(
             Column {
                 AssistChip(
                     onClick = {
-                        if (label!= context.getString(R.string.completed)) viewModel.showStatusChangeLayout = true
+                        if (label != context.getString(R.string.completed)) viewModel.showStatusChangeLayout =
+                            true
                     },
                     label = {
                         Text(text = label)
@@ -616,7 +613,7 @@ fun QueuePatientCard(
         ) {
             Divider(
                 thickness = 1.dp,
-                color = Neutral90,
+                color = MaterialTheme.colorScheme.outlineVariant,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -660,7 +657,10 @@ fun QueuePatientCard(
 @Composable
 fun CancelledQueueCard(label: String) {
     Card(
-        modifier = Modifier.padding(top = 12.dp)
+        modifier = Modifier.padding(top = 12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer
+        )
     ) {
         Row(
             modifier = Modifier

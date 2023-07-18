@@ -14,6 +14,7 @@ import androidx.paging.map
 import androidx.work.WorkManager
 import androidx.work.await
 import com.latticeonfhir.android.FhirApp
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -78,6 +79,7 @@ class LandingScreenViewModel @Inject constructor(
     var isSearchingInQueue by mutableStateOf(false)
     var searchQueueQuery by mutableStateOf("")
     var waitingQueueList by mutableStateOf(listOf("Walk-in", "Arrived"))
+    var selectedChip by mutableStateOf(R.string.total_appointment)
 
     init {
 
