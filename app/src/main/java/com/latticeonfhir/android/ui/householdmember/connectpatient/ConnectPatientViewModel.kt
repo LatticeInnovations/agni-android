@@ -104,6 +104,7 @@ class ConnectPatientViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             connectedMembersList.forEach { relationView ->
                 genericRepository.insertRelation(
+                    relationView.patientId,
                     RelatedPersonResponse(
                         id = relationView.patientId,
                         relationship = listOf(

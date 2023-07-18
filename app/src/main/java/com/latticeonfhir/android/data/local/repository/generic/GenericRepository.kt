@@ -14,7 +14,7 @@ interface GenericRepository {
     suspend fun insertRelation(patientId: String, relatedPersonResponse: RelatedPersonResponse): Long
     suspend fun updateRelationFhirId(relationGenericEntity: GenericEntity, relatedPersonResponse: RelatedPersonResponse): Long
 
-    suspend fun insertPrescription(patientId: String, prescriptionResponse: PrescriptionResponse): Long
+    suspend fun insertPrescription(prescriptionResponse: PrescriptionResponse): Long
     suspend fun updatePrescriptionFhirId(prescriptionGenericEntity: GenericEntity, prescriptionResponse: PrescriptionResponse): Long
 
     suspend fun insertOrUpdatePostEntity(patientId: String, entity: Any, typeEnum: GenericTypeEnum, replaceEntireRow: Boolean = false, uuid: String = UUIDBuilder.generateUUID()): Long

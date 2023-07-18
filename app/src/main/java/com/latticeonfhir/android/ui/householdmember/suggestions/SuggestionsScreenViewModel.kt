@@ -96,6 +96,7 @@ class SuggestionsScreenViewModel @Inject constructor(
             ) { inverseRelation ->
                 viewModelScope.launch(Dispatchers.IO) {
                     genericRepository.insertRelation(
+                        relation.patientId,
                         RelatedPersonResponse(
                             id = relation.patientId,
                             relationship = listOf(
@@ -107,6 +108,7 @@ class SuggestionsScreenViewModel @Inject constructor(
                         )
                     ).also {
                         genericRepository.insertRelation(
+                            relativeId,
                             RelatedPersonResponse(
                                 id = relativeId,
                                 relationship = listOf(

@@ -83,6 +83,7 @@ class ConfirmRelationshipViewModel @Inject constructor(
         relationBetween.forEach { relationView ->
             viewModelScope.launch(Dispatchers.IO) {
                 genericRepository.insertRelation(
+                    relationView.patientId,
                     RelatedPersonResponse(
                         id = relationView.patientId,
                         relationship = listOf(
