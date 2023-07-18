@@ -278,10 +278,8 @@ class EditIdentificationViewModel @Inject constructor(
 
                      Timber.tag("identifier").d(list.toJson())
                  } else {
-                     genericRepository.insertOrUpdatePostEntity(
-                         patientId = patientResponse.id,
-                         entity = patientResponse,
-                         typeEnum = GenericTypeEnum.PATIENT
+                     genericRepository.insertPatient(
+                         patientResponse
                      )
                  }
              }
