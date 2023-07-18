@@ -111,10 +111,8 @@ class PatientRegistrationPreviewViewModelTest {
         )
 
         `when`(patientRepository.addPatient(patientResponse)).thenReturn(listOf(-1))
-        `when`(genericRepository.insertOrUpdatePostEntity(
-            patientId = patientResponse.id,
-            entity = patientResponse,
-            typeEnum = GenericTypeEnum.PATIENT
+        `when`(genericRepository.insertPatient(
+            patientResponse
         )).thenReturn(-1)
         `when`(identifierRepository.insertIdentifierList(patientResponse)).thenReturn(Unit)
 

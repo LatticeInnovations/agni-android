@@ -145,9 +145,9 @@ class SuggestionsScreenViewModelTest : BaseClass() {
             callback.invoke(listOf(-1L))
         }
         `when`(
-            genericRepository.insertOrUpdatePostEntity(
+            genericRepository.insertRelation(
                 patientId = relationBrother.patientId,
-                entity = RelatedPersonResponse(
+                RelatedPersonResponse(
                     id = relationBrother.patientId,
                     relationship = listOf(
                         Relationship(
@@ -155,14 +155,13 @@ class SuggestionsScreenViewModelTest : BaseClass() {
                             relativeId = relativeId
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.RELATION
+                )
             )
         ).thenReturn(-1L)
         `when`(
-            genericRepository.insertOrUpdatePostEntity(
+            genericRepository.insertRelation(
                 patientId = relativeId,
-                entity = RelatedPersonResponse(
+                 RelatedPersonResponse(
                     id = relativeId,
                     relationship = listOf(
                         Relationship(
@@ -170,8 +169,7 @@ class SuggestionsScreenViewModelTest : BaseClass() {
                             relativeId = relationBrother.patientId
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.RELATION
+                )
             )
         ).thenReturn(-1L)
         viewModel.addRelation(relationBrother, relativeId) {
