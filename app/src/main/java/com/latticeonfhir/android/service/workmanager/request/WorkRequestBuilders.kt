@@ -381,13 +381,17 @@ class WorkRequestBuilders(
         genericRepository.getNonSyncedPostRelations().forEach { genericEntity ->
             val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(RelatedPersonResponse::class.java)
             if (existingMap != null) {
-                genericRepository.insertRelation(
-                    genericEntity.patientId,
+                genericRepository.updateRelationFhirId(
+                    genericEntity,
                     existingMap.copy(
-                        id = if (existingMap.id.isFhirId()) existingMap.id else patientRepository.getPatientById(existingMap.id)[0].fhirId!!,
+                        id = if (existingMap.id.isFhirId()) existingMap.id else patientRepository.getPatientById(
+                            existingMap.id
+                        )[0].fhirId!!,
                         relationship = existingMap.relationship.map { relationship ->
                             relationship.copy(
-                                relativeId = if (relationship.relativeId.isFhirId()) relationship.relativeId else patientRepository.getPatientById(relationship.relativeId)[0].fhirId!!
+                                relativeId = if (relationship.relativeId.isFhirId()) relationship.relativeId else patientRepository.getPatientById(
+                                    relationship.relativeId
+                                )[0].fhirId!!
                             )
                         }
                     )

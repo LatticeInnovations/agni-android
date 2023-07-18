@@ -19,7 +19,8 @@ import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverte
 import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")
-class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) : GenericRepository {
+class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) :
+    GenericRepository {
 
     override suspend fun insertPatient(patientResponse: PatientResponse): Long {
         return genericDao.getGenericEntityById(
@@ -54,32 +55,31 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
             genericTypeEnum = GenericTypeEnum.RELATION,
             syncType = SyncType.POST
         ).let { relationGenericEntity ->
-            if (relationGenericEntity != null) {
-                val existingRelatedPersonResponse = relationGenericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(RelatedPersonResponse::class.java)
-                val updatedRelationList = existingRelatedPersonResponse?.relationship?.toMutableList()?.apply {
-                    addAll(relatedPersonResponse.relationship)
-                }
-                genericDao.insertGenericEntity(
-                    GenericEntity(
-                        id = relationGenericEntity.id,
-                        patientId = relationGenericEntity.patientId,
-                        payload = existingRelatedPersonResponse?.copy(relationship = updatedRelationList!!)
-                            .toJson(),
-                        type = GenericTypeEnum.RELATION,
-                        syncType = SyncType.POST
-                    )
-                )[0]
-            } else {
-                genericDao.insertGenericEntity(
-                    GenericEntity(
-                        id = UUIDBuilder.generateUUID(),
-                        patientId = relatedPersonResponse.id,
-                        payload = relatedPersonResponse.toJson(),
-                        type = GenericTypeEnum.RELATION,
-                        syncType = SyncType.POST
-                    )
-                )[0]
-            }
+            relationGenericEntity?.payload?.fromJson<MutableMap<String, Any>>()
+                ?.mapToObject(RelatedPersonResponse::class.java)
+                ?.let { existingRelatedPersonResponse ->
+                    val updatedRelationList = existingRelatedPersonResponse.relationship.toMutableList().apply {
+                        addAll(relatedPersonResponse.relationship)
+                    }
+                    genericDao.insertGenericEntity(
+                        GenericEntity(
+                            id = relationGenericEntity.id,
+                            patientId = relationGenericEntity.patientId,
+                            payload = existingRelatedPersonResponse.copy(relationship = updatedRelationList)
+                                .toJson(),
+                            type = GenericTypeEnum.RELATION,
+                            syncType = SyncType.POST
+                        )
+                    )[0]
+                } ?: genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = UUIDBuilder.generateUUID(),
+                    patientId = relatedPersonResponse.id,
+                    payload = relatedPersonResponse.toJson(),
+                    type = GenericTypeEnum.RELATION,
+                    syncType = SyncType.POST
+                )
+            )[0]
         }
     }
 
@@ -93,13 +93,12 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
     }
 
     override suspend fun insertPrescription(
-        patientId: String,
         prescriptionResponse: PrescriptionResponse
     ): Long {
         return genericDao.insertGenericEntity(
             GenericEntity(
                 id = UUIDBuilder.generateUUID(),
-                patientId = patientId,
+                patientId = prescriptionResponse.patientFhirId,
                 payload = prescriptionResponse.toJson(),
                 type = GenericTypeEnum.PRESCRIPTION,
                 syncType = SyncType.POST
