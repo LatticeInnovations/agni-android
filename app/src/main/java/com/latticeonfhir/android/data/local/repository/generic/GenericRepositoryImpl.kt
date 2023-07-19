@@ -5,12 +5,16 @@ import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.utils.builders.GenericEntity.processPatch
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.constants.Id.ID
 import com.latticeonfhir.android.utils.constants.RelationConstants.RELATIONSHIP
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
+import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import javax.inject.Inject
 
@@ -18,6 +22,99 @@ import javax.inject.Inject
 class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) :
     GenericRepository {
 
+    override suspend fun insertPatient(patientResponse: PatientResponse): Long {
+        return genericDao.getGenericEntityById(
+            patientId = patientResponse.id,
+            genericTypeEnum = GenericTypeEnum.PATIENT,
+            syncType = SyncType.POST
+        ).let { patientGenericEntity ->
+            if (patientGenericEntity != null) {
+                genericDao.insertGenericEntity(
+                    patientGenericEntity.copy(payload = patientResponse.toJson())
+                )[0]
+            } else {
+                genericDao.insertGenericEntity(
+                    GenericEntity(
+                        id = UUIDBuilder.generateUUID(),
+                        patientId = patientResponse.id,
+                        payload = patientResponse.toJson(),
+                        type = GenericTypeEnum.PATIENT,
+                        syncType = SyncType.POST
+                    )
+                )[0]
+            }
+        }
+    }
+
+    override suspend fun insertRelation(
+        patientId: String,
+        relatedPersonResponse: RelatedPersonResponse
+    ): Long {
+        return genericDao.getGenericEntityById(
+            patientId = patientId,
+            genericTypeEnum = GenericTypeEnum.RELATION,
+            syncType = SyncType.POST
+        ).let { relationGenericEntity ->
+            relationGenericEntity?.payload?.fromJson<MutableMap<String, Any>>()
+                ?.mapToObject(RelatedPersonResponse::class.java)
+                ?.let { existingRelatedPersonResponse ->
+                    val updatedRelationList = existingRelatedPersonResponse.relationship.toMutableList().apply {
+                        addAll(relatedPersonResponse.relationship)
+                    }
+                    genericDao.insertGenericEntity(
+                        GenericEntity(
+                            id = relationGenericEntity.id,
+                            patientId = relationGenericEntity.patientId,
+                            payload = existingRelatedPersonResponse.copy(relationship = updatedRelationList).toJson(),
+                            type = GenericTypeEnum.RELATION,
+                            syncType = SyncType.POST
+                        )
+                    )[0]
+                } ?: genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = UUIDBuilder.generateUUID(),
+                    patientId = patientId,
+                    payload = relatedPersonResponse.toJson(),
+                    type = GenericTypeEnum.RELATION,
+                    syncType = SyncType.POST
+                )
+            )[0]
+        }
+    }
+
+    override suspend fun updateRelationFhirId(
+        relationGenericEntity: GenericEntity,
+        relatedPersonResponse: RelatedPersonResponse
+    ): Long {
+        return genericDao.insertGenericEntity(
+            relationGenericEntity.copy(payload = relatedPersonResponse.toJson())
+        )[0]
+    }
+
+    override suspend fun insertPrescription(
+        prescriptionResponse: PrescriptionResponse
+    ): Long {
+        return genericDao.insertGenericEntity(
+            GenericEntity(
+                id = UUIDBuilder.generateUUID(),
+                patientId = prescriptionResponse.patientFhirId,
+                payload = prescriptionResponse.toJson(),
+                type = GenericTypeEnum.PRESCRIPTION,
+                syncType = SyncType.POST
+            )
+        )[0]
+    }
+
+    override suspend fun updatePrescriptionFhirId(
+        prescriptionGenericEntity: GenericEntity,
+        prescriptionResponse: PrescriptionResponse
+    ): Long {
+        return genericDao.insertGenericEntity(
+            prescriptionGenericEntity.copy(payload = prescriptionResponse.toJson())
+        )[0]
+    }
+
+    @Deprecated("This method was deprecated use above methods to store POST Generic Entity")
     override suspend fun insertOrUpdatePostEntity(
         patientId: String,
         entity: Any,
@@ -61,7 +158,7 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
             if (this != null) {
                 /** Data with this record already present */
                 val existingMap = payload.fromJson<MutableMap<String, Any>>()
-                if(existingMap[ID] == null) {
+                if (existingMap[ID] == null) {
                     existingMap[ID] = patientFhirId
                 }
                 map.entries.forEach { mapEntry ->
@@ -74,14 +171,14 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                         )
 
                         /** Check for data is empty */
-                        if(processPatchData.isNotEmpty()) {
+                        if (processPatchData.isNotEmpty()) {
                             existingMap[mapEntry.key] = processPatchData
                         } else {
                             /** If empty remove that key from map */
                             existingMap.remove(mapEntry.key)
                         }
                     } else {
-                       processPatch(existingMap, mapEntry)
+                        processPatch(existingMap, mapEntry)
                     }
                 }
                 /** It denotes only ID key is present in map */

@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -103,18 +102,14 @@ class PrescriptionViewModel @Inject constructor(
                         prescription = medicationsList
                     )
                 ).also {
-                    genericRepository.insertOrUpdatePostEntity(
-                        patientId = patient!!.id,
-                        entity = listOf(
-                            PrescriptionResponse(
-                                patientFhirId = patient!!.fhirId?:patient!!.id,
-                                generatedOn = Date(),
-                                prescriptionId = prescriptionId,
-                                prescription = medicationsList,
-                                prescriptionFhirId = null
-                            )
-                        ),
-                        typeEnum = GenericTypeEnum.PRESCRIPTION
+                    genericRepository.insertPrescription(
+                        PrescriptionResponse(
+                            patientFhirId = patient!!.fhirId ?: patient!!.id,
+                            generatedOn = Date(),
+                            prescriptionId = prescriptionId,
+                            prescription = medicationsList,
+                            prescriptionFhirId = null
+                        )
                     )
                 }
             )

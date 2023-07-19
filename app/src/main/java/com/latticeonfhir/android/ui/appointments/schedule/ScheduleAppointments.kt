@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.ui.appointments.schedule
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -63,7 +65,6 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,8 +73,8 @@ fun ScheduleAppointments(
     navController: NavController,
     viewModel: ScheduleAppointmentViewModel = viewModel()
 ) {
-    val dateScrollState = rememberScrollState()
-    val coroutineScope = rememberCoroutineScope()
+    val dateScrollState = rememberLazyListState()
+    val composableScope = rememberCoroutineScope()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -99,8 +100,8 @@ fun ScheduleAppointments(
                 actions = {
                     FilledTonalButton(
                         onClick = {
-                            coroutineScope.launch {
-                                dateScrollState.animateScrollTo(0)
+                            composableScope.launch {
+                                dateScrollState.animateScrollToItem(0)
                             }
                             viewModel.selectedDate = Date()
                             viewModel.weekList = viewModel.selectedDate.toWeekList()
@@ -149,10 +150,10 @@ fun ScheduleAppointments(
                             .width(1.dp)
                             .height(55.dp)
                     )
-                    Row(
-                        modifier = Modifier.horizontalScroll(dateScrollState)
+                    LazyRow(
+                        state = dateScrollState
                     ) {
-                        viewModel.weekList.forEach { date ->
+                        items(viewModel.weekList){ date ->
                             SuggestionChip(
                                 onClick = {
                                     viewModel.selectedDate = date
@@ -272,6 +273,9 @@ fun ScheduleAppointments(
                     confirmButton = {
                         TextButton(
                             onClick = {
+                                composableScope.launch {
+                                    dateScrollState.scrollToItem(0)
+                                }
                                 viewModel.showDatePicker = false
                                 viewModel.selectedDate =
                                     datePickerState.selectedDateMillis?.let { dateInLong ->
