@@ -74,7 +74,7 @@ fun ScheduleAppointments(
     viewModel: ScheduleAppointmentViewModel = viewModel()
 ) {
     val dateScrollState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
+    val composableScope = rememberCoroutineScope()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -100,7 +100,7 @@ fun ScheduleAppointments(
                 actions = {
                     FilledTonalButton(
                         onClick = {
-                            coroutineScope.launch {
+                            composableScope.launch {
                                 dateScrollState.animateScrollToItem(0)
                             }
                             viewModel.selectedDate = Date()
@@ -273,7 +273,7 @@ fun ScheduleAppointments(
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                coroutineScope.launch {
+                                composableScope.launch {
                                     dateScrollState.scrollToItem(0)
                                 }
                                 viewModel.showDatePicker = false

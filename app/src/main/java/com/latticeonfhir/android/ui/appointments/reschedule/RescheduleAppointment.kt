@@ -75,7 +75,7 @@ fun RescheduleAppointment(
     viewModel: RescheduleAppointmentViewModel = viewModel()
 ) {
     val dateScrollState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
+    val composableScope = rememberCoroutineScope()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.appointment =
@@ -109,7 +109,7 @@ fun RescheduleAppointment(
                 actions = {
                     FilledTonalButton(
                         onClick = {
-                            coroutineScope.launch {
+                            composableScope.launch {
                                 dateScrollState.animateScrollToItem(0)
                             }
                             viewModel.selectedDate = Date()
@@ -302,7 +302,7 @@ fun RescheduleAppointment(
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                coroutineScope.launch {
+                                composableScope.launch {
                                     dateScrollState.scrollToItem(0)
                                 }
                                 viewModel.showDatePicker = false
