@@ -89,6 +89,30 @@ abstract class BaseClass : TestCase() {
         )
     )
 
+    val newRelationResponse = RelatedPersonResponse(
+        id = "FHIR_ID",
+        relationship = listOf(
+            Relationship(
+                patientIs = "MTH",
+                relativeId = "FHIR_ID"
+            )
+        )
+    )
+
+    val updatedRelationResponse = RelatedPersonResponse(
+        id = "FHIR_ID",
+        relationship = listOf(
+            Relationship(
+                patientIs = "BRO",
+                relativeId = "FHIR_ID"
+            ),
+            Relationship(
+                patientIs = "MTH",
+                relativeId = "FHIR_ID"
+            )
+        )
+    )
+
     val relative = PatientResponse(
         id = relativeId,
         firstName = "Relative",
@@ -119,11 +143,13 @@ abstract class BaseClass : TestCase() {
         patientId = id,
         patientLastName = patientResponse.lastName,
         patientMiddleName = patientResponse.middleName,
+        patientFhirId = patientResponse.fhirId,
         relation = RelationEnum.SPOUSE,
         relativeFirstName = relative.firstName,
         relativeId = relativeId,
         relativeLastName = relative.lastName,
         relativeMiddleName = relative.middleName,
+        relativeFhirId = relative.fhirId,
         relativeGender = relative.gender
     )
 

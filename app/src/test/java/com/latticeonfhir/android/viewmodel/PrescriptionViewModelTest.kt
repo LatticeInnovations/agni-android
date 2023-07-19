@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.viewmodel
 
 import com.latticeonfhir.android.base.BaseClass
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
@@ -107,10 +106,8 @@ class PrescriptionViewModelTest : BaseClass() {
                 -1
             )
             `when`(
-                genericRepository.insertOrUpdatePostEntity(
-                    patientId = patientResponse.id,
-                    entity = listOf(prescribedResponse),
-                    typeEnum = GenericTypeEnum.PRESCRIPTION
+                genericRepository.insertPrescription(
+                    prescribedResponse
                 )
             ).thenReturn(-1)
             `when`(

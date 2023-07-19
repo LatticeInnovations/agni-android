@@ -1900,8 +1900,8 @@ class PatientRegistrationKtTest: UiTestsBase() {
         composeTestRule.onNode(submitBtn).assertIsEnabled()
         composeTestRule.onNode(submitBtn).performClick()
         composeTestRule.onNode(saveBtn).performClick()
-        composeTestRule.onNode(titleMyPatients)
-            .assertExists("Should be navigated to My Patients screen.")
+        composeTestRule.onNode(householdMemberCard)
+            .assertExists("Should be navigated to Patient Landing screen.")
     }
 
     @Test
