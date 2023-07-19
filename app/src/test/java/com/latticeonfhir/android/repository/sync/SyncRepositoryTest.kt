@@ -157,36 +157,7 @@ class SyncRepositoryTest : BaseClass() {
         GenericEntity(
             id = "ID",
             patientId = "PATIENT_ID",
-            payload = "[{\n" +
-                    "      \"prescriptionId\": \"e3488798-ff88-4b67-88b3-3f7df487fc71\",\n" +
-                    "      \"prescriptionFhirId\": \"21214\",\n" +
-                    "      \"generatedOn\": \"2023-05-19T11:00:35+05:30\",\n" +
-                    "      \"patientId\": \"21028\",\n" +
-                    "      \"prescription\": [\n" +
-                    "        {\n" +
-                    "          \"medFhirId\": \"21117\",\n" +
-                    "          \"note\": \"Swallow with water\",\n" +
-                    "          \"qtyPerDose\": 1,\n" +
-                    "          \"frequency\": 1,\n" +
-                    "          \"doseForm\": \"Tablet\",\n" +
-                    "          \"doseFormCode\": \"421026006\",\n" +
-                    "          \"duration\": 3,\n" +
-                    "          \"timing\": \"769557005\",\n" +
-                    "          \"qtyPrescribed\": 3\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "          \"medFhirId\": \"21131\",\n" +
-                    "          \"note\": \"Swallow with water\",\n" +
-                    "          \"qtyPerDose\": 2,\n" +
-                    "          \"frequency\": 3,\n" +
-                    "          \"doseForm\": \"Tablet\",\n" +
-                    "          \"doseFormCode\": \"421026006\",\n" +
-                    "          \"duration\": 3,\n" +
-                    "          \"timing\": \"769557005\",\n" +
-                    "          \"qtyPrescribed\": 18\n" +
-                    "        }\n" +
-                    "      ]\n" +
-                    "    }]",
+            payload = "{\"generatedOn\":\"2023-07-18T15:22:50+05:30\",\"patientId\":\"23058\",\"prescription\":[{\"doseForm\":\"Tablet\",\"duration\":4,\"frequency\":2,\"medFhirId\":\"21132\",\"note\":\"\",\"qtyPerDose\":1,\"qtyPrescribed\":8,\"timing\":\"Before lunch\"}],\"prescriptionId\":\"0ebbef05-d0d7-4c54-9f58-6900d01c54ac\"}",
             GenericTypeEnum.PRESCRIPTION,
             SyncType.POST
         )
@@ -757,19 +728,13 @@ class SyncRepositoryTest : BaseClass() {
             listOfPrescriptionEntity
         )
 
-        val prescriptionsToBeSynced = mutableListOf<PrescriptionResponse>()
-        listOfPrescriptionEntity.forEach { genericEntity ->
-            genericEntity.payload.fromJson<List<LinkedTreeMap<*, *>>>().forEach { prescription ->
-                prescriptionsToBeSynced.add(
-                    prescription.mapToObject(PrescriptionResponse::class.java)!!
-                )
-            }
-        }
-
         `when`(
             prescriptionApiService.postPrescriptionRelatedData(
                 EndPoints.MEDICATION_REQUEST,
-                prescriptionsToBeSynced
+                listOfPrescriptionEntity.map { prescriptionGenericEntity ->
+                    prescriptionGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>()
+                        .mapToObject(PrescriptionResponse::class.java)!!
+                }
             )
         ).thenReturn(
             Response.success(
@@ -793,7 +758,12 @@ class SyncRepositoryTest : BaseClass() {
 
     @Test
     fun `send person patch data return success`() = runTest {
-        `when`(genericDao.getSameTypeGenericEntityPayload(GenericTypeEnum.PATIENT,SyncType.PATCH)).thenReturn(
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                GenericTypeEnum.PATIENT,
+                SyncType.PATCH
+            )
+        ).thenReturn(
             emptyList()
         )
         val response = syncRepositoryImpl.sendPersonPatchData()

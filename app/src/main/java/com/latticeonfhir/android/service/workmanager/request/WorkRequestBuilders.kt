@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.WorkInfo
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
@@ -31,7 +30,7 @@ import com.latticeonfhir.android.service.workmanager.workers.upload.relation.pos
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.post.RelationUploadSyncWorkerImpl
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.constants.ErrorConstants.ERROR_MESSAGE
-import com.latticeonfhir.android.utils.constants.Id
+import com.latticeonfhir.android.utils.converters.responseconverter.FHIR.isFhirId
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import kotlinx.coroutines.CoroutineScope
@@ -78,15 +77,20 @@ class WorkRequestBuilders(
                     true,
                     errorMsgFromServer
                 )
-                val value = workInfo.progress.getInt(PatientUploadSyncWorker.PatientUploadProgress, 0)
+                val value =
+                    workInfo.progress.getInt(PatientUploadSyncWorker.PatientUploadProgress, 0)
                 if (value == 100) {
                     /** Update Fhir Id in Generic Entity */
-                    updateFhirIdInRelation { errorReceived, errorMsg ->
-                        error(errorReceived, errorMsg)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        updateFhirIdInRelation { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
                     }
 
-                    updateFhirIdInPrescription { errorReceived, errorMsg ->
-                        error(errorReceived, errorMsg)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        updateFhirIdInPrescription { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
                     }
                 }
                 if (workInfo.state == WorkInfo.State.ENQUEUED) {
@@ -328,7 +332,8 @@ class WorkRequestBuilders(
                     true,
                     errorMsgFromServer
                 )
-                val value = workInfo.progress.getInt(PatientPatchUploadSyncWorker.PatientPatchUpload, 0)
+                val value =
+                    workInfo.progress.getInt(PatientPatchUploadSyncWorker.PatientPatchUpload, 0)
                 if (value == 100) {
                     /** Handle Progress Based Download WorkRequests Here */
                 }
@@ -355,7 +360,8 @@ class WorkRequestBuilders(
                     true,
                     errorMsgFromServer
                 )
-                val value = workInfo.progress.getInt(RelationPatchUploadSyncWorker.RelationPatchUpload, 0)
+                val value =
+                    workInfo.progress.getInt(RelationPatchUploadSyncWorker.RelationPatchUpload, 0)
                 if (value == 100) {
                     /** Handle Progress Based Download WorkRequests Here */
                 }
@@ -372,55 +378,47 @@ class WorkRequestBuilders(
      * */
 
     private suspend fun updateFhirIdInRelation(error: (Boolean, String) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            genericRepository.getNonSyncedPostRelations().forEach { genericEntity ->
-                val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>()
-                    .mapToObject(RelatedPersonResponse::class.java)
-                if (existingMap != null) {
-                    genericRepository.insertOrUpdatePostEntity(
-                        patientId = genericEntity.patientId,
-                        entity = existingMap.copy(
-                            id = patientRepository.getPatientById(existingMap.id)[0].fhirId
-                                ?: Id.EMPTY_FHIR_ID,
-                            relationship = existingMap.relationship.map { relationship ->
-                                relationship.copy(
-                                    relativeId = patientRepository.getPatientById(relationship.relativeId)[0].fhirId
-                                        ?: Id.EMPTY_FHIR_ID
-                                )
-                            }
-                        ),
-                        typeEnum = GenericTypeEnum.RELATION,
-                        replaceEntireRow = true
+        genericRepository.getNonSyncedPostRelations().forEach { genericEntity ->
+            val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(RelatedPersonResponse::class.java)
+            if (existingMap != null) {
+                genericRepository.updateRelationFhirId(
+                    genericEntity,
+                    existingMap.copy(
+                        id = if (existingMap.id.isFhirId()) existingMap.id else patientRepository.getPatientById(
+                            existingMap.id
+                        )[0].fhirId!!,
+                        relationship = existingMap.relationship.map { relationship ->
+                            relationship.copy(
+                                relativeId = if (relationship.relativeId.isFhirId()) relationship.relativeId else patientRepository.getPatientById(
+                                    relationship.relativeId
+                                )[0].fhirId!!
+                            )
+                        }
                     )
-                }
+                )
             }
-            /** Start Relation Worker */
-            uploadRelationWorker { errorReceived, errorMsg ->
-                error(errorReceived, errorMsg)
-            }
+        }
+        /** Start Relation Worker */
+        uploadRelationWorker { errorReceived, errorMsg ->
+            error(errorReceived, errorMsg)
         }
     }
 
-    private fun updateFhirIdInPrescription(error: (Boolean, String) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            genericRepository.getNonSyncedPostPrescriptions().forEach { genericEntity ->
-                val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(PrescriptionResponse::class.java)
-                if (existingMap != null) {
-                    genericRepository.insertOrUpdatePostEntity(
-                        patientId = genericEntity.patientId,
-                        entity = existingMap.copy(
-                            patientFhirId = patientRepository.getPatientById(existingMap.patientFhirId)[0].fhirId
-                                ?: Id.EMPTY_FHIR_ID
-                        ),
-                        typeEnum = GenericTypeEnum.PRESCRIPTION,
-                        replaceEntireRow = true
+    private suspend fun updateFhirIdInPrescription(error: (Boolean, String) -> Unit) {
+        genericRepository.getNonSyncedPostPrescriptions().forEach { genericEntity ->
+            val existingMap = genericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(PrescriptionResponse::class.java)
+            if (existingMap != null && !existingMap.patientFhirId.isFhirId()) {
+                genericRepository.updatePrescriptionFhirId(
+                    genericEntity,
+                    existingMap.copy(
+                        patientFhirId = patientRepository.getPatientById(existingMap.patientFhirId)[0].fhirId!!
                     )
-                }
+                )
             }
-            /** Start Prescription Worker */
-            uploadPrescriptionSyncWorker { errorReceived, errorMsg ->
-                error(errorReceived, errorMsg)
-            }
+        }
+        /** Start Prescription Worker */
+        uploadPrescriptionSyncWorker { errorReceived, errorMsg ->
+            error(errorReceived, errorMsg)
         }
     }
 }

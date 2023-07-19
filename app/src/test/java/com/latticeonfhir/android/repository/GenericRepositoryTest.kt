@@ -8,8 +8,6 @@ import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
-import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,6 +47,22 @@ class GenericRepositoryTest : BaseClass() {
         id,
         relationResponse.toJson(),
         GenericTypeEnum.RELATION,
+        SyncType.POST
+    )
+
+    private val updatedRelationGenericEntity = GenericEntity(
+        genericId,
+        id,
+        updatedRelationResponse.toJson(),
+        GenericTypeEnum.RELATION,
+        SyncType.POST
+    )
+
+    private val prescriptionGenericEntity = GenericEntity(
+        genericId,
+        id,
+        prescribedResponse.toJson(),
+        GenericTypeEnum.PRESCRIPTION,
         SyncType.POST
     )
 
@@ -103,8 +117,24 @@ class GenericRepositoryTest : BaseClass() {
         SyncType.PATCH
     )
 
+//    @Test
+//    fun `insert patient generic entity`() = runTest {
+//        `when`(
+//            genericDao.getGenericEntityById(
+//                id,
+//                GenericTypeEnum.PATIENT,
+//                SyncType.POST
+//            )
+//        ).thenReturn(null)
+//        `when`(genericDao.insertGenericEntity(genericEntityPost)).thenReturn(listOf(1))
+//        val actual = genericRepositoryImpl.insertPatient(
+//            patientResponse
+//        )
+//        Assert.assertEquals(1, actual)
+//    }
+
     @Test
-    fun `update post generic entity`() = runTest {
+    fun `update patient generic entity`() = runTest {
         `when`(
             genericDao.getGenericEntityById(
                 id,
@@ -113,79 +143,47 @@ class GenericRepositoryTest : BaseClass() {
             )
         ).thenReturn(genericEntityPost)
         `when`(genericDao.insertGenericEntity(genericEntityPost)).thenReturn(listOf(1))
-        val actual = genericRepositoryImpl.insertOrUpdatePostEntity(
-            id,
-            patientResponse,
-            GenericTypeEnum.PATIENT
+        val actual = genericRepositoryImpl.insertPatient(
+            patientResponse
         )
         Assert.assertEquals(1, actual)
     }
 
     @Test
-    fun `insert post generic entity`() = runTest {
+    fun `update relation generic entity`() = runTest {
         `when`(
             genericDao.getGenericEntityById(
                 id,
-                GenericTypeEnum.PATIENT,
+                GenericTypeEnum.RELATION,
                 SyncType.POST
             )
-        ).thenReturn(null)
-        `when`(genericDao.insertGenericEntity(genericEntityPost)).thenReturn(listOf(1))
-        val actual = genericRepositoryImpl.insertOrUpdatePostEntity(
-            id,
-            patientResponse,
-            GenericTypeEnum.PATIENT,
-            uuid = genericId
+        ).thenReturn(relationGenericEntity)
+        `when`(genericDao.insertGenericEntity(updatedRelationGenericEntity)).thenReturn(listOf(1))
+        val actual = genericRepositoryImpl.insertRelation(
+            patientResponse.id,
+            newRelationResponse
         )
         Assert.assertEquals(1, actual)
     }
 
     @Test
-    fun `add relation in generic entity`() = runTest {
-
-        val relationResponse = RelatedPersonResponse(
-            id = "FHIR_ID",
-            relationship = listOf(
-                Relationship(
-                    patientIs = "BRO",
-                    relativeId = "FHIR_ID"
-                ),
-                Relationship(
-                    patientIs = "MTH",
-                    relativeId = "FHIR_ID"
-                )
-            )
+    fun `update fhir Id in relation generic entity`() = runTest {
+        `when`(genericDao.insertGenericEntity(relationGenericEntity)).thenReturn(listOf(1))
+        val actual = genericRepositoryImpl.updateRelationFhirId(
+            relationGenericEntity,
+            relationResponse
         )
+        Assert.assertEquals(1, actual)
+    }
 
-        val newRelationResponse = RelatedPersonResponse(
-            id = "FHIR_ID",
-            relationship = listOf(
-                Relationship(
-                    patientIs = "MTH",
-                    relativeId = "FHIR_ID"
-                )
-            )
+    @Test
+    fun `update fhir Id in prescription generic entity`() = runTest {
+        `when`(genericDao.insertGenericEntity(prescriptionGenericEntity)).thenReturn(listOf(1))
+        val actual = genericRepositoryImpl.updatePrescriptionFhirId(
+            prescriptionGenericEntity,
+            prescribedResponse
         )
-
-        val addRelation = GenericEntity(
-            genericId,
-            id,
-            relationResponse.toJson(),
-            GenericTypeEnum.RELATION,
-            SyncType.POST
-        )
-
-        `when`(genericDao.getGenericEntityById(
-            id,
-            GenericTypeEnum.RELATION,
-            SyncType.POST
-        )).thenReturn(relationGenericEntity)
-
-        `when`(genericDao.insertGenericEntity(addRelation)).thenReturn(listOf(1))
-
-        val actual = genericRepositoryImpl.insertOrUpdatePostEntity(id,newRelationResponse,GenericTypeEnum.RELATION)
-
-        assertEquals(1, actual)
+        Assert.assertEquals(1, actual)
     }
 
     @Test
