@@ -59,10 +59,8 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     fun addPatient(patientResponse : PatientResponse){
         viewModelScope.launch(Dispatchers.IO) {
             patientRepository.addPatient(patientResponse)
-            genericRepository.insertOrUpdatePostEntity(
-                patientId = patientResponse.id,
-                entity = patientResponse,
-                typeEnum = GenericTypeEnum.PATIENT
+            genericRepository.insertPatient(
+                patientResponse
             )
             identifierRepository.insertIdentifierList(patientResponse)
         }
