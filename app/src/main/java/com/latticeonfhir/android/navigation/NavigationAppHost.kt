@@ -5,7 +5,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.latticeonfhir.android.LandingScreen
+import com.latticeonfhir.android.ui.landingscreen.LandingScreen
 import com.latticeonfhir.android.ui.appointments.AppointmentsScreen
 import com.latticeonfhir.android.ui.appointments.reschedule.RescheduleAppointment
 import com.latticeonfhir.android.ui.appointments.schedule.ScheduleAppointments
@@ -24,7 +24,6 @@ import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.EditBasicInforma
 import com.latticeonfhir.android.ui.patienteditscreen.identification.EditIdentification
 import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationship
 import com.latticeonfhir.android.ui.prescription.PrescriptionScreen
-import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 
 @Composable
@@ -32,7 +31,7 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
     NavHost(navController = navController as NavHostController, startDestination = startDest){
         composable(Screen.PhoneEmailScreen.route){ PhoneEmailScreen(navController) }
         composable(Screen.OtpScreen.route){ OtpScreen(navController) }
-        composable(Screen.LandingScreen.route){ LandingScreen(navController = navController)}
+        composable(Screen.LandingScreen.route){ LandingScreen(navController = navController) }
         composable(Screen.SearchPatientScreen.route){ SearchPatient(navController = navController) }
         composable(Screen.PatientRegistrationScreen.route){ PatientRegistration(navController = navController) }
         composable(Screen.PatientRegistrationPreviewScreen.route){ PatientRegistrationPreview(navController = navController) }
