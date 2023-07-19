@@ -403,8 +403,8 @@ class SyncRepositoryImpl @Inject constructor(
         ).let { listOfRelatedEntity ->
             if (listOfRelatedEntity.isEmpty()) ApiEmptyResponse()
             else ApiResponseConverter.convert(
-                patientApiService.createData(RELATED_PERSON, listOfRelatedEntity.map {
-                    it.payload.fromJson<LinkedTreeMap<*, *>>()
+                patientApiService.createData(RELATED_PERSON, listOfRelatedEntity.map { relationGenericEntity ->
+                    relationGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>()
                         .mapToObject(RelatedPersonResponse::class.java) as Any
                 })
             ).run {
@@ -428,18 +428,12 @@ class SyncRepositoryImpl @Inject constructor(
         ).let { listOfGenericEntity ->
             if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
             else {
-                prescriptionsToBeSynced = mutableListOf()
-                listOfGenericEntity.forEach { genericEntity ->
-                    genericEntity.payload.fromJson<List<LinkedTreeMap<*, *>>>().forEach { prescription ->
-                        prescriptionsToBeSynced!!.add(
-                            prescription.mapToObject(PrescriptionResponse::class.java)!!
-                        )
-                    }
-                }
                 ApiResponseConverter.convert(
                     prescriptionApiService.postPrescriptionRelatedData(
                         MEDICATION_REQUEST,
-                        prescriptionsToBeSynced!!
+                        listOfGenericEntity.map { prescriptionGenericEntity ->
+                            prescriptionGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>().mapToObject(PrescriptionResponse::class.java)!!
+                        }
                     )
                 ).run {
                     when (this) {

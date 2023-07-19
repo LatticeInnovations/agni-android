@@ -95,9 +95,9 @@ class SuggestionsScreenViewModel @Inject constructor(
                 patientDao
             ) { inverseRelation ->
                 viewModelScope.launch(Dispatchers.IO) {
-                    genericRepository.insertOrUpdatePostEntity(
-                        patientId = relation.patientId,
-                        entity = RelatedPersonResponse(
+                    genericRepository.insertRelation(
+                        relation.patientId,
+                        RelatedPersonResponse(
                             id = relation.patientId,
                             relationship = listOf(
                                 Relationship(
@@ -105,12 +105,11 @@ class SuggestionsScreenViewModel @Inject constructor(
                                     relativeId = relativeId
                                 )
                             )
-                        ),
-                        typeEnum = GenericTypeEnum.RELATION
+                        )
                     ).also {
-                        genericRepository.insertOrUpdatePostEntity(
-                            patientId = relativeId,
-                            entity = RelatedPersonResponse(
+                        genericRepository.insertRelation(
+                            relativeId,
+                            RelatedPersonResponse(
                                 id = relativeId,
                                 relationship = listOf(
                                     Relationship(
@@ -118,8 +117,7 @@ class SuggestionsScreenViewModel @Inject constructor(
                                         relativeId = relation.patientId
                                     )
                                 )
-                            ),
-                            typeEnum = GenericTypeEnum.RELATION
+                            )
                         )
                     }
                 }

@@ -83,11 +83,13 @@ class RelationRepositoryTest: BaseClass() {
             patientLastName = patientResponse.lastName,
             patientId = patientResponse.id,
             patientGender = patientResponse.gender,
+            patientFhirId = patientResponse.fhirId,
             relation = relationSpouse,
             relativeId = relative.id,
             relativeFirstName = relative.firstName,
             relativeMiddleName = relative.middleName,
             relativeLastName = relative.lastName,
+            relativeFhirId = relative.fhirId,
             relativeGender = relative.gender
         )
         val relationView2 = RelationView(
@@ -97,11 +99,13 @@ class RelationRepositoryTest: BaseClass() {
             patientLastName = relative.lastName,
             patientId = relative.id,
             patientGender = relative.gender,
+            patientFhirId = relative.fhirId,
             relation = relationSpouse,
             relativeId = patientResponse.id,
             relativeFirstName = patientResponse.firstName,
             relativeMiddleName = patientResponse.middleName,
             relativeLastName = patientResponse.lastName,
+            relativeFhirId = patientResponse.fhirId,
             relativeGender = patientResponse.gender
         )
         `when`(relationDao.getRelation(id, relativeId)).thenReturn(listOf(relationView1, relationView2))
