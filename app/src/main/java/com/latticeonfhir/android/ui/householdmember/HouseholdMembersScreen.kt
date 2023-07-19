@@ -1,14 +1,10 @@
 package com.latticeonfhir.android.ui.householdmember
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope.SlideDirection.Companion.Left
-import androidx.compose.animation.AnimatedContentScope.SlideDirection.Companion.Right
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.EaseIn
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.with
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -31,13 +27,14 @@ import com.latticeonfhir.android.navigation.Screen
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.common.customTabIndicatorOffset
-import com.latticeonfhir.android.ui.main.patientlandingscreen.MembersScreen
+import com.latticeonfhir.android.ui.householdmember.members.MembersScreen
 import com.latticeonfhir.android.ui.main.patientlandingscreen.SuggestionsScreen
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HouseholdMembersScreen(
     navController: NavController,
@@ -55,6 +52,7 @@ fun HouseholdMembersScreen(
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val pagerState = rememberPagerState()
 
     val density = LocalDensity.current
     val tabWidths = remember {
@@ -110,13 +108,13 @@ fun HouseholdMembersScreen(
             Box(modifier = Modifier.padding(it)) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     TabRow(
-                        selectedTabIndex = viewModel.tabIndex,
+                        selectedTabIndex = pagerState.currentPage,
                         modifier = Modifier.testTag("TABS"),
                         indicator = { tabPositions ->
                             TabRowDefaults.Indicator(
                                 modifier = Modifier.customTabIndicatorOffset(
-                                    currentTabPosition = tabPositions[viewModel.tabIndex],
-                                    tabWidth = tabWidths[viewModel.tabIndex]
+                                    currentTabPosition = tabPositions[pagerState.currentPage],
+                                    tabWidth = tabWidths[pagerState.currentPage]
                                 )
                             )
                         }
@@ -131,39 +129,17 @@ fun HouseholdMembersScreen(
                                         })
                                 },
                                 modifier = Modifier.testTag(title.uppercase()),
-                                selected = viewModel.tabIndex == index,
-                                onClick = { viewModel.tabIndex = index },
+                                selected = pagerState.currentPage == index,
+                                onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
                                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
-                    AnimatedContent(
-                        targetState = viewModel.tabIndex,
-                        transitionSpec = {
-                            if (viewModel.tabIndex == 0) {
-                                slideIntoContainer(
-                                    animationSpec = tween(300, easing = EaseIn),
-                                    towards = Right
-                                ).with(
-                                    slideOutOfContainer(
-                                        animationSpec = tween(300, easing = EaseIn),
-                                        towards = Right
-                                    )
-                                )
-                            } else {
-                                slideIntoContainer(
-                                    animationSpec = tween(300, easing = EaseIn),
-                                    towards = Left
-                                ).with(
-                                    slideOutOfContainer(
-                                        animationSpec = tween(300, easing = EaseIn),
-                                        towards = Left
-                                    )
-                                )
-                            }
-                        }
-                    ) { targetState ->
-                        when (targetState) {
+                    HorizontalPager(
+                        pageCount = viewModel.tabs.size,
+                        state = pagerState
+                    ) { index ->
+                        when (index) {
                             0 -> viewModel.patient?.let { it1 -> MembersScreen(it1) }
                             1 -> viewModel.patient?.let { it1 ->
                                 SuggestionsScreen(
@@ -178,7 +154,7 @@ fun HouseholdMembersScreen(
             }
         },
         floatingActionButton = {
-            if (viewModel.tabIndex == 0) {
+            if (pagerState.currentPage == 0) {
                 //if (!viewModel.isUpdateSelected) {
                 AnimatedVisibility(visible = !viewModel.isUpdateSelected) {
                     FloatingActionButton(

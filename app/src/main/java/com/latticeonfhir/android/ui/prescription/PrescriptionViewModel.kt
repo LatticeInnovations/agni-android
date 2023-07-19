@@ -39,8 +39,6 @@ class PrescriptionViewModel @Inject constructor(
     var bottomNavExpanded by mutableStateOf(false)
     var clearAllConfirmDialog by mutableStateOf(false)
 
-    var tabIndex by mutableStateOf(0)
-
     val tabs = listOf("Previous prescription", "Quick select")
 
     var patient by mutableStateOf<PatientResponse?>(null)
