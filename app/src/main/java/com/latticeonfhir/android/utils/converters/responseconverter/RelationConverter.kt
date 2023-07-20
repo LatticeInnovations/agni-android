@@ -66,11 +66,12 @@ object RelationConverter {
                                 RelationEnum.BROTHER -> RelationEnum.SIBLING
                                 RelationEnum.SON -> RelationEnum.PARENT
                                 RelationEnum.GRAND_SON -> RelationEnum.GRAND_CHILD
-                                RelationEnum.UNCLE -> RelationEnum.NEPHEW
+                                RelationEnum.UNCLE -> RelationEnum.NIECE_NEPHEW
                                 RelationEnum.BROTHER_IN_LAW -> RelationEnum.IN_LAW
                                 RelationEnum.FATHER_IN_LAW -> RelationEnum.IN_LAW
                                 RelationEnum.HUSBAND -> RelationEnum.SPOUSE
                                 RelationEnum.SON_IN_LAW -> RelationEnum.IN_LAW
+                                RelationEnum.NEPHEW -> RelationEnum.GUARDIAN
                                 else -> {
                                     RelationEnum.UNKNOWN
                                 }
@@ -126,11 +127,12 @@ object RelationConverter {
                                 RelationEnum.SISTER -> RelationEnum.SIBLING
                                 RelationEnum.DAUGHTER -> RelationEnum.PARENT
                                 RelationEnum.GRAND_DAUGHTER -> RelationEnum.GRAND_CHILD
-                                RelationEnum.AUNTY -> RelationEnum.NEPHEW
+                                RelationEnum.AUNTY -> RelationEnum.NIECE_NEPHEW
                                 RelationEnum.SISTER_IN_LAW -> RelationEnum.IN_LAW
                                 RelationEnum.MOTHER_IN_LAW -> RelationEnum.IN_LAW
                                 RelationEnum.DAUGHTER_IN_LAW -> RelationEnum.IN_LAW
                                 RelationEnum.WIFE -> RelationEnum.SPOUSE
+                                RelationEnum.NIECE -> RelationEnum.GUARDIAN
                                 else -> {
                                     RelationEnum.UNKNOWN
                                 }
@@ -145,14 +147,13 @@ object RelationConverter {
                     when (GenderEnum.fromString(toGender)) {
                         GenderEnum.MALE -> {
                             when (relationEntity.relation) {
-                                RelationEnum.FATHER -> RelationEnum.SON
-                                RelationEnum.GRAND_FATHER -> RelationEnum.GRAND_SON
-                                RelationEnum.BROTHER -> RelationEnum.BROTHER
-                                RelationEnum.SON -> RelationEnum.FATHER
-                                RelationEnum.GRAND_SON -> RelationEnum.GRAND_FATHER
-                                RelationEnum.UNCLE -> RelationEnum.NEPHEW
-                                RelationEnum.BROTHER_IN_LAW -> RelationEnum.BROTHER_IN_LAW
-                                RelationEnum.FATHER_IN_LAW -> RelationEnum.SON_IN_LAW
+                                RelationEnum.PARENT -> RelationEnum.SON
+                                RelationEnum.GRAND_PARENT -> RelationEnum.GRAND_SON
+                                RelationEnum.SIBLING -> RelationEnum.BROTHER
+                                RelationEnum.CHILD -> RelationEnum.FATHER
+                                RelationEnum.GRAND_CHILD -> RelationEnum.GRAND_FATHER
+                                RelationEnum.IN_LAW -> RelationEnum.SON_IN_LAW
+                                RelationEnum.GUARDIAN -> RelationEnum.NEPHEW
                                 else -> {
                                     RelationEnum.UNKNOWN
                                 }
@@ -160,14 +161,13 @@ object RelationConverter {
                         }
                         GenderEnum.FEMALE -> {
                             when (relationEntity.relation) {
-                                RelationEnum.FATHER -> RelationEnum.DAUGHTER
-                                RelationEnum.GRAND_FATHER -> RelationEnum.GRAND_DAUGHTER
-                                RelationEnum.BROTHER -> RelationEnum.SISTER
-                                RelationEnum.SON -> RelationEnum.MOTHER
-                                RelationEnum.GRAND_SON -> RelationEnum.GRAND_MOTHER
-                                RelationEnum.UNCLE -> RelationEnum.NIECE
-                                RelationEnum.BROTHER_IN_LAW -> RelationEnum.SISTER_IN_LAW
-                                RelationEnum.FATHER_IN_LAW -> RelationEnum.DAUGHTER_IN_LAW
+                                RelationEnum.PARENT -> RelationEnum.DAUGHTER
+                                RelationEnum.GRAND_PARENT -> RelationEnum.GRAND_DAUGHTER
+                                RelationEnum.SIBLING -> RelationEnum.SISTER
+                                RelationEnum.CHILD -> RelationEnum.MOTHER
+                                RelationEnum.GRAND_CHILD -> RelationEnum.GRAND_MOTHER
+                                RelationEnum.IN_LAW -> RelationEnum.DAUGHTER_IN_LAW
+                                RelationEnum.GUARDIAN -> RelationEnum.NIECE
                                 else -> {
                                     RelationEnum.UNKNOWN
                                 }
@@ -175,14 +175,13 @@ object RelationConverter {
                         }
                         GenderEnum.OTHER -> {
                             when (relationEntity.relation) {
-                                RelationEnum.FATHER -> RelationEnum.CHILD
-                                RelationEnum.GRAND_FATHER -> RelationEnum.GRAND_CHILD
-                                RelationEnum.BROTHER -> RelationEnum.SIBLING
-                                RelationEnum.SON -> RelationEnum.PARENT
-                                RelationEnum.GRAND_SON -> RelationEnum.GRAND_CHILD
-                                RelationEnum.UNCLE -> RelationEnum.NEPHEW
-                                RelationEnum.BROTHER_IN_LAW -> RelationEnum.IN_LAW
-                                RelationEnum.FATHER_IN_LAW -> RelationEnum.IN_LAW
+                                RelationEnum.PARENT -> RelationEnum.CHILD
+                                RelationEnum.GRAND_PARENT -> RelationEnum.GRAND_CHILD
+                                RelationEnum.SIBLING -> RelationEnum.SIBLING
+                                RelationEnum.CHILD -> RelationEnum.PARENT
+                                RelationEnum.GRAND_CHILD -> RelationEnum.GRAND_CHILD
+                                RelationEnum.IN_LAW -> RelationEnum.IN_LAW
+                                RelationEnum.GUARDIAN -> RelationEnum.NIECE_NEPHEW
                                 else -> {
                                     RelationEnum.UNKNOWN
                                 }
