@@ -42,7 +42,7 @@ class LandingScreenViewModel @Inject constructor(
     private val preferenceRepository: PreferenceRepository
 ) : BaseAndroidViewModel(application) {
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(getApplication(),genericRepository,patientRepository) }
+    private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(getApplication(),genericRepository) }
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)
@@ -105,27 +105,9 @@ class LandingScreenViewModel @Inject constructor(
             }
         }
 
-        // Post Sync Worker
+        // Trigger Periodic Sync Worker
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.uploadPatientWorker { isErrorReceived, errorMsg ->
-                if (isErrorReceived){
-                    logoutUser = true
-                    logoutReason = errorMsg
-                }
-            }
-        }
-
-        // Patch Sync Workers
-        viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setPatientPatchWorker { isErrorReceived, errorMsg ->
-                if (isErrorReceived){
-                    logoutUser = true
-                    logoutReason = errorMsg
-                }
-            }
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setRelationPatchWorker { isErrorReceived, errorMsg ->
+            workRequestBuilders.setPeriodicTriggerWorker { isErrorReceived, errorMsg ->
                 if (isErrorReceived){
                     logoutUser = true
                     logoutReason = errorMsg
