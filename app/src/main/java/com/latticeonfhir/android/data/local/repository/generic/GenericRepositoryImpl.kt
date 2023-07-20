@@ -59,11 +59,11 @@ class GenericRepositoryImpl @Inject constructor(
         }.also {
             CoroutineScope(Dispatchers.IO).launch {
                 workRequestBuilders.apply {
-                    uploadPatientWorker { errorReceived, errorMsg ->}
+                    uploadPatientWorker { errorReceived, errorMsg -> }
 
                     setPatientPatchWorker { errorReceived, errorMsg ->  }
 
-                    setRelationPatchWorker { errorReceived, errorMsg ->}
+                    setRelationPatchWorker { errorReceived, errorMsg -> }
                 }
             }
         }
