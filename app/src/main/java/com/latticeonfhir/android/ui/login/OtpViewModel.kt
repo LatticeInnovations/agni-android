@@ -65,7 +65,7 @@ class OtpViewModel @Inject constructor(
     }
 
     internal fun validateOtp(navigate: (Boolean) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             authenticationRepository.validateOtp(userInput, otpEntered.toInt()).apply {
                 if(this is ApiEndResponse) {
                     isVerifying = false
