@@ -12,7 +12,7 @@ import com.latticeonfhir.android.utils.builders.UUIDBuilder
 @Entity(indices = [Index("patientId")])
 data class GenericEntity(
     @PrimaryKey
-    val id: String = UUIDBuilder.generateUUID(),
+    val id: String,
     val patientId: String,
     val payload: String,
     val type: GenericTypeEnum,

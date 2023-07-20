@@ -26,6 +26,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ *
+ * Here we are passing UUID in Parameters due to Unit Testing Scenario.
+ * if we generate UUID in repo Unit tests were failing.
+ * Do not pass uuid from anywhere else it will automatically generate here.
+ *
+ */
 @Suppress("UNCHECKED_CAST")
 class GenericRepositoryImpl @Inject constructor(
     @ApplicationContext context: Context,
@@ -35,7 +42,7 @@ class GenericRepositoryImpl @Inject constructor(
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(context,this) }
 
-    override suspend fun insertPatient(patientResponse: PatientResponse): Long {
+    override suspend fun insertPatient(patientResponse: PatientResponse, uuid: String): Long {
         return genericDao.getGenericEntityById(
             patientId = patientResponse.id,
             genericTypeEnum = GenericTypeEnum.PATIENT,
@@ -48,7 +55,7 @@ class GenericRepositoryImpl @Inject constructor(
             } else {
                 genericDao.insertGenericEntity(
                     GenericEntity(
-                        id = UUIDBuilder.generateUUID(),
+                        id = uuid,
                         patientId = patientResponse.id,
                         payload = patientResponse.toJson(),
                         type = GenericTypeEnum.PATIENT,
@@ -71,7 +78,8 @@ class GenericRepositoryImpl @Inject constructor(
 
     override suspend fun insertRelation(
         patientId: String,
-        relatedPersonResponse: RelatedPersonResponse
+        relatedPersonResponse: RelatedPersonResponse,
+        uuid: String
     ): Long {
         return genericDao.getGenericEntityById(
             patientId = patientId,
@@ -97,7 +105,7 @@ class GenericRepositoryImpl @Inject constructor(
                     )[0]
                 } ?: genericDao.insertGenericEntity(
                 GenericEntity(
-                    id = UUIDBuilder.generateUUID(),
+                    id = uuid,
                     patientId = patientId,
                     payload = relatedPersonResponse.toJson(),
                     type = GenericTypeEnum.RELATION,
@@ -138,11 +146,12 @@ class GenericRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertPrescription(
-        prescriptionResponse: PrescriptionResponse
+        prescriptionResponse: PrescriptionResponse,
+        uuid: String
     ): Long {
         return genericDao.insertGenericEntity(
             GenericEntity(
-                id = UUIDBuilder.generateUUID(),
+                id = uuid,
                 patientId = prescriptionResponse.patientFhirId,
                 payload = prescriptionResponse.toJson(),
                 type = GenericTypeEnum.PRESCRIPTION,
