@@ -32,13 +32,7 @@ class PatientLandingScreenViewModel @Inject constructor(
     var appointmentsCount by mutableStateOf(0)
     var isFabSelected by mutableStateOf(false)
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy {
-        WorkRequestBuilders(
-            getApplication(),
-            genericRepository,
-            patientRepository
-        )
-    }
+    private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(getApplication(), genericRepository) }
 
     internal fun downloadPrescriptions(patientFhirId: String) {
         viewModelScope.launch(Dispatchers.IO) {
