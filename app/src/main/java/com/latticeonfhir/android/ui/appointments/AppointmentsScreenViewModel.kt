@@ -11,8 +11,6 @@ class AppointmentsScreenViewModel : BaseViewModel() {
 
     var patient by mutableStateOf<PatientResponse?>(null)
 
-    var tabIndex by mutableStateOf(0)
-
     val tabs = listOf("Upcoming", "Completed")
 
     var isFabSelected by mutableStateOf(false)
