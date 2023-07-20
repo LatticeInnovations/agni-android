@@ -94,7 +94,8 @@ class WorkRequestBuilders(
         Sync.oneTimeSync<PatientUploadSyncWorkerImpl>(
             applicationContext, defaultRetryConfiguration.copy(
                 syncConstraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED).setRequiresBatteryNotLow(true)
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
                     .build()
             )
         ).collectLatest { workInfo ->
@@ -143,7 +144,8 @@ class WorkRequestBuilders(
         Sync.oneTimeSync<RelationUploadSyncWorkerImpl>(
             applicationContext, defaultRetryConfiguration.copy(
                 syncConstraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED).setRequiresBatteryNotLow(true)
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
                     .build()
             )
         ).collectLatest { workInfo ->
@@ -176,7 +178,8 @@ class WorkRequestBuilders(
         Sync.oneTimeSync<PrescriptionUploadSyncWorkerImpl>(
             applicationContext, defaultRetryConfiguration.copy(
                 syncConstraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED).setRequiresBatteryNotLow(true)
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
                     .build()
             )
         ).collectLatest { workInfo ->
@@ -356,7 +359,8 @@ class WorkRequestBuilders(
         Sync.oneTimeSync<PatientPatchUploadSyncWorkerImpl>(
             applicationContext, defaultRetryConfiguration.copy(
                 syncConstraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED).setRequiresBatteryNotLow(true)
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
                     .build()
             )
         ).collectLatest { workInfo ->
@@ -386,7 +390,8 @@ class WorkRequestBuilders(
         Sync.oneTimeSync<RelationPatchUploadSyncWorkerImpl>(
             applicationContext, defaultRetryConfiguration.copy(
                 syncConstraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED).setRequiresBatteryNotLow(true)
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
                     .build()
             )
         ).collectLatest { workInfo ->
