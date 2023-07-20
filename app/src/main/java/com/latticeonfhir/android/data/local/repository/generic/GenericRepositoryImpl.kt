@@ -1,26 +1,39 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
+import android.content.Context
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.builders.GenericEntity.processPatch
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.constants.Id.ID
 import com.latticeonfhir.android.utils.constants.RelationConstants.RELATIONSHIP
+import com.latticeonfhir.android.utils.converters.responseconverter.FHIR.isFhirId
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")
-class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericDao) :
-    GenericRepository {
+class GenericRepositoryImpl @Inject constructor(
+    @ApplicationContext context: Context,
+    private val genericDao: GenericDao,
+    private val patientDao: PatientDao
+) : GenericRepository {
+
+    private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(context,this) }
 
     override suspend fun insertPatient(patientResponse: PatientResponse): Long {
         return genericDao.getGenericEntityById(
@@ -43,6 +56,16 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                     )
                 )[0]
             }
+        }.also {
+            CoroutineScope(Dispatchers.IO).launch {
+                workRequestBuilders.apply {
+                    uploadPatientWorker { errorReceived, errorMsg ->}
+
+                    setPatientPatchWorker { errorReceived, errorMsg ->  }
+
+                    setRelationPatchWorker { errorReceived, errorMsg ->}
+                }
+            }
         }
     }
 
@@ -58,14 +81,16 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
             relationGenericEntity?.payload?.fromJson<MutableMap<String, Any>>()
                 ?.mapToObject(RelatedPersonResponse::class.java)
                 ?.let { existingRelatedPersonResponse ->
-                    val updatedRelationList = existingRelatedPersonResponse.relationship.toMutableList().apply {
-                        addAll(relatedPersonResponse.relationship)
-                    }
+                    val updatedRelationList =
+                        existingRelatedPersonResponse.relationship.toMutableList().apply {
+                            addAll(relatedPersonResponse.relationship)
+                        }
                     genericDao.insertGenericEntity(
                         GenericEntity(
                             id = relationGenericEntity.id,
                             patientId = relationGenericEntity.patientId,
-                            payload = existingRelatedPersonResponse.copy(relationship = updatedRelationList).toJson(),
+                            payload = existingRelatedPersonResponse.copy(relationship = updatedRelationList)
+                                .toJson(),
                             type = GenericTypeEnum.RELATION,
                             syncType = SyncType.POST
                         )
@@ -79,16 +104,37 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                     syncType = SyncType.POST
                 )
             )[0]
+        }.also {
+            CoroutineScope(Dispatchers.IO).launch {
+                workRequestBuilders.apply {
+                    uploadPatientWorker { errorReceived, errorMsg ->}
+
+                    setPatientPatchWorker { errorReceived, errorMsg ->  }
+
+                    setRelationPatchWorker { errorReceived, errorMsg ->}
+                }
+            }
         }
     }
 
-    override suspend fun updateRelationFhirId(
-        relationGenericEntity: GenericEntity,
-        relatedPersonResponse: RelatedPersonResponse
-    ): Long {
-        return genericDao.insertGenericEntity(
-            relationGenericEntity.copy(payload = relatedPersonResponse.toJson())
-        )[0]
+    override suspend fun updateRelationFhirId() {
+        genericDao.getNotSyncedData(GenericTypeEnum.RELATION).forEach { relationGenericEntity ->
+            val existingMap = relationGenericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(RelatedPersonResponse::class.java)
+            if (existingMap != null) {
+                genericDao.insertGenericEntity(
+                    relationGenericEntity.copy(
+                        payload = existingMap.copy(
+                            id = if (existingMap.id.isFhirId()) existingMap.id else getPatientFhirIdById(existingMap.id)!!,
+                            relationship = existingMap.relationship.map { relationship ->
+                                relationship.copy(
+                                    relativeId = if (relationship.relativeId.isFhirId()) relationship.relativeId else getPatientFhirIdById(relationship.relativeId)!!
+                                )
+                            }
+                        ).toJson()
+                    )
+                )
+            }
+        }
     }
 
     override suspend fun insertPrescription(
@@ -102,16 +148,32 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                 type = GenericTypeEnum.PRESCRIPTION,
                 syncType = SyncType.POST
             )
-        )[0]
+        )[0].also {
+            CoroutineScope(Dispatchers.IO).launch {
+                workRequestBuilders.apply {
+                    uploadPatientWorker { errorReceived, errorMsg ->}
+
+                    setPatientPatchWorker { errorReceived, errorMsg ->  }
+
+                    setRelationPatchWorker { errorReceived, errorMsg ->}
+                }
+            }
+        }
     }
 
-    override suspend fun updatePrescriptionFhirId(
-        prescriptionGenericEntity: GenericEntity,
-        prescriptionResponse: PrescriptionResponse
-    ): Long {
-        return genericDao.insertGenericEntity(
-            prescriptionGenericEntity.copy(payload = prescriptionResponse.toJson())
-        )[0]
+    override suspend fun updatePrescriptionFhirId() {
+        genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION).forEach { prescriptionGenericEntity ->
+            val existingMap = prescriptionGenericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(PrescriptionResponse::class.java)
+            if (existingMap != null && !existingMap.patientFhirId.isFhirId()) {
+                genericDao.insertGenericEntity(
+                    prescriptionGenericEntity.copy(
+                        payload = existingMap.copy(
+                            patientFhirId = getPatientFhirIdById(existingMap.patientFhirId)!!
+                        ).toJson()
+                    )
+                )
+            }
+        }
     }
 
     @Deprecated("This method was deprecated use above methods to store POST Generic Entity")
@@ -205,15 +267,20 @@ class GenericRepositoryImpl @Inject constructor(private val genericDao: GenericD
                     )
                 )[0]
             }
+        }.also {
+            CoroutineScope(Dispatchers.IO).launch {
+                workRequestBuilders.apply {
+                    uploadPatientWorker { errorReceived, errorMsg ->}
+
+                    setPatientPatchWorker { errorReceived, errorMsg ->  }
+
+                    setRelationPatchWorker { errorReceived, errorMsg ->}
+                }
+            }
         }
     }
 
-    override suspend fun getNonSyncedPostRelations(): List<GenericEntity> {
-        return genericDao.getNotSyncedData(GenericTypeEnum.RELATION)
+    private suspend fun getPatientFhirIdById(patientId: String): String? {
+        return patientDao.getPatientDataById(patientId)[0].patientEntity.fhirId
     }
-
-    override suspend fun getNonSyncedPostPrescriptions(): List<GenericEntity> {
-        return genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION)
-    }
-
 }
