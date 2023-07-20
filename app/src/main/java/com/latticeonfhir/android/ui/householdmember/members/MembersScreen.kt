@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.main.patientlandingscreen
+package com.latticeonfhir.android.ui.householdmember.members
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,7 +15,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.ui.householdmember.members.MembersScreenViewModel
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
@@ -47,7 +46,7 @@ fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = 
         } else {
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .padding(10.dp)
             ) {
                 items(viewModel.relationsListWithRelation) { relation ->
