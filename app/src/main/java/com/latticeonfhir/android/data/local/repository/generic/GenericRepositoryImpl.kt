@@ -13,7 +13,6 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.builders.GenericEntity.processPatch
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.constants.Id.ID
 import com.latticeonfhir.android.utils.constants.RelationConstants.RELATIONSHIP
 import com.latticeonfhir.android.utils.converters.responseconverter.FHIR.isFhirId
@@ -64,15 +63,7 @@ class GenericRepositoryImpl @Inject constructor(
                 )[0]
             }
         }.also {
-            CoroutineScope(Dispatchers.IO).launch {
-                workRequestBuilders.apply {
-                    uploadPatientWorker { errorReceived, errorMsg -> }
-
-                    setPatientPatchWorker { errorReceived, errorMsg ->  }
-
-                    setRelationPatchWorker { errorReceived, errorMsg -> }
-                }
-            }
+            runWorkers()
         }
     }
 
@@ -113,15 +104,7 @@ class GenericRepositoryImpl @Inject constructor(
                 )
             )[0]
         }.also {
-            CoroutineScope(Dispatchers.IO).launch {
-                workRequestBuilders.apply {
-                    uploadPatientWorker { errorReceived, errorMsg ->}
-
-                    setPatientPatchWorker { errorReceived, errorMsg ->  }
-
-                    setRelationPatchWorker { errorReceived, errorMsg ->}
-                }
-            }
+            runWorkers()
         }
     }
 
@@ -158,15 +141,7 @@ class GenericRepositoryImpl @Inject constructor(
                 syncType = SyncType.POST
             )
         )[0].also {
-            CoroutineScope(Dispatchers.IO).launch {
-                workRequestBuilders.apply {
-                    uploadPatientWorker { errorReceived, errorMsg ->}
-
-                    setPatientPatchWorker { errorReceived, errorMsg ->  }
-
-                    setRelationPatchWorker { errorReceived, errorMsg ->}
-                }
-            }
+            runWorkers()
         }
     }
 
@@ -277,19 +252,23 @@ class GenericRepositoryImpl @Inject constructor(
                 )[0]
             }
         }.also {
-            CoroutineScope(Dispatchers.IO).launch {
-                workRequestBuilders.apply {
-                    uploadPatientWorker { errorReceived, errorMsg ->}
-
-                    setPatientPatchWorker { errorReceived, errorMsg ->  }
-
-                    setRelationPatchWorker { errorReceived, errorMsg ->}
-                }
-            }
+            runWorkers()
         }
     }
 
     private suspend fun getPatientFhirIdById(patientId: String): String? {
         return patientDao.getPatientDataById(patientId)[0].patientEntity.fhirId
+    }
+
+    private fun runWorkers() {
+        CoroutineScope(Dispatchers.IO).launch {
+            with(workRequestBuilders) {
+                uploadPatientWorker { errorReceived, errorMsg -> }
+
+                setPatientPatchWorker { errorReceived, errorMsg ->  }
+
+                setRelationPatchWorker { errorReceived, errorMsg -> }
+            }
+        }
     }
 }
