@@ -2,27 +2,20 @@ package com.latticeonfhir.android.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.asLiveData
-import androidx.paging.PagingData
-import androidx.paging.filter
-import androidx.paging.map
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
-import com.latticeonfhir.android.data.local.model.pagination.PaginationResponse
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.search.SearchRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.MainCoroutineRule
 import com.latticeonfhir.android.utils.converters.responseconverter.toIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientAndIdentifierEntityResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import com.latticeonfhir.android.utils.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -34,7 +27,6 @@ import org.junit.runners.JUnit4
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import java.util.Date
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
@@ -68,8 +60,6 @@ class SearchRepositoryTest : BaseClass() {
         null,
         null
     )
-
-    private val date = Date()
 
     private val searchEntity = SearchHistoryEntity(
         searchQuery = "Test",
