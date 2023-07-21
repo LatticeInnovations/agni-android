@@ -83,19 +83,18 @@ class PrescriptionViewModel @Inject constructor(
         }
     }
 
-    internal fun insertPrescription(inserted: (Long) -> Unit) {
+    internal fun insertPrescription(date: Date = Date(),prescriptionId: String = UUIDBuilder.generateUUID(), inserted: (Long) -> Unit) {
         val medicationsList = mutableListOf<Medication>()
         medicationsResponseWithMedicationList.forEach {
             medicationsList.add(it.medication)
         }
         viewModelScope.launch(Dispatchers.IO) {
-            val prescriptionId = UUIDBuilder.generateUUID()
             inserted(
                 prescriptionRepository.insertPrescription(
                     PrescriptionResponseLocal(
                         patientId = patient!!.id,
                         patientFhirId = patient?.fhirId,
-                        generatedOn = Date(),
+                        generatedOn = date,
                         prescriptionId = prescriptionId,
                         prescription = medicationsList
                     )
@@ -103,7 +102,7 @@ class PrescriptionViewModel @Inject constructor(
                     genericRepository.insertPrescription(
                         PrescriptionResponse(
                             patientFhirId = patient!!.fhirId ?: patient!!.id,
-                            generatedOn = Date(),
+                            generatedOn = date,
                             prescriptionId = prescriptionId,
                             prescription = medicationsList,
                             prescriptionFhirId = null
@@ -122,10 +121,10 @@ class PrescriptionViewModel @Inject constructor(
         }
     }
 
-    internal fun insertRecentSearch(query: String, inserted: (Long) -> Unit) {
+    internal fun insertRecentSearch(query: String, date: Date = Date(), inserted: (Long) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             inserted(
-                searchRepository.insertRecentActiveIngredientSearch(query)
+                searchRepository.insertRecentActiveIngredientSearch(query, date)
             )
         }
     }
