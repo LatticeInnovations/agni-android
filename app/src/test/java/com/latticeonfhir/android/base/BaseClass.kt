@@ -183,10 +183,12 @@ abstract class BaseClass : TestCase() {
         medNumeratorVal = 1.0
     )
 
+    val date = Date()
+
     val prescribedResponse = PrescriptionResponse(
         prescriptionId = "78e2d936-39e4-42c3-abf4-b96274726c27",
         prescriptionFhirId = "21292",
-        generatedOn = Date(),
+        generatedOn = date,
         patientFhirId = "FHIR_ID",
         prescription = listOf(
             Medication(

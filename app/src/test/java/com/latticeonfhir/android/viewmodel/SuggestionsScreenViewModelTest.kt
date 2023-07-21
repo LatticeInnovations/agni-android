@@ -1,17 +1,16 @@
 package com.latticeonfhir.android.viewmodel
 
-import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.base.BaseClass
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreenViewModel
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientAndIdentifierEntityResponse
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -19,7 +18,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.*
-import net.bytebuddy.dynamic.scaffold.MethodGraph.Linked
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -134,7 +132,11 @@ class SuggestionsScreenViewModelTest : BaseClass() {
                 patientResponse.toPatientAndIdentifierEntityResponse()
             )
         )
-        `when`(patientDao.getPatientDataById(relationEntityBrother.toId)).thenReturn(listOf(relative.toPatientAndIdentifierEntityResponse()))
+        `when`(patientDao.getPatientDataById(relationEntityBrother.toId)).thenReturn(
+            listOf(
+                relative.toPatientAndIdentifierEntityResponse()
+            )
+        )
         `when`(
             relationRepository.addRelation(
                 eq(relationBrother),
@@ -144,6 +146,8 @@ class SuggestionsScreenViewModelTest : BaseClass() {
             val callback = invocation.getArgument<(List<Long>) -> Unit>(1)
             callback.invoke(listOf(-1L))
         }
+        val genericUUID = UUIDBuilder.generateUUID()
+        val genericUUIDInverse = UUIDBuilder.generateUUID()
         `when`(
             genericRepository.insertRelation(
                 patientId = relationBrother.patientId,
@@ -155,7 +159,8 @@ class SuggestionsScreenViewModelTest : BaseClass() {
                             relativeId = relativeId
                         )
                     )
-                )
+                ),
+                uuid = genericUUID
             )
         ).thenReturn(-1L)
         `when`(
@@ -169,10 +174,11 @@ class SuggestionsScreenViewModelTest : BaseClass() {
                             relativeId = relationBrother.patientId
                         )
                     )
-                )
+                ),
+                uuid = genericUUIDInverse
             )
         ).thenReturn(-1L)
-        viewModel.addRelation(relationBrother, relativeId) {
+        viewModel.addRelation(relationBrother, relativeId, genericUUID, genericUUIDInverse) {
             assertEquals(listOf(-1L), it)
         }
     }
