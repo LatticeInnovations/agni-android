@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -16,6 +15,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -88,7 +88,13 @@ class SuggestionsScreenViewModel @Inject constructor(
         }
     }
 
-    fun addRelation(relation: Relation, relativeId: String, relationAdded: (List<Long>) -> Unit) {
+    fun addRelation(
+        relation: Relation,
+        relativeId: String,
+        genericUUID: String = UUIDBuilder.generateUUID(),
+        genericUUIDInverse: String = UUIDBuilder.generateUUID(),
+        relationAdded: (List<Long>) -> Unit
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             RelationConverter.getInverseRelation(
                 relation.toRelationEntity(),
@@ -105,7 +111,8 @@ class SuggestionsScreenViewModel @Inject constructor(
                                     relativeId = relativeId
                                 )
                             )
-                        )
+                        ),
+                        genericUUID
                     ).also {
                         genericRepository.insertRelation(
                             relativeId,
@@ -117,7 +124,8 @@ class SuggestionsScreenViewModel @Inject constructor(
                                         relativeId = relation.patientId
                                     )
                                 )
-                            )
+                            ),
+                            genericUUIDInverse
                         )
                     }
                 }

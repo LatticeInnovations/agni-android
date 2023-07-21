@@ -2,6 +2,7 @@ package com.latticeonfhir.android.viewmodel
 
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
+import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
@@ -13,6 +14,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.Prescri
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -22,7 +24,6 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import java.util.Date
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PrescriptionViewModelTest : BaseClass() {
@@ -49,15 +50,30 @@ class PrescriptionViewModelTest : BaseClass() {
         medFhirId = medicationResponse.medFhirId,
         timing = "Before food"
     )
+
+    private val medicationsResponseWithMedicationList = MedicationResponseWithMedication(
+        activeIngredient = medicationResponse.activeIngredient,
+        medName = medicationResponse.medName,
+        medUnit = medicationResponse.medUnit,
+        medication = medication
+    )
+
     private val prescriptionResponseLocal = PrescriptionResponseLocal(
         patientId = id,
         patientFhirId = patientResponse.fhirId,
-        generatedOn = Date(),
+        generatedOn = date,
         prescriptionId = prescribedResponse.prescriptionId,
         prescription = listOf(medication)
     )
 
-    private val date = Date()
+    private val prescriptionResponse = PrescriptionResponse(
+        patientFhirId = patientResponse.fhirId?:patientResponse.id,
+        generatedOn = date,
+        prescriptionId = prescribedResponse.prescriptionId,
+        prescription = listOf(medication),
+        prescriptionFhirId = null
+    )
+
 
     private val prescriptionDirectionsEntity = PrescriptionDirectionsEntity(
         id = medication.medFhirId + prescribedResponse.prescriptionId,
@@ -107,7 +123,7 @@ class PrescriptionViewModelTest : BaseClass() {
             )
             `when`(
                 genericRepository.insertPrescription(
-                    prescribedResponse
+                    prescriptionResponse
                 )
             ).thenReturn(-1)
             `when`(
@@ -122,14 +138,18 @@ class PrescriptionViewModelTest : BaseClass() {
 
     @Test
     fun insertPrescriptionTest() = runTest {
-        prescriptionViewModel.insertPrescription {
+        prescriptionViewModel.medicationsResponseWithMedicationList = listOf(
+            medicationsResponseWithMedicationList
+        )
+        prescriptionViewModel.patient = patientResponse
+        prescriptionViewModel.insertPrescription(date, prescribedResponse.prescriptionId) {
             assertEquals(-1, it)
         }
     }
 
     @Test
     fun insertRecentSearchTest() = runTest {
-        prescriptionViewModel.insertRecentSearch("search") {
+        prescriptionViewModel.insertRecentSearch("search", date) {
             assertEquals(-1, it)
         }
     }
