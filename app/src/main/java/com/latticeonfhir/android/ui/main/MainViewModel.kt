@@ -13,7 +13,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    syncRepository: SyncRepository,
     preferenceRepository: PreferenceRepository
 ) : BaseViewModel() {
 
@@ -21,7 +20,6 @@ class MainViewModel @Inject constructor(
     var startDestination by mutableStateOf(Screen.PhoneEmailScreen.route)
 
     init {
-        FhirApp.syncRepository = syncRepository
         isUserLoggedIn = preferenceRepository.getAuthenticationToken().isNotEmpty()
         if (isUserLoggedIn) startDestination = Screen.LandingScreen.route
     }

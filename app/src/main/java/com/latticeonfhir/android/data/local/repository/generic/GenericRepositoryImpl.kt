@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
 import android.content.Context
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
@@ -39,7 +40,7 @@ class GenericRepositoryImpl @Inject constructor(
     private val patientDao: PatientDao
 ) : GenericRepository {
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(context,this) }
+    private val workRequestBuilders: WorkRequestBuilders by lazy { (context as FhirApp).geWorkRequestBuilder() }
 
     override suspend fun insertPatient(patientResponse: PatientResponse, uuid: String): Long {
         return genericDao.getGenericEntityById(
