@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.viewmodel.main
 
-import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
@@ -41,13 +40,6 @@ class MainViewModelTest: BaseClass() {
         `when`(preferenceRepository.getAuthenticationToken()).thenReturn("")
         mainViewModel = MainViewModel(syncRepository, preferenceRepository)
         assertEquals(false,mainViewModel.isUserLoggedIn)
-    }
-
-    @Test
-    fun `sync repo initialized`() {
-        `when`(preferenceRepository.getAuthenticationToken()).thenReturn("")
-        mainViewModel = MainViewModel(syncRepository, preferenceRepository)
-        assertEquals(FhirApp.syncRepository,syncRepository)
     }
 
     @Test

@@ -108,12 +108,14 @@ open class FhirAppDatabaseTest: TestCase() {
         patientId = id,
         patientLastName = patientResponse.lastName,
         patientMiddleName = patientResponse.middleName,
+        patientFhirId = patientResponse.fhirId,
         relation = RelationEnum.SPOUSE,
         relativeFirstName = relative.firstName,
         relativeId = relativeId,
         relativeLastName = relative.lastName,
         relativeMiddleName = relative.middleName,
-        relativeGender = relative.gender
+        relativeGender = relative.gender,
+        relativeFhirId = relative.fhirId
     )
 
     protected val searchParameters = SearchParameters(

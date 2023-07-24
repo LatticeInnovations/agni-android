@@ -50,7 +50,7 @@ class WorkRequestBuilders(
      *
      * */
 
-    internal suspend fun setPeriodicTriggerWorker(error: (Boolean, String) -> Unit) {
+    internal fun setPeriodicTriggerWorker() {
         Sync.periodicSync<TriggerWorkerImpl>(
             applicationContext,
             PeriodicSyncConfiguration(
@@ -60,32 +60,7 @@ class WorkRequestBuilders(
                     .build(),
                 repeat = RepeatInterval(15, TimeUnit.MINUTES)
             )
-        ).collectLatest { workInfo ->
-            if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.ENQUEUED) {
-                    uploadPatientWorker { errorReceived, errorMsg ->
-                        error(
-                            errorReceived,
-                            errorMsg
-                        )
-                    }
-
-                    setPatientPatchWorker { errorReceived, errorMsg ->
-                        error(
-                            errorReceived,
-                            errorMsg
-                        )
-                    }
-
-                    setRelationPatchWorker { errorReceived, errorMsg ->
-                        error(
-                            errorReceived,
-                            errorMsg
-                        )
-                    }
-                }
-            }
-        }
+        )
     }
 
     /** Patient Upload Post Sync Worker */
