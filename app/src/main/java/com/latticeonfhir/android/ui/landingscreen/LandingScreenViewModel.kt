@@ -27,6 +27,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -81,6 +82,15 @@ class LandingScreenViewModel @Inject constructor(
     var selectedChip by mutableStateOf(R.string.total_appointment)
 
     init {
+
+        viewModelScope.launch {
+            getApplication<FhirApp>().sessionExpireFlow.collectLatest { sessionExpireMap ->
+                if (sessionExpireMap["errorReceived"] == true){
+                    logoutUser = true
+                    logoutReason = sessionExpireMap["errorMsg"]?.toString() ?: "SERVER ERROR"
+                }
+            }
+        }
 
         //Medication Worker
         viewModelScope.launch(Dispatchers.IO) {

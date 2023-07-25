@@ -42,15 +42,6 @@ class WorkRequestBuilders(
     private val genericRepository: GenericRepository
 ) {
 
-    /**
-     *
-     *
-     * Upload Workers
-     *
-     *
-     *
-     * */
-
     internal fun setPeriodicTriggerWorker() {
         Sync.periodicSync<TriggerWorkerPeriodicImpl>(
             applicationContext,
@@ -74,6 +65,16 @@ class WorkRequestBuilders(
             )
         )
     }
+
+
+    /**
+     *
+     *
+     * Upload Workers
+     *
+     *
+     *
+     * */
 
     /** Patient Upload Post Sync Worker */
     internal suspend fun uploadPatientWorker(error: (Boolean, String) -> Unit) {

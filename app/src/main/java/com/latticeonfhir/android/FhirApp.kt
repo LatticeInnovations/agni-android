@@ -16,6 +16,7 @@ import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.converters.gson.DateDeserializer
 import com.latticeonfhir.android.utils.converters.gson.DateSerializer
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.flow.MutableStateFlow
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
 import java.util.Date
@@ -31,6 +32,7 @@ class FhirApp : Application() {
 
     private lateinit var syncRepository: SyncRepository
     private lateinit var workRequestBuilder: WorkRequestBuilders
+    val sessionExpireFlow = MutableStateFlow(emptyMap<String,Any>())
 
     override fun onCreate() {
         super.onCreate()
