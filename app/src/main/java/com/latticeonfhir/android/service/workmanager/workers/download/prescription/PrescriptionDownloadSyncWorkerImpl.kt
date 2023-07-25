@@ -5,5 +5,5 @@ import androidx.work.WorkerParameters
 import com.latticeonfhir.android.FhirApp
 
 class PrescriptionDownloadSyncWorkerImpl(context: Context, workerParameters: WorkerParameters): PrescriptionDownloadSyncWorker(context, workerParameters) {
-    override fun getSyncRepository() = (applicationContext as FhirApp).getSyncRepo()
+    override fun getSyncRepository() = (applicationContext as FhirApp).getSyncRepository()
 }

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.service.workmanager.workers.trigger
+package com.latticeonfhir.android.service.workmanager.workers.trigger.triggerperiodic
 
 import android.content.Context
 import androidx.work.WorkerParameters
@@ -8,7 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class TriggerWorker(context: Context, workerParameters: WorkerParameters): SyncWorker(context, workerParameters) {
+abstract class TriggerWorkerPeriodic(context: Context, workerParameters: WorkerParameters): SyncWorker(context, workerParameters) {
     override suspend fun doWork(): Result {
         (applicationContext as FhirApp).geWorkRequestBuilder().apply {
             CoroutineScope(Dispatchers.IO).launch {

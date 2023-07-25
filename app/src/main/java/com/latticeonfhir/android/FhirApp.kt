@@ -24,14 +24,11 @@ import javax.inject.Inject
 @HiltAndroidApp
 class FhirApp : Application() {
 
-    @Inject
-    lateinit var fhirAppDatabase: FhirAppDatabase
-    @Inject
-    lateinit var preferenceStorage: PreferenceStorage
-    @Inject
-    lateinit var patientApiService: PatientApiService
-    @Inject
-    lateinit var prescriptionApiService: PrescriptionApiService
+    @Inject lateinit var fhirAppDatabase: FhirAppDatabase
+    @Inject lateinit var preferenceStorage: PreferenceStorage
+    @Inject lateinit var patientApiService: PatientApiService
+    @Inject lateinit var prescriptionApiService: PrescriptionApiService
+
     private lateinit var syncRepository: SyncRepository
     private lateinit var workRequestBuilder: WorkRequestBuilders
 
@@ -52,17 +49,19 @@ class FhirApp : Application() {
             fhirAppDatabase.getPrescriptionDao()
         )
 
-        workRequestBuilder = WorkRequestBuilders(
-            this,
-            GenericRepositoryImpl(
+        if(!this::workRequestBuilder.isInitialized) {
+            workRequestBuilder = WorkRequestBuilders(
                 this,
-                fhirAppDatabase.getGenericDao(),
-                fhirAppDatabase.getPatientDao()
+                GenericRepositoryImpl(
+                    this,
+                    fhirAppDatabase.getGenericDao(),
+                    fhirAppDatabase.getPatientDao()
+                )
             )
-        )
+        }
     }
 
-    internal fun getSyncRepo(): SyncRepository {
+    internal fun getSyncRepository(): SyncRepository {
         return syncRepository
     }
 
