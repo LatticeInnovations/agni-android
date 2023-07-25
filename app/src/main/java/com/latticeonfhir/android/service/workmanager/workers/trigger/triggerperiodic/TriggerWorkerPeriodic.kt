@@ -7,14 +7,37 @@ import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-abstract class TriggerWorkerPeriodic(context: Context, workerParameters: WorkerParameters): SyncWorker(context, workerParameters) {
+abstract class TriggerWorkerPeriodic(context: Context, workerParameters: WorkerParameters) : SyncWorker(context, workerParameters) {
     override suspend fun doWork(): Result {
         (applicationContext as FhirApp).geWorkRequestBuilder().apply {
             CoroutineScope(Dispatchers.IO).launch {
-                uploadPatientWorker { _, _ ->  }
-                setPatientPatchWorker { _, _ ->  }
-                setRelationPatchWorker { _, _ -> }
+                uploadPatientWorker { errorReceived, errorMsg ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        (applicationContext as FhirApp).sessionExpireFlow.emit(
+                            mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))
+                        )
+                    }
+                }
+            }
+            CoroutineScope(Dispatchers.IO).launch {
+                setPatientPatchWorker { errorReceived, errorMsg ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        (applicationContext as FhirApp).sessionExpireFlow.emit(
+                            mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))
+                        )
+                    }
+                }
+            }
+            CoroutineScope(Dispatchers.IO).launch {
+                setRelationPatchWorker { errorReceived, errorMsg ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        (applicationContext as FhirApp).sessionExpireFlow.emit(
+                            mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))
+                        )
+                    }
+                }
             }
         }
         return Result.success()

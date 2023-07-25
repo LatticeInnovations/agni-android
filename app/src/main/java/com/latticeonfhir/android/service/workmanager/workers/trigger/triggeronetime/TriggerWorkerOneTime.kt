@@ -13,15 +13,33 @@ abstract class TriggerWorkerOneTime(context: Context, workerParameters: WorkerPa
     override suspend fun doWork(): Result {
         with((applicationContext as FhirApp).geWorkRequestBuilder()) {
             CoroutineScope(Dispatchers.IO).launch {
-                uploadPatientWorker { errorReceived, errorMsg -> }
+                uploadPatientWorker { errorReceived, errorMsg ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        (applicationContext as FhirApp).sessionExpireFlow.emit(
+                            mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))
+                        )
+                    }
+                }
             }
 
             CoroutineScope(Dispatchers.IO).launch {
-                setPatientPatchWorker { errorReceived, errorMsg -> }
+                setPatientPatchWorker { errorReceived, errorMsg ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        (applicationContext as FhirApp).sessionExpireFlow.emit(
+                            mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))
+                        )
+                    }
+                }
             }
 
             CoroutineScope(Dispatchers.IO).launch {
-                setRelationPatchWorker { errorReceived, errorMsg -> }
+                setRelationPatchWorker { errorReceived, errorMsg ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        (applicationContext as FhirApp).sessionExpireFlow.emit(
+                            mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))
+                        )
+                    }
+                }
             }
         }
         return Result.success()
