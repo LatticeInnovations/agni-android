@@ -15,7 +15,8 @@ import com.latticeonfhir.android.service.workmanager.workers.download.patient.Pa
 import com.latticeonfhir.android.service.workmanager.workers.download.prescription.PrescriptionDownloadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.download.prescription.PrescriptionDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.download.relation.RelationDownloadSyncWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.trigger.triggeronetime.TriggerWorkerOneTimeImpl
+import com.latticeonfhir.android.service.workmanager.workers.trigger.triggerperiodic.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.post.PatientUploadSyncWorker
@@ -51,7 +52,7 @@ class WorkRequestBuilders(
      * */
 
     internal fun setPeriodicTriggerWorker() {
-        Sync.periodicSync<TriggerWorkerImpl>(
+        Sync.periodicSync<TriggerWorkerPeriodicImpl>(
             applicationContext,
             PeriodicSyncConfiguration(
                 syncConstraints = Constraints.Builder()
@@ -59,6 +60,17 @@ class WorkRequestBuilders(
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build(),
                 repeat = RepeatInterval(15, TimeUnit.MINUTES)
+            )
+        )
+    }
+
+    internal fun setOneTimeTriggerWorker() {
+        Sync.oneTimeSync<TriggerWorkerOneTimeImpl>(applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
             )
         )
     }
