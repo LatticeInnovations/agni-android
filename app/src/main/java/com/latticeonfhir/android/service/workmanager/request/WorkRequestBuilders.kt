@@ -42,6 +42,12 @@ class WorkRequestBuilders(
     private val genericRepository: GenericRepository
 ) {
 
+    /**
+     *
+     * Periodic Worker that triggers
+     * every other worker when app is in foreground or not
+     *
+     */
     internal fun setPeriodicTriggerWorker() {
         Sync.periodicSync<TriggerWorkerPeriodicImpl>(
             applicationContext,
@@ -55,6 +61,12 @@ class WorkRequestBuilders(
         )
     }
 
+    /**
+     *
+     * One Time Worker that triggers
+     * every other worker when app is in foreground or not
+     *
+     */
     internal fun setOneTimeTriggerWorker() {
         Sync.oneTimeSync<TriggerWorkerOneTimeImpl>(applicationContext,
             defaultRetryConfiguration.copy(
