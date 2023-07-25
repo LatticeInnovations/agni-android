@@ -55,7 +55,6 @@ class WorkManagerTest : TestCase() {
     @Before
     public override fun setUp() {
         MockitoAnnotations.openMocks(this)
-        FhirApp.syncRepository = syncRepository
     }
 
     @Test
