@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -20,8 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PatientLandingScreenViewModel @Inject constructor(
     application: Application,
-    private val genericRepository: GenericRepository,
-    private val patientRepository: PatientRepository,
+    private val patientRepository: PatientRepository
 ) : BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
@@ -32,7 +32,7 @@ class PatientLandingScreenViewModel @Inject constructor(
     var appointmentsCount by mutableStateOf(0)
     var isFabSelected by mutableStateOf(false)
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(getApplication(), genericRepository) }
+    private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).geWorkRequestBuilder() }
 
     internal fun downloadPrescriptions(patientFhirId: String) {
         viewModelScope.launch(Dispatchers.IO) {

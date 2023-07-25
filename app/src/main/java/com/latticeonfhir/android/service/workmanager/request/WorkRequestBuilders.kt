@@ -15,7 +15,8 @@ import com.latticeonfhir.android.service.workmanager.workers.download.patient.Pa
 import com.latticeonfhir.android.service.workmanager.workers.download.prescription.PrescriptionDownloadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.download.prescription.PrescriptionDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.download.relation.RelationDownloadSyncWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.trigger.triggeronetime.TriggerWorkerOneTimeImpl
+import com.latticeonfhir.android.service.workmanager.workers.trigger.triggerperiodic.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.post.PatientUploadSyncWorker
@@ -43,15 +44,12 @@ class WorkRequestBuilders(
 
     /**
      *
+     * Periodic Worker that triggers
+     * every other worker when app is in foreground or not
      *
-     * Upload Workers
-     *
-     *
-     *
-     * */
-
-    internal suspend fun setPeriodicTriggerWorker(error: (Boolean, String) -> Unit) {
-        Sync.periodicSync<TriggerWorkerImpl>(
+     */
+    internal fun setPeriodicTriggerWorker() {
+        Sync.periodicSync<TriggerWorkerPeriodicImpl>(
             applicationContext,
             PeriodicSyncConfiguration(
                 syncConstraints = Constraints.Builder()
@@ -60,33 +58,35 @@ class WorkRequestBuilders(
                     .build(),
                 repeat = RepeatInterval(15, TimeUnit.MINUTES)
             )
-        ).collectLatest { workInfo ->
-            if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.ENQUEUED) {
-                    uploadPatientWorker { errorReceived, errorMsg ->
-                        error(
-                            errorReceived,
-                            errorMsg
-                        )
-                    }
-
-                    setPatientPatchWorker { errorReceived, errorMsg ->
-                        error(
-                            errorReceived,
-                            errorMsg
-                        )
-                    }
-
-                    setRelationPatchWorker { errorReceived, errorMsg ->
-                        error(
-                            errorReceived,
-                            errorMsg
-                        )
-                    }
-                }
-            }
-        }
+        )
     }
+
+    /**
+     *
+     * One Time Worker that triggers
+     * every other worker when app is in foreground or not
+     *
+     */
+    internal fun setOneTimeTriggerWorker() {
+        Sync.oneTimeSync<TriggerWorkerOneTimeImpl>(applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        )
+    }
+
+
+    /**
+     *
+     *
+     * Upload Workers
+     *
+     *
+     *
+     * */
 
     /** Patient Upload Post Sync Worker */
     internal suspend fun uploadPatientWorker(error: (Boolean, String) -> Unit) {

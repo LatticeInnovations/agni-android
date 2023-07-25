@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
 import android.content.Context
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
@@ -20,9 +21,6 @@ import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -39,7 +37,7 @@ class GenericRepositoryImpl @Inject constructor(
     private val patientDao: PatientDao
 ) : GenericRepository {
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(context,this) }
+    private val workRequestBuilders: WorkRequestBuilders by lazy { (context as FhirApp).geWorkRequestBuilder() }
 
     override suspend fun insertPatient(patientResponse: PatientResponse, uuid: String): Long {
         return genericDao.getGenericEntityById(
@@ -110,15 +108,20 @@ class GenericRepositoryImpl @Inject constructor(
 
     override suspend fun updateRelationFhirId() {
         genericDao.getNotSyncedData(GenericTypeEnum.RELATION).forEach { relationGenericEntity ->
-            val existingMap = relationGenericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(RelatedPersonResponse::class.java)
+            val existingMap = relationGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+                .mapToObject(RelatedPersonResponse::class.java)
             if (existingMap != null) {
                 genericDao.insertGenericEntity(
                     relationGenericEntity.copy(
                         payload = existingMap.copy(
-                            id = if (existingMap.id.isFhirId()) existingMap.id else getPatientFhirIdById(existingMap.id)!!,
+                            id = if (existingMap.id.isFhirId()) existingMap.id else getPatientFhirIdById(
+                                existingMap.id
+                            )!!,
                             relationship = existingMap.relationship.map { relationship ->
                                 relationship.copy(
-                                    relativeId = if (relationship.relativeId.isFhirId()) relationship.relativeId else getPatientFhirIdById(relationship.relativeId)!!
+                                    relativeId = if (relationship.relativeId.isFhirId()) relationship.relativeId else getPatientFhirIdById(
+                                        relationship.relativeId
+                                    )!!
                                 )
                             }
                         ).toJson()
@@ -146,18 +149,21 @@ class GenericRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updatePrescriptionFhirId() {
-        genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION).forEach { prescriptionGenericEntity ->
-            val existingMap = prescriptionGenericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(PrescriptionResponse::class.java)
-            if (existingMap != null && !existingMap.patientFhirId.isFhirId()) {
-                genericDao.insertGenericEntity(
-                    prescriptionGenericEntity.copy(
-                        payload = existingMap.copy(
-                            patientFhirId = getPatientFhirIdById(existingMap.patientFhirId)!!
-                        ).toJson()
+        genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION)
+            .forEach { prescriptionGenericEntity ->
+                val existingMap =
+                    prescriptionGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+                        .mapToObject(PrescriptionResponse::class.java)
+                if (existingMap != null && !existingMap.patientFhirId.isFhirId()) {
+                    genericDao.insertGenericEntity(
+                        prescriptionGenericEntity.copy(
+                            payload = existingMap.copy(
+                                patientFhirId = getPatientFhirIdById(existingMap.patientFhirId)!!
+                            ).toJson()
+                        )
                     )
-                )
+                }
             }
-        }
     }
 
     @Deprecated("This method was deprecated use above methods to store POST Generic Entity")
@@ -261,14 +267,6 @@ class GenericRepositoryImpl @Inject constructor(
     }
 
     private fun runWorkers() {
-        CoroutineScope(Dispatchers.IO).launch {
-            with(workRequestBuilders) {
-                uploadPatientWorker { errorReceived, errorMsg -> }
-
-                setPatientPatchWorker { errorReceived, errorMsg -> }
-
-                setRelationPatchWorker { errorReceived, errorMsg -> }
-            }
-        }
+        workRequestBuilders.setOneTimeTriggerWorker()
     }
 }
