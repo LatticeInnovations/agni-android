@@ -1,20 +1,20 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
     id 'kotlin-parcelize'
     id 'kotlin-android'
     id 'jacoco'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
+    id 'com.google.devtools.ksp'
 }
 
 task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
 
     reports {
-        xml.enabled = true
-        html.enabled = true
+        xml.required = true
+        html.required = true
     }
 
     def fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*']
@@ -52,11 +52,10 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
-            }
+        ksp {
+            arg('room.schemaLocation', "$projectDir/schemas")
         }
+
         vectorDrawables {
             useSupportLibrary true
         }
@@ -90,11 +89,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     buildFeatures {
@@ -110,7 +109,7 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
-    lintOptions {
+    lint {
         disable 'ParcelCreator'
     }
 }
@@ -145,7 +144,7 @@ dependencies {
 
     //Hilt-Dagger
     implementation 'com.google.dagger:hilt-android:2.45'
-    kapt 'com.google.dagger:hilt-compiler:2.45'
+    ksp 'com.google.dagger:hilt-compiler:2.45'
 
     //Encrypt Shared Preferences
     implementation 'androidx.security:security-crypto:1.0.0'
@@ -153,7 +152,7 @@ dependencies {
     //Room Database
     implementation 'androidx.room:room-runtime:2.5.2'
     implementation 'androidx.room:room-ktx:2.5.2'
-    kapt 'androidx.room:room-compiler:2.5.2'
+    ksp 'androidx.room:room-compiler:2.5.2'
 
     //Room Database Test Helpers
     testImplementation 'androidx.room:room-testing:2.5.2'
@@ -235,11 +234,8 @@ dependencies {
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
 }
 
-kapt {
-    correctErrorTypes true
-}
 allprojects {
-    configurations.all {
+    configurations.configureEach {
         resolutionStrategy.force 'org.objenesis:objenesis:2.6'
     }
 }
