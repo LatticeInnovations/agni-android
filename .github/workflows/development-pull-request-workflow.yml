@@ -1,9 +1,9 @@
 name: Development Pull Request
 
 "on":
-  pull_request:
+  push:
     branches:
-      - development
+      - update_gradle_and_android_gradle_plugin
 
 jobs:
   build:
@@ -15,7 +15,7 @@ jobs:
       - name: set up JDK 11
         uses: actions/setup-java@v2
         with:
-          java-version: "11"
+          java-version: 17
           distribution: zulu
           cache: gradle
 
@@ -25,7 +25,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: 7.5
+          gradle-version: 8.0
 
       - name: Grant rights
         run: chmod +x build.gradle
