@@ -4,6 +4,7 @@ plugins {
     id 'com.google.dagger.hilt.android'
     id 'kotlin-parcelize'
     id 'kotlin-android'
+    id 'kotlin-kapt'
     id 'jacoco'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
@@ -144,7 +145,7 @@ dependencies {
 
     //Hilt-Dagger
     implementation 'com.google.dagger:hilt-android:2.45'
-    ksp 'com.google.dagger:hilt-compiler:2.45'
+    kapt 'com.google.dagger:hilt-compiler:2.45'
 
     //Encrypt Shared Preferences
     implementation 'androidx.security:security-crypto:1.0.0'
