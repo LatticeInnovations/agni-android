@@ -19,6 +19,7 @@ package com.latticeonfhir.android.service.workmanager.utils
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import java.net.URLEncoder
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 /**
@@ -29,72 +30,77 @@ import java.util.concurrent.TimeUnit
 typealias ParamMap = Map<String, String>
 
 /** Constant for the max number of retries in case of sync failure */
-@PublishedApi internal const val MAX_RETRIES_ALLOWED = "max_retires"
+@PublishedApi
+internal const val MAX_RETRIES_ALLOWED = "max_retires"
 
 /** Constant for the Greater Than Search Prefix */
-@PublishedApi internal const val GREATER_THAN_PREFIX = "gt"
+@PublishedApi
+internal const val GREATER_THAN_PREFIX = "gt"
 
 /** Constant for the default number of resource entries in a singe Bundle for upload. */
 const val DEFAULT_BUNDLE_SIZE = 500
 
 val defaultRetryConfiguration =
-  RetryConfiguration(BackoffCriteria(BackoffPolicy.LINEAR, 30, TimeUnit.SECONDS), 3)
+    RetryConfiguration(BackoffCriteria(BackoffPolicy.LINEAR, 30, TimeUnit.SECONDS), 3)
 
 object SyncDataParams {
-  const val SORT_KEY = "_sort"
-  const val LAST_UPDATED_KEY = "_lastUpdated"
-  const val ADDRESS_COUNTRY_KEY = "address-country"
-  const val SUMMARY_KEY = "_summary"
-  const val SUMMARY_COUNT_VALUE = "count"
+    const val SORT_KEY = "_sort"
+    const val LAST_UPDATED_KEY = "_lastUpdated"
+    const val ADDRESS_COUNTRY_KEY = "address-country"
+    const val SUMMARY_KEY = "_summary"
+    const val SUMMARY_COUNT_VALUE = "count"
 }
 
 /** Configuration for period synchronisation */
 class PeriodicSyncConfiguration(
     /**
-   * Constraints that specify the requirements needed before the synchronisation is triggered. E.g.
-   * network type (Wifi, 3G etc), the device should be charging etc.
-   */
-  val syncConstraints: Constraints = Constraints.Builder().build(),
+     * Constraints that specify the requirements needed before the synchronisation is triggered. E.g.
+     * network type (Wifi, 3G etc), the device should be charging etc.
+     */
+    val syncConstraints: Constraints = Constraints.Builder().build(),
 
     /**
-   * The interval at which the sync should be triggered in. It must be greater than or equal to
-   * [androidx.work.PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]
-   */
-  val repeat: RepeatInterval,
+     * The interval at which the sync should be triggered in. It must be greater than or equal to
+     * [androidx.work.PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]
+     */
+    val repeat: RepeatInterval,
 
     /** Configuration for synchronization retry */
-  val retryConfiguration: RetryConfiguration? = defaultRetryConfiguration
+    val retryConfiguration: RetryConfiguration? = defaultRetryConfiguration,
+
+    /** Initial delay */
+    val initialDelay: InitialDelay? = null
 )
 
 data class RepeatInterval(
-  /** The interval at which the sync should be triggered in */
-  val interval: Long,
-  /** The time unit for the repeat interval */
-  val timeUnit: TimeUnit
+    /** The interval at which the sync should be triggered in */
+    val interval: Long,
+    /** The time unit for the repeat interval */
+    val timeUnit: TimeUnit
 )
 
 fun ParamMap.concatParams(): String {
-  return this.entries.joinToString("&") { (key, value) ->
-    "$key=${URLEncoder.encode(value, "UTF-8")}"
-  }
+    return this.entries.joinToString("&") { (key, value) ->
+        "$key=${URLEncoder.encode(value, "UTF-8")}"
+    }
 }
 
 /** Configuration for synchronization retry */
 data class RetryConfiguration(
     /**
-   * The criteria to retry failed synchronization work based on
-   * [androidx.work.WorkRequest.Builder.setBackoffCriteria]
-   */
-  val backoffCriteria: BackoffCriteria,
+     * The criteria to retry failed synchronization work based on
+     * [androidx.work.WorkRequest.Builder.setBackoffCriteria]
+     */
+    val backoffCriteria: BackoffCriteria,
 
     /** Maximum retries for a failing [FhirSyncWorker] */
-  val maxRetries: Int,
+    val maxRetries: Int,
 
     /**
-   * Constraints that specify the requirements needed before the synchronisation is triggered. E.g.
-   * network type (Wifi, 3G etc), the device should be charging etc.
-   */
-  val syncConstraints: Constraints = Constraints.Builder().build()
+     * Constraints that specify the requirements needed before the synchronisation is triggered. E.g.
+     * network type (Wifi, 3G etc), the device should be charging etc.
+     */
+    val syncConstraints: Constraints = Constraints.Builder().build()
 )
 
 /**
@@ -102,18 +108,18 @@ data class RetryConfiguration(
  * [androidx.work.WorkRequest.Builder.setBackoffCriteria]
  */
 data class BackoffCriteria(
-  /** Backoff policy [androidx.work.BackoffPolicy] */
-  val backoffPolicy: BackoffPolicy,
+    /** Backoff policy [androidx.work.BackoffPolicy] */
+    val backoffPolicy: BackoffPolicy,
 
-  /**
-   * Backoff delay for each retry attempt. Check
-   * [androidx.work.PeriodicWorkRequest.MIN_BACKOFF_MILLIS] and
-   * [androidx.work.PeriodicWorkRequest.MAX_BACKOFF_MILLIS] for the min-max supported values
-   */
-  val backoffDelay: Long,
+    /**
+     * Backoff delay for each retry attempt. Check
+     * [androidx.work.PeriodicWorkRequest.MIN_BACKOFF_MILLIS] and
+     * [androidx.work.PeriodicWorkRequest.MAX_BACKOFF_MILLIS] for the min-max supported values
+     */
+    val backoffDelay: Long,
 
-  /** The time unit for [backoffDelay] */
-  val timeUnit: TimeUnit
+    /** The time unit for [backoffDelay] */
+    val timeUnit: TimeUnit
 )
 
 /**
@@ -121,9 +127,24 @@ data class BackoffCriteria(
  * [DEFAULT_BUNDLE_SIZE].
  */
 data class UploadConfiguration(
-  /**
-   * Number of [Resource]s to be added in a singe [Bundle] for upload and default is
-   * [DEFAULT_BUNDLE_SIZE]
-   */
-  val uploadBundleSize: Int = DEFAULT_BUNDLE_SIZE
+    /**
+     * Number of [Resource]s to be added in a singe [Bundle] for upload and default is
+     * [DEFAULT_BUNDLE_SIZE]
+     */
+    val uploadBundleSize: Int = DEFAULT_BUNDLE_SIZE
+)
+
+/**
+ * Initial delay before running periodic worker for the first time
+ */
+data class InitialDelay(
+    val duration: Duration?,
+
+    val delay: Delay?
+)
+
+data class Delay(
+    val initialDelay: Long,
+
+    val timeUnit: TimeUnit
 )
