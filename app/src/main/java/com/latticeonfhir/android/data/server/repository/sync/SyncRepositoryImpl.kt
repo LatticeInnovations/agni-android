@@ -5,17 +5,20 @@ import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.IdentifierCodeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
+import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
 import com.latticeonfhir.android.data.server.constants.ConstantValues.COUNT_VALUE
 import com.latticeonfhir.android.data.server.constants.ConstantValues.DEFAULT_MAX_COUNT_VALUE
 import com.latticeonfhir.android.data.server.constants.EndPoints.MEDICATION_REQUEST
@@ -34,9 +37,12 @@ import com.latticeonfhir.android.data.server.model.prescription.medication.Medic
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
+import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicationEntity
@@ -46,6 +52,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toNoBracketA
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toScheduleEntity
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
@@ -61,12 +68,15 @@ import javax.inject.Inject
 class SyncRepositoryImpl @Inject constructor(
     private val patientApiService: PatientApiService,
     private val prescriptionApiService: PrescriptionApiService,
+    private val scheduleAndAppointmentApiService: ScheduleAndAppointmentApiService,
     private val patientDao: PatientDao,
     private val genericDao: GenericDao,
     private val preferenceRepository: PreferenceRepository,
     private val relationDao: RelationDao,
     private val medicationDao: MedicationDao,
-    private val prescriptionDao: PrescriptionDao
+    private val prescriptionDao: PrescriptionDao,
+    private val scheduleDao: ScheduleDao,
+    private val appointmentDao: AppointmentDao
 ) : SyncRepository {
 
     private var identifierList: MutableList<IdentifierEntity>? = null
@@ -368,6 +378,82 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getAndInsertSchedule(offset: Int): ResponseMapper<List<ScheduleResponse>> {
+        val map = mutableMapOf<String, String>()
+        map[COUNT] = COUNT_VALUE.toString()
+        map[OFFSET] = offset.toString()
+        map[SORT] = "-$ID"
+        if (preferenceRepository.getLastSyncSchedule() != 0L) map[LAST_UPDATED] = String.format(
+            GREATER_THAN_BUILDER, preferenceRepository.getLastSyncSchedule().toTimeStampDate()
+        )
+
+        ApiResponseConverter.convert(
+            scheduleAndAppointmentApiService.getScheduleList(
+                map
+            ), true
+        ).run {
+            return when (this) {
+                is ApiContinueResponse -> {
+                    //Insert Schedule Data
+                    scheduleDao.insertScheduleEntity(*body.map { scheduleResponse ->
+                        scheduleResponse.toScheduleEntity() }.toTypedArray())
+
+                    //Call for next batch data
+                    getAndInsertSchedule(offset + COUNT_VALUE)
+                }
+
+                is ApiEndResponse -> {
+                    preferenceRepository.setLastSyncSchedule(Date().time)
+                    scheduleDao.insertScheduleEntity(
+                        *body.map { scheduleResponse ->
+                            scheduleResponse.toScheduleEntity() }.toTypedArray()
+                    )
+                    this
+                }
+
+                else -> this
+            }
+        }
+    }
+
+    override suspend fun getAndInsertAppointment(offset: Int): ResponseMapper<List<AppointmentResponse>> {
+        val map = mutableMapOf<String, String>()
+        map[COUNT] = COUNT_VALUE.toString()
+        map[OFFSET] = offset.toString()
+        map[SORT] = "-$ID"
+        if (preferenceRepository.getLastSyncAppointment() != 0L) map[LAST_UPDATED] = String.format(
+            GREATER_THAN_BUILDER, preferenceRepository.getLastSyncAppointment().toTimeStampDate()
+        )
+
+        ApiResponseConverter.convert(
+            scheduleAndAppointmentApiService.getAppointmentList(
+                map
+            ), true
+        ).run {
+            return when (this) {
+                is ApiContinueResponse -> {
+                    //Insert Appointment Data
+                    appointmentDao.insertAppointmentEntity(*body.map { appointmentResponse ->
+                        appointmentResponse.toAppointmentEntity(patientDao, scheduleDao) }.toTypedArray())
+
+                    //Call for next batch data
+                    getAndInsertAppointment(offset + COUNT_VALUE)
+                }
+
+                is ApiEndResponse -> {
+                    preferenceRepository.setLastSyncAppointment(Date().time)
+                    appointmentDao.insertAppointmentEntity(
+                        *body.map { appointmentResponse ->
+                            appointmentResponse.toAppointmentEntity(patientDao, scheduleDao) }.toTypedArray()
+                    )
+                    this
+                }
+
+                else -> this
+            }
+        }
+    }
+
     override suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
             genericTypeEnum = GenericTypeEnum.PATIENT, syncType = SyncType.POST
@@ -462,6 +548,76 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun sendSchedulePostData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.SCHEDULE, syncType = SyncType.POST
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else ApiResponseConverter.convert(
+                scheduleAndAppointmentApiService.postScheduleData(listOfGenericEntity.map {
+                    it.payload.fromJson<LinkedTreeMap<*, *>>()
+                        .mapToObject(ScheduleResponse::class.java) as Any
+                })
+            ).run {
+                when (this) {
+                    is ApiEndResponse -> {
+                        val idsToDelete = mutableSetOf<String>()
+                        idsToDelete.addAll(listOfGenericEntity.map { genericEntity -> genericEntity.id })
+                        body.forEach { createResponse ->
+                            if (createResponse.error == null) {
+                                scheduleDao.updateScheduleFhirId(
+                                    createResponse.id!!, createResponse.fhirId!!
+                                )
+                            } else {
+                                idsToDelete.remove(createResponse.id)
+                            }
+                        }
+                        genericDao.deleteSyncPayload(idsToDelete.toList()).let { deletedRows ->
+                            if (deletedRows > 0) sendSchedulePostData() else this
+                        }
+                    }
+
+                    else -> this
+                }
+            }
+        }
+    }
+
+    override suspend fun sendAppointmentPostData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.APPOINTMENT, syncType = SyncType.POST
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else ApiResponseConverter.convert(
+                scheduleAndAppointmentApiService.createAppointment(listOfGenericEntity.map {
+                    it.payload.fromJson<LinkedTreeMap<*, *>>()
+                        .mapToObject(AppointmentResponse::class.java) as Any
+                })
+            ).run {
+                when (this) {
+                    is ApiEndResponse -> {
+                        val idsToDelete = mutableSetOf<String>()
+                        idsToDelete.addAll(listOfGenericEntity.map { genericEntity -> genericEntity.id })
+                        body.forEach { createResponse ->
+                            if (createResponse.error == null) {
+                                appointmentDao.updateAppointmentFhirId(
+                                    createResponse.id!!, createResponse.fhirId!!
+                                )
+                            } else {
+                                idsToDelete.remove(createResponse.id)
+                            }
+                        }
+                        genericDao.deleteSyncPayload(idsToDelete.toList()).let { deletedRows ->
+                            if (deletedRows > 0) sendAppointmentPostData() else this
+                        }
+                    }
+
+                    else -> this
+                }
+            }
+        }
+    }
+
     override suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
             genericTypeEnum = GenericTypeEnum.PATIENT, syncType = SyncType.PATCH
@@ -515,6 +671,37 @@ class SyncRepositoryImpl @Inject constructor(
                         is ApiEndResponse -> {
                             genericDao.deleteSyncPayload(lisOfGenericEntity.toListOfId()).also {
                                 if (it > 0) sendRelatedPersonPatchData()
+                            }
+                        }
+
+                        else -> {}
+                    }
+                    this
+                }
+            }
+        }
+    }
+
+    override suspend fun sendAppointmentPatchData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.APPOINTMENT, syncType = SyncType.PATCH
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    scheduleAndAppointmentApiService.patchListOfChanges(
+                        listOfGenericEntity.map { it.payload.fromJson() })
+                ).run {
+                    when (this) {
+                        is ApiContinueResponse -> {
+                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).also {
+                                if (it > 0) sendAppointmentPatchData()
+                            }
+                        }
+
+                        is ApiEndResponse -> {
+                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).also {
+                                if (it > 0) sendAppointmentPatchData()
                             }
                         }
 
