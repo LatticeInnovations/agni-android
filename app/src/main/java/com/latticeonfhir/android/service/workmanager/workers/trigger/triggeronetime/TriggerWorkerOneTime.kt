@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 abstract class TriggerWorkerOneTime(context: Context, workerParameters: WorkerParameters): SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
-        with((applicationContext as FhirApp).geWorkRequestBuilder()) {
+        with((applicationContext as FhirApp).getWorkRequestBuilder()) {
             CoroutineScope(Dispatchers.IO).launch {
                 uploadPatientWorker { errorReceived, errorMsg ->
                     CoroutineScope(Dispatchers.IO).launch {
@@ -34,6 +34,16 @@ abstract class TriggerWorkerOneTime(context: Context, workerParameters: WorkerPa
 
             CoroutineScope(Dispatchers.IO).launch {
                 setRelationPatchWorker { errorReceived, errorMsg ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        (applicationContext as FhirApp).sessionExpireFlow.emit(
+                            mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))
+                        )
+                    }
+                }
+            }
+
+            CoroutineScope(Dispatchers.IO).launch {
+                setAppointmentPatchWorker { errorReceived, errorMsg ->
                     CoroutineScope(Dispatchers.IO).launch {
                         (applicationContext as FhirApp).sessionExpireFlow.emit(
                             mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))

@@ -10,6 +10,7 @@ import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
+import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
@@ -29,6 +30,7 @@ class FhirApp : Application() {
     @Inject lateinit var preferenceStorage: PreferenceStorage
     @Inject lateinit var patientApiService: PatientApiService
     @Inject lateinit var prescriptionApiService: PrescriptionApiService
+    @Inject lateinit var scheduleAndAppointmentApiService: ScheduleAndAppointmentApiService
 
     private lateinit var syncRepository: SyncRepository
     private lateinit var workRequestBuilder: WorkRequestBuilders
@@ -43,12 +45,15 @@ class FhirApp : Application() {
         syncRepository = SyncRepositoryImpl(
             patientApiService,
             prescriptionApiService,
+            scheduleAndAppointmentApiService,
             fhirAppDatabase.getPatientDao(),
             fhirAppDatabase.getGenericDao(),
             PreferenceRepositoryImpl(preferenceStorage) as PreferenceRepository,
             fhirAppDatabase.getRelationDao(),
             fhirAppDatabase.getMedicationDao(),
-            fhirAppDatabase.getPrescriptionDao()
+            fhirAppDatabase.getPrescriptionDao(),
+            fhirAppDatabase.getScheduleDao(),
+            fhirAppDatabase.getAppointmentDao()
         )
 
         if(!this::workRequestBuilder.isInitialized) {
@@ -57,7 +62,8 @@ class FhirApp : Application() {
                 GenericRepositoryImpl(
                     this,
                     fhirAppDatabase.getGenericDao(),
-                    fhirAppDatabase.getPatientDao()
+                    fhirAppDatabase.getPatientDao(),
+                    fhirAppDatabase.getScheduleDao()
                 )
             )
         }
@@ -67,7 +73,7 @@ class FhirApp : Application() {
         return syncRepository
     }
 
-    internal fun geWorkRequestBuilder(): WorkRequestBuilders {
+    internal fun getWorkRequestBuilder(): WorkRequestBuilders {
         return workRequestBuilder
     }
 

@@ -17,7 +17,6 @@ import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
@@ -42,7 +41,7 @@ class LandingScreenViewModel @Inject constructor(
     private val preferenceRepository: PreferenceRepository
 ) : BaseAndroidViewModel(application) {
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).geWorkRequestBuilder() }
+    private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).getWorkRequestBuilder() }
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)

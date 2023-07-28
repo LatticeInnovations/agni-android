@@ -5,7 +5,6 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
 import com.latticeonfhir.android.utils.constants.ErrorConstants
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
@@ -23,7 +22,7 @@ abstract class PrescriptionDownloadSyncWorker(
                 setProgress(workDataOf(PRESCRIPTION_DOWNLOAD_PROGRESS to 100))
                 Result.success()
             }
-            is ApiEmptyResponse -> Result.success()
+            is ApiEmptyResponse -> Result.failure()
             is ApiErrorResponse -> {
                 if (response.errorMessage == ErrorConstants.SESSION_EXPIRED || response.errorMessage == ErrorConstants.UNAUTHORIZED) Result.failure(
                     workDataOf("errorMsg" to response.errorMessage)

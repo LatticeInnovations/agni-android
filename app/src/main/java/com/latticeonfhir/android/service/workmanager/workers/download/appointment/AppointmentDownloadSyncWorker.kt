@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.service.workmanager.workers.download.patient
+package com.latticeonfhir.android.service.workmanager.workers.download.appointment
 
 import android.content.Context
 import androidx.work.WorkerParameters
@@ -10,16 +10,16 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmpty
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 
-abstract class PatientDownloadSyncWorker(context: Context, workerParameters: WorkerParameters) :
+abstract class AppointmentDownloadSyncWorker (context: Context, workerParameters: WorkerParameters) :
     SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
-        setProgress(workDataOf(PatientDownloadProgress to 0))
+        setProgress(workDataOf(AppointmentDownloadProgress to 0))
 
-        return when (val response = getSyncRepository().getAndInsertListPatientData(0)) {
+        return when (val response = getSyncRepository().getAndInsertAppointment(0)) {
             is ApiContinueResponse -> Result.success()
             is ApiEndResponse -> {
-                setProgress(workDataOf(PatientDownloadProgress to 100))
+                setProgress(workDataOf(AppointmentDownloadProgress to 100))
                 Result.success()
             }
             is ApiEmptyResponse -> Result.failure()
@@ -34,6 +34,6 @@ abstract class PatientDownloadSyncWorker(context: Context, workerParameters: Wor
     }
 
     companion object {
-        const val PatientDownloadProgress = "PatientDownloadProgress"
+        const val AppointmentDownloadProgress = "AppointmentDownloadProgress"
     }
 }
