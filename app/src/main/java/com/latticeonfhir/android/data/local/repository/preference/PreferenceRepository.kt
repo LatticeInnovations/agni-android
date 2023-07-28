@@ -22,6 +22,14 @@ interface PreferenceRepository {
     fun setLastMedicineDosageInstructionSyncDate(long: Long)
     fun getLastMedicineDosageInstructionSyncDate(): Long
 
+    /** Last Sync Schedule */
+    fun setLastSyncSchedule(long: Long)
+    fun getLastSyncSchedule(): Long
+
+    /** Last Sync Appointment */
+    fun setLastSyncAppointment(long: Long)
+    fun getLastSyncAppointment(): Long
+
     /** User Data */
     fun setUserFhirId(userFhirId: String)
     fun getUserFhirId(): String
