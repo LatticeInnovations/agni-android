@@ -5,6 +5,8 @@ import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.WorkInfo
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.android.service.workmanager.utils.Delay
+import com.latticeonfhir.android.service.workmanager.utils.InitialDelay
 import com.latticeonfhir.android.service.workmanager.utils.PeriodicSyncConfiguration
 import com.latticeonfhir.android.service.workmanager.utils.RepeatInterval
 import com.latticeonfhir.android.service.workmanager.utils.Sync
@@ -23,6 +25,7 @@ import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.patch.AppointmentPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.post.AppointmentUploadSyncWorker.Companion.AppointmentUploadProgress
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.post.AppointmentUploadSyncWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.AppointmentStatusUpdateWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.post.PatientUploadSyncWorker
@@ -42,6 +45,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -83,6 +87,25 @@ class WorkRequestBuilders(
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresBatteryNotLow(true)
                     .build()
+            )
+        )
+    }
+
+    /**
+     *
+     * Periodic Worker that triggers
+     * method to update status to "No-Show" at 11:59 PM everyday
+     *
+     */
+    internal fun setPeriodicAppointmentStatusUpdateWorker(duration: Duration?, delay: Delay?) {
+        Sync.periodicSync<AppointmentStatusUpdateWorkerImpl>(
+            applicationContext,
+            PeriodicSyncConfiguration(
+                syncConstraints = Constraints.Builder()
+                    .setRequiresBatteryNotLow(true)
+                    .build(),
+                repeat = RepeatInterval(24, TimeUnit.HOURS),
+                initialDelay = InitialDelay(duration, delay)
             )
         )
     }

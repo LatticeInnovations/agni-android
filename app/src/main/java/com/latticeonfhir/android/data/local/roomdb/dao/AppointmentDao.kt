@@ -32,6 +32,6 @@ interface AppointmentDao {
     suspend fun updateAppointmentEntity(appointmentEntity: AppointmentEntity): Int
 
     @Transaction
-    @Query("UPDATE AppointmentEntity SET status=:toStatus WHERE status=:fromStatus and endTime<:endOfDay")
-    suspend fun updateAppointmentStatus(toStatus: String, fromStatus: String, endOfDay: Date): Int
+    @Query("SELECT * FROM AppointmentEntity WHERE status=:status and endTime<:endOfDay")
+    suspend fun getTodayScheduledAppointments(status: String, endOfDay: Date): List<AppointmentEntity>
 }

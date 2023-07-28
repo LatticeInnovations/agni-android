@@ -203,11 +203,11 @@ class GenericRepositoryImpl @Inject constructor(
                 val existingMap =
                     appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
                         .mapToObject(AppointmentResponse::class.java)
-                if (existingMap != null && !existingMap.patientId.isFhirId()) {
+                if (existingMap != null && !existingMap.patientFhirId!!.isFhirId()) {
                     genericDao.insertGenericEntity(
                         appointmentGenericEntity.copy(
                             payload = existingMap.copy(
-                                patientId = getPatientFhirIdById(existingMap.patientId)!!
+                                patientFhirId = getPatientFhirIdById(existingMap.patientFhirId)!!
                             ).toJson()
                         )
                     )
@@ -224,7 +224,10 @@ class GenericRepositoryImpl @Inject constructor(
             }
     }
 
-    override suspend fun insertAppointment(appointmentResponse: AppointmentResponse, uuid: String): Long {
+    override suspend fun insertAppointment(
+        appointmentResponse: AppointmentResponse,
+        uuid: String
+    ): Long {
         return genericDao.getGenericEntityById(
             patientId = appointmentResponse.uuid,
             genericTypeEnum = GenericTypeEnum.APPOINTMENT,
@@ -356,15 +359,17 @@ class GenericRepositoryImpl @Inject constructor(
             GenericTypeEnum.APPOINTMENT,
             SyncType.PATCH
         ).let { appointmentGenericEntity ->
-            if (appointmentGenericEntity != null){
+            if (appointmentGenericEntity != null) {
+                val existingMap =
+                    appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+                map.entries.forEach { mapEntry ->
+                    existingMap[mapEntry.key] = mapEntry.value
+                }
                 genericDao.insertGenericEntity(
                     GenericEntity(
                         id = appointmentGenericEntity.id,
                         patientId = appointmentFhirId,
-                        payload = map.toMutableMap().let { mutableMap ->
-                            mutableMap[APPOINTMENT_ID] = appointmentFhirId
-                            mutableMap
-                        }.toJson(),
+                        payload = existingMap.toJson(),
                         type = GenericTypeEnum.APPOINTMENT,
                         syncType = SyncType.PATCH
                     )

@@ -16,6 +16,7 @@ import java.util.Date
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("patientId")
         ),
+        // To-be tested
         ForeignKey(
             entity = ScheduleEntity::class,
             parentColumns = arrayOf("id"),

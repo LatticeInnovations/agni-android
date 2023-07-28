@@ -27,6 +27,7 @@ import com.latticeonfhir.android.data.server.model.prescription.medication.Medic
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
@@ -309,12 +310,28 @@ internal suspend fun AppointmentResponse.toAppointmentEntity(
         id = uuid,
         appointmentFhirId = appointmentId,
         createdOn = createdOn,
-        patientId = patientDao.getPatientIdByFhirId(patientId)!!,
+        patientId = patientDao.getPatientIdByFhirId(patientFhirId!!)!!,
         scheduleId = scheduleId?.let { fhirId -> scheduleDao.getScheduleIdByFhirId(fhirId) },
         orgId = orgId,
         status = status,
         startTime = slot?.start,
         endTime = slot?.end
+    )
+}
+
+internal fun AppointmentEntity.toAppointmentResponse(): AppointmentResponse {
+    return AppointmentResponse(
+        uuid = id,
+        createdOn = createdOn,
+        appointmentId = appointmentFhirId,
+        orgId = orgId,
+        patientFhirId = patientId,
+        scheduleId = scheduleId,
+        slot = Slot(
+            start = startTime!!,
+            end = endTime!!
+        ),
+        status = status
     )
 }
 
@@ -324,7 +341,7 @@ internal fun AppointmentResponse.toAppointmentEntity(): AppointmentEntity {
         id = uuid,
         appointmentFhirId = appointmentId,
         createdOn = createdOn,
-        patientId = patientId,
+        patientId = patientFhirId!!,
         scheduleId = scheduleId,
         orgId = orgId,
         status = status,

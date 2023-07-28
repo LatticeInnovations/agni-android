@@ -22,6 +22,8 @@ import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepo
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
+import com.latticeonfhir.android.service.workmanager.utils.Delay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToMidnight
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +33,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Date
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -84,7 +87,7 @@ class LandingScreenViewModel @Inject constructor(
 
         viewModelScope.launch {
             getApplication<FhirApp>().sessionExpireFlow.collectLatest { sessionExpireMap ->
-                if (sessionExpireMap["errorReceived"] == true){
+                if (sessionExpireMap["errorReceived"] == true) {
                     logoutUser = true
                     logoutReason = sessionExpireMap["errorMsg"]?.toString() ?: "SERVER ERROR"
                 }
@@ -94,7 +97,7 @@ class LandingScreenViewModel @Inject constructor(
         //Medication Worker
         viewModelScope.launch(Dispatchers.IO) {
             workRequestBuilders.setMedicationWorker { isErrorReceived, errorMsg ->
-                if (isErrorReceived){
+                if (isErrorReceived) {
                     logoutUser = true
                     logoutReason = errorMsg
                 }
@@ -105,7 +108,7 @@ class LandingScreenViewModel @Inject constructor(
         if (preferenceRepository.getLastMedicineDosageInstructionSyncDate() == 0L) {
             viewModelScope.launch(Dispatchers.IO) {
                 workRequestBuilders.setMedicationDosageWorker { isErrorReceived, errorMsg ->
-                    if (isErrorReceived){
+                    if (isErrorReceived) {
                         logoutUser = true
                         logoutReason = errorMsg
                     }
@@ -116,6 +119,17 @@ class LandingScreenViewModel @Inject constructor(
         // Trigger Periodic Sync Worker
         viewModelScope.launch(Dispatchers.IO) {
             workRequestBuilders.setPeriodicTriggerWorker()
+        }
+
+        // Trigger Periodic Update Appointment Status Worker
+        viewModelScope.launch(Dispatchers.IO) {
+            workRequestBuilders.setPeriodicAppointmentStatusUpdateWorker(
+                null,
+                Delay(
+                    Date().calculateMinutesToMidnight(),
+                    TimeUnit.MINUTES
+                )
+            )
         }
 
         userName = preferenceRepository.getUserName()
@@ -180,10 +194,11 @@ class LandingScreenViewModel @Inject constructor(
 
     internal fun logout() {
         viewModelScope.launch(Dispatchers.Default) {
-            WorkManager.getInstance(getApplication<Application>().applicationContext).cancelAllWork().await().also {
-                (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
-                preferenceRepository.resetAuthenticationToken()
-            }
+            WorkManager.getInstance(getApplication<Application>().applicationContext)
+                .cancelAllWork().await().also {
+                    (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
+                    preferenceRepository.resetAuthenticationToken()
+                }
         }
     }
 }

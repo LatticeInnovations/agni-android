@@ -9,7 +9,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class ScheduleResponse(
     val uuid: String,
-    val scheduleId: String,
+    val scheduleId: String?,
     val planningHorizon: Slot,
     val orgId: String,
     val bookedSlots: Int
