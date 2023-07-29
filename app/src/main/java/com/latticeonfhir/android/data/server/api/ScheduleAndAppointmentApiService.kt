@@ -11,6 +11,7 @@ import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.QueryMap
 
+@JvmSuppressWildcards
 interface ScheduleAndAppointmentApiService {
 
     @GET("Schedule")
