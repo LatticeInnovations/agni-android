@@ -308,11 +308,11 @@ class SyncRepositoryImpl @Inject constructor(
                         prescriptionDao.insertPrescriptionMedicines(
                             *medicineDirections.toTypedArray()
                         )
+                        this
                     }
 
-                    else -> {}
+                    else -> this
                 }
-                this
             }
         }
     }
@@ -370,11 +370,11 @@ class SyncRepositoryImpl @Inject constructor(
                     medicationDao.insertMedicineDosageInstructions(
                         *body.toListOfMedicineDirectionsEntity().toTypedArray()
                     )
+                    this
                 }
 
-                else -> {}
+                else -> this
             }
-            this
         }
     }
 
@@ -631,20 +631,19 @@ class SyncRepositoryImpl @Inject constructor(
                 ).run {
                     when (this) {
                         is ApiContinueResponse -> {
-                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).also {
-                                if (it > 0) sendPersonPatchData()
+                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).let {
+                                if (it > 0) sendPersonPatchData() else this
                             }
                         }
 
                         is ApiEndResponse -> {
-                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).also {
-                                if (it > 0) sendPersonPatchData()
+                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).let {
+                                if (it > 0) sendPersonPatchData() else this
                             }
                         }
 
-                        else -> {}
+                        else -> this
                     }
-                    this
                 }
             }
         }
@@ -663,20 +662,19 @@ class SyncRepositoryImpl @Inject constructor(
                 ).run {
                     when (this) {
                         is ApiContinueResponse -> {
-                            genericDao.deleteSyncPayload(lisOfGenericEntity.toListOfId()).also {
-                                if (it > 0) sendRelatedPersonPatchData()
+                            genericDao.deleteSyncPayload(lisOfGenericEntity.toListOfId()).let {
+                                if (it > 0) sendRelatedPersonPatchData() else this
                             }
                         }
 
                         is ApiEndResponse -> {
-                            genericDao.deleteSyncPayload(lisOfGenericEntity.toListOfId()).also {
-                                if (it > 0) sendRelatedPersonPatchData()
+                            genericDao.deleteSyncPayload(lisOfGenericEntity.toListOfId()).let {
+                                if (it > 0) sendRelatedPersonPatchData() else this
                             }
                         }
 
-                        else -> {}
+                        else -> this
                     }
-                    this
                 }
             }
         }
@@ -694,20 +692,19 @@ class SyncRepositoryImpl @Inject constructor(
                 ).run {
                     when (this) {
                         is ApiContinueResponse -> {
-                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).also {
-                                if (it > 0) sendAppointmentPatchData()
+                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).let {
+                                if (it > 0) sendAppointmentPatchData() else this
                             }
                         }
 
                         is ApiEndResponse -> {
-                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).also {
-                                if (it > 0) sendAppointmentPatchData()
+                            genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId()).let {
+                                if (it > 0) sendAppointmentPatchData() else this
                             }
                         }
 
-                        else -> {}
+                        else -> this
                     }
-                    this
                 }
             }
         }
