@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.base
 
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
@@ -14,6 +15,9 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.data.server.model.user.UserResponse
 import com.latticeonfhir.android.data.server.model.user.UserRoleDetails
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
@@ -223,4 +227,29 @@ abstract class BaseClass : TestCase() {
             )
         )
     )
+
+    val scheduleResponse = ScheduleResponse(
+        uuid = id,
+        scheduleId = "SCHEDULE_FHIR_ID",
+        orgId = "ORG_FHIR_ID",
+        bookedSlots = 1,
+        planningHorizon = Slot(
+            start = date,
+            end = date
+        )
+    )
+
+     val appointmentResponse = AppointmentResponse(
+         uuid = id,
+         appointmentId = "APPOINTMENT_FHIR_ID",
+         createdOn = date,
+         orgId = "ORG_ID",
+         patientFhirId = "PATIENT_FHIR_ID",
+         scheduleId = "SCHEDULE_FHIR_ID",
+         status = AppointmentStatusEnum.SCHEDULED.value,
+         slot = Slot(
+             start = date,
+             end = date
+         )
+     )
 }
