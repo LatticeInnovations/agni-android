@@ -10,6 +10,7 @@ import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
@@ -35,6 +36,7 @@ class GenericRepositoryTest : BaseClass() {
     @Mock
     lateinit var genericDao: GenericDao
     @Mock private lateinit var patientDao: PatientDao
+    @Mock private lateinit var scheduleDao: ScheduleDao
     private lateinit var genericRepositoryImpl: GenericRepositoryImpl
     private lateinit var context: Context
 
@@ -42,9 +44,9 @@ class GenericRepositoryTest : BaseClass() {
     public override fun setUp() {
         MockitoAnnotations.openMocks(this)
         context = Mockito.mock(Context::class.java)
-        genericRepositoryImpl = GenericRepositoryImpl(context, genericDao, patientDao)
+        genericRepositoryImpl = GenericRepositoryImpl(context, genericDao, patientDao, scheduleDao)
 
-        `when`((context.applicationContext as FhirApp).geWorkRequestBuilder()).thenReturn(
+        `when`((context.applicationContext as FhirApp).getWorkRequestBuilder()).thenReturn(
             WorkRequestBuilders(context,genericRepositoryImpl)
         )
     }
