@@ -77,6 +77,20 @@ class PreferenceRepositoryTest: TestCase() {
     }
 
     @Test
+    internal fun setAndGetLastSyncSchedule() = runTest {
+        `when`(preferenceStorage.lastScheduleSyncTime).thenReturn(lastSyncTime)
+        preferenceRepositoryImpl.setLastSyncSchedule(lastSyncTime)
+        assertEquals(lastSyncTime,preferenceRepositoryImpl.getLastSyncSchedule())
+    }
+
+    @Test
+    internal fun setAndGetLastSyncAppointment() = runTest {
+        `when`(preferenceStorage.lastAppointmentSyncTime).thenReturn(lastSyncTime)
+        preferenceRepositoryImpl.setLastSyncAppointment(lastSyncTime)
+        assertEquals(lastSyncTime,preferenceRepositoryImpl.getLastSyncAppointment())
+    }
+
+    @Test
     internal fun setAndGetUserName() = runTest {
         `when`(preferenceStorage.userName).thenReturn(userName)
         preferenceRepositoryImpl.setUserName(userName)
