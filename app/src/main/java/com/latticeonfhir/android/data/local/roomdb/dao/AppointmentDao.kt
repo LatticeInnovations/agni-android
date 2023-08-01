@@ -16,6 +16,10 @@ interface AppointmentDao {
     suspend fun insertAppointmentEntity(vararg appointmentEntity: AppointmentEntity): List<Long>
 
     @Transaction
+    @Query("SELECT * FROM AppointmentEntity WHERE id IN (:id)")
+    suspend fun getAppointmentById(vararg id: String): List<AppointmentEntity>
+
+    @Transaction
     @Query("UPDATE AppointmentEntity SET appointmentFhirId=:fhirId WHERE id=:id")
     suspend fun updateAppointmentFhirId(id: String, fhirId: String): Int
 
