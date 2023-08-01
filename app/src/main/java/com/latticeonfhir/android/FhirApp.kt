@@ -63,7 +63,8 @@ class FhirApp : Application() {
                     this,
                     fhirAppDatabase.getGenericDao(),
                     fhirAppDatabase.getPatientDao(),
-                    fhirAppDatabase.getScheduleDao()
+                    fhirAppDatabase.getScheduleDao(),
+                    fhirAppDatabase.getAppointmentDao()
                 )
             )
         }
