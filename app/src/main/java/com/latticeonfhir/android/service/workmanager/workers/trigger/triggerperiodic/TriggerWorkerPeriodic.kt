@@ -7,11 +7,10 @@ import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 abstract class TriggerWorkerPeriodic(context: Context, workerParameters: WorkerParameters) : SyncWorker(context, workerParameters) {
     override suspend fun doWork(): Result {
-        (applicationContext as FhirApp).geWorkRequestBuilder().apply {
+        (applicationContext as FhirApp).getWorkRequestBuilder().apply {
             CoroutineScope(Dispatchers.IO).launch {
                 uploadPatientWorker { errorReceived, errorMsg ->
                     CoroutineScope(Dispatchers.IO).launch {
@@ -32,6 +31,16 @@ abstract class TriggerWorkerPeriodic(context: Context, workerParameters: WorkerP
             }
             CoroutineScope(Dispatchers.IO).launch {
                 setRelationPatchWorker { errorReceived, errorMsg ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        (applicationContext as FhirApp).sessionExpireFlow.emit(
+                            mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))
+                        )
+                    }
+                }
+            }
+
+            CoroutineScope(Dispatchers.IO).launch {
+                setAppointmentPatchWorker { errorReceived, errorMsg ->
                     CoroutineScope(Dispatchers.IO).launch {
                         (applicationContext as FhirApp).sessionExpireFlow.emit(
                             mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))

@@ -6,6 +6,7 @@ import androidx.work.workDataOf
 import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 
@@ -21,6 +22,7 @@ abstract class PatientDownloadSyncWorker(context: Context, workerParameters: Wor
                 setProgress(workDataOf(PatientDownloadProgress to 100))
                 Result.success()
             }
+            is ApiEmptyResponse -> Result.failure()
             is ApiErrorResponse -> {
                 if (response.errorMessage == ErrorConstants.SESSION_EXPIRED || response.errorMessage == ErrorConstants.UNAUTHORIZED) Result.failure(
                     workDataOf("errorMsg" to response.errorMessage)
@@ -33,6 +35,5 @@ abstract class PatientDownloadSyncWorker(context: Context, workerParameters: Wor
 
     companion object {
         const val PatientDownloadProgress = "PatientDownloadProgress"
-        private const val delayDuration = 1L
     }
 }

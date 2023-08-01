@@ -4,6 +4,8 @@ import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
+import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
@@ -14,6 +16,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.patient.PermanentAdd
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.QueryParameters
@@ -24,6 +27,9 @@ import com.latticeonfhir.android.data.server.model.prescription.medication.Medic
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getInverseRelation
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
@@ -282,4 +288,64 @@ internal fun List<MedicineTimeResponse>.toListOfMedicineDirectionsEntity(): List
             medicalDosageId = medicineTimeResponse.medInstructionCode
         )
     }
+}
+
+internal fun ScheduleResponse.toScheduleEntity(): ScheduleEntity {
+    return ScheduleEntity(
+        id = uuid,
+        scheduleFhirId = scheduleId,
+        startTime = planningHorizon.start,
+        endTime = planningHorizon.end,
+        bookedSlots = bookedSlots,
+        orgId = orgId
+    )
+}
+
+// Appointment Response from Server
+internal suspend fun AppointmentResponse.toAppointmentEntity(
+    patientDao: PatientDao,
+    scheduleDao: ScheduleDao
+): AppointmentEntity {
+    return AppointmentEntity(
+        id = uuid,
+        appointmentFhirId = appointmentId,
+        createdOn = createdOn,
+        patientId = patientDao.getPatientIdByFhirId(patientFhirId!!)!!,
+        scheduleId = scheduleId?.let { fhirId -> scheduleDao.getScheduleIdByFhirId(fhirId) },
+        orgId = orgId,
+        status = status,
+        startTime = slot?.start,
+        endTime = slot?.end
+    )
+}
+
+internal fun AppointmentEntity.toAppointmentResponse(): AppointmentResponse {
+    return AppointmentResponse(
+        uuid = id,
+        createdOn = createdOn,
+        appointmentId = appointmentFhirId,
+        orgId = orgId,
+        patientFhirId = patientId,
+        scheduleId = scheduleId,
+        slot = Slot(
+            start = startTime!!,
+            end = endTime!!
+        ),
+        status = status
+    )
+}
+
+// Appointment Response from Local
+internal fun AppointmentResponse.toAppointmentEntity(): AppointmentEntity {
+    return AppointmentEntity(
+        id = uuid,
+        appointmentFhirId = appointmentId,
+        createdOn = createdOn,
+        patientId = patientFhirId!!,
+        scheduleId = scheduleId,
+        orgId = orgId,
+        status = status,
+        startTime = slot?.start,
+        endTime = slot?.end
+    )
 }

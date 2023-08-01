@@ -2,10 +2,8 @@ package com.latticeonfhir.android.data.local.sharedpreferences
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.latticeonfhir.android.utils.sharedpreference.BooleanPreference
 import com.latticeonfhir.android.utils.sharedpreference.LongPreference
 import com.latticeonfhir.android.utils.sharedpreference.StringPreference
-import java.util.Date
 
 class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : PreferenceStorage {
 
@@ -24,6 +22,8 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
     override var lastPrescriptionSyncTime by LongPreference(sharedPreferences, PREF_LAST_PRESCRIPTION_SYNC_TIME,0L)
     override var lastMedicationSyncTime by LongPreference(sharedPreferences, PREF_LAST_MEDICATION_SYNC_TIME,0L)
     override var lastMedicineDosageInstructionSyncTime by LongPreference(sharedPreferences, PREF_LAST_MEDICINE_DOSAGE_INSTRUCTION_SYNC_TIME,0L)
+    override var lastScheduleSyncTime by LongPreference(sharedPreferences, PREF_LAST_SCHEDULE_SYNC_TIME,0L)
+    override var lastAppointmentSyncTime by LongPreference(sharedPreferences, PREF_LAST_APPOINTMENT_SYNC_TIME,0L)
 
     override fun clear() {
         sharedPreferences.edit {
@@ -53,5 +53,7 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         const val PREF_LAST_PRESCRIPTION_SYNC_TIME = "pref_last_prescription_sync_time"
         const val PREF_LAST_MEDICATION_SYNC_TIME = "pref_last_medication_sync_time"
         const val PREF_LAST_MEDICINE_DOSAGE_INSTRUCTION_SYNC_TIME = "pref_last_medication_sync_time"
+        const val PREF_LAST_SCHEDULE_SYNC_TIME = "pref_last_schedule_sync_time"
+        const val PREF_LAST_APPOINTMENT_SYNC_TIME = "pref_last_appointment_sync_time"
     }
 }
