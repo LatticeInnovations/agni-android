@@ -1,0 +1,38 @@
+package com.latticeonfhir.android.data.local.roomdb.entities.appointment
+
+import androidx.annotation.Keep
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.PrimaryKey
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
+import java.util.Date
+
+@Keep
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = PatientEntity::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("patientId")
+        ),
+        // To-be tested
+        ForeignKey(
+            entity = ScheduleEntity::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("scheduleId")
+        )
+    ]
+)
+data class AppointmentEntity(
+    @PrimaryKey
+    val id: String,
+    val appointmentFhirId: String?,
+    val patientId: String,
+    val scheduleId: String?,
+    val startTime: Date?,
+    val endTime: Date?,
+    val orgId: String,
+    val createdOn: Date,
+    val status: String
+)

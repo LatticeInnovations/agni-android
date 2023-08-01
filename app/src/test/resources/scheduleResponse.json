@@ -1,0 +1,19 @@
+{
+  "status": 2,
+  "message": "Data fetched",
+  "total": 1,
+  "data": [
+    {
+      "scheduleId": "23233",
+      "uuid": "4889ffe8-ac9b-4fff-8a26-a20f4526e3a6",
+      "planningHorizon": {
+        "start": "2023-08-26T09:00:00+05:30",
+        "end": "2023-08-26T09:30:00+05:30"
+      },
+      "orgId": "22344",
+      "active": true,
+      "locationId": "22345",
+      "bookedSlots": 1
+    }
+  ]
+}

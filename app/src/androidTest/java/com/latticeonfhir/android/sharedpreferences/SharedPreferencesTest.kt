@@ -126,6 +126,18 @@ class SharedPreferencesTest: TestCase() {
     }
 
     @Test
+    internal fun setAndGetLastScheduleSyncTime() = runTest {
+        preferenceStorageImpl.lastScheduleSyncTime = lastSyncTime
+        assertEquals(preferenceStorageImpl.lastScheduleSyncTime,lastSyncTime)
+    }
+
+    @Test
+    internal fun setAndGetLastAppointmentSyncTime() = runTest {
+        preferenceStorageImpl.lastAppointmentSyncTime = lastSyncTime
+        assertEquals(preferenceStorageImpl.lastAppointmentSyncTime,lastSyncTime)
+    }
+
+    @Test
     internal fun resetAuthToken() = runTest {
         preferenceStorageImpl.token = ""
         assertEquals(true,preferenceStorageImpl.token.isBlank())

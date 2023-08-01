@@ -178,6 +178,17 @@ object TimeConverter {
         }
     }
 
+    internal fun Date.calculateMinutesToMidnight(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = time
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        val endTimeMillis = calendar.timeInMillis
+        return ((endTimeMillis - time) / (1000 * 60))
+    }
+
     internal fun Long.toTimeStampDate(): String {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())

@@ -7,13 +7,17 @@ import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.builders.GenericEntity.processPatch
+import com.latticeonfhir.android.utils.constants.Id.APPOINTMENT_ID
 import com.latticeonfhir.android.utils.constants.Id.ID
 import com.latticeonfhir.android.utils.constants.RelationConstants.RELATIONSHIP
 import com.latticeonfhir.android.utils.converters.responseconverter.FHIR.isFhirId
@@ -34,10 +38,11 @@ import javax.inject.Inject
 class GenericRepositoryImpl @Inject constructor(
     @ApplicationContext context: Context,
     private val genericDao: GenericDao,
-    private val patientDao: PatientDao
+    private val patientDao: PatientDao,
+    private val scheduleDao: ScheduleDao
 ) : GenericRepository {
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { (context as FhirApp).geWorkRequestBuilder() }
+    private val workRequestBuilders: WorkRequestBuilders by lazy { (context as FhirApp).getWorkRequestBuilder() }
 
     override suspend fun insertPatient(patientResponse: PatientResponse, uuid: String): Long {
         return genericDao.getGenericEntityById(
@@ -166,6 +171,88 @@ class GenericRepositoryImpl @Inject constructor(
             }
     }
 
+    override suspend fun insertSchedule(scheduleResponse: ScheduleResponse, uuid: String): Long {
+        return genericDao.getGenericEntityById(
+            patientId = scheduleResponse.uuid,
+            genericTypeEnum = GenericTypeEnum.SCHEDULE,
+            syncType = SyncType.POST
+        ).let { scheduleGenericEntity ->
+            if (scheduleGenericEntity != null) {
+                genericDao.insertGenericEntity(
+                    scheduleGenericEntity.copy(payload = scheduleResponse.toJson())
+                )[0]
+            } else {
+                genericDao.insertGenericEntity(
+                    GenericEntity(
+                        id = uuid,
+                        patientId = scheduleResponse.uuid,
+                        payload = scheduleResponse.toJson(),
+                        type = GenericTypeEnum.SCHEDULE,
+                        syncType = SyncType.POST
+                    )
+                )[0]
+            }
+        }.also {
+            runWorkers()
+        }
+    }
+
+    override suspend fun updateAppointmentFhirIds() {
+        genericDao.getNotSyncedData(GenericTypeEnum.APPOINTMENT)
+            .forEach { appointmentGenericEntity ->
+                val existingMap =
+                    appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+                        .mapToObject(AppointmentResponse::class.java)
+                if (existingMap != null && !existingMap.patientFhirId!!.isFhirId()) {
+                    genericDao.insertGenericEntity(
+                        appointmentGenericEntity.copy(
+                            payload = existingMap.copy(
+                                patientFhirId = getPatientFhirIdById(existingMap.patientFhirId)!!
+                            ).toJson()
+                        )
+                    )
+                }
+                if (existingMap != null && !existingMap.scheduleId!!.isFhirId()) {
+                    genericDao.insertGenericEntity(
+                        appointmentGenericEntity.copy(
+                            payload = existingMap.copy(
+                                scheduleId = getScheduleFhirIdById(existingMap.scheduleId)!!
+                            ).toJson()
+                        )
+                    )
+                }
+            }
+    }
+
+    override suspend fun insertAppointment(
+        appointmentResponse: AppointmentResponse,
+        uuid: String
+    ): Long {
+        return genericDao.getGenericEntityById(
+            patientId = appointmentResponse.uuid,
+            genericTypeEnum = GenericTypeEnum.APPOINTMENT,
+            syncType = SyncType.POST
+        ).let { appointmentGenericEntity ->
+            if (appointmentGenericEntity != null) {
+                genericDao.insertGenericEntity(
+                    appointmentGenericEntity.copy(payload = appointmentResponse.toJson())
+                )[0]
+            } else {
+                genericDao.insertGenericEntity(
+                    GenericEntity(
+                        id = uuid,
+                        patientId = appointmentResponse.uuid,
+                        payload = appointmentResponse.toJson(),
+                        type = GenericTypeEnum.APPOINTMENT,
+                        syncType = SyncType.POST
+                    )
+                )[0]
+            }
+        }.also {
+            runWorkers()
+        }
+    }
+
     @Deprecated("This method was deprecated use above methods to store POST Generic Entity")
     override suspend fun insertOrUpdatePostEntity(
         patientId: String,
@@ -262,8 +349,54 @@ class GenericRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun insertOrUpdateAppointmentPatch(
+        appointmentFhirId: String,
+        map: Map<String, Any>,
+        uuid: String
+    ): Long {
+        return genericDao.getGenericEntityById(
+            appointmentFhirId,
+            GenericTypeEnum.APPOINTMENT,
+            SyncType.PATCH
+        ).let { appointmentGenericEntity ->
+            if (appointmentGenericEntity != null) {
+                val existingMap =
+                    appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+                map.entries.forEach { mapEntry ->
+                    existingMap[mapEntry.key] = mapEntry.value
+                }
+                genericDao.insertGenericEntity(
+                    GenericEntity(
+                        id = appointmentGenericEntity.id,
+                        patientId = appointmentFhirId,
+                        payload = existingMap.toJson(),
+                        type = GenericTypeEnum.APPOINTMENT,
+                        syncType = SyncType.PATCH
+                    )
+                )[0]
+            } else {
+                genericDao.insertGenericEntity(
+                    GenericEntity(
+                        id = uuid,
+                        patientId = appointmentFhirId,
+                        payload = map.toMutableMap().let { mutableMap ->
+                            mutableMap[APPOINTMENT_ID] = appointmentFhirId
+                            mutableMap
+                        }.toJson(),
+                        type = GenericTypeEnum.APPOINTMENT,
+                        syncType = SyncType.PATCH
+                    )
+                )[0]
+            }
+        }
+    }
+
     private suspend fun getPatientFhirIdById(patientId: String): String? {
         return patientDao.getPatientDataById(patientId)[0].patientEntity.fhirId
+    }
+
+    private suspend fun getScheduleFhirIdById(scheduleId: String): String? {
+        return scheduleDao.getScheduleById(scheduleId)[0].scheduleFhirId
     }
 
     private fun runWorkers() {

@@ -7,12 +7,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
-import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
-import dagger.hilt.android.internal.Contexts.getApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,7 +29,7 @@ class PatientLandingScreenViewModel @Inject constructor(
     var appointmentsCount by mutableStateOf(0)
     var isFabSelected by mutableStateOf(false)
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).geWorkRequestBuilder() }
+    private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).getWorkRequestBuilder() }
 
     internal fun downloadPrescriptions(patientFhirId: String) {
         viewModelScope.launch(Dispatchers.IO) {
