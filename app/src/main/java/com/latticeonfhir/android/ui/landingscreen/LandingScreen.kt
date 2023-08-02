@@ -167,7 +167,7 @@ fun LandingScreen(
                                 },
                                 enabled = viewModel.selectedDate.toSlotDate() != Date().toSlotDate()
                             ) {
-                                Text(text = stringResource(id = R.string.today))
+                                Text(text = stringResource(id = R.string.reset))
                             }
                             IconButton(onClick = {
                                 viewModel.isSearchingInQueue = true

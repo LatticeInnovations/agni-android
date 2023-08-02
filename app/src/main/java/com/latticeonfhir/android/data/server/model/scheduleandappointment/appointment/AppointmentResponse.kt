@@ -14,8 +14,8 @@ data class AppointmentResponse(
     val uuid: String,
     @SerializedName("patientId")
     val patientFhirId: String?,
-    val scheduleId: String?,
-    val slot: Slot?,
+    val scheduleId: String,
+    val slot: Slot,
     val orgId: String,
     val createdOn: Date,
     val status: String

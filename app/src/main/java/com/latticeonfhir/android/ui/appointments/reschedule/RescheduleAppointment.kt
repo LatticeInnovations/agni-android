@@ -41,8 +41,11 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,13 +54,19 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.ui.appointments.schedule.SlotChips
 import com.latticeonfhir.android.ui.appointments.schedule.SlotsHeading
 import com.latticeonfhir.android.ui.common.NonLazyGrid
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_DATE_AND_TIME
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_SELECTED
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonth
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
@@ -65,22 +74,25 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.tomorrow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RescheduleAppointment(
     navController: NavController,
-    viewModel: RescheduleAppointmentViewModel = viewModel()
+    viewModel: RescheduleAppointmentViewModel = hiltViewModel()
 ) {
     val dateScrollState = rememberLazyListState()
     val composableScope = rememberCoroutineScope()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.appointment =
-                navController.previousBackStackEntry?.savedStateHandle?.get<String>(APPOINTMENT_DATE_AND_TIME)
-                    .toString()
+                navController.previousBackStackEntry?.savedStateHandle?.get<AppointmentResponse>(APPOINTMENT_SELECTED)
+            viewModel.patient =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(PATIENT)
         }
         viewModel.isLaunched = true
     }
@@ -112,12 +124,12 @@ fun RescheduleAppointment(
                             composableScope.launch {
                                 dateScrollState.animateScrollToItem(0)
                             }
-                            viewModel.selectedDate = Date()
+                            viewModel.selectedDate = Date().tomorrow()
                             viewModel.weekList = viewModel.selectedDate.toWeekList()
                         },
-                        enabled = viewModel.selectedDate.toSlotDate() != Date().toSlotDate()
+                        enabled = viewModel.selectedDate.toSlotDate() != Date().tomorrow().toSlotDate()
                     ) {
-                        Text(text = stringResource(id = R.string.today))
+                        Text(text = stringResource(id = R.string.reset))
                     }
                 }
             )
@@ -141,7 +153,7 @@ fun RescheduleAppointment(
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = viewModel.appointment,
+                            text = viewModel.appointment?.slot?.start?.toAppointmentDate()?:"",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -233,14 +245,24 @@ fun RescheduleAppointment(
                     )
                     NonLazyGrid(
                         columns = 3,
-                        itemCount = viewModel.morningSlots.size,
+                        itemCount = stringArrayResource(id = R.array.morning_slot_timings).size,
                         modifier = Modifier
                             .padding(horizontal = 17.dp)
                     ) { index ->
+                        var slots by remember {
+                            mutableStateOf(0)
+                        }
+                        viewModel.getBookedSlotsCount(
+                            stringArrayResource(id = R.array.morning_slot_timings)[index].toCurrentTimeInMillis(
+                                viewModel.selectedDate
+                            )
+                        ) { slotsCount ->
+                            slots = slotsCount
+                        }
                         SlotChips(
                             index,
                             stringArrayResource(id = R.array.morning_slot_timings),
-                            viewModel.morningSlots,
+                            slots,
                             viewModel.selectedSlot
                         ) { slot ->
                             viewModel.selectedSlot = slot
@@ -253,14 +275,24 @@ fun RescheduleAppointment(
                     )
                     NonLazyGrid(
                         columns = 3,
-                        itemCount = viewModel.afternoonSlots.size,
+                        itemCount = stringArrayResource(id = R.array.afternoon_slot_timings).size,
                         modifier = Modifier
                             .padding(horizontal = 17.dp)
                     ) { index ->
+                        var slots by remember {
+                            mutableStateOf(0)
+                        }
+                        viewModel.getBookedSlotsCount(
+                            stringArrayResource(id = R.array.afternoon_slot_timings)[index].toCurrentTimeInMillis(
+                                viewModel.selectedDate
+                            )
+                        ) { slotsCount ->
+                            slots = slotsCount
+                        }
                         SlotChips(
                             index,
                             stringArrayResource(id = R.array.afternoon_slot_timings),
-                            viewModel.afternoonSlots,
+                            slots,
                             viewModel.selectedSlot
                         ) { slot ->
                             viewModel.selectedSlot = slot
@@ -273,14 +305,24 @@ fun RescheduleAppointment(
                     )
                     NonLazyGrid(
                         columns = 3,
-                        itemCount = viewModel.eveningSlots.size,
+                        itemCount = stringArrayResource(id = R.array.evening_slot_timings).size,
                         modifier = Modifier
                             .padding(horizontal = 17.dp)
                     ) { index ->
+                        var slots by remember {
+                            mutableStateOf(0)
+                        }
+                        viewModel.getBookedSlotsCount(
+                            stringArrayResource(id = R.array.evening_slot_timings)[index].toCurrentTimeInMillis(
+                                viewModel.selectedDate
+                            )
+                        ) { slotsCount ->
+                            slots = slotsCount
+                        }
                         SlotChips(
                             index,
                             stringArrayResource(id = R.array.evening_slot_timings),
-                            viewModel.eveningSlots,
+                            slots,
                             viewModel.selectedSlot
                         ) { slot ->
                             viewModel.selectedSlot = slot
@@ -290,8 +332,9 @@ fun RescheduleAppointment(
                 }
             }
             if (viewModel.showDatePicker) {
-                val datePickerState = rememberDatePickerState()
-                datePickerState.setSelection(viewModel.selectedDate.time)
+                val datePickerState = rememberDatePickerState(
+                    initialSelectedDateMillis = viewModel.selectedDate.time
+                )
                 val confirmEnabled = remember {
                     derivedStateOf { datePickerState.selectedDateMillis != null }
                 }
@@ -332,7 +375,7 @@ fun RescheduleAppointment(
                     DatePicker(
                         state = datePickerState,
                         dateValidator = { date ->
-                            date >= Date().toTodayStartDate() && date <= Date().toOneYearFuture().time
+                            date >= Date().tomorrow().toTodayStartDate() && date <= Date().toOneYearFuture().time
                         }
                     )
                 }
@@ -342,7 +385,11 @@ fun RescheduleAppointment(
             if (viewModel.selectedSlot.isNotBlank()) {
                 Button(
                     onClick = {
-                        viewModel.selectedDate
+                        // reschedule appointment
+                        viewModel.rescheduleAppointment {
+                            Timber.d("manseeyy appointment rescheduled")
+                            navController.popBackStack()
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()

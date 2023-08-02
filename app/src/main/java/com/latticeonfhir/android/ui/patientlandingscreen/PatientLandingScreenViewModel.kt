@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
@@ -18,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PatientLandingScreenViewModel @Inject constructor(
     application: Application,
-    private val patientRepository: PatientRepository
+    private val patientRepository: PatientRepository,
+    private val appointmentRepository: AppointmentRepository
 ) : BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
@@ -34,7 +37,7 @@ class PatientLandingScreenViewModel @Inject constructor(
     internal fun downloadPrescriptions(patientFhirId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             workRequestBuilders.downloadPrescriptionWorker(patientFhirId) { isErrorReceived, errorMsg ->
-                if (isErrorReceived){
+                if (isErrorReceived) {
                     logoutUser = true
                     logoutReason = errorMsg
                 }
@@ -44,5 +47,14 @@ class PatientLandingScreenViewModel @Inject constructor(
 
     internal suspend fun getPatientData(id: String): PatientResponse {
         return patientRepository.getPatientById(id)[0]
+    }
+
+    internal suspend fun getScheduledAppointmentsCount(patientId: String) {
+        viewModelScope.launch {
+            appointmentsCount = appointmentRepository.getAppointmentsOfPatientByStatus(
+                patientId,
+                AppointmentStatusEnum.SCHEDULED.value
+            ).size
+        }
     }
 }

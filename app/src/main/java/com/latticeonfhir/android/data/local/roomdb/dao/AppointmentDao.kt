@@ -34,4 +34,8 @@ interface AppointmentDao {
     @Transaction
     @Query("SELECT * FROM AppointmentEntity WHERE status=:status and endTime<:endOfDay")
     suspend fun getTodayScheduledAppointments(status: String, endOfDay: Date): List<AppointmentEntity>
+
+    @Transaction
+    @Query("SELECT * FROM AppointmentEntity WHERE id IN (:appointmentId)")
+    suspend fun getAppointmentById(vararg appointmentId: String): List<AppointmentEntity>
 }

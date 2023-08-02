@@ -101,6 +101,11 @@ object TimeConverter {
         return formatter.format(this)
     }
 
+    internal fun Date.toAppointmentDate(): String {
+        val formatter = SimpleDateFormat("dd MMM yyyy · hh:mm a", Locale.getDefault())
+        return formatter.format(this)
+    }
+
     internal fun Date.toYear(): String {
         val formatter = SimpleDateFormat("yyyy", Locale.getDefault())
         return formatter.format(this)
@@ -114,6 +119,54 @@ object TimeConverter {
     internal fun Date.toWeekDay(): String {
         val formatter = SimpleDateFormat("EEEE", Locale.getDefault())
         return formatter.format(this)
+    }
+
+    internal fun Date.tomorrow(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this.time
+        calendar.add(Calendar.DAY_OF_YEAR, 1)
+        return calendar.time
+    }
+
+    internal fun String.toCurrentTimeInMillis(date: Date): Long {
+        val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val currentTime = inputFormat.parse(this)
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+
+        calendar.set(Calendar.HOUR_OF_DAY, SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt())
+        calendar.set(Calendar.MINUTE, SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt())
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
+    internal fun String.to30MinutesAfter(date: Date): Long {
+        val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val currentTime = inputFormat.parse(this)
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+
+        calendar.set(Calendar.HOUR_OF_DAY, SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt())
+        calendar.set(Calendar.MINUTE, SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt())
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        calendar.add(Calendar.MINUTE, 30)
+        return calendar.timeInMillis
+    }
+
+    internal fun String.to5MinutesAfter(date: Date): Long {
+        val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val currentTime = inputFormat.parse(this)
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+
+        calendar.set(Calendar.HOUR_OF_DAY, SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt())
+        calendar.set(Calendar.MINUTE, SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt())
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        calendar.add(Calendar.MINUTE, 5)
+        return calendar.timeInMillis
     }
 
     internal fun Date.toWeekList(): List<Date> {
