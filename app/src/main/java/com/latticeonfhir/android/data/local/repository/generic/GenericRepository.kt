@@ -25,10 +25,11 @@ interface GenericRepository {
     suspend fun insertPrescription(prescriptionResponse: PrescriptionResponse, uuid: String = UUIDBuilder.generateUUID()): Long
     suspend fun updatePrescriptionFhirId()
 
-    suspend fun insertSchedule(scheduleResponse: ScheduleResponse, uuid: String): Long
+    suspend fun insertSchedule(scheduleResponse: ScheduleResponse, uuid: String = UUIDBuilder.generateUUID()): Long
 
-    suspend fun insertAppointment(appointmentResponse: AppointmentResponse, uuid: String): Long
+    suspend fun insertAppointment(appointmentResponse: AppointmentResponse, uuid: String = UUIDBuilder.generateUUID()): Long
     suspend fun updateAppointmentFhirIds()
+    suspend fun updateAppointmentFhirIdInPatch()
 
     @Deprecated("This method was deprecated use above methods to store POST Generic Entity")
     suspend fun insertOrUpdatePostEntity(patientId: String, entity: Any, typeEnum: GenericTypeEnum, replaceEntireRow: Boolean = false, uuid: String = UUIDBuilder.generateUUID()): Long

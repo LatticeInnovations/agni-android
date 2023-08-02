@@ -296,8 +296,21 @@ internal fun ScheduleResponse.toScheduleEntity(): ScheduleEntity {
         scheduleFhirId = scheduleId,
         startTime = planningHorizon.start,
         endTime = planningHorizon.end,
-        bookedSlots = bookedSlots,
+        bookedSlots = bookedSlots!!,
         orgId = orgId
+    )
+}
+
+internal fun ScheduleEntity.toScheduleResponse(): ScheduleResponse {
+    return ScheduleResponse(
+        uuid = id,
+        scheduleId = scheduleFhirId,
+        bookedSlots = bookedSlots,
+        orgId = orgId,
+        planningHorizon = Slot(
+            start = startTime,
+            end = endTime
+        )
     )
 }
 
@@ -311,11 +324,11 @@ internal suspend fun AppointmentResponse.toAppointmentEntity(
         appointmentFhirId = appointmentId,
         createdOn = createdOn,
         patientId = patientDao.getPatientIdByFhirId(patientFhirId!!)!!,
-        scheduleId = scheduleId?.let { fhirId -> scheduleDao.getScheduleIdByFhirId(fhirId) },
+        scheduleId = scheduleDao.getScheduleIdByFhirId(scheduleId)!!,
         orgId = orgId,
         status = status,
-        startTime = slot?.start,
-        endTime = slot?.end
+        startTime = slot.start,
+        endTime = slot.end
     )
 }
 
@@ -328,8 +341,8 @@ internal fun AppointmentEntity.toAppointmentResponse(): AppointmentResponse {
         patientFhirId = patientId,
         scheduleId = scheduleId,
         slot = Slot(
-            start = startTime!!,
-            end = endTime!!
+            start = startTime,
+            end = endTime
         ),
         status = status
     )
@@ -345,7 +358,7 @@ internal fun AppointmentResponse.toAppointmentEntity(): AppointmentEntity {
         scheduleId = scheduleId,
         orgId = orgId,
         status = status,
-        startTime = slot?.start,
-        endTime = slot?.end
+        startTime = slot.start,
+        endTime = slot.end
     )
 }

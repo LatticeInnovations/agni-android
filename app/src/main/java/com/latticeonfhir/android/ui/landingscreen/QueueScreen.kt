@@ -640,7 +640,7 @@ fun QueuePatientCard(
                     TextButton(
                         onClick = {
                             navController.currentBackStackEntry?.savedStateHandle?.set(
-                                NavControllerConstants.APPOINTMENT_DATE_AND_TIME,
+                                NavControllerConstants.APPOINTMENT_SELECTED,
                                 "12 Jun, 2023 · 11:00 AM"
                             )
                             navController.navigate(Screen.RescheduleAppointments.route)

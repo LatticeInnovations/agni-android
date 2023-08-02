@@ -29,9 +29,9 @@ data class AppointmentEntity(
     val id: String,
     val appointmentFhirId: String?,
     val patientId: String,
-    val scheduleId: String?,
-    val startTime: Date?,
-    val endTime: Date?,
+    val scheduleId: String,
+    val startTime: Date,
+    val endTime: Date,
     val orgId: String,
     val createdOn: Date,
     val status: String

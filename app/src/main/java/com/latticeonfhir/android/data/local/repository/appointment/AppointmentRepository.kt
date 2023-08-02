@@ -11,5 +11,5 @@ interface AppointmentRepository {
     suspend fun getAppointmentsOfPatientByStatus(
         patientId: String,
         status: String
-    ): List<AppointmentEntity>
+    ): List<AppointmentResponse>
 }

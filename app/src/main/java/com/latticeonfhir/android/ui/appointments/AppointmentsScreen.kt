@@ -38,19 +38,21 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.AppointmentsFab
 import com.latticeonfhir.android.ui.common.customTabIndicatorOffset
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AppointmentsScreen(
     navController: NavController,
-    viewModel: AppointmentsScreenViewModel = viewModel()
+    viewModel: AppointmentsScreenViewModel = hiltViewModel()
 ) {
     val density = LocalDensity.current
     val tabWidths = remember {
@@ -74,7 +76,11 @@ fun AppointmentsScreen(
         }
         viewModel.isLaunched = true
     }
-
+    LaunchedEffect(true){
+        viewModel.patient?.id?.let { patientId ->
+            viewModel.getAppointmentsList(patientId)
+        }
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -152,9 +158,15 @@ fun AppointmentsScreen(
                     viewModel.patient?.let { patient ->
                         CancelAppointmentDialog(
                             patient = patient,
-                            dateAndTime = viewModel.selectedAppointment
-                        ) { showDialog ->
-                            viewModel.showCancelAppointmentDialog = showDialog
+                            dateAndTime = viewModel.selectedAppointment!!.slot.start.toAppointmentDate()
+                        ) { cancel ->
+                            if (cancel){
+                                viewModel.cancelAppointment {
+                                    Timber.d("manseeyy appointment cancelled")
+                                    viewModel.getAppointmentsList(viewModel.patient!!.id)
+                                }
+                            }
+                            viewModel.showCancelAppointmentDialog = false
                         }
                     }
                 }

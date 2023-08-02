@@ -49,6 +49,11 @@ fun PatientLandingScreen(
 
         viewModel.isLaunched = true
     }
+    LaunchedEffect(true){
+        viewModel.patient?.id?.let { id ->
+            viewModel.getScheduledAppointmentsCount(id)
+        }
+    }
     Scaffold(
         topBar = {
             LargeTopAppBar(

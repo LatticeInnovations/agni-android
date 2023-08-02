@@ -25,8 +25,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_DATE_AND_TIME
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_SELECTED
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 
 @Composable
 fun UpcomingAppointments(navController: NavController, viewModel: AppointmentsScreenViewModel) {
@@ -46,8 +49,8 @@ fun UpcomingAppointments(navController: NavController, viewModel: AppointmentsSc
                 Text(text = stringResource(id = R.string.no_upcoming_appointments))
             }
         } else {
-            viewModel.upcomingAppointmentsList.forEach { dateAndTime ->
-                UpcomingAppointmentCard(navController, dateAndTime, viewModel)
+            viewModel.upcomingAppointmentsList.forEach { appointmentResponse ->
+                UpcomingAppointmentCard(navController, appointmentResponse, viewModel)
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -55,7 +58,7 @@ fun UpcomingAppointments(navController: NavController, viewModel: AppointmentsSc
 }
 
 @Composable
-fun UpcomingAppointmentCard(navController: NavController, dateAndTime: String, viewModel: AppointmentsScreenViewModel) {
+fun UpcomingAppointmentCard(navController: NavController, appointmentResponse: AppointmentResponse, viewModel: AppointmentsScreenViewModel) {
     Card(
         border = BorderStroke(
             width = 1.dp,
@@ -66,7 +69,7 @@ fun UpcomingAppointmentCard(navController: NavController, dateAndTime: String, v
         )
     ) {
         Text(
-            text = dateAndTime,
+            text = appointmentResponse.slot.start.toAppointmentDate(),
             modifier = Modifier.padding(
                 vertical = 32.dp,
                 horizontal = 16.dp
@@ -84,7 +87,7 @@ fun UpcomingAppointmentCard(navController: NavController, dateAndTime: String, v
                 color = MaterialTheme.colorScheme.surface
             ) {
                 TextButton(onClick = {
-                    viewModel.selectedAppointment = dateAndTime
+                    viewModel.selectedAppointment = appointmentResponse
                     viewModel.showCancelAppointmentDialog = true
                 }) {
                     Text(text = stringResource(id = R.string.cancel))
@@ -95,9 +98,13 @@ fun UpcomingAppointmentCard(navController: NavController, dateAndTime: String, v
                 color = MaterialTheme.colorScheme.secondaryContainer
             ) {
                 TextButton(onClick = {
-                    viewModel.selectedAppointment = dateAndTime
+                    viewModel.selectedAppointment = appointmentResponse
                     navController.currentBackStackEntry?.savedStateHandle?.set(
-                        APPOINTMENT_DATE_AND_TIME,
+                        PATIENT,
+                        viewModel.patient
+                    )
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        APPOINTMENT_SELECTED,
                         viewModel.selectedAppointment
                     )
                     navController.navigate(Screen.RescheduleAppointments.route)

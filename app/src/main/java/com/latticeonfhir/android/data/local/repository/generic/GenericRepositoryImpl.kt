@@ -4,7 +4,9 @@ import android.content.Context
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
+import com.latticeonfhir.android.data.local.model.patch.AppointmentPatchRequest
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
+import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
@@ -39,7 +41,8 @@ class GenericRepositoryImpl @Inject constructor(
     @ApplicationContext context: Context,
     private val genericDao: GenericDao,
     private val patientDao: PatientDao,
-    private val scheduleDao: ScheduleDao
+    private val scheduleDao: ScheduleDao,
+    private val appointmentDao: AppointmentDao
 ) : GenericRepository {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (context as FhirApp).getWorkRequestBuilder() }
@@ -212,7 +215,7 @@ class GenericRepositoryImpl @Inject constructor(
                         )
                     )
                 }
-                if (existingMap != null && !existingMap.scheduleId!!.isFhirId()) {
+                if (existingMap != null && !existingMap.scheduleId.isFhirId()) {
                     genericDao.insertGenericEntity(
                         appointmentGenericEntity.copy(
                             payload = existingMap.copy(
@@ -220,6 +223,37 @@ class GenericRepositoryImpl @Inject constructor(
                             ).toJson()
                         )
                     )
+                }
+            }
+    }
+
+    override suspend fun updateAppointmentFhirIdInPatch() {
+        genericDao.getNotSyncedData(GenericTypeEnum.APPOINTMENT, SyncType.PATCH)
+            .forEach { appointmentGenericEntity ->
+                val existingMap =
+                    appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+                        .mapToObject(AppointmentPatchRequest::class.java)
+                if (existingMap != null) {
+                    if (!existingMap.appointmentId.isFhirId()) {
+                        genericDao.insertGenericEntity(
+                            appointmentGenericEntity.copy(
+                                payload = existingMap.copy(
+                                    appointmentId = getAppointmentFhirIdById(existingMap.appointmentId)!!
+                                ).toJson()
+                            )
+                        )
+                    }
+                    if (existingMap.scheduleId != null && !(existingMap.scheduleId.value as String).isFhirId()) {
+                        genericDao.insertGenericEntity(
+                            appointmentGenericEntity.copy(
+                                payload = existingMap.copy(
+                                    scheduleId = existingMap.scheduleId.copy(
+                                        value = getScheduleFhirIdById(existingMap.scheduleId.value)
+                                    )
+                                ).toJson()
+                            )
+                        )
+                    }
                 }
             }
     }
@@ -388,6 +422,8 @@ class GenericRepositoryImpl @Inject constructor(
                     )
                 )[0]
             }
+        }.also {
+            runWorkers()
         }
     }
 
@@ -397,6 +433,10 @@ class GenericRepositoryImpl @Inject constructor(
 
     private suspend fun getScheduleFhirIdById(scheduleId: String): String? {
         return scheduleDao.getScheduleById(scheduleId)[0].scheduleFhirId
+    }
+
+    private suspend fun getAppointmentFhirIdById(appointmentId: String): String? {
+        return appointmentDao.getAppointmentById(appointmentId)[0].appointmentFhirId
     }
 
     private fun runWorkers() {

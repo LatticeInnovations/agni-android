@@ -4,6 +4,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentResponse
 import java.util.Date
 import javax.inject.Inject
 
@@ -22,7 +23,9 @@ class AppointmentRepositoryImpl @Inject constructor(private val appointmentDao: 
         return appointmentDao.updateAppointmentEntity(appointmentResponse.toAppointmentEntity())
     }
 
-    override suspend fun getAppointmentsOfPatientByStatus(patientId: String, status: String): List<AppointmentEntity> {
-        return appointmentDao.getAppointmentsOfPatientByStatus(patientId, status)
+    override suspend fun getAppointmentsOfPatientByStatus(patientId: String, status: String): List<AppointmentResponse> {
+        return appointmentDao.getAppointmentsOfPatientByStatus(patientId, status).map { appointmentEntity ->
+            appointmentEntity.toAppointmentResponse()
+        }
     }
 }

@@ -277,11 +277,6 @@ class WorkRequestBuilders(
                                 error(errorReceived, errorMsg)
                             }
                         }
-
-//                        /** Download Schedule Worker*/
-//                        downloadScheduleWorker{ errorReceived, errorMsg ->
-//                            error(errorReceived, errorMsg)
-//                        }
                     }
                 }
             }
@@ -313,7 +308,10 @@ class WorkRequestBuilders(
                         /** Handle Progress Based Download WorkRequests Here */
                     }
                     if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-
+                        /** Update Schedule Fhir Id in Appointment Patch Worker*/
+                        updateScheduleFhirIdInAppointmentPatch { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
                     }
                 }
             }
@@ -354,7 +352,7 @@ class WorkRequestBuilders(
                     }
                 }
 
-                downloadScheduleWorker{ errorReceived, errorMsg ->
+                downloadScheduleWorker { errorReceived, errorMsg ->
                     error(errorReceived, errorMsg)
                 }
             }
@@ -436,7 +434,7 @@ class WorkRequestBuilders(
                     errorMsg
                 )
             } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                downloadAppointmentWorker{ errorReceived, errorMsg ->
+                downloadAppointmentWorker { errorReceived, errorMsg ->
                     error(errorReceived, errorMsg)
                 }
             }
@@ -586,7 +584,7 @@ class WorkRequestBuilders(
     }
 
     //Appointment Patch Sync
-    internal suspend fun setAppointmentPatchWorker(error: (Boolean, String) -> Unit) {
+    private suspend fun setAppointmentPatchWorker(error: (Boolean, String) -> Unit) {
         //Upload Worker
         Sync.oneTimeSync<AppointmentPatchUploadSyncWorkerImpl>(
             applicationContext, defaultRetryConfiguration.copy(
@@ -610,6 +608,9 @@ class WorkRequestBuilders(
                         ) == 100
                     ) {
                         /** Handle Progress Based Download WorkRequests Here */
+                        downloadScheduleWorker{errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
                     }
                 }
             }
@@ -644,6 +645,14 @@ class WorkRequestBuilders(
         genericRepository.updateAppointmentFhirIds()
         /** Start Appointment Worker */
         uploadAppointmentSyncWorker { errorReceived, errorMsg ->
+            error(errorReceived, errorMsg)
+        }
+    }
+
+    private suspend fun updateScheduleFhirIdInAppointmentPatch(error: (Boolean, String) -> Unit) {
+        genericRepository.updateAppointmentFhirIdInPatch()
+        /** Start Appointment Patch Worker */
+        setAppointmentPatchWorker { errorReceived, errorMsg ->
             error(errorReceived, errorMsg)
         }
     }
