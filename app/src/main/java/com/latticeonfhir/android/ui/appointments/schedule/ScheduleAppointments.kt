@@ -49,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
@@ -63,6 +64,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.NonLazyGrid
 import com.latticeonfhir.android.ui.theme.Green
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SCHEDULED
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonth
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
@@ -72,6 +74,8 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.tomorrow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -83,6 +87,7 @@ fun ScheduleAppointments(
 ) {
     val dateScrollState = rememberLazyListState()
     val composableScope = rememberCoroutineScope()
+    val context = LocalContext.current
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.patient =
@@ -202,7 +207,8 @@ fun ScheduleAppointments(
                                 ),
                                 border = SuggestionChipDefaults.suggestionChipBorder(
                                     borderColor = Color.Transparent
-                                )
+                                ),
+                                enabled = date < Date().toOneYearFuture()
                             )
                         }
                     }
@@ -229,12 +235,14 @@ fun ScheduleAppointments(
                         var slots by remember {
                             mutableStateOf(0)
                         }
-                        viewModel.getBookedSlotsCount(
-                            stringArrayResource(id = R.array.morning_slot_timings)[index].toCurrentTimeInMillis(
-                                viewModel.selectedDate
-                            )
-                        ) { slotsCount ->
-                            slots = slotsCount
+                        LaunchedEffect(viewModel.selectedDate) {
+                            viewModel.getBookedSlotsCount(
+                                context.resources.getStringArray(R.array.morning_slot_timings)[index].toCurrentTimeInMillis(
+                                    viewModel.selectedDate
+                                )
+                            ) { slotsCount ->
+                                slots = slotsCount
+                            }
                         }
                         SlotChips(
                             index,
@@ -259,12 +267,14 @@ fun ScheduleAppointments(
                         var slots by remember {
                             mutableStateOf(0)
                         }
-                        viewModel.getBookedSlotsCount(
-                            stringArrayResource(id = R.array.afternoon_slot_timings)[index].toCurrentTimeInMillis(
-                                viewModel.selectedDate
-                            )
-                        ) { slotsCount ->
-                            slots = slotsCount
+                        LaunchedEffect(viewModel.selectedDate) {
+                            viewModel.getBookedSlotsCount(
+                                context.resources.getStringArray(R.array.afternoon_slot_timings)[index].toCurrentTimeInMillis(
+                                    viewModel.selectedDate
+                                )
+                            ) { slotsCount ->
+                                slots = slotsCount
+                            }
                         }
                         SlotChips(
                             index,
@@ -289,12 +299,14 @@ fun ScheduleAppointments(
                         var slots by remember {
                             mutableStateOf(0)
                         }
-                        viewModel.getBookedSlotsCount(
-                            stringArrayResource(id = R.array.evening_slot_timings)[index].toCurrentTimeInMillis(
-                                viewModel.selectedDate
-                            )
-                        ) { slotsCount ->
-                            slots = slotsCount
+                        LaunchedEffect(viewModel.selectedDate) {
+                            viewModel.getBookedSlotsCount(
+                                context.resources.getStringArray(R.array.evening_slot_timings)[index].toCurrentTimeInMillis(
+                                    viewModel.selectedDate
+                                )
+                            ) { slotsCount ->
+                                slots = slotsCount
+                            }
                         }
                         SlotChips(
                             index,
@@ -307,8 +319,6 @@ fun ScheduleAppointments(
                     }
                     if (viewModel.selectedSlot.isNotBlank()) Spacer(modifier = Modifier.height(60.dp))
                 }
-
-
             }
             if (viewModel.showDatePicker) {
                 val datePickerState = rememberDatePickerState(
@@ -366,8 +376,14 @@ fun ScheduleAppointments(
                 Button(
                     onClick = {
                         viewModel.insertScheduleAndAppointment {
-                            navController.popBackStack(Screen.PatientLandingScreen.route, false)
-                            navController.navigate(Screen.Appointments.route)
+                            CoroutineScope(Dispatchers.Main).launch {
+                                navController.popBackStack(Screen.PatientLandingScreen.route, false)
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    SCHEDULED,
+                                    true
+                                )
+                                navController.navigate(Screen.Appointments.route)
+                            }
                         }
                     },
                     modifier = Modifier

@@ -14,7 +14,6 @@ import androidx.paging.map
 import androidx.work.WorkManager
 import androidx.work.await
 import com.latticeonfhir.android.FhirApp
-import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
@@ -24,7 +23,6 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToMidnight
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -60,6 +58,8 @@ class LandingScreenViewModel @Inject constructor(
     var previousSearchList = mutableListOf<String>()
     var size by mutableStateOf(0)
     var isLoggingOut by mutableStateOf(false)
+    var addedToQueue by mutableStateOf(false)
+    var patientArrived by mutableStateOf(false)
 
     // user details
     var userName by mutableStateOf("")
@@ -71,17 +71,7 @@ class LandingScreenViewModel @Inject constructor(
     var logoutReason by mutableStateOf("")
 
     // queue screen
-    var selectedDate by mutableStateOf(Date())
-    var weekList by mutableStateOf(selectedDate.to14DaysWeek())
-    var showDatePicker by mutableStateOf(false)
-    var appointmentsList by mutableStateOf(listOf("list"))
-    var showCancelAppointmentDialog by mutableStateOf(false)
     var showStatusChangeLayout by mutableStateOf(false)
-    var statusList by mutableStateOf(listOf("Arrived", "In-progress", "Completed"))
-    var isSearchingInQueue by mutableStateOf(false)
-    var searchQueueQuery by mutableStateOf("")
-    var waitingQueueList by mutableStateOf(listOf("Walk-in", "Arrived"))
-    var selectedChip by mutableStateOf(R.string.total_appointment)
 
     init {
 

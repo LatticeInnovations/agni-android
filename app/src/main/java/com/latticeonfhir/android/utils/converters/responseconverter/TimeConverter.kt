@@ -106,6 +106,23 @@ object TimeConverter {
         return formatter.format(this)
     }
 
+    internal fun Date.toAppointmentTime(): String {
+        val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        return formatter.format(this)
+    }
+
+    internal fun Date.toSlotStartTime(): String {
+        val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val minutes = SimpleDateFormat("mm", Locale.getDefault()).format(this).toInt()
+        val calendar = Calendar.getInstance()
+        calendar.time = this
+        if (minutes < 30) calendar.set(Calendar.MINUTE, 0)
+        else calendar.set(Calendar.MINUTE, 30)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return formatter.format(calendar.time)
+    }
+
     internal fun Date.toYear(): String {
         val formatter = SimpleDateFormat("yyyy", Locale.getDefault())
         return formatter.format(this)
@@ -134,8 +151,14 @@ object TimeConverter {
         val calendar = Calendar.getInstance()
         calendar.time = date
 
-        calendar.set(Calendar.HOUR_OF_DAY, SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt())
-        calendar.set(Calendar.MINUTE, SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt())
+        calendar.set(
+            Calendar.HOUR_OF_DAY,
+            SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt()
+        )
+        calendar.set(
+            Calendar.MINUTE,
+            SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt()
+        )
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
         return calendar.timeInMillis
@@ -147,8 +170,14 @@ object TimeConverter {
         val calendar = Calendar.getInstance()
         calendar.time = date
 
-        calendar.set(Calendar.HOUR_OF_DAY, SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt())
-        calendar.set(Calendar.MINUTE, SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt())
+        calendar.set(
+            Calendar.HOUR_OF_DAY,
+            SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt()
+        )
+        calendar.set(
+            Calendar.MINUTE,
+            SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt()
+        )
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
         calendar.add(Calendar.MINUTE, 30)
@@ -161,8 +190,14 @@ object TimeConverter {
         val calendar = Calendar.getInstance()
         calendar.time = date
 
-        calendar.set(Calendar.HOUR_OF_DAY, SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt())
-        calendar.set(Calendar.MINUTE, SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt())
+        calendar.set(
+            Calendar.HOUR_OF_DAY,
+            SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt()
+        )
+        calendar.set(
+            Calendar.MINUTE,
+            SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt()
+        )
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
         calendar.add(Calendar.MINUTE, 5)
@@ -174,7 +209,7 @@ object TimeConverter {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = this.time
         var i = 0
-        while (i < 7) {
+        while (i < 8) {
             weekList.add(calendar.time)
             calendar.add(Calendar.DAY_OF_YEAR, 1)
             i += 1
@@ -215,6 +250,16 @@ object TimeConverter {
         calendar.timeInMillis = this.time
         calendar[Calendar.HOUR_OF_DAY] = 0
         calendar[Calendar.MINUTE] = 0
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
+        return calendar.timeInMillis
+    }
+
+    internal fun Date.toEndOfDay(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this.time
+        calendar[Calendar.HOUR_OF_DAY] = 23
+        calendar[Calendar.MINUTE] = 59
         calendar[Calendar.SECOND] = 0
         calendar[Calendar.MILLISECOND] = 0
         return calendar.timeInMillis

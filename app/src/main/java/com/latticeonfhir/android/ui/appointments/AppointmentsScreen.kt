@@ -44,7 +44,11 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.AppointmentsFab
 import com.latticeonfhir.android.ui.common.customTabIndicatorOffset
+import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
+import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -66,6 +70,12 @@ fun AppointmentsScreen(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val pagerState = rememberPagerState()
+    viewModel.rescheduled = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
+        NavControllerConstants.RESCHEDULED
+    ) == true
+    viewModel.scheduled = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+        NavControllerConstants.SCHEDULED
+    ) == true
 
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
@@ -76,9 +86,29 @@ fun AppointmentsScreen(
         }
         viewModel.isLaunched = true
     }
-    LaunchedEffect(true){
+    LaunchedEffect(true) {
         viewModel.patient?.id?.let { patientId ->
             viewModel.getAppointmentsList(patientId)
+        }
+        if (viewModel.rescheduled){
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = context.getString(R.string.appointment_rescheduled)
+                )
+            }
+            navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(
+                NavControllerConstants.RESCHEDULED
+            )
+        }
+        if (viewModel.scheduled){
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = context.getString(R.string.appointment_scheduled)
+                )
+            }
+            navController.previousBackStackEntry?.savedStateHandle?.remove<Boolean>(
+                NavControllerConstants.SCHEDULED
+            )
         }
     }
     Scaffold(
@@ -138,7 +168,11 @@ fun AppointmentsScreen(
                                                 context.getString(R.string.no_completed_appointments)
                                             )
                                         }
-                                    } else coroutineScope.launch { pagerState.animateScrollToPage(index) }
+                                    } else coroutineScope.launch {
+                                        pagerState.animateScrollToPage(
+                                            index
+                                        )
+                                    }
                                 },
                                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -148,10 +182,15 @@ fun AppointmentsScreen(
                         pageCount = if (viewModel.completedAppointmentsList.isEmpty()) 1 else viewModel.tabs.size,
                         state = pagerState
                     ) { index ->
-                        when(index) {
+                        when (index) {
                             0 -> UpcomingAppointments(navController, viewModel)
                             1 -> CompletedAppointments(viewModel)
                         }
+                    }
+                }
+                if (viewModel.showAllSlotsBookedDialog) {
+                    AllSlotsBookedDialog {
+                        viewModel.showAllSlotsBookedDialog = false
                     }
                 }
                 if (viewModel.showCancelAppointmentDialog) {
@@ -160,7 +199,7 @@ fun AppointmentsScreen(
                             patient = patient,
                             dateAndTime = viewModel.selectedAppointment!!.slot.start.toAppointmentDate()
                         ) { cancel ->
-                            if (cancel){
+                            if (cancel) {
                                 viewModel.cancelAppointment {
                                     Timber.d("manseeyy appointment cancelled")
                                     viewModel.getAppointmentsList(viewModel.patient!!.id)
@@ -178,9 +217,42 @@ fun AppointmentsScreen(
                     AppointmentsFab(
                         navController,
                         patient,
-                        viewModel.isFabSelected
-                    ) {
-                        viewModel.isFabSelected = it
+                        viewModel.isFabSelected,
+                        viewModel.todaysAppointment,
+                        viewModel.ifAlreadyWaiting
+                    ) { queueFabClicked ->
+                        if (queueFabClicked) {
+                            if (viewModel.todaysAppointment != null) {
+                                // change status of patient to arrived and navigate to queue screen
+                                viewModel.updateStatusToArrived {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        navController.popBackStack()
+                                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                                            NavControllerConstants.PATIENT_ARRIVED,
+                                            true
+                                        )
+                                        navController.popBackStack()
+                                    }
+                                }
+                            } else {
+                                // add patient to queue and navigate to queue screen
+                                if (viewModel.ifAllSlotsBooked) {
+                                    viewModel.showAllSlotsBookedDialog = true
+                                } else {
+                                    viewModel.addPatientToQueue {
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            navController.popBackStack()
+                                            navController.previousBackStackEntry?.savedStateHandle?.set(
+                                                NavControllerConstants.ADD_TO_QUEUE,
+                                                true
+                                            )
+                                            navController.popBackStack()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        viewModel.isFabSelected = !viewModel.isFabSelected
                     }
                 }
             }

@@ -23,9 +23,14 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.ui.common.AppointmentsFab
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +54,7 @@ fun PatientLandingScreen(
 
         viewModel.isLaunched = true
     }
-    LaunchedEffect(true){
+    LaunchedEffect(true) {
         viewModel.patient?.id?.let { id ->
             viewModel.getScheduledAppointmentsCount(id)
         }
@@ -142,6 +147,11 @@ fun PatientLandingScreen(
                         R.drawable.prescriptions_icon
                     )
                 }
+                if (viewModel.showAllSlotsBookedDialog) {
+                    AllSlotsBookedDialog{
+                        viewModel.showAllSlotsBookedDialog = false
+                    }
+                }
             }
         },
         floatingActionButton = {
@@ -149,9 +159,40 @@ fun PatientLandingScreen(
                 AppointmentsFab(
                     navController,
                     patient,
-                    viewModel.isFabSelected
-                ) {
-                    viewModel.isFabSelected = it
+                    viewModel.isFabSelected,
+                    viewModel.appointment,
+                    viewModel.ifAlreadyWaiting
+                ) { queueFabClicked ->
+                    if (queueFabClicked) {
+                        if (viewModel.appointment != null) {
+                            // change status of patient to arrived and navigate to queue screen
+                            viewModel.updateStatusToArrived {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                                        PATIENT_ARRIVED,
+                                        true
+                                    )
+                                    navController.popBackStack()
+                                }
+                            }
+                        } else {
+                            // add patient to queue and navigate to queue screen
+                            if (viewModel.ifAllSlotsBooked) {
+                                viewModel.showAllSlotsBookedDialog = true
+                            } else {
+                                viewModel.addPatientToQueue {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                                            ADD_TO_QUEUE,
+                                            true
+                                        )
+                                        navController.popBackStack()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    viewModel.isFabSelected = !viewModel.isFabSelected
                 }
             }
         }
@@ -215,4 +256,37 @@ fun CardComposable(
             Icon(Icons.Default.KeyboardArrowRight, contentDescription = "RIGHT_ARROW")
         }
     }
+}
+
+@Composable
+fun AllSlotsBookedDialog(closeDialog: (Boolean) -> Unit) {
+    AlertDialog(
+        onDismissRequest = { },
+        title = {
+            Text(
+                text = stringResource(id = R.string.all_slots_booked),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.testTag("DIALOG_TITLE")
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(id = R.string.all_slots_booked_desc),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    closeDialog(true)
+                },
+                modifier = Modifier.testTag("POSITIVE_BTN")
+            ) {
+                Text(
+                    stringResource(id = R.string.okay)
+                )
+            }
+        }
+    )
 }

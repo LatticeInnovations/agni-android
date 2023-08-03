@@ -23,6 +23,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.tomorrow
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -43,7 +44,7 @@ class RescheduleAppointmentViewModel @Inject constructor(
     var selectedSlot by mutableStateOf("")
 
     internal fun getBookedSlotsCount(time: Long, slotsCount: (Int) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             slotsCount(
                 scheduleRepository.getBookedSlotsCount(time)
             )
@@ -51,7 +52,7 @@ class RescheduleAppointmentViewModel @Inject constructor(
     }
 
     internal fun rescheduleAppointment(rescheduled: (Int) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             // free the slot of previous schedule
             scheduleRepository.getScheduleById(appointment!!.scheduleId).let { scheduleResponse ->
                 scheduleRepository.updateSchedule(

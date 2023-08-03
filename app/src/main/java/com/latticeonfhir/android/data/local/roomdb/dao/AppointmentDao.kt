@@ -7,7 +7,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
-import java.util.Date
 
 @Dao
 interface AppointmentDao {
@@ -24,8 +23,12 @@ interface AppointmentDao {
     suspend fun getAppointmentsOfPatientByStatus(patientId: String, status: String): List<AppointmentEntity>
 
     @Transaction
-    @Query("SELECT * FROM AppointmentEntity WHERE startTime BETWEEN :startOfDay AND :endOfDay")
-    suspend fun getAppointmentsByDate(startOfDay: Date, endOfDay: Date): List<AppointmentEntity>
+    @Query("SELECT * FROM AppointmentEntity WHERE startTime BETWEEN :startOfDay AND :endOfDay ORDER BY startTime")
+    suspend fun getAppointmentsByDate(startOfDay: Long, endOfDay: Long): List<AppointmentEntity>
+
+    @Transaction
+    @Query("SELECT * FROM AppointmentEntity WHERE patientId=:patientId AND startTime BETWEEN :startOfDay AND :endOfDay")
+    suspend fun getAppointmentOfPatientByDate(patientId: String, startOfDay: Long, endOfDay: Long): AppointmentEntity?
 
     @Transaction
     @Update(onConflict = OnConflictStrategy.REPLACE)
@@ -33,7 +36,7 @@ interface AppointmentDao {
 
     @Transaction
     @Query("SELECT * FROM AppointmentEntity WHERE status=:status and endTime<:endOfDay")
-    suspend fun getTodayScheduledAppointments(status: String, endOfDay: Date): List<AppointmentEntity>
+    suspend fun getTodayScheduledAppointments(status: String, endOfDay: Long): List<AppointmentEntity>
 
     @Transaction
     @Query("SELECT * FROM AppointmentEntity WHERE id IN (:appointmentId)")
