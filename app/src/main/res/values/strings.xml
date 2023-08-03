@@ -195,9 +195,9 @@ include them in the household</string>
     <string name="appointment_cancelled">Appointment cancelled</string>
     <string name="appointment_rescheduled">Appointment rescheduled</string>
     <string name="appointment_scheduled">Appointment scheduled</string>
-    <string name="status_to_arrived">Status changed to " Arrived "</string>
-    <string name="status_to_in_progress">Status changed to " In-progress "</string>
-    <string name="status_to_completed">Status changed to " Completed "</string>
+    <string name="status_to_arrived">Status changed to \"Arrived\"</string>
+    <string name="status_to_in_progress">Status changed to \"In-progress\"</string>
+    <string name="status_to_completed">Status changed to \"Completed\"</string>
     <string name="status_updated_to_arrived">Status updated to arrived</string>
     <string name="added_to_queue">Patient added to queue</string>
     <string name="all_slots_booked">All slots booked</string>
