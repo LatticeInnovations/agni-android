@@ -1,5 +1,7 @@
 package com.latticeonfhir.android.di
 
+import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
+import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
@@ -69,4 +71,8 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideMedicationRepository(medicationRepositoryImpl: MedicationRepositoryImpl): MedicationRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideAppointmentRepository(appointmentRepositoryImpl: AppointmentRepositoryImpl): AppointmentRepository
 }

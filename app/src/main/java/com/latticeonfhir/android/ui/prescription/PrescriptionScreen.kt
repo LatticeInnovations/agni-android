@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.prescription
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -93,6 +94,7 @@ fun PrescriptionScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState()
+    val context = LocalContext.current
 
     BackHandler(enabled = true) {
         if (viewModel.isSearching) viewModel.isSearching = false
@@ -207,13 +209,25 @@ fun PrescriptionScreen(
                                     },
                                     modifier = Modifier.testTag(title.uppercase()),
                                     selected = pagerState.currentPage == index,
-                                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
+                                    onClick = {
+                                        if (index == 1 && viewModel.appointmentResponse == null) {
+                                            coroutineScope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    context.getString(R.string.please_add_patient_to_queue)
+                                                )
+                                            }
+                                        } else coroutineScope.launch {
+                                            pagerState.animateScrollToPage(
+                                                index
+                                            )
+                                        }
+                                    },
                                     unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
                         HorizontalPager(
-                            pageCount = viewModel.tabs.size,
+                            pageCount = if (viewModel.appointmentResponse == null) 1 else viewModel.tabs.size,
                             state = pagerState
                         ) { index ->
                             when (index) {
