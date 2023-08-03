@@ -79,7 +79,6 @@ import com.latticeonfhir.android.ui.theme.CompletedContainer
 import com.latticeonfhir.android.ui.theme.CompletedLabel
 import com.latticeonfhir.android.ui.theme.InProgressContainer
 import com.latticeonfhir.android.ui.theme.InProgressLabel
-import com.latticeonfhir.android.ui.theme.NeutralVariant95
 import com.latticeonfhir.android.ui.theme.NoShowContainer
 import com.latticeonfhir.android.ui.theme.NoShowLabel
 import com.latticeonfhir.android.ui.theme.TodayScheduledContainer
@@ -138,9 +137,9 @@ fun QueueScreen(
         }
         viewModel.isLaunched = true
     }
-    LaunchedEffect(true){
+    LaunchedEffect(true) {
         viewModel.getAppointmentListByDate()
-        if (viewModel.rescheduled){
+        if (viewModel.rescheduled) {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
                     message = context.getString(R.string.appointment_rescheduled)
@@ -224,7 +223,8 @@ fun QueueScreen(
                                 border = SuggestionChipDefaults.suggestionChipBorder(
                                     borderColor = Color.Transparent
                                 ),
-                                enabled = date < Date().toOneYearFuture() && date > Date().toTodayStartDate().toOneYearPast()
+                                enabled = date < Date().toOneYearFuture() && date > Date().toTodayStartDate()
+                                    .toOneYearPast()
                             )
                         }
                     }
@@ -241,7 +241,10 @@ fun QueueScreen(
                     .weight(1f)
                     .fillMaxSize()
                     .padding(16.dp)
-                    .background(color = NeutralVariant95, shape = RoundedCornerShape(8.dp)),
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(8.dp)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -666,7 +669,7 @@ fun QueuePatientCard(
 
     ElevatedCard(
         colors = CardDefaults.elevatedCardColors(
-            containerColor = if (appointmentResponse.status == AppointmentStatusEnum.NO_SHOW.value) NeutralVariant95 else MaterialTheme.colorScheme.surface
+            containerColor = if (appointmentResponse.status == AppointmentStatusEnum.NO_SHOW.value) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
         ),
         modifier = Modifier.clickable {
             navController.currentBackStackEntry?.savedStateHandle?.set(
@@ -709,7 +712,7 @@ fun QueuePatientCard(
                     },
                     trailingIcon = {
                         if ((appointmentResponse.status == AppointmentStatusEnum.SCHEDULED.value
-                            || appointmentResponse.status == AppointmentStatusEnum.IN_PROGRESS.value)
+                                    || appointmentResponse.status == AppointmentStatusEnum.IN_PROGRESS.value)
                             && appointmentResponse.slot.start.toEndOfDay() == Date().toEndOfDay()
                         ) {
                             Icon(
@@ -743,7 +746,7 @@ fun QueuePatientCard(
                             AppointmentStatusEnum.CANCELLED.value -> CancelledLabel
                             AppointmentStatusEnum.COMPLETED.value -> CompletedLabel
                             AppointmentStatusEnum.IN_PROGRESS.value -> InProgressLabel
-                            else -> NoShowLabel
+                            else -> MaterialTheme.colorScheme.onSurfaceVariant
                         }
                     ),
                     border = AssistChipDefaults.assistChipBorder(
