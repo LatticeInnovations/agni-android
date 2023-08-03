@@ -144,40 +144,52 @@ class RescheduleAppointmentViewModel @Inject constructor(
                             slot = slot
                         )
                     ).also {
-                        // send patch request in generic
-                        genericRepository.insertOrUpdateAppointmentPatch(
-                            appointmentFhirId = appointment?.appointmentId ?:appointment!!.uuid,
-                            map = mapOf(
-                                Pair(
-                                    "status",
-                                    ChangeRequest(
-                                        operation = ChangeTypeEnum.REPLACE.value,
-                                        value = AppointmentStatusEnum.SCHEDULED.value
-                                    )
-                                ),
-                                Pair(
-                                    "slot",
-                                    ChangeRequest(
-                                        operation = ChangeTypeEnum.REPLACE.value,
-                                        value = slot
-                                    )
-                                ),
-                                Pair(
-                                    "scheduleId",
-                                    ChangeRequest(
-                                        operation = ChangeTypeEnum.REPLACE.value,
-                                        value = scheduleFhirId ?: scheduleId
-                                    )
-                                ),
-                                Pair(
-                                    "createdOn",
-                                    ChangeRequest(
-                                        operation = ChangeTypeEnum.REPLACE.value,
-                                        value = createdOn
+                        if (appointment?.appointmentId.isNullOrBlank()) {
+                            // if fhir id is null, insert post request
+                            genericRepository.insertAppointment(
+                                appointment!!.copy(
+                                    scheduleId = scheduleFhirId ?: scheduleId,
+                                    createdOn = createdOn,
+                                    slot = slot,
+                                    patientFhirId = patient?.fhirId ?: patient?.id
+                                )
+                            )
+                        } else {
+                            //  if fhir id is not null send patch request in generic
+                            genericRepository.insertOrUpdateAppointmentPatch(
+                                appointmentFhirId = appointment?.appointmentId!!,
+                                map = mapOf(
+                                    Pair(
+                                        "status",
+                                        ChangeRequest(
+                                            operation = ChangeTypeEnum.REPLACE.value,
+                                            value = AppointmentStatusEnum.SCHEDULED.value
+                                        )
+                                    ),
+                                    Pair(
+                                        "slot",
+                                        ChangeRequest(
+                                            operation = ChangeTypeEnum.REPLACE.value,
+                                            value = slot
+                                        )
+                                    ),
+                                    Pair(
+                                        "scheduleId",
+                                        ChangeRequest(
+                                            operation = ChangeTypeEnum.REPLACE.value,
+                                            value = scheduleFhirId ?: scheduleId
+                                        )
+                                    ),
+                                    Pair(
+                                        "createdOn",
+                                        ChangeRequest(
+                                            operation = ChangeTypeEnum.REPLACE.value,
+                                            value = createdOn
+                                        )
                                     )
                                 )
                             )
-                        )
+                        }
                     }
                 )
             }

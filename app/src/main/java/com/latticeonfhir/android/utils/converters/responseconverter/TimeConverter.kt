@@ -102,7 +102,7 @@ object TimeConverter {
     }
 
     internal fun Date.toAppointmentDate(): String {
-        val formatter = SimpleDateFormat("dd MMM yyyy · hh:mm a", Locale.getDefault())
+        val formatter = SimpleDateFormat("dd MMM, yyyy · hh:mm a", Locale.getDefault())
         return formatter.format(this)
     }
 
