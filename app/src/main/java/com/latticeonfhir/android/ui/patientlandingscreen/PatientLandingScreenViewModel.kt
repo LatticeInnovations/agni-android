@@ -101,7 +101,6 @@ class PatientLandingScreenViewModel @Inject constructor(
     internal fun addPatientToQueue(addedToQueue: (List<Long>) -> Unit){
         viewModelScope.launch(Dispatchers.IO){
             val selectedSlot = Date().toSlotStartTime()
-            Timber.d("manseeyy $selectedSlot")
             var scheduleId = UUIDBuilder.generateUUID()
             var scheduleFhirId: String? = null
             scheduleRepository.getScheduleByStartTime(

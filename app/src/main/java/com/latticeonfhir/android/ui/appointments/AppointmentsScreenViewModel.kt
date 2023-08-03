@@ -82,7 +82,6 @@ class AppointmentsScreenViewModel @Inject constructor(
                 Date().toTodayStartDate(),
                 Date().toEndOfDay()
             ).let { appointmentResponse ->
-                Timber.d("manseeyy today appointment $appointmentResponse")
                 ifAlreadyWaiting = if (appointmentResponse == null) false
                 else appointmentResponse.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponse.status == AppointmentStatusEnum.ARRIVED.value
             }

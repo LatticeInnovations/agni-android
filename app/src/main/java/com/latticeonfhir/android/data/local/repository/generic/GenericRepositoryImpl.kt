@@ -243,6 +243,7 @@ class GenericRepositoryImpl @Inject constructor(
                             )
                         )
                     }
+
                     if (existingMap.scheduleId != null && !(existingMap.scheduleId.value as String).isFhirId()) {
                         genericDao.insertGenericEntity(
                             appointmentGenericEntity.copy(

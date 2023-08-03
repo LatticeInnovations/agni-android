@@ -161,15 +161,6 @@ class WorkRequestBuilders(
                         }
 
 
-                        // upload schedule -> update fhir id appointment -> download scheulde
-
-                        /** Upload Schedule Worker */
-                        CoroutineScope(Dispatchers.IO).launch {
-                            uploadScheduleSyncWorker { errorReceived, errorMsg ->
-                                error(errorReceived, errorMsg)
-                            }
-                        }
-
                         /** Download Patient Worker */
                         downloadPatientWorker { errorReceived, errorMsg ->
                             error(errorReceived, errorMsg)
@@ -352,7 +343,8 @@ class WorkRequestBuilders(
                     }
                 }
 
-                downloadScheduleWorker { errorReceived, errorMsg ->
+                /** Upload Schedule Worker */
+                uploadScheduleSyncWorker { errorReceived, errorMsg ->
                     error(errorReceived, errorMsg)
                 }
             }
@@ -609,8 +601,8 @@ class WorkRequestBuilders(
                     ) {
                         /** Handle Progress Based Download WorkRequests Here */
                     }
-                    if (workInfo.state == WorkInfo.State.SUCCEEDED){
-                        downloadScheduleWorker{errorReceived, errorMsg ->
+                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                        downloadScheduleWorker { errorReceived, errorMsg ->
                             error(errorReceived, errorMsg)
                         }
                     }

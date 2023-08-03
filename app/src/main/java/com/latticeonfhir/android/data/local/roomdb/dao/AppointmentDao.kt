@@ -19,7 +19,7 @@ interface AppointmentDao {
     suspend fun updateAppointmentFhirId(id: String, fhirId: String): Int
 
     @Transaction
-    @Query("SELECT * FROM AppointmentEntity WHERE patientId=:patientId and status=:status")
+    @Query("SELECT * FROM AppointmentEntity WHERE patientId=:patientId and status=:status ORDER BY startTime")
     suspend fun getAppointmentsOfPatientByStatus(patientId: String, status: String): List<AppointmentEntity>
 
     @Transaction
@@ -27,7 +27,7 @@ interface AppointmentDao {
     suspend fun getAppointmentsByDate(startOfDay: Long, endOfDay: Long): List<AppointmentEntity>
 
     @Transaction
-    @Query("SELECT * FROM AppointmentEntity WHERE patientId=:patientId AND startTime BETWEEN :startOfDay AND :endOfDay")
+    @Query("SELECT * FROM AppointmentEntity WHERE patientId=:patientId AND status<>\"cancelled\" AND startTime BETWEEN :startOfDay AND :endOfDay")
     suspend fun getAppointmentOfPatientByDate(patientId: String, startOfDay: Long, endOfDay: Long): AppointmentEntity?
 
     @Transaction
