@@ -4,6 +4,8 @@ import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -28,9 +30,9 @@ class AppointmentRepositoryTest: BaseClass() {
 
     @Test
     fun getAppointmentListByDateTest() = runBlocking{
-        `when`(appointmentDao.getAppointmentsByDate(date, date)).thenReturn(listOf(appointmentResponse.toAppointmentEntity()))
-        val result = appointmentRepositoryImpl.getAppointmentListByDate(date, date)
-        assertEquals(listOf(appointmentResponse.toAppointmentEntity()), result)
+        `when`(appointmentDao.getAppointmentsByDate(date.time, date.time)).thenReturn(listOf(appointmentResponse.toAppointmentEntity()))
+        val result = appointmentRepositoryImpl.getAppointmentListByDate(date.time, date.time)
+        assertEquals(listOf(appointmentResponse), result)
     }
 
     @Test
@@ -59,6 +61,15 @@ class AppointmentRepositoryTest: BaseClass() {
         val result = appointmentRepositoryImpl.getAppointmentsOfPatientByStatus(id,
             AppointmentStatusEnum.NO_SHOW.value
         )
-        assertEquals(listOf(appointmentResponse.toAppointmentEntity()), result)
+        assertEquals(listOf(appointmentResponse), result)
+    }
+
+    @Test
+    fun getAppointmentsOfPatientByDateTest() = runBlocking {
+        `when`(appointmentDao.getAppointmentOfPatientByDate(id, date.toTodayStartDate(), date.toEndOfDay())).thenReturn(appointmentResponse.toAppointmentEntity())
+        val result = appointmentRepositoryImpl.getAppointmentsOfPatientByDate(id,
+            date.toTodayStartDate(), date.toEndOfDay()
+        )
+        assertEquals(appointmentResponse, result)
     }
 }

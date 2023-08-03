@@ -27,8 +27,8 @@ class ScheduleRepositoryTest: BaseClass() {
 
     @Test
     fun getBookedSlotsCountTest() = runBlocking {
-        `when`(scheduleDao.getBookedSlotsCountByStartTime(date)).thenReturn(2)
-        val result = scheduleRepositoryImpl.getBookedSlotsCount(date)
+        `when`(scheduleDao.getBookedSlotsCountByStartTime(date.time)).thenReturn(2)
+        val result = scheduleRepositoryImpl.getBookedSlotsCount(date.time)
         assertEquals(2, result)
     }
 
@@ -37,5 +37,29 @@ class ScheduleRepositoryTest: BaseClass() {
         `when`(scheduleDao.updateScheduleEntity(scheduleResponse.toScheduleEntity())).thenReturn(1)
         val result = scheduleRepositoryImpl.updateSchedule(scheduleResponse)
         assertEquals(1, result)
+    }
+    @Test
+    fun insertScheduleTest() = runBlocking {
+        `when`(scheduleDao.insertScheduleEntity(scheduleResponse.toScheduleEntity())).thenReturn(
+            listOf(-1L)
+        )
+        val result = scheduleRepositoryImpl.insertSchedule(scheduleResponse)
+        assertEquals(listOf(-1L), result)
+    }
+
+    @Test
+    fun getScheduleByIdTest() = runBlocking {
+        `when`(scheduleDao.getScheduleById(scheduleResponse.uuid)).thenReturn(
+            listOf(scheduleResponse.toScheduleEntity())
+        )
+        val result = scheduleRepositoryImpl.getScheduleById(scheduleResponse.uuid)
+        assertEquals(scheduleResponse, result)
+    }
+
+    @Test
+    fun getScheduleByStartTimeTest() = runBlocking {
+        `when`(scheduleDao.getScheduleByStartTime(date.time)).thenReturn(scheduleResponse.toScheduleEntity())
+        val result = scheduleRepositoryImpl.getScheduleByStartTime(date.time)
+        assertEquals(scheduleResponse, result)
     }
 }
