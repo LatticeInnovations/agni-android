@@ -3,6 +3,7 @@ package com.latticeonfhir.android.viewmodel
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
+import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
@@ -37,6 +38,9 @@ class PrescriptionViewModelTest : BaseClass() {
     lateinit var searchRepository: SearchRepository
 
     @Mock
+    lateinit var appointmentRepository: AppointmentRepository
+
+    @Mock
     lateinit var genericRepository: GenericRepository
     lateinit var prescriptionViewModel: PrescriptionViewModel
 
@@ -63,6 +67,7 @@ class PrescriptionViewModelTest : BaseClass() {
         patientFhirId = patientResponse.fhirId,
         generatedOn = date,
         prescriptionId = prescribedResponse.prescriptionId,
+        appointmentId = prescribedResponse.appointmentId,
         prescription = listOf(medication)
     )
 
@@ -70,6 +75,7 @@ class PrescriptionViewModelTest : BaseClass() {
         patientFhirId = patientResponse.fhirId?:patientResponse.id,
         generatedOn = date,
         prescriptionId = prescribedResponse.prescriptionId,
+        appointmentId = prescribedResponse.appointmentId,
         prescription = listOf(medication),
         prescriptionFhirId = null
     )
@@ -104,7 +110,8 @@ class PrescriptionViewModelTest : BaseClass() {
         patientId = patientResponse.id,
         prescriptionFhirId = prescribedResponse.prescriptionFhirId,
         patientFhirId = patientResponse.fhirId,
-        prescriptionDate = date
+        prescriptionDate = date,
+        appointmentId = prescriptionResponse.appointmentId
     )
 
     @Before
@@ -114,7 +121,8 @@ class PrescriptionViewModelTest : BaseClass() {
             prescriptionRepository,
             medicationRepository,
             searchRepository,
-            genericRepository
+            genericRepository,
+            appointmentRepository
         )
 
         runBlocking {
