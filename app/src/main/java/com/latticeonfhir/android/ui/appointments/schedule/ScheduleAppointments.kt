@@ -250,7 +250,8 @@ fun ScheduleAppointments(
                             slots,
                             viewModel.selectedSlot
                         ) { slot ->
-                            viewModel.selectedSlot = slot
+                            if (viewModel.selectedSlot == slot) viewModel.selectedSlot = ""
+                            else viewModel.selectedSlot = slot
                         }
                     }
                     SlotsHeading(
@@ -282,7 +283,8 @@ fun ScheduleAppointments(
                             slots,
                             viewModel.selectedSlot
                         ) { slot ->
-                            viewModel.selectedSlot = slot
+                            if (viewModel.selectedSlot == slot) viewModel.selectedSlot = ""
+                            else viewModel.selectedSlot = slot
                         }
                     }
                     SlotsHeading(
@@ -314,7 +316,8 @@ fun ScheduleAppointments(
                             slots,
                             viewModel.selectedSlot
                         ) { slot ->
-                            viewModel.selectedSlot = slot
+                            if (viewModel.selectedSlot == slot) viewModel.selectedSlot = ""
+                            else viewModel.selectedSlot = slot
                         }
                     }
                     if (viewModel.selectedSlot.isNotBlank()) Spacer(modifier = Modifier.height(60.dp))
