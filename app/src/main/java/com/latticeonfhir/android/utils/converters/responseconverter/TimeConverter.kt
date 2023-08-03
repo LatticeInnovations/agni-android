@@ -167,6 +167,16 @@ object TimeConverter {
         return calendar.timeInMillis
     }
 
+    internal fun Date.toTodayEndDate(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this.time
+        calendar[Calendar.HOUR_OF_DAY] = 11
+        calendar[Calendar.MINUTE] = 59
+        calendar[Calendar.SECOND] = 59
+        calendar[Calendar.MILLISECOND] = 0
+        return calendar.timeInMillis
+    }
+
     internal fun Long.toPatientDate(): String {
         return if (this != 0.toLong()) {
             val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())

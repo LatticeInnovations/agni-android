@@ -191,4 +191,5 @@ include them in the household</string>
     <string name="walk_in">Walk-in</string>
     <string name="arrived">Arrived</string>
     <string name="status">Status</string>
+    <string name="please_add_patient_to_queue">Please add patient to the queue to start prescription</string>
 </resources>
