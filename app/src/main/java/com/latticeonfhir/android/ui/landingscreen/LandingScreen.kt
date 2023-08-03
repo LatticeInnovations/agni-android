@@ -29,9 +29,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum.Companion.fromLabel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.landingscreen.*
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import kotlinx.coroutines.launch
@@ -41,7 +44,8 @@ import java.util.Date
 @Composable
 fun LandingScreen(
     navController: NavController,
-    viewModel: LandingScreenViewModel = hiltViewModel()
+    viewModel: LandingScreenViewModel = hiltViewModel(),
+    queueViewModel: QueueViewModel = hiltViewModel()
 ) {
     val focusRequester = remember { FocusRequester() }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -49,6 +53,33 @@ fun LandingScreen(
     val activity = LocalContext.current as Activity
     val dateScrollState = rememberLazyListState()
 
+    viewModel.addedToQueue = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
+        ADD_TO_QUEUE
+    ) == true
+    viewModel.patientArrived = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
+        PATIENT_ARRIVED
+    ) == true
+    LaunchedEffect(true) {
+        if (viewModel.addedToQueue) {
+            viewModel.selectedIndex = 1
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = activity.getString(R.string.added_to_queue)
+                )
+            }
+            navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(ADD_TO_QUEUE)
+        }
+
+        if (viewModel.patientArrived) {
+            viewModel.selectedIndex = 1
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = activity.getString(R.string.status_updated_to_arrived)
+                )
+            }
+            navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(PATIENT_ARRIVED)
+        }
+    }
     BackHandler(enabled = true) {
         if (viewModel.isSearching) {
             viewModel.isSearching = false
@@ -162,15 +193,17 @@ fun LandingScreen(
                                     coroutineScope.launch {
                                         dateScrollState.animateScrollToItem(7, scrollOffset = -130)
                                     }
-                                    viewModel.selectedDate = Date()
-                                    viewModel.weekList = viewModel.selectedDate.to14DaysWeek()
+                                    queueViewModel.selectedDate = Date()
+                                    queueViewModel.weekList =
+                                        queueViewModel.selectedDate.to14DaysWeek()
+                                    queueViewModel.getAppointmentListByDate()
                                 },
-                                enabled = viewModel.selectedDate.toSlotDate() != Date().toSlotDate()
+                                enabled = queueViewModel.selectedDate.toSlotDate() != Date().toSlotDate()
                             ) {
                                 Text(text = stringResource(id = R.string.reset))
                             }
                             IconButton(onClick = {
-                                viewModel.isSearchingInQueue = true
+                                queueViewModel.isSearchingInQueue = true
                             }) {
                                 Icon(
                                     Icons.Default.Search, contentDescription = "SEARCH_ICON"
@@ -289,7 +322,14 @@ fun LandingScreen(
                 ) {
                     when (viewModel.selectedIndex) {
                         0 -> MyPatientScreen(navController)
-                        1 -> QueueScreen(navController, viewModel, dateScrollState, coroutineScope)
+                        1 -> QueueScreen(
+                            navController,
+                            viewModel,
+                            dateScrollState,
+                            coroutineScope,
+                            snackbarHostState
+                        )
+
                         2 -> ProfileScreen()
                     }
                 }
@@ -438,7 +478,7 @@ fun LandingScreen(
             modifier = Modifier.matchParentSize()
         ) {
             AnimatedVisibility(
-                visible = viewModel.isSearchingInQueue,
+                visible = queueViewModel.isSearchingInQueue && viewModel.selectedIndex == 1,
                 enter = slideInVertically(initialOffsetY = { -it }),
                 exit = slideOutVertically(targetOffsetY = { -it })
             ) {
@@ -451,22 +491,25 @@ fun LandingScreen(
                     verticalArrangement = Arrangement.Top
                 ) {
                     TextField(
-                        value = viewModel.searchQueueQuery,
+                        value = queueViewModel.searchQueueQuery,
                         onValueChange = {
-                            viewModel.searchQueueQuery = it
+                            queueViewModel.searchQueueQuery = it
+                            queueViewModel.getAppointmentListByDate()
                         },
                         leadingIcon = {
                             IconButton(onClick = {
-                                viewModel.searchQueueQuery = ""
-                                viewModel.isSearchingInQueue = false
+                                queueViewModel.searchQueueQuery = ""
+                                queueViewModel.isSearchingInQueue = false
+                                queueViewModel.getAppointmentListByDate()
                             }) {
                                 Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
                             }
                         },
                         trailingIcon = {
-                            if (viewModel.searchQueueQuery.isNotBlank()) {
+                            if (queueViewModel.searchQueueQuery.isNotBlank()) {
                                 IconButton(onClick = {
-                                    viewModel.searchQueueQuery = ""
+                                    queueViewModel.searchQueueQuery = ""
+                                    queueViewModel.getAppointmentListByDate()
                                 }) {
                                     Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
                                 }
@@ -488,7 +531,7 @@ fun LandingScreen(
                         ),
                         keyboardActions = KeyboardActions(
                             onSearch = {
-                                viewModel.isSearchingInQueue = false
+                                queueViewModel.isSearchingInQueue = false
                             }
                         ),
                         singleLine = true
@@ -516,7 +559,6 @@ fun LandingScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(color = MaterialTheme.colorScheme.surface)
-                        .clickable { }
                         .testTag("CHANGE_STATUS_LAYOUT"),
                     verticalArrangement = Arrangement.Top
                 ) {
@@ -541,12 +583,28 @@ fun LandingScreen(
                             }
                         }
                     }
-                    viewModel.statusList.forEach { status ->
+                    queueViewModel.statusList.forEach { status ->
                         Text(
                             text = status,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(16.dp)
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
+                                .clickable {
+                                    queueViewModel.updateAppointmentStatus(fromLabel(status).value) {
+                                        viewModel.showStatusChangeLayout = false
+                                        queueViewModel.getAppointmentListByDate()
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                message = if (status == "Arrived") activity.getString(
+                                                    R.string.status_to_arrived
+                                                )
+                                                else activity.getString(R.string.status_to_completed)
+                                            )
+                                        }
+                                    }
+                                }
                         )
                         Divider(
                             thickness = 1.dp,

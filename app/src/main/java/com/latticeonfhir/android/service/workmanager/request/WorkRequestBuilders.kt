@@ -608,6 +608,8 @@ class WorkRequestBuilders(
                         ) == 100
                     ) {
                         /** Handle Progress Based Download WorkRequests Here */
+                    }
+                    if (workInfo.state == WorkInfo.State.SUCCEEDED){
                         downloadScheduleWorker{errorReceived, errorMsg ->
                             error(errorReceived, errorMsg)
                         }

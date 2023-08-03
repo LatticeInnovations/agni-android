@@ -49,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -65,6 +66,7 @@ import com.latticeonfhir.android.ui.appointments.schedule.SlotsHeading
 import com.latticeonfhir.android.ui.common.NonLazyGrid
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_SELECTED
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.RESCHEDULED
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonth
@@ -75,8 +77,9 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.tomorrow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,6 +90,7 @@ fun RescheduleAppointment(
 ) {
     val dateScrollState = rememberLazyListState()
     val composableScope = rememberCoroutineScope()
+    val context = LocalContext.current
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.appointment =
@@ -225,7 +229,8 @@ fun RescheduleAppointment(
                                 ),
                                 border = SuggestionChipDefaults.suggestionChipBorder(
                                     borderColor = Color.Transparent
-                                )
+                                ),
+                                enabled = date < Date().toOneYearFuture()
                             )
                         }
                     }
@@ -252,12 +257,14 @@ fun RescheduleAppointment(
                         var slots by remember {
                             mutableStateOf(0)
                         }
-                        viewModel.getBookedSlotsCount(
-                            stringArrayResource(id = R.array.morning_slot_timings)[index].toCurrentTimeInMillis(
-                                viewModel.selectedDate
-                            )
-                        ) { slotsCount ->
-                            slots = slotsCount
+                        LaunchedEffect(viewModel.selectedDate) {
+                            viewModel.getBookedSlotsCount(
+                                context.resources.getStringArray(R.array.morning_slot_timings)[index].toCurrentTimeInMillis(
+                                    viewModel.selectedDate
+                                )
+                            ) { slotsCount ->
+                                slots = slotsCount
+                            }
                         }
                         SlotChips(
                             index,
@@ -282,12 +289,14 @@ fun RescheduleAppointment(
                         var slots by remember {
                             mutableStateOf(0)
                         }
-                        viewModel.getBookedSlotsCount(
-                            stringArrayResource(id = R.array.afternoon_slot_timings)[index].toCurrentTimeInMillis(
-                                viewModel.selectedDate
-                            )
-                        ) { slotsCount ->
-                            slots = slotsCount
+                        LaunchedEffect(viewModel.selectedDate) {
+                            viewModel.getBookedSlotsCount(
+                                context.resources.getStringArray(R.array.afternoon_slot_timings)[index].toCurrentTimeInMillis(
+                                    viewModel.selectedDate
+                                )
+                            ) { slotsCount ->
+                                slots = slotsCount
+                            }
                         }
                         SlotChips(
                             index,
@@ -312,12 +321,14 @@ fun RescheduleAppointment(
                         var slots by remember {
                             mutableStateOf(0)
                         }
-                        viewModel.getBookedSlotsCount(
-                            stringArrayResource(id = R.array.evening_slot_timings)[index].toCurrentTimeInMillis(
-                                viewModel.selectedDate
-                            )
-                        ) { slotsCount ->
-                            slots = slotsCount
+                        LaunchedEffect(viewModel.selectedDate) {
+                            viewModel.getBookedSlotsCount(
+                                context.resources.getStringArray(R.array.evening_slot_timings)[index].toCurrentTimeInMillis(
+                                    viewModel.selectedDate
+                                )
+                            ) { slotsCount ->
+                                slots = slotsCount
+                            }
                         }
                         SlotChips(
                             index,
@@ -387,8 +398,13 @@ fun RescheduleAppointment(
                     onClick = {
                         // reschedule appointment
                         viewModel.rescheduleAppointment {
-                            Timber.d("manseeyy appointment rescheduled")
-                            navController.popBackStack()
+                            CoroutineScope(Dispatchers.Main).launch {
+                                navController.previousBackStackEntry?.savedStateHandle?.set(
+                                    RESCHEDULED,
+                                    true
+                                )
+                                navController.popBackStack()
+                            }
                         }
                     },
                     modifier = Modifier

@@ -27,14 +27,24 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.navigation.Screen
 
 @Composable
-fun AppointmentsFab(navController: NavController, patient: PatientResponse, isFabSelected: Boolean, updateFabSelected: (Boolean) -> Unit){
+fun AppointmentsFab(
+    navController: NavController,
+    patient: PatientResponse,
+    isFabSelected: Boolean,
+    appointment: AppointmentResponse?,
+    ifAlreadyWaiting: Boolean,
+    queueFabClicked: (Boolean) -> Unit
+) {
     AnimatedVisibility(visible = !isFabSelected) {
         FloatingActionButton(
-            onClick = { updateFabSelected(true)},
-            modifier = Modifier.testTag("ADD_APPOINTMENT_FAB").padding(bottom = 20.dp)
+            onClick = { queueFabClicked(false) },
+            modifier = Modifier
+                .testTag("ADD_APPOINTMENT_FAB")
+                .padding(bottom = 20.dp)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.add_icon),
@@ -54,7 +64,7 @@ fun AppointmentsFab(navController: NavController, patient: PatientResponse, isFa
                             patient
                         )
                         navController.navigate(Screen.ScheduleAppointments.route)
-                        updateFabSelected(false)
+                        queueFabClicked(false)
                     },
                     modifier = Modifier.testTag("ADD_SCHEDULE_FAB")
                 ) {
@@ -76,31 +86,36 @@ fun AppointmentsFab(navController: NavController, patient: PatientResponse, isFa
                     }
                 }
                 Spacer(modifier = Modifier.height(20.dp))
-                FloatingActionButton(
-                    onClick = { },
-                    modifier = Modifier.testTag("ADD_TO_QUEUE_FAB")
-                ) {
-                    Row(
-                        modifier = Modifier.padding(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                if (!ifAlreadyWaiting) {
+                    FloatingActionButton(
+                        onClick = { queueFabClicked(true) },
+                        modifier = Modifier.testTag("QUEUE_FAB")
                     ) {
-                        Text(
-                            text = stringResource(id = R.string.add_to_queue),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Icon(
-                            painter = painterResource(id = R.drawable.playlist_add_circle_icon),
-                            contentDescription = null,
-                            Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (appointment != null) stringResource(id = R.string.patient_arrived)
+                                else stringResource(id = R.string.add_to_queue),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Icon(
+                                painter = painterResource(id = R.drawable.playlist_add_circle_icon),
+                                contentDescription = null,
+                                Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
-                Spacer(modifier = Modifier.height(20.dp))
                 FloatingActionButton(
-                    onClick = { updateFabSelected(false) },
-                    modifier = Modifier.testTag("CLEAR_FAB").padding(bottom = 20.dp)
+                    onClick = { queueFabClicked(false) },
+                    modifier = Modifier
+                        .testTag("CLEAR_FAB")
+                        .padding(bottom = 20.dp)
                 ) {
                     Icon(
                         Icons.Default.Clear,
