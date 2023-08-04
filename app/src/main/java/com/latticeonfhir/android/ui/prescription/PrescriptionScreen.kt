@@ -116,6 +116,7 @@ fun PrescriptionScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     "patient"
                 )
+            viewModel.getPatientTodayAppointment()
             viewModel.patient?.let {
                 viewModel.getPreviousPrescription(it.id) { prescriptionList ->
                     viewModel.previousPrescriptionList = prescriptionList
