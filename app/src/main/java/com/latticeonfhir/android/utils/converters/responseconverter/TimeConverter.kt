@@ -281,7 +281,7 @@ object TimeConverter {
         calendar.timeInMillis = time
         calendar.set(Calendar.HOUR_OF_DAY, 23)
         calendar.set(Calendar.MINUTE, 59)
-        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
         val endTimeMillis = calendar.timeInMillis
         return ((endTimeMillis - time) / (1000 * 60))
