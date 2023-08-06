@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 
 @Composable
@@ -29,12 +29,12 @@ fun CompletedAppointments(viewModel: AppointmentsScreenViewModel) {
 }
 
 @Composable
-fun CompletedAppointmentCard(appointmentResponse: AppointmentResponse) {
+fun CompletedAppointmentCard(appointmentResponseLocal: AppointmentResponseLocal) {
     Row(
         modifier = Modifier.padding(vertical = 24.dp)
     ) {
         Text(
-            text = appointmentResponse.slot.start.toAppointmentDate(),
+            text = appointmentResponseLocal.slot.start.toAppointmentDate(),
             color = MaterialTheme.colorScheme.onBackground
         )
     }

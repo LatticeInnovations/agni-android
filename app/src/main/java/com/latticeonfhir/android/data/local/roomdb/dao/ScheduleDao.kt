@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
+import java.util.Date
 
 @Dao
 interface ScheduleDao {
@@ -24,8 +25,12 @@ interface ScheduleDao {
     suspend fun getScheduleById(vararg scheduleId: String): List<ScheduleEntity>
 
     @Transaction
-    @Query("SELECT id FROM ScheduleEntity WHERE scheduleFhirId=:fhirId")
-    suspend fun getScheduleIdByFhirId(fhirId: String): String?
+    @Query("SELECT startTime FROM ScheduleEntity WHERE scheduleFhirId=:fhirId")
+    suspend fun getScheduleStartTimeByFhirId(fhirId: String): Date?
+
+    @Transaction
+    @Query("SELECT scheduleFhirId FROM ScheduleEntity WHERE startTime=:startTime")
+    suspend fun getFhirIdByStartTime(startTime: Date): String?
 
     @Transaction
     @Query("SELECT COALESCE((SELECT bookedSlots FROM ScheduleEntity WHERE startTime=:start), :defaultValue)")

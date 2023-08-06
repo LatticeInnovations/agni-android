@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -36,7 +37,7 @@ class RescheduleAppointmentViewModel @Inject constructor(
     private val genericRepository: GenericRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
-    var appointment by mutableStateOf<AppointmentResponse?>(null)
+    var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
     var patient by mutableStateOf<PatientResponse?>(null)
     var showDatePicker by mutableStateOf(false)
     var selectedDate by mutableStateOf(Date().tomorrow())
@@ -54,24 +55,27 @@ class RescheduleAppointmentViewModel @Inject constructor(
     internal fun rescheduleAppointment(rescheduled: (Int) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             // free the slot of previous schedule
-            scheduleRepository.getScheduleById(appointment!!.scheduleId).let { scheduleResponse ->
-                scheduleRepository.updateSchedule(
-                    scheduleResponse.copy(
-                        bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+            scheduleRepository.getScheduleByStartTime(appointment!!.scheduleId.time).let { scheduleResponse ->
+                scheduleResponse?.let { previousScheduleResponse ->
+                    scheduleRepository.updateSchedule(
+                        previousScheduleResponse.copy(
+                            bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+                        )
                     )
-                )
+                }
             }
             // check for new schedule
-            var scheduleId = UUIDBuilder.generateUUID()
-            var scheduleFhirId: String? = null
-            scheduleRepository.getScheduleByStartTime(
-                selectedSlot.toCurrentTimeInMillis(
+            var scheduleId = selectedSlot.toCurrentTimeInMillis(
                     selectedDate
                 )
+            var scheduleFhirId: String? = null
+            var id = UUIDBuilder.generateUUID()
+            scheduleRepository.getScheduleByStartTime(scheduleId
             ).let { scheduleResponse ->
                 // if already exists, increase booked slots count
                 if (scheduleResponse != null) {
-                    scheduleId = scheduleResponse.uuid
+                    scheduleId = scheduleResponse.planningHorizon.start.time
+                    id = scheduleRepository.getScheduleByStartTime(scheduleId)?.uuid!!
                     scheduleFhirId = scheduleResponse.scheduleId
                     scheduleRepository.updateSchedule(
                         scheduleResponse.copy(
@@ -82,7 +86,7 @@ class RescheduleAppointmentViewModel @Inject constructor(
                     // create new schedule
                     scheduleRepository.insertSchedule(
                         ScheduleResponse(
-                            uuid = scheduleId,
+                            uuid = id,
                             scheduleId = null,
                             bookedSlots = 1,
                             orgId = preferenceRepository.getOrganizationFhirId(),
@@ -102,7 +106,7 @@ class RescheduleAppointmentViewModel @Inject constructor(
                     )
                     genericRepository.insertSchedule(
                         ScheduleResponse(
-                            uuid = scheduleId,
+                            uuid = id,
                             scheduleId = null,
                             bookedSlots = null,
                             orgId = preferenceRepository.getOrganizationFhirId(),
@@ -138,20 +142,29 @@ class RescheduleAppointmentViewModel @Inject constructor(
                 )
                 rescheduled(
                     appointmentRepository.updateAppointment(
-                        appointment!!.copy(
-                            scheduleId = scheduleId,
+                        AppointmentResponseLocal(
+                            appointmentId = appointment!!.appointmentId,
+                            uuid = appointment!!.uuid,
+                            scheduleId = Date(scheduleId),
                             createdOn = createdOn,
-                            slot = slot
+                            slot = slot,
+                            orgId = appointment!!.orgId,
+                            patientId = patient?.id!!,
+                            status = appointment!!.status
                         )
                     ).also {
                         if (appointment?.appointmentId.isNullOrBlank()) {
                             // if fhir id is null, insert post request
                             genericRepository.insertAppointment(
-                                appointment!!.copy(
-                                    scheduleId = scheduleFhirId ?: scheduleId,
+                                AppointmentResponse(
+                                    scheduleId = scheduleFhirId ?: id,
                                     createdOn = createdOn,
                                     slot = slot,
-                                    patientFhirId = patient?.fhirId ?: patient?.id
+                                    patientFhirId = patient?.fhirId ?: patient?.id,
+                                    appointmentId = appointment!!.appointmentId,
+                                    orgId = appointment!!.orgId,
+                                    status = appointment!!.status,
+                                    uuid = appointment!!.uuid
                                 )
                             )
                         } else {
@@ -177,7 +190,7 @@ class RescheduleAppointmentViewModel @Inject constructor(
                                         "scheduleId",
                                         ChangeRequest(
                                             operation = ChangeTypeEnum.REPLACE.value,
-                                            value = scheduleFhirId ?: scheduleId
+                                            value = scheduleFhirId ?: id
                                         )
                                     ),
                                     Pair(

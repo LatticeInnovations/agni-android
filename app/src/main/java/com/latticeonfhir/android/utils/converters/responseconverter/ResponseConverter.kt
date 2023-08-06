@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
 import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -324,7 +325,7 @@ internal suspend fun AppointmentResponse.toAppointmentEntity(
         appointmentFhirId = appointmentId,
         createdOn = createdOn,
         patientId = patientDao.getPatientIdByFhirId(patientFhirId!!)!!,
-        scheduleId = scheduleDao.getScheduleIdByFhirId(scheduleId)!!,
+        scheduleId = scheduleDao.getScheduleStartTimeByFhirId(scheduleId)!!,
         orgId = orgId,
         status = status,
         startTime = slot.start,
@@ -332,13 +333,31 @@ internal suspend fun AppointmentResponse.toAppointmentEntity(
     )
 }
 
-internal fun AppointmentEntity.toAppointmentResponse(): AppointmentResponse {
+internal suspend fun AppointmentEntity.toAppointmentResponse(
+    scheduleDao: ScheduleDao
+): AppointmentResponse {
     return AppointmentResponse(
         uuid = id,
         createdOn = createdOn,
         appointmentId = appointmentFhirId,
         orgId = orgId,
         patientFhirId = patientId,
+        scheduleId = scheduleDao.getFhirIdByStartTime(scheduleId)!!,
+        slot = Slot(
+            start = startTime,
+            end = endTime
+        ),
+        status = status
+    )
+}
+
+internal fun AppointmentEntity.toAppointmentResponseLocal(): AppointmentResponseLocal {
+    return AppointmentResponseLocal(
+        uuid = id,
+        createdOn = createdOn,
+        appointmentId = appointmentFhirId,
+        orgId = orgId,
+        patientId = patientId,
         scheduleId = scheduleId,
         slot = Slot(
             start = startTime,
@@ -349,12 +368,12 @@ internal fun AppointmentEntity.toAppointmentResponse(): AppointmentResponse {
 }
 
 // Appointment Response from Local
-internal fun AppointmentResponse.toAppointmentEntity(): AppointmentEntity {
+internal fun AppointmentResponseLocal.toAppointmentEntity(): AppointmentEntity {
     return AppointmentEntity(
         id = uuid,
         appointmentFhirId = appointmentId,
         createdOn = createdOn,
-        patientId = patientFhirId!!,
+        patientId = patientId,
         scheduleId = scheduleId,
         orgId = orgId,
         status = status,

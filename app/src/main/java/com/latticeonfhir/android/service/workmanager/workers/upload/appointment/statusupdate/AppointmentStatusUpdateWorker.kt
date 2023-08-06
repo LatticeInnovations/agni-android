@@ -47,6 +47,7 @@ abstract class AppointmentStatusUpdateWorker(context: Context, workerParameters:
 
     private suspend fun insertInGenericEntity(appointmentEntity: AppointmentEntity): Long {
         val genericDao = (applicationContext as FhirApp).fhirAppDatabase.getGenericDao()
+        val scheduleDao = (applicationContext as FhirApp).fhirAppDatabase.getScheduleDao()
         return genericDao.getGenericEntityById(
             patientId = appointmentEntity.id,
             genericTypeEnum = GenericTypeEnum.APPOINTMENT,
@@ -58,7 +59,7 @@ abstract class AppointmentStatusUpdateWorker(context: Context, workerParameters:
                     appointmentGenericEntity.copy(
                         payload = appointmentEntity.copy(
                             status = AppointmentStatusEnum.NO_SHOW.value
-                        ).toAppointmentResponse().toJson()
+                        ).toAppointmentResponse(scheduleDao).toJson()
                     )
                 )[0]
             } else {
