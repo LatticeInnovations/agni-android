@@ -2,6 +2,7 @@ package com.latticeonfhir.android.base
 
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
@@ -252,4 +253,60 @@ abstract class BaseClass : TestCase() {
              end = date
          )
      )
+
+    val completedAppointmentResponse = AppointmentResponse(
+        uuid = id,
+        appointmentId = "APPOINTMENT_FHIR_ID",
+        createdOn = date,
+        orgId = "ORG_ID",
+        patientFhirId = "PATIENT_FHIR_ID",
+        scheduleId = "SCHEDULE_FHIR_ID",
+        status = AppointmentStatusEnum.COMPLETED.value,
+        slot = Slot(
+            start = date,
+            end = date
+        )
+    )
+
+    val appointmentResponseLocal = AppointmentResponseLocal(
+        uuid = id,
+        appointmentId = "APPOINTMENT_FHIR_ID",
+        createdOn = date,
+        orgId = "ORG_ID",
+        patientId = "PATIENT_FHIR_ID",
+        scheduleId = date,
+        status = AppointmentStatusEnum.SCHEDULED.value,
+        slot = Slot(
+            start = date,
+            end = date
+        )
+    )
+
+    val appointmentResponseLocalNullFhirId = AppointmentResponseLocal(
+        uuid = id,
+        appointmentId = null,
+        createdOn = date,
+        orgId = "ORG_ID",
+        patientId = "PATIENT_FHIR_ID",
+        scheduleId = date,
+        status = AppointmentStatusEnum.SCHEDULED.value,
+        slot = Slot(
+            start = date,
+            end = date
+        )
+    )
+
+    val completedAppointmentResponseLocal = AppointmentResponseLocal(
+        uuid = id,
+        appointmentId = "APPOINTMENT_FHIR_ID",
+        createdOn = date,
+        orgId = "ORG_ID",
+        patientId = "PATIENT_FHIR_ID",
+        scheduleId = date,
+        status = AppointmentStatusEnum.COMPLETED.value,
+        slot = Slot(
+            start = date,
+            end = date
+        )
+    )
 }
