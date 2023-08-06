@@ -258,19 +258,33 @@ class AppointmentsScreenViewModel @Inject constructor(
                         status = AppointmentStatusEnum.ARRIVED.value
                     )
                 ).also {
-                    genericRepository.insertOrUpdateAppointmentPatch(
-                        appointmentFhirId = todaysAppointment!!.appointmentId
-                            ?: todaysAppointment!!.uuid,
-                        map = mapOf(
-                            Pair(
-                                "status",
-                                ChangeRequest(
-                                    operation = ChangeTypeEnum.REPLACE.value,
-                                    value = AppointmentStatusEnum.ARRIVED.value
+                    if (todaysAppointment!!.appointmentId.isNullOrBlank()){
+                        genericRepository.insertAppointment(
+                            AppointmentResponse(
+                                appointmentId = null,
+                                createdOn = todaysAppointment!!.createdOn,
+                                orgId = todaysAppointment!!.orgId,
+                                patientFhirId = patient?.fhirId ?: patient?.id,
+                                scheduleId = scheduleRepository.getScheduleByStartTime(todaysAppointment!!.scheduleId.time)?.scheduleId!!,
+                                slot = todaysAppointment!!.slot,
+                                status = AppointmentStatusEnum.ARRIVED.value,
+                                uuid = todaysAppointment!!.uuid
+                            )
+                        )
+                    } else {
+                        genericRepository.insertOrUpdateAppointmentPatch(
+                            appointmentFhirId = todaysAppointment!!.appointmentId!!,
+                            map = mapOf(
+                                Pair(
+                                    "status",
+                                    ChangeRequest(
+                                        operation = ChangeTypeEnum.REPLACE.value,
+                                        value = AppointmentStatusEnum.ARRIVED.value
+                                    )
                                 )
                             )
                         )
-                    )
+                    }
                 }
             )
         }
