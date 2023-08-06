@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "ea59d081cfefc08ce6792fecd1d263f0",
+    "identityHash": "ed2cbda258477fcf9b130e53db1e41dd",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -613,7 +613,7 @@
       },
       {
         "tableName": "ScheduleEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `scheduleFhirId` TEXT, `startTime` INTEGER NOT NULL, `endTime` INTEGER NOT NULL, `orgId` TEXT NOT NULL, `bookedSlots` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `scheduleFhirId` TEXT, `startTime` INTEGER NOT NULL, `endTime` INTEGER NOT NULL, `orgId` TEXT NOT NULL, `bookedSlots` INTEGER NOT NULL, PRIMARY KEY(`startTime`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -655,7 +655,7 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "id"
+            "startTime"
           ]
         },
         "indices": [],
@@ -663,7 +663,7 @@
       },
       {
         "tableName": "AppointmentEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `appointmentFhirId` TEXT, `patientId` TEXT NOT NULL, `scheduleId` TEXT NOT NULL, `startTime` INTEGER NOT NULL, `endTime` INTEGER NOT NULL, `orgId` TEXT NOT NULL, `createdOn` INTEGER NOT NULL, `status` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`scheduleId`) REFERENCES `ScheduleEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `appointmentFhirId` TEXT, `patientId` TEXT NOT NULL, `scheduleId` INTEGER NOT NULL, `startTime` INTEGER NOT NULL, `endTime` INTEGER NOT NULL, `orgId` TEXT NOT NULL, `createdOn` INTEGER NOT NULL, `status` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`scheduleId`) REFERENCES `ScheduleEntity`(`startTime`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -686,7 +686,7 @@
           {
             "fieldPath": "scheduleId",
             "columnName": "scheduleId",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -747,7 +747,7 @@
               "scheduleId"
             ],
             "referencedColumns": [
-              "id"
+              "startTime"
             ]
           }
         ]
@@ -765,7 +765,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ea59d081cfefc08ce6792fecd1d263f0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ed2cbda258477fcf9b130e53db1e41dd')"
     ]
   }
 }

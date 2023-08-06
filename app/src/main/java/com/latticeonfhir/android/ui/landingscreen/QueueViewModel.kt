@@ -10,6 +10,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -41,19 +42,19 @@ class QueueViewModel @Inject constructor(
     var selectedDate by mutableStateOf(Date())
     var weekList by mutableStateOf(selectedDate.to14DaysWeek())
     var showDatePicker by mutableStateOf(false)
-    var appointmentsList by mutableStateOf(listOf<AppointmentResponse>())
+    var appointmentsList by mutableStateOf(listOf<AppointmentResponseLocal>())
     var showCancelAppointmentDialog by mutableStateOf(false)
     var statusList by mutableStateOf(listOf<String>())
     var isSearchingInQueue by mutableStateOf(false)
     var searchQueueQuery by mutableStateOf("")
-    var waitingQueueList by mutableStateOf(listOf<AppointmentResponse>())
-    var inProgressQueueList by mutableStateOf(listOf<AppointmentResponse>())
-    var scheduledQueueList by mutableStateOf(listOf<AppointmentResponse>())
-    var completedQueueList by mutableStateOf(listOf<AppointmentResponse>())
-    var cancelledQueueList by mutableStateOf(listOf<AppointmentResponse>())
-    var noShowQueueList by mutableStateOf(listOf<AppointmentResponse>())
+    var waitingQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
+    var inProgressQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
+    var scheduledQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
+    var completedQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
+    var cancelledQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
+    var noShowQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
     var patientSelected by mutableStateOf<PatientResponse?>(null)
-    var appointmentSelected by mutableStateOf<AppointmentResponse?>(null)
+    var appointmentSelected by mutableStateOf<AppointmentResponseLocal?>(null)
     var selectedChip by mutableStateOf(R.string.total_appointment)
     var rescheduled by mutableStateOf(false)
 
@@ -70,29 +71,29 @@ class QueueViewModel @Inject constructor(
             appointmentsList = appointmentRepository.getAppointmentListByDate(
                 selectedDate.toTodayStartDate(),
                 selectedDate.toEndOfDay()
-            ).filter { appointmentResponse ->
-                val patient = getPatientById(appointmentResponse.patientFhirId!!)
+            ).filter { AppointmentResponseLocal ->
+                val patient = getPatientById(AppointmentResponseLocal.patientId)
                 patient.firstName.contains(searchQueueQuery, true)
                         || patient.middleName?.contains(searchQueueQuery, true) == true
                         || patient.lastName?.contains(searchQueueQuery, true) == true
             }
-            waitingQueueList = appointmentsList.filter { appointmentResponse ->
-                appointmentResponse.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponse.status == AppointmentStatusEnum.ARRIVED.value
+            waitingQueueList = appointmentsList.filter { AppointmentResponseLocal ->
+                AppointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || AppointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value
             }
-            inProgressQueueList = appointmentsList.filter { appointmentResponse ->
-                appointmentResponse.status == AppointmentStatusEnum.IN_PROGRESS.value
+            inProgressQueueList = appointmentsList.filter { AppointmentResponseLocal ->
+                AppointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value
             }
-            scheduledQueueList = appointmentsList.filter { appointmentResponse ->
-                appointmentResponse.status == AppointmentStatusEnum.SCHEDULED.value
+            scheduledQueueList = appointmentsList.filter { AppointmentResponseLocal ->
+                AppointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
             }
-            completedQueueList = appointmentsList.filter { appointmentResponse ->
-                appointmentResponse.status == AppointmentStatusEnum.COMPLETED.value
+            completedQueueList = appointmentsList.filter { AppointmentResponseLocal ->
+                AppointmentResponseLocal.status == AppointmentStatusEnum.COMPLETED.value
             }
-            cancelledQueueList = appointmentsList.filter { appointmentResponse ->
-                appointmentResponse.status == AppointmentStatusEnum.CANCELLED.value
+            cancelledQueueList = appointmentsList.filter { AppointmentResponseLocal ->
+                AppointmentResponseLocal.status == AppointmentStatusEnum.CANCELLED.value
             }
-            noShowQueueList = appointmentsList.filter { appointmentResponse ->
-                appointmentResponse.status == AppointmentStatusEnum.NO_SHOW.value
+            noShowQueueList = appointmentsList.filter { AppointmentResponseLocal ->
+                AppointmentResponseLocal.status == AppointmentStatusEnum.NO_SHOW.value
             }
         }
     }
@@ -109,26 +110,47 @@ class QueueViewModel @Inject constructor(
                         status = AppointmentStatusEnum.CANCELLED.value
                     )
                 ).also {
-                    scheduleRepository.getScheduleById(appointmentSelected?.scheduleId!!)
+                    scheduleRepository.getScheduleByStartTime(appointmentSelected?.scheduleId?.time!!)
                         .let { scheduleResponse ->
-                            scheduleRepository.updateSchedule(
-                                scheduleResponse.copy(
-                                    bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+                            scheduleResponse?.let { previousScheduleResponse ->
+                                scheduleRepository.updateSchedule(
+                                    previousScheduleResponse.copy(
+                                        bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+                                    )
                                 )
-                            )
+                            }
                         }
-                    genericRepository.insertOrUpdateAppointmentPatch(
-                        appointmentFhirId = appointmentSelected?.appointmentId!!,
-                        map = mapOf(
-                            Pair(
-                                "status",
-                                ChangeRequest(
-                                    value = AppointmentStatusEnum.CANCELLED.value,
-                                    operation = ChangeTypeEnum.REPLACE.value
+                    if (appointmentSelected?.appointmentId.isNullOrBlank()) {
+                        genericRepository.insertAppointment(
+                            AppointmentResponse(
+                                scheduleId = scheduleRepository.getScheduleByStartTime(
+                                    appointmentSelected!!.scheduleId.time
+                                )?.scheduleId ?: scheduleRepository.getScheduleByStartTime(
+                                    appointmentSelected!!.scheduleId.time
+                                )?.uuid!!,
+                                createdOn = appointmentSelected!!.createdOn,
+                                slot = appointmentSelected!!.slot,
+                                patientFhirId = appointmentSelected!!.patientId,
+                                appointmentId = appointmentSelected!!.appointmentId,
+                                orgId = appointmentSelected!!.orgId,
+                                status = AppointmentStatusEnum.CANCELLED.value,
+                                uuid = appointmentSelected!!.uuid
+                            )
+                        )
+                    } else {
+                        genericRepository.insertOrUpdateAppointmentPatch(
+                            appointmentFhirId = appointmentSelected?.appointmentId!!,
+                            map = mapOf(
+                                Pair(
+                                    "status",
+                                    ChangeRequest(
+                                        value = AppointmentStatusEnum.CANCELLED.value,
+                                        operation = ChangeTypeEnum.REPLACE.value
+                                    )
                                 )
                             )
                         )
-                    )
+                    }
                 }
             )
         }

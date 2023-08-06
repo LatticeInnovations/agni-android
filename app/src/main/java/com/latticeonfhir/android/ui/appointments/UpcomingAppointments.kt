@@ -25,7 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_SELECTED
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
@@ -49,8 +49,8 @@ fun UpcomingAppointments(navController: NavController, viewModel: AppointmentsSc
                 Text(text = stringResource(id = R.string.no_upcoming_appointments))
             }
         } else {
-            viewModel.upcomingAppointmentsList.forEach { appointmentResponse ->
-                UpcomingAppointmentCard(navController, appointmentResponse, viewModel)
+            viewModel.upcomingAppointmentsList.forEach { appointmentResponseLocal ->
+                UpcomingAppointmentCard(navController, appointmentResponseLocal, viewModel)
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -58,7 +58,7 @@ fun UpcomingAppointments(navController: NavController, viewModel: AppointmentsSc
 }
 
 @Composable
-fun UpcomingAppointmentCard(navController: NavController, appointmentResponse: AppointmentResponse, viewModel: AppointmentsScreenViewModel) {
+fun UpcomingAppointmentCard(navController: NavController, appointmentResponseLocal: AppointmentResponseLocal, viewModel: AppointmentsScreenViewModel) {
     Card(
         border = BorderStroke(
             width = 1.dp,
@@ -69,7 +69,7 @@ fun UpcomingAppointmentCard(navController: NavController, appointmentResponse: A
         )
     ) {
         Text(
-            text = appointmentResponse.slot.start.toAppointmentDate(),
+            text = appointmentResponseLocal.slot.start.toAppointmentDate(),
             modifier = Modifier.padding(
                 vertical = 32.dp,
                 horizontal = 16.dp
@@ -87,7 +87,7 @@ fun UpcomingAppointmentCard(navController: NavController, appointmentResponse: A
                 color = MaterialTheme.colorScheme.surface
             ) {
                 TextButton(onClick = {
-                    viewModel.selectedAppointment = appointmentResponse
+                    viewModel.selectedAppointment = appointmentResponseLocal
                     viewModel.showCancelAppointmentDialog = true
                 }) {
                     Text(text = stringResource(id = R.string.cancel))
@@ -98,7 +98,7 @@ fun UpcomingAppointmentCard(navController: NavController, appointmentResponse: A
                 color = MaterialTheme.colorScheme.secondaryContainer
             ) {
                 TextButton(onClick = {
-                    viewModel.selectedAppointment = appointmentResponse
+                    viewModel.selectedAppointment = appointmentResponseLocal
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         PATIENT,
                         viewModel.patient

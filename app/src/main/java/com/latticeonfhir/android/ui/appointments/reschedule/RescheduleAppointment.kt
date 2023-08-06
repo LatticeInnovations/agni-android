@@ -59,8 +59,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.ui.appointments.schedule.SlotChips
 import com.latticeonfhir.android.ui.appointments.schedule.SlotsHeading
 import com.latticeonfhir.android.ui.common.NonLazyGrid
@@ -94,7 +94,7 @@ fun RescheduleAppointment(
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.appointment =
-                navController.previousBackStackEntry?.savedStateHandle?.get<AppointmentResponse>(APPOINTMENT_SELECTED)
+                navController.previousBackStackEntry?.savedStateHandle?.get<AppointmentResponseLocal>(APPOINTMENT_SELECTED)
             viewModel.patient =
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(PATIENT)
         }

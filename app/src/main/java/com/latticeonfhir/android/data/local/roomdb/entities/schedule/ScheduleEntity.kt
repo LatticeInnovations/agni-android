@@ -8,9 +8,9 @@ import java.util.Date
 @Keep
 @Entity
 data class ScheduleEntity (
-    @PrimaryKey
     val id: String,
     val scheduleFhirId: String?,
+    @PrimaryKey
     val startTime: Date,
     val endTime: Date,
     val orgId: String,

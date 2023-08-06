@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -52,14 +53,14 @@ class AppointmentsScreenViewModel @Inject constructor(
     var scheduled by mutableStateOf(false)
 
     var showCancelAppointmentDialog by mutableStateOf(false)
-    var selectedAppointment by mutableStateOf<AppointmentResponse?>(null)
-    var todaysAppointment by mutableStateOf<AppointmentResponse?>(null)
+    var selectedAppointment by mutableStateOf<AppointmentResponseLocal?>(null)
+    var todaysAppointment by mutableStateOf<AppointmentResponseLocal?>(null)
 
     var upcomingAppointmentsList by mutableStateOf(
-        listOf<AppointmentResponse>()
+        listOf<AppointmentResponseLocal>()
     )
 
-    var completedAppointmentsList by mutableStateOf(listOf<AppointmentResponse>())
+    var completedAppointmentsList by mutableStateOf(listOf<AppointmentResponseLocal>())
 
     internal fun getAppointmentsList(patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -70,8 +71,8 @@ class AppointmentsScreenViewModel @Inject constructor(
             todaysAppointment = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patientId,
                 AppointmentStatusEnum.SCHEDULED.value
-            ).firstOrNull { appointmentResponse ->
-                appointmentResponse.slot.start.time < Date().toEndOfDay()
+            ).firstOrNull { AppointmentResponseLocal ->
+                AppointmentResponseLocal.slot.start.time < Date().toEndOfDay()
             }
             completedAppointmentsList = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patientId,
@@ -81,9 +82,9 @@ class AppointmentsScreenViewModel @Inject constructor(
                 patientId,
                 Date().toTodayStartDate(),
                 Date().toEndOfDay()
-            ).let { appointmentResponse ->
-                ifAlreadyWaiting = if (appointmentResponse == null) false
-                else appointmentResponse.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponse.status == AppointmentStatusEnum.ARRIVED.value
+            ).let { AppointmentResponseLocal ->
+                ifAlreadyWaiting = if (AppointmentResponseLocal == null) false
+                else AppointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || AppointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value
             }
             ifAllSlotsBooked = appointmentRepository.getAppointmentListByDate(Date().toTodayStartDate(), Date().toEndOfDay()).size >= 80
         }
@@ -97,25 +98,45 @@ class AppointmentsScreenViewModel @Inject constructor(
                         status = AppointmentStatusEnum.CANCELLED.value
                     )
                 ).also {
-                    scheduleRepository.getScheduleById(selectedAppointment?.scheduleId!!).let {  scheduleResponse ->
-                        scheduleRepository.updateSchedule(
-                            scheduleResponse.copy(
-                                bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+                    // update previous schedule
+                    scheduleRepository.getScheduleByStartTime(selectedAppointment?.scheduleId?.time!!).let {  scheduleResponse ->
+                        scheduleResponse?.let { previousScheduleResponse ->
+                            scheduleRepository.updateSchedule(
+                                previousScheduleResponse.copy(
+                                    bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+                                )
+                            )
+                        }
+                    }
+                    if (selectedAppointment?.appointmentId.isNullOrBlank()) {
+                        // if fhir id is null, insert post request
+                        genericRepository.insertAppointment(
+                            AppointmentResponse(
+                                appointmentId = selectedAppointment!!.uuid,
+                                uuid = selectedAppointment!!.uuid,
+                                patientFhirId = patient?.fhirId?:patient?.id,
+                                scheduleId = (scheduleRepository.getScheduleByStartTime(selectedAppointment!!.scheduleId.time)?.scheduleId?:scheduleRepository.getScheduleByStartTime(selectedAppointment!!.scheduleId.time)?.uuid)!!,
+                                slot = selectedAppointment!!.slot,
+                                orgId = selectedAppointment!!.orgId,
+                                createdOn = selectedAppointment!!.createdOn,
+                                status = AppointmentStatusEnum.CANCELLED.value
                             )
                         )
-                    }
-                    genericRepository.insertOrUpdateAppointmentPatch(
-                        appointmentFhirId = selectedAppointment?.appointmentId!!,
-                        map = mapOf(
-                            Pair(
-                                "status",
-                                ChangeRequest(
-                                    value = AppointmentStatusEnum.CANCELLED.value,
-                                    operation = ChangeTypeEnum.REPLACE.value
+                    } else {
+                        // insert patch request
+                        genericRepository.insertOrUpdateAppointmentPatch(
+                            appointmentFhirId = selectedAppointment?.appointmentId!!,
+                            map = mapOf(
+                                Pair(
+                                    "status",
+                                    ChangeRequest(
+                                        value = AppointmentStatusEnum.CANCELLED.value,
+                                        operation = ChangeTypeEnum.REPLACE.value
+                                    )
                                 )
                             )
                         )
-                    )
+                    }
                 }
             )
         }
@@ -124,8 +145,11 @@ class AppointmentsScreenViewModel @Inject constructor(
     internal fun addPatientToQueue(addedToQueue: (List<Long>) -> Unit){
         viewModelScope.launch(Dispatchers.IO){
             val selectedSlot = Date().toSlotStartTime()
-            Timber.d("manseeyy $selectedSlot")
-            var scheduleId = UUIDBuilder.generateUUID()
+            var scheduleId = Date(
+                selectedSlot.toCurrentTimeInMillis(
+                    Date()
+                )
+            )
             var scheduleFhirId: String? = null
             scheduleRepository.getScheduleByStartTime(
                 selectedSlot.toCurrentTimeInMillis(
@@ -134,7 +158,7 @@ class AppointmentsScreenViewModel @Inject constructor(
             ).let { scheduleResponse ->
                 if (scheduleResponse != null) {
                     Timber.d("manseeyy already scheduled")
-                    scheduleId = scheduleResponse.uuid
+                    scheduleId = scheduleResponse.planningHorizon.start
                     scheduleFhirId = scheduleResponse.scheduleId
                     scheduleRepository.updateSchedule(
                         scheduleResponse.copy(
@@ -142,9 +166,10 @@ class AppointmentsScreenViewModel @Inject constructor(
                         )
                     )
                 } else {
+                    val uuid = UUIDBuilder.generateUUID()
                     scheduleRepository.insertSchedule(
                         ScheduleResponse(
-                            uuid = scheduleId,
+                            uuid = uuid,
                             scheduleId = null,
                             bookedSlots = 1,
                             orgId = preferenceRepository.getOrganizationFhirId(),
@@ -164,7 +189,7 @@ class AppointmentsScreenViewModel @Inject constructor(
                     )
                     genericRepository.insertSchedule(
                         ScheduleResponse(
-                            uuid = scheduleId,
+                            uuid = uuid,
                             scheduleId = null,
                             bookedSlots = null,
                             orgId = preferenceRepository.getOrganizationFhirId(),
@@ -186,23 +211,24 @@ class AppointmentsScreenViewModel @Inject constructor(
             }.also {
                 val appointmentId = UUIDBuilder.generateUUID()
                 val createdOn = Date()
+                val slot = Slot(
+                    start = Date(Date().toAppointmentTime().toCurrentTimeInMillis(Date())),
+                    end = Date(
+                        Date().toAppointmentTime().to5MinutesAfter(
+                            Date()
+                        )
+                    )
+                )
                 addedToQueue(
                     appointmentRepository.addAppointment(
-                        AppointmentResponse(
+                        AppointmentResponseLocal(
                             appointmentId = null,
                             uuid = appointmentId,
-                            patientFhirId = patient?.id,
+                            patientId = patient?.id!!,
                             scheduleId = scheduleId,
                             createdOn = createdOn,
                             orgId = preferenceRepository.getOrganizationFhirId(),
-                            slot = Slot(
-                                start = Date(Date().toAppointmentTime().toCurrentTimeInMillis(Date())),
-                                end = Date(
-                                    Date().toAppointmentTime().to5MinutesAfter(
-                                        Date()
-                                    )
-                                )
-                            ),
+                            slot = slot,
                             status = AppointmentStatusEnum.WALK_IN.value
                         )
                     ).also {
@@ -211,17 +237,10 @@ class AppointmentsScreenViewModel @Inject constructor(
                                 appointmentId = null,
                                 uuid = appointmentId,
                                 patientFhirId = patient?.fhirId ?: patient?.id,
-                                scheduleId = scheduleFhirId ?: scheduleId,
+                                scheduleId = scheduleFhirId ?: scheduleRepository.getScheduleByStartTime(scheduleId.time)?.uuid!!,
                                 createdOn = createdOn,
                                 orgId = preferenceRepository.getOrganizationFhirId(),
-                                slot = Slot(
-                                    start = Date(Date().toAppointmentTime().toCurrentTimeInMillis(Date())),
-                                    end = Date(
-                                        Date().toAppointmentTime().to5MinutesAfter(
-                                            Date()
-                                        )
-                                    )
-                                ),
+                                slot = slot,
                                 status = AppointmentStatusEnum.WALK_IN.value
                             )
                         )
@@ -230,6 +249,7 @@ class AppointmentsScreenViewModel @Inject constructor(
             }
         }
     }
+
     internal fun updateStatusToArrived(updated: (Int) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             updated(

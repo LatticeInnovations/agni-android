@@ -9,6 +9,7 @@ import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -51,7 +52,7 @@ class PatientLandingScreenViewModel @Inject constructor(
     var logoutReason by mutableStateOf("")
 
     var appointmentsCount by mutableStateOf(0)
-    var appointment by mutableStateOf<AppointmentResponse?>(null)
+    var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
     var isFabSelected by mutableStateOf(false)
     var ifAlreadyWaiting by mutableStateOf(false)
     var ifAllSlotsBooked by mutableStateOf(false)
@@ -162,42 +163,36 @@ class PatientLandingScreenViewModel @Inject constructor(
             }.also {
                 val appointmentId = UUIDBuilder.generateUUID()
                 val createdOn = Date()
+                val slot = Slot(
+                    start = Date(Date().toAppointmentTime().toCurrentTimeInMillis(Date())),
+                    end = Date(
+                        Date().toAppointmentTime().to5MinutesAfter(
+                            Date()
+                        )
+                    )
+                )
                 addedToQueue(
                     appointmentRepository.addAppointment(
-                        AppointmentResponse(
+                        AppointmentResponseLocal(
                             appointmentId = null,
                             uuid = appointmentId,
-                            patientFhirId = patient?.id,
-                            scheduleId = scheduleId,
+                            patientId = patient?.id!!,
+                            scheduleId = scheduleRepository.getScheduleById(scheduleId).planningHorizon.start,
                             createdOn = createdOn,
                             orgId = preferenceRepository.getOrganizationFhirId(),
-                            slot = Slot(
-                                start = Date(Date().toAppointmentTime().toCurrentTimeInMillis(Date())),
-                                end = Date(
-                                    Date().toAppointmentTime().to5MinutesAfter(
-                                        Date()
-                                    )
-                                )
-                            ),
+                            slot = slot,
                             status = AppointmentStatusEnum.WALK_IN.value
                         )
                     ).also {
                         genericRepository.insertAppointment(
                             AppointmentResponse(
-                                appointmentId = null,
+                                appointmentId = appointmentId,
                                 uuid = appointmentId,
                                 patientFhirId = patient?.fhirId ?: patient?.id,
                                 scheduleId = scheduleFhirId ?: scheduleId,
                                 createdOn = createdOn,
                                 orgId = preferenceRepository.getOrganizationFhirId(),
-                                slot = Slot(
-                                    start = Date(Date().toAppointmentTime().toCurrentTimeInMillis(Date())),
-                                    end = Date(
-                                        Date().toAppointmentTime().to5MinutesAfter(
-                                            Date()
-                                        )
-                                    )
-                                ),
+                                slot = slot,
                                 status = AppointmentStatusEnum.WALK_IN.value
                             )
                         )

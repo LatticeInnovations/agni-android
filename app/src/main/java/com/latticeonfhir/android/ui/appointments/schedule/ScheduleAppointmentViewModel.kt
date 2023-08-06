@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -65,24 +66,26 @@ class ScheduleAppointmentViewModel @Inject constructor(
             ).let { existingAppointment ->
                 if (existingAppointment != null){
                     // free the slot of previous schedule
-                    scheduleRepository.getScheduleById(existingAppointment.scheduleId).let { scheduleResponse ->
+                    scheduleRepository.getScheduleByStartTime(existingAppointment.scheduleId.time).let { scheduleResponse ->
                         scheduleRepository.updateSchedule(
-                            scheduleResponse.copy(
+                            scheduleResponse!!.copy(
                                 bookedSlots = scheduleResponse.bookedSlots?.minus(1)
                             )
                         )
                     }
                     // check for new schedule
-                    var scheduleId = UUIDBuilder.generateUUID()
+                    var scheduleId = selectedSlot.toCurrentTimeInMillis(
+                        selectedDate
+                    )
+                    var id = UUIDBuilder.generateUUID()
                     var scheduleFhirId: String? = null
                     scheduleRepository.getScheduleByStartTime(
-                        selectedSlot.toCurrentTimeInMillis(
-                            selectedDate
-                        )
+                        scheduleId
                     ).let { scheduleResponse ->
                         // if already exists, increase booked slots count
                         if (scheduleResponse != null) {
-                            scheduleId = scheduleResponse.uuid
+                            scheduleId = scheduleResponse.planningHorizon.start.time
+                            id = scheduleResponse.uuid
                             scheduleFhirId = scheduleResponse.scheduleId
                             scheduleRepository.updateSchedule(
                                 scheduleResponse.copy(
@@ -93,7 +96,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
                             // create new schedule
                             scheduleRepository.insertSchedule(
                                 ScheduleResponse(
-                                    uuid = scheduleId,
+                                    uuid = id,
                                     scheduleId = null,
                                     bookedSlots = 1,
                                     orgId = preferenceRepository.getOrganizationFhirId(),
@@ -113,7 +116,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
                             )
                             genericRepository.insertSchedule(
                                 ScheduleResponse(
-                                    uuid = scheduleId,
+                                    uuid = id,
                                     scheduleId = null,
                                     bookedSlots = null,
                                     orgId = preferenceRepository.getOrganizationFhirId(),
@@ -150,7 +153,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
                         appointmentCreated(
                             appointmentRepository.updateAppointment(
                                 existingAppointment.copy(
-                                    scheduleId = scheduleId,
+                                    scheduleId = Date(scheduleId),
                                     createdOn = createdOn,
                                     slot = slot
                                 )
@@ -158,18 +161,21 @@ class ScheduleAppointmentViewModel @Inject constructor(
                                 if (existingAppointment.appointmentId.isNullOrBlank()) {
                                     // if fhir id is null, insert post request
                                     genericRepository.insertAppointment(
-                                        existingAppointment.copy(
-                                            scheduleId = scheduleFhirId ?: scheduleId,
+                                        AppointmentResponse(
+                                            scheduleId = scheduleFhirId ?: id,
                                             createdOn = createdOn,
                                             slot = slot,
-                                            patientFhirId = patient?.fhirId ?: patient?.id
+                                            patientFhirId = patient?.fhirId ?: patient?.id,
+                                            appointmentId = existingAppointment.appointmentId,
+                                            uuid = existingAppointment.uuid,
+                                            orgId = existingAppointment.orgId,
+                                            status = existingAppointment.status
                                         )
                                     )
                                 } else {
                                     // send patch request in generic
                                     genericRepository.insertOrUpdateAppointmentPatch(
-                                        appointmentFhirId = existingAppointment.appointmentId
-                                            ?: existingAppointment.uuid,
+                                        appointmentFhirId = existingAppointment.appointmentId,
                                         map = mapOf(
                                             Pair(
                                                 "status",
@@ -189,7 +195,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
                                                 "scheduleId",
                                                 ChangeRequest(
                                                     operation = ChangeTypeEnum.REPLACE.value,
-                                                    value = scheduleFhirId ?: scheduleId
+                                                    value = scheduleFhirId ?: id
                                                 )
                                             ),
                                             Pair(
@@ -206,17 +212,19 @@ class ScheduleAppointmentViewModel @Inject constructor(
                         )
                     }
                 } else {
-                    var scheduleId = UUIDBuilder.generateUUID()
+                    var id = UUIDBuilder.generateUUID()
                     var scheduleFhirId: String? = null
+                    var scheduleId = selectedSlot.toCurrentTimeInMillis(
+                        selectedDate
+                    )
                     scheduleRepository.getScheduleByStartTime(
-                        selectedSlot.toCurrentTimeInMillis(
-                            selectedDate
-                        )
+                        scheduleId
                     ).let { scheduleResponse ->
                         if (scheduleResponse != null) {
                             Timber.d("manseeyy already scheduled")
-                            scheduleId = scheduleResponse.uuid
+                            id = scheduleResponse.uuid
                             scheduleFhirId = scheduleResponse.scheduleId
+                            scheduleId = scheduleResponse.planningHorizon.start.time
                             scheduleRepository.updateSchedule(
                                 scheduleResponse.copy(
                                     bookedSlots = scheduleResponse.bookedSlots!! + 1
@@ -225,7 +233,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
                         } else {
                             scheduleRepository.insertSchedule(
                                 ScheduleResponse(
-                                    uuid = scheduleId,
+                                    uuid = id,
                                     scheduleId = null,
                                     bookedSlots = 1,
                                     orgId = preferenceRepository.getOrganizationFhirId(),
@@ -245,7 +253,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
                             )
                             genericRepository.insertSchedule(
                                 ScheduleResponse(
-                                    uuid = scheduleId,
+                                    uuid = id,
                                     scheduleId = null,
                                     bookedSlots = null,
                                     orgId = preferenceRepository.getOrganizationFhirId(),
@@ -267,27 +275,28 @@ class ScheduleAppointmentViewModel @Inject constructor(
                     }.also {
                         val appointmentId = UUIDBuilder.generateUUID()
                         val createdOn = Date()
+                        val slot = Slot(
+                            start = Date(
+                                selectedSlot.toCurrentTimeInMillis(
+                                    selectedDate
+                                )
+                            ),
+                            end = Date(
+                                selectedSlot.to5MinutesAfter(
+                                    selectedDate
+                                )
+                            )
+                        )
                         appointmentCreated(
                             appointmentRepository.addAppointment(
-                                AppointmentResponse(
+                                AppointmentResponseLocal(
                                     appointmentId = null,
                                     uuid = appointmentId,
-                                    patientFhirId = patient?.id,
-                                    scheduleId = scheduleId,
+                                    patientId = patient?.id!!,
+                                    scheduleId = Date(scheduleId),
                                     createdOn = createdOn,
                                     orgId = preferenceRepository.getOrganizationFhirId(),
-                                    slot = Slot(
-                                        start = Date(
-                                            selectedSlot.toCurrentTimeInMillis(
-                                                selectedDate
-                                            )
-                                        ),
-                                        end = Date(
-                                            selectedSlot.to5MinutesAfter(
-                                                selectedDate
-                                            )
-                                        )
-                                    ),
+                                    slot = slot,
                                     status = AppointmentStatusEnum.SCHEDULED.value
                                 )
                             ).also {
@@ -296,21 +305,10 @@ class ScheduleAppointmentViewModel @Inject constructor(
                                         appointmentId = null,
                                         uuid = appointmentId,
                                         patientFhirId = patient?.fhirId ?: patient?.id,
-                                        scheduleId = scheduleFhirId ?: scheduleId,
+                                        scheduleId = scheduleFhirId ?: id,
                                         createdOn = createdOn,
                                         orgId = preferenceRepository.getOrganizationFhirId(),
-                                        slot = Slot(
-                                            start = Date(
-                                                selectedSlot.toCurrentTimeInMillis(
-                                                    selectedDate
-                                                )
-                                            ),
-                                            end = Date(
-                                                selectedSlot.to5MinutesAfter(
-                                                    selectedDate
-                                                )
-                                            )
-                                        ),
+                                        slot = slot,
                                         status = AppointmentStatusEnum.SCHEDULED.value
                                     )
                                 )

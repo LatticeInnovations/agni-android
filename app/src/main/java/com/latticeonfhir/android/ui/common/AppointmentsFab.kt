@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.navigation.Screen
 
 @Composable
@@ -35,7 +35,7 @@ fun AppointmentsFab(
     navController: NavController,
     patient: PatientResponse,
     isFabSelected: Boolean,
-    appointment: AppointmentResponse?,
+    appointment: AppointmentResponseLocal?,
     ifAlreadyWaiting: Boolean,
     queueFabClicked: (Boolean) -> Unit
 ) {
