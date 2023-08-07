@@ -25,7 +25,9 @@ import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.patch.AppointmentPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.post.AppointmentUploadSyncWorker.Companion.AppointmentUploadProgress
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.post.AppointmentUploadSyncWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.AppointmentStatusUpdateWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.completed.AppointmentCompletedStatusUpdateWorker
+import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.completed.AppointmentCompletedStatusUpdateWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.noshow.AppointmentNoShowStatusUpdateWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.post.PatientUploadSyncWorker
@@ -97,8 +99,27 @@ class WorkRequestBuilders(
      * method to update status to "No-Show" at 11:59 PM everyday
      *
      */
-    internal fun setPeriodicAppointmentStatusUpdateWorker(duration: Duration?, delay: Delay?) {
-        Sync.periodicSync<AppointmentStatusUpdateWorkerImpl>(
+    internal fun setPeriodicAppointmentNoShowStatusUpdateWorker(duration: Duration?, delay: Delay?) {
+        Sync.periodicSync<AppointmentNoShowStatusUpdateWorkerImpl>(
+            applicationContext,
+            PeriodicSyncConfiguration(
+                syncConstraints = Constraints.Builder()
+                    .setRequiresBatteryNotLow(true)
+                    .build(),
+                repeat = RepeatInterval(24, TimeUnit.HOURS),
+                initialDelay = InitialDelay(duration, delay)
+            )
+        )
+    }
+
+    /**
+     *
+     * Periodic Worker that triggers
+     * method to update status to "Completed" at 11:59 PM everyday
+     *
+     */
+    internal fun setPeriodicAppointmentCompletedStatusUpdateWorker(duration: Duration?, delay: Delay?) {
+        Sync.periodicSync<AppointmentCompletedStatusUpdateWorkerImpl>(
             applicationContext,
             PeriodicSyncConfiguration(
                 syncConstraints = Constraints.Builder()

@@ -111,9 +111,20 @@ class LandingScreenViewModel @Inject constructor(
             workRequestBuilders.setPeriodicTriggerWorker()
         }
 
-        // Trigger Periodic Update Appointment Status Worker
+        // Trigger Periodic Update Appointment No Show Status Worker
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setPeriodicAppointmentStatusUpdateWorker(
+            workRequestBuilders.setPeriodicAppointmentNoShowStatusUpdateWorker(
+                null,
+                Delay(
+                    Date().calculateMinutesToMidnight(),
+                    TimeUnit.MINUTES
+                )
+            )
+        }
+
+        // Trigger Periodic Update Appointment Completed Status Worker
+        viewModelScope.launch(Dispatchers.IO) {
+            workRequestBuilders.setPeriodicAppointmentCompletedStatusUpdateWorker(
                 null,
                 Delay(
                     Date().calculateMinutesToMidnight(),
