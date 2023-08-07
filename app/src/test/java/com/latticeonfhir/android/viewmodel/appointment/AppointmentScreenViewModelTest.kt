@@ -22,6 +22,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,7 +61,7 @@ class AppointmentScreenViewModelTest : BaseClass() {
     }
 
     @Test
-    fun getAppointmentsListTest() = runTest {
+    fun getAppointmentsListTest() = runBlocking {
         `when`(
             appointmentRepository.getAppointmentsOfPatientByStatus(
                 id,
