@@ -63,14 +63,21 @@ class PrescriptionViewModel @Inject constructor(
     var previousPrescriptionList by mutableStateOf(listOf<PrescriptionAndMedicineRelation?>(null))
 
     internal var appointmentResponse: AppointmentResponse? = null
+    private lateinit var timingList: List<MedicineTimingEntity>
+  
+  init {
+        viewModelScope.launch(Dispatchers.IO) {
+            timingList = medicationRepository.getAllMedicationDirections()
+        }
+    }
 
     internal fun getPatientTodayAppointment(startDate: Date, endDate: Date, patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             appointmentResponse = appointmentRepository.getAppointmentListByDate(startDate, endDate).firstOrNull { appointmentEntity ->
                 appointmentEntity.patientId == patientId
-            }?.toAppointmentResponse()
+       }?.toAppointmentResponse()
         }
-    }
+    
 
     internal fun getPreviousPrescription(
         patientId: String,
@@ -78,7 +85,16 @@ class PrescriptionViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             previousPrescriptionList(
-                prescriptionRepository.getLastPrescription(patientId)
+                prescriptionRepository.getLastPrescription(patientId).map { prescriptionAndMedicineRelation ->
+                    prescriptionAndMedicineRelation.prescriptionDirectionAndMedicineView.map { prescriptionAndMedicineView ->
+                        prescriptionAndMedicineView.prescriptionDirectionsEntity.copy(
+                            timing = timingList.find { medicineTimingEntity ->
+                                medicineTimingEntity.medicalDosageId == prescriptionAndMedicineView.prescriptionDirectionsEntity.timing
+                            }?.medicalDosage
+                        )
+                    }
+                    prescriptionAndMedicineRelation
+                }
             )
         }
     }
@@ -94,15 +110,23 @@ class PrescriptionViewModel @Inject constructor(
     internal fun getAllMedicationDirections(medicationDirectionsList: (List<MedicineTimingEntity>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             medicationDirectionsList(
-                medicationRepository.getAllMedicationDirections()
+                timingList
             )
         }
     }
 
-    internal fun insertPrescription(date: Date = Date(),prescriptionId: String = UUIDBuilder.generateUUID(), inserted: (Long) -> Unit) {
+    internal fun insertPrescription(
+        date: Date = Date(),
+        prescriptionId: String = UUIDBuilder.generateUUID(),
+        inserted: (Long) -> Unit
+    ) {
         val medicationsList = mutableListOf<Medication>()
-        medicationsResponseWithMedicationList.forEach {
-            medicationsList.add(it.medication)
+        medicationsResponseWithMedicationList.forEach { medicationResponseWithMedication ->
+            medicationsList.add(
+                medicationResponseWithMedication.medication.copy(
+                    timing = medicationDirectionsList.find { timing -> timing.medicalDosage == medicationResponseWithMedication.medication.timing }?.medicalDosageId
+                )
+            )
         }
         viewModelScope.launch(Dispatchers.IO) {
             inserted(
@@ -123,7 +147,8 @@ class PrescriptionViewModel @Inject constructor(
                             prescriptionId = prescriptionId,
                             prescription = medicationsList,
                             prescriptionFhirId = null,
-                            appointmentId = appointmentResponse!!.appointmentId ?: appointmentResponse!!.uuid
+                            appointmentId = appointmentResponse!!.appointmentId
+                                ?: appointmentResponse!!.uuid
                         )
                     )
                 }
