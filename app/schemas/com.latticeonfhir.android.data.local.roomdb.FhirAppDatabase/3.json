@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "047f5c9166f126642f83fa2a1bee151d",
+    "identityHash": "8bf84e9078ebf8066292ff146b337473",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -413,7 +413,7 @@
       },
       {
         "tableName": "PrescriptionEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `prescriptionDate` INTEGER NOT NULL, `patientId` TEXT NOT NULL, `patientFhirId` TEXT, `prescriptionFhirId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `prescriptionDate` INTEGER NOT NULL, `appointmentId` TEXT NOT NULL DEFAULT 'DEFAULT_APPOINTMENT_ID', `patientId` TEXT NOT NULL, `patientFhirId` TEXT, `prescriptionFhirId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`appointmentId`) REFERENCES `AppointmentEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -426,6 +426,13 @@
             "columnName": "prescriptionDate",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "appointmentId",
+            "columnName": "appointmentId",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'DEFAULT_APPOINTMENT_ID'"
           },
           {
             "fieldPath": "patientId",
@@ -479,6 +486,17 @@
             "onUpdate": "NO ACTION",
             "columns": [
               "patientId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "AppointmentEntity",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "appointmentId"
             ],
             "referencedColumns": [
               "id"
@@ -766,7 +784,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '047f5c9166f126642f83fa2a1bee151d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8bf84e9078ebf8066292ff146b337473')"
     ]
   }
 }

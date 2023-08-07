@@ -5,6 +5,7 @@ import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
+import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
@@ -39,7 +40,8 @@ class GenericRepositoryImpl @Inject constructor(
     @ApplicationContext context: Context,
     private val genericDao: GenericDao,
     private val patientDao: PatientDao,
-    private val scheduleDao: ScheduleDao
+    private val scheduleDao: ScheduleDao,
+    private val appointmentDao: AppointmentDao
 ) : GenericRepository {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (context as FhirApp).getWorkRequestBuilder() }
@@ -163,7 +165,8 @@ class GenericRepositoryImpl @Inject constructor(
                     genericDao.insertGenericEntity(
                         prescriptionGenericEntity.copy(
                             payload = existingMap.copy(
-                                patientFhirId = getPatientFhirIdById(existingMap.patientFhirId)!!
+                                patientFhirId = getPatientFhirIdById(existingMap.patientFhirId)!!,
+                                appointmentId = getAppointmentFhirIdById(existingMap.appointmentId)!!
                             ).toJson()
                         )
                     )
@@ -397,6 +400,10 @@ class GenericRepositoryImpl @Inject constructor(
 
     private suspend fun getScheduleFhirIdById(scheduleId: String): String? {
         return scheduleDao.getScheduleById(scheduleId)[0].scheduleFhirId
+    }
+
+    private suspend fun getAppointmentFhirIdById(appointmentId: String): String? {
+        return appointmentDao.getAppointmentById(appointmentId)[0].appointmentFhirId
     }
 
     private fun runWorkers() {
