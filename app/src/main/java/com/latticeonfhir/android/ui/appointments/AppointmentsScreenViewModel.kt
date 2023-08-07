@@ -112,7 +112,7 @@ class AppointmentsScreenViewModel @Inject constructor(
                         // if fhir id is null, insert post request
                         genericRepository.insertAppointment(
                             AppointmentResponse(
-                                appointmentId = selectedAppointment!!.uuid,
+                                appointmentId = null,
                                 uuid = selectedAppointment!!.uuid,
                                 patientFhirId = patient?.fhirId?:patient?.id,
                                 scheduleId = (scheduleRepository.getScheduleByStartTime(selectedAppointment!!.scheduleId.time)?.scheduleId?:scheduleRepository.getScheduleByStartTime(selectedAppointment!!.scheduleId.time)?.uuid)!!,
