@@ -36,7 +36,23 @@ abstract class AppointmentStatusUpdateWorker(context: Context, workerParameters:
                     )
                 ).also { response ->
                     if (response > 0) {
-                        insertInGenericEntity(appointmentEntity)
+                        insertInGenericEntity(appointmentEntity, AppointmentStatusEnum.NO_SHOW.value)
+                    }
+                }
+            }
+        }
+        appointmentDao.getTodayScheduledAppointments(
+            status = AppointmentStatusEnum.IN_PROGRESS.value,
+            endOfDay = Date().toEndOfDay()
+        ).let { scheduledAppointmentEntities ->
+            scheduledAppointmentEntities.forEach { appointmentEntity ->
+                appointmentDao.updateAppointmentEntity(
+                    appointmentEntity.copy(
+                        status = AppointmentStatusEnum.COMPLETED.value
+                    )
+                ).also { response ->
+                    if (response > 0) {
+                        insertInGenericEntity(appointmentEntity, AppointmentStatusEnum.COMPLETED.value)
                     }
                 }
             }
@@ -45,7 +61,7 @@ abstract class AppointmentStatusUpdateWorker(context: Context, workerParameters:
         return Result.success()
     }
 
-    private suspend fun insertInGenericEntity(appointmentEntity: AppointmentEntity): Long {
+    private suspend fun insertInGenericEntity(appointmentEntity: AppointmentEntity, status: String): Long {
         val genericDao = (applicationContext as FhirApp).fhirAppDatabase.getGenericDao()
         val scheduleDao = (applicationContext as FhirApp).fhirAppDatabase.getScheduleDao()
         return genericDao.getGenericEntityById(
@@ -58,7 +74,7 @@ abstract class AppointmentStatusUpdateWorker(context: Context, workerParameters:
                 genericDao.insertGenericEntity(
                     appointmentGenericEntity.copy(
                         payload = appointmentEntity.copy(
-                            status = AppointmentStatusEnum.NO_SHOW.value
+                            status = status
                         ).toAppointmentResponse(scheduleDao).toJson()
                     )
                 )[0]
@@ -72,7 +88,7 @@ abstract class AppointmentStatusUpdateWorker(context: Context, workerParameters:
                     val map = mutableMapOf<String, Any>()
                     map["status"] = ChangeRequest(
                         operation = ChangeTypeEnum.REPLACE.value,
-                        value = AppointmentStatusEnum.NO_SHOW.value
+                        value = status
                     )
                     if (appointmentGenericPatchEntity != null) {
                         val existingMap =
