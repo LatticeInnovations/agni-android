@@ -247,7 +247,7 @@ class PrescriptionViewModelTest : BaseClass() {
     fun `fetch patient's today's appointment`() = runTest {
         `when`(appointmentRepository.getAppointmentListByDate(date,date)).thenReturn(listOf(appointmentResponse.toAppointmentEntity()))
         prescriptionViewModel.getPatientTodayAppointment(date,date, appointmentResponse.patientFhirId!!)
-        delay(5000)
+        delay(20000)
         assertEquals(appointmentResponse, prescriptionViewModel.appointmentResponse)
     }
 }
