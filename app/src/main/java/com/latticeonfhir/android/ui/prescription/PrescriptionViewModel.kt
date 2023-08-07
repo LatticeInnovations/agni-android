@@ -64,10 +64,10 @@ class PrescriptionViewModel @Inject constructor(
 
     internal var appointmentResponse: AppointmentResponse? = null
 
-    internal fun getPatientTodayAppointment() {
+    internal fun getPatientTodayAppointment(startDate: Date, endDate: Date, patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            appointmentResponse = appointmentRepository.getAppointmentListByDate(Date(Date().toTodayStartDate()), Date(Date().toTodayEndDate())).firstOrNull { appointmentEntity ->
-                appointmentEntity.patientId == patient!!.id
+            appointmentResponse = appointmentRepository.getAppointmentListByDate(startDate, endDate).firstOrNull { appointmentEntity ->
+                appointmentEntity.patientId == patientId
             }?.toAppointmentResponse()
         }
     }

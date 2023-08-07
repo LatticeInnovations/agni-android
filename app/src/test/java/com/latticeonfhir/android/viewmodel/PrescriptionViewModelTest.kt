@@ -17,7 +17,9 @@ import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAn
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
+import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -239,5 +241,13 @@ class PrescriptionViewModelTest : BaseClass() {
                 ), it
             )
         }
+    }
+
+    @Test
+    fun `fetch patient's today's appointment`() = runTest {
+        `when`(appointmentRepository.getAppointmentListByDate(date,date)).thenReturn(listOf(appointmentResponse.toAppointmentEntity()))
+        prescriptionViewModel.getPatientTodayAppointment(date,date, appointmentResponse.patientFhirId!!)
+        delay(5000)
+        assertEquals(appointmentResponse, prescriptionViewModel.appointmentResponse)
     }
 }
