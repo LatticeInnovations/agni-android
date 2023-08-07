@@ -161,7 +161,7 @@ class RescheduleAppointmentViewModel @Inject constructor(
                                     createdOn = createdOn,
                                     slot = slot,
                                     patientFhirId = patient?.fhirId ?: patient?.id,
-                                    appointmentId = appointment!!.appointmentId,
+                                    appointmentId = null,
                                     orgId = appointment!!.orgId,
                                     status = appointment!!.status,
                                     uuid = appointment!!.uuid

@@ -131,7 +131,7 @@ class QueueViewModel @Inject constructor(
                                 createdOn = appointmentSelected!!.createdOn,
                                 slot = appointmentSelected!!.slot,
                                 patientFhirId = appointmentSelected!!.patientId,
-                                appointmentId = appointmentSelected!!.appointmentId,
+                                appointmentId = null,
                                 orgId = appointmentSelected!!.orgId,
                                 status = AppointmentStatusEnum.CANCELLED.value,
                                 uuid = appointmentSelected!!.uuid
