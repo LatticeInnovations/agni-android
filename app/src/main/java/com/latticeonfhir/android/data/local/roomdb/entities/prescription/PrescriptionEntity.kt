@@ -12,7 +12,7 @@ import java.util.Date
 
 @Keep
 @Entity(
-    indices = [Index("patientId"), Index("patientFhirId")],
+    indices = [Index("patientId"), Index("patientFhirId"), Index("appointmentId")],
     foreignKeys = [
         ForeignKey(
             entity = PatientEntity::class,
