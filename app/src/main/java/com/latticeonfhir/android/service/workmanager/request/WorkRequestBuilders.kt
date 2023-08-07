@@ -154,12 +154,6 @@ class WorkRequestBuilders(
                             }
                         }
 
-                        CoroutineScope(Dispatchers.IO).launch {
-                            updateFhirIdInPrescription { errorReceived, errorMsg ->
-                                error(errorReceived, errorMsg)
-                            }
-                        }
-
 
                         // upload schedule -> update fhir id appointment -> download scheulde
 
@@ -277,11 +271,6 @@ class WorkRequestBuilders(
                                 error(errorReceived, errorMsg)
                             }
                         }
-
-//                        /** Download Schedule Worker*/
-//                        downloadScheduleWorker{ errorReceived, errorMsg ->
-//                            error(errorReceived, errorMsg)
-//                        }
                     }
                 }
             }
@@ -313,7 +302,9 @@ class WorkRequestBuilders(
                         /** Handle Progress Based Download WorkRequests Here */
                     }
                     if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-
+                        updateFhirIdInPrescription { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
                     }
                 }
             }

@@ -37,7 +37,8 @@ class PrescriptionRepositoryTest : BaseClass() {
         prescriptionDate = Date(),
         patientId = "DUMMY_ID_123",
         patientFhirId = "20401",
-        prescriptionFhirId = null
+        prescriptionFhirId = null,
+        appointmentId = "DUMMY_APPOINTMENT_ID"
     )
 
     private val prescriptionDirectionsEntity = PrescriptionDirectionsEntity(
@@ -80,6 +81,7 @@ class PrescriptionRepositoryTest : BaseClass() {
         patientFhirId = null,
         generatedOn = Date(),
         prescriptionId = UUID.randomUUID().toString(),
+        appointmentId = prescriptionEntity.appointmentId,
         prescription = listOf(
             Medication(
                 doseForm = "DUMMY_DOSE_FORM",
