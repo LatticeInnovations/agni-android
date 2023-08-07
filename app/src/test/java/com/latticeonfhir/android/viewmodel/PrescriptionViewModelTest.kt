@@ -244,7 +244,7 @@ class PrescriptionViewModelTest : BaseClass() {
     }
 
     @Test
-    fun `fetch patient's today's appointment`() = runTest {
+    fun `fetch patient's today's appointment`() = runBlocking {
         `when`(appointmentRepository.getAppointmentListByDate(date,date)).thenReturn(listOf(appointmentResponse.toAppointmentEntity()))
         prescriptionViewModel.getPatientTodayAppointment(date,date, appointmentResponse.patientFhirId!!)
         delay(20000)
