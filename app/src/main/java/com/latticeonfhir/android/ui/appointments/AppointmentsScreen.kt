@@ -203,6 +203,11 @@ fun AppointmentsScreen(
                                 viewModel.cancelAppointment {
                                     Timber.d("manseeyy appointment cancelled")
                                     viewModel.getAppointmentsList(viewModel.patient!!.id)
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = context.getString(R.string.appointment_cancelled)
+                                        )
+                                    }
                                 }
                             }
                             viewModel.showCancelAppointmentDialog = false
