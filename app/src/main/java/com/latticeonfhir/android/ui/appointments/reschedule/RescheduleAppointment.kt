@@ -29,6 +29,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Surface
@@ -91,6 +93,7 @@ fun RescheduleAppointment(
     val dateScrollState = rememberLazyListState()
     val composableScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.appointment =
@@ -102,6 +105,7 @@ fun RescheduleAppointment(
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 modifier = Modifier.fillMaxWidth(),
@@ -400,13 +404,23 @@ fun RescheduleAppointment(
                 Button(
                     onClick = {
                         // reschedule appointment
-                        viewModel.rescheduleAppointment {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                navController.previousBackStackEntry?.savedStateHandle?.set(
-                                    RESCHEDULED,
-                                    true
-                                )
-                                navController.popBackStack()
+                        viewModel.ifAnotherAppointmentExists{ alreadyExists ->
+                            if (alreadyExists){
+                                composableScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = context.getString(R.string.appointment_exists, viewModel.existingAppointmentTime)
+                                    )
+                                }
+                            } else {
+                                viewModel.rescheduleAppointment {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                                            RESCHEDULED,
+                                            true
+                                        )
+                                        navController.popBackStack()
+                                    }
+                                }
                             }
                         }
                     },

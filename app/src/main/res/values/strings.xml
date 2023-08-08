@@ -203,4 +203,5 @@ include them in the household</string>
     <string name="all_slots_booked">All slots booked</string>
     <string name="all_slots_booked_desc">Sorry, all appointment slots for today are booked.</string>
     <string name="okay">Okay</string>
+    <string name="appointment_exists">Appointment already exist at %s</string>
 </resources>
