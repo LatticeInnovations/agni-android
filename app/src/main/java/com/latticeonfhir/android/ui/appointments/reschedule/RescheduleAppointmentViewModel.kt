@@ -20,7 +20,10 @@ import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedu
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to30MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to5MinutesAfter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentTime
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.tomorrow
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,6 +46,7 @@ class RescheduleAppointmentViewModel @Inject constructor(
     var selectedDate by mutableStateOf(Date().tomorrow())
     var weekList by mutableStateOf(selectedDate.toWeekList())
     var selectedSlot by mutableStateOf("")
+    var existingAppointmentTime by mutableStateOf("")
 
     internal fun getBookedSlotsCount(time: Long, slotsCount: (Int) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -52,25 +56,43 @@ class RescheduleAppointmentViewModel @Inject constructor(
         }
     }
 
+    internal fun ifAnotherAppointmentExists(appointmentExists: (Boolean) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            appointmentRepository.getAppointmentsOfPatientByDate(
+                patient!!.id,
+                selectedDate.toTodayStartDate(),
+                selectedDate.toEndOfDay()
+            ).let { todaysAppointment ->
+                if (todaysAppointment == null || todaysAppointment == appointment) appointmentExists(false)
+                else {
+                    existingAppointmentTime = todaysAppointment.slot.start.toAppointmentTime()
+                    appointmentExists(true)
+                }
+            }
+        }
+    }
+
     internal fun rescheduleAppointment(rescheduled: (Int) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             // free the slot of previous schedule
-            scheduleRepository.getScheduleByStartTime(appointment!!.scheduleId.time).let { scheduleResponse ->
-                scheduleResponse?.let { previousScheduleResponse ->
-                    scheduleRepository.updateSchedule(
-                        previousScheduleResponse.copy(
-                            bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+            scheduleRepository.getScheduleByStartTime(appointment!!.scheduleId.time)
+                .let { scheduleResponse ->
+                    scheduleResponse?.let { previousScheduleResponse ->
+                        scheduleRepository.updateSchedule(
+                            previousScheduleResponse.copy(
+                                bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+                            )
                         )
-                    )
+                    }
                 }
-            }
             // check for new schedule
             var scheduleId = selectedSlot.toCurrentTimeInMillis(
-                    selectedDate
-                )
+                selectedDate
+            )
             var scheduleFhirId: String? = null
             var id = UUIDBuilder.generateUUID()
-            scheduleRepository.getScheduleByStartTime(scheduleId
+            scheduleRepository.getScheduleByStartTime(
+                scheduleId
             ).let { scheduleResponse ->
                 // if already exists, increase booked slots count
                 if (scheduleResponse != null) {
