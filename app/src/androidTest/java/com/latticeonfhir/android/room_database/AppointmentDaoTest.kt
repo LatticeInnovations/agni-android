@@ -22,45 +22,45 @@ class AppointmentDaoTest : FhirAppDatabaseTest() {
     @Test
     fun insertAppointmentEntityTest() = runBlocking {
         val result =
-            appointmentDao.insertAppointmentEntity(appointmentResponse.toAppointmentEntity())
+            appointmentDao.insertAppointmentEntity(appointmentResponseLocal.toAppointmentEntity())
         Assert.assertNotEquals("Appointment not inserted.", listOf<Long>(), result)
         assertEquals("On successful insertion, should return List<Long> of size 1.", 1, result.size)
     }
 
     @Test
     fun updateAppointmentFhirIdTest() = runBlocking {
-        appointmentDao.insertAppointmentEntity(appointmentResponse.toAppointmentEntity())
+        appointmentDao.insertAppointmentEntity(appointmentResponseLocal.toAppointmentEntity())
         val result = appointmentDao.updateAppointmentFhirId(
-            appointmentResponse.uuid,
-            appointmentResponse.appointmentId!!
+            appointmentResponseLocal.uuid,
+            appointmentResponseLocal.appointmentId!!
         )
         assertEquals(1, result)
     }
 
     @Test
     fun getAppointmentsOfPatientByStatusTest() = runBlocking {
-        appointmentDao.insertAppointmentEntity(appointmentResponse.toAppointmentEntity())
-        val result = appointmentDao.getAppointmentsOfPatientByStatus(appointmentResponse.patientFhirId!!, appointmentResponse.status)
-        assertEquals(listOf(appointmentResponse.toAppointmentEntity()), result)
+        appointmentDao.insertAppointmentEntity(appointmentResponseLocal.toAppointmentEntity())
+        val result = appointmentDao.getAppointmentsOfPatientByStatus(appointmentResponseLocal.patientId, appointmentResponseLocal.status)
+        assertEquals(listOf(appointmentResponseLocal.toAppointmentEntity()), result)
     }
 
     @Test
     fun getAppointmentsByDateTest() = runBlocking {
-        appointmentDao.insertAppointmentEntity(appointmentResponse.toAppointmentEntity())
-        val result = appointmentDao.getAppointmentsByDate(date, date)
-        assertEquals(listOf(appointmentResponse.toAppointmentEntity()), result)
+        appointmentDao.insertAppointmentEntity(appointmentResponseLocal.toAppointmentEntity())
+        val result = appointmentDao.getAppointmentsByDate(date.time, date.time)
+        assertEquals(listOf(appointmentResponseLocal.toAppointmentEntity()), result)
     }
 
     @Test
     fun updateAppointmentEntityTest() = runBlocking {
-        appointmentDao.insertAppointmentEntity(appointmentResponse.toAppointmentEntity())
-        val result = appointmentDao.updateAppointmentEntity(appointmentResponse.toAppointmentEntity())
+        appointmentDao.insertAppointmentEntity(appointmentResponseLocal.toAppointmentEntity())
+        val result = appointmentDao.updateAppointmentEntity(appointmentResponseLocal.toAppointmentEntity())
         assertEquals(1, result)
     }
 
     @Test
     fun getTodayScheduledAppointmentsTest() = runBlocking {
-        val result = appointmentDao.getTodayScheduledAppointments(AppointmentStatusEnum.NO_SHOW.value, date)
+        val result = appointmentDao.getTodayScheduledAppointments(AppointmentStatusEnum.NO_SHOW.value, date.time)
         assertEquals(emptyList<AppointmentEntity>(), result)
     }
 }
