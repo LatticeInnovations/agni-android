@@ -158,7 +158,7 @@ class LandingScreenViewModel @Inject constructor(
 
     internal fun getPreviousSearches() {
         viewModelScope.launch(Dispatchers.IO) {
-            previousSearchList = searchRepository.getRecentPatientSearches() as MutableList<String>
+            previousSearchList = searchRepository.getRecentPatientSearches().toMutableList()
         }
     }
 
