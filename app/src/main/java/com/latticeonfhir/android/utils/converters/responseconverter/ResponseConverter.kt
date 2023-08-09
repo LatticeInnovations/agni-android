@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
 import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
@@ -204,7 +205,7 @@ internal suspend fun PrescriptionResponse.toPrescriptionEntity(patientDao: Patie
         id = prescriptionId,
         prescriptionDate = generatedOn,
         patientId = patientDao.getPatientIdByFhirId(patientFhirId)!!,
-        appointmentId = appointmentDao.getAppointmentByFhirId(appointmentId),
+        appointmentId = appointmentDao.getAppointmentIdByFhirId(appointmentId),
         patientFhirId = patientFhirId,
         prescriptionFhirId = prescriptionFhirId
     )
@@ -299,8 +300,21 @@ internal fun ScheduleResponse.toScheduleEntity(): ScheduleEntity {
         scheduleFhirId = scheduleId,
         startTime = planningHorizon.start,
         endTime = planningHorizon.end,
-        bookedSlots = bookedSlots,
+        bookedSlots = bookedSlots!!,
         orgId = orgId
+    )
+}
+
+internal fun ScheduleEntity.toScheduleResponse(): ScheduleResponse {
+    return ScheduleResponse(
+        uuid = id,
+        scheduleId = scheduleFhirId,
+        bookedSlots = bookedSlots,
+        orgId = orgId,
+        planningHorizon = Slot(
+            start = startTime,
+            end = endTime
+        )
     )
 }
 
@@ -314,41 +328,60 @@ internal suspend fun AppointmentResponse.toAppointmentEntity(
         appointmentFhirId = appointmentId,
         createdOn = createdOn,
         patientId = patientDao.getPatientIdByFhirId(patientFhirId!!)!!,
-        scheduleId = scheduleId?.let { fhirId -> scheduleDao.getScheduleIdByFhirId(fhirId) },
+        scheduleId = scheduleDao.getScheduleStartTimeByFhirId(scheduleId)!!,
         orgId = orgId,
         status = status,
-        startTime = slot?.start,
-        endTime = slot?.end
+        startTime = slot.start,
+        endTime = slot.end
     )
 }
 
-internal fun AppointmentEntity.toAppointmentResponse(): AppointmentResponse {
+internal suspend fun AppointmentEntity.toAppointmentResponse(
+    scheduleDao: ScheduleDao
+): AppointmentResponse {
     return AppointmentResponse(
         uuid = id,
         createdOn = createdOn,
         appointmentId = appointmentFhirId,
         orgId = orgId,
         patientFhirId = patientId,
+        scheduleId = scheduleDao.getFhirIdByStartTime(scheduleId)
+            ?: scheduleDao.getScheduleByStartTime(scheduleId.time)!!.id,
+        slot = Slot(
+            start = startTime,
+            end = endTime
+        ),
+        status = status
+    )
+}
+
+internal fun AppointmentEntity.toAppointmentResponseLocal(): AppointmentResponseLocal {
+    return AppointmentResponseLocal(
+        uuid = id,
+        createdOn = createdOn,
+        appointmentId = appointmentFhirId,
+        orgId = orgId,
+        patientId = patientId,
         scheduleId = scheduleId,
         slot = Slot(
-            start = startTime!!,
-            end = endTime!!
+            start = startTime,
+            end = endTime
         ),
         status = status
     )
 }
 
 // Appointment Response from Local
-internal fun AppointmentResponse.toAppointmentEntity(): AppointmentEntity {
+internal fun AppointmentResponseLocal.toAppointmentEntity(): AppointmentEntity {
     return AppointmentEntity(
         id = uuid,
         appointmentFhirId = appointmentId,
         createdOn = createdOn,
-        patientId = patientFhirId!!,
+        patientId = patientId,
         scheduleId = scheduleId,
         orgId = orgId,
         status = status,
-        startTime = slot?.start,
-        endTime = slot?.end
+        startTime = slot.start,
+        endTime = slot.end
     )
 }

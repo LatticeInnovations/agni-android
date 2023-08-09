@@ -4,6 +4,8 @@ import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -28,37 +30,46 @@ class AppointmentRepositoryTest: BaseClass() {
 
     @Test
     fun getAppointmentListByDateTest() = runBlocking{
-        `when`(appointmentDao.getAppointmentsByDate(date, date)).thenReturn(listOf(appointmentResponse.toAppointmentEntity()))
-        val result = appointmentRepositoryImpl.getAppointmentListByDate(date, date)
-        assertEquals(listOf(appointmentResponse.toAppointmentEntity()), result)
+        `when`(appointmentDao.getAppointmentsByDate(date.time, date.time)).thenReturn(listOf(appointmentResponseLocal.toAppointmentEntity()))
+        val result = appointmentRepositoryImpl.getAppointmentListByDate(date.time, date.time)
+        assertEquals(listOf(appointmentResponseLocal), result)
     }
 
     @Test
     fun addAppointmentTest() = runBlocking {
-        `when`(appointmentDao.insertAppointmentEntity(appointmentResponse.toAppointmentEntity())).thenReturn(
+        `when`(appointmentDao.insertAppointmentEntity(appointmentResponseLocal.toAppointmentEntity())).thenReturn(
             listOf(-1L)
         )
-        val result = appointmentRepositoryImpl.addAppointment(appointmentResponse)
+        val result = appointmentRepositoryImpl.addAppointment(appointmentResponseLocal)
         assertEquals(listOf(-1L), result)
     }
 
     @Test
     fun updateAppointmentTest() = runBlocking {
-        `when`(appointmentDao.updateAppointmentEntity(appointmentResponse.toAppointmentEntity())).thenReturn(
+        `when`(appointmentDao.updateAppointmentEntity(appointmentResponseLocal.toAppointmentEntity())).thenReturn(
             1
         )
-        val result = appointmentRepositoryImpl.updateAppointment(appointmentResponse)
+        val result = appointmentRepositoryImpl.updateAppointment(appointmentResponseLocal)
         assertEquals(1, result)
     }
 
     @Test
     fun getAppointmentsOfPatientByStatusTest() = runBlocking {
         `when`(appointmentDao.getAppointmentsOfPatientByStatus(id, AppointmentStatusEnum.NO_SHOW.value)).thenReturn(
-            listOf(appointmentResponse.toAppointmentEntity())
+            listOf(appointmentResponseLocal.toAppointmentEntity())
         )
         val result = appointmentRepositoryImpl.getAppointmentsOfPatientByStatus(id,
             AppointmentStatusEnum.NO_SHOW.value
         )
-        assertEquals(listOf(appointmentResponse.toAppointmentEntity()), result)
+        assertEquals(listOf(appointmentResponseLocal), result)
+    }
+
+    @Test
+    fun getAppointmentsOfPatientByDateTest() = runBlocking {
+        `when`(appointmentDao.getAppointmentOfPatientByDate(id, date.toTodayStartDate(), date.toEndOfDay())).thenReturn(appointmentResponseLocal.toAppointmentEntity())
+        val result = appointmentRepositoryImpl.getAppointmentsOfPatientByDate(id,
+            date.toTodayStartDate(), date.toEndOfDay()
+        )
+        assertEquals(appointmentResponseLocal, result)
     }
 }
