@@ -205,7 +205,7 @@ internal suspend fun PrescriptionResponse.toPrescriptionEntity(patientDao: Patie
         id = prescriptionId,
         prescriptionDate = generatedOn,
         patientId = patientDao.getPatientIdByFhirId(patientFhirId)!!,
-        appointmentId = appointmentDao.getAppointmentByFhirId(appointmentId),
+        appointmentId = appointmentDao.getAppointmentIdByFhirId(appointmentId),
         patientFhirId = patientFhirId,
         prescriptionFhirId = prescriptionFhirId
     )

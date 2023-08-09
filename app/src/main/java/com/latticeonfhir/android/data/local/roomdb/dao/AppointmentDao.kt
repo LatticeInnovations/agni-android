@@ -14,13 +14,13 @@ interface AppointmentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAppointmentEntity(vararg appointmentEntity: AppointmentEntity): List<Long>
 
-    @Transaction
-    @Query("SELECT * FROM AppointmentEntity WHERE id IN (:id)")
-    suspend fun getAppointmentById(vararg id: String): List<AppointmentEntity>
+//    @Transaction
+//    @Query("SELECT * FROM AppointmentEntity WHERE id IN (:id)")
+//    suspend fun getAppointmentById(vararg id: String): List<AppointmentEntity>
 
     @Transaction
     @Query("SELECT id FROM AppointmentEntity WHERE appointmentFhirId = :appointmentFhirId")
-    suspend fun getAppointmentByFhirId(appointmentFhirId: String): String
+    suspend fun getAppointmentIdByFhirId(appointmentFhirId: String): String
 
     @Transaction
     @Query("UPDATE AppointmentEntity SET appointmentFhirId=:fhirId WHERE id=:id")

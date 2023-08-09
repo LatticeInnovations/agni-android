@@ -162,12 +162,12 @@ class GenericRepositoryImpl @Inject constructor(
                 val existingMap =
                     prescriptionGenericEntity.payload.fromJson<MutableMap<String, Any>>()
                         .mapToObject(PrescriptionResponse::class.java)
-                if (existingMap != null && !existingMap.patientFhirId.isFhirId()) {
+                if (existingMap != null) {
                     genericDao.insertGenericEntity(
                         prescriptionGenericEntity.copy(
                             payload = existingMap.copy(
-                                patientFhirId = getPatientFhirIdById(existingMap.patientFhirId)!!,
-                                appointmentId = getAppointmentFhirIdById(existingMap.appointmentId)!!
+                                patientFhirId = if(!existingMap.patientFhirId.isFhirId()) getPatientFhirIdById(existingMap.patientFhirId)!! else existingMap.patientFhirId,
+                                appointmentId = if(!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(existingMap.appointmentId)!! else existingMap.appointmentId
                             ).toJson()
                         )
                     )
