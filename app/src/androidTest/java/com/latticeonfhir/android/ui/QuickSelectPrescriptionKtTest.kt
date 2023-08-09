@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -43,6 +44,20 @@ class QuickSelectPrescriptionKtTest: UiTestsBase() {
         composeTestRule.onNode(quickSelectTab).performClick()
         composeTestRule.onNode(quickSelectTab).assertIsSelected()
         composeTestRule.onNode(activeIngredientList).assertExists()
+    }
+
+    @Test
+    fun click_on_quick_select_remains_on_same_screen() {
+        composeTestRule.waitUntilAtLeastOneExists(
+            patient,
+            timeoutMillis = 15000
+        )
+        composeTestRule.onNode(patientList).performScrollToNode(patient)
+        composeTestRule.onAllNodes(patient)[0].performClick()
+        composeTestRule.onNode(prescriptionCard).performClick()
+        composeTestRule.onNode(quickSelectTab).performClick()
+        composeTestRule.onNode(quickSelectTab).assertIsNotSelected()
+        composeTestRule.onNode(activeIngredientList).assertDoesNotExist()
     }
 
     @Test
