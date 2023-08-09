@@ -41,16 +41,6 @@ abstract class TriggerWorkerOneTime(context: Context, workerParameters: WorkerPa
                     }
                 }
             }
-
-            CoroutineScope(Dispatchers.IO).launch {
-                setAppointmentPatchWorker { errorReceived, errorMsg ->
-                    CoroutineScope(Dispatchers.IO).launch {
-                        (applicationContext as FhirApp).sessionExpireFlow.emit(
-                            mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))
-                        )
-                    }
-                }
-            }
         }
         return Result.success()
     }

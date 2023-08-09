@@ -29,16 +29,16 @@ class ScheduleDaoTest: FhirAppDatabaseTest() {
     }
 
     @Test
-    fun getScheduleIdByFhirIdTest() = runBlocking {
+    fun getScheduleByFhirIdTest() = runBlocking {
         scheduleDao.insertScheduleEntity(scheduleResponse.toScheduleEntity())
-        val result = scheduleDao.getScheduleIdByFhirId(scheduleResponse.scheduleId!!)
-        assertEquals(scheduleResponse.uuid, result)
+        val result = scheduleDao.getFhirIdByStartTime(scheduleResponse.planningHorizon.start)
+        assertEquals(scheduleResponse.scheduleId, result)
     }
 
     @Test
     fun getBookedSlotsCountByStartTimeTest() = runBlocking {
         scheduleDao.insertScheduleEntity(scheduleResponse.toScheduleEntity())
-        val result = scheduleDao.getBookedSlotsCountByStartTime(date)
+        val result = scheduleDao.getBookedSlotsCountByStartTime(date.time)
         assertEquals(1, result)
     }
 

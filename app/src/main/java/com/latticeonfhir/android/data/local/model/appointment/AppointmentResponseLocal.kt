@@ -1,20 +1,18 @@
-package com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment
+package com.latticeonfhir.android.data.local.model.appointment
 
 import android.os.Parcelable
 import androidx.annotation.Keep
-import com.google.gson.annotations.SerializedName
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
 import kotlinx.parcelize.Parcelize
 import java.util.Date
 
 @Keep
 @Parcelize
-data class AppointmentResponse(
+data class AppointmentResponseLocal(
     val appointmentId: String?,
     val uuid: String,
-    @SerializedName("patientId")
-    val patientFhirId: String?,
-    val scheduleId: String,
+    val patientId: String,
+    val scheduleId: Date,
     val slot: Slot,
     val orgId: String,
     val createdOn: Date,

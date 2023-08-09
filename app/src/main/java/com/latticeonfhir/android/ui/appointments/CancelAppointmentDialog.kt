@@ -69,7 +69,7 @@ fun CancelAppointmentDialog(
             TextButton(
                 onClick = {
                     // delete appointment
-                    closeDialog(false)
+                    closeDialog(true)
                 },
                 modifier = Modifier.testTag("POSITIVE_BTN")
             ) {

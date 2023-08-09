@@ -25,14 +25,22 @@ interface ScheduleDao {
     suspend fun getScheduleById(vararg scheduleId: String): List<ScheduleEntity>
 
     @Transaction
-    @Query("SELECT id FROM ScheduleEntity WHERE scheduleFhirId=:fhirId")
-    suspend fun getScheduleIdByFhirId(fhirId: String): String?
+    @Query("SELECT startTime FROM ScheduleEntity WHERE scheduleFhirId=:fhirId")
+    suspend fun getScheduleStartTimeByFhirId(fhirId: String): Date?
 
     @Transaction
-    @Query("SELECT bookedSlots FROM ScheduleEntity WHERE startTime=:start")
-    suspend fun getBookedSlotsCountByStartTime(start: Date): Int
+    @Query("SELECT scheduleFhirId FROM ScheduleEntity WHERE startTime=:startTime")
+    suspend fun getFhirIdByStartTime(startTime: Date): String?
+
+    @Transaction
+    @Query("SELECT COALESCE((SELECT bookedSlots FROM ScheduleEntity WHERE startTime=:start), :defaultValue)")
+    suspend fun getBookedSlotsCountByStartTime(start: Long, defaultValue: Int = 0): Int
 
     @Transaction
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateScheduleEntity(scheduleEntity: ScheduleEntity): Int
+
+    @Transaction
+    @Query("SELECT * FROM ScheduleEntity WHERE startTime=:startTime")
+    suspend fun getScheduleByStartTime(startTime: Long): ScheduleEntity?
 }
