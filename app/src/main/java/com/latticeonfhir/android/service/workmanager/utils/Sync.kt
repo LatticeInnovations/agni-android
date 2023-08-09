@@ -32,60 +32,60 @@ import kotlinx.coroutines.flow.Flow
 
 object Sync {
 
-  /**
-   * Starts a one time sync job based on [SyncWorker].
-   *
-   * Use the returned [Flow] to get updates of the sync job. Alternatively, use [getWorkerInfo] with
-   * the same [SyncWorker] to retrieve the status of the job.
-   *
-   * @param retryConfiguration configuration to guide the retry mechanism, or `null` to stop retry.
-   * @return a [Flow] of [SyncJobStatus]
-   */
-  inline fun <reified W : SyncWorker> oneTimeSync(
-    context: Context,
-    retryConfiguration: RetryConfiguration? = defaultRetryConfiguration
-  ): Flow<WorkInfo?> {
-    val flow = getWorkerInfo<W>(context)
-    WorkManager.getInstance(context)
-      .enqueueUniqueWork(
-        W::class.java.name,
-        ExistingWorkPolicy.KEEP,
-        createOneTimeWorkRequest(retryConfiguration, W::class.java)
-      )
-    return flow
-  }
+    /**
+     * Starts a one time sync job based on [SyncWorker].
+     *
+     * Use the returned [Flow] to get updates of the sync job. Alternatively, use [getWorkerInfo] with
+     * the same [SyncWorker] to retrieve the status of the job.
+     *
+     * @param retryConfiguration configuration to guide the retry mechanism, or `null` to stop retry.
+     * @return a [Flow] of [SyncJobStatus]
+     */
+    inline fun <reified W : SyncWorker> oneTimeSync(
+        context: Context,
+        retryConfiguration: RetryConfiguration? = defaultRetryConfiguration
+    ): Flow<WorkInfo?> {
+        val flow = getWorkerInfo<W>(context)
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork(
+                W::class.java.name,
+                ExistingWorkPolicy.KEEP,
+                createOneTimeWorkRequest(retryConfiguration, W::class.java)
+            )
+        return flow
+    }
 
-  /**
-   * Starts a periodic sync job based on [SyncWorker].
-   *
-   * Use the returned [Flow] to get updates of the sync job. Alternatively, use [getWorkerInfo] with
-   * the same [SyncWorker] to retrieve the status of the job.
-   *
-   * @param periodicSyncConfiguration configuration to determine the sync frequency and retry
-   * mechanism
-   * @return a [Flow] of [SyncJobStatus]
-   */
-  @ExperimentalCoroutinesApi
-  inline fun <reified W : SyncWorker> periodicSync(
-    context: Context,
-    periodicSyncConfiguration: PeriodicSyncConfiguration
-  ): Flow<WorkInfo?> {
-    val flow = getWorkerInfo<W>(context)
-    WorkManager.getInstance(context)
-      .enqueueUniquePeriodicWork(
-        W::class.java.name,
-        ExistingPeriodicWorkPolicy.KEEP,
-        createPeriodicWorkRequest(periodicSyncConfiguration, W::class.java)
-      )
-    return flow
-  }
+    /**
+     * Starts a periodic sync job based on [SyncWorker].
+     *
+     * Use the returned [Flow] to get updates of the sync job. Alternatively, use [getWorkerInfo] with
+     * the same [SyncWorker] to retrieve the status of the job.
+     *
+     * @param periodicSyncConfiguration configuration to determine the sync frequency and retry
+     * mechanism
+     * @return a [Flow] of [SyncJobStatus]
+     */
+    @ExperimentalCoroutinesApi
+    inline fun <reified W : SyncWorker> periodicSync(
+        context: Context,
+        periodicSyncConfiguration: PeriodicSyncConfiguration
+    ): Flow<WorkInfo?> {
+        val flow = getWorkerInfo<W>(context)
+        WorkManager.getInstance(context)
+            .enqueueUniquePeriodicWork(
+                W::class.java.name,
+                ExistingPeriodicWorkPolicy.KEEP,
+                createPeriodicWorkRequest(periodicSyncConfiguration, W::class.java)
+            )
+        return flow
+    }
 
-  /** Gets the worker info for the [SyncWorker] */
-  inline fun <reified W : SyncWorker> getWorkerInfo(context: Context) =
-    WorkManager.getInstance(context)
-      .getWorkInfosForUniqueWorkLiveData(W::class.java.name)
-      .map { it.lastOrNull() }
-      .asFlow()
+    /** Gets the worker info for the [SyncWorker] */
+    inline fun <reified W : SyncWorker> getWorkerInfo(context: Context) =
+        WorkManager.getInstance(context)
+            .getWorkInfosForUniqueWorkLiveData(W::class.java.name)
+            .map { it.lastOrNull() }
+            .asFlow()
 //      .flatMapConcat { it.asFlow() }
 //      .mapNotNull { workInfo ->
 //        workInfo.progress
@@ -97,51 +97,62 @@ object Sync {
 //          }
 //      }
 
-  @PublishedApi
-  internal inline fun <W : SyncWorker> createOneTimeWorkRequest(
-      retryConfiguration: RetryConfiguration?,
-      clazz: Class<W>
-  ): OneTimeWorkRequest {
-    val oneTimeWorkRequestBuilder = OneTimeWorkRequest.Builder(clazz)
-    retryConfiguration?.let {
-      oneTimeWorkRequestBuilder.setBackoffCriteria(
-        it.backoffCriteria.backoffPolicy,
-        it.backoffCriteria.backoffDelay,
-        it.backoffCriteria.timeUnit
-      )
-      oneTimeWorkRequestBuilder.setInputData(
-        Data.Builder().putInt(MAX_RETRIES_ALLOWED, it.maxRetries).build()
-      )
-      oneTimeWorkRequestBuilder.setConstraints(
-        it.syncConstraints
-      )
+    @PublishedApi
+    internal inline fun <W : SyncWorker> createOneTimeWorkRequest(
+        retryConfiguration: RetryConfiguration?,
+        clazz: Class<W>
+    ): OneTimeWorkRequest {
+        val oneTimeWorkRequestBuilder = OneTimeWorkRequest.Builder(clazz)
+        retryConfiguration?.let {
+            oneTimeWorkRequestBuilder.setBackoffCriteria(
+                it.backoffCriteria.backoffPolicy,
+                it.backoffCriteria.backoffDelay,
+                it.backoffCriteria.timeUnit
+            )
+            oneTimeWorkRequestBuilder.setInputData(
+                Data.Builder().putInt(MAX_RETRIES_ALLOWED, it.maxRetries).build()
+            )
+            oneTimeWorkRequestBuilder.setConstraints(
+                it.syncConstraints
+            )
+        }
+        return oneTimeWorkRequestBuilder.build()
     }
-    return oneTimeWorkRequestBuilder.build()
-  }
 
-  @PublishedApi
-  internal inline fun <W : SyncWorker> createPeriodicWorkRequest(
-      periodicSyncConfiguration: PeriodicSyncConfiguration,
-      clazz: Class<W>
-  ): PeriodicWorkRequest {
-    val periodicWorkRequestBuilder =
-      PeriodicWorkRequest.Builder(
-          clazz,
-          periodicSyncConfiguration.repeat.interval,
-          periodicSyncConfiguration.repeat.timeUnit
-        )
-        .setConstraints(periodicSyncConfiguration.syncConstraints)
+    @PublishedApi
+    internal inline fun <W : SyncWorker> createPeriodicWorkRequest(
+        periodicSyncConfiguration: PeriodicSyncConfiguration,
+        clazz: Class<W>
+    ): PeriodicWorkRequest {
+        val periodicWorkRequestBuilder =
+            PeriodicWorkRequest.Builder(
+                clazz,
+                periodicSyncConfiguration.repeat.interval,
+                periodicSyncConfiguration.repeat.timeUnit
+            )
+                .setConstraints(periodicSyncConfiguration.syncConstraints)
 
-    periodicSyncConfiguration.retryConfiguration?.let {
-      periodicWorkRequestBuilder.setBackoffCriteria(
-        it.backoffCriteria.backoffPolicy,
-        it.backoffCriteria.backoffDelay,
-        it.backoffCriteria.timeUnit
-      )
-      periodicWorkRequestBuilder.setInputData(
-        Data.Builder().putInt(MAX_RETRIES_ALLOWED, it.maxRetries).build()
-      )
+        periodicSyncConfiguration.retryConfiguration?.let {
+            periodicWorkRequestBuilder.setBackoffCriteria(
+                it.backoffCriteria.backoffPolicy,
+                it.backoffCriteria.backoffDelay,
+                it.backoffCriteria.timeUnit
+            )
+            periodicWorkRequestBuilder.setInputData(
+                Data.Builder().putInt(MAX_RETRIES_ALLOWED, it.maxRetries).build()
+            )
+        }
+        periodicSyncConfiguration.initialDelay?.let { initialDelay ->
+            initialDelay.duration?.let { duration ->
+                periodicWorkRequestBuilder.setInitialDelay(
+                    duration
+                )
+            } ?: initialDelay.delay?.let { delay ->
+                periodicWorkRequestBuilder.setInitialDelay(
+                    delay.initialDelay, delay.timeUnit
+                )
+            }
+        }
+        return periodicWorkRequestBuilder.build()
     }
-    return periodicWorkRequestBuilder.build()
-  }
 }

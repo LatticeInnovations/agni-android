@@ -254,10 +254,8 @@ class EditBasicInformationViewModel @Inject constructor(
                     }
 
                 } else {
-                    genericRepository.insertOrUpdatePostEntity(
-                        patientId = patientResponse.id,
-                        entity = patientResponse,
-                        typeEnum = GenericTypeEnum.PATIENT
+                    genericRepository.insertPatient(
+                        patientResponse
                     )
                 }
             }

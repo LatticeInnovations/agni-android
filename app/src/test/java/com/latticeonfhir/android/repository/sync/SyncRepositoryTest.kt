@@ -8,14 +8,17 @@ import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
+import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
 import com.latticeonfhir.android.data.server.constants.ConstantValues
 import com.latticeonfhir.android.data.server.constants.EndPoints
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
@@ -24,18 +27,20 @@ import com.latticeonfhir.android.data.server.constants.QueryParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
 import com.latticeonfhir.android.utils.converters.responseconverter.toNoBracketAndNoSpaceString
+import com.latticeonfhir.android.utils.converters.responseconverter.toScheduleEntity
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockWebServer
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,6 +61,9 @@ class SyncRepositoryTest : BaseClass() {
     private lateinit var prescriptionApiService: PrescriptionApiService
 
     @Mock
+    private lateinit var scheduleAndAppointmentApiService: ScheduleAndAppointmentApiService
+
+    @Mock
     private lateinit var patientDao: PatientDao
 
     @Mock
@@ -73,9 +81,13 @@ class SyncRepositoryTest : BaseClass() {
     @Mock
     private lateinit var prescriptionDao: PrescriptionDao
 
-    private lateinit var syncRepositoryImpl: SyncRepositoryImpl
+    @Mock
+    private lateinit var scheduleDao: ScheduleDao
 
-    private lateinit var mockWebServer: MockWebServer
+    @Mock
+    private lateinit var appointmentDao: AppointmentDao
+
+    private lateinit var syncRepositoryImpl: SyncRepositoryImpl
 
     private val listOfGenericEntity = listOf(
         GenericEntity(
@@ -157,37 +169,28 @@ class SyncRepositoryTest : BaseClass() {
         GenericEntity(
             id = "ID",
             patientId = "PATIENT_ID",
-            payload = "[{\n" +
-                    "      \"prescriptionId\": \"e3488798-ff88-4b67-88b3-3f7df487fc71\",\n" +
-                    "      \"prescriptionFhirId\": \"21214\",\n" +
-                    "      \"generatedOn\": \"2023-05-19T11:00:35+05:30\",\n" +
-                    "      \"patientId\": \"21028\",\n" +
-                    "      \"prescription\": [\n" +
-                    "        {\n" +
-                    "          \"medFhirId\": \"21117\",\n" +
-                    "          \"note\": \"Swallow with water\",\n" +
-                    "          \"qtyPerDose\": 1,\n" +
-                    "          \"frequency\": 1,\n" +
-                    "          \"doseForm\": \"Tablet\",\n" +
-                    "          \"doseFormCode\": \"421026006\",\n" +
-                    "          \"duration\": 3,\n" +
-                    "          \"timing\": \"769557005\",\n" +
-                    "          \"qtyPrescribed\": 3\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "          \"medFhirId\": \"21131\",\n" +
-                    "          \"note\": \"Swallow with water\",\n" +
-                    "          \"qtyPerDose\": 2,\n" +
-                    "          \"frequency\": 3,\n" +
-                    "          \"doseForm\": \"Tablet\",\n" +
-                    "          \"doseFormCode\": \"421026006\",\n" +
-                    "          \"duration\": 3,\n" +
-                    "          \"timing\": \"769557005\",\n" +
-                    "          \"qtyPrescribed\": 18\n" +
-                    "        }\n" +
-                    "      ]\n" +
-                    "    }]",
+            payload = "{\"generatedOn\":\"2023-07-18T15:22:50+05:30\",\"patientId\":\"23058\",\"prescription\":[{\"doseForm\":\"Tablet\",\"duration\":4,\"frequency\":2,\"medFhirId\":\"21132\",\"note\":\"\",\"qtyPerDose\":1,\"qtyPrescribed\":8,\"timing\":\"Before lunch\"}],\"prescriptionId\":\"0ebbef05-d0d7-4c54-9f58-6900d01c54ac\"}",
             GenericTypeEnum.PRESCRIPTION,
+            SyncType.POST
+        )
+    )
+
+    private val listOfScheduleEntity = listOf(
+        GenericEntity(
+            id = "ID",
+            patientId = "SCHEDULE_ID",
+            payload = "{\"uuid\":\"78e2d936-39e4-42c3-abf4-b96274726c27\",\"scheduleId\":\"23058\",\"planningHorizon\":{\"start\":\"2023-07-18T09:00:00+05:30\",\"end\":\"2023-07-18T09:30:00+05:30\"},\"orgId\":\"26722\",\"bookedSlots\":3}",
+            GenericTypeEnum.SCHEDULE,
+            SyncType.POST
+        )
+    )
+
+    private val listOfAppointmentEntity = listOf(
+        GenericEntity(
+            id = "ID",
+            patientId = "APPOINTMENT_ID",
+            payload = "{\"appointmentId\":\"89767\",\"uuid\":\"78e2d936-39e4-42c3-abf4-b96274726c27\",\"patientFhirId\":\"23343\",\"scheduleId\":\"23058\",\"slot\":{\"start\":\"2023-07-18T09:00:00+05:30\",\"end\":\"2023-07-18T09:30:00+05:30\"},\"orgId\":\"26722\",\"createdOn\":\"2023-07-18T09:30:00+05:30\",\"status\":\"scheduled\"}",
+            GenericTypeEnum.APPOINTMENT,
             SyncType.POST
         )
     )
@@ -239,20 +242,26 @@ class SyncRepositoryTest : BaseClass() {
         syncRepositoryImpl = SyncRepositoryImpl(
             patientApiService,
             prescriptionApiService,
+            scheduleAndAppointmentApiService,
             patientDao,
             genericDao,
             preferenceRepository,
             relationDao,
             medicationDao,
-            prescriptionDao
+            prescriptionDao,
+            scheduleDao,
+            appointmentDao
         )
 
         runTest {
             `when`(preferenceRepository.getLastSyncPatient()).thenReturn(200L)
             `when`(preferenceRepository.getLastMedicationSyncDate()).thenReturn(200L)
             `when`(preferenceRepository.getLastMedicineDosageInstructionSyncDate()).thenReturn(200L)
+            `when`(preferenceRepository.getLastSyncSchedule()).thenReturn(200L)
+            `when`(preferenceRepository.getLastSyncAppointment()).thenReturn(200L)
 
             `when`(patientDao.getPatientIdByFhirId("FHIR_ID")).thenReturn("PATIENT_ID")
+            `when`(appointmentDao.getAppointmentIdByFhirId("APPOINTMENT_ID")).thenReturn("APPOINTMENT_ID")
 
             `when`(
                 patientDao.updateFhirId(
@@ -262,6 +271,9 @@ class SyncRepositoryTest : BaseClass() {
             ).thenReturn(1)
 
             `when`(genericDao.deleteSyncPayload(listOf("ID"))).thenReturn(0)
+            `when`(patientDao.getPatientIdByFhirId(appointmentResponse.patientFhirId!!)).thenReturn("PATIENT_ID")
+            `when`(scheduleDao.getScheduleByStartTime(appointmentResponseLocal.scheduleId.time)).thenReturn(scheduleResponse.toScheduleEntity())
+            `when`(scheduleDao.getScheduleStartTimeByFhirId(scheduleResponse.scheduleId!!)).thenReturn(scheduleResponse.planningHorizon.start)
         }
     }
 
@@ -646,6 +658,218 @@ class SyncRepositoryTest : BaseClass() {
     }
 
     @Test
+    internal fun getAndInsertSchedule_Returns_Success() = runTest {
+        val map = mutableMapOf<String, String>()
+        map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        map[QueryParameters.OFFSET] = 0.toString()
+        map[QueryParameters.SORT] = "-${QueryParameters.ID}"
+        if (preferenceRepository.getLastSyncSchedule() != 0L) map[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncSchedule().toTimeStampDate()
+            )
+        `when`(scheduleAndAppointmentApiService.getScheduleList(map)).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 2,
+                    message = "Success",
+                    data = listOf(scheduleResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+
+        val response = syncRepositoryImpl.getAndInsertSchedule(0)
+        assertEquals(
+            (response as ApiEndResponse).body[0].scheduleId,
+            "SCHEDULE_FHIR_ID"
+        )
+    }
+
+    @Test
+    internal fun getAndInsertSchedule_Returns_Error() = runTest {
+        val map = mutableMapOf<String, String>()
+        map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        map[QueryParameters.OFFSET] = 0.toString()
+        map[QueryParameters.SORT] = "-${QueryParameters.ID}"
+        if (preferenceRepository.getLastSyncSchedule() != 0L) map[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncSchedule().toTimeStampDate()
+            )
+        `when`(scheduleAndAppointmentApiService.getScheduleList(map)).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 0,
+                    message = "Error",
+                    data = null,
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+        val response = syncRepositoryImpl.getAndInsertSchedule(0)
+        assertEquals((response as ApiErrorResponse).statusCode, 0)
+    }
+
+    @Test
+    internal fun getAndInsertSchedule_Returns_Continue() = runTest {
+        val oldMap = mutableMapOf<String, String>()
+        oldMap[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        oldMap[QueryParameters.OFFSET] = 0.toString()
+        oldMap[QueryParameters.SORT] = "-${QueryParameters.ID}"
+        if (preferenceRepository.getLastSyncSchedule() != 0L) oldMap[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncSchedule().toTimeStampDate()
+            )
+        `when`(scheduleAndAppointmentApiService.getScheduleList(oldMap)).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 1,
+                    message = "Success",
+                    data = listOf(scheduleResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+        val map = mutableMapOf<String, String>()
+        map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        map[QueryParameters.OFFSET] = 200.toString()
+        map[QueryParameters.SORT] = "-${QueryParameters.ID}"
+        if (preferenceRepository.getLastSyncSchedule() != 0L) map[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncSchedule().toTimeStampDate()
+            )
+        `when`(scheduleAndAppointmentApiService.getScheduleList(map)).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 2,
+                    message = "Success",
+                    data = listOf(scheduleResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+        val response = syncRepositoryImpl.getAndInsertSchedule(0)
+        assertEquals(true, response is ApiEndResponse)
+    }
+
+    @Test
+    internal fun getAndInsertAppointment_Returns_Success() = runTest {
+        val map = mutableMapOf<String, String>()
+        map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        map[QueryParameters.OFFSET] = 0.toString()
+        map[QueryParameters.SORT] = "-${QueryParameters.ID}"
+        if (preferenceRepository.getLastSyncAppointment() != 0L) map[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncAppointment().toTimeStampDate()
+            )
+        `when`(scheduleAndAppointmentApiService.getAppointmentList(map)).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 2,
+                    message = "Success",
+                    data = listOf(appointmentResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+
+        val response = syncRepositoryImpl.getAndInsertAppointment(0)
+        assertEquals(
+            (response as ApiEndResponse).body[0].appointmentId,
+            "APPOINTMENT_FHIR_ID"
+        )
+    }
+
+    @Test
+    internal fun getAndInsertAppointment_Returns_Error() = runTest {
+        val map = mutableMapOf<String, String>()
+        map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        map[QueryParameters.OFFSET] = 0.toString()
+        map[QueryParameters.SORT] = "-${QueryParameters.ID}"
+        if (preferenceRepository.getLastSyncAppointment() != 0L) map[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncAppointment().toTimeStampDate()
+            )
+        `when`(scheduleAndAppointmentApiService.getAppointmentList(map)).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 0,
+                    message = "Error",
+                    data = null,
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+        val response = syncRepositoryImpl.getAndInsertAppointment(0)
+        assertEquals((response as ApiErrorResponse).statusCode, 0)
+    }
+
+    @Test
+    internal fun getAndInsertAppointment_Returns_Continue() = runTest {
+        val oldMap = mutableMapOf<String, String>()
+        oldMap[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        oldMap[QueryParameters.OFFSET] = 0.toString()
+        oldMap[QueryParameters.SORT] = "-${QueryParameters.ID}"
+        if (preferenceRepository.getLastSyncAppointment() != 0L) oldMap[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncAppointment().toTimeStampDate()
+            )
+        `when`(scheduleAndAppointmentApiService.getAppointmentList(oldMap)).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 1,
+                    message = "Success",
+                    data = listOf(appointmentResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+        val map = mutableMapOf<String, String>()
+        map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
+        map[QueryParameters.OFFSET] = 200.toString()
+        map[QueryParameters.SORT] = "-${QueryParameters.ID}"
+        if (preferenceRepository.getLastSyncAppointment() != 0L) map[QueryParameters.LAST_UPDATED] =
+            String.format(
+                QueryParameters.GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncAppointment().toTimeStampDate()
+            )
+        `when`(scheduleAndAppointmentApiService.getAppointmentList(map)).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 2,
+                    message = "Success",
+                    data = listOf(appointmentResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+        val response = syncRepositoryImpl.getAndInsertAppointment(0)
+        assertEquals(true, response is ApiEndResponse)
+    }
+
+    @Test
     internal fun sendPersonPostData_Return_Success() = runTest {
         `when`(
             genericDao.getSameTypeGenericEntityPayload(
@@ -757,19 +981,13 @@ class SyncRepositoryTest : BaseClass() {
             listOfPrescriptionEntity
         )
 
-        val prescriptionsToBeSynced = mutableListOf<PrescriptionResponse>()
-        listOfPrescriptionEntity.forEach { genericEntity ->
-            genericEntity.payload.fromJson<List<LinkedTreeMap<*, *>>>().forEach { prescription ->
-                prescriptionsToBeSynced.add(
-                    prescription.mapToObject(PrescriptionResponse::class.java)!!
-                )
-            }
-        }
-
         `when`(
             prescriptionApiService.postPrescriptionRelatedData(
                 EndPoints.MEDICATION_REQUEST,
-                prescriptionsToBeSynced
+                listOfPrescriptionEntity.map { prescriptionGenericEntity ->
+                    prescriptionGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>()
+                        .mapToObject(PrescriptionResponse::class.java)!!
+                }
             )
         ).thenReturn(
             Response.success(
@@ -792,8 +1010,103 @@ class SyncRepositoryTest : BaseClass() {
     }
 
     @Test
+    internal fun sendSchedulePostData_Return_Success() = runTest {
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                genericTypeEnum = GenericTypeEnum.SCHEDULE,
+                syncType = SyncType.POST
+            )
+        ).thenReturn(emptyList())
+        val response = syncRepositoryImpl.sendSchedulePostData()
+        assertEquals(true, response is ApiEmptyResponse)
+    }
+
+    @Test
+    internal fun sendSchedulePostData_InteractServer_Return_Success() = runTest {
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                genericTypeEnum = GenericTypeEnum.SCHEDULE,
+                syncType = SyncType.POST
+            )
+        ).thenReturn(
+            listOfScheduleEntity
+        )
+
+        `when`(scheduleAndAppointmentApiService.postScheduleData(listOfScheduleEntity.map {
+            it.payload.fromJson<LinkedTreeMap<*, *>>()
+                .mapToObject(ScheduleResponse::class.java) as Any
+        })).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 1,
+                    message = "Success",
+                    data = listOf(createResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+        val response = syncRepositoryImpl.sendSchedulePostData()
+        assertEquals(
+            "78e2d936-39e4-42c3-abf4-b96274726c27",
+            (response as ApiEndResponse).body[0].id
+        )
+    }
+
+    @Test
+    internal fun sendAppointmentPostData_Return_Success() = runTest {
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                genericTypeEnum = GenericTypeEnum.APPOINTMENT,
+                syncType = SyncType.POST
+            )
+        ).thenReturn(emptyList())
+        val response = syncRepositoryImpl.sendAppointmentPostData()
+        assertEquals(true, response is ApiEmptyResponse)
+    }
+
+    @Test
+    internal fun sendAppointmentPostData_InteractServer_Return_Success() = runTest {
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                genericTypeEnum = GenericTypeEnum.APPOINTMENT,
+                syncType = SyncType.POST
+            )
+        ).thenReturn(
+            listOfAppointmentEntity
+        )
+
+        `when`(scheduleAndAppointmentApiService.createAppointment(listOfAppointmentEntity.map {
+            it.payload.fromJson<LinkedTreeMap<*, *>>()
+                .mapToObject(AppointmentResponse::class.java) as Any
+        })).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 1,
+                    message = "Success",
+                    data = listOf(createResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+        val response = syncRepositoryImpl.sendAppointmentPostData()
+        assertEquals(
+            "78e2d936-39e4-42c3-abf4-b96274726c27",
+            (response as ApiEndResponse).body[0].id
+        )
+    }
+
+    @Test
     fun `send person patch data return success`() = runTest {
-        `when`(genericDao.getSameTypeGenericEntityPayload(GenericTypeEnum.PATIENT,SyncType.PATCH)).thenReturn(
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                GenericTypeEnum.PATIENT,
+                SyncType.PATCH
+            )
+        ).thenReturn(
             emptyList()
         )
         val response = syncRepositoryImpl.sendPersonPatchData()
@@ -866,6 +1179,176 @@ class SyncRepositoryTest : BaseClass() {
         )
 
         val response = syncRepositoryImpl.sendPersonPatchData()
+        assertEquals(
+            true,
+            (response is ApiErrorResponse)
+        )
+    }
+
+    @Test
+    fun `send relation patch data return success`() = runTest {
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                GenericTypeEnum.RELATION,
+                SyncType.PATCH
+            )
+        ).thenReturn(
+            emptyList()
+        )
+        val response = syncRepositoryImpl.sendRelatedPersonPatchData()
+        assertEquals(true, response is ApiEmptyResponse)
+    }
+
+    @Test
+    fun `send relation patch interact server return success`() = runTest {
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                genericTypeEnum = GenericTypeEnum.RELATION,
+                syncType = SyncType.PATCH
+            )
+        ).thenReturn(
+            listOfRelationEntity
+        )
+
+        `when`(
+            patientApiService.patchListOfChanges(
+                RELATED_PERSON,
+                listOfRelationEntity.map { it.payload.fromJson() }
+            )
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 1,
+                    message = "Success",
+                    data = listOf(createResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+
+        val response = syncRepositoryImpl.sendRelatedPersonPatchData()
+        assertEquals(
+            "21292",
+            (response as ApiEndResponse).body[0].fhirId
+        )
+    }
+
+    @Test
+    fun `send related patch interact server return error`() = runTest {
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                genericTypeEnum = GenericTypeEnum.RELATION,
+                syncType = SyncType.PATCH
+            )
+        ).thenReturn(
+            listOfRelationEntity
+        )
+
+        `when`(
+            patientApiService.patchListOfChanges(
+                RELATED_PERSON,
+                listOfRelationEntity.map { it.payload.fromJson() }
+            )
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 0,
+                    message = "Error",
+                    data = null,
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+
+        val response = syncRepositoryImpl.sendRelatedPersonPatchData()
+        assertEquals(
+            true,
+            (response is ApiErrorResponse)
+        )
+    }
+
+    @Test
+    fun `send appointment patch data return success`() = runTest {
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                GenericTypeEnum.APPOINTMENT,
+                SyncType.PATCH
+            )
+        ).thenReturn(
+            emptyList()
+        )
+        val response = syncRepositoryImpl.sendAppointmentPatchData()
+        assertEquals(true, response is ApiEmptyResponse)
+    }
+
+    @Test
+    fun `send appointment patch interact server return success`() = runTest {
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                genericTypeEnum = GenericTypeEnum.APPOINTMENT,
+                syncType = SyncType.PATCH
+            )
+        ).thenReturn(
+            listOfAppointmentEntity
+        )
+
+        `when`(
+            scheduleAndAppointmentApiService.patchListOfChanges(
+                listOfAppointmentEntity.map { it.payload.fromJson() }
+            )
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 1,
+                    message = "Success",
+                    data = listOf(createResponse),
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+
+        val response = syncRepositoryImpl.sendAppointmentPatchData()
+        assertEquals(
+            "21292",
+            (response as ApiEndResponse).body[0].fhirId
+        )
+    }
+
+    @Test
+    fun `send appointment patch interact server return error`() = runTest {
+        `when`(
+            genericDao.getSameTypeGenericEntityPayload(
+                genericTypeEnum = GenericTypeEnum.APPOINTMENT,
+                syncType = SyncType.PATCH
+            )
+        ).thenReturn(
+            listOfAppointmentEntity
+        )
+
+        `when`(
+            scheduleAndAppointmentApiService.patchListOfChanges(
+                listOfAppointmentEntity.map { it.payload.fromJson() }
+            )
+        ).thenReturn(
+            Response.success(
+                BaseResponse(
+                    status = 0,
+                    message = "Error",
+                    data = null,
+                    offset = null,
+                    total = null,
+                    error = null
+                )
+            )
+        )
+
+        val response = syncRepositoryImpl.sendAppointmentPatchData()
         assertEquals(
             true,
             (response is ApiErrorResponse)

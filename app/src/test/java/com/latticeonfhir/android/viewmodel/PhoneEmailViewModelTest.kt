@@ -14,7 +14,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import retrofit2.Response
@@ -114,7 +113,7 @@ class PhoneEmailViewModelTest {
     }
 
     @Test
-    fun login_on_unauthorised_email () = runTest{
+    fun login_on_Unauthorized_email () = runTest{
         viewModel.inputValue = "mansi@gmail.com"
         `when`(authenticationRepository.login(viewModel.inputValue)).thenReturn(
             ResponseMapper.create(
@@ -126,9 +125,9 @@ class PhoneEmailViewModelTest {
             )
         )
         viewModel.login {
-            assertEquals("returned value should be true on valid unauthorised input", false, it)
-            assertEquals("error message should ne 'Unauthorised user'.", "Unauthorised user", viewModel.errorMsg)
-            assertEquals("isError should be true when logging in with unauthorised email", true, viewModel.isError)
+            assertEquals("returned value should be true on valid Unauthorized input", false, it)
+            assertEquals("error message should ne 'Unauthorized user'.", "Unauthorized user", viewModel.errorMsg)
+            assertEquals("isError should be true when logging in with Unauthorized email", true, viewModel.isError)
         }
     }
 
@@ -157,7 +156,7 @@ class PhoneEmailViewModelTest {
     }
 
     @Test
-    fun login_on_unauthorised_phone () = runTest{
+    fun login_on_Unauthorized_phone () = runTest{
         viewModel.inputValue = "98766543210"
         `when`(authenticationRepository.login(viewModel.inputValue)).thenReturn(
             ResponseMapper.create(
@@ -169,9 +168,9 @@ class PhoneEmailViewModelTest {
             )
         )
         viewModel.login {
-            assertEquals("returned value should be true on valid unauthorised input", false, it)
-            assertEquals("error message should ne 'Unauthorised user'.", "Unauthorised user", viewModel.errorMsg)
-            assertEquals("isError should be true when logging in with unauthorised phone", true, viewModel.isError)
+            assertEquals("returned value should be true on valid Unauthorized input", false, it)
+            assertEquals("error message should ne 'Unauthorized user'.", "Unauthorized user", viewModel.errorMsg)
+            assertEquals("isError should be true when logging in with Unauthorized phone", true, viewModel.isError)
         }
     }
 
@@ -227,12 +226,6 @@ class PhoneEmailViewModelTest {
 
     @Test
     fun clearAllDataTest() = runTest{
-        `when`(preferenceRepository.clearPreferences()).then {
-            doNothing()
-        }
-        `when`(fhirAppDatabase.clearAllTables()).then {
-            doNothing()
-        }
         viewModel.clearAllAppData()
     }
 }

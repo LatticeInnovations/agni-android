@@ -16,30 +16,33 @@ import androidx.work.await
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
+import com.latticeonfhir.android.service.workmanager.utils.Delay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.util.Date
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class LandingScreenViewModel @Inject constructor(
     application: Application,
-    private val genericRepository: GenericRepository,
     private val patientRepository: PatientRepository,
     private val searchRepository: SearchRepository,
     private val preferenceRepository: PreferenceRepository
 ) : BaseAndroidViewModel(application) {
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { WorkRequestBuilders(getApplication(),genericRepository,patientRepository) }
+    private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).getWorkRequestBuilder() }
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)
@@ -55,6 +58,8 @@ class LandingScreenViewModel @Inject constructor(
     var previousSearchList = mutableListOf<String>()
     var size by mutableStateOf(0)
     var isLoggingOut by mutableStateOf(false)
+    var addedToQueue by mutableStateOf(false)
+    var patientArrived by mutableStateOf(false)
 
     // user details
     var userName by mutableStateOf("")
@@ -65,12 +70,24 @@ class LandingScreenViewModel @Inject constructor(
     var logoutUser by mutableStateOf(false)
     var logoutReason by mutableStateOf("")
 
+    // queue screen
+    var showStatusChangeLayout by mutableStateOf(false)
+
     init {
+
+        viewModelScope.launch {
+            getApplication<FhirApp>().sessionExpireFlow.collectLatest { sessionExpireMap ->
+                if (sessionExpireMap["errorReceived"] == true) {
+                    logoutUser = true
+                    logoutReason = sessionExpireMap["errorMsg"]?.toString() ?: "SERVER ERROR"
+                }
+            }
+        }
 
         //Medication Worker
         viewModelScope.launch(Dispatchers.IO) {
             workRequestBuilders.setMedicationWorker { isErrorReceived, errorMsg ->
-                if (isErrorReceived){
+                if (isErrorReceived) {
                     logoutUser = true
                     logoutReason = errorMsg
                 }
@@ -81,7 +98,7 @@ class LandingScreenViewModel @Inject constructor(
         if (preferenceRepository.getLastMedicineDosageInstructionSyncDate() == 0L) {
             viewModelScope.launch(Dispatchers.IO) {
                 workRequestBuilders.setMedicationDosageWorker { isErrorReceived, errorMsg ->
-                    if (isErrorReceived){
+                    if (isErrorReceived) {
                         logoutUser = true
                         logoutReason = errorMsg
                     }
@@ -89,32 +106,31 @@ class LandingScreenViewModel @Inject constructor(
             }
         }
 
-        // Post Sync Worker
+        // Trigger Periodic Sync Worker
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.uploadPatientWorker { isErrorReceived, errorMsg ->
-                if (isErrorReceived){
-                    logoutUser = true
-                    logoutReason = errorMsg
-                }
-            }
+            workRequestBuilders.setPeriodicTriggerWorker()
         }
 
-        // Patch Sync Workers
+        // Trigger Periodic Update Appointment No Show Status Worker
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setPatientPatchWorker { isErrorReceived, errorMsg ->
-                if (isErrorReceived){
-                    logoutUser = true
-                    logoutReason = errorMsg
-                }
-            }
+            workRequestBuilders.setPeriodicAppointmentNoShowStatusUpdateWorker(
+                null,
+                Delay(
+                    Date().calculateMinutesToOneThirty(),
+                    TimeUnit.MINUTES
+                )
+            )
         }
+
+        // Trigger Periodic Update Appointment Completed Status Worker
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setRelationPatchWorker { isErrorReceived, errorMsg ->
-                if (isErrorReceived){
-                    logoutUser = true
-                    logoutReason = errorMsg
-                }
-            }
+            workRequestBuilders.setPeriodicAppointmentCompletedStatusUpdateWorker(
+                null,
+                Delay(
+                    Date().calculateMinutesToOneThirty(),
+                    TimeUnit.MINUTES
+                )
+            )
         }
 
         userName = preferenceRepository.getUserName()
@@ -179,10 +195,11 @@ class LandingScreenViewModel @Inject constructor(
 
     internal fun logout() {
         viewModelScope.launch(Dispatchers.Default) {
-            WorkManager.getInstance(getApplication<Application>().applicationContext).cancelAllWork().await().also {
-                (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
-                preferenceRepository.resetAuthenticationToken()
-            }
+            WorkManager.getInstance(getApplication<Application>().applicationContext)
+                .cancelAllWork().await().also {
+                    (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
+                    preferenceRepository.resetAuthenticationToken()
+                }
         }
     }
 }

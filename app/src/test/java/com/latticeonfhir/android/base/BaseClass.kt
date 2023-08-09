@@ -1,6 +1,8 @@
 package com.latticeonfhir.android.base
 
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
@@ -14,6 +16,9 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.data.server.model.user.UserResponse
 import com.latticeonfhir.android.data.server.model.user.UserRoleDetails
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
@@ -89,6 +94,30 @@ abstract class BaseClass : TestCase() {
         )
     )
 
+    val newRelationResponse = RelatedPersonResponse(
+        id = "FHIR_ID",
+        relationship = listOf(
+            Relationship(
+                patientIs = "MTH",
+                relativeId = "FHIR_ID"
+            )
+        )
+    )
+
+    val updatedRelationResponse = RelatedPersonResponse(
+        id = "FHIR_ID",
+        relationship = listOf(
+            Relationship(
+                patientIs = "BRO",
+                relativeId = "FHIR_ID"
+            ),
+            Relationship(
+                patientIs = "MTH",
+                relativeId = "FHIR_ID"
+            )
+        )
+    )
+
     val relative = PatientResponse(
         id = relativeId,
         firstName = "Relative",
@@ -119,11 +148,13 @@ abstract class BaseClass : TestCase() {
         patientId = id,
         patientLastName = patientResponse.lastName,
         patientMiddleName = patientResponse.middleName,
+        patientFhirId = patientResponse.fhirId,
         relation = RelationEnum.SPOUSE,
         relativeFirstName = relative.firstName,
         relativeId = relativeId,
         relativeLastName = relative.lastName,
         relativeMiddleName = relative.middleName,
+        relativeFhirId = relative.fhirId,
         relativeGender = relative.gender
     )
 
@@ -157,11 +188,14 @@ abstract class BaseClass : TestCase() {
         medNumeratorVal = 1.0
     )
 
+    val date = Date()
+
     val prescribedResponse = PrescriptionResponse(
         prescriptionId = "78e2d936-39e4-42c3-abf4-b96274726c27",
         prescriptionFhirId = "21292",
-        generatedOn = Date(),
+        generatedOn = date,
         patientFhirId = "FHIR_ID",
+        appointmentId = "APPOINTMENT_ID",
         prescription = listOf(
             Medication(
                 medFhirId = "21117",
@@ -193,6 +227,87 @@ abstract class BaseClass : TestCase() {
                 orgId = "ORG_ID",
                 orgName = "ORG_NAME"
             )
+        )
+    )
+
+    val scheduleResponse = ScheduleResponse(
+        uuid = id,
+        scheduleId = "SCHEDULE_FHIR_ID",
+        orgId = "ORG_FHIR_ID",
+        bookedSlots = 1,
+        planningHorizon = Slot(
+            start = date,
+            end = date
+        )
+    )
+
+     val appointmentResponse = AppointmentResponse(
+         uuid = id,
+         appointmentId = "APPOINTMENT_FHIR_ID",
+         createdOn = date,
+         orgId = "ORG_ID",
+         patientFhirId = "PATIENT_FHIR_ID",
+         scheduleId = "SCHEDULE_FHIR_ID",
+         status = AppointmentStatusEnum.SCHEDULED.value,
+         slot = Slot(
+             start = date,
+             end = date
+         )
+     )
+
+    val completedAppointmentResponse = AppointmentResponse(
+        uuid = id,
+        appointmentId = "APPOINTMENT_FHIR_ID",
+        createdOn = date,
+        orgId = "ORG_ID",
+        patientFhirId = "PATIENT_FHIR_ID",
+        scheduleId = "SCHEDULE_FHIR_ID",
+        status = AppointmentStatusEnum.COMPLETED.value,
+        slot = Slot(
+            start = date,
+            end = date
+        )
+    )
+
+    val appointmentResponseLocal = AppointmentResponseLocal(
+        uuid = id,
+        appointmentId = "APPOINTMENT_FHIR_ID",
+        createdOn = date,
+        orgId = "ORG_ID",
+        patientId = "PATIENT_FHIR_ID",
+        scheduleId = date,
+        status = AppointmentStatusEnum.SCHEDULED.value,
+        slot = Slot(
+            start = date,
+            end = date
+        )
+    )
+
+    val appointmentResponseLocalNullFhirId = AppointmentResponseLocal(
+        uuid = id,
+        appointmentId = null,
+        createdOn = date,
+        orgId = "ORG_ID",
+        patientId = "PATIENT_FHIR_ID",
+        scheduleId = date,
+        status = AppointmentStatusEnum.SCHEDULED.value,
+        slot = Slot(
+            start = date,
+            end = date
+        )
+    )
+
+    val completedAppointmentResponseLocal = AppointmentResponseLocal(
+        uuid = id,
+        appointmentId = "APPOINTMENT_FHIR_ID",
+        createdOn = date,
+        orgId = "ORG_ID",
+        patientId = "PATIENT_FHIR_ID",
+        scheduleId = date,
+        status = AppointmentStatusEnum.COMPLETED.value,
+        slot = Slot(
+            start = date,
+            end = date
         )
     )
 }

@@ -5,13 +5,8 @@ import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.ui.login.OtpViewModel
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert
@@ -27,14 +22,11 @@ class OtpScreenViewModelTest {
     @Mock
     lateinit var authenticationRepository: AuthenticationRepository
     lateinit var viewModel: OtpViewModel
-    @OptIn(DelicateCoroutinesApi::class)
-    private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         viewModel = OtpViewModel(authenticationRepository)
-        Dispatchers.setMain(mainThreadSurrogate)
     }
 
     @Test
@@ -146,7 +138,7 @@ class OtpScreenViewModelTest {
             )
         )
         viewModel.validateOtp {
-            Assert.assertEquals("should return true on valid input", true, it)
+            Assert.assertEquals("should return false on invalid otp error", false, it)
         }
     }
 
@@ -164,7 +156,7 @@ class OtpScreenViewModelTest {
             )
         )
         viewModel.validateOtp {
-            Assert.assertEquals("should return true on valid input", false, it)
+            Assert.assertEquals("should return false on Too many attempts error", false, it)
         }
     }
 }
