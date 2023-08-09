@@ -181,7 +181,6 @@ class WorkRequestBuilders(
                             }
                         }
 
-
                         /** Download Patient Worker */
                         downloadPatientWorker { errorReceived, errorMsg ->
                             error(errorReceived, errorMsg)

@@ -8,6 +8,7 @@ import java.util.Date
 data class PrescriptionResponseLocal(
     val patientId: String,
     val patientFhirId: String?,
+    val appointmentId: String,
     val generatedOn: Date,
     val prescriptionId: String,
     val prescription: List<Medication>

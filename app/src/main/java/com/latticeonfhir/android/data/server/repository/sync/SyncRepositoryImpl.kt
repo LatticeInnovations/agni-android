@@ -299,7 +299,8 @@ class SyncRepositoryImpl @Inject constructor(
                     is ApiEndResponse -> {
                         prescriptionDao.insertPrescription(*body.map { prescriptionResponse ->
                             prescriptionResponse.toPrescriptionEntity(
-                                patientDao
+                                patientDao,
+                                appointmentDao
                             )
                         }.toTypedArray())
                         val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()

@@ -413,7 +413,7 @@
       },
       {
         "tableName": "PrescriptionEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `prescriptionDate` INTEGER NOT NULL, `patientId` TEXT NOT NULL, `patientFhirId` TEXT, `prescriptionFhirId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `prescriptionDate` INTEGER NOT NULL, `appointmentId` TEXT NOT NULL DEFAULT 'DEFAULT_APPOINTMENT_ID', `patientId` TEXT NOT NULL, `patientFhirId` TEXT, `prescriptionFhirId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`appointmentId`) REFERENCES `AppointmentEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -426,6 +426,13 @@
             "columnName": "prescriptionDate",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "appointmentId",
+            "columnName": "appointmentId",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'DEFAULT_APPOINTMENT_ID'"
           },
           {
             "fieldPath": "patientId",
@@ -479,6 +486,17 @@
             "onUpdate": "NO ACTION",
             "columns": [
               "patientId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "AppointmentEntity",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "appointmentId"
             ],
             "referencedColumns": [
               "id"

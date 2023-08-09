@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.prescription
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -80,9 +81,12 @@ import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPr
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
 import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayEndDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -93,6 +97,7 @@ fun PrescriptionScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState()
+    val context = LocalContext.current
 
     BackHandler(enabled = true) {
         if (viewModel.isSearching) viewModel.isSearching = false
@@ -114,6 +119,7 @@ fun PrescriptionScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     "patient"
                 )
+            viewModel.getPatientTodayAppointment(Date(Date().toTodayStartDate()), Date(Date().toTodayEndDate()), viewModel.patient!!.id)
             viewModel.patient?.let {
                 viewModel.getPreviousPrescription(it.id) { prescriptionList ->
                     viewModel.previousPrescriptionList = prescriptionList
@@ -207,13 +213,25 @@ fun PrescriptionScreen(
                                     },
                                     modifier = Modifier.testTag(title.uppercase()),
                                     selected = pagerState.currentPage == index,
-                                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
+                                    onClick = {
+                                        if (index == 1 && viewModel.appointmentResponse == null) {
+                                            coroutineScope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    context.getString(R.string.please_add_patient_to_queue)
+                                                )
+                                            }
+                                        } else coroutineScope.launch {
+                                            pagerState.animateScrollToPage(
+                                                index
+                                            )
+                                        }
+                                    },
                                     unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
                         HorizontalPager(
-                            pageCount = viewModel.tabs.size,
+                            pageCount = if (viewModel.appointmentResponse == null) 1 else viewModel.tabs.size,
                             state = pagerState
                         ) { index ->
                             when (index) {

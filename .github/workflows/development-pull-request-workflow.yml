@@ -12,20 +12,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: set up JDK 11
+      - name: set up JDK 17
         uses: actions/setup-java@v2
         with:
-          java-version: "11"
+          java-version: 17
           distribution: zulu
           cache: gradle
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
-      - name: Setup Gradle
+      - name: Setup Gradle Version 8.1
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: 7.5
+          gradle-version: 8.1
 
       - name: Grant rights
         run: chmod +x build.gradle
