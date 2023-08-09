@@ -164,13 +164,14 @@ include them in the household</string>
     <string name="schedule_appointment">Schedule appointment</string>
     <string name="reschedule_appointment">Reschedule appointment</string>
     <string name="add_to_queue">Add to queue</string>
+    <string name="patient_arrived">Patient arrived</string>
     <string name="cancel">Cancel</string>
     <string name="reschedule">Reschedule</string>
     <string name="no_completed_appointments">No completed appointment</string>
     <string name="no_upcoming_appointments">No upcoming appointments</string>
     <string name="cancel_appointment">Cancel appointment ?</string>
     <string name="yes_i_want_to_cancel">Yes, I want to cancel</string>
-    <string name="today">Today</string>
+    <string name="reset">Reset</string>
     <string name="morning_slots">Morning slots</string>
     <string name="afternoon_slots">Afternoon slots</string>
     <string name="evening_slots">Evening slots</string>
@@ -191,5 +192,17 @@ include them in the household</string>
     <string name="walk_in">Walk-in</string>
     <string name="arrived">Arrived</string>
     <string name="status">Status</string>
+    <string name="appointment_cancelled">Appointment cancelled</string>
+    <string name="appointment_rescheduled">Appointment rescheduled</string>
+    <string name="appointment_scheduled">Appointment scheduled</string>
+    <string name="status_to_arrived">Status changed to \"Arrived\"</string>
+    <string name="status_to_in_progress">Status changed to \"In-progress\"</string>
+    <string name="status_to_completed">Status changed to \"Completed\"</string>
+    <string name="status_updated_to_arrived">Status updated to arrived</string>
+    <string name="added_to_queue">Patient added to queue</string>
+    <string name="all_slots_booked">All slots booked</string>
+    <string name="all_slots_booked_desc">Sorry, all appointment slots for today are booked.</string>
+    <string name="okay">Okay</string>
+    <string name="appointment_exists">Appointment already exist at %s</string>
     <string name="please_add_patient_to_queue">Please add patient to the queue to start prescription</string>
 </resources>

@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
@@ -146,6 +147,20 @@ open class FhirAppDatabaseTest: TestCase() {
         orgId = "ORG_ID",
         patientFhirId = id,
         scheduleId = id,
+        status = AppointmentStatusEnum.SCHEDULED.value,
+        slot = Slot(
+            start = date,
+            end = date
+        )
+    )
+
+    val appointmentResponseLocal = AppointmentResponseLocal(
+        uuid = id,
+        appointmentId = "APPOINTMENT_FHIR_ID",
+        createdOn = date,
+        orgId = "ORG_ID",
+        patientId = id,
+        scheduleId = date,
         status = AppointmentStatusEnum.SCHEDULED.value,
         slot = Slot(
             start = date,

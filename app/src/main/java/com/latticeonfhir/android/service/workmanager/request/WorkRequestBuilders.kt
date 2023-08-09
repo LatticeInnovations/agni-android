@@ -25,7 +25,9 @@ import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.patch.AppointmentPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.post.AppointmentUploadSyncWorker.Companion.AppointmentUploadProgress
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.post.AppointmentUploadSyncWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.AppointmentStatusUpdateWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.completed.AppointmentCompletedStatusUpdateWorker
+import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.completed.AppointmentCompletedStatusUpdateWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.noshow.AppointmentNoShowStatusUpdateWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.post.PatientUploadSyncWorker
@@ -98,8 +100,27 @@ class WorkRequestBuilders(
      * method to update status to "No-Show" at 11:59 PM everyday
      *
      */
-    internal fun setPeriodicAppointmentStatusUpdateWorker(duration: Duration?, delay: Delay?) {
-        Sync.periodicSync<AppointmentStatusUpdateWorkerImpl>(
+    internal fun setPeriodicAppointmentNoShowStatusUpdateWorker(duration: Duration?, delay: Delay?) {
+        Sync.periodicSync<AppointmentNoShowStatusUpdateWorkerImpl>(
+            applicationContext,
+            PeriodicSyncConfiguration(
+                syncConstraints = Constraints.Builder()
+                    .setRequiresBatteryNotLow(true)
+                    .build(),
+                repeat = RepeatInterval(24, TimeUnit.HOURS),
+                initialDelay = InitialDelay(duration, delay)
+            )
+        )
+    }
+
+    /**
+     *
+     * Periodic Worker that triggers
+     * method to update status to "Completed" at 11:59 PM everyday
+     *
+     */
+    internal fun setPeriodicAppointmentCompletedStatusUpdateWorker(duration: Duration?, delay: Delay?) {
+        Sync.periodicSync<AppointmentCompletedStatusUpdateWorkerImpl>(
             applicationContext,
             PeriodicSyncConfiguration(
                 syncConstraints = Constraints.Builder()
@@ -151,16 +172,6 @@ class WorkRequestBuilders(
                         /** Update Fhir Id in Generic Entity */
                         CoroutineScope(Dispatchers.IO).launch {
                             updateFhirIdInRelation { errorReceived, errorMsg ->
-                                error(errorReceived, errorMsg)
-                            }
-                        }
-
-
-                        // upload schedule -> update fhir id appointment -> download scheulde
-
-                        /** Upload Schedule Worker */
-                        CoroutineScope(Dispatchers.IO).launch {
-                            uploadScheduleSyncWorker { errorReceived, errorMsg ->
                                 error(errorReceived, errorMsg)
                             }
                         }
@@ -303,7 +314,8 @@ class WorkRequestBuilders(
                         /** Handle Progress Based Download WorkRequests Here */
                     }
                     if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                        updateFhirIdInPrescription { errorReceived, errorMsg ->
+                        /** Update Schedule Fhir Id in Appointment Patch Worker*/
+                        updateScheduleFhirIdInAppointmentPatch { errorReceived, errorMsg ->
                             error(errorReceived, errorMsg)
                         }
                     }
@@ -346,7 +358,8 @@ class WorkRequestBuilders(
                     }
                 }
 
-                downloadScheduleWorker{ errorReceived, errorMsg ->
+                /** Upload Schedule Worker */
+                uploadScheduleSyncWorker { errorReceived, errorMsg ->
                     error(errorReceived, errorMsg)
                 }
             }
@@ -428,7 +441,7 @@ class WorkRequestBuilders(
                     errorMsg
                 )
             } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                downloadAppointmentWorker{ errorReceived, errorMsg ->
+                downloadAppointmentWorker { errorReceived, errorMsg ->
                     error(errorReceived, errorMsg)
                 }
             }
@@ -578,7 +591,7 @@ class WorkRequestBuilders(
     }
 
     //Appointment Patch Sync
-    internal suspend fun setAppointmentPatchWorker(error: (Boolean, String) -> Unit) {
+    private suspend fun setAppointmentPatchWorker(error: (Boolean, String) -> Unit) {
         //Upload Worker
         Sync.oneTimeSync<AppointmentPatchUploadSyncWorkerImpl>(
             applicationContext, defaultRetryConfiguration.copy(
@@ -602,6 +615,17 @@ class WorkRequestBuilders(
                         ) == 100
                     ) {
                         /** Handle Progress Based Download WorkRequests Here */
+                    }
+                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            updateFhirIdInPrescription { errorReceived, errorMsg ->
+                                error(errorReceived, errorMsg)
+                            }
+                        }
+
+                        downloadScheduleWorker { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
                     }
                 }
             }
@@ -636,6 +660,14 @@ class WorkRequestBuilders(
         genericRepository.updateAppointmentFhirIds()
         /** Start Appointment Worker */
         uploadAppointmentSyncWorker { errorReceived, errorMsg ->
+            error(errorReceived, errorMsg)
+        }
+    }
+
+    private suspend fun updateScheduleFhirIdInAppointmentPatch(error: (Boolean, String) -> Unit) {
+        genericRepository.updateAppointmentFhirIdInPatch()
+        /** Start Appointment Patch Worker */
+        setAppointmentPatchWorker { errorReceived, errorMsg ->
             error(errorReceived, errorMsg)
         }
     }

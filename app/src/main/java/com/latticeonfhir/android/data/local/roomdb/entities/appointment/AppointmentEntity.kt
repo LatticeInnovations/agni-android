@@ -21,7 +21,7 @@ import java.util.Date
         // To-be tested
         ForeignKey(
             entity = ScheduleEntity::class,
-            parentColumns = arrayOf("id"),
+            parentColumns = arrayOf("startTime"),
             childColumns = arrayOf("scheduleId")
         )
     ]
@@ -31,9 +31,9 @@ data class AppointmentEntity(
     val id: String,
     val appointmentFhirId: String?,
     val patientId: String,
-    val scheduleId: String?,
-    val startTime: Date?,
-    val endTime: Date?,
+    val scheduleId: Date,
+    val startTime: Date,
+    val endTime: Date,
     val orgId: String,
     val createdOn: Date,
     val status: String

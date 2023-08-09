@@ -49,10 +49,9 @@
         <item>02:30 PM</item>
         <item>03:00 PM</item>
         <item>03:30 PM</item>
-        <item>04:00 PM</item>
     </string-array>
     <string-array name="evening_slot_timings">
+        <item>04:00 PM</item>
         <item>04:30 PM</item>
-        <item>05:00 PM</item>
     </string-array>
 </resources>

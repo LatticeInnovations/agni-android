@@ -1,5 +1,10 @@
 package com.latticeonfhir.android.utils.constants
 
 object NavControllerConstants {
-    const val APPOINTMENT_DATE_AND_TIME = "date_and_time"
+    const val PATIENT = "patient"
+    const val APPOINTMENT_SELECTED = "appointment_selected"
+    const val ADD_TO_QUEUE = "added_to_queue"
+    const val PATIENT_ARRIVED = "patient_arrived"
+    const val RESCHEDULED = "rescheduled"
+    const val SCHEDULED = "scheduled"
 }
