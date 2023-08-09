@@ -103,18 +103,17 @@ class ConnectPatientViewModel @Inject constructor(
     internal fun addRelationsToGenericEntity() {
         viewModelScope.launch(Dispatchers.IO) {
             connectedMembersList.forEach { relationView ->
-                genericRepository.insertOrUpdatePostEntity(
-                    patientId = relationView.patientId,
-                    entity = RelatedPersonResponse(
-                        id = relationView.patientId,
+                genericRepository.insertRelation(
+                    relationView.patientId,
+                    RelatedPersonResponse(
+                        id = relationView.patientFhirId ?: relationView.patientId,
                         relationship = listOf(
                             Relationship(
-                                relativeId = relationView.relativeId,
+                                relativeId = relationView.relativeFhirId ?: relationView.relativeId,
                                 patientIs = relationView.relation.value
                             )
                         )
-                    ),
-                    typeEnum = GenericTypeEnum.RELATION
+                    )
                 )
             }
         }

@@ -10,7 +10,6 @@ import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
@@ -20,6 +19,7 @@ public class DateDeserializer implements JsonDeserializer<Date> {
     private static final String[] DATE_FORMATS = new String[] {
             "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'",
             "yyyy-MM-dd HH:mm:ssZ",
+            "yyyy-MM-dd'T'HH:mm:ssZ",
             "yyyy-MM-dd HH:mm:ss",
             "yyyy-MM-dd",
             "yyyy-MM-dd'T'HH:mm:ssXXX",

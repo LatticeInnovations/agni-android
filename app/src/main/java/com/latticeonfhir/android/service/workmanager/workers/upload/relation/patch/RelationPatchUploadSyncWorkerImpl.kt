@@ -5,6 +5,5 @@ import androidx.work.WorkerParameters
 import com.latticeonfhir.android.FhirApp
 
 class RelationPatchUploadSyncWorkerImpl(context: Context, workerParameters: WorkerParameters): RelationPatchUploadSyncWorker(context, workerParameters) {
-
-    override fun getSyncRepository() = FhirApp.syncRepository
+    override fun getSyncRepository() = (applicationContext as FhirApp).getSyncRepository()
 }

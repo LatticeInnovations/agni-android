@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.viewmodel.main
 
-import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
@@ -19,8 +18,6 @@ class MainViewModelTest: BaseClass() {
 
     @Mock
     private lateinit var preferenceRepository: PreferenceRepository
-    @Mock
-    private lateinit var syncRepository: SyncRepository
 
     private lateinit var mainViewModel: MainViewModel
 
@@ -32,35 +29,28 @@ class MainViewModelTest: BaseClass() {
     @Test
     fun `user already logged in`() {
         `when`(preferenceRepository.getAuthenticationToken()).thenReturn("AUTH_TOKEN")
-        mainViewModel = MainViewModel(syncRepository, preferenceRepository)
+        mainViewModel = MainViewModel(preferenceRepository)
         assertEquals(true,mainViewModel.isUserLoggedIn)
     }
 
     @Test
     fun `user not logged in`() {
         `when`(preferenceRepository.getAuthenticationToken()).thenReturn("")
-        mainViewModel = MainViewModel(syncRepository, preferenceRepository)
+        mainViewModel = MainViewModel(preferenceRepository)
         assertEquals(false,mainViewModel.isUserLoggedIn)
-    }
-
-    @Test
-    fun `sync repo initialized`() {
-        `when`(preferenceRepository.getAuthenticationToken()).thenReturn("")
-        mainViewModel = MainViewModel(syncRepository, preferenceRepository)
-        assertEquals(FhirApp.syncRepository,syncRepository)
     }
 
     @Test
     fun `start destination assigned when logged in`() {
         `when`(preferenceRepository.getAuthenticationToken()).thenReturn("AUTH_TOKEN")
-        mainViewModel = MainViewModel(syncRepository, preferenceRepository)
+        mainViewModel = MainViewModel(preferenceRepository)
         assertEquals(Screen.LandingScreen.route,mainViewModel.startDestination)
     }
 
     @Test
     fun `start destination assigned when not logged in`() {
         `when`(preferenceRepository.getAuthenticationToken()).thenReturn("")
-        mainViewModel = MainViewModel(syncRepository, preferenceRepository)
+        mainViewModel = MainViewModel(preferenceRepository)
         assertEquals(Screen.PhoneEmailScreen.route,mainViewModel.startDestination)
     }
 }

@@ -102,9 +102,9 @@ class ConnectPatientViewModelTest : BaseClass() {
     fun addRelationToGenericTest() = runBlocking {
         viewModel.connectedMembersList.add(relationView)
         `when`(
-            genericRepository.insertOrUpdatePostEntity(
+            genericRepository.insertRelation(
                 patientId = relationView.patientId,
-                entity = RelatedPersonResponse(
+                RelatedPersonResponse(
                     id = relationView.patientId,
                     relationship = listOf(
                         Relationship(
@@ -112,8 +112,7 @@ class ConnectPatientViewModelTest : BaseClass() {
                             patientIs = relationView.relation.value
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.RELATION
+                )
             )
         ).thenReturn(-1L)
         viewModel.addRelationsToGenericEntity()

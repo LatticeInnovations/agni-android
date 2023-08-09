@@ -1,0 +1,22 @@
+{
+  "status": 2,
+  "message": "Data fetched",
+  "total": 1,
+  "data": [
+    {
+      "appointmentId": "23303",
+      "uuid": "2f47059c-5d56-4225-9ab0-2cbff26966be",
+      "status": "scheduled",
+      "slot": {
+        "start": "2023-07-29T09:10:00+05:30",
+        "end": "2023-07-29T09:15:00+05:30"
+      },
+      "patientId": "23214",
+      "locationId": "22345",
+      "createdOn": "2023-07-25T15:12:00+05:30",
+      "slotId": "23302",
+      "orgId": "22344",
+      "scheduleId": "23221"
+    }
+  ]
+}

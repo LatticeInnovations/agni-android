@@ -6,5 +6,5 @@ import com.latticeonfhir.android.FhirApp
 
 class PatientPatchUploadSyncWorkerImpl(context: Context, workerParameters: WorkerParameters): PatientPatchUploadSyncWorker(context, workerParameters) {
 
-    override fun getSyncRepository() = FhirApp.syncRepository
+    override fun getSyncRepository() = (applicationContext as FhirApp).getSyncRepository()
 }
