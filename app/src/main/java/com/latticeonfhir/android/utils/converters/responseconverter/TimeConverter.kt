@@ -145,6 +145,13 @@ object TimeConverter {
         return calendar.time
     }
 
+    internal fun Date.yesterday(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this.time
+        calendar.set(Calendar.DAY_OF_YEAR, calendar[Calendar.DAY_OF_YEAR]-1)
+        return calendar.time
+    }
+
     internal fun String.toCurrentTimeInMillis(date: Date): Long {
         val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
         val currentTime = inputFormat.parse(this)
@@ -276,11 +283,12 @@ object TimeConverter {
         }
     }
 
-    internal fun Date.calculateMinutesToMidnight(): Long {
+    internal fun Date.calculateMinutesToOneThirty(): Long {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = time
-        calendar.set(Calendar.HOUR_OF_DAY, 23)
-        calendar.set(Calendar.MINUTE, 59)
+        calendar.add(Calendar.DAY_OF_YEAR, 1)
+        calendar.set(Calendar.HOUR_OF_DAY, 1)
+        calendar.set(Calendar.MINUTE, 30)
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
         val endTimeMillis = calendar.timeInMillis
