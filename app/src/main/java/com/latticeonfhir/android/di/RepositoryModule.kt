@@ -16,6 +16,8 @@ import com.latticeonfhir.android.data.local.repository.prescription.Prescription
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
+import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
@@ -71,6 +73,10 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideMedicationRepository(medicationRepositoryImpl: MedicationRepositoryImpl): MedicationRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideScheduleRepository(scheduleRepositoryImpl: ScheduleRepositoryImpl): ScheduleRepository
 
     @Binds
     @ViewModelScoped

@@ -39,31 +39,43 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import androidx.lifecycle.viewmodel.compose.*
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.NonLazyGrid
 import com.latticeonfhir.android.ui.theme.Green
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SCHEDULED
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonth
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.tomorrow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -71,10 +83,20 @@ import java.util.Date
 @Composable
 fun ScheduleAppointments(
     navController: NavController,
-    viewModel: ScheduleAppointmentViewModel = viewModel()
+    viewModel: ScheduleAppointmentViewModel = hiltViewModel()
 ) {
     val dateScrollState = rememberLazyListState()
     val composableScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            viewModel.patient =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    "patient"
+                )
+        }
+        viewModel.isLaunched = true
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -103,12 +125,13 @@ fun ScheduleAppointments(
                             composableScope.launch {
                                 dateScrollState.animateScrollToItem(0)
                             }
-                            viewModel.selectedDate = Date()
+                            viewModel.selectedDate = Date().tomorrow()
                             viewModel.weekList = viewModel.selectedDate.toWeekList()
                         },
-                        enabled = viewModel.selectedDate.toSlotDate() != Date().toSlotDate()
+                        enabled = viewModel.selectedDate.toSlotDate() != Date().tomorrow()
+                            .toSlotDate()
                     ) {
-                        Text(text = stringResource(id = R.string.today))
+                        Text(text = stringResource(id = R.string.reset))
                     }
                 }
             )
@@ -153,7 +176,7 @@ fun ScheduleAppointments(
                     LazyRow(
                         state = dateScrollState
                     ) {
-                        items(viewModel.weekList){ date ->
+                        items(viewModel.weekList) { date ->
                             SuggestionChip(
                                 onClick = {
                                     viewModel.selectedDate = date
@@ -184,7 +207,8 @@ fun ScheduleAppointments(
                                 ),
                                 border = SuggestionChipDefaults.suggestionChipBorder(
                                     borderColor = Color.Transparent
-                                )
+                                ),
+                                enabled = date < Date().toOneYearFuture()
                             )
                         }
                     }
@@ -204,17 +228,30 @@ fun ScheduleAppointments(
                     )
                     NonLazyGrid(
                         columns = 3,
-                        itemCount = viewModel.morningSlots.size,
+                        itemCount = stringArrayResource(id = R.array.morning_slot_timings).size,
                         modifier = Modifier
                             .padding(horizontal = 17.dp)
                     ) { index ->
+                        var slots by remember {
+                            mutableStateOf(0)
+                        }
+                        LaunchedEffect(viewModel.selectedDate) {
+                            viewModel.getBookedSlotsCount(
+                                context.resources.getStringArray(R.array.morning_slot_timings)[index].toCurrentTimeInMillis(
+                                    viewModel.selectedDate
+                                )
+                            ) { slotsCount ->
+                                slots = slotsCount
+                            }
+                        }
                         SlotChips(
                             index,
                             stringArrayResource(id = R.array.morning_slot_timings),
-                            viewModel.morningSlots,
+                            slots,
                             viewModel.selectedSlot
                         ) { slot ->
-                            viewModel.selectedSlot = slot
+                            if (viewModel.selectedSlot == slot) viewModel.selectedSlot = ""
+                            else viewModel.selectedSlot = slot
                         }
                     }
                     SlotsHeading(
@@ -224,17 +261,30 @@ fun ScheduleAppointments(
                     )
                     NonLazyGrid(
                         columns = 3,
-                        itemCount = viewModel.afternoonSlots.size,
+                        itemCount = stringArrayResource(id = R.array.afternoon_slot_timings).size,
                         modifier = Modifier
                             .padding(horizontal = 17.dp)
                     ) { index ->
+                        var slots by remember {
+                            mutableStateOf(0)
+                        }
+                        LaunchedEffect(viewModel.selectedDate) {
+                            viewModel.getBookedSlotsCount(
+                                context.resources.getStringArray(R.array.afternoon_slot_timings)[index].toCurrentTimeInMillis(
+                                    viewModel.selectedDate
+                                )
+                            ) { slotsCount ->
+                                slots = slotsCount
+                            }
+                        }
                         SlotChips(
                             index,
                             stringArrayResource(id = R.array.afternoon_slot_timings),
-                            viewModel.afternoonSlots,
+                            slots,
                             viewModel.selectedSlot
                         ) { slot ->
-                            viewModel.selectedSlot = slot
+                            if (viewModel.selectedSlot == slot) viewModel.selectedSlot = ""
+                            else viewModel.selectedSlot = slot
                         }
                     }
                     SlotsHeading(
@@ -244,25 +294,39 @@ fun ScheduleAppointments(
                     )
                     NonLazyGrid(
                         columns = 3,
-                        itemCount = viewModel.eveningSlots.size,
+                        itemCount = stringArrayResource(id = R.array.evening_slot_timings).size,
                         modifier = Modifier
                             .padding(horizontal = 17.dp)
                     ) { index ->
+                        var slots by remember {
+                            mutableStateOf(0)
+                        }
+                        LaunchedEffect(viewModel.selectedDate) {
+                            viewModel.getBookedSlotsCount(
+                                context.resources.getStringArray(R.array.evening_slot_timings)[index].toCurrentTimeInMillis(
+                                    viewModel.selectedDate
+                                )
+                            ) { slotsCount ->
+                                slots = slotsCount
+                            }
+                        }
                         SlotChips(
                             index,
                             stringArrayResource(id = R.array.evening_slot_timings),
-                            viewModel.eveningSlots,
+                            slots,
                             viewModel.selectedSlot
                         ) { slot ->
-                            viewModel.selectedSlot = slot
+                            if (viewModel.selectedSlot == slot) viewModel.selectedSlot = ""
+                            else viewModel.selectedSlot = slot
                         }
                     }
                     if (viewModel.selectedSlot.isNotBlank()) Spacer(modifier = Modifier.height(60.dp))
                 }
             }
             if (viewModel.showDatePicker) {
-                val datePickerState = rememberDatePickerState()
-                datePickerState.setSelection(viewModel.selectedDate.time)
+                val datePickerState = rememberDatePickerState(
+                    initialSelectedDateMillis = viewModel.selectedDate.time
+                )
                 val confirmEnabled = remember {
                     derivedStateOf { datePickerState.selectedDateMillis != null }
                 }
@@ -303,7 +367,8 @@ fun ScheduleAppointments(
                     DatePicker(
                         state = datePickerState,
                         dateValidator = { date ->
-                            date >= Date().toTodayStartDate() && date <= Date().toOneYearFuture().time
+                            date >= Date().tomorrow()
+                                .toTodayStartDate() && date <= Date().toOneYearFuture().time
                         }
                     )
                 }
@@ -313,8 +378,16 @@ fun ScheduleAppointments(
             if (viewModel.selectedSlot.isNotBlank()) {
                 Button(
                     onClick = {
-                        navController.popBackStack(Screen.PatientLandingScreen.route, false)
-                        navController.navigate(Screen.Appointments.route)
+                        viewModel.insertScheduleAndAppointment {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                navController.popBackStack(Screen.PatientLandingScreen.route, false)
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    SCHEDULED,
+                                    true
+                                )
+                                navController.navigate(Screen.Appointments.route)
+                            }
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -354,7 +427,7 @@ fun SlotsHeading(icon: Int, heading: String, testTag: String) {
 
 @Composable
 fun SlotChips(
-    index: Int, slotTimings: Array<String>, slots: List<String>, selectedSlot: String,
+    index: Int, slotTimings: Array<String>, slots: Int, selectedSlot: String,
     updateSlot: (String) -> Unit
 ) {
     SuggestionChip(
@@ -373,9 +446,9 @@ fun SlotChips(
                     style = MaterialTheme.typography.labelLarge
                 )
                 Text(
-                    text = "${slots[index]} slots",
+                    text = if (slots < 1) "1 slot" else "0 slot",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (slots[index] == "0") MaterialTheme.colorScheme.outline
+                    color = if (slots > 0) MaterialTheme.colorScheme.outline
                     else Green
                 )
             }
@@ -386,13 +459,13 @@ fun SlotChips(
         colors = SuggestionChipDefaults.suggestionChipColors(
             containerColor = if (slotTimings[index] == selectedSlot) MaterialTheme.colorScheme.primaryContainer
             else MaterialTheme.colorScheme.surface,
-            labelColor = if (slots[index] == "0") MaterialTheme.colorScheme.outline
+            labelColor = if (slots > 0) MaterialTheme.colorScheme.outline
             else MaterialTheme.colorScheme.primary
         ),
         border = SuggestionChipDefaults.suggestionChipBorder(
-            borderColor = if (slots[index] == "0") MaterialTheme.colorScheme.outline
+            borderColor = if (slots > 0) MaterialTheme.colorScheme.outline
             else MaterialTheme.colorScheme.primary
         ),
-        enabled = slots[index] != "0"
+        enabled = slots < 1
     )
 }

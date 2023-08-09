@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate
+package com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.noshow
 
 import android.content.Context
 import androidx.work.WorkerParameters
@@ -15,10 +15,12 @@ import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.constants.Id
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.yesterday
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentResponse
 import java.util.Date
 
-abstract class AppointmentStatusUpdateWorker(context: Context, workerParameters: WorkerParameters) :
+abstract class AppointmentNoShowStatusUpdateWorker(context: Context, workerParameters: WorkerParameters) :
     SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
@@ -26,7 +28,7 @@ abstract class AppointmentStatusUpdateWorker(context: Context, workerParameters:
         val appointmentDao = (applicationContext as FhirApp).fhirAppDatabase.getAppointmentDao()
         appointmentDao.getTodayScheduledAppointments(
             status = AppointmentStatusEnum.SCHEDULED.value,
-            endOfDay = Date()
+            endOfDay = Date().yesterday().toEndOfDay()
         ).let { scheduledAppointmentEntities ->
             scheduledAppointmentEntities.forEach { appointmentEntity ->
                 appointmentDao.updateAppointmentEntity(
@@ -40,12 +42,12 @@ abstract class AppointmentStatusUpdateWorker(context: Context, workerParameters:
                 }
             }
         }
-        // insert in generic
         return Result.success()
     }
 
     private suspend fun insertInGenericEntity(appointmentEntity: AppointmentEntity): Long {
         val genericDao = (applicationContext as FhirApp).fhirAppDatabase.getGenericDao()
+        val scheduleDao = (applicationContext as FhirApp).fhirAppDatabase.getScheduleDao()
         return genericDao.getGenericEntityById(
             patientId = appointmentEntity.id,
             genericTypeEnum = GenericTypeEnum.APPOINTMENT,
@@ -57,7 +59,7 @@ abstract class AppointmentStatusUpdateWorker(context: Context, workerParameters:
                     appointmentGenericEntity.copy(
                         payload = appointmentEntity.copy(
                             status = AppointmentStatusEnum.NO_SHOW.value
-                        ).toAppointmentResponse().toJson()
+                        ).toAppointmentResponse(scheduleDao).toJson()
                     )
                 )[0]
             } else {

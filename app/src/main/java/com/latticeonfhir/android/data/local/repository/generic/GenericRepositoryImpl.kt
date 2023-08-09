@@ -4,6 +4,7 @@ import android.content.Context
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
+import com.latticeonfhir.android.data.local.model.patch.AppointmentPatchRequest
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
@@ -161,12 +162,12 @@ class GenericRepositoryImpl @Inject constructor(
                 val existingMap =
                     prescriptionGenericEntity.payload.fromJson<MutableMap<String, Any>>()
                         .mapToObject(PrescriptionResponse::class.java)
-                if (existingMap != null && !existingMap.patientFhirId.isFhirId()) {
+                if (existingMap != null) {
                     genericDao.insertGenericEntity(
                         prescriptionGenericEntity.copy(
                             payload = existingMap.copy(
-                                patientFhirId = getPatientFhirIdById(existingMap.patientFhirId)!!,
-                                appointmentId = getAppointmentFhirIdById(existingMap.appointmentId)!!
+                                patientFhirId = if(!existingMap.patientFhirId.isFhirId()) getPatientFhirIdById(existingMap.patientFhirId)!! else existingMap.patientFhirId,
+                                appointmentId = if(!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(existingMap.appointmentId)!! else existingMap.appointmentId
                             ).toJson()
                         )
                     )
@@ -215,7 +216,7 @@ class GenericRepositoryImpl @Inject constructor(
                         )
                     )
                 }
-                if (existingMap != null && !existingMap.scheduleId!!.isFhirId()) {
+                if (existingMap != null && !existingMap.scheduleId.isFhirId()) {
                     genericDao.insertGenericEntity(
                         appointmentGenericEntity.copy(
                             payload = existingMap.copy(
@@ -223,6 +224,38 @@ class GenericRepositoryImpl @Inject constructor(
                             ).toJson()
                         )
                     )
+                }
+            }
+    }
+
+    override suspend fun updateAppointmentFhirIdInPatch() {
+        genericDao.getNotSyncedData(GenericTypeEnum.APPOINTMENT, SyncType.PATCH)
+            .forEach { appointmentGenericEntity ->
+                val existingMap =
+                    appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+                        .mapToObject(AppointmentPatchRequest::class.java)
+                if (existingMap != null) {
+                    if (!existingMap.appointmentId.isFhirId()) {
+                        genericDao.insertGenericEntity(
+                            appointmentGenericEntity.copy(
+                                payload = existingMap.copy(
+                                    appointmentId = getAppointmentFhirIdById(existingMap.appointmentId)?:existingMap.appointmentId
+                                ).toJson()
+                            )
+                        )
+                    }
+
+                    if (existingMap.scheduleId != null && !(existingMap.scheduleId.value as String).isFhirId()) {
+                        genericDao.insertGenericEntity(
+                            appointmentGenericEntity.copy(
+                                payload = existingMap.copy(
+                                    scheduleId = existingMap.scheduleId.copy(
+                                        value = getScheduleFhirIdById(existingMap.scheduleId.value)
+                                    )
+                                ).toJson()
+                            )
+                        )
+                    }
                 }
             }
     }
@@ -391,6 +424,8 @@ class GenericRepositoryImpl @Inject constructor(
                     )
                 )[0]
             }
+        }.also {
+            runWorkers()
         }
     }
 

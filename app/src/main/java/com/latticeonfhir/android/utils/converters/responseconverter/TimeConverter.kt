@@ -101,6 +101,28 @@ object TimeConverter {
         return formatter.format(this)
     }
 
+    internal fun Date.toAppointmentDate(): String {
+        val formatter = SimpleDateFormat("dd MMM, yyyy · hh:mm a", Locale.getDefault())
+        return formatter.format(this)
+    }
+
+    internal fun Date.toAppointmentTime(): String {
+        val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        return formatter.format(this)
+    }
+
+    internal fun Date.toSlotStartTime(): String {
+        val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val minutes = SimpleDateFormat("mm", Locale.getDefault()).format(this).toInt()
+        val calendar = Calendar.getInstance()
+        calendar.time = this
+        if (minutes < 30) calendar.set(Calendar.MINUTE, 0)
+        else calendar.set(Calendar.MINUTE, 30)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return formatter.format(calendar.time)
+    }
+
     internal fun Date.toYear(): String {
         val formatter = SimpleDateFormat("yyyy", Locale.getDefault())
         return formatter.format(this)
@@ -116,12 +138,85 @@ object TimeConverter {
         return formatter.format(this)
     }
 
+    internal fun Date.tomorrow(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this.time
+        calendar.add(Calendar.DAY_OF_YEAR, 1)
+        return calendar.time
+    }
+
+    internal fun Date.yesterday(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this.time
+        calendar.set(Calendar.DAY_OF_YEAR, calendar[Calendar.DAY_OF_YEAR]-1)
+        return calendar.time
+    }
+
+    internal fun String.toCurrentTimeInMillis(date: Date): Long {
+        val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val currentTime = inputFormat.parse(this)
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+
+        calendar.set(
+            Calendar.HOUR_OF_DAY,
+            SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt()
+        )
+        calendar.set(
+            Calendar.MINUTE,
+            SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt()
+        )
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
+    internal fun String.to30MinutesAfter(date: Date): Long {
+        val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val currentTime = inputFormat.parse(this)
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+
+        calendar.set(
+            Calendar.HOUR_OF_DAY,
+            SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt()
+        )
+        calendar.set(
+            Calendar.MINUTE,
+            SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt()
+        )
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        calendar.add(Calendar.MINUTE, 30)
+        return calendar.timeInMillis
+    }
+
+    internal fun String.to5MinutesAfter(date: Date): Long {
+        val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val currentTime = inputFormat.parse(this)
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+
+        calendar.set(
+            Calendar.HOUR_OF_DAY,
+            SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt()
+        )
+        calendar.set(
+            Calendar.MINUTE,
+            SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt()
+        )
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        calendar.add(Calendar.MINUTE, 5)
+        return calendar.timeInMillis
+    }
+
     internal fun Date.toWeekList(): List<Date> {
         val weekList = mutableListOf<Date>()
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = this.time
         var i = 0
-        while (i < 7) {
+        while (i < 8) {
             weekList.add(calendar.time)
             calendar.add(Calendar.DAY_OF_YEAR, 1)
             i += 1
@@ -167,10 +262,10 @@ object TimeConverter {
         return calendar.timeInMillis
     }
 
-    internal fun Date.toTodayEndDate(): Long {
+    internal fun Date.toEndOfDay(): Long {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = this.time
-        calendar[Calendar.HOUR_OF_DAY] = 11
+        calendar[Calendar.HOUR_OF_DAY] = 23
         calendar[Calendar.MINUTE] = 59
         calendar[Calendar.SECOND] = 59
         calendar[Calendar.MILLISECOND] = 0
@@ -188,11 +283,12 @@ object TimeConverter {
         }
     }
 
-    internal fun Date.calculateMinutesToMidnight(): Long {
+    internal fun Date.calculateMinutesToOneThirty(): Long {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = time
-        calendar.set(Calendar.HOUR_OF_DAY, 23)
-        calendar.set(Calendar.MINUTE, 59)
+        calendar.add(Calendar.DAY_OF_YEAR, 1)
+        calendar.set(Calendar.HOUR_OF_DAY, 1)
+        calendar.set(Calendar.MINUTE, 30)
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
         val endTimeMillis = calendar.timeInMillis

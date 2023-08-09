@@ -35,6 +35,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
 import com.latticeonfhir.android.utils.converters.responseconverter.toNoBracketAndNoSpaceString
+import com.latticeonfhir.android.utils.converters.responseconverter.toScheduleEntity
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
@@ -260,7 +261,7 @@ class SyncRepositoryTest : BaseClass() {
             `when`(preferenceRepository.getLastSyncAppointment()).thenReturn(200L)
 
             `when`(patientDao.getPatientIdByFhirId("FHIR_ID")).thenReturn("PATIENT_ID")
-            `when`(appointmentDao.getAppointmentByFhirId("APPOINTMENT_ID")).thenReturn("APPOINTMENT_ID")
+            `when`(appointmentDao.getAppointmentIdByFhirId("APPOINTMENT_ID")).thenReturn("APPOINTMENT_ID")
 
             `when`(
                 patientDao.updateFhirId(
@@ -271,7 +272,8 @@ class SyncRepositoryTest : BaseClass() {
 
             `when`(genericDao.deleteSyncPayload(listOf("ID"))).thenReturn(0)
             `when`(patientDao.getPatientIdByFhirId(appointmentResponse.patientFhirId!!)).thenReturn("PATIENT_ID")
-            `when`(scheduleDao.getScheduleIdByFhirId(appointmentResponse.scheduleId!!)).thenReturn("SCHEDULE_ID")
+            `when`(scheduleDao.getScheduleByStartTime(appointmentResponseLocal.scheduleId.time)).thenReturn(scheduleResponse.toScheduleEntity())
+            `when`(scheduleDao.getScheduleStartTimeByFhirId(scheduleResponse.scheduleId!!)).thenReturn(scheduleResponse.planningHorizon.start)
         }
     }
 

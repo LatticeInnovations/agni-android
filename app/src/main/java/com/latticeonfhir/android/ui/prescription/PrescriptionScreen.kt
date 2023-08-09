@@ -81,7 +81,7 @@ import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPr
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
 import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayEndDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
@@ -119,7 +119,7 @@ fun PrescriptionScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     "patient"
                 )
-            viewModel.getPatientTodayAppointment(Date(Date().toTodayStartDate()), Date(Date().toTodayEndDate()), viewModel.patient!!.id)
+            viewModel.getPatientTodayAppointment(Date(Date().toTodayStartDate()), Date(Date().toEndOfDay()), viewModel.patient!!.id)
             viewModel.patient?.let {
                 viewModel.getPreviousPrescription(it.id) { prescriptionList ->
                     viewModel.previousPrescriptionList = prescriptionList
@@ -214,7 +214,7 @@ fun PrescriptionScreen(
                                     modifier = Modifier.testTag(title.uppercase()),
                                     selected = pagerState.currentPage == index,
                                     onClick = {
-                                        if (index == 1 && viewModel.appointmentResponse == null) {
+                                        if (index == 1 && viewModel.appointmentResponseLocal == null) {
                                             coroutineScope.launch {
                                                 snackbarHostState.showSnackbar(
                                                     context.getString(R.string.please_add_patient_to_queue)
@@ -231,7 +231,7 @@ fun PrescriptionScreen(
                             }
                         }
                         HorizontalPager(
-                            pageCount = if (viewModel.appointmentResponse == null) 1 else viewModel.tabs.size,
+                            pageCount = if (viewModel.appointmentResponseLocal == null) 1 else viewModel.tabs.size,
                             state = pagerState
                         ) { index ->
                             when (index) {

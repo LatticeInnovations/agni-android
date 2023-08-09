@@ -39,6 +39,7 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.android.utils.constants.ErrorConstants.SCHEDULE_EXISTS
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
@@ -565,12 +566,20 @@ class SyncRepositoryImpl @Inject constructor(
                         val idsToDelete = mutableSetOf<String>()
                         idsToDelete.addAll(listOfGenericEntity.map { genericEntity -> genericEntity.id })
                         body.forEach { createResponse ->
-                            if (createResponse.error == null) {
-                                scheduleDao.updateScheduleFhirId(
-                                    createResponse.id!!, createResponse.fhirId!!
-                                )
-                            } else {
-                                idsToDelete.remove(createResponse.id)
+                            when (createResponse.error) {
+                                null -> {
+                                    scheduleDao.updateScheduleFhirId(
+                                        createResponse.id!!, createResponse.fhirId!!
+                                    )
+                                }
+                                SCHEDULE_EXISTS -> {
+                                    scheduleDao.updateScheduleFhirId(
+                                        createResponse.id!!, createResponse.fhirId!!
+                                    )
+                                }
+                                else -> {
+                                    idsToDelete.remove(createResponse.id)
+                                }
                             }
                         }
                         genericDao.deleteSyncPayload(idsToDelete.toList()).let { deletedRows ->
