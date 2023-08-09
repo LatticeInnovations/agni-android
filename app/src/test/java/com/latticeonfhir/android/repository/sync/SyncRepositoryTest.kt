@@ -261,7 +261,7 @@ class SyncRepositoryTest : BaseClass() {
             `when`(preferenceRepository.getLastSyncAppointment()).thenReturn(200L)
 
             `when`(patientDao.getPatientIdByFhirId("FHIR_ID")).thenReturn("PATIENT_ID")
-            `when`(appointmentDao.getAppointmentByFhirId("APPOINTMENT_ID")).thenReturn("APPOINTMENT_ID")
+            `when`(appointmentDao.getAppointmentIdByFhirId("APPOINTMENT_ID")).thenReturn("APPOINTMENT_ID")
 
             `when`(
                 patientDao.updateFhirId(

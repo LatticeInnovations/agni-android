@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "ed2cbda258477fcf9b130e53db1e41dd",
+    "identityHash": "52378630962d44a1337be047f2d21f9f",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -477,6 +477,15 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_PrescriptionEntity_patientFhirId` ON `${TABLE_NAME}` (`patientFhirId`)"
+          },
+          {
+            "name": "index_PrescriptionEntity_appointmentId",
+            "unique": false,
+            "columnNames": [
+              "appointmentId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_PrescriptionEntity_appointmentId` ON `${TABLE_NAME}` (`appointmentId`)"
           }
         ],
         "foreignKeys": [
@@ -744,7 +753,26 @@
             "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_AppointmentEntity_patientId",
+            "unique": false,
+            "columnNames": [
+              "patientId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AppointmentEntity_patientId` ON `${TABLE_NAME}` (`patientId`)"
+          },
+          {
+            "name": "index_AppointmentEntity_scheduleId",
+            "unique": false,
+            "columnNames": [
+              "scheduleId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AppointmentEntity_scheduleId` ON `${TABLE_NAME}` (`scheduleId`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "PatientEntity",
@@ -783,7 +811,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ed2cbda258477fcf9b130e53db1e41dd')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '52378630962d44a1337be047f2d21f9f')"
     ]
   }
 }

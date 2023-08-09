@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
@@ -17,11 +18,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.Prescri
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayEndDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,7 +59,7 @@ class PrescriptionViewModel @Inject constructor(
 
     var previousPrescriptionList by mutableStateOf(listOf<PrescriptionAndMedicineRelation?>(null))
 
-    internal var appointmentResponse: AppointmentResponse? = null
+    internal var appointmentResponseLocal: AppointmentResponseLocal? = null
     private lateinit var timingList: List<MedicineTimingEntity>
   
   init {
@@ -73,10 +70,10 @@ class PrescriptionViewModel @Inject constructor(
 
     internal fun getPatientTodayAppointment(startDate: Date, endDate: Date, patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            appointmentResponse = appointmentRepository.getAppointmentListByDate(startDate, endDate)
+            appointmentResponseLocal = appointmentRepository.getAppointmentListByDate(startDate.time, endDate.time)
                 .firstOrNull { appointmentEntity ->
                     appointmentEntity.patientId == patientId
-                }?.toAppointmentResponse()
+                }
         }
     }
 
@@ -138,7 +135,7 @@ class PrescriptionViewModel @Inject constructor(
                         generatedOn = date,
                         prescriptionId = prescriptionId,
                         prescription = medicationsList,
-                        appointmentId = appointmentResponse!!.uuid
+                        appointmentId = appointmentResponseLocal!!.uuid
                     )
                 ).also {
                     genericRepository.insertPrescription(
@@ -148,8 +145,8 @@ class PrescriptionViewModel @Inject constructor(
                             prescriptionId = prescriptionId,
                             prescription = medicationsList,
                             prescriptionFhirId = null,
-                            appointmentId = appointmentResponse!!.appointmentId
-                                ?: appointmentResponse!!.uuid
+                            appointmentId = appointmentResponseLocal!!.appointmentId
+                                ?: appointmentResponseLocal!!.uuid
                         )
                     )
                 }

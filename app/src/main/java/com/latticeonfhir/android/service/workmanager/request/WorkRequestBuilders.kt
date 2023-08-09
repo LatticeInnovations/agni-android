@@ -175,12 +175,6 @@ class WorkRequestBuilders(
                             }
                         }
 
-                        CoroutineScope(Dispatchers.IO).launch {
-                            updateFhirIdInPrescription { errorReceived, errorMsg ->
-                                error(errorReceived, errorMsg)
-                            }
-                        }
-
                         /** Download Patient Worker */
                         downloadPatientWorker { errorReceived, errorMsg ->
                             error(errorReceived, errorMsg)
@@ -622,6 +616,12 @@ class WorkRequestBuilders(
                         /** Handle Progress Based Download WorkRequests Here */
                     }
                     if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            updateFhirIdInPrescription { errorReceived, errorMsg ->
+                                error(errorReceived, errorMsg)
+                            }
+                        }
+
                         downloadScheduleWorker { errorReceived, errorMsg ->
                             error(errorReceived, errorMsg)
                         }
