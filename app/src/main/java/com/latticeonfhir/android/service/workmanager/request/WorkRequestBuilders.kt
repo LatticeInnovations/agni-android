@@ -44,6 +44,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.util.concurrent.TimeUnit
@@ -70,7 +71,7 @@ class WorkRequestBuilders(
                     .build(),
                 repeat = RepeatInterval(15, TimeUnit.MINUTES)
             )
-        )
+        ).conflate()
     }
 
     /**
@@ -88,7 +89,7 @@ class WorkRequestBuilders(
                     .setRequiresBatteryNotLow(true)
                     .build()
             )
-        )
+        ).conflate()
     }
 
     /**
@@ -107,7 +108,7 @@ class WorkRequestBuilders(
                 repeat = RepeatInterval(24, TimeUnit.HOURS),
                 initialDelay = InitialDelay(duration, delay)
             )
-        )
+        ).conflate()
     }
 
 
