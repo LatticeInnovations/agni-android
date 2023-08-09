@@ -342,7 +342,8 @@ internal suspend fun AppointmentEntity.toAppointmentResponse(
         appointmentId = appointmentFhirId,
         orgId = orgId,
         patientFhirId = patientId,
-        scheduleId = scheduleDao.getFhirIdByStartTime(scheduleId)!!,
+        scheduleId = scheduleDao.getFhirIdByStartTime(scheduleId)
+            ?: scheduleDao.getScheduleByStartTime(scheduleId.time)!!.id,
         slot = Slot(
             start = startTime,
             end = endTime
