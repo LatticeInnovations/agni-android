@@ -195,6 +195,7 @@ abstract class BaseClass : TestCase() {
         prescriptionFhirId = "21292",
         generatedOn = date,
         patientFhirId = "FHIR_ID",
+        appointmentId = "APPOINTMENT_ID",
         prescription = listOf(
             Medication(
                 medFhirId = "21117",

@@ -85,7 +85,5 @@ class FhirApp : Application() {
                 .registerTypeAdapter(Date::class.java, DateSerializer())
                 .create()
         }
-
-        lateinit var syncRepository: SyncRepository
     }
 }

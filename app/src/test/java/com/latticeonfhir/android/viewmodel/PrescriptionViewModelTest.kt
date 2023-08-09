@@ -3,6 +3,7 @@ package com.latticeonfhir.android.viewmodel
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
+import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
@@ -16,7 +17,9 @@ import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAn
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
+import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -35,6 +38,9 @@ class PrescriptionViewModelTest : BaseClass() {
 
     @Mock
     lateinit var searchRepository: SearchRepository
+
+    @Mock
+    lateinit var appointmentRepository: AppointmentRepository
 
     @Mock
     lateinit var genericRepository: GenericRepository
@@ -63,6 +69,7 @@ class PrescriptionViewModelTest : BaseClass() {
         patientFhirId = patientResponse.fhirId,
         generatedOn = date,
         prescriptionId = prescribedResponse.prescriptionId,
+        appointmentId = prescribedResponse.appointmentId,
         prescription = listOf(medication)
     )
 
@@ -70,6 +77,7 @@ class PrescriptionViewModelTest : BaseClass() {
         patientFhirId = patientResponse.fhirId?:patientResponse.id,
         generatedOn = date,
         prescriptionId = prescribedResponse.prescriptionId,
+        appointmentId = prescribedResponse.appointmentId,
         prescription = listOf(medication),
         prescriptionFhirId = null
     )
@@ -104,7 +112,8 @@ class PrescriptionViewModelTest : BaseClass() {
         patientId = patientResponse.id,
         prescriptionFhirId = prescribedResponse.prescriptionFhirId,
         patientFhirId = patientResponse.fhirId,
-        prescriptionDate = date
+        prescriptionDate = date,
+        appointmentId = prescriptionResponse.appointmentId
     )
 
     @Before
@@ -114,7 +123,8 @@ class PrescriptionViewModelTest : BaseClass() {
             prescriptionRepository,
             medicationRepository,
             searchRepository,
-            genericRepository
+            genericRepository,
+            appointmentRepository
         )
 
         runBlocking {
@@ -231,5 +241,13 @@ class PrescriptionViewModelTest : BaseClass() {
                 ), it
             )
         }
+    }
+
+    @Test
+    fun `fetch patient's today's appointment`() = runBlocking {
+        `when`(appointmentRepository.getAppointmentListByDate(date,date)).thenReturn(listOf(appointmentResponse.toAppointmentEntity()))
+        prescriptionViewModel.getPatientTodayAppointment(date,date, appointmentResponse.patientFhirId!!)
+        delay(20000)
+        assertEquals(appointmentResponse, prescriptionViewModel.appointmentResponse)
     }
 }

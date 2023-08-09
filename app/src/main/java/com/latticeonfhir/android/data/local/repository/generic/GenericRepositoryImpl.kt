@@ -166,7 +166,8 @@ class GenericRepositoryImpl @Inject constructor(
                     genericDao.insertGenericEntity(
                         prescriptionGenericEntity.copy(
                             payload = existingMap.copy(
-                                patientFhirId = getPatientFhirIdById(existingMap.patientFhirId)!!
+                                patientFhirId = getPatientFhirIdById(existingMap.patientFhirId)!!,
+                                appointmentId = getAppointmentFhirIdById(existingMap.appointmentId)!!
                             ).toJson()
                         )
                     )

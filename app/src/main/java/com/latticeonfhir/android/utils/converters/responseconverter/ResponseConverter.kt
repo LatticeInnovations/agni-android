@@ -4,6 +4,7 @@ import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
+import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
@@ -199,11 +200,12 @@ internal fun <T> List<T>.toNoBracketAndNoSpaceString(): String {
     return this.toString().replace("[", "").replace("]", "").replace(" ", "")
 }
 
-internal suspend fun PrescriptionResponse.toPrescriptionEntity(patientDao: PatientDao): PrescriptionEntity {
+internal suspend fun PrescriptionResponse.toPrescriptionEntity(patientDao: PatientDao, appointmentDao: AppointmentDao): PrescriptionEntity {
     return PrescriptionEntity(
         id = prescriptionId,
         prescriptionDate = generatedOn,
         patientId = patientDao.getPatientIdByFhirId(patientFhirId)!!,
+        appointmentId = appointmentDao.getAppointmentByFhirId(appointmentId),
         patientFhirId = patientFhirId,
         prescriptionFhirId = prescriptionFhirId
     )
@@ -215,6 +217,7 @@ internal fun PrescriptionResponseLocal.toPrescriptionEntity(): PrescriptionEntit
         id = prescriptionId,
         prescriptionDate = generatedOn,
         patientId = patientId,
+        appointmentId = appointmentId,
         patientFhirId = patientFhirId,
         prescriptionFhirId = null
     )
