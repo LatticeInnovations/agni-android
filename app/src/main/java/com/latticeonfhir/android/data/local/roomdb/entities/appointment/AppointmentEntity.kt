@@ -3,6 +3,7 @@ package com.latticeonfhir.android.data.local.roomdb.entities.appointment
 import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
@@ -10,6 +11,7 @@ import java.util.Date
 
 @Keep
 @Entity(
+    indices = [Index("patientId"), Index("scheduleId")],
     foreignKeys = [
         ForeignKey(
             entity = PatientEntity::class,

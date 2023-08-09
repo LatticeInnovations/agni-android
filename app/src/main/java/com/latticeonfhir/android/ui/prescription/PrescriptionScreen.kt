@@ -81,9 +81,12 @@ import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPr
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
 import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayEndDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -116,7 +119,7 @@ fun PrescriptionScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     "patient"
                 )
-            viewModel.getPatientTodayAppointment()
+            viewModel.getPatientTodayAppointment(Date(Date().toTodayStartDate()), Date(Date().toTodayEndDate()), viewModel.patient!!.id)
             viewModel.patient?.let {
                 viewModel.getPreviousPrescription(it.id) { prescriptionList ->
                     viewModel.previousPrescriptionList = prescriptionList

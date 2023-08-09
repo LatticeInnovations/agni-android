@@ -63,23 +63,20 @@ class PrescriptionViewModel @Inject constructor(
     var previousPrescriptionList by mutableStateOf(listOf<PrescriptionAndMedicineRelation?>(null))
 
     internal var appointmentResponse: AppointmentResponse? = null
-
     private lateinit var timingList: List<MedicineTimingEntity>
-
-    init {
+  
+  init {
         viewModelScope.launch(Dispatchers.IO) {
             timingList = medicationRepository.getAllMedicationDirections()
         }
     }
 
-    internal fun getPatientTodayAppointment() {
+    internal fun getPatientTodayAppointment(startDate: Date, endDate: Date, patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            appointmentResponse = appointmentRepository.getAppointmentListByDate(
-                Date(Date().toTodayStartDate()),
-                Date(Date().toTodayEndDate())
-            ).firstOrNull { appointmentEntity ->
-                appointmentEntity.patientId == patient!!.id
-            }?.toAppointmentResponse()
+            appointmentResponse = appointmentRepository.getAppointmentListByDate(startDate, endDate)
+                .firstOrNull { appointmentEntity ->
+                    appointmentEntity.patientId == patientId
+                }?.toAppointmentResponse()
         }
     }
 
