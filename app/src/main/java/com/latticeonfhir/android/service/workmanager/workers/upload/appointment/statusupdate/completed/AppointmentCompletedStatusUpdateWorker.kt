@@ -16,6 +16,7 @@ import com.latticeonfhir.android.utils.constants.Id
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.yesterday
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentResponse
 import java.util.Date
 
@@ -27,7 +28,7 @@ abstract class AppointmentCompletedStatusUpdateWorker (context: Context, workerP
         val appointmentDao = (applicationContext as FhirApp).fhirAppDatabase.getAppointmentDao()
         appointmentDao.getTodayScheduledAppointments(
             status = AppointmentStatusEnum.IN_PROGRESS.value,
-            endOfDay = Date().toEndOfDay()
+            endOfDay = Date().yesterday().toEndOfDay()
         ).let { scheduledAppointmentEntities ->
             scheduledAppointmentEntities.forEach { appointmentEntity ->
                 appointmentDao.updateAppointmentEntity(

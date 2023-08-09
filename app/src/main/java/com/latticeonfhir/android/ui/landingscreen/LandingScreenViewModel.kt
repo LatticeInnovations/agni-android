@@ -22,7 +22,7 @@ import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToMidnight
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -116,7 +116,7 @@ class LandingScreenViewModel @Inject constructor(
             workRequestBuilders.setPeriodicAppointmentNoShowStatusUpdateWorker(
                 null,
                 Delay(
-                    Date().calculateMinutesToMidnight(),
+                    Date().calculateMinutesToOneThirty(),
                     TimeUnit.MINUTES
                 )
             )
@@ -127,7 +127,7 @@ class LandingScreenViewModel @Inject constructor(
             workRequestBuilders.setPeriodicAppointmentCompletedStatusUpdateWorker(
                 null,
                 Delay(
-                    Date().calculateMinutesToMidnight(),
+                    Date().calculateMinutesToOneThirty(),
                     TimeUnit.MINUTES
                 )
             )
