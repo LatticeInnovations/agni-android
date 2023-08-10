@@ -27,6 +27,9 @@ import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -446,7 +449,9 @@ class GenericRepositoryImpl @Inject constructor(
         return appointmentDao.getAppointmentById(appointmentId)[0].appointmentFhirId
     }
 
-    private suspend fun runWorkers() {
-        workRequestBuilders.setOneTimeTriggerWorker()
+    private fun runWorkers() {
+        CoroutineScope(Dispatchers.IO).launch {
+            workRequestBuilders.setOneTimeTriggerWorker()
+        }
     }
 }
