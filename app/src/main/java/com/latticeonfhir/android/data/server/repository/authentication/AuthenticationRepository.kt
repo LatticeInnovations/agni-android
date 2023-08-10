@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.data.server.repository.authentication
 
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
-import com.latticeonfhir.android.data.server.model.user.UserResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 
 interface AuthenticationRepository {
