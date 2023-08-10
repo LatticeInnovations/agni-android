@@ -25,7 +25,6 @@ import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.patch.AppointmentPatchUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.post.AppointmentUploadSyncWorker.Companion.AppointmentUploadProgress
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.post.AppointmentUploadSyncWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.completed.AppointmentCompletedStatusUpdateWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.completed.AppointmentCompletedStatusUpdateWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.noshow.AppointmentNoShowStatusUpdateWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorker
@@ -45,6 +44,7 @@ import com.latticeonfhir.android.utils.constants.ErrorConstants.ERROR_MESSAGE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.Duration
@@ -62,7 +62,7 @@ class WorkRequestBuilders(
      * every other worker when app is in foreground or not
      *
      */
-    internal fun setPeriodicTriggerWorker() {
+    internal suspend fun setPeriodicTriggerWorker() {
         Sync.periodicSync<TriggerWorkerPeriodicImpl>(
             applicationContext,
             PeriodicSyncConfiguration(
@@ -72,7 +72,7 @@ class WorkRequestBuilders(
                     .build(),
                 repeat = RepeatInterval(15, TimeUnit.MINUTES)
             )
-        )
+        ).collect()
     }
 
     /**
@@ -81,7 +81,7 @@ class WorkRequestBuilders(
      * every other worker when app is in foreground or not
      *
      */
-    internal fun setOneTimeTriggerWorker() {
+    internal suspend fun setOneTimeTriggerWorker() {
         Sync.oneTimeSync<TriggerWorkerOneTimeImpl>(
             applicationContext,
             defaultRetryConfiguration.copy(
@@ -90,7 +90,7 @@ class WorkRequestBuilders(
                     .setRequiresBatteryNotLow(true)
                     .build()
             )
-        )
+        ).collect()
     }
 
     /**
@@ -99,7 +99,7 @@ class WorkRequestBuilders(
      * method to update status to "No-Show" at 11:59 PM everyday
      *
      */
-    internal fun setPeriodicAppointmentNoShowStatusUpdateWorker(duration: Duration?, delay: Delay?) {
+    internal suspend fun setPeriodicAppointmentNoShowStatusUpdateWorker(duration: Duration?, delay: Delay?) {
         Sync.periodicSync<AppointmentNoShowStatusUpdateWorkerImpl>(
             applicationContext,
             PeriodicSyncConfiguration(
@@ -109,7 +109,7 @@ class WorkRequestBuilders(
                 repeat = RepeatInterval(24, TimeUnit.HOURS),
                 initialDelay = InitialDelay(duration, delay)
             )
-        )
+        ).collect()
     }
 
     /**
@@ -118,7 +118,7 @@ class WorkRequestBuilders(
      * method to update status to "Completed" at 11:59 PM everyday
      *
      */
-    internal fun setPeriodicAppointmentCompletedStatusUpdateWorker(duration: Duration?, delay: Delay?) {
+    internal suspend fun setPeriodicAppointmentCompletedStatusUpdateWorker(duration: Duration?, delay: Delay?) {
         Sync.periodicSync<AppointmentCompletedStatusUpdateWorkerImpl>(
             applicationContext,
             PeriodicSyncConfiguration(
@@ -128,7 +128,7 @@ class WorkRequestBuilders(
                 repeat = RepeatInterval(24, TimeUnit.HOURS),
                 initialDelay = InitialDelay(duration, delay)
             )
-        )
+        ).collect()
     }
 
 
