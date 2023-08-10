@@ -60,6 +60,12 @@ class PatientLandingScreenViewModel @Inject constructor(
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).getWorkRequestBuilder() }
 
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            workRequestBuilders.setOneTimeTriggerWorker()
+        }
+    }
+
     internal fun downloadPrescriptions(patientFhirId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             workRequestBuilders.downloadPrescriptionWorker(patientFhirId) { isErrorReceived, errorMsg ->
