@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
+import timber.log.Timber;
+
 public class DateDeserializer implements JsonDeserializer<Date> {
     private static final String[] DATE_FORMATS = new String[] {
             "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'",
@@ -33,7 +35,7 @@ public class DateDeserializer implements JsonDeserializer<Date> {
             try {
                 return Objects.requireNonNull(new SimpleDateFormat(format, Locale.getDefault()).parse(jsonElement.getAsString()));
             } catch (ParseException e) {
-                throw new JsonParseException(e);
+                Timber.e("ParseException");
             }
         }
         throw new JsonParseException("Unparseable date: \"" + jsonElement.getAsString()
