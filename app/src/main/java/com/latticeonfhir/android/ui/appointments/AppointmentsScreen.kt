@@ -2,6 +2,7 @@
 
 package com.latticeonfhir.android.ui.appointments
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,6 +78,16 @@ fun AppointmentsScreen(
         NavControllerConstants.SCHEDULED
     ) == true
 
+    BackHandler(enabled = true) {
+        if (pagerState.currentPage == 1) {
+            coroutineScope.launch {
+                pagerState.animateScrollToPage(0)
+            }
+        } else {
+            if (viewModel.isFabSelected) viewModel.isFabSelected = false
+            else navController.popBackStack()
+        }
+    }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.patient =
@@ -90,7 +101,7 @@ fun AppointmentsScreen(
         viewModel.patient?.id?.let { patientId ->
             viewModel.getAppointmentsList(patientId)
         }
-        if (viewModel.rescheduled){
+        if (viewModel.rescheduled) {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
                     message = context.getString(R.string.appointment_rescheduled)
@@ -100,7 +111,7 @@ fun AppointmentsScreen(
                 NavControllerConstants.RESCHEDULED
             )
         }
-        if (viewModel.scheduled){
+        if (viewModel.scheduled) {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
                     message = context.getString(R.string.appointment_scheduled)

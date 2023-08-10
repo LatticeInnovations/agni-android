@@ -82,13 +82,25 @@ fun LandingScreen(
         }
     }
     BackHandler(enabled = true) {
-        if (viewModel.isSearching) {
-            viewModel.isSearching = false
-        } else if (viewModel.isSearchResult) {
-            viewModel.isSearchResult = false
-            viewModel.populateList()
-        } else {
-            activity.finish()
+        when (viewModel.selectedIndex) {
+            2 -> viewModel.selectedIndex = 0
+            1 -> {
+                if (queueViewModel.isSearchingInQueue || queueViewModel.searchQueueQuery.isNotBlank()) {
+                    queueViewModel.isSearchingInQueue = false
+                    queueViewModel.searchQueueQuery = ""
+                    queueViewModel.getAppointmentListByDate()
+                } else viewModel.selectedIndex = 0
+            }
+            0 -> {
+                if (viewModel.isSearching) {
+                    viewModel.isSearching = false
+                } else if (viewModel.isSearchResult) {
+                    viewModel.isSearchResult = false
+                    viewModel.populateList()
+                } else {
+                    activity.finish()
+                }
+            }
         }
     }
     LaunchedEffect(viewModel.isLaunched) {
