@@ -17,8 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddHouseholdMemberViewModel @Inject constructor(
-    private val searchRepository: SearchRepository,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val searchRepository: SearchRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
@@ -29,7 +28,7 @@ class AddHouseholdMemberViewModel @Inject constructor(
     var selectedSuggestedMembersList = mutableStateListOf<PatientResponse>()
 
     internal fun getSuggestions(patient: PatientResponse, returnList: (List<PatientResponse>) -> Unit) {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch(Dispatchers.IO) {
             searchRepository.getSuggestedMembers(
                 patient.id,
                 SearchParameters(
