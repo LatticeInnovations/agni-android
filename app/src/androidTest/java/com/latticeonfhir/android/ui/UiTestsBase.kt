@@ -217,6 +217,7 @@ open class UiTestsBase {
     val doneBtn = hasTestTag("DONE_BTN")
 
     // patient landing screen
+    val appointmentsCard = hasTestTag("APPOINTMENTS") and hasClickAction()
     val householdMemberCard = hasTestTag("HOUSEHOLD_MEMBER") and hasClickAction()
     val prescriptionCard = hasTestTag("PRESCRIPTION") and hasClickAction()
 
@@ -231,6 +232,7 @@ open class UiTestsBase {
     val emailDetails = hasTestTag("EMAIL")
 
     val activeIngredientList = hasTestTag("ACTIVE_INGREDIENT_LIST") and hasScrollAction()
+
     // quick selection screen
     val dropdownIcon = hasContentDescription("DROP_DOWN_ARROW")
 
@@ -282,4 +284,34 @@ open class UiTestsBase {
     val memberDetailCards = hasTestTag("MEMBER_DETAIL_CARDS")
     val deleteMemberIcon = hasContentDescription("delete member")
     val editMemberIcon = hasContentDescription("edit member")
+
+    // appointments
+    val numberOfAppointments = hasTestTag("NUMBER_OF_APPOINTMENTS")
+    val addAppointmentFab = hasTestTag("ADD_APPOINTMENT_FAB")
+    val addScheduleFab = hasTestTag("ADD_SCHEDULE_FAB")
+    val queueFab = hasTestTag("QUEUE_FAB")
+    val upcomingTab = hasTestTag("UPCOMING")
+    val completedTab = hasTestTag("COMPLETED")
+    val upcomingAppointmentCard = hasTestTag("UPCOMING_APPOINTMENT_CARD")
+    val appointmentDateTime = hasTestTag("APPOINTMENT_DATE_AND_TIME")
+    val appointmentCancelBtn = hasTestTag("APPOINTMENT_CANCEL_BTN")
+    val appointmentRescheduleBtn = hasTestTag("APPOINTMENT_RESCHEDULE_BTN")
+
+    // schedule screen
+    val resetBtn = hasTestTag("RESET_BTN")
+    val dateDropDown = hasTestTag("DATE_DROPDOWN")
+    val daysTabRow = hasTestTag("DAYS_TAB_ROW")
+    val daysChip = hasTestTag("DAYS_CHIP")
+    val morningSlotsHeading = hasTestTag("Morning slots")
+    val afternoonSlotsHeading = hasTestTag("Afternoon slots")
+    val eveningSlotsHeading = hasTestTag("Evening slots")
+    val morningSlotsChip = hasTestTag("MORNING_SLOT_CHIPS")
+    val afternoonSlotsChip = hasTestTag("AFTERNOON_SLOT_CHIPS")
+    val eveningSlotsChip = hasTestTag("EVENING_SLOT_CHIPS")
+    val datePickerDialog = hasTestTag("DATE_PICKER_DIALOG")
+    val confirmAppointmentBtn = hasTestTag("CONFIRM_APPOINTMENT_BTN")
+
+    // queue
+    val queueSearchLayout = hasTestTag("QUEUE_SEARCH_LAYOUT")
+    val queuePatientCard = hasTestTag("QUEUE_PATIENT_CARD")
 }

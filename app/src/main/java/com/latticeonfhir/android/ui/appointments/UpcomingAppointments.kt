@@ -21,6 +21,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -70,14 +71,15 @@ fun UpcomingAppointmentCard(
         ),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
-        )
+        ),
+        modifier = Modifier.testTag("UPCOMING_APPOINTMENT_CARD")
     ) {
         Text(
             text = appointmentResponseLocal.slot.start.toAppointmentDate(),
             modifier = Modifier.padding(
                 vertical = 32.dp,
                 horizontal = 16.dp
-            )
+            ).testTag("APPOINTMENT_DATE_AND_TIME")
         )
         Divider(
             thickness = 1.dp,
@@ -90,7 +92,9 @@ fun UpcomingAppointmentCard(
                 modifier = Modifier.weight(1f),
                 color = MaterialTheme.colorScheme.surface
             ) {
-                TextButton(onClick = {
+                TextButton(
+                    modifier = Modifier.testTag("APPOINTMENT_CANCEL_BTN"),
+                    onClick = {
                     viewModel.selectedAppointment = appointmentResponseLocal
                     viewModel.showCancelAppointmentDialog = true
                 }) {
@@ -101,7 +105,9 @@ fun UpcomingAppointmentCard(
                 modifier = Modifier.weight(1f),
                 color = MaterialTheme.colorScheme.secondaryContainer
             ) {
-                TextButton(onClick = {
+                TextButton(
+                    modifier = Modifier.testTag("APPOINTMENT_RESCHEDULE_BTN"),
+                    onClick = {
                     viewModel.selectedAppointment = appointmentResponseLocal
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         PATIENT,
