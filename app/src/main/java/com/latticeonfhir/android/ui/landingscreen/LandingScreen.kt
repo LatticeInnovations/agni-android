@@ -181,7 +181,7 @@ fun LandingScreen(
                             Text(
                                 text = viewModel.items[viewModel.selectedIndex],
                                 style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.testTag("SEARCH_TITLE_TEXT")
+                                modifier = Modifier.testTag("HEADING_TAG")
                             )
                         },
                         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -198,7 +198,8 @@ fun LandingScreen(
                                         queueViewModel.selectedDate.to14DaysWeek()
                                     queueViewModel.getAppointmentListByDate()
                                 },
-                                enabled = queueViewModel.selectedDate.toSlotDate() != Date().toSlotDate()
+                                enabled = queueViewModel.selectedDate.toSlotDate() != Date().toSlotDate(),
+                                modifier = Modifier.testTag("RESET_BTN")
                             ) {
                                 Text(text = stringResource(id = R.string.reset))
                             }
@@ -406,6 +407,7 @@ fun LandingScreen(
                         .testTag("SEARCH_LAYOUT"),
                     verticalArrangement = Arrangement.Top
                 ) {
+                    val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                     TextField(
                         value = viewModel.searchQuery,
                         onValueChange = {
@@ -435,8 +437,10 @@ fun LandingScreen(
                                 focusRequester.requestFocus()
                             }
                             .testTag("SEARCH_TEXT_FIELD"),
-                        colors = TextFieldDefaults.textFieldColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = containerColor,
+                            unfocusedContainerColor = containerColor,
+                            disabledContainerColor = containerColor,
                         ),
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Search
@@ -490,6 +494,7 @@ fun LandingScreen(
                         .testTag("QUEUE_SEARCH_LAYOUT"),
                     verticalArrangement = Arrangement.Top
                 ) {
+                    val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                     TextField(
                         value = queueViewModel.searchQueueQuery,
                         onValueChange = {
@@ -523,8 +528,10 @@ fun LandingScreen(
                                 focusRequester.requestFocus()
                             }
                             .testTag("SEARCH_TEXT_FIELD"),
-                        colors = TextFieldDefaults.textFieldColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = containerColor,
+                            unfocusedContainerColor = containerColor,
+                            disabledContainerColor = containerColor,
                         ),
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Search

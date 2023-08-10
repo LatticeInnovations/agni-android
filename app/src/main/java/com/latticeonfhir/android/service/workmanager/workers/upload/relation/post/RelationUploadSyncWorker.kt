@@ -12,7 +12,8 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiError
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiNullResponse
 import kotlinx.coroutines.delay
 
-abstract class RelationUploadSyncWorker(context: Context, workerParameters: WorkerParameters) : SyncWorker(context, workerParameters) {
+abstract class RelationUploadSyncWorker(context: Context, workerParameters: WorkerParameters) :
+    SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
         setProgress(workDataOf(RelationUploadProgress to 0))
@@ -25,11 +26,13 @@ abstract class RelationUploadSyncWorker(context: Context, workerParameters: Work
                 )
                 else Result.retry()
             }
+
             is ApiEmptyResponse -> {
                 setProgress(workDataOf(RelationUploadProgress to 100))
                 delay(1000L)
                 Result.success()
             }
+
             is ApiNullResponse -> Result.failure()
         }
     }

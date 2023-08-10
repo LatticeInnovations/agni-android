@@ -57,18 +57,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.NonLazyGrid
 import com.latticeonfhir.android.ui.theme.Green
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SCHEDULED
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonth
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
@@ -129,7 +129,8 @@ fun ScheduleAppointments(
                             viewModel.weekList = viewModel.selectedDate.toWeekList()
                         },
                         enabled = viewModel.selectedDate.toSlotDate() != Date().tomorrow()
-                            .toSlotDate()
+                            .toSlotDate(),
+                        modifier = Modifier.testTag("RESET_BTN")
                     ) {
                         Text(text = stringResource(id = R.string.reset))
                     }
@@ -147,10 +148,12 @@ fun ScheduleAppointments(
                         .wrapContentSize()
                 ) {
                     Row(
-                        modifier = Modifier.clickable(
+                        modifier = Modifier
+                            .testTag("DATE_DROPDOWN")
+                            .clickable(
                             interactionSource = MutableInteractionSource(),
                             indication = null
-                        ) {
+                        ){
                             viewModel.showDatePicker = true
                         }
                     ) {
@@ -174,7 +177,8 @@ fun ScheduleAppointments(
                             .height(55.dp)
                     )
                     LazyRow(
-                        state = dateScrollState
+                        state = dateScrollState,
+                        modifier = Modifier.testTag("DAYS_TAB_ROW")
                     ) {
                         items(viewModel.weekList) { date ->
                             SuggestionChip(
@@ -198,7 +202,8 @@ fun ScheduleAppointments(
                                     }
                                 },
                                 modifier = Modifier
-                                    .padding(horizontal = 5.dp),
+                                    .padding(horizontal = 5.dp)
+                                    .testTag("DAYS_CHIP"),
                                 colors = SuggestionChipDefaults.suggestionChipColors(
                                     containerColor = if (viewModel.selectedDate == date) MaterialTheme.colorScheme.primary
                                     else MaterialTheme.colorScheme.surface,
@@ -248,7 +253,8 @@ fun ScheduleAppointments(
                             index,
                             stringArrayResource(id = R.array.morning_slot_timings),
                             slots,
-                            viewModel.selectedSlot
+                            viewModel.selectedSlot,
+                            "MORNING_SLOT_CHIPS"
                         ) { slot ->
                             if (viewModel.selectedSlot == slot) viewModel.selectedSlot = ""
                             else viewModel.selectedSlot = slot
@@ -281,7 +287,8 @@ fun ScheduleAppointments(
                             index,
                             stringArrayResource(id = R.array.afternoon_slot_timings),
                             slots,
-                            viewModel.selectedSlot
+                            viewModel.selectedSlot,
+                            "AFTERNOON_SLOT_CHIPS"
                         ) { slot ->
                             if (viewModel.selectedSlot == slot) viewModel.selectedSlot = ""
                             else viewModel.selectedSlot = slot
@@ -314,7 +321,8 @@ fun ScheduleAppointments(
                             index,
                             stringArrayResource(id = R.array.evening_slot_timings),
                             slots,
-                            viewModel.selectedSlot
+                            viewModel.selectedSlot,
+                            "EVENING_SLOT_CHIPS"
                         ) { slot ->
                             if (viewModel.selectedSlot == slot) viewModel.selectedSlot = ""
                             else viewModel.selectedSlot = slot
@@ -369,7 +377,8 @@ fun ScheduleAppointments(
                         dateValidator = { date ->
                             date >= Date().tomorrow()
                                 .toTodayStartDate() && date <= Date().toOneYearFuture().time
-                        }
+                        },
+                        modifier = Modifier.testTag("DATE_PICKER_DIALOG")
                     )
                 }
             }
@@ -392,6 +401,7 @@ fun ScheduleAppointments(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 30.dp)
+                        .testTag("CONFIRM_APPOINTMENT_BTN")
                 ) {
                     Text(
                         text = stringResource(id = R.string.confirm_appointment),
@@ -406,7 +416,8 @@ fun ScheduleAppointments(
 @Composable
 fun SlotsHeading(icon: Int, heading: String, testTag: String) {
     Row(
-        modifier = Modifier.padding(top = 12.dp, start = 17.dp, bottom = 18.dp),
+        modifier = Modifier.padding(top = 12.dp, start = 17.dp, bottom = 18.dp)
+            .testTag(heading),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -428,6 +439,7 @@ fun SlotsHeading(icon: Int, heading: String, testTag: String) {
 @Composable
 fun SlotChips(
     index: Int, slotTimings: Array<String>, slots: Int, selectedSlot: String,
+    testTag: String,
     updateSlot: (String) -> Unit
 ) {
     SuggestionChip(
@@ -455,7 +467,8 @@ fun SlotChips(
         },
         modifier = Modifier
             .padding(bottom = 17.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .testTag(testTag),
         colors = SuggestionChipDefaults.suggestionChipColors(
             containerColor = if (slotTimings[index] == selectedSlot) MaterialTheme.colorScheme.primaryContainer
             else MaterialTheme.colorScheme.surface,

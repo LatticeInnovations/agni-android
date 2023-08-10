@@ -222,9 +222,9 @@ fun EditBasicInformation(
                         viewModel.days = ""
                         viewModel.months = ""
                         viewModel.years = ""
-                        viewModel.isAgeDaysValid =false
-                        viewModel.isAgeMonthsValid =false
-                        viewModel.isAgeYearsValid =false
+                        viewModel.isAgeDaysValid = false
+                        viewModel.isAgeMonthsValid = false
+                        viewModel.isAgeYearsValid = false
                         AgeTextField(viewModel)
                     }
                     Spacer(modifier = Modifier.height(20.dp))

@@ -59,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -162,7 +163,9 @@ fun QueueScreen(
                         .wrapContentSize()
                 ) {
                     Row(
-                        modifier = Modifier.clickable(
+                        modifier = Modifier
+                            .testTag("DATE_DROPDOWN")
+                            .clickable(
                             interactionSource = MutableInteractionSource(),
                             indication = null
                         ) {
@@ -189,7 +192,8 @@ fun QueueScreen(
                             .height(55.dp)
                     )
                     LazyRow(
-                        state = dateScrollState
+                        state = dateScrollState,
+                        modifier = Modifier.testTag("DAYS_TAB_ROW")
                     ) {
                         items(viewModel.weekList) { date ->
                             SuggestionChip(
@@ -213,7 +217,8 @@ fun QueueScreen(
                                     }
                                 },
                                 modifier = Modifier
-                                    .padding(horizontal = 5.dp),
+                                    .padding(horizontal = 5.dp)
+                                    .testTag("DAYS_CHIP"),
                                 colors = SuggestionChipDefaults.suggestionChipColors(
                                     containerColor = if (viewModel.selectedDate == date) MaterialTheme.colorScheme.primary
                                     else MaterialTheme.colorScheme.surface,
@@ -671,7 +676,9 @@ fun QueuePatientCard(
         colors = CardDefaults.elevatedCardColors(
             containerColor = if (appointmentResponseLocal.status == AppointmentStatusEnum.NO_SHOW.value) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
         ),
-        modifier = Modifier.clickable {
+        modifier = Modifier
+            .testTag("QUEUE_PATIENT_CARD")
+            .clickable {
             navController.currentBackStackEntry?.savedStateHandle?.set(
                 NavControllerConstants.PATIENT,
                 patient
@@ -827,7 +834,7 @@ fun QueuePatientCard(
                         viewModel.patientSelected = patient
                         viewModel.appointmentSelected = appointmentResponseLocal
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).testTag("APPOINTMENT_CANCEL_BTN")
                 ) {
                     Text(text = stringResource(id = R.string.cancel))
                 }
@@ -848,7 +855,8 @@ fun QueuePatientCard(
                                 patient
                             )
                             navController.navigate(Screen.RescheduleAppointments.route)
-                        }
+                        },
+                        modifier = Modifier.testTag("APPOINTMENT_RESCHEDULE_BTN")
                     ) {
                         Text(text = stringResource(id = R.string.reschedule))
                     }

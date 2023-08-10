@@ -18,184 +18,200 @@ object RelationConverter {
         relationFetched: (RelationEnum) -> Unit
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            val fromGender = patientDao.getPatientDataById(relationEntity.fromId)[0].patientEntity.gender
-            val toGender = patientDao.getPatientDataById(relationEntity.toId)[0].patientEntity.gender
-            relationFetched(when (GenderEnum.fromString(fromGender)) {
-                GenderEnum.MALE -> {
-                    when (GenderEnum.fromString(toGender)) {
-                        GenderEnum.MALE -> {
-                            when (relationEntity.relation) {
-                                RelationEnum.FATHER -> RelationEnum.SON
-                                RelationEnum.GRAND_FATHER -> RelationEnum.GRAND_SON
-                                RelationEnum.BROTHER -> RelationEnum.BROTHER
-                                RelationEnum.SON -> RelationEnum.FATHER
-                                RelationEnum.GRAND_SON -> RelationEnum.GRAND_FATHER
-                                RelationEnum.UNCLE -> RelationEnum.NEPHEW
-                                RelationEnum.BROTHER_IN_LAW -> RelationEnum.BROTHER_IN_LAW
-                                RelationEnum.FATHER_IN_LAW -> RelationEnum.SON_IN_LAW
-                                RelationEnum.HUSBAND -> RelationEnum.HUSBAND
-                                RelationEnum.SON_IN_LAW -> RelationEnum.FATHER_IN_LAW
-                                RelationEnum.NEPHEW -> RelationEnum.UNCLE
-                                else -> {
-                                    RelationEnum.UNKNOWN
+            val fromGender =
+                patientDao.getPatientDataById(relationEntity.fromId)[0].patientEntity.gender
+            val toGender =
+                patientDao.getPatientDataById(relationEntity.toId)[0].patientEntity.gender
+            relationFetched(
+                when (GenderEnum.fromString(fromGender)) {
+                    GenderEnum.MALE -> {
+                        when (GenderEnum.fromString(toGender)) {
+                            GenderEnum.MALE -> {
+                                when (relationEntity.relation) {
+                                    RelationEnum.FATHER -> RelationEnum.SON
+                                    RelationEnum.GRAND_FATHER -> RelationEnum.GRAND_SON
+                                    RelationEnum.BROTHER -> RelationEnum.BROTHER
+                                    RelationEnum.SON -> RelationEnum.FATHER
+                                    RelationEnum.GRAND_SON -> RelationEnum.GRAND_FATHER
+                                    RelationEnum.UNCLE -> RelationEnum.NEPHEW
+                                    RelationEnum.BROTHER_IN_LAW -> RelationEnum.BROTHER_IN_LAW
+                                    RelationEnum.FATHER_IN_LAW -> RelationEnum.SON_IN_LAW
+                                    RelationEnum.HUSBAND -> RelationEnum.HUSBAND
+                                    RelationEnum.SON_IN_LAW -> RelationEnum.FATHER_IN_LAW
+                                    RelationEnum.NEPHEW -> RelationEnum.UNCLE
+                                    else -> {
+                                        RelationEnum.UNKNOWN
+                                    }
                                 }
                             }
-                        }
-                        GenderEnum.FEMALE -> {
-                            when (relationEntity.relation) {
-                                RelationEnum.FATHER -> RelationEnum.DAUGHTER
-                                RelationEnum.GRAND_FATHER -> RelationEnum.GRAND_DAUGHTER
-                                RelationEnum.BROTHER -> RelationEnum.SISTER
-                                RelationEnum.SON -> RelationEnum.MOTHER
-                                RelationEnum.GRAND_SON -> RelationEnum.GRAND_MOTHER
-                                RelationEnum.UNCLE -> RelationEnum.NIECE
-                                RelationEnum.HUSBAND -> RelationEnum.WIFE
-                                RelationEnum.SON_IN_LAW -> RelationEnum.MOTHER_IN_LAW
-                                RelationEnum.NEPHEW -> RelationEnum.AUNTY
-                                RelationEnum.BROTHER_IN_LAW -> RelationEnum.SISTER_IN_LAW
-                                RelationEnum.FATHER_IN_LAW -> RelationEnum.DAUGHTER_IN_LAW
-                                else -> {
-                                    RelationEnum.UNKNOWN
+
+                            GenderEnum.FEMALE -> {
+                                when (relationEntity.relation) {
+                                    RelationEnum.FATHER -> RelationEnum.DAUGHTER
+                                    RelationEnum.GRAND_FATHER -> RelationEnum.GRAND_DAUGHTER
+                                    RelationEnum.BROTHER -> RelationEnum.SISTER
+                                    RelationEnum.SON -> RelationEnum.MOTHER
+                                    RelationEnum.GRAND_SON -> RelationEnum.GRAND_MOTHER
+                                    RelationEnum.UNCLE -> RelationEnum.NIECE
+                                    RelationEnum.HUSBAND -> RelationEnum.WIFE
+                                    RelationEnum.SON_IN_LAW -> RelationEnum.MOTHER_IN_LAW
+                                    RelationEnum.NEPHEW -> RelationEnum.AUNTY
+                                    RelationEnum.BROTHER_IN_LAW -> RelationEnum.SISTER_IN_LAW
+                                    RelationEnum.FATHER_IN_LAW -> RelationEnum.DAUGHTER_IN_LAW
+                                    else -> {
+                                        RelationEnum.UNKNOWN
+                                    }
                                 }
                             }
-                        }
-                        GenderEnum.OTHER -> {
-                            when (relationEntity.relation) {
-                                RelationEnum.FATHER -> RelationEnum.CHILD
-                                RelationEnum.GRAND_FATHER -> RelationEnum.GRAND_CHILD
-                                RelationEnum.BROTHER -> RelationEnum.SIBLING
-                                RelationEnum.SON -> RelationEnum.PARENT
-                                RelationEnum.GRAND_SON -> RelationEnum.GRAND_CHILD
-                                RelationEnum.UNCLE -> RelationEnum.NIECE_NEPHEW
-                                RelationEnum.BROTHER_IN_LAW -> RelationEnum.IN_LAW
-                                RelationEnum.FATHER_IN_LAW -> RelationEnum.IN_LAW
-                                RelationEnum.HUSBAND -> RelationEnum.SPOUSE
-                                RelationEnum.SON_IN_LAW -> RelationEnum.IN_LAW
-                                RelationEnum.NEPHEW -> RelationEnum.GUARDIAN
-                                else -> {
-                                    RelationEnum.UNKNOWN
+
+                            GenderEnum.OTHER -> {
+                                when (relationEntity.relation) {
+                                    RelationEnum.FATHER -> RelationEnum.CHILD
+                                    RelationEnum.GRAND_FATHER -> RelationEnum.GRAND_CHILD
+                                    RelationEnum.BROTHER -> RelationEnum.SIBLING
+                                    RelationEnum.SON -> RelationEnum.PARENT
+                                    RelationEnum.GRAND_SON -> RelationEnum.GRAND_CHILD
+                                    RelationEnum.UNCLE -> RelationEnum.NIECE_NEPHEW
+                                    RelationEnum.BROTHER_IN_LAW -> RelationEnum.IN_LAW
+                                    RelationEnum.FATHER_IN_LAW -> RelationEnum.IN_LAW
+                                    RelationEnum.HUSBAND -> RelationEnum.SPOUSE
+                                    RelationEnum.SON_IN_LAW -> RelationEnum.IN_LAW
+                                    RelationEnum.NEPHEW -> RelationEnum.GUARDIAN
+                                    else -> {
+                                        RelationEnum.UNKNOWN
+                                    }
                                 }
                             }
-                        }
-                        GenderEnum.UNKNOWN -> {
-                            RelationEnum.UNKNOWN
+
+                            GenderEnum.UNKNOWN -> {
+                                RelationEnum.UNKNOWN
+                            }
                         }
                     }
-                }
-                GenderEnum.FEMALE -> {
-                    when (GenderEnum.fromString(toGender)) {
-                        GenderEnum.MALE -> {
-                            when (relationEntity.relation) {
-                                RelationEnum.MOTHER -> RelationEnum.SON
-                                RelationEnum.GRAND_MOTHER -> RelationEnum.GRAND_SON
-                                RelationEnum.SISTER -> RelationEnum.BROTHER
-                                RelationEnum.DAUGHTER -> RelationEnum.FATHER
-                                RelationEnum.GRAND_DAUGHTER -> RelationEnum.GRAND_FATHER
-                                RelationEnum.AUNTY -> RelationEnum.NEPHEW
-                                RelationEnum.SISTER_IN_LAW -> RelationEnum.BROTHER_IN_LAW
-                                RelationEnum.MOTHER_IN_LAW -> RelationEnum.SON_IN_LAW
-                                RelationEnum.DAUGHTER_IN_LAW -> RelationEnum.FATHER_IN_LAW
-                                RelationEnum.NIECE -> RelationEnum.UNCLE
-                                RelationEnum.WIFE -> RelationEnum.HUSBAND
-                                else -> {
-                                    RelationEnum.UNKNOWN
+
+                    GenderEnum.FEMALE -> {
+                        when (GenderEnum.fromString(toGender)) {
+                            GenderEnum.MALE -> {
+                                when (relationEntity.relation) {
+                                    RelationEnum.MOTHER -> RelationEnum.SON
+                                    RelationEnum.GRAND_MOTHER -> RelationEnum.GRAND_SON
+                                    RelationEnum.SISTER -> RelationEnum.BROTHER
+                                    RelationEnum.DAUGHTER -> RelationEnum.FATHER
+                                    RelationEnum.GRAND_DAUGHTER -> RelationEnum.GRAND_FATHER
+                                    RelationEnum.AUNTY -> RelationEnum.NEPHEW
+                                    RelationEnum.SISTER_IN_LAW -> RelationEnum.BROTHER_IN_LAW
+                                    RelationEnum.MOTHER_IN_LAW -> RelationEnum.SON_IN_LAW
+                                    RelationEnum.DAUGHTER_IN_LAW -> RelationEnum.FATHER_IN_LAW
+                                    RelationEnum.NIECE -> RelationEnum.UNCLE
+                                    RelationEnum.WIFE -> RelationEnum.HUSBAND
+                                    else -> {
+                                        RelationEnum.UNKNOWN
+                                    }
                                 }
                             }
-                        }
-                        GenderEnum.FEMALE -> {
-                            when (relationEntity.relation) {
-                                RelationEnum.MOTHER -> RelationEnum.DAUGHTER
-                                RelationEnum.GRAND_MOTHER -> RelationEnum.GRAND_DAUGHTER
-                                RelationEnum.SISTER -> RelationEnum.SISTER
-                                RelationEnum.DAUGHTER -> RelationEnum.MOTHER
-                                RelationEnum.GRAND_DAUGHTER -> RelationEnum.GRAND_MOTHER
-                                RelationEnum.AUNTY -> RelationEnum.NIECE
-                                RelationEnum.SISTER_IN_LAW -> RelationEnum.SISTER_IN_LAW
-                                RelationEnum.MOTHER_IN_LAW -> RelationEnum.DAUGHTER_IN_LAW
-                                RelationEnum.DAUGHTER_IN_LAW -> RelationEnum.MOTHER_IN_LAW
-                                RelationEnum.NIECE -> RelationEnum.AUNTY
-                                RelationEnum.WIFE -> RelationEnum.WIFE
-                                else -> {
-                                    RelationEnum.UNKNOWN
+
+                            GenderEnum.FEMALE -> {
+                                when (relationEntity.relation) {
+                                    RelationEnum.MOTHER -> RelationEnum.DAUGHTER
+                                    RelationEnum.GRAND_MOTHER -> RelationEnum.GRAND_DAUGHTER
+                                    RelationEnum.SISTER -> RelationEnum.SISTER
+                                    RelationEnum.DAUGHTER -> RelationEnum.MOTHER
+                                    RelationEnum.GRAND_DAUGHTER -> RelationEnum.GRAND_MOTHER
+                                    RelationEnum.AUNTY -> RelationEnum.NIECE
+                                    RelationEnum.SISTER_IN_LAW -> RelationEnum.SISTER_IN_LAW
+                                    RelationEnum.MOTHER_IN_LAW -> RelationEnum.DAUGHTER_IN_LAW
+                                    RelationEnum.DAUGHTER_IN_LAW -> RelationEnum.MOTHER_IN_LAW
+                                    RelationEnum.NIECE -> RelationEnum.AUNTY
+                                    RelationEnum.WIFE -> RelationEnum.WIFE
+                                    else -> {
+                                        RelationEnum.UNKNOWN
+                                    }
                                 }
                             }
-                        }
-                        GenderEnum.OTHER -> {
-                            when (relationEntity.relation) {
-                                RelationEnum.MOTHER -> RelationEnum.CHILD
-                                RelationEnum.GRAND_MOTHER -> RelationEnum.GRAND_CHILD
-                                RelationEnum.SISTER -> RelationEnum.SIBLING
-                                RelationEnum.DAUGHTER -> RelationEnum.PARENT
-                                RelationEnum.GRAND_DAUGHTER -> RelationEnum.GRAND_CHILD
-                                RelationEnum.AUNTY -> RelationEnum.NIECE_NEPHEW
-                                RelationEnum.SISTER_IN_LAW -> RelationEnum.IN_LAW
-                                RelationEnum.MOTHER_IN_LAW -> RelationEnum.IN_LAW
-                                RelationEnum.DAUGHTER_IN_LAW -> RelationEnum.IN_LAW
-                                RelationEnum.WIFE -> RelationEnum.SPOUSE
-                                RelationEnum.NIECE -> RelationEnum.GUARDIAN
-                                else -> {
-                                    RelationEnum.UNKNOWN
+
+                            GenderEnum.OTHER -> {
+                                when (relationEntity.relation) {
+                                    RelationEnum.MOTHER -> RelationEnum.CHILD
+                                    RelationEnum.GRAND_MOTHER -> RelationEnum.GRAND_CHILD
+                                    RelationEnum.SISTER -> RelationEnum.SIBLING
+                                    RelationEnum.DAUGHTER -> RelationEnum.PARENT
+                                    RelationEnum.GRAND_DAUGHTER -> RelationEnum.GRAND_CHILD
+                                    RelationEnum.AUNTY -> RelationEnum.NIECE_NEPHEW
+                                    RelationEnum.SISTER_IN_LAW -> RelationEnum.IN_LAW
+                                    RelationEnum.MOTHER_IN_LAW -> RelationEnum.IN_LAW
+                                    RelationEnum.DAUGHTER_IN_LAW -> RelationEnum.IN_LAW
+                                    RelationEnum.WIFE -> RelationEnum.SPOUSE
+                                    RelationEnum.NIECE -> RelationEnum.GUARDIAN
+                                    else -> {
+                                        RelationEnum.UNKNOWN
+                                    }
                                 }
                             }
-                        }
-                        GenderEnum.UNKNOWN -> {
-                            RelationEnum.UNKNOWN
+
+                            GenderEnum.UNKNOWN -> {
+                                RelationEnum.UNKNOWN
+                            }
                         }
                     }
-                }
-                GenderEnum.OTHER -> {
-                    when (GenderEnum.fromString(toGender)) {
-                        GenderEnum.MALE -> {
-                            when (relationEntity.relation) {
-                                RelationEnum.PARENT -> RelationEnum.SON
-                                RelationEnum.GRAND_PARENT -> RelationEnum.GRAND_SON
-                                RelationEnum.SIBLING -> RelationEnum.BROTHER
-                                RelationEnum.CHILD -> RelationEnum.FATHER
-                                RelationEnum.GRAND_CHILD -> RelationEnum.GRAND_FATHER
-                                RelationEnum.IN_LAW -> RelationEnum.SON_IN_LAW
-                                RelationEnum.GUARDIAN -> RelationEnum.NEPHEW
-                                else -> {
-                                    RelationEnum.UNKNOWN
+
+                    GenderEnum.OTHER -> {
+                        when (GenderEnum.fromString(toGender)) {
+                            GenderEnum.MALE -> {
+                                when (relationEntity.relation) {
+                                    RelationEnum.PARENT -> RelationEnum.SON
+                                    RelationEnum.GRAND_PARENT -> RelationEnum.GRAND_SON
+                                    RelationEnum.SIBLING -> RelationEnum.BROTHER
+                                    RelationEnum.CHILD -> RelationEnum.FATHER
+                                    RelationEnum.GRAND_CHILD -> RelationEnum.GRAND_FATHER
+                                    RelationEnum.IN_LAW -> RelationEnum.SON_IN_LAW
+                                    RelationEnum.GUARDIAN -> RelationEnum.NEPHEW
+                                    else -> {
+                                        RelationEnum.UNKNOWN
+                                    }
                                 }
                             }
-                        }
-                        GenderEnum.FEMALE -> {
-                            when (relationEntity.relation) {
-                                RelationEnum.PARENT -> RelationEnum.DAUGHTER
-                                RelationEnum.GRAND_PARENT -> RelationEnum.GRAND_DAUGHTER
-                                RelationEnum.SIBLING -> RelationEnum.SISTER
-                                RelationEnum.CHILD -> RelationEnum.MOTHER
-                                RelationEnum.GRAND_CHILD -> RelationEnum.GRAND_MOTHER
-                                RelationEnum.IN_LAW -> RelationEnum.DAUGHTER_IN_LAW
-                                RelationEnum.GUARDIAN -> RelationEnum.NIECE
-                                else -> {
-                                    RelationEnum.UNKNOWN
+
+                            GenderEnum.FEMALE -> {
+                                when (relationEntity.relation) {
+                                    RelationEnum.PARENT -> RelationEnum.DAUGHTER
+                                    RelationEnum.GRAND_PARENT -> RelationEnum.GRAND_DAUGHTER
+                                    RelationEnum.SIBLING -> RelationEnum.SISTER
+                                    RelationEnum.CHILD -> RelationEnum.MOTHER
+                                    RelationEnum.GRAND_CHILD -> RelationEnum.GRAND_MOTHER
+                                    RelationEnum.IN_LAW -> RelationEnum.DAUGHTER_IN_LAW
+                                    RelationEnum.GUARDIAN -> RelationEnum.NIECE
+                                    else -> {
+                                        RelationEnum.UNKNOWN
+                                    }
                                 }
                             }
-                        }
-                        GenderEnum.OTHER -> {
-                            when (relationEntity.relation) {
-                                RelationEnum.PARENT -> RelationEnum.CHILD
-                                RelationEnum.GRAND_PARENT -> RelationEnum.GRAND_CHILD
-                                RelationEnum.SIBLING -> RelationEnum.SIBLING
-                                RelationEnum.CHILD -> RelationEnum.PARENT
-                                RelationEnum.GRAND_CHILD -> RelationEnum.GRAND_CHILD
-                                RelationEnum.IN_LAW -> RelationEnum.IN_LAW
-                                RelationEnum.GUARDIAN -> RelationEnum.NIECE_NEPHEW
-                                else -> {
-                                    RelationEnum.UNKNOWN
+
+                            GenderEnum.OTHER -> {
+                                when (relationEntity.relation) {
+                                    RelationEnum.PARENT -> RelationEnum.CHILD
+                                    RelationEnum.GRAND_PARENT -> RelationEnum.GRAND_CHILD
+                                    RelationEnum.SIBLING -> RelationEnum.SIBLING
+                                    RelationEnum.CHILD -> RelationEnum.PARENT
+                                    RelationEnum.GRAND_CHILD -> RelationEnum.GRAND_CHILD
+                                    RelationEnum.IN_LAW -> RelationEnum.IN_LAW
+                                    RelationEnum.GUARDIAN -> RelationEnum.NIECE_NEPHEW
+                                    else -> {
+                                        RelationEnum.UNKNOWN
+                                    }
                                 }
                             }
-                        }
-                        GenderEnum.UNKNOWN -> {
-                            RelationEnum.UNKNOWN
+
+                            GenderEnum.UNKNOWN -> {
+                                RelationEnum.UNKNOWN
+                            }
                         }
                     }
+
+                    GenderEnum.UNKNOWN -> {
+                        RelationEnum.UNKNOWN
+                    }
                 }
-                GenderEnum.UNKNOWN -> {
-                    RelationEnum.UNKNOWN
-                }
-            })
+            )
         }
     }
 
@@ -236,7 +252,7 @@ object RelationConverter {
             }
         }
     }
-        
+
     internal fun getRelationFromRelationEnum(context: Context, relationEnum: RelationEnum): String {
         return context.resources.getStringArray(R.array.relation)[relationEnum.number]
     }

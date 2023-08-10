@@ -10,7 +10,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmpty
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 
-abstract class AppointmentDownloadSyncWorker (context: Context, workerParameters: WorkerParameters) :
+abstract class AppointmentDownloadSyncWorker(context: Context, workerParameters: WorkerParameters) :
     SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
@@ -22,6 +22,7 @@ abstract class AppointmentDownloadSyncWorker (context: Context, workerParameters
                 setProgress(workDataOf(AppointmentDownloadProgress to 100))
                 Result.success()
             }
+
             is ApiEmptyResponse -> Result.failure()
             is ApiErrorResponse -> {
                 if (response.errorMessage == ErrorConstants.SESSION_EXPIRED || response.errorMessage == ErrorConstants.UNAUTHORIZED) Result.failure(
@@ -29,6 +30,7 @@ abstract class AppointmentDownloadSyncWorker (context: Context, workerParameters
                 )
                 else Result.retry()
             }
+
             else -> Result.retry()
         }
     }

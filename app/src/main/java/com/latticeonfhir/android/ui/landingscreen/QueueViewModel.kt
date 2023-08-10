@@ -130,7 +130,7 @@ class QueueViewModel @Inject constructor(
                                 )?.uuid!!,
                                 createdOn = appointmentSelected!!.createdOn,
                                 slot = appointmentSelected!!.slot,
-                                patientFhirId = appointmentSelected!!.patientId,
+                                patientFhirId = patientRepository.getPatientById(appointmentSelected!!.patientId)[0].fhirId,
                                 appointmentId = null,
                                 orgId = appointmentSelected!!.orgId,
                                 status = AppointmentStatusEnum.CANCELLED.value,

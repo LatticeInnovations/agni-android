@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
-import com.latticeonfhir.android.service.workmanager.workers.upload.patient.post.PatientUploadSyncWorker
-import com.latticeonfhir.android.service.workmanager.workers.upload.relation.post.RelationUploadSyncWorker
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.constants.ErrorConstants.ERROR_MESSAGE
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
@@ -15,7 +13,8 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiError
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiNullResponse
 import kotlinx.coroutines.delay
 
-abstract class RelationPatchUploadSyncWorker(context: Context, workerParameters: WorkerParameters): SyncWorker(context, workerParameters) {
+abstract class RelationPatchUploadSyncWorker(context: Context, workerParameters: WorkerParameters) :
+    SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
         return when (val response = getSyncRepository().sendRelatedPersonPatchData()) {
@@ -26,14 +25,15 @@ abstract class RelationPatchUploadSyncWorker(context: Context, workerParameters:
                     setProgress(workDataOf(ERROR_MESSAGE to response.errorMessage))
                     delay(5000)
                     Result.failure()
-                }
-                else Result.retry()
+                } else Result.retry()
             }
+
             is ApiEmptyResponse -> {
                 setProgress(workDataOf(RelationPatchUpload to 100))
                 delay(5000)
                 Result.success()
             }
+
             is ApiNullResponse -> Result.failure()
         }
     }

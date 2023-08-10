@@ -9,4 +9,4 @@ import kotlinx.parcelize.Parcelize
 data class RelatedPersonResponse(
     val id: String,
     val relationship: List<Relationship>
-): Parcelable
+) : Parcelable

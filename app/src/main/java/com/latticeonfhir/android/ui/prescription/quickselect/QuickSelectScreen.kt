@@ -32,7 +32,7 @@ fun QuickSelectScreen(viewModel: PrescriptionViewModel = hiltViewModel()) {
                 .verticalScroll(rememberScrollState())
                 .testTag("ACTIVE_INGREDIENT_LIST")
         ) {
-            viewModel.activeIngredientsList.forEach{ drug ->
+            viewModel.activeIngredientsList.forEach { drug ->
                 CompoundRow(activeIngredient = drug, viewModel = viewModel)
             }
         }
@@ -41,21 +41,24 @@ fun QuickSelectScreen(viewModel: PrescriptionViewModel = hiltViewModel()) {
 
 @Composable
 fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
-    val checkedState = remember { mutableStateOf(viewModel.selectedActiveIngredientsList.contains(activeIngredient)) }
+    val checkedState =
+        remember { mutableStateOf(viewModel.selectedActiveIngredientsList.contains(activeIngredient)) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp)
             .clickable {
                 if (!checkedState.value) {
-                    if (viewModel.selectedActiveIngredientsList.size<10) {
+                    if (viewModel.selectedActiveIngredientsList.size < 10) {
                         viewModel.checkedActiveIngredient = activeIngredient
                     }
                 } else {
-                    viewModel.selectedActiveIngredientsList = viewModel.selectedActiveIngredientsList - listOf(activeIngredient).toSet()
-                    viewModel.medicationsResponseWithMedicationList.forEach {  medication ->
+                    viewModel.selectedActiveIngredientsList =
+                        viewModel.selectedActiveIngredientsList - listOf(activeIngredient).toSet()
+                    viewModel.medicationsResponseWithMedicationList.forEach { medication ->
                         if (medication.activeIngredient == activeIngredient) {
-                            viewModel.medicationsResponseWithMedicationList = viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
+                            viewModel.medicationsResponseWithMedicationList =
+                                viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
                         }
                     }
                 }
@@ -67,14 +70,16 @@ fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
             checked = checkedState.value,
             onCheckedChange = {
                 if (it) {
-                    if (viewModel.selectedActiveIngredientsList.size<10) {
+                    if (viewModel.selectedActiveIngredientsList.size < 10) {
                         viewModel.checkedActiveIngredient = activeIngredient
                     }
                 } else {
-                    viewModel.selectedActiveIngredientsList = viewModel.selectedActiveIngredientsList - listOf(activeIngredient).toSet()
-                    viewModel.medicationsResponseWithMedicationList.forEach {  medication ->
+                    viewModel.selectedActiveIngredientsList =
+                        viewModel.selectedActiveIngredientsList - listOf(activeIngredient).toSet()
+                    viewModel.medicationsResponseWithMedicationList.forEach { medication ->
                         if (medication.activeIngredient == activeIngredient) {
-                            viewModel.medicationsResponseWithMedicationList = viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
+                            viewModel.medicationsResponseWithMedicationList =
+                                viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
                         }
                     }
                 }
@@ -84,7 +89,7 @@ fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
             modifier = Modifier.padding(10.dp)
         ) {
             Text(
-                text = activeIngredient.capitalize(Locale.getDefault()),
+                text = activeIngredient.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.testTag("ACTIVE_INGREDIENT_NAME")
