@@ -52,6 +52,7 @@ fun SearchPrescription(viewModel: PrescriptionViewModel) {
             .clickable { },
         verticalArrangement = Arrangement.Top
     ) {
+        val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
         TextField(
             value = viewModel.searchQuery,
             onValueChange = {
@@ -81,8 +82,10 @@ fun SearchPrescription(viewModel: PrescriptionViewModel) {
                     focusRequester.requestFocus()
                 }
                 .testTag("SEARCH_TEXT_FIELD"),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = containerColor,
+                unfocusedContainerColor = containerColor,
+                disabledContainerColor = containerColor,
             ),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Search

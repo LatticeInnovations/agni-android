@@ -16,12 +16,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.ui.theme.Neutral40
 import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
+import com.latticeonfhir.android.ui.theme.Neutral40
 
 @Composable
 fun PatientRegistrationStepTwo(
@@ -72,15 +72,24 @@ fun PatientRegistrationStepTwo(
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState())
             ) {
-                IdSelectionChip(idSelected = viewModel.isPassportSelected, label = stringResource(id = R.string.passport_id)) {
+                IdSelectionChip(
+                    idSelected = viewModel.isPassportSelected,
+                    label = stringResource(id = R.string.passport_id)
+                ) {
                     viewModel.isPassportSelected = !it
                 }
                 Spacer(modifier = Modifier.width(5.dp))
-                IdSelectionChip(idSelected = viewModel.isVoterSelected, label = stringResource(id = R.string.voter_id)) {
+                IdSelectionChip(
+                    idSelected = viewModel.isVoterSelected,
+                    label = stringResource(id = R.string.voter_id)
+                ) {
                     viewModel.isVoterSelected = !it
                 }
                 Spacer(modifier = Modifier.width(5.dp))
-                IdSelectionChip(idSelected = viewModel.isPatientSelected, label = stringResource(id = R.string.patient_id)) {
+                IdSelectionChip(
+                    idSelected = viewModel.isPatientSelected,
+                    label = stringResource(id = R.string.patient_id)
+                ) {
                     viewModel.isPatientSelected = !it
                 }
             }
@@ -101,8 +110,8 @@ fun PatientRegistrationStepTwo(
                         !viewModel.passportPattern.matches(viewModel.passportId)
                 }
                 IdLength(viewModel.passportId, viewModel.maxPassportIdLength, "PASSPORT_ID_LENGTH")
-            } else{
-                viewModel.passportId =""
+            } else {
+                viewModel.passportId = ""
             }
             if (viewModel.isVoterSelected) {
                 Spacer(modifier = Modifier.height(5.dp))
@@ -119,8 +128,8 @@ fun PatientRegistrationStepTwo(
                     viewModel.isVoterValid = !viewModel.voterPattern.matches(viewModel.voterId)
                 }
                 IdLength(viewModel.voterId, viewModel.maxVoterIdLength, "VOTER_ID_LENGTH")
-            }else{
-                viewModel.voterId=""
+            } else {
+                viewModel.voterId = ""
             }
             if (viewModel.isPatientSelected) {
                 Spacer(modifier = Modifier.height(5.dp))
@@ -137,8 +146,8 @@ fun PatientRegistrationStepTwo(
                     viewModel.isPatientValid = viewModel.patientId.length < 10
                 }
                 IdLength(viewModel.patientId, viewModel.maxPatientIdLength, "PATIENT_ID_LENGTH")
-            }else{
-                viewModel.patientId =""
+            } else {
+                viewModel.patientId = ""
             }
         }
         Button(

@@ -200,7 +200,10 @@ internal fun <T> List<T>.toNoBracketAndNoSpaceString(): String {
     return this.toString().replace("[", "").replace("]", "").replace(" ", "")
 }
 
-internal suspend fun PrescriptionResponse.toPrescriptionEntity(patientDao: PatientDao, appointmentDao: AppointmentDao): PrescriptionEntity {
+internal suspend fun PrescriptionResponse.toPrescriptionEntity(
+    patientDao: PatientDao,
+    appointmentDao: AppointmentDao
+): PrescriptionEntity {
     return PrescriptionEntity(
         id = prescriptionId,
         prescriptionDate = generatedOn,

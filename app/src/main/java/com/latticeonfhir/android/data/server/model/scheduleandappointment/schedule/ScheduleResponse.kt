@@ -13,4 +13,4 @@ data class ScheduleResponse(
     val planningHorizon: Slot,
     val orgId: String,
     val bookedSlots: Int?
-): Parcelable
+) : Parcelable

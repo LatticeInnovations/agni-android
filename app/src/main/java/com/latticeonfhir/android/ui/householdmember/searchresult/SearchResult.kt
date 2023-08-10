@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -30,11 +31,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.*
+import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -85,10 +87,16 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
             Box(modifier = Modifier.padding(it)) {
                 val patientsList = viewModel.searchResultList.collectAsLazyPagingItems()
                 LazyColumn(modifier = Modifier.padding(20.dp)) {
-                    items(patientsList) { patient ->
-                        if (patient != null) {
-                            SearchResultRow(patient, viewModel)
-                        }
+                    items(
+        count = patientsList.itemCount,
+        key = patientsList.itemKey(),
+        contentType = patientsList.itemContentType(
+            )
+    ) { index ->
+        val item = patientsList[index]
+        if (item != null) {
+            SearchResultRow(item, viewModel)
+        }
                     }
                     when (patientsList.loadState.append) {
                         is LoadState.NotLoading -> Unit
@@ -136,7 +144,10 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
                         .fillMaxWidth()
                         .padding(start = 30.dp)
                 ) {
-                    Text(text = stringResource(id = R.string.connect), style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        text = stringResource(id = R.string.connect),
+                        style = MaterialTheme.typography.labelLarge
+                    )
                 }
             }
         }
@@ -183,7 +194,9 @@ fun SearchResultRow(patient: PatientResponse, viewModel: SearchResultViewModel) 
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "${patient.gender[0].uppercase()}/${patient.birthDate.toTimeInMilli().toAge()} · PID ${patient.fhirId}",
+                text = "${patient.gender[0].uppercase()}/${
+                    patient.birthDate.toTimeInMilli().toAge()
+                } · PID ${patient.fhirId}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

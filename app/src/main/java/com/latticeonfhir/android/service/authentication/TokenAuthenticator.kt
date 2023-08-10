@@ -10,7 +10,7 @@ import okhttp3.Route
 
 class TokenAuthenticator(private val preferenceStorage: PreferenceStorage) : Authenticator {
 
-    override fun authenticate(route: Route?, response: Response): Request? {
+    override fun authenticate(route: Route?, response: Response): Request {
         return if (preferenceStorage.token.isNotBlank()) {
             response.request.newBuilder()
                 .header(X_ACCESS_TOKEN, String.format(BEARER_TOKEN_BUILDER, getAuthToken()))

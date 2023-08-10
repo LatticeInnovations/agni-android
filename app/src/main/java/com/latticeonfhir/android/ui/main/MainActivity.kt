@@ -36,7 +36,10 @@ class MainActivity : BaseActivity() {
         setContent {
             FHIRAndroidTheme {
                 val navController = rememberNavController()
-                NavigationAppHost(navController = navController, startDest = viewModel.startDestination)
+                NavigationAppHost(
+                    navController = navController,
+                    startDest = viewModel.startDestination
+                )
             }
         }
     }
@@ -73,13 +76,13 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    fun registerBroadcastReceiver(){
+    fun registerBroadcastReceiver() {
         startSMSRetrieverClient()
         val intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
         registerReceiver(smsVerificationBroadcastReceiver, intentFilter)
     }
 
-    fun unregisterBroadcastReceiver(){
+    fun unregisterBroadcastReceiver() {
         unregisterReceiver(smsVerificationBroadcastReceiver)
     }
 

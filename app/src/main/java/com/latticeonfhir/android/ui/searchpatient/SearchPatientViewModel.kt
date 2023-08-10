@@ -10,7 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchPatientViewModel @Inject constructor(): BaseViewModel() {
+class SearchPatientViewModel @Inject constructor() : BaseViewModel() {
     val onlyNumbers = Regex("^\\d+\$")
     var isLaunched by mutableStateOf(false)
     var fromHouseholdMember by mutableStateOf(false)
@@ -30,7 +30,7 @@ class SearchPatientViewModel @Inject constructor(): BaseViewModel() {
 
     var address = Address()
 
-    fun updateRange(minAge: String, maxAge: String){
+    fun updateRange(minAge: String, maxAge: String) {
         val min: String
         val max: String
         if (minAge.isEmpty()) min = "0" else min = minAge

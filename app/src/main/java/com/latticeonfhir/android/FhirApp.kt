@@ -26,15 +26,20 @@ import javax.inject.Inject
 @HiltAndroidApp
 class FhirApp : Application() {
 
-    @Inject lateinit var fhirAppDatabase: FhirAppDatabase
-    @Inject lateinit var preferenceStorage: PreferenceStorage
-    @Inject lateinit var patientApiService: PatientApiService
-    @Inject lateinit var prescriptionApiService: PrescriptionApiService
-    @Inject lateinit var scheduleAndAppointmentApiService: ScheduleAndAppointmentApiService
+    @Inject
+    lateinit var fhirAppDatabase: FhirAppDatabase
+    @Inject
+    lateinit var preferenceStorage: PreferenceStorage
+    @Inject
+    lateinit var patientApiService: PatientApiService
+    @Inject
+    lateinit var prescriptionApiService: PrescriptionApiService
+    @Inject
+    lateinit var scheduleAndAppointmentApiService: ScheduleAndAppointmentApiService
 
     private lateinit var syncRepository: SyncRepository
     private lateinit var workRequestBuilder: WorkRequestBuilders
-    val sessionExpireFlow = MutableStateFlow(emptyMap<String,Any>())
+    val sessionExpireFlow = MutableStateFlow(emptyMap<String, Any>())
 
     override fun onCreate() {
         super.onCreate()
@@ -56,7 +61,7 @@ class FhirApp : Application() {
             fhirAppDatabase.getAppointmentDao()
         )
 
-        if(!this::workRequestBuilder.isInitialized) {
+        if (!this::workRequestBuilder.isInitialized) {
             workRequestBuilder = WorkRequestBuilders(
                 this,
                 GenericRepositoryImpl(

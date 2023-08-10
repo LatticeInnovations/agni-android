@@ -12,7 +12,10 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiError
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiNullResponse
 import kotlinx.coroutines.delay
 
-abstract class AppointmentPatchUploadSyncWorker(context: Context, workerParameters: WorkerParameters) :
+abstract class AppointmentPatchUploadSyncWorker(
+    context: Context,
+    workerParameters: WorkerParameters
+) :
     SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
@@ -25,14 +28,15 @@ abstract class AppointmentPatchUploadSyncWorker(context: Context, workerParamete
                     setProgress(workDataOf(ErrorConstants.ERROR_MESSAGE to response.errorMessage))
                     delay(5000)
                     Result.failure()
-                }
-                else Result.retry()
+                } else Result.retry()
             }
+
             is ApiEmptyResponse -> {
                 setProgress(workDataOf(AppointmentPatchUpload to 100))
                 delay(5000)
                 Result.success()
             }
+
             is ApiNullResponse -> Result.failure()
         }
     }

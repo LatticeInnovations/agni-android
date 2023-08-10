@@ -18,7 +18,11 @@ interface GenericDao {
 
     @Transaction
     @Query("SELECT * FROM GenericEntity WHERE patientId=:patientId AND type=:genericTypeEnum AND syncType=:syncType")
-    suspend fun getGenericEntityById(patientId: String, genericTypeEnum: GenericTypeEnum, syncType: SyncType): GenericEntity?
+    suspend fun getGenericEntityById(
+        patientId: String,
+        genericTypeEnum: GenericTypeEnum,
+        syncType: SyncType
+    ): GenericEntity?
 
     @Transaction
     @Query("SELECT payload FROM GenericEntity WHERE id=:id")
@@ -26,7 +30,11 @@ interface GenericDao {
 
     @Transaction
     @Query("SELECT * FROM GenericEntity WHERE type=:genericTypeEnum AND syncType=:syncType LIMIT :limit")
-    suspend fun getSameTypeGenericEntityPayload(genericTypeEnum: GenericTypeEnum, syncType: SyncType, limit: Int = 10): List<GenericEntity>
+    suspend fun getSameTypeGenericEntityPayload(
+        genericTypeEnum: GenericTypeEnum,
+        syncType: SyncType,
+        limit: Int = 10
+    ): List<GenericEntity>
 
     @Transaction
     @Query("DELETE FROM GenericEntity WHERE id IN (:ids)")
@@ -34,5 +42,8 @@ interface GenericDao {
 
     @Transaction
     @Query("SELECT * FROM GenericEntity WHERE type=:genericTypeEnum AND syncType=:syncType")
-    suspend fun getNotSyncedData(genericTypeEnum: GenericTypeEnum, syncType: SyncType = SyncType.POST): List<GenericEntity>
+    suspend fun getNotSyncedData(
+        genericTypeEnum: GenericTypeEnum,
+        syncType: SyncType = SyncType.POST
+    ): List<GenericEntity>
 }

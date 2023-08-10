@@ -64,15 +64,16 @@ class ScheduleAppointmentViewModel @Inject constructor(
                 selectedDate.toTodayStartDate(),
                 selectedDate.toEndOfDay()
             ).let { existingAppointment ->
-                if (existingAppointment != null){
+                if (existingAppointment != null) {
                     // free the slot of previous schedule
-                    scheduleRepository.getScheduleByStartTime(existingAppointment.scheduleId.time).let { scheduleResponse ->
-                        scheduleRepository.updateSchedule(
-                            scheduleResponse!!.copy(
-                                bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+                    scheduleRepository.getScheduleByStartTime(existingAppointment.scheduleId.time)
+                        .let { scheduleResponse ->
+                            scheduleRepository.updateSchedule(
+                                scheduleResponse!!.copy(
+                                    bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+                                )
                             )
-                        )
-                    }
+                        }
                     // check for new schedule
                     var scheduleId = selectedSlot.toCurrentTimeInMillis(
                         selectedDate
