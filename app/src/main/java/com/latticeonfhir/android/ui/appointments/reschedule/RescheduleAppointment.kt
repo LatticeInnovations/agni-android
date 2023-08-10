@@ -135,7 +135,8 @@ fun RescheduleAppointment(
                             viewModel.selectedDate = Date().tomorrow()
                             viewModel.weekList = viewModel.selectedDate.toWeekList()
                         },
-                        enabled = viewModel.selectedDate.toSlotDate() != Date().tomorrow().toSlotDate()
+                        enabled = viewModel.selectedDate.toSlotDate() != Date().tomorrow().toSlotDate(),
+                        modifier = Modifier.testTag("RESET_BTN")
                     ) {
                         Text(text = stringResource(id = R.string.reset))
                     }
@@ -173,7 +174,9 @@ fun RescheduleAppointment(
                         .wrapContentSize()
                 ) {
                     Row(
-                        modifier = Modifier.clickable(
+                        modifier = Modifier
+                            .testTag("DATE_DROPDOWN")
+                            .clickable(
                             interactionSource = MutableInteractionSource(),
                             indication = null
                         ) {
@@ -200,7 +203,8 @@ fun RescheduleAppointment(
                             .height(55.dp)
                     )
                     LazyRow(
-                        state = dateScrollState
+                        state = dateScrollState,
+                        modifier = Modifier.testTag("DAYS_TAB_ROW")
                     ) {
                         items(viewModel.weekList) { date ->
                             SuggestionChip(
@@ -224,7 +228,8 @@ fun RescheduleAppointment(
                                     }
                                 },
                                 modifier = Modifier
-                                    .padding(horizontal = 5.dp),
+                                    .padding(horizontal = 5.dp)
+                                    .testTag("DAYS_CHIP"),
                                 colors = SuggestionChipDefaults.suggestionChipColors(
                                     containerColor = if (viewModel.selectedDate == date) MaterialTheme.colorScheme.primary
                                     else MaterialTheme.colorScheme.surface,
@@ -274,7 +279,8 @@ fun RescheduleAppointment(
                             index,
                             stringArrayResource(id = R.array.morning_slot_timings),
                             slots,
-                            viewModel.selectedSlot
+                            viewModel.selectedSlot,
+                            "MORNING_SLOT_CHIPS"
                         ) { slot ->
                             if (viewModel.selectedSlot == slot) viewModel.selectedSlot = ""
                             else viewModel.selectedSlot = slot
@@ -307,7 +313,8 @@ fun RescheduleAppointment(
                             index,
                             stringArrayResource(id = R.array.afternoon_slot_timings),
                             slots,
-                            viewModel.selectedSlot
+                            viewModel.selectedSlot,
+                            "AFTERNOON_SLOT_CHIPS"
                         ) { slot ->
                             if (viewModel.selectedSlot == slot) viewModel.selectedSlot = ""
                             else viewModel.selectedSlot = slot
@@ -340,7 +347,8 @@ fun RescheduleAppointment(
                             index,
                             stringArrayResource(id = R.array.evening_slot_timings),
                             slots,
-                            viewModel.selectedSlot
+                            viewModel.selectedSlot,
+                            "EVENING_SLOT_CHIPS"
                         ) { slot ->
                             if (viewModel.selectedSlot == slot) viewModel.selectedSlot = ""
                             else viewModel.selectedSlot = slot
@@ -394,7 +402,8 @@ fun RescheduleAppointment(
                         state = datePickerState,
                         dateValidator = { date ->
                             date >= Date().tomorrow().toTodayStartDate() && date <= Date().toOneYearFuture().time
-                        }
+                        },
+                        modifier = Modifier.testTag("DATE_PICKER_DIALOG")
                     )
                 }
             }
@@ -427,6 +436,7 @@ fun RescheduleAppointment(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 30.dp)
+                        .testTag("CONFIRM_APPOINTMENT_BTN")
                 ) {
                     Text(
                         text = stringResource(id = R.string.confirm_appointment),
