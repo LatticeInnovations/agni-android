@@ -63,7 +63,9 @@ class RescheduleAppointmentViewModel @Inject constructor(
                 selectedDate.toTodayStartDate(),
                 selectedDate.toEndOfDay()
             ).let { todaysAppointment ->
-                if (todaysAppointment == null || todaysAppointment == appointment) appointmentExists(false)
+                if (todaysAppointment == null || todaysAppointment == appointment) appointmentExists(
+                    false
+                )
                 else {
                     existingAppointmentTime = todaysAppointment.slot.start.toAppointmentTime()
                     appointmentExists(true)

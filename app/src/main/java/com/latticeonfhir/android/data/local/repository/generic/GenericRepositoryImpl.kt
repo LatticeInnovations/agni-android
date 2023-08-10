@@ -27,6 +27,9 @@ import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -166,8 +169,12 @@ class GenericRepositoryImpl @Inject constructor(
                     genericDao.insertGenericEntity(
                         prescriptionGenericEntity.copy(
                             payload = existingMap.copy(
-                                patientFhirId = if(!existingMap.patientFhirId.isFhirId()) getPatientFhirIdById(existingMap.patientFhirId)!! else existingMap.patientFhirId,
-                                appointmentId = if(!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(existingMap.appointmentId)!! else existingMap.appointmentId
+                                patientFhirId = if (!existingMap.patientFhirId.isFhirId()) getPatientFhirIdById(
+                                    existingMap.patientFhirId
+                                )!! else existingMap.patientFhirId,
+                                appointmentId = if (!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(
+                                    existingMap.appointmentId
+                                )!! else existingMap.appointmentId
                             ).toJson()
                         )
                     )
@@ -239,7 +246,8 @@ class GenericRepositoryImpl @Inject constructor(
                         genericDao.insertGenericEntity(
                             appointmentGenericEntity.copy(
                                 payload = existingMap.copy(
-                                    appointmentId = getAppointmentFhirIdById(existingMap.appointmentId)?:existingMap.appointmentId
+                                    appointmentId = getAppointmentFhirIdById(existingMap.appointmentId)
+                                        ?: existingMap.appointmentId
                                 ).toJson()
                             )
                         )
@@ -441,7 +449,9 @@ class GenericRepositoryImpl @Inject constructor(
         return appointmentDao.getAppointmentById(appointmentId)[0].appointmentFhirId
     }
 
-    private suspend fun runWorkers() {
-        workRequestBuilders.setOneTimeTriggerWorker()
+    private fun runWorkers() {
+        CoroutineScope(Dispatchers.IO).launch {
+            workRequestBuilders.setOneTimeTriggerWorker()
+        }
     }
 }

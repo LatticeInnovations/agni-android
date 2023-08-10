@@ -22,11 +22,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 
@@ -49,7 +49,10 @@ fun AddHouseholdMember(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = stringResource(id = R.string.add_household_member), modifier = Modifier.testTag("TITLE"))
+                    Text(
+                        text = stringResource(id = R.string.add_household_member),
+                        modifier = Modifier.testTag("TITLE")
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = {

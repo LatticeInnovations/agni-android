@@ -19,7 +19,7 @@ import com.latticeonfhir.android.navigation.Screen
 @Composable
 fun SearchPatient(
     navController: NavController,
-    viewModel : SearchPatientViewModel = viewModel()
+    viewModel: SearchPatientViewModel = viewModel()
 ) {
     LaunchedEffect(viewModel.isLaunched) {
         if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
@@ -87,7 +87,7 @@ fun SearchPatient(
                         lastFacilityVisit = viewModel.visitSelected,
                         gender = if (viewModel.gender.isEmpty()) null else viewModel.gender
                     )
-                    if (viewModel.fromHouseholdMember){
+                    if (viewModel.fromHouseholdMember) {
                         navController.currentBackStackEntry?.savedStateHandle?.set(
                             "searchParameters", searchParameters
                         )
@@ -109,7 +109,10 @@ fun SearchPatient(
                     .fillMaxWidth()
                     .padding(start = 30.dp)
             ) {
-                Text(text = stringResource(id = R.string.search), style = MaterialTheme.typography.labelLarge)
+                Text(
+                    text = stringResource(id = R.string.search),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     )

@@ -22,6 +22,7 @@ abstract class PatientDownloadSyncWorker(context: Context, workerParameters: Wor
                 setProgress(workDataOf(PatientDownloadProgress to 100))
                 Result.success()
             }
+
             is ApiEmptyResponse -> Result.failure()
             is ApiErrorResponse -> {
                 if (response.errorMessage == ErrorConstants.SESSION_EXPIRED || response.errorMessage == ErrorConstants.UNAUTHORIZED) Result.failure(
@@ -29,6 +30,7 @@ abstract class PatientDownloadSyncWorker(context: Context, workerParameters: Wor
                 )
                 else Result.retry()
             }
+
             else -> Result.retry()
         }
     }

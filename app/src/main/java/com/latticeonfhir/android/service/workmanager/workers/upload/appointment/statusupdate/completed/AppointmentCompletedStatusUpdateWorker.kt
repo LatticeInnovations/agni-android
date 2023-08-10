@@ -20,7 +20,10 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentResponse
 import java.util.Date
 
-abstract class AppointmentCompletedStatusUpdateWorker (context: Context, workerParameters: WorkerParameters) :
+abstract class AppointmentCompletedStatusUpdateWorker(
+    context: Context,
+    workerParameters: WorkerParameters
+) :
     SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {

@@ -126,7 +126,8 @@ class SyncRepositoryImpl @Inject constructor(
                     )
 
                     //Insert Patient Data
-                    patientDao.insertIdentifiers(*identifierList!!.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }.toTypedArray())
+                    patientDao.insertIdentifiers(*identifierList!!.filter { it.identifierCode != IdentifierCodeEnum.MEDICAL_RECORD.value }
+                        .toTypedArray())
 
                     //Clear Lists
                     resetGenericEntityList()
@@ -398,7 +399,8 @@ class SyncRepositoryImpl @Inject constructor(
                 is ApiContinueResponse -> {
                     //Insert Schedule Data
                     scheduleDao.insertScheduleEntity(*body.map { scheduleResponse ->
-                        scheduleResponse.toScheduleEntity() }.toTypedArray())
+                        scheduleResponse.toScheduleEntity()
+                    }.toTypedArray())
 
                     //Call for next batch data
                     getAndInsertSchedule(offset + COUNT_VALUE)
@@ -408,7 +410,8 @@ class SyncRepositoryImpl @Inject constructor(
                     preferenceRepository.setLastSyncSchedule(Date().time)
                     scheduleDao.insertScheduleEntity(
                         *body.map { scheduleResponse ->
-                            scheduleResponse.toScheduleEntity() }.toTypedArray()
+                            scheduleResponse.toScheduleEntity()
+                        }.toTypedArray()
                     )
                     this
                 }
@@ -436,7 +439,8 @@ class SyncRepositoryImpl @Inject constructor(
                 is ApiContinueResponse -> {
                     //Insert Appointment Data
                     appointmentDao.insertAppointmentEntity(*body.map { appointmentResponse ->
-                        appointmentResponse.toAppointmentEntity(patientDao, scheduleDao) }.toTypedArray())
+                        appointmentResponse.toAppointmentEntity(patientDao, scheduleDao)
+                    }.toTypedArray())
 
                     //Call for next batch data
                     getAndInsertAppointment(offset + COUNT_VALUE)
@@ -446,7 +450,8 @@ class SyncRepositoryImpl @Inject constructor(
                     preferenceRepository.setLastSyncAppointment(Date().time)
                     appointmentDao.insertAppointmentEntity(
                         *body.map { appointmentResponse ->
-                            appointmentResponse.toAppointmentEntity(patientDao, scheduleDao) }.toTypedArray()
+                            appointmentResponse.toAppointmentEntity(patientDao, scheduleDao)
+                        }.toTypedArray()
                     )
                     this
                 }
@@ -491,10 +496,12 @@ class SyncRepositoryImpl @Inject constructor(
         ).let { listOfRelatedEntity ->
             if (listOfRelatedEntity.isEmpty()) ApiEmptyResponse()
             else ApiResponseConverter.convert(
-                patientApiService.createData(RELATED_PERSON, listOfRelatedEntity.map { relationGenericEntity ->
-                    relationGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>()
-                        .mapToObject(RelatedPersonResponse::class.java) as Any
-                })
+                patientApiService.createData(
+                    RELATED_PERSON,
+                    listOfRelatedEntity.map { relationGenericEntity ->
+                        relationGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>()
+                            .mapToObject(RelatedPersonResponse::class.java) as Any
+                    })
             ).run {
                 when (this) {
                     is ApiEndResponse -> {
@@ -520,7 +527,8 @@ class SyncRepositoryImpl @Inject constructor(
                     prescriptionApiService.postPrescriptionRelatedData(
                         MEDICATION_REQUEST,
                         listOfGenericEntity.map { prescriptionGenericEntity ->
-                            prescriptionGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>().mapToObject(PrescriptionResponse::class.java)!!
+                            prescriptionGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>()
+                                .mapToObject(PrescriptionResponse::class.java)!!
                         }
                     )
                 ).run {
@@ -572,11 +580,13 @@ class SyncRepositoryImpl @Inject constructor(
                                         createResponse.id!!, createResponse.fhirId!!
                                     )
                                 }
+
                                 SCHEDULE_EXISTS -> {
                                     scheduleDao.updateScheduleFhirId(
                                         createResponse.id!!, createResponse.fhirId!!
                                     )
                                 }
+
                                 else -> {
                                     idsToDelete.remove(createResponse.id)
                                 }

@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository

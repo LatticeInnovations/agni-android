@@ -7,7 +7,7 @@ import java.util.Date
 
 @Keep
 @Entity
-data class ScheduleEntity (
+data class ScheduleEntity(
     val id: String,
     val scheduleFhirId: String?,
     @PrimaryKey

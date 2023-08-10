@@ -42,7 +42,7 @@ fun CustomTextField(
         },
         singleLine = true,
         keyboardOptions = KeyboardOptions(
-            imeAction = if(label == stringResource(id = R.string.email)) ImeAction.Done else ImeAction.Next,
+            imeAction = if (label == stringResource(id = R.string.email)) ImeAction.Done else ImeAction.Next,
             keyboardType = keyboardType
         ),
         isError = isError,
