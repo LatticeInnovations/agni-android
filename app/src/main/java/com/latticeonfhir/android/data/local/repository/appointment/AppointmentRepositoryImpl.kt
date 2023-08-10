@@ -27,7 +27,8 @@ class AppointmentRepositoryImpl @Inject constructor(private val appointmentDao: 
         startOfDay: Long,
         endOfDay: Long
     ): AppointmentResponseLocal? {
-        return appointmentDao.getAppointmentOfPatientByDate(patientId, startOfDay, endOfDay)?.toAppointmentResponseLocal()
+        return appointmentDao.getAppointmentOfPatientByDate(patientId, startOfDay, endOfDay)
+            ?.toAppointmentResponseLocal()
     }
 
     override suspend fun updateAppointment(appointmentResponseLocal: AppointmentResponseLocal): Int {

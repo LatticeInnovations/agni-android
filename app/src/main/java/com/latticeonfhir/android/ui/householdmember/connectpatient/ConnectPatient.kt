@@ -60,19 +60,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import androidx.lifecycle.viewmodel.compose.*
+import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,7 +145,7 @@ fun ConnectPatient(
                         enter = expandVertically(),
                         exit = shrinkVertically()
                     ) {
-                        Column() {
+                        Column {
                             Text(
                                 text = stringResource(id = R.string.connected_patients),
                                 style = MaterialTheme.typography.bodyLarge
@@ -303,8 +304,7 @@ fun ConnectPatient(
                             Screen.HouseholdMembersScreen.route,
                             false
                         )
-                    }
-                    else {
+                    } else {
                         viewModel.showConfirmDialog = true
                     }
 
@@ -418,7 +418,7 @@ fun DeleteDialog(
             )
         },
         text = {
-            Column() {
+            Column {
                 Text(
                     "Are you sure you want to remove this relationship? Patient records will not be affected.",
                     style = MaterialTheme.typography.bodyMedium
@@ -497,7 +497,7 @@ fun EditDialog(
     var relation by remember {
         mutableStateOf(
             RelationConverter.getRelationFromRelationEnum(context, relationView.relation)
-                .capitalize()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         )
     }
     AlertDialog(
@@ -530,7 +530,7 @@ fun EditDialog(
                         style = MaterialTheme.typography.bodyLarge
                     )
                     Spacer(modifier = Modifier.width(10.dp))
-                    Column() {
+                    Column {
                         val relationsList =
                             RelationshipList.getRelationshipList(relationView.patientGender)
 
@@ -660,7 +660,9 @@ fun PatientRow(member: PatientResponse, viewModel: ConnectPatientViewModel) {
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "${member.gender[0].uppercase()}/${member.birthDate.toTimeInMilli().toAge()} · PID ${member.fhirId}",
+                text = "${member.gender[0].uppercase()}/${
+                    member.birthDate.toTimeInMilli().toAge()
+                } · PID ${member.fhirId}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -722,7 +724,11 @@ fun ConnectMemberDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         val relationsList =
-                            viewModel.patientFrom?.gender?.let { RelationshipList.getRelationshipList(it) }
+                            viewModel.patientFrom?.gender?.let {
+                                RelationshipList.getRelationshipList(
+                                    it
+                                )
+                            }
                         TextField(
                             value = relation,
                             onValueChange = {},

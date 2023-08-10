@@ -91,198 +91,198 @@ class EditIdentificationViewModel @Inject constructor(
         passportId = passportIdTemp
         voterId = voterIdTemp
         patientId = patientIdTemp
-        isPassportValid =false
-        isVoterValid= false
-        isPatientValid =false
+        isPassportValid = false
+        isVoterValid = false
+        isPatientValid = false
         return true
     }
 
-     fun updateBasicInfo(patientResponse: PatientResponse) {
-         viewModelScope.launch(Dispatchers.IO) {
-             val toBeDeletedList = mutableListOf<PatientIdentifier>()
-             if (passportIdTemp != passportId || !isPassportSelected) {
-                 toBeDeletedList.add(
-                     PatientIdentifier(
-                         identifierType = IdentificationConstants.PASSPORT_TYPE,
-                         identifierNumber = passportIdTemp,
-                         code = null
-                     )
-                 )
-             }
+    fun updateBasicInfo(patientResponse: PatientResponse) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val toBeDeletedList = mutableListOf<PatientIdentifier>()
+            if (passportIdTemp != passportId || !isPassportSelected) {
+                toBeDeletedList.add(
+                    PatientIdentifier(
+                        identifierType = IdentificationConstants.PASSPORT_TYPE,
+                        identifierNumber = passportIdTemp,
+                        code = null
+                    )
+                )
+            }
 
-             if (voterIdTemp != voterId || !isPassportSelected) {
-                 toBeDeletedList.add(
-                     PatientIdentifier(
-                         identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                         identifierNumber = voterIdTemp,
-                         code = null
-                     )
-                 )
-             }
-             if (patientIdTemp != patientId || !isPassportSelected) {
-                 toBeDeletedList.add(
-                     PatientIdentifier(
-                         identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                         identifierNumber = patientIdTemp,
-                         code = null
-                     )
-                 )
-             }
+            if (voterIdTemp != voterId || !isPassportSelected) {
+                toBeDeletedList.add(
+                    PatientIdentifier(
+                        identifierType = IdentificationConstants.VOTER_ID_TYPE,
+                        identifierNumber = voterIdTemp,
+                        code = null
+                    )
+                )
+            }
+            if (patientIdTemp != patientId || !isPassportSelected) {
+                toBeDeletedList.add(
+                    PatientIdentifier(
+                        identifierType = IdentificationConstants.PATIENT_ID_TYPE,
+                        identifierNumber = patientIdTemp,
+                        code = null
+                    )
+                )
+            }
 
-             identifierRepository.deleteIdentifier(
-                 patientIdentifier = toBeDeletedList.toTypedArray(),
-                 patientId = patientResponse.id
-             )
+            identifierRepository.deleteIdentifier(
+                patientIdentifier = toBeDeletedList.toTypedArray(),
+                patientId = patientResponse.id
+            )
 
-             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
-             if (response > 0) {
-                 identifierRepository.insertIdentifierList(patientResponse = patientResponse)
-
-
-                 if (patientResponse.fhirId != null) {
-                     val list = mutableListOf<ChangeRequest>()
-
-                     if (passportId != passportIdTemp && passportId.isEmpty() && passportIdTemp.isNotEmpty()) {
+            val response = patientRepository.updatePatientData(patientResponse = patientResponse)
+            if (response > 0) {
+                identifierRepository.insertIdentifierList(patientResponse = patientResponse)
 
 
-                         list.add(
-                             ChangeRequest(
-                                 value = PatientIdentifier(
-                                     identifierType = IdentificationConstants.PASSPORT_TYPE,
-                                     identifierNumber = passportIdTemp,
-                                     code = null
-                                 ), operation = ChangeTypeEnum.REMOVE.value,
-                                 key = IdentificationConstants.PASSPORT_TYPE
-                             )
+                if (patientResponse.fhirId != null) {
+                    val list = mutableListOf<ChangeRequest>()
 
-                         )
+                    if (passportId != passportIdTemp && passportId.isEmpty() && passportIdTemp.isNotEmpty()) {
 
-                     } else if (passportId != passportIdTemp && passportIdTemp.isNotEmpty() && passportId.isNotEmpty()) {
-                         list.add(
-                             ChangeRequest(
-                                 value = PatientIdentifier(
-                                     identifierType = IdentificationConstants.PASSPORT_TYPE,
-                                     identifierNumber = passportId,
-                                     code = null
-                                 ), operation = ChangeTypeEnum.REPLACE.value,
-                                 key = IdentificationConstants.PASSPORT_TYPE
-                             )
 
-                         )
+                        list.add(
+                            ChangeRequest(
+                                value = PatientIdentifier(
+                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
+                                    identifierNumber = passportIdTemp,
+                                    code = null
+                                ), operation = ChangeTypeEnum.REMOVE.value,
+                                key = IdentificationConstants.PASSPORT_TYPE
+                            )
 
-                     } else if (passportId != passportIdTemp && passportIdTemp.isEmpty() && passportId.isNotEmpty()) {
-                         list.add(
-                             ChangeRequest(
-                                 value = PatientIdentifier(
-                                     identifierType = IdentificationConstants.PASSPORT_TYPE,
-                                     identifierNumber = passportId,
-                                     code = null
-                                 ), operation = ChangeTypeEnum.ADD.value,
-                                 key = IdentificationConstants.PASSPORT_TYPE
-                             )
+                        )
 
-                         )
+                    } else if (passportId != passportIdTemp && passportIdTemp.isNotEmpty() && passportId.isNotEmpty()) {
+                        list.add(
+                            ChangeRequest(
+                                value = PatientIdentifier(
+                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
+                                    identifierNumber = passportId,
+                                    code = null
+                                ), operation = ChangeTypeEnum.REPLACE.value,
+                                key = IdentificationConstants.PASSPORT_TYPE
+                            )
 
-                     }
+                        )
 
-                     if (voterId != voterIdTemp && voterId.isEmpty() && voterIdTemp.isNotEmpty()) {
-                         list.add(
-                             ChangeRequest(
-                                 value = PatientIdentifier(
-                                     identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                                     identifierNumber = voterIdTemp,
-                                     code = null
-                                 ), operation = ChangeTypeEnum.REMOVE.value,
-                                 key = IdentificationConstants.VOTER_ID_TYPE
-                             )
+                    } else if (passportId != passportIdTemp && passportIdTemp.isEmpty() && passportId.isNotEmpty()) {
+                        list.add(
+                            ChangeRequest(
+                                value = PatientIdentifier(
+                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
+                                    identifierNumber = passportId,
+                                    code = null
+                                ), operation = ChangeTypeEnum.ADD.value,
+                                key = IdentificationConstants.PASSPORT_TYPE
+                            )
 
-                         )
+                        )
 
-                     } else if (voterId != voterIdTemp && voterIdTemp.isNotEmpty() && voterId.isNotEmpty()) {
-                         list.add(
-                             ChangeRequest(
-                                 value = PatientIdentifier(
-                                     identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                                     identifierNumber = voterId,
-                                     code = null
-                                 ), operation = ChangeTypeEnum.REPLACE.value,
-                                 key = IdentificationConstants.VOTER_ID_TYPE
-                             )
-                         )
+                    }
 
-                     } else if (voterId != voterIdTemp && voterIdTemp.isEmpty() && voterId.isNotEmpty()) {
-                         list.add(
-                             ChangeRequest(
-                                 value = PatientIdentifier(
-                                     identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                                     identifierNumber = voterId,
-                                     code = null
-                                 ), operation = ChangeTypeEnum.ADD.value,
-                                 key = IdentificationConstants.VOTER_ID_TYPE
-                             )
+                    if (voterId != voterIdTemp && voterId.isEmpty() && voterIdTemp.isNotEmpty()) {
+                        list.add(
+                            ChangeRequest(
+                                value = PatientIdentifier(
+                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
+                                    identifierNumber = voterIdTemp,
+                                    code = null
+                                ), operation = ChangeTypeEnum.REMOVE.value,
+                                key = IdentificationConstants.VOTER_ID_TYPE
+                            )
 
-                         )
+                        )
 
-                     }
+                    } else if (voterId != voterIdTemp && voterIdTemp.isNotEmpty() && voterId.isNotEmpty()) {
+                        list.add(
+                            ChangeRequest(
+                                value = PatientIdentifier(
+                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
+                                    identifierNumber = voterId,
+                                    code = null
+                                ), operation = ChangeTypeEnum.REPLACE.value,
+                                key = IdentificationConstants.VOTER_ID_TYPE
+                            )
+                        )
 
-                     if (patientId != patientIdTemp && patientId.isEmpty() && patientIdTemp.isNotEmpty()) {
-                         list.add(
-                             ChangeRequest(
-                                 value = PatientIdentifier(
-                                     identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                                     identifierNumber = patientIdTemp,
-                                     code = null
-                                 ), operation = ChangeTypeEnum.REMOVE.value,
-                                 key = IdentificationConstants.PATIENT_ID_TYPE
-                             )
+                    } else if (voterId != voterIdTemp && voterIdTemp.isEmpty() && voterId.isNotEmpty()) {
+                        list.add(
+                            ChangeRequest(
+                                value = PatientIdentifier(
+                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
+                                    identifierNumber = voterId,
+                                    code = null
+                                ), operation = ChangeTypeEnum.ADD.value,
+                                key = IdentificationConstants.VOTER_ID_TYPE
+                            )
 
-                         )
+                        )
 
-                     } else if (patientId != patientIdTemp && patientIdTemp.isNotEmpty() && patientId.isNotEmpty()) {
-                         list.add(
-                             ChangeRequest(
-                                 value = PatientIdentifier(
-                                     identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                                     identifierNumber = patientId,
-                                     code = null
-                                 ), operation = ChangeTypeEnum.REPLACE.value,
-                                 key = IdentificationConstants.PATIENT_ID_TYPE
-                             )
-                         )
+                    }
 
-                     } else if (patientId != patientIdTemp && patientIdTemp.isEmpty() && patientId.isNotEmpty()) {
-                         list.add(
-                             ChangeRequest(
-                                 value = PatientIdentifier(
-                                     identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                                     identifierNumber = patientId,
-                                     code = null
-                                 ), operation = ChangeTypeEnum.ADD.value,
-                                 key = IdentificationConstants.PATIENT_ID_TYPE
-                             )
+                    if (patientId != patientIdTemp && patientId.isEmpty() && patientIdTemp.isNotEmpty()) {
+                        list.add(
+                            ChangeRequest(
+                                value = PatientIdentifier(
+                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
+                                    identifierNumber = patientIdTemp,
+                                    code = null
+                                ), operation = ChangeTypeEnum.REMOVE.value,
+                                key = IdentificationConstants.PATIENT_ID_TYPE
+                            )
 
-                         )
+                        )
 
-                     }
+                    } else if (patientId != patientIdTemp && patientIdTemp.isNotEmpty() && patientId.isNotEmpty()) {
+                        list.add(
+                            ChangeRequest(
+                                value = PatientIdentifier(
+                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
+                                    identifierNumber = patientId,
+                                    code = null
+                                ), operation = ChangeTypeEnum.REPLACE.value,
+                                key = IdentificationConstants.PATIENT_ID_TYPE
+                            )
+                        )
 
-                     genericRepository.insertOrUpdatePatchEntity(
-                         patientFhirId = patientResponse.fhirId,
-                         map = mapOf(
-                             Pair(
-                                 "identifier",
-                                 list
-                             )
-                         ),
-                         typeEnum = GenericTypeEnum.PATIENT
-                     )
+                    } else if (patientId != patientIdTemp && patientIdTemp.isEmpty() && patientId.isNotEmpty()) {
+                        list.add(
+                            ChangeRequest(
+                                value = PatientIdentifier(
+                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
+                                    identifierNumber = patientId,
+                                    code = null
+                                ), operation = ChangeTypeEnum.ADD.value,
+                                key = IdentificationConstants.PATIENT_ID_TYPE
+                            )
 
-                     Timber.tag("identifier").d(list.toJson())
-                 } else {
-                     genericRepository.insertPatient(
-                         patientResponse
-                     )
-                 }
-             }
-         }
+                        )
+
+                    }
+
+                    genericRepository.insertOrUpdatePatchEntity(
+                        patientFhirId = patientResponse.fhirId,
+                        map = mapOf(
+                            Pair(
+                                "identifier",
+                                list
+                            )
+                        ),
+                        typeEnum = GenericTypeEnum.PATIENT
+                    )
+
+                    Timber.tag("identifier").d(list.toJson())
+                } else {
+                    genericRepository.insertPatient(
+                        patientResponse
+                    )
+                }
+            }
+        }
     }
 }

@@ -17,4 +17,4 @@ data class AppointmentResponseLocal(
     val orgId: String,
     val createdOn: Date,
     val status: String
-): Parcelable
+) : Parcelable

@@ -10,10 +10,11 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndRe
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiNullResponse
 
-abstract class RelationDownloadSyncWorker(context: Context, workerParameters: WorkerParameters): SyncWorker(context,workerParameters) {
+abstract class RelationDownloadSyncWorker(context: Context, workerParameters: WorkerParameters) :
+    SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
-        return when(val response = getSyncRepository().getAndInsertRelation()) {
+        return when (val response = getSyncRepository().getAndInsertRelation()) {
             is ApiEmptyResponse -> Result.success()
             is ApiEndResponse -> Result.success()
             is ApiErrorResponse -> {
@@ -22,6 +23,7 @@ abstract class RelationDownloadSyncWorker(context: Context, workerParameters: Wo
                 )
                 else Result.retry()
             }
+
             is ApiNullResponse -> Result.failure()
             else -> Result.failure()
         }

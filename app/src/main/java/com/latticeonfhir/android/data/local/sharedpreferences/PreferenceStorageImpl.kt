@@ -7,23 +7,59 @@ import com.latticeonfhir.android.utils.sharedpreference.StringPreference
 
 class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : PreferenceStorage {
 
-    override var token by StringPreference(sharedPreferences, PREF_TOKEN,"")
-    override var userFhirId by StringPreference(sharedPreferences, PREF_USER_FHIR_ID,"")
-    override var userName by StringPreference(sharedPreferences, PREF_USER_NAME,"")
-    override var userMobile by LongPreference(sharedPreferences, PREF_USER_MOBILE,0L)
-    override var userEmail by StringPreference(sharedPreferences, PREF_USER_EMAIL,"")
-    override var userRoleId by StringPreference(sharedPreferences, PREF_USER_ROLE_ID,"")
-    override var userRole by StringPreference(sharedPreferences, PREF_USER_ROLE,"")
-    override var organizationFhirId by StringPreference(sharedPreferences, PREF_ORGANIZATION_FHIR_ID,"")
-    override var organization by StringPreference(sharedPreferences, PREF_ORGANIZATION,"")
-    override var roomDBEncryptionKey by StringPreference(sharedPreferences, PREF_ROOM_ENCRYPTION_KEY,"")
-    override var lastPatientSyncTime by LongPreference(sharedPreferences, PREF_LAST_PATIENT_SYNC_TIME,0L)
-    override var lastRelationSyncTime by LongPreference(sharedPreferences, PREF_LAST_RELATION_SYNC_TIME,0L)
-    override var lastPrescriptionSyncTime by LongPreference(sharedPreferences, PREF_LAST_PRESCRIPTION_SYNC_TIME,0L)
-    override var lastMedicationSyncTime by LongPreference(sharedPreferences, PREF_LAST_MEDICATION_SYNC_TIME,0L)
-    override var lastMedicineDosageInstructionSyncTime by LongPreference(sharedPreferences, PREF_LAST_MEDICINE_DOSAGE_INSTRUCTION_SYNC_TIME,0L)
-    override var lastScheduleSyncTime by LongPreference(sharedPreferences, PREF_LAST_SCHEDULE_SYNC_TIME,0L)
-    override var lastAppointmentSyncTime by LongPreference(sharedPreferences, PREF_LAST_APPOINTMENT_SYNC_TIME,0L)
+    override var token by StringPreference(sharedPreferences, PREF_TOKEN, "")
+    override var userFhirId by StringPreference(sharedPreferences, PREF_USER_FHIR_ID, "")
+    override var userName by StringPreference(sharedPreferences, PREF_USER_NAME, "")
+    override var userMobile by LongPreference(sharedPreferences, PREF_USER_MOBILE, 0L)
+    override var userEmail by StringPreference(sharedPreferences, PREF_USER_EMAIL, "")
+    override var userRoleId by StringPreference(sharedPreferences, PREF_USER_ROLE_ID, "")
+    override var userRole by StringPreference(sharedPreferences, PREF_USER_ROLE, "")
+    override var organizationFhirId by StringPreference(
+        sharedPreferences,
+        PREF_ORGANIZATION_FHIR_ID,
+        ""
+    )
+    override var organization by StringPreference(sharedPreferences, PREF_ORGANIZATION, "")
+    override var roomDBEncryptionKey by StringPreference(
+        sharedPreferences,
+        PREF_ROOM_ENCRYPTION_KEY,
+        ""
+    )
+    override var lastPatientSyncTime by LongPreference(
+        sharedPreferences,
+        PREF_LAST_PATIENT_SYNC_TIME,
+        0L
+    )
+    override var lastRelationSyncTime by LongPreference(
+        sharedPreferences,
+        PREF_LAST_RELATION_SYNC_TIME,
+        0L
+    )
+    override var lastPrescriptionSyncTime by LongPreference(
+        sharedPreferences,
+        PREF_LAST_PRESCRIPTION_SYNC_TIME,
+        0L
+    )
+    override var lastMedicationSyncTime by LongPreference(
+        sharedPreferences,
+        PREF_LAST_MEDICATION_SYNC_TIME,
+        0L
+    )
+    override var lastMedicineDosageInstructionSyncTime by LongPreference(
+        sharedPreferences,
+        PREF_LAST_MEDICINE_DOSAGE_INSTRUCTION_SYNC_TIME,
+        0L
+    )
+    override var lastScheduleSyncTime by LongPreference(
+        sharedPreferences,
+        PREF_LAST_SCHEDULE_SYNC_TIME,
+        0L
+    )
+    override var lastAppointmentSyncTime by LongPreference(
+        sharedPreferences,
+        PREF_LAST_APPOINTMENT_SYNC_TIME,
+        0L
+    )
 
     override fun clear() {
         sharedPreferences.edit {

@@ -27,8 +27,12 @@ class AddHouseholdMemberViewModel @Inject constructor(
     var suggestedMembersList = mutableStateListOf<PatientResponse>()
     var selectedSuggestedMembersList = mutableStateListOf<PatientResponse>()
 
-    internal fun getSuggestions(patient: PatientResponse, returnList: (List<PatientResponse>) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal fun getSuggestions(
+        patient: PatientResponse,
+        coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+        returnList: (List<PatientResponse>) -> Unit
+    ) {
+        viewModelScope.launch(coroutineDispatcher) {
             searchRepository.getSuggestedMembers(
                 patient.id,
                 SearchParameters(

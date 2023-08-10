@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 
-class PatientRegistrationStepTwoViewModel: BaseViewModel(), DefaultLifecycleObserver {
+class PatientRegistrationStepTwoViewModel : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
 
     val maxPassportIdLength = 8
@@ -26,14 +26,14 @@ class PatientRegistrationStepTwoViewModel: BaseViewModel(), DefaultLifecycleObse
     var isVoterValid by mutableStateOf(false)
     var isPatientValid by mutableStateOf(false)
 
-    fun identityInfoValidation(): Boolean{
+    fun identityInfoValidation(): Boolean {
         if (isPassportSelected == false && isVoterSelected == false && isPatientSelected == false)
             return false
         if (isPassportSelected && !passportPattern.matches(passportId))
             return false
         if (isVoterSelected && !voterPattern.matches(voterId))
             return false
-        if(isPatientSelected && patientId.length<10)
+        if (isPatientSelected && patientId.length < 10)
             return false
         return true
     }

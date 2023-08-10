@@ -26,9 +26,9 @@ import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.utils.network.CheckNetwork
 import com.latticeonfhir.android.ui.common.ButtonLoader
 import com.latticeonfhir.android.ui.main.MainActivity
+import com.latticeonfhir.android.utils.network.CheckNetwork
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,13 +47,14 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
     val context = LocalContext.current
     LaunchedEffect(viewModel.isLaunched) {
         viewModel.userInput =
-            navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput").toString()
-        if (viewModel.userInput.matches(OnlyNumberRegex.onlyNumbers)){
+            navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput")
+                .toString()
+        if (viewModel.userInput.matches(OnlyNumberRegex.onlyNumbers)) {
             activity.registerBroadcastReceiver()
         }
         viewModel.isLaunched = true
     }
-    LaunchedEffect(activity.otp){
+    LaunchedEffect(activity.otp) {
         if (activity.otp.isNotEmpty()) {
             viewModel.firstDigit = activity.otp[0].toString()
             viewModel.secondDigit = activity.otp[1].toString()
@@ -146,12 +147,12 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
         }
     }
     LaunchedEffect(viewModel.fiveMinuteTimer > 0) {
-       while (viewModel.fiveMinuteTimer > 0) {
-           if (viewModel.fiveMinuteTimer - 1 == 0){
-               viewModel.otpAttemptsExpired = false
-               viewModel.fiveMinuteTimer = 300
-           }
-           delay(1000)
+        while (viewModel.fiveMinuteTimer > 0) {
+            if (viewModel.fiveMinuteTimer - 1 == 0) {
+                viewModel.otpAttemptsExpired = false
+                viewModel.fiveMinuteTimer = 300
+            }
+            delay(1000)
             viewModel.fiveMinuteTimer -= 1
         }
     }
@@ -196,62 +197,74 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             .fillMaxWidth()
                             .padding(horizontal = 10.dp)
                     ) {
-                        OtpTextField(viewModel.firstDigit,
+                        OtpTextField(
+                            viewModel.firstDigit,
                             Modifier
                                 .weight(1f)
                                 .padding(5.dp)
                                 .focusRequester(focusRequester)
-                                .testTag("FIRST_DIGIT"), viewModel.isOtpIncorrect){
+                                .testTag("FIRST_DIGIT"), viewModel.isOtpIncorrect
+                        ) {
                             if (it.isEmpty()) viewModel.firstDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.firstDigit =
                                 it
                             viewModel.updateOtp()
                         }
-                        OtpTextField(viewModel.secondDigit,
+                        OtpTextField(
+                            viewModel.secondDigit,
                             Modifier
                                 .weight(1f)
                                 .padding(5.dp)
-                                .testTag("SECOND_DIGIT"), viewModel.isOtpIncorrect){
+                                .testTag("SECOND_DIGIT"), viewModel.isOtpIncorrect
+                        ) {
                             if (it.isEmpty()) viewModel.secondDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.secondDigit =
                                 it
                             viewModel.updateOtp()
                         }
-                        OtpTextField(viewModel.thirdDigit,
+                        OtpTextField(
+                            viewModel.thirdDigit,
                             Modifier
                                 .weight(1f)
                                 .padding(5.dp)
-                                .testTag("THIRD_DIGIT"), viewModel.isOtpIncorrect){
+                                .testTag("THIRD_DIGIT"), viewModel.isOtpIncorrect
+                        ) {
                             if (it.isEmpty()) viewModel.thirdDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.thirdDigit =
                                 it
                             viewModel.updateOtp()
                         }
-                        OtpTextField(viewModel.fourDigit,
+                        OtpTextField(
+                            viewModel.fourDigit,
                             Modifier
                                 .weight(1f)
                                 .padding(5.dp)
-                                .testTag("FOUR_DIGIT"), viewModel.isOtpIncorrect){
+                                .testTag("FOUR_DIGIT"), viewModel.isOtpIncorrect
+                        ) {
                             if (it.isEmpty()) viewModel.fourDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.fourDigit =
                                 it
                             viewModel.updateOtp()
                         }
-                        OtpTextField(viewModel.fiveDigit,
+                        OtpTextField(
+                            viewModel.fiveDigit,
                             Modifier
                                 .weight(1f)
                                 .padding(5.dp)
-                                .testTag("FIVE_DIGIT"), viewModel.isOtpIncorrect){
+                                .testTag("FIVE_DIGIT"), viewModel.isOtpIncorrect
+                        ) {
                             if (it.isEmpty()) viewModel.fiveDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.fiveDigit =
                                 it
                             viewModel.updateOtp()
                         }
-                        OtpTextField(viewModel.sixDigit,
+                        OtpTextField(
+                            viewModel.sixDigit,
                             Modifier
                                 .weight(1f)
                                 .padding(5.dp)
-                                .testTag("SIX_DIGIT"), viewModel.isOtpIncorrect){
+                                .testTag("SIX_DIGIT"), viewModel.isOtpIncorrect
+                        ) {
                             if (it.isEmpty()) viewModel.sixDigit = it
                             else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.sixDigit =
                                 it
@@ -281,8 +294,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.error
                         )
-                    }
-                    else{
+                    } else {
                         if (viewModel.twoMinuteTimer > 0) {
                             Text(
                                 text = "${
@@ -308,8 +320,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                 Spacer(modifier = Modifier.height(15.dp))
                                 ButtonLoader()
                                 Spacer(modifier = Modifier.height(15.dp))
-                            }
-                            else TextButton(
+                            } else TextButton(
                                 onClick = {
                                     if (CheckNetwork.isInternetAvailable(activity)) {
                                         viewModel.isResending = true
@@ -378,9 +389,9 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
 fun verifyClick(navController: NavController, viewModel: OtpViewModel) {
     viewModel.isVerifying = true
     viewModel.validateOtp {
-        if (it){
+        if (it) {
             CoroutineScope(Dispatchers.Main).launch {
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         "loggedIn",
                         true
@@ -393,11 +404,16 @@ fun verifyClick(navController: NavController, viewModel: OtpViewModel) {
 }
 
 @Composable
-fun OtpTextField(value: String, modifier: Modifier, errorCondition: Boolean, updateValue: (String) -> Unit){
+fun OtpTextField(
+    value: String,
+    modifier: Modifier,
+    errorCondition: Boolean,
+    updateValue: (String) -> Unit
+) {
     TextField(
         value = value,
         onValueChange = {
-                        updateValue(it)
+            updateValue(it)
         },
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surface,

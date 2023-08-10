@@ -11,10 +11,11 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiError
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiNullResponse
 import kotlinx.coroutines.delay
 
-abstract class PrescriptionUploadSyncWorker(context: Context, workerParameters: WorkerParameters): SyncWorker(context, workerParameters) {
+abstract class PrescriptionUploadSyncWorker(context: Context, workerParameters: WorkerParameters) :
+    SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
-        return when(val response = getSyncRepository().sendPrescriptionPostData()) {
+        return when (val response = getSyncRepository().sendPrescriptionPostData()) {
             is ApiEndResponse -> Result.retry()
             is ApiErrorResponse -> {
                 if (response.errorMessage == ErrorConstants.SESSION_EXPIRED || response.errorMessage == ErrorConstants.UNAUTHORIZED) Result.failure(
@@ -22,11 +23,13 @@ abstract class PrescriptionUploadSyncWorker(context: Context, workerParameters: 
                 )
                 else Result.retry()
             }
+
             is ApiEmptyResponse -> {
                 setProgress(workDataOf(PRESCRIPTION_UPLOAD_PROGRESS to 100))
                 delay(10L)
                 Result.success()
             }
+
             is ApiNullResponse -> Result.failure()
             else -> Result.retry()
         }

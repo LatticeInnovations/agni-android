@@ -17,11 +17,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.ui.common.AppointmentsFab
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
@@ -148,7 +148,7 @@ fun PatientLandingScreen(
                     )
                 }
                 if (viewModel.showAllSlotsBookedDialog) {
-                    AllSlotsBookedDialog{
+                    AllSlotsBookedDialog {
                         viewModel.showAllSlotsBookedDialog = false
                     }
                 }
