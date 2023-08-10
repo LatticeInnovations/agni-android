@@ -48,8 +48,8 @@ android {
         applicationId "com.latticeonfhir.android"
         minSdk 23
         targetSdk 33
-        versionCode 29
-        versionName "1.3.0"
+        versionCode 32
+        versionName "1.3.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
