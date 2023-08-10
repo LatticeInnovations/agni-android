@@ -99,7 +99,7 @@ class WorkRequestBuilders(
      * method to update status to "No-Show" at 11:59 PM everyday
      *
      */
-    internal fun setPeriodicAppointmentNoShowStatusUpdateWorker(duration: Duration?, delay: Delay?) {
+    internal suspend fun setPeriodicAppointmentNoShowStatusUpdateWorker(duration: Duration?, delay: Delay?) {
         Sync.periodicSync<AppointmentNoShowStatusUpdateWorkerImpl>(
             applicationContext,
             PeriodicSyncConfiguration(
@@ -109,7 +109,7 @@ class WorkRequestBuilders(
                 repeat = RepeatInterval(24, TimeUnit.HOURS),
                 initialDelay = InitialDelay(duration, delay)
             )
-        )
+        ).collect()
     }
 
     /**
