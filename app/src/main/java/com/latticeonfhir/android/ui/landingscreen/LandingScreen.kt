@@ -181,7 +181,7 @@ fun LandingScreen(
                             Text(
                                 text = viewModel.items[viewModel.selectedIndex],
                                 style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.testTag("SEARCH_TITLE_TEXT")
+                                modifier = Modifier.testTag("HEADING_TAG")
                             )
                         },
                         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -198,7 +198,8 @@ fun LandingScreen(
                                         queueViewModel.selectedDate.to14DaysWeek()
                                     queueViewModel.getAppointmentListByDate()
                                 },
-                                enabled = queueViewModel.selectedDate.toSlotDate() != Date().toSlotDate()
+                                enabled = queueViewModel.selectedDate.toSlotDate() != Date().toSlotDate(),
+                                modifier = Modifier.testTag("RESET_BTN")
                             ) {
                                 Text(text = stringResource(id = R.string.reset))
                             }

@@ -229,11 +229,11 @@ object TimeConverter {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = this.time
         calendar.add(Calendar.DAY_OF_YEAR, -7)
-        var i = 0
-        while (i < 16) {
+        var counter = 0
+        while (counter < 15) {
             weekList.add(calendar.time)
             calendar.add(Calendar.DAY_OF_YEAR, 1)
-            i += 1
+            counter += 1
         }
         return weekList
     }
