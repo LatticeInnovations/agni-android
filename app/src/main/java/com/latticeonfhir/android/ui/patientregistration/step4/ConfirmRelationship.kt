@@ -19,17 +19,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.ui.theme.Neutral40
-import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
+import com.latticeonfhir.android.ui.theme.Neutral40
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationFromRelationEnum
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -131,7 +132,10 @@ fun ConfirmRelationship(
                                 onClick = {
                                     viewModel.discardAllRelationDialog = false
                                     viewModel.discardRelations()
-                                    navController.popBackStack(Screen.HouseholdMembersScreen.route, false)
+                                    navController.popBackStack(
+                                        Screen.HouseholdMembersScreen.route,
+                                        false
+                                    )
                                 }) {
                                 Text(
                                     stringResource(id = R.string.yes_discard)
@@ -183,9 +187,11 @@ fun ConfirmRelationshipScreen(
             )
         }
         Spacer(modifier = Modifier.height(32.dp))
-        LazyColumn(modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f)) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
             items(viewModel.relationBetween) { relationView ->
                 MemberCard(context, relationView, viewModel)
                 Spacer(modifier = Modifier.height(24.dp))
@@ -208,7 +214,11 @@ fun ConfirmRelationshipScreen(
 }
 
 @Composable
-fun MemberCard(context: Context, relationView: RelationView, viewModel: ConfirmRelationshipViewModel) {
+fun MemberCard(
+    context: Context,
+    relationView: RelationView,
+    viewModel: ConfirmRelationshipViewModel
+) {
     var openDeleteDialog by remember {
         mutableStateOf(false)
     }
@@ -216,7 +226,9 @@ fun MemberCard(context: Context, relationView: RelationView, viewModel: ConfirmR
         mutableStateOf(false)
     }
     Row(
-        modifier = Modifier.padding(14.dp).testTag("MEMBER_DETAIL_CARDS")
+        modifier = Modifier
+            .padding(14.dp)
+            .testTag("MEMBER_DETAIL_CARDS")
     ) {
         Text(
             text = "${
@@ -297,7 +309,7 @@ fun DeleteDialog(
             )
         },
         text = {
-            Column() {
+            Column {
                 Text(
                     "Are you sure you want to remove this relationship? Patient records will not be affected.",
                     style = MaterialTheme.typography.bodyMedium,
@@ -311,7 +323,12 @@ fun DeleteDialog(
                             relationView.patientLastName
                         )
                     } " +
-                            "is the ${getRelationFromRelationEnum(context, relationView.relation)} of " +
+                            "is the ${
+                                getRelationFromRelationEnum(
+                                    context,
+                                    relationView.relation
+                                )
+                            } of " +
                             "${
                                 NameConverter.getFullName(
                                     relationView.relativeFirstName,
@@ -364,7 +381,11 @@ fun EditDialog(
         mutableStateOf(false)
     }
     var relation by remember {
-        mutableStateOf(getRelationFromRelationEnum(context, relationView.relation).capitalize())
+        mutableStateOf(getRelationFromRelationEnum(context, relationView.relation).replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.getDefault()
+            ) else it.toString()
+        })
     }
     AlertDialog(
         onDismissRequest = {
@@ -400,7 +421,8 @@ fun EditDialog(
                     Column(
                         modifier = Modifier.testTag("RELATIONS_DROPDOWN")
                     ) {
-                        val relationsList = RelationshipList.getRelationshipList(relationView.patientGender)
+                        val relationsList =
+                            RelationshipList.getRelationshipList(relationView.patientGender)
 
                         TextField(
                             value = relation,
@@ -469,7 +491,7 @@ fun EditDialog(
                     viewModel.updateRelation(
                         Relation(
                             patientId = relationView.patientId,
-                            relation = getRelationEnumFromString(relation) ,
+                            relation = getRelationEnumFromString(relation),
                             relativeId = relationView.relativeId
                         )
                     )

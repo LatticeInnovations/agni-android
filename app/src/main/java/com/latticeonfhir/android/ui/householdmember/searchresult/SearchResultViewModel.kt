@@ -34,12 +34,13 @@ class SearchResultViewModel @Inject constructor(
 
     internal fun searchPatient(searchParameters: SearchParameters) {
         viewModelScope.launch(Dispatchers.IO) {
-            searchResultList = searchRepository.filteredSearchPatients(patientFrom?.id!!, searchParameters).map {
-                it.map {
-                    if (size == 0) size = it.size
-                    it.data
-                }
-            }.cachedIn(viewModelScope)
+            searchResultList =
+                searchRepository.filteredSearchPatients(patientFrom?.id!!, searchParameters).map {
+                    it.map {
+                        if (size == 0) size = it.size
+                        it.data
+                    }
+                }.cachedIn(viewModelScope)
         }
     }
 }

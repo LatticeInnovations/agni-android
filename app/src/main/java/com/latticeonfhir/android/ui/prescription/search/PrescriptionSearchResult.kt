@@ -33,7 +33,12 @@ fun PrescriptionSearchResult(viewModel: PrescriptionViewModel) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = stringResource(id = R.string.match_found, viewModel.activeIngredientSearchList.size), style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        text = stringResource(
+                            id = R.string.match_found,
+                            viewModel.activeIngredientSearchList.size
+                        ), style = MaterialTheme.typography.titleLarge
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = { viewModel.isSearchResult = false }) {
@@ -56,12 +61,12 @@ fun PrescriptionSearchResult(viewModel: PrescriptionViewModel) {
             )
         },
         content = {
-            Box(modifier = Modifier.padding(it)){
+            Box(modifier = Modifier.padding(it)) {
                 key(viewModel.selectedActiveIngredientsList) {
                     Column(
                         modifier = Modifier.verticalScroll(rememberScrollState())
                     ) {
-                        viewModel.activeIngredientSearchList.forEach{ activeIngredient ->
+                        viewModel.activeIngredientSearchList.forEach { activeIngredient ->
                             CompoundRow(activeIngredient = activeIngredient, viewModel = viewModel)
                         }
                     }

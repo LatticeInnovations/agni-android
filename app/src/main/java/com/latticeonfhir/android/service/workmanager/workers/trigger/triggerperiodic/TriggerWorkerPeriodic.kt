@@ -8,14 +8,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class TriggerWorkerPeriodic(context: Context, workerParameters: WorkerParameters) : SyncWorker(context, workerParameters) {
+abstract class TriggerWorkerPeriodic(context: Context, workerParameters: WorkerParameters) :
+    SyncWorker(context, workerParameters) {
     override suspend fun doWork(): Result {
         (applicationContext as FhirApp).getWorkRequestBuilder().apply {
             CoroutineScope(Dispatchers.IO).launch {
                 uploadPatientWorker { errorReceived, errorMsg ->
                     CoroutineScope(Dispatchers.IO).launch {
                         (applicationContext as FhirApp).sessionExpireFlow.emit(
-                            mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))
+                            mapOf(Pair("errorReceived", errorReceived), Pair("errorMsg", errorMsg))
                         )
                     }
                 }
@@ -24,7 +25,7 @@ abstract class TriggerWorkerPeriodic(context: Context, workerParameters: WorkerP
                 setPatientPatchWorker { errorReceived, errorMsg ->
                     CoroutineScope(Dispatchers.IO).launch {
                         (applicationContext as FhirApp).sessionExpireFlow.emit(
-                            mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))
+                            mapOf(Pair("errorReceived", errorReceived), Pair("errorMsg", errorMsg))
                         )
                     }
                 }
@@ -33,7 +34,7 @@ abstract class TriggerWorkerPeriodic(context: Context, workerParameters: WorkerP
                 setRelationPatchWorker { errorReceived, errorMsg ->
                     CoroutineScope(Dispatchers.IO).launch {
                         (applicationContext as FhirApp).sessionExpireFlow.emit(
-                            mapOf(Pair("errorReceived",errorReceived),Pair("errorMsg",errorMsg))
+                            mapOf(Pair("errorReceived", errorReceived), Pair("errorMsg", errorMsg))
                         )
                     }
                 }

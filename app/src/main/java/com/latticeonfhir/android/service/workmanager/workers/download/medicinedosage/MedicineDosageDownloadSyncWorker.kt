@@ -9,10 +9,13 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiConti
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 
-abstract class MedicineDosageDownloadSyncWorker(context: Context, workerParameters: WorkerParameters): SyncWorker(context, workerParameters) {
+abstract class MedicineDosageDownloadSyncWorker(
+    context: Context,
+    workerParameters: WorkerParameters
+) : SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
-        return when(val response = getSyncRepository().getMedicineTime()) {
+        return when (val response = getSyncRepository().getMedicineTime()) {
             is ApiEndResponse -> Result.success()
             is ApiContinueResponse -> Result.success()
             is ApiErrorResponse -> {
@@ -21,6 +24,7 @@ abstract class MedicineDosageDownloadSyncWorker(context: Context, workerParamete
                 )
                 else Result.retry()
             }
+
             else -> Result.retry()
         }
     }

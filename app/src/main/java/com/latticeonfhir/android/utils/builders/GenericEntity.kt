@@ -14,7 +14,7 @@ object GenericEntity {
     ): List<ChangeRequest> {
         val existingList = mutableListOf<ChangeRequest>()
         var alreadyExist: ChangeRequest?
-        if(existingMap[mapEntry.key] != null) {
+        if (existingMap[mapEntry.key] != null) {
             (existingMap[mapEntry.key] as List<*>).map {
                 (it as LinkedTreeMap<*, *>).mapToObject(ChangeRequest::class.java)
                     ?.let { it1 -> existingList.add(it1) }
@@ -24,9 +24,9 @@ object GenericEntity {
                 when (entryValue.operation) {
                     ChangeTypeEnum.ADD.value -> {
                         existingList.apply {
-                            if(alreadyExist?.operation == ChangeTypeEnum.REMOVE.value && alreadyExist?.value == mapEntry.value) {
+                            if (alreadyExist?.operation == ChangeTypeEnum.REMOVE.value && alreadyExist?.value == mapEntry.value) {
                                 remove(alreadyExist)
-                            } else if(alreadyExist?.operation == ChangeTypeEnum.REMOVE.value && alreadyExist?.value != mapEntry.value) {
+                            } else if (alreadyExist?.operation == ChangeTypeEnum.REMOVE.value && alreadyExist?.value != mapEntry.value) {
                                 remove(alreadyExist)
                                 add(entryValue.copy(operation = ChangeTypeEnum.REPLACE.value))
                             } else {
@@ -57,12 +57,19 @@ object GenericEntity {
                                     remove(alreadyExist)
                                 }
                             }
+
                             ChangeTypeEnum.REPLACE.value -> {
                                 existingList.apply {
                                     remove(alreadyExist)
-                                    add(alreadyExist!!.copy(value = entryValue.value, operation = entryValue.operation))
+                                    add(
+                                        alreadyExist!!.copy(
+                                            value = entryValue.value,
+                                            operation = entryValue.operation
+                                        )
+                                    )
                                 }
                             }
+
                             else -> {
                                 existingList.apply {
                                     remove(alreadyExist)
@@ -84,45 +91,58 @@ object GenericEntity {
     }
 
 
-    internal fun processPatch(existingMap: MutableMap<String, Any>, mapEntry: Map.Entry<String, Any>) {
+    internal fun processPatch(
+        existingMap: MutableMap<String, Any>,
+        mapEntry: Map.Entry<String, Any>
+    ) {
         if (existingMap[mapEntry.key] != null) {
-            (existingMap[mapEntry.key] as LinkedTreeMap<*, *>).mapToObject(ChangeRequest::class.java)?.let { alreadyExistChangeRequest ->
-                when ((mapEntry.value as ChangeRequest).operation) {
-                    ChangeTypeEnum.ADD.value -> {
-                        if(alreadyExistChangeRequest.operation == ChangeTypeEnum.REMOVE.value && alreadyExistChangeRequest.value == mapEntry.value) {
-                            existingMap.remove(mapEntry.key)
-                        } else if(alreadyExistChangeRequest.operation == ChangeTypeEnum.REMOVE.value && alreadyExistChangeRequest.value != mapEntry.value) {
-                            existingMap[mapEntry.key] = alreadyExistChangeRequest.copy(value = (mapEntry.value as ChangeRequest).value, operation = ChangeTypeEnum.REPLACE.value)
-                        } else {
-                            existingMap[mapEntry.key] = mapEntry.value
-                        }
-                    }
-
-                    ChangeTypeEnum.REPLACE.value -> {
-                        if (alreadyExistChangeRequest.operation != ChangeTypeEnum.ADD.value) {
-                            existingMap[mapEntry.key] = mapEntry.value
-                        } else {
-                            existingMap[mapEntry.key] = alreadyExistChangeRequest.copy(value = (mapEntry.value as ChangeRequest).value)
-                        }
-                    }
-
-                    ChangeTypeEnum.REMOVE.value -> {
-                        when (alreadyExistChangeRequest.operation) {
-                            ChangeTypeEnum.ADD.value -> {
+            (existingMap[mapEntry.key] as LinkedTreeMap<*, *>).mapToObject(ChangeRequest::class.java)
+                ?.let { alreadyExistChangeRequest ->
+                    when ((mapEntry.value as ChangeRequest).operation) {
+                        ChangeTypeEnum.ADD.value -> {
+                            if (alreadyExistChangeRequest.operation == ChangeTypeEnum.REMOVE.value && alreadyExistChangeRequest.value == mapEntry.value) {
                                 existingMap.remove(mapEntry.key)
-                            }
-                            ChangeTypeEnum.REPLACE.value -> {
-                                existingMap[mapEntry.key] = alreadyExistChangeRequest.copy(value = (mapEntry.value as ChangeRequest).value, operation = (mapEntry.value as ChangeRequest).operation)
-                            }
-                            else -> {
+                            } else if (alreadyExistChangeRequest.operation == ChangeTypeEnum.REMOVE.value && alreadyExistChangeRequest.value != mapEntry.value) {
+                                existingMap[mapEntry.key] = alreadyExistChangeRequest.copy(
+                                    value = (mapEntry.value as ChangeRequest).value,
+                                    operation = ChangeTypeEnum.REPLACE.value
+                                )
+                            } else {
                                 existingMap[mapEntry.key] = mapEntry.value
                             }
                         }
-                    }
 
-                    else -> {}
+                        ChangeTypeEnum.REPLACE.value -> {
+                            if (alreadyExistChangeRequest.operation != ChangeTypeEnum.ADD.value) {
+                                existingMap[mapEntry.key] = mapEntry.value
+                            } else {
+                                existingMap[mapEntry.key] =
+                                    alreadyExistChangeRequest.copy(value = (mapEntry.value as ChangeRequest).value)
+                            }
+                        }
+
+                        ChangeTypeEnum.REMOVE.value -> {
+                            when (alreadyExistChangeRequest.operation) {
+                                ChangeTypeEnum.ADD.value -> {
+                                    existingMap.remove(mapEntry.key)
+                                }
+
+                                ChangeTypeEnum.REPLACE.value -> {
+                                    existingMap[mapEntry.key] = alreadyExistChangeRequest.copy(
+                                        value = (mapEntry.value as ChangeRequest).value,
+                                        operation = (mapEntry.value as ChangeRequest).operation
+                                    )
+                                }
+
+                                else -> {
+                                    existingMap[mapEntry.key] = mapEntry.value
+                                }
+                            }
+                        }
+
+                        else -> {}
+                    }
                 }
-            }
         } else {
             existingMap[mapEntry.key] = mapEntry.value
         }

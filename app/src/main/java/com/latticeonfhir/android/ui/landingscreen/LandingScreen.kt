@@ -420,6 +420,7 @@ fun LandingScreen(
                         .testTag("SEARCH_LAYOUT"),
                     verticalArrangement = Arrangement.Top
                 ) {
+                    val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                     TextField(
                         value = viewModel.searchQuery,
                         onValueChange = {
@@ -449,8 +450,10 @@ fun LandingScreen(
                                 focusRequester.requestFocus()
                             }
                             .testTag("SEARCH_TEXT_FIELD"),
-                        colors = TextFieldDefaults.textFieldColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = containerColor,
+                            unfocusedContainerColor = containerColor,
+                            disabledContainerColor = containerColor,
                         ),
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Search
@@ -504,6 +507,7 @@ fun LandingScreen(
                         .testTag("QUEUE_SEARCH_LAYOUT"),
                     verticalArrangement = Arrangement.Top
                 ) {
+                    val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                     TextField(
                         value = queueViewModel.searchQueueQuery,
                         onValueChange = {
@@ -537,8 +541,10 @@ fun LandingScreen(
                                 focusRequester.requestFocus()
                             }
                             .testTag("SEARCH_TEXT_FIELD"),
-                        colors = TextFieldDefaults.textFieldColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = containerColor,
+                            unfocusedContainerColor = containerColor,
+                            disabledContainerColor = containerColor,
                         ),
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Search

@@ -3,14 +3,39 @@ package com.latticeonfhir.android.ui.main.patientlandingscreen
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -21,12 +46,12 @@ import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreenViewModel
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -43,24 +68,22 @@ fun SuggestionsScreen(
         }
         viewModel.isLaunched = true
     }
-    if (viewModel.loading){
+    if (viewModel.loading) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             Loader()
         }
-    }
-    else{
-        if (viewModel.membersList.isEmpty()){
+    } else {
+        if (viewModel.membersList.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Text(text = stringResource(id = R.string.no_suggested_members))
             }
-        }
-        else{
+        } else {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -127,7 +150,9 @@ fun SuggestedMembersCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${member.gender[0].uppercase()}/${member.birthDate.toTimeInMilli().toAge()}",
+                    text = "${member.gender[0].uppercase()}/${
+                        member.birthDate.toTimeInMilli().toAge()
+                    }",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -179,7 +204,11 @@ fun ConnectDialog(
         text = {
             Column {
                 Text(
-                    NameConverter.getFullName(patient.firstName, patient.middleName, patient.lastName),
+                    NameConverter.getFullName(
+                        patient.firstName,
+                        patient.middleName,
+                        patient.lastName
+                    ),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(23.dp))

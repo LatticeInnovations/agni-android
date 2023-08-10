@@ -9,4 +9,4 @@ import kotlinx.parcelize.Parcelize
 data class Relationship(
     val patientIs: String,
     val relativeId: String
-): Parcelable
+) : Parcelable
