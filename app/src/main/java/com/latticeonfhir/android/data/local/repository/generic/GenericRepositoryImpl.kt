@@ -441,7 +441,7 @@ class GenericRepositoryImpl @Inject constructor(
         return appointmentDao.getAppointmentById(appointmentId)[0].appointmentFhirId
     }
 
-    private fun runWorkers() {
+    private suspend fun runWorkers() {
         workRequestBuilders.setOneTimeTriggerWorker()
     }
 }
