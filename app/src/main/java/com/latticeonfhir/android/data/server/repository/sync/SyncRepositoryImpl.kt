@@ -469,7 +469,7 @@ class SyncRepositoryImpl @Inject constructor(
             else ApiResponseConverter.convert(
                 patientApiService.createData(PATIENT, listOfGenericEntity.map {
                     it.payload.fromJson<LinkedTreeMap<*, *>>()
-                        .mapToObject(PatientResponse::class.java) as Any
+                        .mapToObject(PatientResponse::class.java)!!
                 })
             ).run {
                 when (this) {
@@ -500,8 +500,9 @@ class SyncRepositoryImpl @Inject constructor(
                     RELATED_PERSON,
                     listOfRelatedEntity.map { relationGenericEntity ->
                         relationGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>()
-                            .mapToObject(RelatedPersonResponse::class.java) as Any
-                    })
+                            .mapToObject(RelatedPersonResponse::class.java)!!
+                    }
+                )
             ).run {
                 when (this) {
                     is ApiEndResponse -> {
@@ -541,16 +542,12 @@ class SyncRepositoryImpl @Inject constructor(
                                     prescriptionDao.updatePrescriptionFhirId(
                                         createResponse.id!!, createResponse.fhirId!!
                                     )
-                                } else {
-                                    idsToDelete.remove(createResponse.id)
-                                }
+                                } else idsToDelete.remove(createResponse.id)
                             }
                             resetPrescriptionsToBeSyncedList()
-                            genericDao.deleteSyncPayload(idsToDelete.toList()).let { deletedRows ->
-                                if (deletedRows > 0) sendPrescriptionPostData() else this
-                            }
+                            genericDao.deleteSyncPayload(idsToDelete.toList())
+                            sendPrescriptionPostData()
                         }
-
                         else -> this
                     }
                 }
@@ -566,7 +563,7 @@ class SyncRepositoryImpl @Inject constructor(
             else ApiResponseConverter.convert(
                 scheduleAndAppointmentApiService.postScheduleData(listOfGenericEntity.map {
                     it.payload.fromJson<LinkedTreeMap<*, *>>()
-                        .mapToObject(ScheduleResponse::class.java) as Any
+                        .mapToObject(ScheduleResponse::class.java)!!
                 })
             ).run {
                 when (this) {
@@ -611,7 +608,7 @@ class SyncRepositoryImpl @Inject constructor(
             else ApiResponseConverter.convert(
                 scheduleAndAppointmentApiService.createAppointment(listOfGenericEntity.map {
                     it.payload.fromJson<LinkedTreeMap<*, *>>()
-                        .mapToObject(AppointmentResponse::class.java) as Any
+                        .mapToObject(AppointmentResponse::class.java)!!
                 })
             ).run {
                 when (this) {
