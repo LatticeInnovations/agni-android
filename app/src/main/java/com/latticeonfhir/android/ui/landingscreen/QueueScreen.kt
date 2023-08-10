@@ -199,6 +199,7 @@ fun QueueScreen(
                             SuggestionChip(
                                 onClick = {
                                     viewModel.selectedDate = date
+                                    viewModel.selectedChip = R.string.total_appointment
                                     viewModel.getAppointmentListByDate()
                                 },
                                 label = {
@@ -585,6 +586,7 @@ fun QueueScreen(
                 TextButton(
                     onClick = {
                         viewModel.showDatePicker = false
+                        viewModel.selectedChip = R.string.total_appointment
                         viewModel.selectedDate =
                             datePickerState.selectedDateMillis?.let { dateInLong ->
                                 Date(
