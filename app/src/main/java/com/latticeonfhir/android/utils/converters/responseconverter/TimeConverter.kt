@@ -230,7 +230,7 @@ object TimeConverter {
         calendar.timeInMillis = this.time
         calendar.add(Calendar.DAY_OF_YEAR, -7)
         var i = 0
-        while (i < 16) {
+        while (i < 15) {
             weekList.add(calendar.time)
             calendar.add(Calendar.DAY_OF_YEAR, 1)
             i += 1
