@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
@@ -25,7 +24,7 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val identifierRepository: IdentifierRepository,
     private val relationRepository: RelationRepository
-): BaseViewModel() {
+) : BaseViewModel() {
 
     var firstName by mutableStateOf("")
     var middleName by mutableStateOf("")
@@ -56,7 +55,7 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     var relativeId by mutableStateOf("")
     var relation by mutableStateOf("")
 
-    fun addPatient(patientResponse : PatientResponse){
+    fun addPatient(patientResponse: PatientResponse) {
         viewModelScope.launch(Dispatchers.IO) {
             patientRepository.addPatient(patientResponse)
             genericRepository.insertPatient(

@@ -59,7 +59,11 @@ fun UpcomingAppointments(navController: NavController, viewModel: AppointmentsSc
 }
 
 @Composable
-fun UpcomingAppointmentCard(navController: NavController, appointmentResponseLocal: AppointmentResponseLocal, viewModel: AppointmentsScreenViewModel) {
+fun UpcomingAppointmentCard(
+    navController: NavController,
+    appointmentResponseLocal: AppointmentResponseLocal,
+    viewModel: AppointmentsScreenViewModel
+) {
     Card(
         border = BorderStroke(
             width = 1.dp,

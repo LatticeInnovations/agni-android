@@ -4,7 +4,6 @@ import androidx.paging.PagingData
 import com.latticeonfhir.android.data.local.model.pagination.PaginationResponse
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 import java.util.LinkedList
@@ -13,7 +12,11 @@ interface SearchRepository {
 
     /** Patient Search */
     suspend fun searchPatients(searchParameters: SearchParameters): Flow<PagingData<PaginationResponse<PatientResponse>>>
-    suspend fun filteredSearchPatients(patientId: String, searchParameters: SearchParameters): Flow<PagingData<PaginationResponse<PatientResponse>>>
+    suspend fun filteredSearchPatients(
+        patientId: String,
+        searchParameters: SearchParameters
+    ): Flow<PagingData<PaginationResponse<PatientResponse>>>
+
     suspend fun searchPatientByQuery(query: String): Flow<PagingData<PaginationResponse<PatientResponse>>>
 
     /** Medication Search */
@@ -28,5 +31,9 @@ interface SearchRepository {
     suspend fun getRecentActiveIngredientSearches(): List<String>
 
     /** Get Suggested Members */
-    suspend fun getSuggestedMembers(patientId: String, searchParameters: SearchParameters, returnList: (LinkedList<PatientResponse>) -> Unit)
+    suspend fun getSuggestedMembers(
+        patientId: String,
+        searchParameters: SearchParameters,
+        returnList: (LinkedList<PatientResponse>) -> Unit
+    )
 }

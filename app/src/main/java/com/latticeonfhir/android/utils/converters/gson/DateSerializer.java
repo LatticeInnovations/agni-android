@@ -23,7 +23,7 @@ public class DateSerializer implements JsonSerializer<Date> {
             return new JsonPrimitive(formatter.format(src.getTime()));
         } else {
             formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sszzz", Locale.getDefault());
-            return new JsonPrimitive(formatter.format(src.getTime()).replace("GMT",""));
+            return new JsonPrimitive(formatter.format(src.getTime()).replace("GMT", ""));
         }
     }
 }

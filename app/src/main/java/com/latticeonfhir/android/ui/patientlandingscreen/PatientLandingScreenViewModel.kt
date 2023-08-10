@@ -197,7 +197,8 @@ class PatientLandingScreenViewModel @Inject constructor(
                                 appointmentId = null,
                                 uuid = appointmentId,
                                 patientFhirId = patient?.fhirId ?: patient?.id,
-                                scheduleId = scheduleFhirId ?: scheduleRepository.getScheduleByStartTime(scheduleId.time)?.uuid!!,
+                                scheduleId = scheduleFhirId
+                                    ?: scheduleRepository.getScheduleByStartTime(scheduleId.time)?.uuid!!,
                                 createdOn = createdOn,
                                 orgId = preferenceRepository.getOrganizationFhirId(),
                                 slot = slot,

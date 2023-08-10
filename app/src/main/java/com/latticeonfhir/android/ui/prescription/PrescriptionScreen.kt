@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.prescription
 
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -119,7 +118,11 @@ fun PrescriptionScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     "patient"
                 )
-            viewModel.getPatientTodayAppointment(Date(Date().toTodayStartDate()), Date(Date().toEndOfDay()), viewModel.patient!!.id)
+            viewModel.getPatientTodayAppointment(
+                Date(Date().toTodayStartDate()),
+                Date(Date().toEndOfDay()),
+                viewModel.patient!!.id
+            )
             viewModel.patient?.let {
                 viewModel.getPreviousPrescription(it.id) { prescriptionList ->
                     viewModel.previousPrescriptionList = prescriptionList

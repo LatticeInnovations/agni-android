@@ -17,7 +17,8 @@ interface IdentifierDao {
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertIdentifier(identifierEntity: IdentifierEntity): Long
+
     @Transaction
     @Delete
-    suspend fun deleteIdentifier(vararg identifierEntity: IdentifierEntity):Int
+    suspend fun deleteIdentifier(vararg identifierEntity: IdentifierEntity): Int
 }

@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 
-class PatientRegistrationStepOneViewModel: BaseViewModel(), DefaultLifecycleObserver {
+class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
 
     val onlyNumbers = Regex("^\\d+\$")
@@ -33,17 +33,32 @@ class PatientRegistrationStepOneViewModel: BaseViewModel(), DefaultLifecycleObse
     var gender by mutableStateOf("")
 
     val daysList = (1..31).toList()
-    var monthsList = mutableStateListOf("January", "February", "March", "April", "May", "June",
-                        "July", "August", "September", "October", "November", "December")
+    var monthsList = mutableStateListOf(
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    )
 
-    fun getMonthsList(){
+    fun getMonthsList() {
         monthsList =
-            if (dobDay.toInt()>30) mutableStateListOf("January", "March", "May", "July", "August", "October", "December")
-            else if (dobDay.toInt()>29) mutableStateListOf("January", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December")
-            else mutableStateListOf("January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December")
+            if (dobDay.toInt() > 30) mutableStateListOf(
+                "January",
+                "March",
+                "May",
+                "July",
+                "August",
+                "October",
+                "December"
+            )
+            else if (dobDay.toInt() > 29) mutableStateListOf(
+                "January", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            )
+            else mutableStateListOf(
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            )
     }
+
     val yearsList = (1920..2023).toList()
 
     var isNameValid by mutableStateOf(false)
@@ -56,7 +71,7 @@ class PatientRegistrationStepOneViewModel: BaseViewModel(), DefaultLifecycleObse
     var isAgeMonthsValid by mutableStateOf(false)
     var isAgeYearsValid by mutableStateOf(false)
 
-    fun basicInfoValidation(): Boolean{
+    fun basicInfoValidation(): Boolean {
         if (firstName.length < 3 || firstName.length > 100)
             return false
         if (middleName.length > 100 || lastName.length > 100)
@@ -67,7 +82,7 @@ class PatientRegistrationStepOneViewModel: BaseViewModel(), DefaultLifecycleObse
             return false
         if (phoneNumber.length != 10)
             return false
-        if(email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
+        if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return false
         if (gender == "")
             return false

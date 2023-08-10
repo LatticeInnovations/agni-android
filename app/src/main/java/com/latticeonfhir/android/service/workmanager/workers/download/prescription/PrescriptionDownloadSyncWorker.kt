@@ -22,6 +22,7 @@ abstract class PrescriptionDownloadSyncWorker(
                 setProgress(workDataOf(PRESCRIPTION_DOWNLOAD_PROGRESS to 100))
                 Result.success()
             }
+
             is ApiEmptyResponse -> Result.failure()
             is ApiErrorResponse -> {
                 if (response.errorMessage == ErrorConstants.SESSION_EXPIRED || response.errorMessage == ErrorConstants.UNAUTHORIZED) Result.failure(
@@ -29,6 +30,7 @@ abstract class PrescriptionDownloadSyncWorker(
                 )
                 else Result.retry()
             }
+
             else -> Result.retry()
         }
     }

@@ -90,7 +90,7 @@ fun AppointmentsScreen(
         viewModel.patient?.id?.let { patientId ->
             viewModel.getAppointmentsList(patientId)
         }
-        if (viewModel.rescheduled){
+        if (viewModel.rescheduled) {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
                     message = context.getString(R.string.appointment_rescheduled)
@@ -100,7 +100,7 @@ fun AppointmentsScreen(
                 NavControllerConstants.RESCHEDULED
             )
         }
-        if (viewModel.scheduled){
+        if (viewModel.scheduled) {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
                     message = context.getString(R.string.appointment_scheduled)

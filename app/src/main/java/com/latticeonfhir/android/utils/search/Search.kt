@@ -14,20 +14,27 @@ object Search {
     ): List<PatientAndIdentifierEntity> {
         var finalList = totalList.toMutableList()
         searchParameters.run {
-            if(!gender.isNullOrBlank()) {
+            if (!gender.isNullOrBlank()) {
                 finalList = finalList.filter {
                     gender == it.patientEntity.gender
                 } as MutableList<PatientAndIdentifierEntity>
             }
             if (!name.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    val fullName = "${it.patientEntity.firstName}${it.patientEntity.middleName ?: ""}${it.patientEntity.lastName ?: ""}"
-                    FuzzySearch.weightedRatio(name.replace(" ","").trim(), fullName) > matchingRatio
+                    val fullName =
+                        "${it.patientEntity.firstName}${it.patientEntity.middleName ?: ""}${it.patientEntity.lastName ?: ""}"
+                    FuzzySearch.weightedRatio(
+                        name.replace(" ", "").trim(),
+                        fullName
+                    ) > matchingRatio
                 } as MutableList<PatientAndIdentifierEntity>
             }
             if (!patientId.isNullOrBlank()) {
                 finalList = finalList.filter {
-                    FuzzySearch.weightedRatio(patientId, it.patientEntity.fhirId ?: "") > matchingRatio
+                    FuzzySearch.weightedRatio(
+                        patientId,
+                        it.patientEntity.fhirId ?: ""
+                    ) > matchingRatio
                 } as MutableList<PatientAndIdentifierEntity>
             }
             if (minAge != null && maxAge != null) {
@@ -92,9 +99,13 @@ object Search {
         return finalList
     }
 
-    internal fun getFuzzySearchMedicationList(queryActiveIngredient: String,activeIngredients: List<String>, matchingRatio: Int): List<String> {
+    internal fun getFuzzySearchMedicationList(
+        queryActiveIngredient: String,
+        activeIngredients: List<String>,
+        matchingRatio: Int
+    ): List<String> {
         return activeIngredients.filter { activeIngredient ->
-            FuzzySearch.partialRatio(queryActiveIngredient,activeIngredient) > matchingRatio
+            FuzzySearch.partialRatio(queryActiveIngredient, activeIngredient) > matchingRatio
         }
     }
 }
