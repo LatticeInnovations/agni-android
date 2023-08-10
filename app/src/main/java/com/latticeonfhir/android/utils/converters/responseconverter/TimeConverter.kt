@@ -148,7 +148,7 @@ object TimeConverter {
     internal fun Date.yesterday(): Date {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = this.time
-        calendar.set(Calendar.DAY_OF_YEAR, calendar[Calendar.DAY_OF_YEAR]-1)
+        calendar.set(Calendar.DAY_OF_YEAR, calendar[Calendar.DAY_OF_YEAR] - 1)
         return calendar.time
     }
 

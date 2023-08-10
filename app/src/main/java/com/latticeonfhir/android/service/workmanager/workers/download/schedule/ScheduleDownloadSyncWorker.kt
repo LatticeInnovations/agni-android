@@ -22,6 +22,7 @@ abstract class ScheduleDownloadSyncWorker(context: Context, workerParameters: Wo
                 setProgress(workDataOf(ScheduleDownloadProgress to 100))
                 Result.success()
             }
+
             is ApiEmptyResponse -> Result.failure()
             is ApiErrorResponse -> {
                 if (response.errorMessage == ErrorConstants.SESSION_EXPIRED || response.errorMessage == ErrorConstants.UNAUTHORIZED) Result.failure(
@@ -29,6 +30,7 @@ abstract class ScheduleDownloadSyncWorker(context: Context, workerParameters: Wo
                 )
                 else Result.retry()
             }
+
             else -> Result.retry()
         }
     }

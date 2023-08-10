@@ -166,8 +166,12 @@ class GenericRepositoryImpl @Inject constructor(
                     genericDao.insertGenericEntity(
                         prescriptionGenericEntity.copy(
                             payload = existingMap.copy(
-                                patientFhirId = if(!existingMap.patientFhirId.isFhirId()) getPatientFhirIdById(existingMap.patientFhirId)!! else existingMap.patientFhirId,
-                                appointmentId = if(!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(existingMap.appointmentId)!! else existingMap.appointmentId
+                                patientFhirId = if (!existingMap.patientFhirId.isFhirId()) getPatientFhirIdById(
+                                    existingMap.patientFhirId
+                                )!! else existingMap.patientFhirId,
+                                appointmentId = if (!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(
+                                    existingMap.appointmentId
+                                )!! else existingMap.appointmentId
                             ).toJson()
                         )
                     )
@@ -239,7 +243,8 @@ class GenericRepositoryImpl @Inject constructor(
                         genericDao.insertGenericEntity(
                             appointmentGenericEntity.copy(
                                 payload = existingMap.copy(
-                                    appointmentId = getAppointmentFhirIdById(existingMap.appointmentId)?:existingMap.appointmentId
+                                    appointmentId = getAppointmentFhirIdById(existingMap.appointmentId)
+                                        ?: existingMap.appointmentId
                                 ).toJson()
                             )
                         )

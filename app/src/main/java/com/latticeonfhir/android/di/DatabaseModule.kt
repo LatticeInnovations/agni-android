@@ -25,8 +25,11 @@ object DatabaseModule {
 
     @Singleton
     @Provides
-    fun provideAppDatabase(@ApplicationContext context: Context, preferenceStorage: PreferenceStorage): FhirAppDatabase {
-        return FhirAppDatabase.getInstance(context,preferenceStorage)
+    fun provideAppDatabase(
+        @ApplicationContext context: Context,
+        preferenceStorage: PreferenceStorage
+    ): FhirAppDatabase {
+        return FhirAppDatabase.getInstance(context, preferenceStorage)
     }
 
     @Singleton

@@ -99,7 +99,10 @@ class WorkRequestBuilders(
      * method to update status to "No-Show" at 11:59 PM everyday
      *
      */
-    internal suspend fun setPeriodicAppointmentNoShowStatusUpdateWorker(duration: Duration?, delay: Delay?) {
+    internal suspend fun setPeriodicAppointmentNoShowStatusUpdateWorker(
+        duration: Duration?,
+        delay: Delay?
+    ) {
         Sync.periodicSync<AppointmentNoShowStatusUpdateWorkerImpl>(
             applicationContext,
             PeriodicSyncConfiguration(
@@ -118,7 +121,10 @@ class WorkRequestBuilders(
      * method to update status to "Completed" at 11:59 PM everyday
      *
      */
-    internal suspend fun setPeriodicAppointmentCompletedStatusUpdateWorker(duration: Duration?, delay: Delay?) {
+    internal suspend fun setPeriodicAppointmentCompletedStatusUpdateWorker(
+        duration: Duration?,
+        delay: Delay?
+    ) {
         Sync.periodicSync<AppointmentCompletedStatusUpdateWorkerImpl>(
             applicationContext,
             PeriodicSyncConfiguration(

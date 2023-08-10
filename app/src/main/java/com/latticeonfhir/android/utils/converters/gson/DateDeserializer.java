@@ -18,7 +18,7 @@ import java.util.Objects;
 import timber.log.Timber;
 
 public class DateDeserializer implements JsonDeserializer<Date> {
-    private static final String[] DATE_FORMATS = new String[] {
+    private static final String[] DATE_FORMATS = new String[]{
             "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'",
             "yyyy-MM-dd HH:mm:ssZ",
             "yyyy-MM-dd'T'HH:mm:ssZ",

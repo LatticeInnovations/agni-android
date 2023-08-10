@@ -3,7 +3,8 @@ package com.latticeonfhir.android.data.local.repository.preference
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import javax.inject.Inject
 
-class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage: PreferenceStorage): PreferenceRepository {
+class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage: PreferenceStorage) :
+    PreferenceRepository {
 
     override fun setLastSyncPatient(long: Long) {
         preferenceStorage.lastPatientSyncTime = long
@@ -45,7 +46,8 @@ class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage
 
     override fun getLastSyncAppointment() = preferenceStorage.lastAppointmentSyncTime
 
-    override fun getLastMedicineDosageInstructionSyncDate() = preferenceStorage.lastMedicineDosageInstructionSyncTime
+    override fun getLastMedicineDosageInstructionSyncDate() =
+        preferenceStorage.lastMedicineDosageInstructionSyncTime
 
     override fun setUserFhirId(userFhirId: String) {
         preferenceStorage.userFhirId = userFhirId
