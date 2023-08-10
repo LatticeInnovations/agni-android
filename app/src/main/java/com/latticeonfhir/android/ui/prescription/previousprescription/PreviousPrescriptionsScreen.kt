@@ -67,7 +67,13 @@ fun PreviousPrescriptionsScreen(
         } else {
             viewModel.previousPrescriptionList.forEachIndexed { index, previousPrescription ->
                 previousPrescription?.let { prescription ->
-                    PrescriptionCard(viewModel, prescription, index == 0, snackbarHostState, coroutineScope)
+                    PrescriptionCard(
+                        viewModel,
+                        prescription,
+                        index == 0,
+                        snackbarHostState,
+                        coroutineScope
+                    )
                 }
             }
         }
@@ -183,7 +189,9 @@ fun PrescriptionCard(
                                     )
                                 }
                             },
-                            modifier = Modifier.align(Alignment.End).testTag("RE_PRESCRIBE_BTN")
+                            modifier = Modifier
+                                .align(Alignment.End)
+                                .testTag("RE_PRESCRIBE_BTN")
                         ) {
                             Text(text = "Re-Prescribe")
                         }

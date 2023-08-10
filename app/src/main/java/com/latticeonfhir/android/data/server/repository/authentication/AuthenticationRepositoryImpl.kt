@@ -55,7 +55,11 @@ class AuthenticationRepositoryImpl @Inject constructor(
                     preferenceRepository.setOrganizationFhirId(role[0].orgId)
                     preferenceRepository.setOrganization(role[0].orgName)
                     userEmail?.let { email -> preferenceRepository.setUserEmail(email) }
-                    mobileNumber?.let { mobileNumber -> preferenceRepository.setUserMobile(mobileNumber) }
+                    mobileNumber?.let { mobileNumber ->
+                        preferenceRepository.setUserMobile(
+                            mobileNumber
+                        )
+                    }
                 }
             }
         }

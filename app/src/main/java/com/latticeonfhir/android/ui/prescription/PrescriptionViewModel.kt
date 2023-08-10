@@ -61,8 +61,8 @@ class PrescriptionViewModel @Inject constructor(
 
     internal var appointmentResponseLocal: AppointmentResponseLocal? = null
     private lateinit var timingList: List<MedicineTimingEntity>
-  
-  init {
+
+    init {
         viewModelScope.launch(Dispatchers.IO) {
             timingList = medicationRepository.getAllMedicationDirections()
         }
@@ -70,10 +70,11 @@ class PrescriptionViewModel @Inject constructor(
 
     internal fun getPatientTodayAppointment(startDate: Date, endDate: Date, patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            appointmentResponseLocal = appointmentRepository.getAppointmentListByDate(startDate.time, endDate.time)
-                .firstOrNull { appointmentEntity ->
-                    appointmentEntity.patientId == patientId
-                }
+            appointmentResponseLocal =
+                appointmentRepository.getAppointmentListByDate(startDate.time, endDate.time)
+                    .firstOrNull { appointmentEntity ->
+                        appointmentEntity.patientId == patientId
+                    }
         }
     }
 
@@ -83,16 +84,17 @@ class PrescriptionViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             previousPrescriptionList(
-                prescriptionRepository.getLastPrescription(patientId).map { prescriptionAndMedicineRelation ->
-                    prescriptionAndMedicineRelation.prescriptionDirectionAndMedicineView.map { prescriptionAndMedicineView ->
-                        prescriptionAndMedicineView.prescriptionDirectionsEntity.copy(
-                            timing = timingList.find { medicineTimingEntity ->
-                                medicineTimingEntity.medicalDosageId == prescriptionAndMedicineView.prescriptionDirectionsEntity.timing
-                            }?.medicalDosage
-                        )
+                prescriptionRepository.getLastPrescription(patientId)
+                    .map { prescriptionAndMedicineRelation ->
+                        prescriptionAndMedicineRelation.prescriptionDirectionAndMedicineView.map { prescriptionAndMedicineView ->
+                            prescriptionAndMedicineView.prescriptionDirectionsEntity.copy(
+                                timing = timingList.find { medicineTimingEntity ->
+                                    medicineTimingEntity.medicalDosageId == prescriptionAndMedicineView.prescriptionDirectionsEntity.timing
+                                }?.medicalDosage
+                            )
+                        }
+                        prescriptionAndMedicineRelation
                     }
-                    prescriptionAndMedicineRelation
-                }
             )
         }
     }

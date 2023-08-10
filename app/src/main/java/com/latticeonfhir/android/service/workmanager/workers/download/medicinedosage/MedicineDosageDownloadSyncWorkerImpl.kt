@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.WorkerParameters
 import com.latticeonfhir.android.FhirApp
 
-class MedicineDosageDownloadSyncWorkerImpl(context: Context, workerParameters: WorkerParameters): MedicineDosageDownloadSyncWorker(context, workerParameters) {
+class MedicineDosageDownloadSyncWorkerImpl(context: Context, workerParameters: WorkerParameters) :
+    MedicineDosageDownloadSyncWorker(context, workerParameters) {
     override fun getSyncRepository() = (applicationContext as FhirApp).getSyncRepository()
 }

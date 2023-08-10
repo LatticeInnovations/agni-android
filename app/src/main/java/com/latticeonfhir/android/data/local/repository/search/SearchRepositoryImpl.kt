@@ -141,7 +141,7 @@ class SearchRepositoryImpl @Inject constructor(
     }
 
     override suspend fun searchActiveIngredients(activeIngredient: String): List<String> {
-        return getFuzzySearchMedicationList(activeIngredient,searchDao.getActiveIngredients(),60)
+        return getFuzzySearchMedicationList(activeIngredient, searchDao.getActiveIngredients(), 60)
     }
 
     override suspend fun insertRecentPatientSearch(searchQuery: String, date: Date): Long {
@@ -208,7 +208,8 @@ class SearchRepositoryImpl @Inject constructor(
         returnList: (LinkedList<PatientResponse>) -> Unit
     ) {
         val linkedList = LinkedList<PatientResponse>()
-        val existingMembers = relationDao.getAllRelationOfPatient(patientId).map { relationEntity -> relationEntity.toId }.toMutableSet().apply { add(patientId) }
+        val existingMembers = relationDao.getAllRelationOfPatient(patientId)
+            .map { relationEntity -> relationEntity.toId }.toMutableSet().apply { add(patientId) }
         getFuzzySearchList(
             getSearchList(),
             searchParameters,

@@ -19,4 +19,4 @@ data class PatientResponse(
     val email: String?,
     val permanentAddress: PatientAddressResponse,
     val fhirId: String?
-): Parcelable
+) : Parcelable

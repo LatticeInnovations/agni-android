@@ -16,14 +16,17 @@ import retrofit2.http.QueryMap
 interface PrescriptionApiService {
 
     @GET("Medication")
-    suspend fun getAllMedications(@QueryMap(encoded = true) map: Map<String,String>?): Response<BaseResponse<List<MedicationResponse>>>
+    suspend fun getAllMedications(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<MedicationResponse>>>
 
     @POST("sync/{endPoint}")
-    suspend fun postPrescriptionRelatedData(@Path("endPoint") endPoint: String, @Body prescriptionData: List<Any>): Response<BaseResponse<List<CreateResponse>>>
+    suspend fun postPrescriptionRelatedData(
+        @Path("endPoint") endPoint: String,
+        @Body prescriptionData: List<Any>
+    ): Response<BaseResponse<List<CreateResponse>>>
 
     @GET("MedicationRequest")
-    suspend fun getPastPrescription(@QueryMap(encoded = true) map: Map<String,String>?): Response<BaseResponse<List<PrescriptionResponse>>>
+    suspend fun getPastPrescription(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<PrescriptionResponse>>>
 
     @GET("sct/medTime")
-    suspend fun getMedicineTime(@QueryMap(encoded = true) map: Map<String,String>?): Response<BaseResponse<List<MedicineTimeResponse>>>
+    suspend fun getMedicineTime(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<MedicineTimeResponse>>>
 }

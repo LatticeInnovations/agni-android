@@ -22,7 +22,7 @@ class PhoneEmailViewModel @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
     private val preferenceRepository: PreferenceRepository,
     private val fhirAppDatabase: FhirAppDatabase
-): BaseViewModel() {
+) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var inputValue by mutableStateOf("")
     var isInputInvalid by mutableStateOf(true)
@@ -34,20 +34,20 @@ class PhoneEmailViewModel @Inject constructor(
 
     fun updateError() {
         errorMsg = "Enter valid phone number or Email address"
-        isPhoneNumber = inputValue.matches(OnlyNumberRegex.onlyNumbers) && inputValue.length <=10
+        isPhoneNumber = inputValue.matches(OnlyNumberRegex.onlyNumbers) && inputValue.length <= 10
         isInputInvalid = if (isPhoneNumber) {
             inputValue.length != 10
         } else !inputValue.matches(EmailRegex.emailPattern)
         isError = isInputInvalid
     }
 
-    internal fun login(navigate:(Boolean) -> Unit) {
+    internal fun login(navigate: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             authenticationRepository.login(inputValue).apply {
-                if(this is ApiEmptyResponse) {
+                if (this is ApiEmptyResponse) {
                     isAuthenticating = false
                     navigate(true)
-                } else if(this is ApiErrorResponse) {
+                } else if (this is ApiErrorResponse) {
                     errorMsg = errorMessage
                     isError = true
                     isAuthenticating = false
@@ -58,12 +58,15 @@ class PhoneEmailViewModel @Inject constructor(
     }
 
     fun isDifferentUserLogin(): Boolean {
-        return if(preferenceRepository.getUserMobile() == 0L && preferenceRepository.getUserEmail().isBlank()) {
-                false
-            } else !(preferenceRepository.getUserEmail() == inputValue || preferenceRepository.getUserMobile().toString() == inputValue)
+        return if (preferenceRepository.getUserMobile() == 0L && preferenceRepository.getUserEmail()
+                .isBlank()
+        ) {
+            false
+        } else !(preferenceRepository.getUserEmail() == inputValue || preferenceRepository.getUserMobile()
+            .toString() == inputValue)
     }
 
-    internal fun clearAllAppData(){
+    internal fun clearAllAppData() {
         viewModelScope.launch(Dispatchers.IO) {
             fhirAppDatabase.clearAllTables()
             preferenceRepository.clearPreferences()

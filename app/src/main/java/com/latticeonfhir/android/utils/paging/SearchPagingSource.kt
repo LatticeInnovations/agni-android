@@ -5,7 +5,10 @@ import androidx.paging.PagingState
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import okio.IOException
 
-class SearchPagingSource(private val fuzzyList: List<PatientAndIdentifierEntity>, private val pageSize: Int) : PagingSource<Int, PatientAndIdentifierEntity>() {
+class SearchPagingSource(
+    private val fuzzyList: List<PatientAndIdentifierEntity>,
+    private val pageSize: Int
+) : PagingSource<Int, PatientAndIdentifierEntity>() {
 
     override fun getRefreshKey(state: PagingState<Int, PatientAndIdentifierEntity>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
@@ -18,7 +21,8 @@ class SearchPagingSource(private val fuzzyList: List<PatientAndIdentifierEntity>
         return try {
             val position = params.key ?: 0
             val left = position * pageSize
-            val right = if ((position * pageSize) + pageSize < fuzzyList.size) (position * pageSize) + pageSize else fuzzyList.size
+            val right =
+                if ((position * pageSize) + pageSize < fuzzyList.size) (position * pageSize) + pageSize else fuzzyList.size
             LoadResult.Page(
                 data = fuzzyList.subList(left, right),
                 prevKey = if (position == 0) null else position - 1,
