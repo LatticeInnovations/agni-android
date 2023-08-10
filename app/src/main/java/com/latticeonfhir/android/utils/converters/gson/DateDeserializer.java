@@ -28,12 +28,12 @@ public class DateDeserializer implements JsonDeserializer<Date> {
 
     @NonNull
     @Override
-    public Date deserialize(@NonNull JsonElement jsonElement, @NonNull Type typeOF,
-                            @NonNull JsonDeserializationContext context) throws JsonParseException {
+    public Date deserialize(@NonNull JsonElement jsonElement, @NonNull Type typeOF, @NonNull JsonDeserializationContext context) throws JsonParseException {
         for (String format : DATE_FORMATS) {
             try {
                 return Objects.requireNonNull(new SimpleDateFormat(format, Locale.getDefault()).parse(jsonElement.getAsString()));
-            } catch (ParseException ignored) {
+            } catch (ParseException e) {
+                throw new JsonParseException(e);
             }
         }
         throw new JsonParseException("Unparseable date: \"" + jsonElement.getAsString()
