@@ -369,15 +369,11 @@ fun QueueScreen(
                             var patient by remember {
                                 mutableStateOf<PatientResponse?>(null)
                             }
-                            var prescriptionExist by remember {
-                                mutableStateOf<Boolean>(false)
-                            }
                             waitingAppointmentResponse.patientId.let { patientId ->
                                 coroutineScope.launch {
                                     patient = viewModel.getPatientById(
                                         patientId
                                     )
-                                    prescriptionExist = viewModel.checkPrescription(waitingAppointmentResponse.uuid)
                                 }
                             }
                             Row(
@@ -391,7 +387,7 @@ fun QueueScreen(
                                     viewModel,
                                     landingViewModel,
                                     queueListState,
-                                    waitingAppointmentResponse.copy(status = if (prescriptionExist) AppointmentStatusEnum.IN_PROGRESS.value else waitingAppointmentResponse.status),
+                                    waitingAppointmentResponse,
                                     patient
                                 )
                             }
