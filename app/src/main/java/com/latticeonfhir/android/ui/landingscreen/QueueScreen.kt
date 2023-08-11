@@ -1,4 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package com.latticeonfhir.android.ui.landingscreen
 
@@ -111,6 +110,7 @@ import org.burnoutcrew.reorderable.reorderable
 import timber.log.Timber
 import java.util.Date
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("FrequentlyChangedStateReadInComposition")
 @Composable
 fun QueueScreen(
@@ -166,11 +166,11 @@ fun QueueScreen(
                         modifier = Modifier
                             .testTag("DATE_DROPDOWN")
                             .clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = null
-                        ) {
-                            viewModel.showDatePicker = true
-                        }
+                                interactionSource = MutableInteractionSource(),
+                                indication = null
+                            ) {
+                                viewModel.showDatePicker = true
+                            }
                     ) {
                         Column {
                             Text(
@@ -364,22 +364,25 @@ fun QueueScreen(
                             queueListState, key = waitingAppointmentResponse,
                             modifier = Modifier
                                 .background(MaterialTheme.colorScheme.secondaryContainer)
-                        ) { isDragging ->
+                        ) { _ ->
                             //val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                             var patient by remember {
                                 mutableStateOf<PatientResponse?>(null)
                             }
-                            waitingAppointmentResponse.patientId.let {
+                            var prescriptionExist by remember {
+                                mutableStateOf<Boolean>(false)
+                            }
+                            waitingAppointmentResponse.patientId.let { patientId ->
                                 coroutineScope.launch {
                                     patient = viewModel.getPatientById(
-                                        it
+                                        patientId
                                     )
+                                    prescriptionExist = viewModel.checkPrescription(waitingAppointmentResponse.uuid)
                                 }
                             }
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    //.shadow(elevation.value)
                                     .padding(horizontal = 18.dp, vertical = 9.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
@@ -388,7 +391,7 @@ fun QueueScreen(
                                     viewModel,
                                     landingViewModel,
                                     queueListState,
-                                    waitingAppointmentResponse,
+                                    waitingAppointmentResponse.copy(status = if (prescriptionExist) AppointmentStatusEnum.IN_PROGRESS.value else waitingAppointmentResponse.status),
                                     patient
                                 )
                             }
@@ -625,6 +628,7 @@ fun QueueScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppointmentStatusChips(
     label: Int, count: Int,
@@ -681,12 +685,12 @@ fun QueuePatientCard(
         modifier = Modifier
             .testTag("QUEUE_PATIENT_CARD")
             .clickable {
-            navController.currentBackStackEntry?.savedStateHandle?.set(
-                NavControllerConstants.PATIENT,
-                patient
-            )
-            navController.navigate(Screen.PatientLandingScreen.route)
-        }
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    NavControllerConstants.PATIENT,
+                    patient
+                )
+                navController.navigate(Screen.PatientLandingScreen.route)
+            }
     ) {
         Row(
             modifier = Modifier
@@ -836,7 +840,9 @@ fun QueuePatientCard(
                         viewModel.patientSelected = patient
                         viewModel.appointmentSelected = appointmentResponseLocal
                     },
-                    modifier = Modifier.weight(1f).testTag("APPOINTMENT_CANCEL_BTN")
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag("APPOINTMENT_CANCEL_BTN")
                 ) {
                     Text(text = stringResource(id = R.string.cancel))
                 }

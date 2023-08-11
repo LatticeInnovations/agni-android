@@ -15,10 +15,12 @@ import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEn
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PermanentAddressEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
+import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.QueryParameters
@@ -27,6 +29,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
@@ -386,5 +389,29 @@ internal fun AppointmentResponseLocal.toAppointmentEntity(): AppointmentEntity {
         status = status,
         startTime = slot.start,
         endTime = slot.end
+    )
+}
+
+internal fun PrescriptionAndMedicineRelation.toPrescriptionResponseLocal(): PrescriptionResponseLocal {
+    return PrescriptionResponseLocal(
+        patientId = prescriptionEntity.patientId,
+        patientFhirId = prescriptionEntity.patientFhirId,
+        appointmentId= prescriptionEntity.appointmentId,
+        generatedOn = prescriptionEntity.prescriptionDate,
+        prescriptionId = prescriptionEntity.id,
+        prescription = prescriptionDirectionAndMedicineView.map { prescriptionDirectionAndMedicineView -> prescriptionDirectionAndMedicineView.toMedication() }
+    )
+}
+
+internal fun PrescriptionDirectionAndMedicineView.toMedication(): Medication {
+    return Medication(
+        doseForm = medicationEntity.doseForm,
+        duration = prescriptionDirectionsEntity.duration,
+        frequency = prescriptionDirectionsEntity.frequency,
+        medFhirId = medicationEntity.medFhirId,
+        note = prescriptionDirectionsEntity.note,
+        qtyPerDose = prescriptionDirectionsEntity.qtyPerDose,
+        qtyPrescribed = prescriptionDirectionsEntity.qtyPrescribed,
+        timing = prescriptionDirectionsEntity.timing
     )
 }
