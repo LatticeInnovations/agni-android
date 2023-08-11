@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionDirectionsEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionResponseLocal
 import javax.inject.Inject
 
 class PrescriptionRepositoryImpl @Inject constructor(private val prescriptionDao: PrescriptionDao) :
@@ -20,5 +21,11 @@ class PrescriptionRepositoryImpl @Inject constructor(private val prescriptionDao
 
     override suspend fun getLastPrescription(patientId: String): List<PrescriptionAndMedicineRelation> {
         return prescriptionDao.getPastPrescriptions(patientId)
+    }
+
+    override suspend fun getPrescriptionByAppointmentId(appointmentId: String): List<PrescriptionResponseLocal> {
+        return prescriptionDao.getPrescriptionByAppointmentId(appointmentId).map {prescriptionAndMedicineRelation ->
+            prescriptionAndMedicineRelation.toPrescriptionResponseLocal()
+        }
     }
 }
