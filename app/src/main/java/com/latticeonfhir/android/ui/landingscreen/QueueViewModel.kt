@@ -12,9 +12,11 @@ import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
+import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
@@ -34,7 +36,8 @@ class QueueViewModel @Inject constructor(
     private val patientRepository: PatientRepository,
     private val appointmentRepository: AppointmentRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val genericRepository: GenericRepository
+    private val genericRepository: GenericRepository,
+    private val prescriptionRepository: PrescriptionRepository
 ) : BaseAndroidViewModel(application) {
 
     // queue screen
@@ -71,29 +74,29 @@ class QueueViewModel @Inject constructor(
             appointmentsList = appointmentRepository.getAppointmentListByDate(
                 selectedDate.toTodayStartDate(),
                 selectedDate.toEndOfDay()
-            ).filter { AppointmentResponseLocal ->
-                val patient = getPatientById(AppointmentResponseLocal.patientId)
+            ).filter { appointmentResponseLocal ->
+                val patient = getPatientById(appointmentResponseLocal.patientId)
                 patient.firstName.contains(searchQueueQuery, true)
                         || patient.middleName?.contains(searchQueueQuery, true) == true
                         || patient.lastName?.contains(searchQueueQuery, true) == true
             }
-            waitingQueueList = appointmentsList.filter { AppointmentResponseLocal ->
-                AppointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || AppointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value
+            waitingQueueList = appointmentsList.filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value
             }
-            inProgressQueueList = appointmentsList.filter { AppointmentResponseLocal ->
-                AppointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value
+            inProgressQueueList = appointmentsList.filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value
             }
-            scheduledQueueList = appointmentsList.filter { AppointmentResponseLocal ->
-                AppointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
+            scheduledQueueList = appointmentsList.filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
             }
-            completedQueueList = appointmentsList.filter { AppointmentResponseLocal ->
-                AppointmentResponseLocal.status == AppointmentStatusEnum.COMPLETED.value
+            completedQueueList = appointmentsList.filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status == AppointmentStatusEnum.COMPLETED.value
             }
-            cancelledQueueList = appointmentsList.filter { AppointmentResponseLocal ->
-                AppointmentResponseLocal.status == AppointmentStatusEnum.CANCELLED.value
+            cancelledQueueList = appointmentsList.filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status == AppointmentStatusEnum.CANCELLED.value
             }
-            noShowQueueList = appointmentsList.filter { AppointmentResponseLocal ->
-                AppointmentResponseLocal.status == AppointmentStatusEnum.NO_SHOW.value
+            noShowQueueList = appointmentsList.filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status == AppointmentStatusEnum.NO_SHOW.value
             }
         }
     }
@@ -180,5 +183,9 @@ class QueueViewModel @Inject constructor(
                 }
             )
         }
+    }
+
+    internal suspend fun checkPrescription(appointmentId: String): Boolean {
+        return prescriptionRepository.getPrescriptionByAppointmentId(appointmentId).isNotEmpty()
     }
 }

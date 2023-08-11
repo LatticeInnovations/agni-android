@@ -21,23 +21,15 @@ import com.latticeonfhir.android.service.workmanager.workers.download.relation.R
 import com.latticeonfhir.android.service.workmanager.workers.download.schedule.ScheduleDownloadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.trigger.triggeronetime.TriggerWorkerOneTimeImpl
 import com.latticeonfhir.android.service.workmanager.workers.trigger.triggerperiodic.TriggerWorkerPeriodicImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.patch.AppointmentPatchUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.patch.AppointmentPatchUploadSyncWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.post.AppointmentUploadSyncWorker.Companion.AppointmentUploadProgress
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.post.AppointmentUploadSyncWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.completed.AppointmentCompletedStatusUpdateWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.noshow.AppointmentNoShowStatusUpdateWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.patch.PatientPatchUploadSyncWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.patient.post.PatientUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.patient.post.PatientUploadSyncWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.prescription.PrescriptionUploadSyncWorker.Companion.PRESCRIPTION_UPLOAD_PROGRESS
 import com.latticeonfhir.android.service.workmanager.workers.upload.prescription.PrescriptionUploadSyncWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.relation.patch.RelationPatchUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.patch.RelationPatchUploadSyncWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.relation.post.RelationUploadSyncWorker
 import com.latticeonfhir.android.service.workmanager.workers.upload.relation.post.RelationUploadSyncWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.schedule.ScheduleUploadSyncWorker.Companion.SCHEDULE_UPLOAD_PROGRESS
 import com.latticeonfhir.android.service.workmanager.workers.upload.schedule.ScheduleUploadSyncWorkerImpl
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.constants.ErrorConstants.ERROR_MESSAGE
@@ -165,26 +157,17 @@ class WorkRequestBuilders(
                         true,
                         errorMsgFromServer
                     )
-                } else {
-                    if (workInfo.progress.getInt(
-                            PatientUploadSyncWorker.PatientUploadProgress,
-                            0
-                        ) == 100
-                    ) {
-                        /** Handle Sync Progress Here */
-                    }
-                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                        /** Update Fhir Id in Generic Entity */
-                        CoroutineScope(Dispatchers.IO).launch {
-                            updateFhirIdInRelation { errorReceived, errorMsg ->
-                                error(errorReceived, errorMsg)
-                            }
-                        }
-
-                        /** Download Patient Worker */
-                        downloadPatientWorker { errorReceived, errorMsg ->
+                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    /** Update Fhir Id in Generic Entity */
+                    CoroutineScope(Dispatchers.IO).launch {
+                        updateFhirIdInRelation { errorReceived, errorMsg ->
                             error(errorReceived, errorMsg)
                         }
+                    }
+
+                    /** Download Patient Worker */
+                    downloadPatientWorker { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
                     }
                 }
             }
@@ -202,25 +185,12 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else {
-                    if (workInfo.progress.getInt(
-                            RelationUploadSyncWorker.RelationUploadProgress,
-                            0
-                        ) == 100
-                    ) {
-                        /** Handle Progress Based Download WorkRequests Here */
-                    }
-                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-
-                    }
-                }
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
             }
         }
     }
@@ -236,23 +206,12 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else {
-                    val progress = workInfo.progress
-                    val value = progress.getInt(PRESCRIPTION_UPLOAD_PROGRESS, 0)
-                    if (value == 100) {
-                        /** Handle Progress Based Download WorkRequests Here */
-                    }
-                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-
-                    }
-                }
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
             }
         }
     }
@@ -275,18 +234,11 @@ class WorkRequestBuilders(
                         true,
                         errorMsg
                     )
-                } else {
-                    val progress = workInfo.progress
-                    val value = progress.getInt(SCHEDULE_UPLOAD_PROGRESS, 0)
-                    if (value == 100) {
-                        /** Handle Progress Based Download WorkRequests Here */
-                    }
-                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                        // call update fhir id in appointment worker
-                        CoroutineScope(Dispatchers.IO).launch {
-                            updateFhirIdsInAppointment { errorReceived, errorMsg ->
-                                error(errorReceived, errorMsg)
-                            }
+                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    // call update fhir id in appointment worker
+                    CoroutineScope(Dispatchers.IO).launch {
+                        updateFhirIdsInAppointment { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
                         }
                     }
                 }
@@ -312,17 +264,10 @@ class WorkRequestBuilders(
                         true,
                         errorMsg
                     )
-                } else {
-                    val progress = workInfo.progress
-                    val value = progress.getInt(AppointmentUploadProgress, 0)
-                    if (value == 100) {
-                        /** Handle Progress Based Download WorkRequests Here */
-                    }
-                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                        /** Update Schedule Fhir Id in Appointment Patch Worker*/
-                        updateScheduleFhirIdInAppointmentPatch { errorReceived, errorMsg ->
-                            error(errorReceived, errorMsg)
-                        }
+                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    /** Update Schedule Fhir Id in Appointment Patch Worker*/
+                    updateScheduleFhirIdInAppointmentPatch { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
                     }
                 }
             }
@@ -383,16 +328,12 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                    /** Handle Success Here */
-                }
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
             }
         }
     }
@@ -413,16 +354,12 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-
-                }
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
             }
         }
     }
@@ -486,16 +423,12 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                    /** Handle Success Here */
-                }
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
             }
         }
     }
@@ -511,16 +444,12 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                    /** Handle Success Here */
-                }
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
             }
         }
     }
@@ -544,22 +473,12 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsgFromServer = workInfo.progress.getString(ERROR_MESSAGE) ?: ""
-                    if (errorMsgFromServer == ErrorConstants.SESSION_EXPIRED || errorMsgFromServer == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsgFromServer
-                    )
-                } else {
-                    if (workInfo.progress.getInt(
-                            PatientPatchUploadSyncWorker.PatientPatchUpload,
-                            0
-                        ) == 100
-                    ) {
-                        /** Handle Progress Based Download WorkRequests Here */
-                    }
-                }
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
             }
         }
     }
@@ -575,22 +494,12 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsgFromServer = workInfo.progress.getString(ERROR_MESSAGE) ?: ""
-                    if (errorMsgFromServer == ErrorConstants.SESSION_EXPIRED || errorMsgFromServer == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsgFromServer
-                    )
-                } else {
-                    if (workInfo.progress.getInt(
-                            RelationPatchUploadSyncWorker.RelationPatchUpload,
-                            0
-                        ) == 100
-                    ) {
-                        /** Handle Progress Based Download WorkRequests Here */
-                    }
-                }
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
             }
         }
     }
@@ -613,24 +522,15 @@ class WorkRequestBuilders(
                         true,
                         errorMsgFromServer
                     )
-                } else {
-                    if (workInfo.progress.getInt(
-                            AppointmentPatchUploadSyncWorker.AppointmentPatchUpload,
-                            0
-                        ) == 100
-                    ) {
-                        /** Handle Progress Based Download WorkRequests Here */
-                    }
-                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            updateFhirIdInPrescription { errorReceived, errorMsg ->
-                                error(errorReceived, errorMsg)
-                            }
-                        }
-
-                        downloadScheduleWorker { errorReceived, errorMsg ->
+                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        updateFhirIdInPrescription { errorReceived, errorMsg ->
                             error(errorReceived, errorMsg)
                         }
+                    }
+
+                    downloadScheduleWorker { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
                     }
                 }
             }
