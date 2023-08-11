@@ -12,7 +12,6 @@ import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
@@ -81,13 +80,20 @@ class QueueViewModel @Inject constructor(
                         || patient.lastName?.contains(searchQueueQuery, true) == true
             }
             waitingQueueList = appointmentsList.filter { appointmentResponseLocal ->
-                (appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value) && !checkPrescription(appointmentResponseLocal.uuid)
+                (appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value) && !checkPrescription(
+                    appointmentResponseLocal.uuid
+                )
             }
             inProgressQueueList = appointmentsList.filter { appointmentResponseLocal ->
                 (appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value)
-                        || ((appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value) && checkPrescription(appointmentResponseLocal.uuid))
+                        || ((appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value) && checkPrescription(
+                    appointmentResponseLocal.uuid
+                ))
             }.map { appointmentResponseLocal ->
-                if (checkPrescription(appointmentResponseLocal.uuid)) appointmentResponseLocal.copy(
+                if (((appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value) && checkPrescription(
+                        appointmentResponseLocal.uuid
+                    ))
+                ) appointmentResponseLocal.copy(
                     status = AppointmentStatusEnum.IN_PROGRESS.value
                 )
                 else appointmentResponseLocal
