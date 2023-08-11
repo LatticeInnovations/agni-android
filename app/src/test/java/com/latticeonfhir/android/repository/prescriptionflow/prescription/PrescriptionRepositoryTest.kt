@@ -127,4 +127,12 @@ class PrescriptionRepositoryTest : BaseClass() {
         val lastPrescriptions = prescriptionRepositoryImpl.getLastPrescription(patientResponse.id)
         assertEquals(listOf(prescriptionAndMedicineRelation),lastPrescriptions)
     }
+
+    @Test
+    internal fun `get prescription by appointment id`() = runTest {
+        `when`(prescriptionDao.getPrescriptionByAppointmentId(prescriptionResponseLocal.appointmentId)).thenReturn(
+            listOf(prescriptionAndMedicineRelation)
+        )
+        assertEquals(prescriptionResponseLocal.appointmentId,prescriptionRepositoryImpl.getPrescriptionByAppointmentId(prescriptionResponseLocal.appointmentId)[0].appointmentId)
+    }
 }
