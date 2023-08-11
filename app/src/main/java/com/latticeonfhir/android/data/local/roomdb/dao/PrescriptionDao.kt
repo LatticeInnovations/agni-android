@@ -20,9 +20,6 @@ interface PrescriptionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPrescriptionMedicines(vararg prescriptionDirectionsEntity: PrescriptionDirectionsEntity): List<Long>
 
-//    @Query("SELECT * FROM PrescriptionEntity prescription INNER JOIN (SELECT * FROM PrescriptionDirectionsEntity prescriptionDirections INNER JOIN MedicationEntity medication ON prescriptionDirections.medFhirId = medication.medFhirId) prescribeMedicines ON prescription.id = prescribeMedicines.prescriptionId AND prescription.patientId = :patientId ORDER BY prescription.prescriptionDate LIMIT :limit")
-//    suspend fun getPastPrescriptions(patientId: String, limit: Int = 5): List<PrescriptionAndMedicineRelation>
-
     @Transaction
     @Query("SELECT * FROM PrescriptionEntity prescription WHERE patientId = :patientId ORDER BY prescription.prescriptionDate DESC LIMIT :limit")
     suspend fun getPastPrescriptions(
@@ -33,4 +30,8 @@ interface PrescriptionDao {
     @Transaction
     @Query("UPDATE PrescriptionEntity SET prescriptionFhirId = :prescriptionFhirId WHERE id = :prescriptionId")
     suspend fun updatePrescriptionFhirId(prescriptionId: String, prescriptionFhirId: String)
+
+    @Transaction
+    @Query("SELECT * FROM PrescriptionEntity WHERE appointmentId = :appointmentId")
+    suspend fun getPrescriptionByAppointmentId(appointmentId: String): List<PrescriptionAndMedicineRelation>
 }
