@@ -89,6 +89,8 @@ fun LandingScreen(
                     queueViewModel.isSearchingInQueue = false
                     queueViewModel.searchQueueQuery = ""
                     queueViewModel.getAppointmentListByDate()
+                } else if(viewModel.showStatusChangeLayout) {
+                    viewModel.showStatusChangeLayout = false
                 } else viewModel.selectedIndex = 0
             }
             0 -> {
