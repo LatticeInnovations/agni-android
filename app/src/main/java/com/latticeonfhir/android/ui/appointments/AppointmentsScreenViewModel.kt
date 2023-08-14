@@ -83,8 +83,8 @@ class AppointmentsScreenViewModel @Inject constructor(
                 Date().toTodayStartDate(),
                 Date().toEndOfDay()
             ).let { appointmentResponseLocal ->
-                ifAlreadyWaiting = appointmentResponseLocal?.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal?.status == AppointmentStatusEnum.ARRIVED.value
-            }
+                ifAlreadyWaiting = if (appointmentResponseLocal == null) false
+                else appointmentResponseLocal.status != AppointmentStatusEnum.SCHEDULED.value            }
             ifAllSlotsBooked = appointmentRepository.getAppointmentListByDate(
                 Date().toTodayStartDate(),
                 Date().toEndOfDay()
