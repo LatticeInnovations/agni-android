@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
@@ -73,7 +74,7 @@ class PrescriptionViewModel @Inject constructor(
             appointmentResponseLocal =
                 appointmentRepository.getAppointmentListByDate(startDate.time, endDate.time)
                     .firstOrNull { appointmentEntity ->
-                        appointmentEntity.patientId == patientId
+                        appointmentEntity.patientId == patientId && (appointmentEntity.status == AppointmentStatusEnum.WALK_IN.value || appointmentEntity.status == AppointmentStatusEnum.ARRIVED.value)
                     }
         }
     }
