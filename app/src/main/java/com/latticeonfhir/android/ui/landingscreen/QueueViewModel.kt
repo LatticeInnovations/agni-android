@@ -80,23 +80,10 @@ class QueueViewModel @Inject constructor(
                         || patient.lastName?.contains(searchQueueQuery, true) == true
             }
             waitingQueueList = appointmentsList.filter { appointmentResponseLocal ->
-                (appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value) && !checkPrescription(
-                    appointmentResponseLocal.uuid
-                )
+                (appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
             }
             inProgressQueueList = appointmentsList.filter { appointmentResponseLocal ->
-                (appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value)
-                        || ((appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value) && checkPrescription(
-                    appointmentResponseLocal.uuid
-                ))
-            }.map { appointmentResponseLocal ->
-                if (((appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value) && checkPrescription(
-                        appointmentResponseLocal.uuid
-                    ))
-                ) appointmentResponseLocal.copy(
-                    status = AppointmentStatusEnum.IN_PROGRESS.value
-                )
-                else appointmentResponseLocal
+                appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value
             }
             scheduledQueueList = appointmentsList.filter { appointmentResponseLocal ->
                 appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
@@ -195,9 +182,5 @@ class QueueViewModel @Inject constructor(
                 }
             )
         }
-    }
-
-    private suspend fun checkPrescription(appointmentId: String): Boolean {
-        return prescriptionRepository.getPrescriptionByAppointmentId(appointmentId).isNotEmpty()
     }
 }
