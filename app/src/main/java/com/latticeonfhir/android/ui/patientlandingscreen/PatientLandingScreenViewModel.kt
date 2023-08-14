@@ -99,7 +99,7 @@ class PatientLandingScreenViewModel @Inject constructor(
                 Date().toEndOfDay()
             ).let { appointmentResponse ->
                 ifAlreadyWaiting = if (appointmentResponse == null) false
-                else appointmentResponse.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponse.status == AppointmentStatusEnum.ARRIVED.value
+                else appointmentResponse.status != AppointmentStatusEnum.SCHEDULED.value
             }
             ifAllSlotsBooked = appointmentRepository.getAppointmentListByDate(
                 Date().toTodayStartDate(),
