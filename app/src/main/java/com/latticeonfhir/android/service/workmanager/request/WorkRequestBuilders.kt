@@ -48,6 +48,9 @@ class WorkRequestBuilders(
     private val genericRepository: GenericRepository
 ) {
 
+    private var patientSyncCompleted = false
+    private var scheduleSyncCompleted = false
+
     /**
      *
      * Periodic Worker that triggers
@@ -164,6 +167,12 @@ class WorkRequestBuilders(
                             error(errorReceived, errorMsg)
                         }
                     }
+                    /** Upload Schedule Worker */
+                    CoroutineScope(Dispatchers.IO).launch {
+                        uploadScheduleSyncWorker { errorReceived, errorMsg ->
+                            error(errorReceived, errorMsg)
+                        }
+                    }
 
                     /** Download Patient Worker */
                     downloadPatientWorker { errorReceived, errorMsg ->
@@ -235,11 +244,17 @@ class WorkRequestBuilders(
                         errorMsg
                     )
                 } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                    // call update fhir id in appointment worker
+
+                    /** Update Schedule Fhir Id in Appointment Patch Worker*/
                     CoroutineScope(Dispatchers.IO).launch {
-                        updateFhirIdsInAppointment { errorReceived, errorMsg ->
+                        updateScheduleFhirIdInAppointmentPatch { errorReceived, errorMsg ->
                             error(errorReceived, errorMsg)
                         }
+                    }
+
+                    /**call update fhir id in appointment worker */
+                    updateFhirIdsInAppointment { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
                     }
                 }
             }
@@ -257,19 +272,12 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo != null) {
-                if (workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                    /** Update Schedule Fhir Id in Appointment Patch Worker*/
-                    updateScheduleFhirIdInAppointmentPatch { errorReceived, errorMsg ->
-                        error(errorReceived, errorMsg)
-                    }
-                }
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
             }
         }
     }
@@ -302,14 +310,13 @@ class WorkRequestBuilders(
                     errorMsg
                 )
             } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                patientSyncCompleted = true
                 CoroutineScope(Dispatchers.IO).launch {
                     downloadRelationWorker { errorReceived, errorMsg ->
                         error(errorReceived, errorMsg)
                     }
                 }
-
-                /** Upload Schedule Worker */
-                uploadScheduleSyncWorker { errorReceived, errorMsg ->
+                downloadAppointmentWorker { errorReceived, errorMsg ->
                     error(errorReceived, errorMsg)
                 }
             }
@@ -383,6 +390,7 @@ class WorkRequestBuilders(
                     errorMsg
                 )
             } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                scheduleSyncCompleted = true
                 downloadAppointmentWorker { errorReceived, errorMsg ->
                     error(errorReceived, errorMsg)
                 }
@@ -393,21 +401,23 @@ class WorkRequestBuilders(
     /** Appointment Download Sync Worker */
     private suspend fun downloadAppointmentWorker(error: (Boolean, String) -> Unit) {
         /** Download Worker */
-        Sync.oneTimeSync<AppointmentDownloadSyncWorkerImpl>(
-            applicationContext,
-            defaultRetryConfiguration.copy(
-                syncConstraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .build()
-            )
-        ).collectLatest { workInfo ->
-            if (workInfo?.state == WorkInfo.State.FAILED) {
-                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                    true,
-                    errorMsg
+        if(patientSyncCompleted && scheduleSyncCompleted) {
+            Sync.oneTimeSync<AppointmentDownloadSyncWorkerImpl>(
+                applicationContext,
+                defaultRetryConfiguration.copy(
+                    syncConstraints = Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .setRequiresBatteryNotLow(true)
+                        .build()
                 )
+            ).collectLatest { workInfo ->
+                if (workInfo?.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                }
             }
         }
     }

@@ -86,12 +86,14 @@ class PatientLandingScreenViewModel @Inject constructor(
             appointmentsCount = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patientId,
                 AppointmentStatusEnum.SCHEDULED.value
-            ).size
+            ).filter { appointmentResponseLocal ->
+                appointmentResponseLocal.slot.start.time > Date().toTodayStartDate()
+            }.size
             appointment = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patientId,
                 AppointmentStatusEnum.SCHEDULED.value
             ).firstOrNull { appointmentResponse ->
-                appointmentResponse.slot.start.time < Date().toEndOfDay()
+                appointmentResponse.slot.start.time < Date().toEndOfDay() && appointmentResponse.slot.start.time > Date().toTodayStartDate()
             }
             appointmentRepository.getAppointmentsOfPatientByDate(
                 patientId,
@@ -99,7 +101,7 @@ class PatientLandingScreenViewModel @Inject constructor(
                 Date().toEndOfDay()
             ).let { appointmentResponse ->
                 ifAlreadyWaiting = if (appointmentResponse == null) false
-                else appointmentResponse.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponse.status == AppointmentStatusEnum.ARRIVED.value
+                else appointmentResponse.status != AppointmentStatusEnum.SCHEDULED.value
             }
             ifAllSlotsBooked = appointmentRepository.getAppointmentListByDate(
                 Date().toTodayStartDate(),
