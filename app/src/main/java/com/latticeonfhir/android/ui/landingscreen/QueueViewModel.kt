@@ -78,6 +78,7 @@ class QueueViewModel @Inject constructor(
                 patient.firstName.contains(searchQueueQuery, true)
                         || patient.middleName?.contains(searchQueueQuery, true) == true
                         || patient.lastName?.contains(searchQueueQuery, true) == true
+                        || patient.fhirId?.contains(searchQueueQuery, true) == true
             }
             waitingQueueList = appointmentsList.filter { appointmentResponseLocal ->
                 (appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
