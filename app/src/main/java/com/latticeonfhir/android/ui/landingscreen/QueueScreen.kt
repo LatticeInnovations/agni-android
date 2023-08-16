@@ -1,4 +1,3 @@
-
 package com.latticeonfhir.android.ui.landingscreen
 
 import android.annotation.SuppressLint
@@ -801,7 +800,8 @@ fun QueuePatientCard(
                     )
                 }
             }
-            if (appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value
+            if ((appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
+                && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.drag_handle_icon),
@@ -813,10 +813,11 @@ fun QueuePatientCard(
                 )
             }
         }
-        if (
-            appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
-            || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value
-            || appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
+        if ((
+                    appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
+                            || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value
+                            || appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value)
+            && appointmentResponseLocal.slot.start.toTodayStartDate() >= Date().toTodayStartDate()
         ) {
             Divider(
                 thickness = 1.dp,
@@ -824,45 +825,49 @@ fun QueuePatientCard(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        Row(modifier = Modifier.fillMaxWidth()) {
-            if (
-                appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
-                || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value
-                || appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
-            ) {
-                TextButton(
-                    onClick = {
-                        viewModel.showCancelAppointmentDialog = true
-                        viewModel.patientSelected = patient
-                        viewModel.appointmentSelected = appointmentResponseLocal
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .testTag("APPOINTMENT_CANCEL_BTN")
-                ) {
-                    Text(text = stringResource(id = R.string.cancel))
-                }
-            }
-            if (appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value) {
-                Surface(
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.secondaryContainer
+        if (
+            appointmentResponseLocal.slot.start.toTodayStartDate() >= Date().toTodayStartDate()
+        ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                if (
+                    appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
+                    || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value
+                    || appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
                 ) {
                     TextButton(
                         onClick = {
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                NavControllerConstants.APPOINTMENT_SELECTED,
-                                appointmentResponseLocal
-                            )
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                NavControllerConstants.PATIENT,
-                                patient
-                            )
-                            navController.navigate(Screen.RescheduleAppointments.route)
+                            viewModel.showCancelAppointmentDialog = true
+                            viewModel.patientSelected = patient
+                            viewModel.appointmentSelected = appointmentResponseLocal
                         },
-                        modifier = Modifier.testTag("APPOINTMENT_RESCHEDULE_BTN")
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag("APPOINTMENT_CANCEL_BTN")
                     ) {
-                        Text(text = stringResource(id = R.string.reschedule))
+                        Text(text = stringResource(id = R.string.cancel))
+                    }
+                }
+                if (appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value) {
+                    Surface(
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.secondaryContainer
+                    ) {
+                        TextButton(
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    NavControllerConstants.APPOINTMENT_SELECTED,
+                                    appointmentResponseLocal
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    NavControllerConstants.PATIENT,
+                                    patient
+                                )
+                                navController.navigate(Screen.RescheduleAppointments.route)
+                            },
+                            modifier = Modifier.testTag("APPOINTMENT_RESCHEDULE_BTN")
+                        ) {
+                            Text(text = stringResource(id = R.string.reschedule))
+                        }
                     }
                 }
             }
