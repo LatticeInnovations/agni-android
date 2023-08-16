@@ -91,7 +91,7 @@ class PatientLandingScreenViewModel @Inject constructor(
                 patientId,
                 AppointmentStatusEnum.SCHEDULED.value
             ).firstOrNull { appointmentResponse ->
-                appointmentResponse.slot.start.time < Date().toEndOfDay()
+                appointmentResponse.slot.start.time < Date().toEndOfDay() && appointmentResponse.slot.start.time > Date().toTodayStartDate()
             }
             appointmentRepository.getAppointmentsOfPatientByDate(
                 patientId,
