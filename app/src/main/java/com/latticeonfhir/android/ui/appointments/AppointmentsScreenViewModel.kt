@@ -67,7 +67,9 @@ class AppointmentsScreenViewModel @Inject constructor(
             upcomingAppointmentsList = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patientId,
                 AppointmentStatusEnum.SCHEDULED.value
-            )
+            ).filter { appointmentResponseLocal ->
+                appointmentResponseLocal.slot.start.time > Date().toTodayStartDate()
+            }
             todaysAppointment = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patientId,
                 AppointmentStatusEnum.SCHEDULED.value
