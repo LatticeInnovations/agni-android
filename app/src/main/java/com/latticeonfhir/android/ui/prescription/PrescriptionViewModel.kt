@@ -4,7 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import androidx.work.Operation.State.IN_PROGRESS
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
@@ -20,8 +22,10 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -71,9 +75,8 @@ class PrescriptionViewModel @Inject constructor(
     internal fun getPatientTodayAppointment(startDate: Date, endDate: Date, patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             appointmentResponseLocal =
-                appointmentRepository.getAppointmentListByDate(startDate.time, endDate.time)
-                    .firstOrNull { appointmentEntity ->
-                        appointmentEntity.patientId == patientId
+                appointmentRepository.getAppointmentListByDate(startDate.time, endDate.time).firstOrNull { appointmentEntity ->
+                        appointmentEntity.patientId == patientId && (appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value && appointmentEntity.status != AppointmentStatusEnum.SCHEDULED.value)
                     }
         }
     }
@@ -140,6 +143,9 @@ class PrescriptionViewModel @Inject constructor(
                         appointmentId = appointmentResponseLocal!!.uuid
                     )
                 ).also {
+                    if(appointmentResponseLocal!!.status != AppointmentStatusEnum.COMPLETED.value) {
+                        updateAppointment()
+                    }
                     genericRepository.insertPrescription(
                         PrescriptionResponse(
                             patientFhirId = patient!!.fhirId ?: patient!!.id,
@@ -153,6 +159,16 @@ class PrescriptionViewModel @Inject constructor(
                     )
                 }
             )
+        }
+    }
+
+    private fun updateAppointment(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        viewModelScope.launch {
+            withContext(ioDispatcher) {
+                appointmentRepository.updateAppointment(
+                    appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
+                )
+            }
         }
     }
 

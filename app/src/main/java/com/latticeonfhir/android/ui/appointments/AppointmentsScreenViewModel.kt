@@ -67,12 +67,14 @@ class AppointmentsScreenViewModel @Inject constructor(
             upcomingAppointmentsList = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patientId,
                 AppointmentStatusEnum.SCHEDULED.value
-            )
+            ).filter { appointmentResponseLocal ->
+                appointmentResponseLocal.slot.start.time > Date().toTodayStartDate()
+            }
             todaysAppointment = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patientId,
                 AppointmentStatusEnum.SCHEDULED.value
             ).firstOrNull { appointmentResponseLocal ->
-                appointmentResponseLocal.slot.start.time < Date().toEndOfDay()
+                appointmentResponseLocal.slot.start.time < Date().toEndOfDay() && appointmentResponseLocal.slot.start.time > Date().toTodayStartDate()
             }
             completedAppointmentsList = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patientId,
@@ -83,8 +85,8 @@ class AppointmentsScreenViewModel @Inject constructor(
                 Date().toTodayStartDate(),
                 Date().toEndOfDay()
             ).let { appointmentResponseLocal ->
-                ifAlreadyWaiting = appointmentResponseLocal?.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal?.status == AppointmentStatusEnum.ARRIVED.value
-            }
+                ifAlreadyWaiting = if (appointmentResponseLocal == null) false
+                else appointmentResponseLocal.status != AppointmentStatusEnum.SCHEDULED.value            }
             ifAllSlotsBooked = appointmentRepository.getAppointmentListByDate(
                 Date().toTodayStartDate(),
                 Date().toEndOfDay()
