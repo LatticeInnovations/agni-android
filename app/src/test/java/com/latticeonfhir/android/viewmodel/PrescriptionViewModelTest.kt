@@ -18,11 +18,16 @@ import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAn
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
+import com.latticeonfhir.android.utils.MainCoroutineRule
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
@@ -30,6 +35,10 @@ import org.mockito.MockitoAnnotations
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PrescriptionViewModelTest : BaseClass() {
+
+    @get:Rule
+    val mainCoroutineRule =  MainCoroutineRule()
+
     @Mock
     lateinit var prescriptionRepository: PrescriptionRepository
 
