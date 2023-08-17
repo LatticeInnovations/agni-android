@@ -73,12 +73,9 @@ class PrescriptionViewModel @Inject constructor(
 
     internal fun getPatientTodayAppointment(startDate: Date, endDate: Date, patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            appointmentResponseLocal =
-                appointmentRepository.getAppointmentListByDate(startDate.time, endDate.time)
-                    .firstOrNull { appointmentEntity ->
-                        appointmentEntity.patientId == patientId &&
-                                (appointmentEntity.status == AppointmentStatusEnum.ARRIVED.value || appointmentEntity.status == AppointmentStatusEnum.WALK_IN.value)
-                    }
+            appointmentResponseLocal = appointmentRepository.getAppointmentListByDate(startDate.time, endDate.time).firstOrNull { appointmentEntity ->
+                appointmentEntity.patientId == patientId && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
+            }
         }
     }
 
@@ -157,7 +154,6 @@ class PrescriptionViewModel @Inject constructor(
                         )
                     )
                     appointmentRepository.updateAppointment(appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value))
-                    appointmentResponseLocal = null
                 }
             })
         }
