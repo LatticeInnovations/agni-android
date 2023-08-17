@@ -122,6 +122,7 @@ class PrescriptionViewModel @Inject constructor(
     internal fun insertPrescription(
         date: Date = Date(),
         prescriptionId: String = UUIDBuilder.generateUUID(),
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
         inserted: (Long) -> Unit
     ) {
         val medicationsList = mutableListOf<Medication>()
@@ -132,8 +133,8 @@ class PrescriptionViewModel @Inject constructor(
                 )
             )
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            inserted(
+        viewModelScope.launch {
+            inserted(withContext(ioDispatcher) {
                 prescriptionRepository.insertPrescription(
                     PrescriptionResponseLocal(
                         patientId = patient!!.id,
@@ -144,7 +145,6 @@ class PrescriptionViewModel @Inject constructor(
                         appointmentId = appointmentResponseLocal!!.uuid
                     )
                 ).also {
-                    updateAppointment()
                     genericRepository.insertPrescription(
                         PrescriptionResponse(
                             patientFhirId = patient!!.fhirId ?: patient!!.id,
@@ -156,18 +156,10 @@ class PrescriptionViewModel @Inject constructor(
                                 ?: appointmentResponseLocal!!.uuid
                         )
                     )
+                    appointmentRepository.updateAppointment(appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value))
+                    appointmentResponseLocal = null
                 }
-            )
-        }
-    }
-
-    private fun updateAppointment(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
-        viewModelScope.launch {
-            withContext(ioDispatcher) {
-                appointmentRepository.updateAppointment(
-                    appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
-                )
-            }
+            })
         }
     }
 
