@@ -76,7 +76,8 @@ class PrescriptionViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             appointmentResponseLocal =
                 appointmentRepository.getAppointmentListByDate(startDate.time, endDate.time).firstOrNull { appointmentEntity ->
-                        appointmentEntity.patientId == patientId && (appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value && appointmentEntity.status != AppointmentStatusEnum.SCHEDULED.value)
+                        appointmentEntity.patientId == patientId &&
+                                (appointmentEntity.status == AppointmentStatusEnum.ARRIVED.value || appointmentEntity.status == AppointmentStatusEnum.WALK_IN.value)
                     }
         }
     }
@@ -143,9 +144,7 @@ class PrescriptionViewModel @Inject constructor(
                         appointmentId = appointmentResponseLocal!!.uuid
                     )
                 ).also {
-                    if(appointmentResponseLocal!!.status != AppointmentStatusEnum.COMPLETED.value) {
-                        updateAppointment()
-                    }
+                    updateAppointment()
                     genericRepository.insertPrescription(
                         PrescriptionResponse(
                             patientFhirId = patient!!.fhirId ?: patient!!.id,
