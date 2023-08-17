@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -108,17 +107,17 @@ fun MyPatientScreen(
         }
         LazyColumn(modifier = Modifier.testTag("patients list")) {
             items(
-        count = patientsList.itemCount,
-        key = patientsList.itemKey(),
-        contentType = patientsList.itemContentType(
-            )
-    ) { index ->
-        val item = patientsList[index]
-        if (item != null) {
-            PatientItemCard(
-                navController, item
-            )
-        }
+                count = patientsList.itemCount,
+                key = patientsList.itemKey(),
+                contentType = patientsList.itemContentType(
+                )
+            ) { index ->
+                val item = patientsList[index]
+                if (item != null) {
+                    PatientItemCard(
+                        navController, item
+                    )
+                }
             }
             when (patientsList.loadState.append) {
                 is LoadState.NotLoading -> Unit
