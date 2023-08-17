@@ -282,7 +282,7 @@ class WorkRequestBuilders(
                         true,
                         errorMsg
                     )
-                } else if(workInfo.state == WorkInfo.State.SUCCEEDED){
+                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
                     updateFhirIdInPrescription { errorReceived, errorMsg ->
                         error(errorReceived, errorMsg)
                     }
@@ -291,302 +291,302 @@ class WorkRequestBuilders(
         }
     }
 
-        /**
-         *
-         *
-         * Download Workers
-         *
-         *
-         *
-         * */
+    /**
+     *
+     *
+     * Download Workers
+     *
+     *
+     *
+     * */
 
-        /** Patient Download Sync Worker */
-        private suspend fun downloadPatientWorker(error: (Boolean, String) -> Unit) {
-            /** Download Worker */
-            Sync.oneTimeSync<PatientDownloadSyncWorkerImpl>(
-                applicationContext,
-                defaultRetryConfiguration.copy(
-                    syncConstraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true)
-                        .build()
+    /** Patient Download Sync Worker */
+    private suspend fun downloadPatientWorker(error: (Boolean, String) -> Unit) {
+        /** Download Worker */
+        Sync.oneTimeSync<PatientDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo?.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
                 )
-            ).collectLatest { workInfo ->
-                if (workInfo?.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                    patientSyncCompleted = true
-                    CoroutineScope(Dispatchers.IO).launch {
-                        downloadRelationWorker { errorReceived, errorMsg ->
-                            error(errorReceived, errorMsg)
-                        }
-                    }
-                    downloadAppointmentWorker { errorReceived, errorMsg ->
+            } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                patientSyncCompleted = true
+                CoroutineScope(Dispatchers.IO).launch {
+                    downloadRelationWorker { errorReceived, errorMsg ->
                         error(errorReceived, errorMsg)
                     }
                 }
-            }
-        }
-
-        /** Relation Download Sync Worker */
-        private suspend fun downloadRelationWorker(error: (Boolean, String) -> Unit) {
-            //Download Worker
-            Sync.oneTimeSync<RelationDownloadSyncWorkerImpl>(
-                applicationContext,
-                defaultRetryConfiguration.copy(
-                    syncConstraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true)
-                        .build()
-                )
-            ).collectLatest { workInfo ->
-                if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
+                downloadAppointmentWorker { errorReceived, errorMsg ->
+                    error(errorReceived, errorMsg)
                 }
-            }
-        }
-
-        /** Download Prescription Data */
-        internal suspend fun downloadPrescriptionWorker(
-            patientFhirId: String,
-            error: (Boolean, String) -> Unit
-        ) {
-            /** Download Worker */
-            PrescriptionDownloadSyncWorker.patientFhirId = patientFhirId
-            Sync.oneTimeSync<PrescriptionDownloadSyncWorkerImpl>(
-                applicationContext,
-                defaultRetryConfiguration.copy(
-                    syncConstraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true)
-                        .build()
-                )
-            ).collectLatest { workInfo ->
-                if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                }
-            }
-        }
-
-        /** Schedule Download Sync Worker */
-        private suspend fun downloadScheduleWorker(error: (Boolean, String) -> Unit) {
-            /** Download Worker */
-            Sync.oneTimeSync<ScheduleDownloadSyncWorkerImpl>(
-                applicationContext,
-                defaultRetryConfiguration.copy(
-                    syncConstraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true)
-                        .build()
-                )
-            ).collectLatest { workInfo ->
-                if (workInfo?.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                    scheduleSyncCompleted = true
-                    downloadAppointmentWorker { errorReceived, errorMsg ->
-                        error(errorReceived, errorMsg)
-                    }
-                }
-            }
-        }
-
-        /** Appointment Download Sync Worker */
-        private suspend fun downloadAppointmentWorker(error: (Boolean, String) -> Unit) {
-            /** Download Worker */
-            if (patientSyncCompleted && scheduleSyncCompleted) {
-                Sync.oneTimeSync<AppointmentDownloadSyncWorkerImpl>(
-                    applicationContext,
-                    defaultRetryConfiguration.copy(
-                        syncConstraints = Constraints.Builder()
-                            .setRequiredNetworkType(NetworkType.CONNECTED)
-                            .setRequiresBatteryNotLow(true)
-                            .build()
-                    )
-                ).collectLatest { workInfo ->
-                    if (workInfo?.state == WorkInfo.State.FAILED) {
-                        val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                        if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                            true,
-                            errorMsg
-                        )
-                    }
-                }
-            }
-        }
-
-        /** Medication Worker  */
-        internal suspend fun setMedicationWorker(error: (Boolean, String) -> Unit) {
-            Sync.oneTimeSync<MedicationDownloadSyncWorkerImpl>(
-                applicationContext,
-                defaultRetryConfiguration.copy(
-                    syncConstraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true)
-                        .build()
-                )
-            ).collectLatest { workInfo ->
-                if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                }
-            }
-        }
-
-        /** Medication Dosage Worker  */
-        internal suspend fun setMedicationDosageWorker(error: (Boolean, String) -> Unit) {
-            Sync.oneTimeSync<MedicineDosageDownloadSyncWorkerImpl>(
-                applicationContext,
-                defaultRetryConfiguration.copy(
-                    syncConstraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true)
-                        .build()
-                )
-            ).collectLatest { workInfo ->
-                if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                }
-            }
-        }
-
-        /**
-         *
-         *
-         * Patch Workers
-         *
-         *
-         * */
-
-        //Patient Patch Sync
-        internal suspend fun setPatientPatchWorker(error: (Boolean, String) -> Unit) {
-            //Upload Worker
-            Sync.oneTimeSync<PatientPatchUploadSyncWorkerImpl>(
-                applicationContext, defaultRetryConfiguration.copy(
-                    syncConstraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true)
-                        .build()
-                )
-            ).collectLatest { workInfo ->
-                if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                }
-            }
-        }
-
-        //Relation Patch Sync
-        internal suspend fun setRelationPatchWorker(error: (Boolean, String) -> Unit) {
-            //Upload Worker
-            Sync.oneTimeSync<RelationPatchUploadSyncWorkerImpl>(
-                applicationContext, defaultRetryConfiguration.copy(
-                    syncConstraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true)
-                        .build()
-                )
-            ).collectLatest { workInfo ->
-                if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
-                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                        true,
-                        errorMsg
-                    )
-                }
-            }
-        }
-
-        //Appointment Patch Sync
-        private suspend fun setAppointmentPatchWorker(error: (Boolean, String) -> Unit) {
-            //Upload Worker
-            Sync.oneTimeSync<AppointmentPatchUploadSyncWorkerImpl>(
-                applicationContext, defaultRetryConfiguration.copy(
-                    syncConstraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true)
-                        .build()
-                )
-            ).collectLatest { workInfo ->
-                if (workInfo != null) {
-                    if (workInfo.state == WorkInfo.State.FAILED) {
-                        val errorMsgFromServer = workInfo.progress.getString(ERROR_MESSAGE) ?: ""
-                        if (errorMsgFromServer == ErrorConstants.SESSION_EXPIRED || errorMsgFromServer == ErrorConstants.UNAUTHORIZED) error(
-                            true,
-                            errorMsgFromServer
-                        )
-                    } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                        downloadScheduleWorker { errorReceived, errorMsg ->
-                            error(errorReceived, errorMsg)
-                        }
-                    }
-                }
-            }
-        }
-
-        /**
-         *
-         *
-         * Update in Generic Entity Methods
-         *
-         *
-         * */
-
-        private suspend fun updateFhirIdInRelation(error: (Boolean, String) -> Unit) {
-            genericRepository.updateRelationFhirId()
-            /** Start Relation Worker */
-            uploadRelationWorker { errorReceived, errorMsg ->
-                error(errorReceived, errorMsg)
-            }
-        }
-
-        private suspend fun updateFhirIdInPrescription(error: (Boolean, String) -> Unit) {
-            genericRepository.updatePrescriptionFhirId()
-            /** Start Prescription Worker */
-            uploadPrescriptionSyncWorker { errorReceived, errorMsg ->
-                error(errorReceived, errorMsg)
-            }
-        }
-
-        private suspend fun updateFhirIdsInAppointment(error: (Boolean, String) -> Unit) {
-            genericRepository.updateAppointmentFhirIds()
-            /** Start Appointment Worker */
-            uploadAppointmentSyncWorker { errorReceived, errorMsg ->
-                error(errorReceived, errorMsg)
-            }
-        }
-
-        private suspend fun updateScheduleFhirIdInAppointmentPatch(error: (Boolean, String) -> Unit) {
-            genericRepository.updateAppointmentFhirIdInPatch()
-            /** Start Appointment Patch Worker */
-            setAppointmentPatchWorker { errorReceived, errorMsg ->
-                error(errorReceived, errorMsg)
             }
         }
     }
+
+    /** Relation Download Sync Worker */
+    private suspend fun downloadRelationWorker(error: (Boolean, String) -> Unit) {
+        //Download Worker
+        Sync.oneTimeSync<RelationDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
+            }
+        }
+    }
+
+    /** Download Prescription Data */
+    internal suspend fun downloadPrescriptionWorker(
+        patientFhirId: String,
+        error: (Boolean, String) -> Unit
+    ) {
+        /** Download Worker */
+        PrescriptionDownloadSyncWorker.patientFhirId = patientFhirId
+        Sync.oneTimeSync<PrescriptionDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
+            }
+        }
+    }
+
+    /** Schedule Download Sync Worker */
+    private suspend fun downloadScheduleWorker(error: (Boolean, String) -> Unit) {
+        /** Download Worker */
+        Sync.oneTimeSync<ScheduleDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo?.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
+            } else if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                scheduleSyncCompleted = true
+                downloadAppointmentWorker { errorReceived, errorMsg ->
+                    error(errorReceived, errorMsg)
+                }
+            }
+        }
+    }
+
+    /** Appointment Download Sync Worker */
+    private suspend fun downloadAppointmentWorker(error: (Boolean, String) -> Unit) {
+        /** Download Worker */
+        if (patientSyncCompleted && scheduleSyncCompleted) {
+            Sync.oneTimeSync<AppointmentDownloadSyncWorkerImpl>(
+                applicationContext,
+                defaultRetryConfiguration.copy(
+                    syncConstraints = Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .setRequiresBatteryNotLow(true)
+                        .build()
+                )
+            ).collectLatest { workInfo ->
+                if (workInfo?.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                }
+            }
+        }
+    }
+
+    /** Medication Worker  */
+    internal suspend fun setMedicationWorker(error: (Boolean, String) -> Unit) {
+        Sync.oneTimeSync<MedicationDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
+            }
+        }
+    }
+
+    /** Medication Dosage Worker  */
+    internal suspend fun setMedicationDosageWorker(error: (Boolean, String) -> Unit) {
+        Sync.oneTimeSync<MedicineDosageDownloadSyncWorkerImpl>(
+            applicationContext,
+            defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
+            }
+        }
+    }
+
+    /**
+     *
+     *
+     * Patch Workers
+     *
+     *
+     * */
+
+    //Patient Patch Sync
+    internal suspend fun setPatientPatchWorker(error: (Boolean, String) -> Unit) {
+        //Upload Worker
+        Sync.oneTimeSync<PatientPatchUploadSyncWorkerImpl>(
+            applicationContext, defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
+            }
+        }
+    }
+
+    //Relation Patch Sync
+    internal suspend fun setRelationPatchWorker(error: (Boolean, String) -> Unit) {
+        //Upload Worker
+        Sync.oneTimeSync<RelationPatchUploadSyncWorkerImpl>(
+            applicationContext, defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
+                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                    true,
+                    errorMsg
+                )
+            }
+        }
+    }
+
+    //Appointment Patch Sync
+    private suspend fun setAppointmentPatchWorker(error: (Boolean, String) -> Unit) {
+        //Upload Worker
+        Sync.oneTimeSync<AppointmentPatchUploadSyncWorkerImpl>(
+            applicationContext, defaultRetryConfiguration.copy(
+                syncConstraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+        ).collectLatest { workInfo ->
+            if (workInfo != null) {
+                if (workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsgFromServer = workInfo.progress.getString(ERROR_MESSAGE) ?: ""
+                    if (errorMsgFromServer == ErrorConstants.SESSION_EXPIRED || errorMsgFromServer == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsgFromServer
+                    )
+                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    downloadScheduleWorker { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     *
+     * Update in Generic Entity Methods
+     *
+     *
+     * */
+
+    private suspend fun updateFhirIdInRelation(error: (Boolean, String) -> Unit) {
+        genericRepository.updateRelationFhirId()
+        /** Start Relation Worker */
+        uploadRelationWorker { errorReceived, errorMsg ->
+            error(errorReceived, errorMsg)
+        }
+    }
+
+    private suspend fun updateFhirIdInPrescription(error: (Boolean, String) -> Unit) {
+        genericRepository.updatePrescriptionFhirId()
+        /** Start Prescription Worker */
+        uploadPrescriptionSyncWorker { errorReceived, errorMsg ->
+            error(errorReceived, errorMsg)
+        }
+    }
+
+    private suspend fun updateFhirIdsInAppointment(error: (Boolean, String) -> Unit) {
+        genericRepository.updateAppointmentFhirIds()
+        /** Start Appointment Worker */
+        uploadAppointmentSyncWorker { errorReceived, errorMsg ->
+            error(errorReceived, errorMsg)
+        }
+    }
+
+    private suspend fun updateScheduleFhirIdInAppointmentPatch(error: (Boolean, String) -> Unit) {
+        genericRepository.updateAppointmentFhirIdInPatch()
+        /** Start Appointment Patch Worker */
+        setAppointmentPatchWorker { errorReceived, errorMsg ->
+            error(errorReceived, errorMsg)
+        }
+    }
+}

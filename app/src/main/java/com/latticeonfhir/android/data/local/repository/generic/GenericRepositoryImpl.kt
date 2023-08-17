@@ -209,36 +209,46 @@ class GenericRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateAppointmentFhirIds() {
-        genericDao.getNotSyncedData(GenericTypeEnum.APPOINTMENT).forEach { appointmentGenericEntity ->
-            val existingMap = appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(AppointmentResponse::class.java)
-            if (existingMap != null) {
-                genericDao.insertGenericEntity(
-                    appointmentGenericEntity.copy(
-                        payload = existingMap.copy(
-                            patientFhirId = if(!existingMap.patientFhirId!!.isFhirId()) getPatientFhirIdById(existingMap.patientFhirId)!! else existingMap.patientFhirId,
-                            scheduleId = if(!existingMap.scheduleId.isFhirId()) getScheduleFhirIdById(existingMap.scheduleId)!! else existingMap.scheduleId
-                        ).toJson()
+        genericDao.getNotSyncedData(GenericTypeEnum.APPOINTMENT)
+            .forEach { appointmentGenericEntity ->
+                val existingMap =
+                    appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+                        .mapToObject(AppointmentResponse::class.java)
+                if (existingMap != null) {
+                    genericDao.insertGenericEntity(
+                        appointmentGenericEntity.copy(
+                            payload = existingMap.copy(
+                                patientFhirId = if (!existingMap.patientFhirId!!.isFhirId()) getPatientFhirIdById(
+                                    existingMap.patientFhirId
+                                )!! else existingMap.patientFhirId,
+                                scheduleId = if (!existingMap.scheduleId.isFhirId()) getScheduleFhirIdById(
+                                    existingMap.scheduleId
+                                )!! else existingMap.scheduleId
+                            ).toJson()
+                        )
                     )
-                )
+                }
             }
-        }
     }
 
     override suspend fun updateAppointmentFhirIdInPatch() {
-        genericDao.getNotSyncedData(GenericTypeEnum.APPOINTMENT, SyncType.PATCH).forEach { appointmentGenericEntity ->
-            val existingMap = appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(AppointmentPatchRequest::class.java)
-            if (existingMap?.scheduleId != null && !(existingMap.scheduleId.value as String).isFhirId()) {
-                genericDao.insertGenericEntity(
-                    appointmentGenericEntity.copy(
-                        payload = existingMap.copy(
-                            scheduleId = existingMap.scheduleId.copy(
-                                value = getScheduleFhirIdById(existingMap.scheduleId.value)
-                            )
-                        ).toJson()
+        genericDao.getNotSyncedData(GenericTypeEnum.APPOINTMENT, SyncType.PATCH)
+            .forEach { appointmentGenericEntity ->
+                val existingMap =
+                    appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+                        .mapToObject(AppointmentPatchRequest::class.java)
+                if (existingMap?.scheduleId != null && !(existingMap.scheduleId.value as String).isFhirId()) {
+                    genericDao.insertGenericEntity(
+                        appointmentGenericEntity.copy(
+                            payload = existingMap.copy(
+                                scheduleId = existingMap.scheduleId.copy(
+                                    value = getScheduleFhirIdById(existingMap.scheduleId.value)
+                                )
+                            ).toJson()
+                        )
                     )
-                )
+                }
             }
-        }
     }
 
     override suspend fun insertAppointment(
