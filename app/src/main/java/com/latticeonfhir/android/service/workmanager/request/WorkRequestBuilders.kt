@@ -48,8 +48,11 @@ class WorkRequestBuilders(
     private val genericRepository: GenericRepository
 ) {
 
+    /** Download Sync Variables */
     private var patientSyncCompleted = false
     private var scheduleSyncCompleted = false
+
+    /** Upload / Patch Sync Variables */
 
     /**
      *
@@ -272,12 +275,18 @@ class WorkRequestBuilders(
                     .build()
             )
         ).collectLatest { workInfo ->
-            if (workInfo != null && workInfo.state == WorkInfo.State.FAILED) {
-                val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
-                if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
-                    true,
-                    errorMsg
-                )
+            if (workInfo != null) {
+                if (workInfo.state == WorkInfo.State.FAILED) {
+                    val errorMsg = workInfo.outputData.keyValueMap["errorMsg"].toString()
+                    if (errorMsg == ErrorConstants.SESSION_EXPIRED || errorMsg == ErrorConstants.UNAUTHORIZED) error(
+                        true,
+                        errorMsg
+                    )
+                } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    updateFhirIdInPrescription { errorReceived, errorMsg ->
+                        error(errorReceived, errorMsg)
+                    }
+                }
             }
         }
     }
@@ -401,7 +410,7 @@ class WorkRequestBuilders(
     /** Appointment Download Sync Worker */
     private suspend fun downloadAppointmentWorker(error: (Boolean, String) -> Unit) {
         /** Download Worker */
-        if(patientSyncCompleted && scheduleSyncCompleted) {
+        if (patientSyncCompleted && scheduleSyncCompleted) {
             Sync.oneTimeSync<AppointmentDownloadSyncWorkerImpl>(
                 applicationContext,
                 defaultRetryConfiguration.copy(
@@ -533,12 +542,6 @@ class WorkRequestBuilders(
                         errorMsgFromServer
                     )
                 } else if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        updateFhirIdInPrescription { errorReceived, errorMsg ->
-                            error(errorReceived, errorMsg)
-                        }
-                    }
-
                     downloadScheduleWorker { errorReceived, errorMsg ->
                         error(errorReceived, errorMsg)
                     }
