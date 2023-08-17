@@ -369,7 +369,7 @@ fun QueueScreen(
                                 mutableStateOf<PatientResponse?>(null)
                             }
                             waitingAppointmentResponse.patientId.let { patientId ->
-                                coroutineScope.launch {
+                                LaunchedEffect(key1 = patientId) {
                                     patient = viewModel.getPatientById(
                                         patientId
                                     )
@@ -412,10 +412,10 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {
-                            coroutineScope.launch {
+                        appointmentResponseLocal.patientId.let { patientId ->
+                            LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
-                                    it
+                                    patientId
                                 )
                             }
                         }
@@ -438,10 +438,10 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {
-                            coroutineScope.launch {
+                        appointmentResponseLocal.patientId.let {patientId ->
+                            LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
-                                    it
+                                    patientId
                                 )
                             }
                         }
@@ -467,10 +467,10 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {
-                            coroutineScope.launch {
+                        appointmentResponseLocal.patientId.let {patientId ->
+                            LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
-                                    it
+                                    patientId
                                 )
                             }
                         }
@@ -496,10 +496,10 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {
-                            coroutineScope.launch {
+                        appointmentResponseLocal.patientId.let {patientId ->
+                            LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
-                                    it
+                                    patientId
                                 )
                             }
                         }
@@ -522,10 +522,10 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {
-                            coroutineScope.launch {
+                        appointmentResponseLocal.patientId.let {patientId ->
+                            LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
-                                    it
+                                    patientId
                                 )
                             }
                         }
