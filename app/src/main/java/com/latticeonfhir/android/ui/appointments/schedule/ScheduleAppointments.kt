@@ -151,11 +151,11 @@ fun ScheduleAppointments(
                         modifier = Modifier
                             .testTag("DATE_DROPDOWN")
                             .clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = null
-                        ){
-                            viewModel.showDatePicker = true
-                        }
+                                interactionSource = MutableInteractionSource(),
+                                indication = null
+                            ) {
+                                viewModel.showDatePicker = true
+                            }
                     ) {
                         Column {
                             Text(
@@ -416,7 +416,8 @@ fun ScheduleAppointments(
 @Composable
 fun SlotsHeading(icon: Int, heading: String, testTag: String) {
     Row(
-        modifier = Modifier.padding(top = 12.dp, start = 17.dp, bottom = 18.dp)
+        modifier = Modifier
+            .padding(top = 12.dp, start = 17.dp, bottom = 18.dp)
             .testTag(heading),
         verticalAlignment = Alignment.CenterVertically
     ) {

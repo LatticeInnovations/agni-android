@@ -28,12 +28,16 @@ class FhirApp : Application() {
 
     @Inject
     lateinit var fhirAppDatabase: FhirAppDatabase
+
     @Inject
     lateinit var preferenceStorage: PreferenceStorage
+
     @Inject
     lateinit var patientApiService: PatientApiService
+
     @Inject
     lateinit var prescriptionApiService: PrescriptionApiService
+
     @Inject
     lateinit var scheduleAndAppointmentApiService: ScheduleAndAppointmentApiService
 
