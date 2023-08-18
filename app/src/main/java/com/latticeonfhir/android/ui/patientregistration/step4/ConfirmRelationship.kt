@@ -381,11 +381,15 @@ fun EditDialog(
         mutableStateOf(false)
     }
     var relation by remember {
-        mutableStateOf(getRelationFromRelationEnum(context, relationView.relation).replaceFirstChar {
-            if (it.isLowerCase()) it.titlecase(
-                Locale.getDefault()
-            ) else it.toString()
-        })
+        mutableStateOf(
+            getRelationFromRelationEnum(
+                context,
+                relationView.relation
+            ).replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.getDefault()
+                ) else it.toString()
+            })
     }
     AlertDialog(
         onDismissRequest = {

@@ -76,10 +76,12 @@ fun UpcomingAppointmentCard(
     ) {
         Text(
             text = appointmentResponseLocal.slot.start.toAppointmentDate(),
-            modifier = Modifier.padding(
-                vertical = 32.dp,
-                horizontal = 16.dp
-            ).testTag("APPOINTMENT_DATE_AND_TIME")
+            modifier = Modifier
+                .padding(
+                    vertical = 32.dp,
+                    horizontal = 16.dp
+                )
+                .testTag("APPOINTMENT_DATE_AND_TIME")
         )
         Divider(
             thickness = 1.dp,
@@ -95,9 +97,9 @@ fun UpcomingAppointmentCard(
                 TextButton(
                     modifier = Modifier.testTag("APPOINTMENT_CANCEL_BTN"),
                     onClick = {
-                    viewModel.selectedAppointment = appointmentResponseLocal
-                    viewModel.showCancelAppointmentDialog = true
-                }) {
+                        viewModel.selectedAppointment = appointmentResponseLocal
+                        viewModel.showCancelAppointmentDialog = true
+                    }) {
                     Text(text = stringResource(id = R.string.cancel))
                 }
             }
@@ -108,17 +110,17 @@ fun UpcomingAppointmentCard(
                 TextButton(
                     modifier = Modifier.testTag("APPOINTMENT_RESCHEDULE_BTN"),
                     onClick = {
-                    viewModel.selectedAppointment = appointmentResponseLocal
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        PATIENT,
-                        viewModel.patient
-                    )
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        APPOINTMENT_SELECTED,
-                        viewModel.selectedAppointment
-                    )
-                    navController.navigate(Screen.RescheduleAppointments.route)
-                }) {
+                        viewModel.selectedAppointment = appointmentResponseLocal
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            PATIENT,
+                            viewModel.patient
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            APPOINTMENT_SELECTED,
+                            viewModel.selectedAppointment
+                        )
+                        navController.navigate(Screen.RescheduleAppointments.route)
+                    }) {
                     Text(text = stringResource(id = R.string.reschedule))
                 }
             }
