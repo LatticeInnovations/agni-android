@@ -422,8 +422,7 @@ fun RescheduleAppointment(
                                 composableScope.launch {
                                     snackbarHostState.showSnackbar(
                                         message = context.getString(
-                                            R.string.appointment_exists,
-                                            viewModel.existingAppointmentTime
+                                            R.string.appointment_exists
                                         )
                                     )
                                 }
