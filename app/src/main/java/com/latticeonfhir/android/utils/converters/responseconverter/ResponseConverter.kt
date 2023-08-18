@@ -396,7 +396,7 @@ internal fun PrescriptionAndMedicineRelation.toPrescriptionResponseLocal(): Pres
     return PrescriptionResponseLocal(
         patientId = prescriptionEntity.patientId,
         patientFhirId = prescriptionEntity.patientFhirId,
-        appointmentId= prescriptionEntity.appointmentId,
+        appointmentId = prescriptionEntity.appointmentId,
         generatedOn = prescriptionEntity.prescriptionDate,
         prescriptionId = prescriptionEntity.id,
         prescription = prescriptionDirectionAndMedicineView.map { prescriptionDirectionAndMedicineView -> prescriptionDirectionAndMedicineView.toMedication() }

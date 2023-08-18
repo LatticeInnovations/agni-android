@@ -58,9 +58,9 @@ fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = 
                 items(viewModel.relationsListWithRelation) { relation ->
                     MembersCard(
                         RelationConverter.getRelationFromRelationEnum(
-                                                context,
-                                                relation.relation
-                                            )
+                            context,
+                            relation.relation
+                        )
                             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                         relation.patientResponse
                     )

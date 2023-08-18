@@ -24,8 +24,9 @@ class PrescriptionRepositoryImpl @Inject constructor(private val prescriptionDao
     }
 
     override suspend fun getPrescriptionByAppointmentId(appointmentId: String): List<PrescriptionResponseLocal> {
-        return prescriptionDao.getPrescriptionByAppointmentId(appointmentId).map {prescriptionAndMedicineRelation ->
-            prescriptionAndMedicineRelation.toPrescriptionResponseLocal()
-        }
+        return prescriptionDao.getPrescriptionByAppointmentId(appointmentId)
+            .map { prescriptionAndMedicineRelation ->
+                prescriptionAndMedicineRelation.toPrescriptionResponseLocal()
+            }
     }
 }
