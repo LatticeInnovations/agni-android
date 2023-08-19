@@ -149,8 +149,8 @@ class PrescriptionViewModel @Inject constructor(
                             prescriptionId = prescriptionId,
                             prescription = medicationsList,
                             prescriptionFhirId = null,
-                            appointmentId = appointmentResponseLocal!!.appointmentId
-                                ?: appointmentResponseLocal!!.uuid
+                            appointmentUuid = appointmentResponseLocal!!.uuid,
+                            appointmentId = appointmentResponseLocal!!.appointmentId ?: appointmentResponseLocal!!.uuid
                         )
                     )
                     appointmentRepository.updateAppointment(appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value))

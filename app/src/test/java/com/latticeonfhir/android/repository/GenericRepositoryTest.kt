@@ -1,7 +1,5 @@
 package com.latticeonfhir.android.repository
 
-import android.content.Context
-import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
@@ -14,7 +12,6 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
-import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.toIdentifierEntity
@@ -23,34 +20,29 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@Ignore("Unit Test not possible for generic repository because of using context to Fhir App casting")
 class GenericRepositoryTest : BaseClass() {
 
     @Mock
     lateinit var genericDao: GenericDao
-    @Mock private lateinit var patientDao: PatientDao
-    @Mock private lateinit var scheduleDao: ScheduleDao
-    @Mock private lateinit var appointmentDao: AppointmentDao
+    @Mock
+    private lateinit var patientDao: PatientDao
+    @Mock
+    private lateinit var scheduleDao: ScheduleDao
+    @Mock
+    private lateinit var appointmentDao: AppointmentDao
     private lateinit var genericRepositoryImpl: GenericRepositoryImpl
-    private lateinit var context: Context
 
     @Before
     public override fun setUp() {
         MockitoAnnotations.openMocks(this)
-        context = Mockito.mock(Context::class.java)
-        genericRepositoryImpl = GenericRepositoryImpl(context, genericDao, patientDao, scheduleDao, appointmentDao)
-
-        `when`((context.applicationContext as FhirApp).getWorkRequestBuilder()).thenReturn(
-            WorkRequestBuilders(context,genericRepositoryImpl)
-        )
+        genericRepositoryImpl =
+            GenericRepositoryImpl(genericDao, patientDao, scheduleDao, appointmentDao)
     }
 
     private val patientIdentifierEntity = PatientAndIdentifierEntity(
@@ -186,7 +178,9 @@ class GenericRepositoryTest : BaseClass() {
                 SyncType.POST
             )
         ).thenReturn(null)
-        `when`(genericDao.insertGenericEntity(relationGenericEntity.copy(patientId = patientResponse.id))).thenReturn(listOf(1))
+        `when`(genericDao.insertGenericEntity(relationGenericEntity.copy(patientId = patientResponse.id))).thenReturn(
+            listOf(1)
+        )
         val actual = genericRepositoryImpl.insertRelation(
             patientResponse.id,
             relationResponse,
@@ -214,15 +208,27 @@ class GenericRepositoryTest : BaseClass() {
 
     @Test
     fun `insert prescription`() = runTest {
-        `when`(genericDao.insertGenericEntity(prescriptionGenericEntity.copy(patientId = prescribedResponse.patientFhirId))).thenReturn(listOf(1))
+        `when`(genericDao.insertGenericEntity(prescriptionGenericEntity.copy(patientId = prescribedResponse.patientFhirId))).thenReturn(
+            listOf(1)
+        )
         val actual = genericRepositoryImpl.insertPrescription(prescribedResponse, genericId)
-        assertEquals(actual,1)
+        assertEquals(actual, 1)
     }
 
     @Test
     fun `update fhir Id in relation generic entity`() = runTest {
-        `when`(genericDao.getNotSyncedData(GenericTypeEnum.RELATION)).thenReturn(listOf(relationGenericEntity))
-        `when`(patientDao.getPatientDataById(relationResponse.id)).thenReturn(listOf(patientIdentifierEntity.copy(patientEntity = patientResponse.toPatientEntity().copy(fhirId = "FHIR_ID"))))
+        `when`(genericDao.getNotSyncedData(GenericTypeEnum.RELATION)).thenReturn(
+            listOf(
+                relationGenericEntity
+            )
+        )
+        `when`(patientDao.getPatientDataById(relationResponse.id)).thenReturn(
+            listOf(
+                patientIdentifierEntity.copy(
+                    patientEntity = patientResponse.toPatientEntity().copy(fhirId = "FHIR_ID")
+                )
+            )
+        )
         `when`(genericDao.insertGenericEntity(relationGenericEntity)).thenReturn(listOf(1))
         val actual = genericRepositoryImpl.updateRelationFhirId()
         Assert.assertEquals(Unit, actual)
@@ -230,8 +236,18 @@ class GenericRepositoryTest : BaseClass() {
 
     @Test
     fun `update fhir Id in prescription generic entity`() = runTest {
-        `when`(genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION)).thenReturn(listOf(prescriptionGenericEntity))
-        `when`(patientDao.getPatientDataById(relationResponse.id)).thenReturn(listOf(patientIdentifierEntity.copy(patientEntity = patientResponse.toPatientEntity().copy(fhirId = "FHIR_ID"))))
+        `when`(genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION)).thenReturn(
+            listOf(
+                prescriptionGenericEntity
+            )
+        )
+        `when`(patientDao.getPatientDataById(relationResponse.id)).thenReturn(
+            listOf(
+                patientIdentifierEntity.copy(
+                    patientEntity = patientResponse.toPatientEntity().copy(fhirId = "FHIR_ID")
+                )
+            )
+        )
         `when`(genericDao.insertGenericEntity(prescriptionGenericEntity)).thenReturn(listOf(1))
         val actual = genericRepositoryImpl.updatePrescriptionFhirId()
         Assert.assertEquals(Unit, actual)
