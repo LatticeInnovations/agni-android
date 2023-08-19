@@ -20,9 +20,11 @@ import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
+import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -43,6 +45,7 @@ class LandingScreenViewModel @Inject constructor(
 ) : BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).getWorkRequestBuilder() }
+    private val syncService: SyncService by lazy { (application as FhirApp).getSyncService() }
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)
@@ -76,7 +79,7 @@ class LandingScreenViewModel @Inject constructor(
     init {
 
         viewModelScope.launch {
-            getApplication<FhirApp>().sessionExpireFlow.collectLatest { sessionExpireMap ->
+            getApplication<FhirApp>().sessionExpireFlow.asFlow().collectLatest { sessionExpireMap ->
                 if (sessionExpireMap["errorReceived"] == true) {
                     logoutUser = true
                     logoutReason = sessionExpireMap["errorMsg"]?.toString() ?: "SERVER ERROR"
@@ -84,20 +87,10 @@ class LandingScreenViewModel @Inject constructor(
             }
         }
 
-        //Medication Worker
-        viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setMedicationWorker { isErrorReceived, errorMsg ->
-                if (isErrorReceived) {
-                    logoutUser = true
-                    logoutReason = errorMsg
-                }
-            }
-        }
-
-        //Medicine Dosage Worker
-        if (preferenceRepository.getLastMedicineDosageInstructionSyncDate() == 0L) {
+        //Medication Sync
+        if(CheckNetwork.isInternetAvailable(getApplication<Application>().applicationContext)) {
             viewModelScope.launch(Dispatchers.IO) {
-                workRequestBuilders.setMedicationDosageWorker { isErrorReceived, errorMsg ->
+                syncService.downloadMedication { isErrorReceived, errorMsg ->
                     if (isErrorReceived) {
                         logoutUser = true
                         logoutReason = errorMsg
