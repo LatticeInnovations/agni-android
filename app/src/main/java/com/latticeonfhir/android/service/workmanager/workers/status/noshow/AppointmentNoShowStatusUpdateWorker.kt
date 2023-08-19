@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.completed
+package com.latticeonfhir.android.service.workmanager.workers.status.noshow
 
 import android.content.Context
 import androidx.work.WorkerParameters
@@ -20,7 +20,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentResponse
 import java.util.Date
 
-abstract class AppointmentCompletedStatusUpdateWorker(
+abstract class AppointmentNoShowStatusUpdateWorker(
     context: Context,
     workerParameters: WorkerParameters
 ) :
@@ -30,13 +30,13 @@ abstract class AppointmentCompletedStatusUpdateWorker(
         // update status in appointment entity
         val appointmentDao = (applicationContext as FhirApp).fhirAppDatabase.getAppointmentDao()
         appointmentDao.getTodayScheduledAppointments(
-            status = AppointmentStatusEnum.IN_PROGRESS.value,
+            status = AppointmentStatusEnum.SCHEDULED.value,
             endOfDay = Date().yesterday().toEndOfDay()
         ).let { scheduledAppointmentEntities ->
             scheduledAppointmentEntities.forEach { appointmentEntity ->
                 appointmentDao.updateAppointmentEntity(
                     appointmentEntity.copy(
-                        status = AppointmentStatusEnum.COMPLETED.value
+                        status = AppointmentStatusEnum.NO_SHOW.value
                     )
                 ).also { response ->
                     if (response > 0) {
@@ -61,7 +61,7 @@ abstract class AppointmentCompletedStatusUpdateWorker(
                 genericDao.insertGenericEntity(
                     appointmentGenericEntity.copy(
                         payload = appointmentEntity.copy(
-                            status = AppointmentStatusEnum.COMPLETED.value
+                            status = AppointmentStatusEnum.NO_SHOW.value
                         ).toAppointmentResponse(scheduleDao).toJson()
                     )
                 )[0]
@@ -75,7 +75,7 @@ abstract class AppointmentCompletedStatusUpdateWorker(
                     val map = mutableMapOf<String, Any>()
                     map["status"] = ChangeRequest(
                         operation = ChangeTypeEnum.REPLACE.value,
-                        value = AppointmentStatusEnum.COMPLETED.value
+                        value = AppointmentStatusEnum.NO_SHOW.value
                     )
                     if (appointmentGenericPatchEntity != null) {
                         val existingMap =
