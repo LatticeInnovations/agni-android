@@ -17,6 +17,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndId
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
+import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,7 +32,6 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@Ignore("Unit Test not possible for generic repository because of using context to Fhir App casting")
 class GenericRepositoryTest : BaseClass() {
 
     @Mock
@@ -46,11 +46,7 @@ class GenericRepositoryTest : BaseClass() {
     public override fun setUp() {
         MockitoAnnotations.openMocks(this)
         context = Mockito.mock(Context::class.java)
-        genericRepositoryImpl = GenericRepositoryImpl(context, genericDao, patientDao, scheduleDao, appointmentDao)
-
-        `when`((context.applicationContext as FhirApp).getWorkRequestBuilder()).thenReturn(
-            WorkRequestBuilders(context,genericRepositoryImpl)
-        )
+        genericRepositoryImpl = GenericRepositoryImpl(genericDao, patientDao, scheduleDao, appointmentDao)
     }
 
     private val patientIdentifierEntity = PatientAndIdentifierEntity(
@@ -233,6 +229,7 @@ class GenericRepositoryTest : BaseClass() {
         `when`(genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION)).thenReturn(listOf(prescriptionGenericEntity))
         `when`(patientDao.getPatientDataById(relationResponse.id)).thenReturn(listOf(patientIdentifierEntity.copy(patientEntity = patientResponse.toPatientEntity().copy(fhirId = "FHIR_ID"))))
         `when`(genericDao.insertGenericEntity(prescriptionGenericEntity)).thenReturn(listOf(1))
+        `when`(appointmentDao.getAppointmentById("APPOINTMENT_ID")).thenReturn(listOf(appointmentResponseLocal.toAppointmentEntity()))
         val actual = genericRepositoryImpl.updatePrescriptionFhirId()
         Assert.assertEquals(Unit, actual)
     }
