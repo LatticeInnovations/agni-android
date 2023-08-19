@@ -29,6 +29,7 @@ import com.latticeonfhir.android.data.server.constants.QueryParameters.GREATER_T
 import com.latticeonfhir.android.data.server.constants.QueryParameters.ID
 import com.latticeonfhir.android.data.server.constants.QueryParameters.LAST_UPDATED
 import com.latticeonfhir.android.data.server.constants.QueryParameters.OFFSET
+import com.latticeonfhir.android.data.server.constants.QueryParameters.ORG_ID
 import com.latticeonfhir.android.data.server.constants.QueryParameters.PATIENT_ID
 import com.latticeonfhir.android.data.server.constants.QueryParameters.SORT
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
@@ -300,8 +301,7 @@ class SyncRepositoryImpl @Inject constructor(
                     is ApiEndResponse -> {
                         prescriptionDao.insertPrescription(*body.map { prescriptionResponse ->
                             prescriptionResponse.toPrescriptionEntity(
-                                patientDao,
-                                appointmentDao
+                                patientDao
                             )
                         }.toTypedArray())
                         val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
@@ -386,6 +386,7 @@ class SyncRepositoryImpl @Inject constructor(
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
         map[SORT] = "-$ID"
+        map[ORG_ID] = preferenceRepository.getOrganizationFhirId()
         if (preferenceRepository.getLastSyncSchedule() != 0L) map[LAST_UPDATED] = String.format(
             GREATER_THAN_BUILDER, preferenceRepository.getLastSyncSchedule().toTimeStampDate()
         )
@@ -426,6 +427,7 @@ class SyncRepositoryImpl @Inject constructor(
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
         map[SORT] = "-$ID"
+        map[ORG_ID] = preferenceRepository.getOrganizationFhirId()
         if (preferenceRepository.getLastSyncAppointment() != 0L) map[LAST_UPDATED] = String.format(
             GREATER_THAN_BUILDER, preferenceRepository.getLastSyncAppointment().toTimeStampDate()
         )
