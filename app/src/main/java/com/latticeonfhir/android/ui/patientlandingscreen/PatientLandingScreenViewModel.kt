@@ -20,6 +20,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to30MinutesAfter
@@ -58,17 +59,22 @@ class PatientLandingScreenViewModel @Inject constructor(
     var ifAllSlotsBooked by mutableStateOf(false)
     var showAllSlotsBookedDialog by mutableStateOf(false)
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).getWorkRequestBuilder() }
+    private val syncService by lazy { getApplication<FhirApp>().getSyncService() }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setOneTimeTriggerWorker()
+            syncService.syncLauncher { isErrorReceived, errorMsg ->
+                if (isErrorReceived) {
+                    logoutUser = true
+                    logoutReason = errorMsg
+                }
+            }
         }
     }
 
     internal fun downloadPrescriptions(patientFhirId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.downloadPrescriptionWorker(patientFhirId) { isErrorReceived, errorMsg ->
+            syncService.downloadPrescription(patientFhirId) { isErrorReceived, errorMsg ->
                 if (isErrorReceived) {
                     logoutUser = true
                     logoutReason = errorMsg
