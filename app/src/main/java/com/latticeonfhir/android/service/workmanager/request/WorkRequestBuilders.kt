@@ -9,8 +9,8 @@ import com.latticeonfhir.android.service.workmanager.utils.PeriodicSyncConfigura
 import com.latticeonfhir.android.service.workmanager.utils.RepeatInterval
 import com.latticeonfhir.android.service.workmanager.utils.Sync
 import com.latticeonfhir.android.service.workmanager.workers.trigger.triggerperiodic.TriggerWorkerPeriodicImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.completed.AppointmentCompletedStatusUpdateWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.noshow.AppointmentNoShowStatusUpdateWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.status.completed.AppointmentCompletedStatusUpdateWorkerImpl
+import com.latticeonfhir.android.service.workmanager.workers.status.noshow.AppointmentNoShowStatusUpdateWorkerImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import java.time.Duration
