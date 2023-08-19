@@ -1,5 +1,7 @@
 package com.latticeonfhir.android.repository
 
+import android.content.Context
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
@@ -12,6 +14,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
+import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.toIdentifierEntity
@@ -22,6 +25,7 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
@@ -37,12 +41,17 @@ class GenericRepositoryTest : BaseClass() {
     @Mock
     private lateinit var appointmentDao: AppointmentDao
     private lateinit var genericRepositoryImpl: GenericRepositoryImpl
+    private lateinit var context: Context
 
     @Before
     public override fun setUp() {
         MockitoAnnotations.openMocks(this)
-        genericRepositoryImpl =
-            GenericRepositoryImpl(genericDao, patientDao, scheduleDao, appointmentDao)
+        context = Mockito.mock(Context::class.java)
+        genericRepositoryImpl = GenericRepositoryImpl(context, genericDao, patientDao, scheduleDao, appointmentDao)
+
+        `when`((context.applicationContext as FhirApp).getWorkRequestBuilder()).thenReturn(
+            WorkRequestBuilders(context,genericRepositoryImpl)
+        )
     }
 
     private val patientIdentifierEntity = PatientAndIdentifierEntity(
