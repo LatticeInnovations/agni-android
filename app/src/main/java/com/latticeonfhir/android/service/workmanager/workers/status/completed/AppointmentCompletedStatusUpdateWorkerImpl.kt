@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.completed
+package com.latticeonfhir.android.service.workmanager.workers.status.completed
 
 import android.content.Context
 import androidx.work.WorkerParameters

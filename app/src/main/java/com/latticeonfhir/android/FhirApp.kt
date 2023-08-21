@@ -1,8 +1,10 @@
 package com.latticeonfhir.android
 
 import android.app.Application
+import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepositoryImpl
@@ -13,11 +15,11 @@ import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
+import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.converters.gson.DateDeserializer
 import com.latticeonfhir.android.utils.converters.gson.DateSerializer
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.flow.MutableStateFlow
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
 import java.util.Date
@@ -42,8 +44,10 @@ class FhirApp : Application() {
     lateinit var scheduleAndAppointmentApiService: ScheduleAndAppointmentApiService
 
     private lateinit var syncRepository: SyncRepository
+    private lateinit var genericRepository: GenericRepository
     private lateinit var workRequestBuilder: WorkRequestBuilders
-    val sessionExpireFlow = MutableStateFlow(emptyMap<String, Any>())
+    private lateinit var syncService: SyncService
+    val sessionExpireFlow = MutableLiveData<Map<String, Any>>(emptyMap())
 
     override fun onCreate() {
         super.onCreate()
@@ -51,13 +55,15 @@ class FhirApp : Application() {
             plant(Timber.DebugTree())
         }
 
+        val preferenceRepository: PreferenceRepository = PreferenceRepositoryImpl(preferenceStorage)
+
         syncRepository = SyncRepositoryImpl(
             patientApiService,
             prescriptionApiService,
             scheduleAndAppointmentApiService,
             fhirAppDatabase.getPatientDao(),
             fhirAppDatabase.getGenericDao(),
-            PreferenceRepositoryImpl(preferenceStorage) as PreferenceRepository,
+            preferenceRepository,
             fhirAppDatabase.getRelationDao(),
             fhirAppDatabase.getMedicationDao(),
             fhirAppDatabase.getPrescriptionDao(),
@@ -65,17 +71,19 @@ class FhirApp : Application() {
             fhirAppDatabase.getAppointmentDao()
         )
 
+        genericRepository = GenericRepositoryImpl(
+            fhirAppDatabase.getGenericDao(),
+            fhirAppDatabase.getPatientDao(),
+            fhirAppDatabase.getScheduleDao(),
+            fhirAppDatabase.getAppointmentDao()
+        )
+
         if (!this::workRequestBuilder.isInitialized) {
-            workRequestBuilder = WorkRequestBuilders(
-                this,
-                GenericRepositoryImpl(
-                    this,
-                    fhirAppDatabase.getGenericDao(),
-                    fhirAppDatabase.getPatientDao(),
-                    fhirAppDatabase.getScheduleDao(),
-                    fhirAppDatabase.getAppointmentDao()
-                )
-            )
+            workRequestBuilder = WorkRequestBuilders(this)
+        }
+
+        if (!this::syncService.isInitialized) {
+            syncService = SyncService(this,syncRepository, genericRepository, preferenceRepository)
         }
     }
 
@@ -85,6 +93,10 @@ class FhirApp : Application() {
 
     internal fun getWorkRequestBuilder(): WorkRequestBuilders {
         return workRequestBuilder
+    }
+
+    internal fun getSyncService(): SyncService {
+        return syncService
     }
 
     companion object {
