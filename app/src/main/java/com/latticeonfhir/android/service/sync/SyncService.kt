@@ -17,7 +17,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class SyncService(
     private val context: Context,
@@ -43,7 +42,6 @@ class SyncService(
             coroutineScope {
                 awaitAll(
                     async {
-                        Timber.d("Sync uploadPatientAndSchedule")
                         uploadPatientAndScheduleJob(logout)
                     },
                     async {
@@ -71,18 +69,15 @@ class SyncService(
         return coroutineScope {
             awaitAll(
                 async {
-                    Timber.d("Sync uploadPatient")
                     uploadPatient(logout)
                 },
                 async {
-                    Timber.d("Sync uploadSchedule")
                     uploadSchedule(logout)
                 }
             ).all { responseMapper ->
                 responseMapper is ApiEmptyResponse
             }.apply {
                 if (this) {
-                    Timber.d("Sync downloadScheduleJob")
                     downloadScheduleJob(logout)
                 }
             }
@@ -100,7 +95,6 @@ class SyncService(
         return coroutineScope {
             awaitAll(
                 async {
-                    Timber.d("Sync updateFhirIdsInAppointment")
                     updateFhirIdsInAppointment(logout)
                 },
                 appointmentPatchJob
@@ -109,10 +103,8 @@ class SyncService(
             }.apply {
                 if (this) {
                     scheduleDownloadJob = async {
-                        Timber.d("Sync downloadSchedule")
                         downloadSchedule(logout)
                     }
-                    Timber.d("Sync downloadAppointmentJob")
                     downloadAppointmentJob(logout)
                 }
             }
@@ -128,9 +120,11 @@ class SyncService(
 
     private suspend fun downloadAppointmentJob(logout: (Boolean, String) -> Unit) {
         coroutineScope {
-            awaitAll(patientDownloadJob, scheduleDownloadJob).all { responseMapper -> responseMapper is ApiEndResponse }.apply {
-                if(this) {
-                    Timber.d("Sync downloadAppointment")
+            awaitAll(
+                patientDownloadJob,
+                scheduleDownloadJob
+            ).all { responseMapper -> responseMapper is ApiEndResponse }.apply {
+                if (this) {
                     downloadAppointment(logout)
                 }
             }
@@ -151,11 +145,9 @@ class SyncService(
             if (this is ApiEmptyResponse) {
                 CoroutineScope(Dispatchers.IO).apply {
                     launch {
-                        Timber.d("Sync updateFhirIdInRelation")
                         updateFhirIdInRelation(logout)
                     }
                     patientDownloadJob = async {
-                        Timber.d("Sync downloadPatient")
                         downloadPatient(logout)
                     }
                 }
@@ -171,9 +163,8 @@ class SyncService(
     /** Upload Schedule */
     private suspend fun uploadSchedule(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(syncRepository.sendSchedulePostData(), logout)?.apply {
-            if(this is ApiEmptyResponse) {
+            if (this is ApiEmptyResponse) {
                 appointmentPatchJob = CoroutineScope(Dispatchers.IO).async {
-                    Timber.d("Sync updateScheduleFhirIdInAppointmentPatch")
                     updateScheduleFhirIdInAppointmentPatch(logout)
                 }
             }
@@ -234,7 +225,6 @@ class SyncService(
             logout
         )?.apply {
             if (this is ApiEndResponse) {
-                Timber.d("Sync downloadRelation")
                 CoroutineScope(Dispatchers.IO).launch {
                     downloadRelation(logout)
                 }
@@ -258,8 +248,14 @@ class SyncService(
     }
 
     /** Download Prescription*/
-    internal suspend fun downloadPrescription(patientFhirId: String, logout: (Boolean, String) -> Unit) {
-        checkAuthenticationStatus(syncRepository.getAndInsertPrescription(patientFhirId = patientFhirId), logout)
+    internal suspend fun downloadPrescription(
+        patientFhirId: String,
+        logout: (Boolean, String) -> Unit
+    ) {
+        checkAuthenticationStatus(
+            syncRepository.getAndInsertPrescription(patientFhirId = patientFhirId),
+            logout
+        )
     }
 
     /** Download Medication */
