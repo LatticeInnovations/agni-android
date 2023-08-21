@@ -20,6 +20,7 @@ import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedu
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to30MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to5MinutesAfter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentTime
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
@@ -46,7 +47,6 @@ class RescheduleAppointmentViewModel @Inject constructor(
     var selectedDate by mutableStateOf(Date().tomorrow())
     var weekList by mutableStateOf(selectedDate.toWeekList())
     var selectedSlot by mutableStateOf("")
-    var existingAppointmentTime by mutableStateOf("")
 
     internal fun getBookedSlotsCount(time: Long, slotsCount: (Int) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -67,7 +67,6 @@ class RescheduleAppointmentViewModel @Inject constructor(
                     false
                 )
                 else {
-                    existingAppointmentTime = todaysAppointment.slot.start.toAppointmentTime()
                     appointmentExists(true)
                 }
             }

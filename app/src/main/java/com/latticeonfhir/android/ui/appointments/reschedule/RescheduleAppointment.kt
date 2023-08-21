@@ -422,14 +422,13 @@ fun RescheduleAppointment(
                                 composableScope.launch {
                                     snackbarHostState.showSnackbar(
                                         message = context.getString(
-                                            R.string.appointment_exists,
-                                            viewModel.existingAppointmentTime
+                                            R.string.appointment_exists
                                         )
                                     )
                                 }
                             } else {
                                 viewModel.rescheduleAppointment {
-                                    CoroutineScope(Dispatchers.Main).launch {
+                                    composableScope.launch {
                                         navController.previousBackStackEntry?.savedStateHandle?.set(
                                             RESCHEDULED,
                                             true
