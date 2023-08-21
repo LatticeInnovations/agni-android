@@ -173,19 +173,38 @@ class QueueViewModel @Inject constructor(
                         status = status
                     )
                 ).also {
-                    genericRepository.insertOrUpdateAppointmentPatch(
-                        appointmentFhirId = appointmentSelected!!.appointmentId
-                            ?: appointmentSelected!!.uuid,
-                        map = mapOf(
-                            Pair(
-                                "status",
-                                ChangeRequest(
-                                    operation = ChangeTypeEnum.REPLACE.value,
-                                    value = status
+                    if (appointmentSelected?.appointmentId.isNullOrBlank()) {
+                        genericRepository.insertAppointment(
+                            AppointmentResponse(
+                                scheduleId = scheduleRepository.getScheduleByStartTime(
+                                    appointmentSelected!!.scheduleId.time
+                                )?.scheduleId ?: scheduleRepository.getScheduleByStartTime(
+                                    appointmentSelected!!.scheduleId.time
+                                )?.uuid!!,
+                                createdOn = appointmentSelected!!.createdOn,
+                                slot = appointmentSelected!!.slot,
+                                patientFhirId = patientRepository.getPatientById(appointmentSelected!!.patientId)[0].fhirId,
+                                appointmentId = null,
+                                orgId = appointmentSelected!!.orgId,
+                                status = status,
+                                uuid = appointmentSelected!!.uuid
+                            )
+                        )
+                    } else {
+                        genericRepository.insertOrUpdateAppointmentPatch(
+                            appointmentFhirId = appointmentSelected!!.appointmentId
+                                ?: appointmentSelected!!.uuid,
+                            map = mapOf(
+                                Pair(
+                                    "status",
+                                    ChangeRequest(
+                                        operation = ChangeTypeEnum.REPLACE.value,
+                                        value = status
+                                    )
                                 )
                             )
                         )
-                    )
+                    }
                 }
             )
         }
