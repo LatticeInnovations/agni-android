@@ -428,7 +428,7 @@ fun RescheduleAppointment(
                                 }
                             } else {
                                 viewModel.rescheduleAppointment {
-                                    CoroutineScope(Dispatchers.Main).launch {
+                                    composableScope.launch {
                                         navController.previousBackStackEntry?.savedStateHandle?.set(
                                             RESCHEDULED,
                                             true
