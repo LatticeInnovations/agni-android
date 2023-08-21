@@ -400,7 +400,7 @@ fun ScheduleAppointments(
                                     )
                                 }
                             } else {
-                                CoroutineScope(Dispatchers.Main).launch {
+                                composableScope.launch {
                                     navController.popBackStack(
                                         Screen.PatientLandingScreen.route,
                                         false
