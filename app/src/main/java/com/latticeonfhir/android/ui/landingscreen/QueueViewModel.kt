@@ -19,13 +19,16 @@ import com.latticeonfhir.android.data.local.repository.prescription.Prescription
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -35,8 +38,7 @@ class QueueViewModel @Inject constructor(
     private val patientRepository: PatientRepository,
     private val appointmentRepository: AppointmentRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val genericRepository: GenericRepository,
-    private val prescriptionRepository: PrescriptionRepository
+    private val genericRepository: GenericRepository
 ) : BaseAndroidViewModel(application) {
 
     // queue screen
@@ -60,11 +62,15 @@ class QueueViewModel @Inject constructor(
     var selectedChip by mutableStateOf(R.string.total_appointment)
     var rescheduled by mutableStateOf(false)
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).getWorkRequestBuilder() }
+    private val syncService by lazy { getApplication<FhirApp>().getSyncService() }
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setOneTimeTriggerWorker()
+    internal suspend fun syncData(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        withContext(ioDispatcher) {
+            syncService.syncLauncher { errorReceived, errorMessage ->
+                getApplication<FhirApp>().sessionExpireFlow.postValue(
+                    mapOf(Pair("errorReceived", errorReceived), Pair("errorMsg", errorMessage))
+                )
+            }
         }
     }
 
