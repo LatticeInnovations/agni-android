@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.service.workmanager.workers.upload.appointment.statusupdate.noshow
+package com.latticeonfhir.android.service.workmanager.workers.status.noshow
 
 import android.content.Context
 import androidx.work.WorkerParameters

@@ -664,7 +664,7 @@ class SyncRepositoryTest : BaseClass() {
         map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
         map[QueryParameters.OFFSET] = 0.toString()
         map[QueryParameters.SORT] = "-${QueryParameters.ID}"
-        map[QueryParameters.ORG_ID] = preferenceRepository.getOrganizationFhirId()
+        map[QueryParameters.ORG_ID] = "ORG_ID"
         if (preferenceRepository.getLastSyncSchedule() != 0L) map[QueryParameters.LAST_UPDATED] =
             String.format(
                 QueryParameters.GREATER_THAN_BUILDER,
@@ -696,7 +696,7 @@ class SyncRepositoryTest : BaseClass() {
         map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
         map[QueryParameters.OFFSET] = 0.toString()
         map[QueryParameters.SORT] = "-${QueryParameters.ID}"
-        map[QueryParameters.ORG_ID] = preferenceRepository.getOrganizationFhirId()
+        map[QueryParameters.ORG_ID] = "ORG_ID"
         if (preferenceRepository.getLastSyncSchedule() != 0L) map[QueryParameters.LAST_UPDATED] =
             String.format(
                 QueryParameters.GREATER_THAN_BUILDER,
@@ -724,7 +724,7 @@ class SyncRepositoryTest : BaseClass() {
         oldMap[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
         oldMap[QueryParameters.OFFSET] = 0.toString()
         oldMap[QueryParameters.SORT] = "-${QueryParameters.ID}"
-        oldMap[QueryParameters.ORG_ID] = preferenceRepository.getOrganizationFhirId()
+        oldMap[QueryParameters.ORG_ID] = "ORG_ID"
         if (preferenceRepository.getLastSyncSchedule() != 0L) oldMap[QueryParameters.LAST_UPDATED] =
             String.format(
                 QueryParameters.GREATER_THAN_BUILDER,
@@ -746,7 +746,7 @@ class SyncRepositoryTest : BaseClass() {
         map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
         map[QueryParameters.OFFSET] = 200.toString()
         map[QueryParameters.SORT] = "-${QueryParameters.ID}"
-        map[QueryParameters.ORG_ID] = preferenceRepository.getOrganizationFhirId()
+        map[QueryParameters.ORG_ID] = "ORG_ID"
         if (preferenceRepository.getLastSyncSchedule() != 0L) map[QueryParameters.LAST_UPDATED] =
             String.format(
                 QueryParameters.GREATER_THAN_BUILDER,
@@ -774,7 +774,7 @@ class SyncRepositoryTest : BaseClass() {
         map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
         map[QueryParameters.OFFSET] = 0.toString()
         map[QueryParameters.SORT] = "-${QueryParameters.ID}"
-        map[QueryParameters.ORG_ID] = preferenceRepository.getOrganizationFhirId()
+        map[QueryParameters.ORG_ID] = "ORG_ID"
         if (preferenceRepository.getLastSyncAppointment() != 0L) map[QueryParameters.LAST_UPDATED] =
             String.format(
                 QueryParameters.GREATER_THAN_BUILDER,
@@ -806,7 +806,7 @@ class SyncRepositoryTest : BaseClass() {
         map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
         map[QueryParameters.OFFSET] = 0.toString()
         map[QueryParameters.SORT] = "-${QueryParameters.ID}"
-        map[QueryParameters.ORG_ID] = preferenceRepository.getOrganizationFhirId()
+        map[QueryParameters.ORG_ID] = appointmentResponse.orgId
         if (preferenceRepository.getLastSyncAppointment() != 0L) map[QueryParameters.LAST_UPDATED] =
             String.format(
                 QueryParameters.GREATER_THAN_BUILDER,
@@ -834,7 +834,7 @@ class SyncRepositoryTest : BaseClass() {
         oldMap[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
         oldMap[QueryParameters.OFFSET] = 0.toString()
         oldMap[QueryParameters.SORT] = "-${QueryParameters.ID}"
-        oldMap[QueryParameters.ORG_ID] = preferenceRepository.getOrganizationFhirId()
+        oldMap[QueryParameters.ORG_ID] = appointmentResponse.orgId
         if (preferenceRepository.getLastSyncAppointment() != 0L) oldMap[QueryParameters.LAST_UPDATED] =
             String.format(
                 QueryParameters.GREATER_THAN_BUILDER,
@@ -856,7 +856,7 @@ class SyncRepositoryTest : BaseClass() {
         map[QueryParameters.COUNT] = ConstantValues.COUNT_VALUE.toString()
         map[QueryParameters.OFFSET] = 200.toString()
         map[QueryParameters.SORT] = "-${QueryParameters.ID}"
-        map[QueryParameters.ORG_ID] = preferenceRepository.getOrganizationFhirId()
+        map[QueryParameters.ORG_ID] = appointmentResponse.orgId
         if (preferenceRepository.getLastSyncAppointment() != 0L) map[QueryParameters.LAST_UPDATED] =
             String.format(
                 QueryParameters.GREATER_THAN_BUILDER,

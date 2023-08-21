@@ -17,58 +17,20 @@ import com.latticeonfhir.android.utils.builders.UUIDBuilder
  */
 interface GenericRepository {
 
-    suspend fun insertPatient(
-        patientResponse: PatientResponse,
-        uuid: String = UUIDBuilder.generateUUID()
-    ): Long
+    suspend fun insertPatient(patientResponse: PatientResponse, uuid: String = UUIDBuilder.generateUUID()): Long
 
-    suspend fun insertRelation(
-        patientId: String,
-        relatedPersonResponse: RelatedPersonResponse,
-        uuid: String = UUIDBuilder.generateUUID()
-    ): Long
-
+    suspend fun insertRelation(patientId: String, relatedPersonResponse: RelatedPersonResponse, uuid: String = UUIDBuilder.generateUUID()): Long
     suspend fun updateRelationFhirId()
 
-    suspend fun insertPrescription(
-        prescriptionResponse: PrescriptionResponse,
-        uuid: String = UUIDBuilder.generateUUID()
-    ): Long
-
+    suspend fun insertPrescription(prescriptionResponse: PrescriptionResponse, uuid: String = UUIDBuilder.generateUUID()): Long
     suspend fun updatePrescriptionFhirId()
 
-    suspend fun insertSchedule(
-        scheduleResponse: ScheduleResponse,
-        uuid: String = UUIDBuilder.generateUUID()
-    ): Long
+    suspend fun insertSchedule(scheduleResponse: ScheduleResponse, uuid: String = UUIDBuilder.generateUUID()): Long
 
-    suspend fun insertAppointment(
-        appointmentResponse: AppointmentResponse,
-        uuid: String = UUIDBuilder.generateUUID()
-    ): Long
-
+    suspend fun insertAppointment(appointmentResponse: AppointmentResponse, uuid: String = UUIDBuilder.generateUUID()): Long
     suspend fun updateAppointmentFhirIds()
     suspend fun updateAppointmentFhirIdInPatch()
 
-    @Deprecated("This method was deprecated use above methods to store POST Generic Entity")
-    suspend fun insertOrUpdatePostEntity(
-        patientId: String,
-        entity: Any,
-        typeEnum: GenericTypeEnum,
-        replaceEntireRow: Boolean = false,
-        uuid: String = UUIDBuilder.generateUUID()
-    ): Long
-
-    suspend fun insertOrUpdatePatchEntity(
-        patientFhirId: String,
-        map: Map<String, Any>,
-        typeEnum: GenericTypeEnum,
-        uuid: String = UUIDBuilder.generateUUID()
-    ): Long
-
-    suspend fun insertOrUpdateAppointmentPatch(
-        appointmentFhirId: String,
-        map: Map<String, Any>,
-        uuid: String = UUIDBuilder.generateUUID()
-    ): Long
+    suspend fun insertOrUpdatePatchEntity(patientFhirId: String, map: Map<String, Any>, typeEnum: GenericTypeEnum, uuid: String = UUIDBuilder.generateUUID()): Long
+    suspend fun insertOrUpdateAppointmentPatch(appointmentFhirId: String, map: Map<String, Any>, uuid: String = UUIDBuilder.generateUUID()): Long
 }
