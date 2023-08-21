@@ -20,8 +20,6 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.service.sync.SyncService
-import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to30MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to5MinutesAfter
@@ -30,6 +28,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotStartTime
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,8 +48,8 @@ class PatientLandingScreenViewModel @Inject constructor(
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
 
-    var logoutUser by mutableStateOf(false)
-    var logoutReason by mutableStateOf("")
+    private var logoutUser by mutableStateOf(false)
+    private var logoutReason by mutableStateOf("")
 
     var appointmentsCount by mutableStateOf(0)
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
@@ -73,11 +72,13 @@ class PatientLandingScreenViewModel @Inject constructor(
     }
 
     internal fun downloadPrescriptions(patientFhirId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            syncService.downloadPrescription(patientFhirId) { isErrorReceived, errorMsg ->
-                if (isErrorReceived) {
-                    logoutUser = true
-                    logoutReason = errorMsg
+        if (CheckNetwork.isInternetAvailable(getApplication<FhirApp>().applicationContext)) {
+            viewModelScope.launch(Dispatchers.IO) {
+                syncService.downloadPrescription(patientFhirId) { isErrorReceived, errorMsg ->
+                    if (isErrorReceived) {
+                        logoutUser = true
+                        logoutReason = errorMsg
+                    }
                 }
             }
         }
