@@ -205,13 +205,12 @@ internal fun <T> List<T>.toNoBracketAndNoSpaceString(): String {
 
 internal suspend fun PrescriptionResponse.toPrescriptionEntity(
     patientDao: PatientDao,
-    appointmentDao: AppointmentDao
 ): PrescriptionEntity {
     return PrescriptionEntity(
         id = prescriptionId,
         prescriptionDate = generatedOn,
         patientId = patientDao.getPatientIdByFhirId(patientFhirId)!!,
-        appointmentId = appointmentDao.getAppointmentIdByFhirId(appointmentId),
+        appointmentId = appointmentUuid,
         patientFhirId = patientFhirId,
         prescriptionFhirId = prescriptionFhirId
     )

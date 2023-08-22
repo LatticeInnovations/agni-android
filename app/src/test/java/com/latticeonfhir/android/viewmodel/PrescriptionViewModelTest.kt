@@ -88,7 +88,8 @@ class PrescriptionViewModelTest : BaseClass() {
         prescriptionId = prescribedResponse.prescriptionId,
         appointmentId = prescribedResponse.appointmentId,
         prescription = listOf(medication),
-        prescriptionFhirId = null
+        prescriptionFhirId = null,
+        appointmentUuid = prescribedResponse.appointmentUuid
     )
 
 

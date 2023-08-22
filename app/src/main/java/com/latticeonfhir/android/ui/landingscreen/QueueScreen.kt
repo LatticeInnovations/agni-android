@@ -138,6 +138,7 @@ fun QueueScreen(
         viewModel.isLaunched = true
     }
     LaunchedEffect(true) {
+        viewModel.syncData()
         viewModel.getAppointmentListByDate()
         if (viewModel.rescheduled) {
             coroutineScope.launch {

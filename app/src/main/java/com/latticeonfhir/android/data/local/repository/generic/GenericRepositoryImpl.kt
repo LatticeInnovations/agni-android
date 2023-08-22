@@ -1,7 +1,5 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
-import android.content.Context
-import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.AppointmentPatchRequest
@@ -14,22 +12,15 @@ import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntit
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.builders.GenericEntity.processPatch
 import com.latticeonfhir.android.utils.constants.Id.APPOINTMENT_ID
 import com.latticeonfhir.android.utils.constants.Id.ID
-import com.latticeonfhir.android.utils.constants.RelationConstants.RELATIONSHIP
 import com.latticeonfhir.android.utils.converters.responseconverter.FHIR.isFhirId
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -41,14 +32,11 @@ import javax.inject.Inject
  */
 @Suppress("UNCHECKED_CAST")
 class GenericRepositoryImpl @Inject constructor(
-    @ApplicationContext context: Context,
     private val genericDao: GenericDao,
     private val patientDao: PatientDao,
     private val scheduleDao: ScheduleDao,
     private val appointmentDao: AppointmentDao
 ) : GenericRepository {
-
-    private val workRequestBuilders: WorkRequestBuilders by lazy { (context as FhirApp).getWorkRequestBuilder() }
 
     override suspend fun insertPatient(patientResponse: PatientResponse, uuid: String): Long {
         return genericDao.getGenericEntityById(
@@ -71,8 +59,6 @@ class GenericRepositoryImpl @Inject constructor(
                     )
                 )[0]
             }
-        }.also {
-            runWorkers()
         }
     }
 
@@ -112,8 +98,6 @@ class GenericRepositoryImpl @Inject constructor(
                     syncType = SyncType.POST
                 )
             )[0]
-        }.also {
-            runWorkers()
         }
     }
 
@@ -154,9 +138,7 @@ class GenericRepositoryImpl @Inject constructor(
                 type = GenericTypeEnum.PRESCRIPTION,
                 syncType = SyncType.POST
             )
-        )[0].also {
-            runWorkers()
-        }
+        )[0]
     }
 
     override suspend fun updatePrescriptionFhirId() {
@@ -203,8 +185,6 @@ class GenericRepositoryImpl @Inject constructor(
                     )
                 )[0]
             }
-        }.also {
-            runWorkers()
         }
     }
 
@@ -275,42 +255,6 @@ class GenericRepositoryImpl @Inject constructor(
                     )
                 )[0]
             }
-        }.also {
-            runWorkers()
-        }
-    }
-
-    @Deprecated("This method was deprecated use above methods to store POST Generic Entity")
-    override suspend fun insertOrUpdatePostEntity(
-        patientId: String,
-        entity: Any,
-        typeEnum: GenericTypeEnum,
-        replaceEntireRow: Boolean,
-        uuid: String
-    ): Long {
-        return genericDao.getGenericEntityById(patientId, typeEnum, SyncType.POST).run {
-            if (this != null && typeEnum != GenericTypeEnum.PRESCRIPTION) {
-                if (typeEnum == GenericTypeEnum.RELATION && !replaceEntireRow) {
-                    val existingMap = payload.fromJson<MutableMap<String, Any>>()
-                    val list = existingMap[RELATIONSHIP] as MutableList<Relationship>
-                    val newMap = entity as RelatedPersonResponse
-                    list.add(newMap.relationship[0])
-                    existingMap[RELATIONSHIP] = list
-                    genericDao.insertGenericEntity(copy(payload = existingMap.toJson()))[0]
-                } else {
-                    genericDao.insertGenericEntity(copy(payload = entity.toJson()))[0]
-                }
-            } else {
-                genericDao.insertGenericEntity(
-                    GenericEntity(
-                        id = uuid,
-                        patientId = patientId,
-                        payload = entity.toJson(),
-                        type = typeEnum,
-                        syncType = SyncType.POST
-                    )
-                )[0]
-            }
         }
     }
 
@@ -371,8 +315,6 @@ class GenericRepositoryImpl @Inject constructor(
                     )
                 )[0]
             }
-        }.also {
-            runWorkers()
         }
     }
 
@@ -415,8 +357,6 @@ class GenericRepositoryImpl @Inject constructor(
                     )
                 )[0]
             }
-        }.also {
-            runWorkers()
         }
     }
 
@@ -430,11 +370,5 @@ class GenericRepositoryImpl @Inject constructor(
 
     private suspend fun getAppointmentFhirIdById(appointmentId: String): String? {
         return appointmentDao.getAppointmentById(appointmentId)[0].appointmentFhirId
-    }
-
-    private fun runWorkers() {
-        CoroutineScope(Dispatchers.IO).launch {
-            workRequestBuilders.setOneTimeTriggerWorker()
-        }
     }
 }
