@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
@@ -15,18 +16,18 @@ import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
-import com.latticeonfhir.android.service.sync.SyncService
-import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
+import com.latticeonfhir.android.service.workmanager.utils.Sync.getWorkerInfo
+import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -65,11 +66,15 @@ class QueueViewModel @Inject constructor(
     private val syncService by lazy { getApplication<FhirApp>().getSyncService() }
 
     internal suspend fun syncData(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
-        withContext(ioDispatcher) {
-            syncService.syncLauncher { errorReceived, errorMessage ->
-                getApplication<FhirApp>().sessionExpireFlow.postValue(
-                    mapOf(Pair("errorReceived", errorReceived), Pair("errorMsg", errorMessage))
-                )
+        getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext).collectLatest { workInfo ->
+            if(workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
+                withContext(ioDispatcher) {
+                    syncService.syncLauncher { errorReceived, errorMessage ->
+                        getApplication<FhirApp>().sessionExpireFlow.postValue(
+                            mapOf(Pair("errorReceived", errorReceived), Pair("errorMsg", errorMessage))
+                        )
+                    }
+                }
             }
         }
     }
