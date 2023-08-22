@@ -8,4 +8,5 @@ object QueryParameters {
     const val PATIENT_ID = "patientId"
     const val SORT = "_sort"
     const val GREATER_THAN_BUILDER = "ge%s"
+    const val ORG_ID = "orgId"
 }

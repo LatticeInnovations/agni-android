@@ -185,9 +185,9 @@ object TimeConverter {
             Calendar.MINUTE,
             SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt()
         )
-        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.SECOND, 59)
         calendar.set(Calendar.MILLISECOND, 0)
-        calendar.add(Calendar.MINUTE, 30)
+        calendar.add(Calendar.MINUTE, 29)
         return calendar.timeInMillis
     }
 

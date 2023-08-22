@@ -73,9 +73,11 @@ class PrescriptionViewModel @Inject constructor(
 
     internal fun getPatientTodayAppointment(startDate: Date, endDate: Date, patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            appointmentResponseLocal = appointmentRepository.getAppointmentListByDate(startDate.time, endDate.time).firstOrNull { appointmentEntity ->
-                appointmentEntity.patientId == patientId && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
-            }
+            appointmentResponseLocal =
+                appointmentRepository.getAppointmentListByDate(startDate.time, endDate.time)
+                    .firstOrNull { appointmentEntity ->
+                        appointmentEntity.patientId == patientId && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
+                    }
         }
     }
 
@@ -132,28 +134,14 @@ class PrescriptionViewModel @Inject constructor(
         }
         viewModelScope.launch {
             inserted(withContext(ioDispatcher) {
-                prescriptionRepository.insertPrescription(
-                    PrescriptionResponseLocal(
-                        patientId = patient!!.id,
-                        patientFhirId = patient?.fhirId,
-                        generatedOn = date,
-                        prescriptionId = prescriptionId,
-                        prescription = medicationsList,
-                        appointmentId = appointmentResponseLocal!!.uuid
+                insertPrescriptionInDB(date, prescriptionId, medicationsList).also {
+                    insertGenericEntityInDB(date, prescriptionId, medicationsList)
+                    appointmentRepository.updateAppointment(
+                        appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
+                            .also { updatedAppointmentResponse ->
+                                appointmentResponseLocal = updatedAppointmentResponse
+                            }
                     )
-                ).also {
-                    genericRepository.insertPrescription(
-                        PrescriptionResponse(
-                            patientFhirId = patient!!.fhirId ?: patient!!.id,
-                            generatedOn = date,
-                            prescriptionId = prescriptionId,
-                            prescription = medicationsList,
-                            prescriptionFhirId = null,
-                            appointmentId = appointmentResponseLocal!!.appointmentId
-                                ?: appointmentResponseLocal!!.uuid
-                        )
-                    )
-                    appointmentRepository.updateAppointment(appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value))
                 }
             })
         }
@@ -184,5 +172,41 @@ class PrescriptionViewModel @Inject constructor(
                 searchRepository.searchActiveIngredients(activeIngredient)
             )
         }
+    }
+
+    private suspend fun insertPrescriptionInDB(
+        date: Date,
+        prescriptionId: String,
+        medicationsList: List<Medication>
+    ): Long {
+        return prescriptionRepository.insertPrescription(
+            PrescriptionResponseLocal(
+                patientId = patient!!.id,
+                patientFhirId = patient?.fhirId,
+                generatedOn = date,
+                prescriptionId = prescriptionId,
+                prescription = medicationsList,
+                appointmentId = appointmentResponseLocal!!.uuid
+            )
+        )
+    }
+
+    private suspend fun insertGenericEntityInDB(
+        date: Date,
+        prescriptionId: String,
+        medicationsList: List<Medication>
+    ): Long {
+        return genericRepository.insertPrescription(
+            PrescriptionResponse(
+                patientFhirId = patient!!.fhirId ?: patient!!.id,
+                generatedOn = date,
+                prescriptionId = prescriptionId,
+                prescription = medicationsList,
+                prescriptionFhirId = null,
+                appointmentUuid = appointmentResponseLocal!!.uuid,
+                appointmentId = appointmentResponseLocal!!.appointmentId
+                    ?: appointmentResponseLocal!!.uuid
+            )
+        )
     }
 }
