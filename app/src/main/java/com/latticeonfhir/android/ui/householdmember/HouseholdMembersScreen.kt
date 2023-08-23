@@ -80,7 +80,12 @@ fun HouseholdMembersScreen(
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f
+    ) {
+        viewModel.tabs.size
+    }
 
     val density = LocalDensity.current
     val tabWidths = remember {
@@ -164,7 +169,6 @@ fun HouseholdMembersScreen(
                         }
                     }
                     HorizontalPager(
-                        pageCount = viewModel.tabs.size,
                         state = pagerState
                     ) { index ->
                         when (index) {

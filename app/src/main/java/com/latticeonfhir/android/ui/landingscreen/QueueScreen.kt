@@ -138,8 +138,6 @@ fun QueueScreen(
         viewModel.isLaunched = true
     }
     LaunchedEffect(true) {
-        viewModel.syncData()
-        viewModel.getAppointmentListByDate()
         if (viewModel.rescheduled) {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
@@ -150,6 +148,7 @@ fun QueueScreen(
                 NavControllerConstants.RESCHEDULED
             )
         }
+        viewModel.syncData()
     }
     Column(
         modifier = Modifier
