@@ -229,20 +229,19 @@ fun PrescriptionScreen(
                                     selected = pagerState.currentPage == index,
                                     onClick = {
                                         viewModel.appointmentResponseLocal.run {
-                                            if (index == 1 && (this?.status == AppointmentStatusEnum.ARRIVED.value || this?.status == AppointmentStatusEnum.WALK_IN.value)) {
+                                            if (index == 0 || (index == 1 && (this?.status == AppointmentStatusEnum.ARRIVED.value || this?.status == AppointmentStatusEnum.WALK_IN.value))) {
                                                 coroutineScope.launch {
                                                     pagerState.animateScrollToPage(
                                                         index
                                                     )
                                                 }
-                                            } else if (index == 1 && this?.status == AppointmentStatusEnum.IN_PROGRESS.value || this?.status == AppointmentStatusEnum.COMPLETED.value){
+                                            } else if (index == 1 && this?.status == AppointmentStatusEnum.IN_PROGRESS.value || this?.status == AppointmentStatusEnum.COMPLETED.value) {
                                                 coroutineScope.launch {
                                                     snackbarHostState.showSnackbar(
                                                         context.getString(R.string.prescription_already_exists_for_today)
                                                     )
                                                 }
-                                            }
-                                            else coroutineScope.launch {
+                                            } else coroutineScope.launch {
                                                 snackbarHostState.showSnackbar(
                                                     context.getString(R.string.please_add_patient_to_queue)
                                                 )
