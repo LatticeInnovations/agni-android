@@ -96,7 +96,17 @@ fun PrescriptionScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f
+    ) {
+        viewModel.appointmentResponseLocal.run {
+            if (this == null || (status != AppointmentStatusEnum.ARRIVED.value && status != AppointmentStatusEnum.WALK_IN.value))
+                1
+            else
+                viewModel.tabs.size
+        }
+    }
     val context = LocalContext.current
 
     BackHandler(enabled = true) {
@@ -244,12 +254,6 @@ fun PrescriptionScreen(
                             }
                         }
                         HorizontalPager(
-                            pageCount = viewModel.appointmentResponseLocal.run {
-                                if (this == null || (status != AppointmentStatusEnum.ARRIVED.value && status != AppointmentStatusEnum.WALK_IN.value))
-                                    1
-                                else
-                                    viewModel.tabs.size
-                            },
                             state = pagerState
                         ) { index ->
                             when (index) {
