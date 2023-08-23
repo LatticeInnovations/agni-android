@@ -67,20 +67,24 @@ class QueueViewModel @Inject constructor(
 
     internal suspend fun syncData(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
         getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext).collectLatest { workInfo ->
-            if(workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
+            if (workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
                 withContext(ioDispatcher) {
                     syncService.syncLauncher { errorReceived, errorMessage ->
                         getApplication<FhirApp>().sessionExpireFlow.postValue(
-                            mapOf(Pair("errorReceived", errorReceived), Pair("errorMsg", errorMessage))
+                            mapOf(
+                                Pair("errorReceived", errorReceived),
+                                Pair("errorMsg", errorMessage)
+                            )
                         )
                     }
+                    getAppointmentListByDate(ioDispatcher)
                 }
             }
         }
     }
 
-    internal fun getAppointmentListByDate() {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal fun getAppointmentListByDate(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             appointmentsList = appointmentRepository.getAppointmentListByDate(
                 selectedDate.toTodayStartDate(),
                 selectedDate.toEndOfDay()
