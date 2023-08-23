@@ -133,6 +133,7 @@ fun QueueScreen(
     ) == true
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
+            viewModel.getAppointmentListByDate()
             dateScrollState.scrollToItem(7, scrollOffset = -130)
         }
         viewModel.isLaunched = true
