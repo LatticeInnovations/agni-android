@@ -88,7 +88,7 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         const val PREF_LAST_RELATION_SYNC_TIME = "pref_last_relation_sync_time"
         const val PREF_LAST_PRESCRIPTION_SYNC_TIME = "pref_last_prescription_sync_time"
         const val PREF_LAST_MEDICATION_SYNC_TIME = "pref_last_medication_sync_time"
-        const val PREF_LAST_MEDICINE_DOSAGE_INSTRUCTION_SYNC_TIME = "pref_last_medication_sync_time"
+        const val PREF_LAST_MEDICINE_DOSAGE_INSTRUCTION_SYNC_TIME = "pref_last_medication_timing_sync_time"
         const val PREF_LAST_SCHEDULE_SYNC_TIME = "pref_last_schedule_sync_time"
         const val PREF_LAST_APPOINTMENT_SYNC_TIME = "pref_last_appointment_sync_time"
     }
