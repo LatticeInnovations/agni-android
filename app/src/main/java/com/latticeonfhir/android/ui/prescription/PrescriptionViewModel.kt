@@ -22,7 +22,9 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -63,12 +65,9 @@ class PrescriptionViewModel @Inject constructor(
     var previousPrescriptionList by mutableStateOf(listOf<PrescriptionAndMedicineRelation?>(null))
 
     internal var appointmentResponseLocal: AppointmentResponseLocal? = null
-    private lateinit var timingList: List<MedicineTimingEntity>
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            timingList = medicationRepository.getAllMedicationDirections()
-        }
+    private var timingList: Deferred<List<MedicineTimingEntity>> = viewModelScope.async(Dispatchers.IO) {
+        medicationRepository.getAllMedicationDirections()
     }
 
     internal fun getPatientTodayAppointment(startDate: Date, endDate: Date, patientId: String) {
@@ -91,7 +90,7 @@ class PrescriptionViewModel @Inject constructor(
                     .map { prescriptionAndMedicineRelation ->
                         prescriptionAndMedicineRelation.prescriptionDirectionAndMedicineView.map { prescriptionAndMedicineView ->
                             prescriptionAndMedicineView.prescriptionDirectionsEntity.copy(
-                                timing = timingList.find { medicineTimingEntity ->
+                                timing = timingList.await().find { medicineTimingEntity ->
                                     medicineTimingEntity.medicalDosageId == prescriptionAndMedicineView.prescriptionDirectionsEntity.timing
                                 }?.medicalDosage
                             )
@@ -113,7 +112,7 @@ class PrescriptionViewModel @Inject constructor(
     internal fun getAllMedicationDirections(medicationDirectionsList: (List<MedicineTimingEntity>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             medicationDirectionsList(
-                timingList
+                timingList.await()
             )
         }
     }
