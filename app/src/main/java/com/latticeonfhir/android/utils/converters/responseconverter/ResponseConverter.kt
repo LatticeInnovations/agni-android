@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.local.model.appointment.AppointmentRespons
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
@@ -228,14 +229,14 @@ internal fun PrescriptionResponseLocal.toPrescriptionEntity(): PrescriptionEntit
     )
 }
 
-internal fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(): List<PrescriptionDirectionsEntity> {
+internal suspend fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(medicationDao: MedicationDao): List<PrescriptionDirectionsEntity> {
     return prescription.map { medication ->
         PrescriptionDirectionsEntity(
             id = medication.medFhirId + prescriptionId,
             medFhirId = medication.medFhirId,
             qtyPerDose = medication.qtyPerDose,
             frequency = medication.frequency,
-            timing = medication.timing,
+            timing = medication.timing?.let { timing -> medicationDao.getMedicalDosageByMedicalDosageId(timing) } ,
             duration = medication.duration,
             qtyPrescribed = medication.qtyPrescribed,
             note = medication.note,
