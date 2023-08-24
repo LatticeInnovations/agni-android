@@ -66,9 +66,10 @@ class PrescriptionViewModel @Inject constructor(
 
     internal var appointmentResponseLocal: AppointmentResponseLocal? = null
 
-    private var timingList: Deferred<List<MedicineTimingEntity>> = viewModelScope.async(Dispatchers.IO) {
-        medicationRepository.getAllMedicationDirections()
-    }
+    private var timingList: Deferred<List<MedicineTimingEntity>> =
+        viewModelScope.async(Dispatchers.IO) {
+            medicationRepository.getAllMedicationDirections()
+        }
 
     internal fun getPatientTodayAppointment(startDate: Date, endDate: Date, patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -87,16 +88,6 @@ class PrescriptionViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             previousPrescriptionList(
                 prescriptionRepository.getLastPrescription(patientId)
-                    .map { prescriptionAndMedicineRelation ->
-                        prescriptionAndMedicineRelation.prescriptionDirectionAndMedicineView.map { prescriptionAndMedicineView ->
-                            prescriptionAndMedicineView.prescriptionDirectionsEntity.copy(
-                                timing = timingList.await().find { medicineTimingEntity ->
-                                    medicineTimingEntity.medicalDosageId == prescriptionAndMedicineView.prescriptionDirectionsEntity.timing
-                                }?.medicalDosage
-                            )
-                        }
-                        prescriptionAndMedicineRelation
-                    }
             )
         }
     }
@@ -126,9 +117,7 @@ class PrescriptionViewModel @Inject constructor(
         val medicationsList = mutableListOf<Medication>()
         medicationsResponseWithMedicationList.forEach { medicationResponseWithMedication ->
             medicationsList.add(
-                medicationResponseWithMedication.medication.copy(
-                    timing = medicationDirectionsList.find { timing -> timing.medicalDosage == medicationResponseWithMedication.medication.timing }?.medicalDosageId
-                )
+                medicationResponseWithMedication.medication
             )
         }
         viewModelScope.launch {
@@ -200,7 +189,11 @@ class PrescriptionViewModel @Inject constructor(
                 patientFhirId = patient!!.fhirId ?: patient!!.id,
                 generatedOn = date,
                 prescriptionId = prescriptionId,
-                prescription = medicationsList,
+                prescription = medicationsList.map { medication ->
+                    medication.copy(
+                        timing = timingList.await().find { timing -> timing.medicalDosage == medication.timing }?.medicalDosageId
+                    )
+                },
                 prescriptionFhirId = null,
                 appointmentUuid = appointmentResponseLocal!!.uuid,
                 appointmentId = appointmentResponseLocal!!.appointmentId
