@@ -295,7 +295,7 @@ class SyncRepositoryImpl @Inject constructor(
                         }.toTypedArray())
                         val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
                         body.forEach { prescriptionResponse ->
-                            medicineDirections.addAll(prescriptionResponse.toListOfPrescriptionDirectionsEntity())
+                            medicineDirections.addAll(prescriptionResponse.toListOfPrescriptionDirectionsEntity(medicationDao))
                         }
                         prescriptionDao.insertPrescriptionMedicines(
                             *medicineDirections.toTypedArray()
