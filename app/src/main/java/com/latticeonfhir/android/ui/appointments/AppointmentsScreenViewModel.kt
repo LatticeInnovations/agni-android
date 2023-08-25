@@ -91,7 +91,9 @@ class AppointmentsScreenViewModel @Inject constructor(
             ifAllSlotsBooked = appointmentRepository.getAppointmentListByDate(
                 Date().toTodayStartDate(),
                 Date().toEndOfDay()
-            ).size >= 80
+            ).filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status != AppointmentStatusEnum.CANCELLED.value
+            }.size >= 80
         }
     }
 
