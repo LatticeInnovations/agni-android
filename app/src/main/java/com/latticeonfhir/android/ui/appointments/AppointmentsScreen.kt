@@ -43,13 +43,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.common.AppointmentsFab
+import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.ui.common.customTabIndicatorOffset
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -237,42 +235,12 @@ fun AppointmentsScreen(
                     AppointmentsFab(
                         navController,
                         patient,
-                        viewModel.isFabSelected,
-                        viewModel.todaysAppointment,
-                        viewModel.ifAlreadyWaiting
-                    ) { queueFabClicked ->
-                        if (queueFabClicked) {
-                            if (viewModel.todaysAppointment != null) {
-                                // change status of patient to arrived and navigate to queue screen
-                                viewModel.updateStatusToArrived {
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        navController.popBackStack()
-                                        navController.previousBackStackEntry?.savedStateHandle?.set(
-                                            NavControllerConstants.PATIENT_ARRIVED,
-                                            true
-                                        )
-                                        navController.popBackStack()
-                                    }
-                                }
-                            } else {
-                                // add patient to queue and navigate to queue screen
-                                if (viewModel.ifAllSlotsBooked) {
-                                    viewModel.showAllSlotsBookedDialog = true
-                                } else {
-                                    viewModel.addPatientToQueue {
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            navController.popBackStack()
-                                            navController.previousBackStackEntry?.savedStateHandle?.set(
-                                                NavControllerConstants.ADD_TO_QUEUE,
-                                                true
-                                            )
-                                            navController.popBackStack()
-                                        }
-                                    }
-                                }
-                            }
+                        viewModel.isFabSelected
+                    ) { showDialog ->
+                        if (showDialog) {
+                            viewModel.showAllSlotsBookedDialog = true
                         }
-                        viewModel.isFabSelected = !viewModel.isFabSelected
+                        else viewModel.isFabSelected = !viewModel.isFabSelected
                     }
                 }
             }
