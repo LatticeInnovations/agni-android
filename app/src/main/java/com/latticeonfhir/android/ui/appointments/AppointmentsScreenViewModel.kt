@@ -34,8 +34,6 @@ class AppointmentsScreenViewModel @Inject constructor(
     val tabs = listOf("Upcoming", "Completed")
 
     var isFabSelected by mutableStateOf(false)
-    var ifAlreadyWaiting by mutableStateOf(false)
-    var ifAllSlotsBooked by mutableStateOf(false)
     var showAllSlotsBookedDialog by mutableStateOf(false)
     var rescheduled by mutableStateOf(false)
     var scheduled by mutableStateOf(false)
