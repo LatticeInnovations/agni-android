@@ -2,7 +2,6 @@ package com.latticeonfhir.android.utils.converters.server.responsemapper
 
 import com.latticeonfhir.android.base.server.BaseResponse
 import retrofit2.Response
-import timber.log.Timber
 
 object ApiResponseConverter {
 

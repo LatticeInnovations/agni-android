@@ -28,10 +28,10 @@ private val DarkColorScheme = darkColorScheme(
     onTertiary = Tertiary20,
     tertiaryContainer = Tertiary30,
     onTertiaryContainer = Tertiary90,
-    error = Error40,
-    onError = Error100,
-    errorContainer = Error90,
-    onErrorContainer = Error10,
+    error = Error80,
+    onError = Error20,
+    errorContainer = Error30,
+    onErrorContainer = Error90,
     background = Neutral10,
     onBackground = Neutral90,
     surface = Neutral10,
@@ -77,24 +77,25 @@ fun FHIRAndroidTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-      dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-        val context = LocalContext.current
-        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-      }
-      darkTheme -> DarkColorScheme
-      else -> LightColorScheme
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
     }
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-          (view.context as Activity).window.statusBarColor = colorScheme.primary.toArgb()
-          ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
+            (view.context as Activity).window.statusBarColor = colorScheme.primary.toArgb()
+            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
         }
     }
 
     MaterialTheme(
-      colorScheme = colorScheme,
-      typography = Typography,
-      content = content
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
     )
 }

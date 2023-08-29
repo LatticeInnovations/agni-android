@@ -1,7 +1,14 @@
 package com.latticeonfhir.android.ui.landingscreen
 
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
@@ -19,23 +26,27 @@ import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.common.PatientItemCard
 
 @Composable
-fun MyPatientScreen(navController: NavController, viewModel: LandingScreenViewModel = hiltViewModel()) {
+fun MyPatientScreen(
+    navController: NavController,
+    viewModel: LandingScreenViewModel = hiltViewModel()
+) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Row (
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(5.dp)
                 .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.SpaceEvenly
-        ){
+        ) {
             AssistChip(
                 onClick = { /*TODO*/ },
                 label = {
@@ -66,7 +77,8 @@ fun MyPatientScreen(navController: NavController, viewModel: LandingScreenViewMo
                 trailingIcon = {
                     Icon(
                         Icons.Default.ArrowDropDown, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface)
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             )
             Spacer(modifier = Modifier.width(3.dp))
@@ -82,43 +94,52 @@ fun MyPatientScreen(navController: NavController, viewModel: LandingScreenViewMo
                 trailingIcon = {
                     Icon(
                         Icons.Default.ArrowDropDown, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface)
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             )
         }
         val patientsList: LazyPagingItems<PatientResponse>
-        if (viewModel.isSearchResult){
+        if (viewModel.isSearchResult) {
             patientsList = viewModel.searchResultList.collectAsLazyPagingItems()
         } else {
             patientsList = viewModel.patientList.collectAsLazyPagingItems()
         }
-        LazyColumn (modifier = Modifier.testTag("patients list")){
-            items(patientsList){patient ->
-                if (patient != null) {
+        LazyColumn(modifier = Modifier.testTag("patients list")) {
+            items(
+                count = patientsList.itemCount,
+                key = patientsList.itemKey(),
+                contentType = patientsList.itemContentType(
+                )
+            ) { index ->
+                val item = patientsList[index]
+                if (item != null) {
                     PatientItemCard(
-                        navController, patient
+                        navController, item
                     )
                 }
             }
-            when(patientsList.loadState.append){
+            when (patientsList.loadState.append) {
                 is LoadState.NotLoading -> Unit
                 LoadState.Loading -> {
                     item {
                         Loader()
                     }
                 }
+
                 is LoadState.Error -> {
                     // TODO
                 }
             }
 
-            when(patientsList.loadState.refresh){
+            when (patientsList.loadState.refresh) {
                 is LoadState.NotLoading -> Unit
                 LoadState.Loading -> {
                     item {
                         Loader()
                     }
                 }
+
                 is LoadState.Error -> {
                     // TODO
                 }

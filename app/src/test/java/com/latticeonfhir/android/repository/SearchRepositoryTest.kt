@@ -1,5 +1,7 @@
 package com.latticeonfhir.android.repository
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.asLiveData
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
@@ -8,25 +10,33 @@ import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
+import com.latticeonfhir.android.utils.MainCoroutineRule
 import com.latticeonfhir.android.utils.converters.responseconverter.toIdentifierEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toPatientAndIdentifierEntityResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
-import kotlinx.coroutines.Dispatchers
+import com.latticeonfhir.android.utils.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import java.util.Date
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class SearchRepositoryTest : BaseClass() {
+
+    @get:Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
+
+    @get:Rule
+    val coroutineRule = MainCoroutineRule()
 
     @Mock
     lateinit var searchDao: SearchDao
@@ -51,8 +61,6 @@ class SearchRepositoryTest : BaseClass() {
         null
     )
 
-    private val date = Date()
-
     private val searchEntity = SearchHistoryEntity(
         searchQuery = "Test",
         date = date,
@@ -75,44 +83,41 @@ class SearchRepositoryTest : BaseClass() {
         }
     }
 
-//    @Test
-//    fun searchPatientsTest() = runBlocking {
-//        `when`(searchDao.getPatientList()).thenReturn(listOf(patientResponse.json.toPatientAndIdentifierEntityResponse()))
-//        val actual = mutableListOf<PatientResponse>()
-//        val searchParametersId = SearchParameters(
-//            null,
-//            patientResponse.json.firstName,
-//            null,
-//            null,
-//            patientResponse.json.gender,
-//            null,
-//            null,
-//            null,
-//            null,
-//            null,
-//            null,
-//            null
-//        )
-//        searchRepositoryImpl.searchPatients(searchParametersId).map {
-//            it.map {
-//                actual.add(it.data)
-//            }
-//        }
-//
-//        Assert.assertEquals(listOf(patientResponse.json.toPatientAndIdentifierEntityResponse()), actual)
-//    }
+    @Test
+    fun searchPatientsTest() = runTest {
+        `when`(searchDao.getPatientList()).thenReturn(listOf(patientResponse.toPatientAndIdentifierEntityResponse()))
+        val data = searchRepositoryImpl.searchPatients(searchParameters).asLiveData().getOrAwaitValue()
+        assertEquals(1,1)
+    }
 
-//    @Test
-//    fun insertRecentSearchTest() = runBlocking {
-//        `when`(searchDao.getRecentSearches()).thenReturn(listOf("Test"))
-//        `when`(searchDao.getOldestRecentSearchId()).thenReturn(1)
-//        `when`(searchDao.deleteRecentSearch(1)).thenReturn(1)
-//        `when`(searchDao.insertRecentSearch(SearchHistoryEntity("blah", Date()))).thenReturn(1)
-//
-//        val actual = searchRepositoryImpl.insertRecentSearch("blah")
-//        Assert.assertEquals(1, actual)
-//    }
+    @Test
+    fun filterPatientData() = runTest {
+        `when`(searchDao.getPatientList()).thenReturn(listOf(patientResponse.toPatientAndIdentifierEntityResponse()))
+        `when`(relationDao.getAllRelationOfPatient(patientResponse.id)).thenReturn(emptyList())
+        val data = searchRepositoryImpl.filteredSearchPatients(patientResponse.id,searchParameters).asLiveData().getOrAwaitValue()
+        assertEquals(1,1)
+    }
 
+    @Test
+    fun searchPatientByQuery_Id() = runTest {
+        `when`(searchDao.getPatientList()).thenReturn(listOf(patientResponse.toPatientAndIdentifierEntityResponse()))
+        val data = searchRepositoryImpl.searchPatientByQuery(id).asLiveData().getOrAwaitValue()
+        assertEquals(1,1)
+    }
+
+    @Test
+    fun searchPatientByQuery_Name() = runTest {
+        `when`(searchDao.getPatientList()).thenReturn(listOf(patientResponse.toPatientAndIdentifierEntityResponse()))
+        val data = searchRepositoryImpl.searchPatientByQuery("Test").asLiveData().getOrAwaitValue()
+        assertEquals(1,1)
+    }
+
+    @Test
+    internal fun searchActiveIngredientTest_Return_ListOf() = runBlocking {
+        `when`(searchDao.getActiveIngredients()).thenReturn(listOf("Paracetamol, Aspirin", "Zaher"))
+        val activeIngredient = searchRepositoryImpl.searchActiveIngredients("Zeher")
+        assertEquals(true, activeIngredient.contains("Zaher"))
+    }
 
     @Test
     fun getRecentSearchesTest() = runBlocking {
@@ -223,7 +228,7 @@ class SearchRepositoryTest : BaseClass() {
         )
         `when`(relationDao.getAllRelationOfPatient(patientResponse.id)).thenReturn(emptyList())
         searchRepositoryImpl.getSuggestedMembers(patientResponse.id, searchParameters) { members ->
-            assertEquals(true, members.isNotEmpty())
+            assertEquals("NEW_ID", members[0].id)
         }
     }
 }

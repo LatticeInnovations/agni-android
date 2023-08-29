@@ -9,7 +9,6 @@ import com.latticeonfhir.android.data.server.model.user.UserResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
-import timber.log.Timber
 import javax.inject.Inject
 
 class AuthenticationRepositoryImpl @Inject constructor(
@@ -49,10 +48,18 @@ class AuthenticationRepositoryImpl @Inject constructor(
         ).apply {
             if (this is ApiEndResponse) {
                 body.apply {
+                    preferenceRepository.setUserFhirId(userId)
                     preferenceRepository.setUserName(userName)
-                    preferenceRepository.setUserRole(role)
+                    preferenceRepository.setUserRoleId(role[0].roleId)
+                    preferenceRepository.setUserRole(role[0].role)
+                    preferenceRepository.setOrganizationFhirId(role[0].orgId)
+                    preferenceRepository.setOrganization(role[0].orgName)
                     userEmail?.let { email -> preferenceRepository.setUserEmail(email) }
-                    mobileNumber?.let { mobileNumber -> preferenceRepository.setUserMobile(mobileNumber) }
+                    mobileNumber?.let { mobileNumber ->
+                        preferenceRepository.setUserMobile(
+                            mobileNumber
+                        )
+                    }
                 }
             }
         }

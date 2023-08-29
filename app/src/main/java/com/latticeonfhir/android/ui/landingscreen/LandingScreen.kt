@@ -1,4 +1,4 @@
-package com.latticeonfhir.android
+package com.latticeonfhir.android.ui.landingscreen
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -27,34 +28,82 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum.Companion.fromLabel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.landingscreen.LandingScreenViewModel
-import com.latticeonfhir.android.ui.landingscreen.MyPatientScreen
-import com.latticeonfhir.android.ui.landingscreen.ProfileScreen
-import com.latticeonfhir.android.ui.landingscreen.QueueScreen
 import com.latticeonfhir.android.ui.landingscreen.*
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import kotlinx.coroutines.launch
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LandingScreen(
     navController: NavController,
-    viewModel: LandingScreenViewModel = hiltViewModel()
+    viewModel: LandingScreenViewModel = hiltViewModel(),
+    queueViewModel: QueueViewModel = hiltViewModel()
 ) {
     val focusRequester = remember { FocusRequester() }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val activity = LocalContext.current as Activity
+    val dateScrollState = rememberLazyListState()
 
+    viewModel.addedToQueue = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
+        ADD_TO_QUEUE
+    ) == true
+    viewModel.patientArrived = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
+        PATIENT_ARRIVED
+    ) == true
+    LaunchedEffect(true) {
+        if (viewModel.addedToQueue) {
+            viewModel.selectedIndex = 1
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = activity.getString(R.string.added_to_queue)
+                )
+            }
+            navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(ADD_TO_QUEUE)
+        }
+
+        if (viewModel.patientArrived) {
+            viewModel.selectedIndex = 1
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = activity.getString(R.string.status_updated_to_arrived)
+                )
+            }
+            navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(PATIENT_ARRIVED)
+        }
+    }
     BackHandler(enabled = true) {
-        if (viewModel.isSearching) {
-            viewModel.isSearching = false
-        } else if (viewModel.isSearchResult) {
-            viewModel.isSearchResult = false
-            viewModel.populateList()
-        } else {
-            activity.finish()
+        when (viewModel.selectedIndex) {
+            2 -> viewModel.selectedIndex = 0
+            1 -> {
+                if (queueViewModel.isSearchingInQueue || queueViewModel.searchQueueQuery.isNotBlank()) {
+                    queueViewModel.isSearchingInQueue = false
+                    queueViewModel.searchQueueQuery = ""
+                    queueViewModel.getAppointmentListByDate()
+                } else if (viewModel.showStatusChangeLayout) {
+                    viewModel.showStatusChangeLayout = false
+                } else viewModel.selectedIndex = 0
+            }
+
+            0 -> {
+                if (viewModel.isSearching) {
+                    viewModel.isSearching = false
+                } else if (viewModel.isSearchResult) {
+                    viewModel.isSearchResult = false
+                    viewModel.populateList()
+                } else {
+                    activity.finish()
+                }
+            }
         }
     }
     LaunchedEffect(viewModel.isLaunched) {
@@ -79,10 +128,9 @@ fun LandingScreen(
                     )
                 }
             }
-
             viewModel.populateList()
-            viewModel.isLaunched = true
         }
+        viewModel.isLaunched = true
     }
 
     LaunchedEffect(viewModel.logoutUser) {
@@ -139,6 +187,43 @@ fun LandingScreen(
                             }) {
                                 Icon(
                                     Icons.Default.Clear, contentDescription = "CLEAR_ICON"
+                                )
+                            }
+                        }
+                    )
+                } else if (viewModel.selectedIndex == 1) {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = viewModel.items[viewModel.selectedIndex],
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.testTag("HEADING_TAG")
+                            )
+                        },
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                        ),
+                        actions = {
+                            FilledTonalButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        dateScrollState.animateScrollToItem(7, scrollOffset = -130)
+                                    }
+                                    queueViewModel.selectedDate = Date()
+                                    queueViewModel.weekList =
+                                        queueViewModel.selectedDate.to14DaysWeek()
+                                    queueViewModel.getAppointmentListByDate()
+                                },
+                                enabled = queueViewModel.selectedDate.toSlotDate() != Date().toSlotDate() || queueViewModel.selectedDate.toYear() != Date().toYear(),
+                                modifier = Modifier.testTag("RESET_BTN")
+                            ) {
+                                Text(text = stringResource(id = R.string.reset))
+                            }
+                            IconButton(onClick = {
+                                queueViewModel.isSearchingInQueue = true
+                            }) {
+                                Icon(
+                                    Icons.Default.Search, contentDescription = "SEARCH_ICON"
                                 )
                             }
                         }
@@ -254,7 +339,14 @@ fun LandingScreen(
                 ) {
                     when (viewModel.selectedIndex) {
                         0 -> MyPatientScreen(navController)
-                        1 -> QueueScreen()
+                        1 -> QueueScreen(
+                            navController,
+                            viewModel,
+                            dateScrollState,
+                            coroutineScope,
+                            snackbarHostState
+                        )
+
                         2 -> ProfileScreen()
                     }
                 }
@@ -315,7 +407,7 @@ fun LandingScreen(
             else Modifier
                 .matchParentSize()
                 .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
-                .clickable(enabled = false) {  }
+                .clickable(enabled = false) { }
 
         ) {
             AnimatedVisibility(
@@ -327,10 +419,11 @@ fun LandingScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
-                        .clickable {  }
+                        .clickable { }
                         .testTag("SEARCH_LAYOUT"),
                     verticalArrangement = Arrangement.Top
                 ) {
+                    val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                     TextField(
                         value = viewModel.searchQuery,
                         onValueChange = {
@@ -360,8 +453,10 @@ fun LandingScreen(
                                 focusRequester.requestFocus()
                             }
                             .testTag("SEARCH_TEXT_FIELD"),
-                        colors = TextFieldDefaults.textFieldColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = containerColor,
+                            unfocusedContainerColor = containerColor,
+                            disabledContainerColor = containerColor,
                         ),
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Search
@@ -396,6 +491,150 @@ fun LandingScreen(
                     ) {
                         Text(text = "Advanced search")
                     }
+                }
+            }
+        }
+        Box(
+            modifier = Modifier.matchParentSize()
+        ) {
+            AnimatedVisibility(
+                visible = queueViewModel.isSearchingInQueue && viewModel.selectedIndex == 1,
+                enter = slideInVertically(initialOffsetY = { -it }),
+                exit = slideOutVertically(targetOffsetY = { -it })
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
+                        .clickable { }
+                        .testTag("QUEUE_SEARCH_LAYOUT"),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                    TextField(
+                        value = queueViewModel.searchQueueQuery,
+                        onValueChange = {
+                            queueViewModel.searchQueueQuery = it
+                            queueViewModel.getAppointmentListByDate()
+                        },
+                        leadingIcon = {
+                            IconButton(onClick = {
+                                queueViewModel.searchQueueQuery = ""
+                                queueViewModel.isSearchingInQueue = false
+                                queueViewModel.getAppointmentListByDate()
+                            }) {
+                                Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                            }
+                        },
+                        trailingIcon = {
+                            if (queueViewModel.searchQueueQuery.isNotBlank()) {
+                                IconButton(onClick = {
+                                    queueViewModel.searchQueueQuery = ""
+                                    queueViewModel.getAppointmentListByDate()
+                                }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(64.dp)
+                            .focusRequester(focusRequester)
+                            .onGloballyPositioned {
+                                focusRequester.requestFocus()
+                            }
+                            .testTag("SEARCH_TEXT_FIELD"),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = containerColor,
+                            unfocusedContainerColor = containerColor,
+                            disabledContainerColor = containerColor,
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Search
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSearch = {
+                                queueViewModel.isSearchingInQueue = false
+                            }
+                        ),
+                        singleLine = true
+                    )
+                }
+            }
+        }
+        Box(
+            modifier =
+            if (!viewModel.showStatusChangeLayout) Modifier
+                .matchParentSize()
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
+            else Modifier
+                .matchParentSize()
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+                .clickable(enabled = false) { },
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            AnimatedVisibility(
+                visible = viewModel.showStatusChangeLayout,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = MaterialTheme.colorScheme.surface)
+                        .testTag("CHANGE_STATUS_LAYOUT"),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.status),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            IconButton(onClick = { viewModel.showStatusChangeLayout = false }) {
+                                Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
+                            }
+                        }
+                    }
+                    queueViewModel.statusList.forEach { status ->
+                        Text(
+                            text = status,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
+                                .clickable {
+                                    queueViewModel.updateAppointmentStatus(fromLabel(status).value) {
+                                        viewModel.showStatusChangeLayout = false
+                                        queueViewModel.getAppointmentListByDate()
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                message = if (status == "Arrived") activity.getString(
+                                                    R.string.status_to_arrived
+                                                )
+                                                else activity.getString(R.string.status_to_completed)
+                                            )
+                                        }
+                                    }
+                                }
+                        )
+                        Divider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(40.dp))
                 }
             }
         }

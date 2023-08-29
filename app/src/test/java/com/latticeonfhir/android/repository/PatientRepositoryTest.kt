@@ -5,14 +5,18 @@ import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientAndIdentifierEntityResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
+@RunWith(JUnit4::class)
 class PatientRepositoryTest: BaseClass() {
     @Mock
     private lateinit var patientDao: PatientDao
@@ -20,7 +24,7 @@ class PatientRepositoryTest: BaseClass() {
 
     @Before
     public override fun setUp() {
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
         patientRepositoryImpl = PatientRepositoryImpl(patientDao)
     }
 

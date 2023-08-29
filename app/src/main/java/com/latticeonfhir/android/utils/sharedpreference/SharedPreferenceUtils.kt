@@ -47,7 +47,7 @@ class StringPreference(
 
     @WorkerThread
     override fun getValue(thisRef: Any, property: KProperty<*>): String {
-        return preferences.getString(name, defaultValue)?:""
+        return preferences.getString(name, defaultValue) ?: ""
     }
 
     override fun setValue(thisRef: Any, property: KProperty<*>, value: String) {
@@ -59,7 +59,7 @@ class SetPreference(
     private val preferences: SharedPreferences,
     private val name: String,
     private val defaultValue: HashSet<String>? = null
-): ReadWriteProperty<Any, HashSet<String>?> {
+) : ReadWriteProperty<Any, HashSet<String>?> {
 
     @WorkerThread
     override fun getValue(thisRef: Any, property: KProperty<*>): HashSet<String>? {

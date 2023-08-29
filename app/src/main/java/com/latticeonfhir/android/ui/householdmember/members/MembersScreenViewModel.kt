@@ -5,12 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.model.patient.PatientResponseWithRelation
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.local.model.patient.PatientResponseWithRelation
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -25,7 +26,7 @@ class MembersScreenViewModel @Inject constructor(
     var relationsListWithRelation by mutableStateOf(listOf<PatientResponseWithRelation>())
 
     internal fun getAllRelations(patientId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             relationsList = relationRepository.getAllRelationOfPatient(patientId)
             relationsList.forEach { relation ->
                 val patientResponseWithRelation = getPatientData(relation.toId)

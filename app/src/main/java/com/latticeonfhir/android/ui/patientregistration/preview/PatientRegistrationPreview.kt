@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreviewViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
@@ -27,18 +26,18 @@ import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
+import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreviewViewModel
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.time.LocalDate
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,7 +98,11 @@ fun PatientRegistrationPreview(
             if (dobAgeSelector == "dob") {
                 viewModel.dob = "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
             } else {
-                viewModel.dob = ageToPatientDate(viewModel.years.toInt(), viewModel.months.toInt(), viewModel.days.toInt())
+                viewModel.dob = ageToPatientDate(
+                    viewModel.years.toInt(),
+                    viewModel.months.toInt(),
+                    viewModel.days.toInt()
+                )
                 Timber.d("manseeyy ${viewModel.dob.toPatientDate()}")
             }
         }
@@ -131,7 +134,7 @@ fun PatientRegistrationPreview(
                     }) {
                         Icon(
                             Icons.Default.ArrowBack,
-                            contentDescription = "Back button"
+                            contentDescription = "BACK_ICON"
                         )
                     }
                 },
@@ -140,7 +143,7 @@ fun PatientRegistrationPreview(
                 ),
                 actions = {
                     IconButton(onClick = { viewModel.openDialog = true }) {
-                        Icon(Icons.Default.Clear, contentDescription = "clear icon")
+                        Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
                     }
                 }
             )
@@ -187,29 +190,30 @@ fun PatientRegistrationPreview(
                         )
                     }
                     viewModel.relativeId = UUIDBuilder.generateUUID()
+                    val patient = PatientResponse(
+                        id = viewModel.relativeId,
+                        firstName = viewModel.firstName,
+                        middleName = if (viewModel.middleName.isEmpty()) null else viewModel.middleName,
+                        lastName = if (viewModel.lastName.isEmpty()) null else viewModel.lastName,
+                        birthDate = viewModel.dob.toPatientDate(),
+                        email = if (viewModel.email.isEmpty()) null else viewModel.email,
+                        active = true,
+                        gender = viewModel.gender,
+                        mobileNumber = viewModel.phoneNumber.toLong(),
+                        fhirId = null,
+                        permanentAddress = PatientAddressResponse(
+                            postalCode = viewModel.homeAddress.pincode,
+                            state = viewModel.homeAddress.state,
+                            addressLine1 = viewModel.homeAddress.addressLine1,
+                            addressLine2 = if (viewModel.homeAddress.addressLine2.isEmpty()) null else viewModel.homeAddress.addressLine2,
+                            city = viewModel.homeAddress.city,
+                            country = "India",
+                            district = if (viewModel.homeAddress.district.isEmpty()) null else viewModel.homeAddress.district
+                        ),
+                        identifier = viewModel.identifierList
+                    )
                     viewModel.addPatient(
-                        PatientResponse(
-                            id = viewModel.relativeId,
-                            firstName = viewModel.firstName,
-                            middleName = if (viewModel.middleName.isEmpty()) null else viewModel.middleName,
-                            lastName = if (viewModel.lastName.isEmpty()) null else viewModel.lastName,
-                            birthDate = viewModel.dob.toPatientDate(),
-                            email = if (viewModel.email.isEmpty()) null else viewModel.email,
-                            active = true,
-                            gender = viewModel.gender,
-                            mobileNumber = viewModel.phoneNumber.toLong(),
-                            fhirId = null,
-                            permanentAddress = PatientAddressResponse(
-                                postalCode = viewModel.homeAddress.pincode,
-                                state = viewModel.homeAddress.state,
-                                addressLine1 = viewModel.homeAddress.addressLine1,
-                                addressLine2 = if (viewModel.homeAddress.addressLine2.isEmpty()) null else viewModel.homeAddress.addressLine2,
-                                city = viewModel.homeAddress.city,
-                                country = "India",
-                                district = if (viewModel.homeAddress.district.isEmpty()) null else viewModel.homeAddress.district
-                            ),
-                            identifier = viewModel.identifierList
-                        )
+                        patient
                     )
                     if (viewModel.fromHouseholdMember) {
                         // adding relation
@@ -241,6 +245,11 @@ fun PatientRegistrationPreview(
                         }
                     } else {
                         navController.popBackStack(Screen.LandingScreen.route, false)
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "patient",
+                            patient
+                        )
+                        navController.navigate(Screen.PatientLandingScreen.route)
                     }
                 },
                 modifier = Modifier
@@ -275,7 +284,12 @@ fun PreviewScreen(
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
-                Heading(stringResource(id = R.string.basic_information), 1, patientRegister, navController)
+                Heading(
+                    stringResource(id = R.string.basic_information),
+                    1,
+                    patientRegister,
+                    navController
+                )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "${
@@ -284,7 +298,13 @@ fun PreviewScreen(
                             viewModel.middleName,
                             viewModel.lastName
                         )
-                    }, ${viewModel.gender.capitalize()}",
+                    }, ${
+                        viewModel.gender.replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase(
+                                Locale.getDefault()
+                            ) else it.toString()
+                        }
+                    }",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.testTag("NAME_TAG")
                 )
@@ -311,7 +331,12 @@ fun PreviewScreen(
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
-                Heading(stringResource(id = R.string.identification), 2, patientRegister, navController)
+                Heading(
+                    stringResource(id = R.string.identification),
+                    2,
+                    patientRegister,
+                    navController
+                )
                 if (viewModel.passportId.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label(stringResource(id = R.string.passport_id))
@@ -375,7 +400,7 @@ fun PreviewScreen(
             }
         }
         if (viewModel.openDialog) {
-            DiscardDialog(navController, viewModel.fromHouseholdMember){
+            DiscardDialog(navController, viewModel.fromHouseholdMember) {
                 viewModel.openDialog = false
             }
         }
@@ -389,7 +414,7 @@ fun PreviewScreen(
 }
 
 @Composable
-fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDialog:()->Unit){
+fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDialog: () -> Unit) {
     AlertDialog(
         onDismissRequest = {
             closeDialog()
@@ -501,8 +526,7 @@ fun Detail(detail: String, tag: String) {
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.testTag(tag)
         )
-    }
-    else {
+    } else {
         Text(
             text = detail,
             style = MaterialTheme.typography.bodyLarge,

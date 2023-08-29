@@ -6,10 +6,14 @@ interface PreferenceStorage {
     var token: String
 
     /** User Data */
+    var userFhirId: String
     var userName: String
-    var userRole: String
     var userMobile: Long
     var userEmail: String
+    var userRoleId: String
+    var userRole: String
+    var organizationFhirId: String
+    var organization: String
 
     /** Room DB Encryption Key */
     var roomDBEncryptionKey: String
@@ -20,6 +24,8 @@ interface PreferenceStorage {
     var lastPrescriptionSyncTime: Long
     var lastMedicationSyncTime: Long
     var lastMedicineDosageInstructionSyncTime: Long
+    var lastScheduleSyncTime: Long
+    var lastAppointmentSyncTime: Long
 
     fun clear()
 }

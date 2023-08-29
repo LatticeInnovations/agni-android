@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.prescription.previousprescription
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
@@ -36,6 +37,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
@@ -67,7 +69,13 @@ fun PreviousPrescriptionsScreen(
         } else {
             viewModel.previousPrescriptionList.forEachIndexed { index, previousPrescription ->
                 previousPrescription?.let { prescription ->
-                    PrescriptionCard(viewModel, prescription, index == 0, snackbarHostState, coroutineScope)
+                    PrescriptionCard(
+                        viewModel,
+                        prescription,
+                        index == 0,
+                        snackbarHostState,
+                        coroutineScope
+                    )
                 }
             }
         }
@@ -150,40 +158,37 @@ fun PrescriptionCard(
                     if (isLatest) {
                         TextButton(
                             onClick = {
-                                viewModel.medicationsResponseWithMedicationList = emptyList()
-                                viewModel.selectedActiveIngredientsList = emptyList()
-                                prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
-                                    viewModel.selectedActiveIngredientsList =
-                                        viewModel.selectedActiveIngredientsList + listOf(
-                                            directionAndMedication.medicationEntity.activeIngredient
-                                        )
-                                    viewModel.medicationsResponseWithMedicationList =
-                                        viewModel.medicationsResponseWithMedicationList + listOf(
-                                            MedicationResponseWithMedication(
-                                                activeIngredient = directionAndMedication.medicationEntity.activeIngredient,
-                                                medName = directionAndMedication.medicationEntity.medName,
-                                                medUnit = directionAndMedication.medicationEntity.medUnit,
-                                                medication = Medication(
-                                                    doseForm = directionAndMedication.medicationEntity.doseForm,
-                                                    duration = directionAndMedication.prescriptionDirectionsEntity.duration,
-                                                    qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
-                                                    frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
-                                                    medFhirId = directionAndMedication.medicationEntity.medFhirId,
-                                                    note = directionAndMedication.prescriptionDirectionsEntity.note,
-                                                    timing = directionAndMedication.prescriptionDirectionsEntity.timing,
-                                                    qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed
-                                                )
+                                viewModel.appointmentResponseLocal.run {
+                                    when (this?.status) {
+                                        AppointmentStatusEnum.ARRIVED.value, AppointmentStatusEnum.WALK_IN.value -> {
+                                            saveRePrescription(
+                                                context,
+                                                viewModel,
+                                                prescription,
+                                                coroutineScope,
+                                                snackbarHostState
                                             )
-                                        )
-                                }
-                                viewModel.bottomNavExpanded = false
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = context.getString(R.string.re_prescribed_successfully)
-                                    )
+                                        }
+
+                                        AppointmentStatusEnum.IN_PROGRESS.value, AppointmentStatusEnum.COMPLETED.value -> {
+                                            coroutineScope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    context.getString(R.string.prescription_already_exists_for_today)
+                                                )
+                                            }
+                                        }
+
+                                        else -> coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                context.getString(R.string.please_add_patient_to_queue)
+                                            )
+                                        }
+                                    }
                                 }
                             },
-                            modifier = Modifier.align(Alignment.End).testTag("RE_PRESCRIBE_BTN")
+                            modifier = Modifier
+                                .align(Alignment.End)
+                                .testTag("RE_PRESCRIBE_BTN")
                         ) {
                             Text(text = "Re-Prescribe")
                         }
@@ -208,6 +213,47 @@ fun MedicineDetails(medName: String, details: String) {
             text = details,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+fun saveRePrescription(
+    context: Context,
+    viewModel: PrescriptionViewModel,
+    prescription: PrescriptionAndMedicineRelation,
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
+    viewModel.medicationsResponseWithMedicationList = emptyList()
+    viewModel.selectedActiveIngredientsList = emptyList()
+    prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
+        viewModel.selectedActiveIngredientsList =
+            viewModel.selectedActiveIngredientsList + listOf(
+                directionAndMedication.medicationEntity.activeIngredient
+            )
+        viewModel.medicationsResponseWithMedicationList =
+            viewModel.medicationsResponseWithMedicationList + listOf(
+                MedicationResponseWithMedication(
+                    activeIngredient = directionAndMedication.medicationEntity.activeIngredient,
+                    medName = directionAndMedication.medicationEntity.medName,
+                    medUnit = directionAndMedication.medicationEntity.medUnit,
+                    medication = Medication(
+                        doseForm = directionAndMedication.medicationEntity.doseForm,
+                        duration = directionAndMedication.prescriptionDirectionsEntity.duration,
+                        qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
+                        frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
+                        medFhirId = directionAndMedication.medicationEntity.medFhirId,
+                        note = directionAndMedication.prescriptionDirectionsEntity.note,
+                        timing = directionAndMedication.prescriptionDirectionsEntity.timing,
+                        qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed
+                    )
+                )
+            )
+    }
+    viewModel.bottomNavExpanded = false
+    coroutineScope.launch {
+        snackbarHostState.showSnackbar(
+            message = context.getString(R.string.re_prescribed_successfully)
         )
     }
 }

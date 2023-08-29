@@ -1,105 +1,15 @@
 package com.latticeonfhir.android.ui
 
 import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.latticeonfhir.android.ui.main.MainActivity
 import org.junit.FixMethodOrder
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
-class PatientRegistrationKtTest {
-    @get: Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
-
-    val addPatientText = hasTestTag("ADD_PATIENT_TEXT")
-    val landingScreenTitle = hasText("My Patients") and hasNoClickAction()
-
-    // Placeholders
-    val title = hasText("Patient Registration")
-
-    // Input Fields
-    val firstName = hasTestTag("First Name") and hasClickAction()
-    val middleName = hasTestTag("Middle Name") and hasClickAction()
-    val lastName = hasTestTag("Last Name") and hasClickAction()
-    val phoneNo = hasTestTag("Phone Number") and hasClickAction()
-    val email = hasTestTag("Email") and hasClickAction()
-    val year = hasTestTag("Year") and hasClickAction()
-    val month = hasTestTag("Month")
-    val day = hasTestTag("Day") and hasClickAction()
-    val years = hasTestTag("Years") and hasClickAction()
-    val months = hasTestTag("Months") and hasClickAction()
-    val days = hasTestTag("Days") and hasClickAction()
-    val passportId = hasTestTag("Passport ID") and hasClickAction()
-    val voterId = hasTestTag("Voter ID") and hasClickAction()
-    val patientId = hasTestTag("Patient ID") and hasClickAction()
-    val postalCode = hasTestTag("Postal Code *") and hasClickAction()
-    val state = hasTestTag("State *") and hasClickAction()
-    val addressLine1 = hasTestTag("Address Line 1 *") and hasClickAction()
-    val addressLine2 = hasTestTag("Address Line 2") and hasClickAction()
-    val city = hasTestTag("City *") and hasClickAction()
-    val district = hasTestTag("District") and hasClickAction()
-
-    // Selection Chips
-    val dobChip = hasTestTag("dob") and hasClickAction()
-    val ageChip = hasTestTag("age") and hasClickAction()
-    val femaleChip = hasTestTag("female") and hasClickAction()
-    val maleChip = hasTestTag("male") and hasClickAction()
-    val othersChip = hasTestTag("other") and hasClickAction()
-    val passportIdChip = hasTestTag("Passport ID chip") and hasClickAction()
-    val voterIdChip = hasTestTag("Voter ID chip") and hasClickAction()
-    val patientIdChip = hasTestTag("Patient ID chip") and hasClickAction()
-
-    // Button
-    val nextBtn = hasText("Next")
-    val submitBtn = hasText("Submit & Preview")
-    val addWorkAddressBtn = hasTestTag("add work address btn")
-    val saveBtn = hasText("Save")
-    val editBtn1 = hasTestTag("edit btn 1")
-    val editBtn2 = hasTestTag("edit btn 2")
-    val editBtn3 = hasTestTag("edit btn 3")
-
-    // Icons
-    val backBtn = hasContentDescription("Back button")
-    val clearIcon = hasContentDescription("clear icon")
-    val clearWorkAddressFields = hasContentDescription("disable work address")
-    val addWorkAddressIcon = hasContentDescription("add work address icon")
-
-    // alert dialog
-    val alertDialogTitle = hasTestTag("alert dialog title")
-    val alertDialogDesc = hasTestTag("alert dialog description")
-    val alertDialogConfirmBtn = hasTestTag("alert dialog confirm btn")
-    val alertDialogCancelBtn = hasTestTag("alert dialog cancel btn")
-
-    // preview screen content
-    val nameTag = hasTestTag("NAME_TAG")
-    val dobTag = hasTestTag("DOB_TAG")
-    val phoneNoTag = hasTestTag("PHONE_NO_TAG")
-    val passportIdTag = hasTestTag("PASSPORT_ID_TAG")
-    val voterIdTag = hasTestTag("VOTER_ID_TAG")
-    val patientIdTag = hasTestTag("PATIENT_ID_TAG")
-    val addressLine1Tag = hasTestTag("ADDRESS_LINE1_TAG")
-    val addressLine2Tag = hasTestTag("ADDRESS_LINE2_TAG")
-    val addressLine3Tag = hasTestTag("ADDRESS_LINE3_TAG")
-
-    // for login
-    val inputField = hasTestTag("INPUT_FIELD")
-    val button = hasTestTag("BUTTON")
-    val firstDigit = hasTestTag("FIRST_DIGIT")
-    val secondDigit = hasTestTag("SECOND_DIGIT")
-    val thirdDigit = hasTestTag("THIRD_DIGIT")
-    val fourDigit = hasTestTag("FOUR_DIGIT")
-    val fiveDigit = hasTestTag("FIVE_DIGIT")
-    val sixDigit = hasTestTag("SIX_DIGIT")
-
-    // for logout
-    val profile_tab = hasTestTag("Profile tab") and hasClickAction()
-    val logoutIcon = hasContentDescription("LOG_OUT_ICON")
-
+class PatientRegistrationKtTest: UiTestsBase() {
     @Test
     fun aaaa_login(){
         composeTestRule.onNode(inputField).performTextInput("9876543210")
@@ -119,10 +29,10 @@ class PatientRegistrationKtTest {
     @Test
     fun patientRegistrationStepOne_verify_if_all_views_exists() {
         composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
-        composeTestRule.onNode(title).assertExists("Title should be \"Patient Registration\".")
+        composeTestRule.onNode(titlePatientRegistration).assertExists("Title should be \"Patient Registration\".")
         composeTestRule.onNode(clearIcon, useUnmergedTree = true)
             .assertExists("Clear icon  should be displayed.")
-        composeTestRule.onNode(backBtn, useUnmergedTree = true).assertDoesNotExist()
+        composeTestRule.onNode(backIcon, useUnmergedTree = true).assertDoesNotExist()
         composeTestRule.onNodeWithText("Basic Information").assertExists()
         composeTestRule.onNodeWithText("Page 1/3").assertExists()
         composeTestRule.onNode(firstName)
@@ -199,7 +109,7 @@ class PatientRegistrationKtTest {
     }
 
     @Test
-    fun patientRegistrationStepOne_next_btn_disabled_on_invalid_firstName() {
+    fun patientRegistrationStepOne_next_btn_disabled_and_error_msg_on_invalid_firstName_less_than_3() {
         composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
         composeTestRule.onNode(firstName).performTextInput("ma")
         composeTestRule.onNode(firstName).performImeAction()
@@ -214,7 +124,68 @@ class PatientRegistrationKtTest {
         composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
         composeTestRule.onNode(femaleChip).performClick()
         composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(firstName).assertTextEquals("ma", "First Name", "Name length should be between 3 and 100.", includeEditableText = true)
         composeTestRule.onNode(nextBtn).assertIsNotEnabled()
+    }
+
+    @Test
+    fun patientRegistrationStepOne_next_btn_disabled_and_error_msg_on_invalid_firstName_more_than_100() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvw")
+        composeTestRule.onNode(firstName).assertTextEquals("", "First Name", includeEditableText = true)
+        composeTestRule.onNode(nextBtn).assertIsNotEnabled()
+    }
+
+    @Test
+    fun patientRegistrationStepOne_check_if_first_name_value_counter_displayed(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("a")
+        composeTestRule.onNode(firstNameLength).assertIsDisplayed()
+        composeTestRule.onNode(firstNameLength).assertTextEquals("1/100")
+        composeTestRule.onNode(firstName).performTextInput("abcdefghijklmnopqrst")
+        composeTestRule.onNode(firstNameLength).assertTextEquals("20/100")
+    }
+
+    @Test
+    fun patientRegistrationStepOne_check_error_states_of_middle_name(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(middleName).assertTextEquals("Middle Name", "")
+        composeTestRule.onNode(middleName).performTextInput("a")
+        composeTestRule.onNode(middleName).assertTextEquals("Middle Name", "a")
+        composeTestRule.onNode(middleName).performTextClearance()
+        composeTestRule.onNode(middleName).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvw")
+        composeTestRule.onNode(middleName).assertTextEquals("", "Middle Name")
+    }
+
+    @Test
+    fun patientRegistrationStepOne_check_middle_name_length_counter(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(middleName).performTextInput("abcde")
+        composeTestRule.onNode(middleNameLength).assertTextEquals("5/100")
+        composeTestRule.onNode(middleName).performTextClearance()
+        composeTestRule.onNode(middleName).performTextInput("abcdefghijklmno")
+        composeTestRule.onNode(middleNameLength).assertTextEquals("15/100")
+    }
+
+    @Test
+    fun patientRegistrationStepOne_check_error_states_of_last_name(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(lastName).assertTextEquals("Last Name", "")
+        composeTestRule.onNode(lastName).performTextInput("a")
+        composeTestRule.onNode(lastName).assertTextEquals("Last Name", "a")
+        composeTestRule.onNode(lastName).performTextClearance()
+        composeTestRule.onNode(lastName).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvw")
+        composeTestRule.onNode(lastName).assertTextEquals("", "Last Name")
+    }
+
+    @Test
+    fun patientRegistrationStepOne_check_last_name_length_counter(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(lastName).performTextInput("abcdefghij")
+        composeTestRule.onNode(lastNameLength).assertTextEquals("10/100")
+        composeTestRule.onNode(lastName).performTextClearance()
+        composeTestRule.onNode(lastName).performTextInput("abcdefghijklmnoabcdefghijklmno")
+        composeTestRule.onNode(lastNameLength).assertTextEquals("30/100")
     }
 
     @Test
@@ -283,8 +254,212 @@ class PatientRegistrationKtTest {
     fun patientRegistrationStepOne_verify_clear_icon_click() {
         composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
         composeTestRule.onNode(clearIcon, true).performClick()
-        composeTestRule.onNode(landingScreenTitle)
+        composeTestRule.onNode(titleMyPatients)
             .assertExists("Should be navigated to My Patients screen.")
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_0_in_day_field_dob(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(day).performTextInput("0")
+        composeTestRule.onNode(day).assertTextEquals("0", "Day", "Enter valid day between 1 and 31.", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_alphabet_in_day_field_dob(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(day).performTextInput("a")
+        composeTestRule.onNode(day).assertTextEquals("", "Day", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_special_char_in_day_field_dob(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(day).performTextInput("@")
+        composeTestRule.onNode(day).assertTextEquals("", "Day", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_click_on_month_drop_down(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").assertExists("Drop down should have opened and January should be in the list.")
+        composeTestRule.onNodeWithText("February").assertExists("February should be in the list..")
+        composeTestRule.onNodeWithText("March").assertExists("March should be in the list..")
+        composeTestRule.onNodeWithText("April").assertExists("April should be in the list..")
+        composeTestRule.onNodeWithText("May").assertExists("May should be in the list..")
+        composeTestRule.onNodeWithText("June").assertExists("June should be in the list..")
+        composeTestRule.onNodeWithText("July").assertExists("July should be in the list..")
+        composeTestRule.onNodeWithText("August").assertExists("August should be in the list..")
+        composeTestRule.onNodeWithText("September").assertExists("September should be in the list..")
+        composeTestRule.onNodeWithText("October").assertExists("October should be in the list..")
+        composeTestRule.onNodeWithText("November").assertExists("November should be in the list..")
+        composeTestRule.onNodeWithText("December").assertExists("December should be in the list..")
+    }
+
+    @Test
+    fun patientRegistrationStepOne_select_feb_and_enter_0_in_day(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("February").performClick()
+        composeTestRule.onNode(day).performTextInput("0")
+        composeTestRule.onNode(day).assertTextEquals("0", "Day", "Enter valid day between 1 and 29.", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_31_in_day_check_months_list(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(day).performTextInput("31")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").assertExists("January should be in the list.")
+        composeTestRule.onNodeWithText("March").assertExists("March should be in the list..")
+        composeTestRule.onNodeWithText("May").assertExists("May should be in the list..")
+        composeTestRule.onNodeWithText("July").assertExists("July should be in the list..")
+        composeTestRule.onNodeWithText("August").assertExists("August should be in the list..")
+        composeTestRule.onNodeWithText("October").assertExists("October should be in the list..")
+        composeTestRule.onNodeWithText("December").assertExists("December should be in the list..")
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_30_in_day_check_months_list(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(day).performTextInput("30")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").assertExists("January should be in the list.")
+        composeTestRule.onNodeWithText("March").assertExists("March should be in the list..")
+        composeTestRule.onNodeWithText("April").assertExists("April should be in the list..")
+        composeTestRule.onNodeWithText("May").assertExists("May should be in the list..")
+        composeTestRule.onNodeWithText("June").assertExists("June should be in the list..")
+        composeTestRule.onNodeWithText("July").assertExists("July should be in the list..")
+        composeTestRule.onNodeWithText("August").assertExists("August should be in the list..")
+        composeTestRule.onNodeWithText("September").assertExists("September should be in the list..")
+        composeTestRule.onNodeWithText("October").assertExists("October should be in the list..")
+        composeTestRule.onNodeWithText("November").assertExists("November should be in the list..")
+        composeTestRule.onNodeWithText("December").assertExists("December should be in the list..")
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_29_in_day_check_months_list(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(day).performTextInput("29")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").assertExists("January should be in the list.")
+        composeTestRule.onNodeWithText("February").assertExists("February should be in the list.")
+        composeTestRule.onNodeWithText("March").assertExists("March should be in the list..")
+        composeTestRule.onNodeWithText("April").assertExists("April should be in the list..")
+        composeTestRule.onNodeWithText("May").assertExists("May should be in the list..")
+        composeTestRule.onNodeWithText("June").assertExists("June should be in the list..")
+        composeTestRule.onNodeWithText("July").assertExists("July should be in the list..")
+        composeTestRule.onNodeWithText("August").assertExists("August should be in the list..")
+        composeTestRule.onNodeWithText("September").assertExists("September should be in the list..")
+        composeTestRule.onNodeWithText("October").assertExists("October should be in the list..")
+        composeTestRule.onNodeWithText("November").assertExists("November should be in the list..")
+        composeTestRule.onNodeWithText("December").assertExists("December should be in the list..")
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_30_and_select_January_and_check_error_msg(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(day).performTextInput("30")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(day).assertTextEquals("30", "Day", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_less_than_1900_in_year(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(year).performTextInput("1800")
+        composeTestRule.onNode(year).assertTextEquals("1800", "Year", "Enter valid year between 1900 and 2023", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_more_than_2023_in_year(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(year).performTextInput("2025")
+        composeTestRule.onNode(year).assertTextEquals("2025", "Year", "Enter valid year between 1900 and 2023", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_check_value_of_country_code(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(countryCode).assertTextEquals("IND (+91)", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_special_characters_in_phone_number_field(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(phoneNo).performTextInput("@#$")
+        composeTestRule.onNode(phoneNo).assertTextEquals("", "Enter Phone Number", "Enter Valid Input", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_alphanumeric_in_phone_number_field(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(phoneNo).performTextInput("abc123")
+        composeTestRule.onNode(phoneNo).assertTextEquals("", "Enter Phone Number", "Enter Valid Input", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_free_text_in_phone_number_field(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(phoneNo).performTextInput("abc123%$#")
+        composeTestRule.onNode(phoneNo).assertTextEquals("", "Enter Phone Number", "Enter Valid Input", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_numbers_in_phone_number_field(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(phoneNo).performTextInput("123")
+        composeTestRule.onNode(phoneNo).assertTextEquals("123", "Enter Valid Input", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_special_characters_in_email_field(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(email).performTextInput("@#$")
+        composeTestRule.onNode(email).assertTextEquals("@#$", "Email", "Enter valid userEmail (eg., abc123@gmail.com)", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_alphanumeric_in_email_field(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(email).performTextInput("abc123")
+        composeTestRule.onNode(email).assertTextEquals("abc123", "Email", "Enter valid userEmail (eg., abc123@gmail.com)", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_free_text_in_email_field(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(email).performTextInput("abc123@#$")
+        composeTestRule.onNode(email).assertTextEquals("abc123@#$", "Email", "Enter valid userEmail (eg., abc123@gmail.com)", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_email_without_domain_in_email_field(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(email).performTextInput("abc123@")
+        composeTestRule.onNode(email).assertTextEquals("abc123@", "Email", "Enter valid userEmail (eg., abc123@gmail.com)", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_valid_email_in_email_field(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(email).performTextInput("abc123@gmail.com")
+        composeTestRule.onNode(email).assertTextEquals("abc123@gmail.com", "Email", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepOne_enter_more_than_100_chars_in_email_field(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(email).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvw")
+        composeTestRule.onNode(email).assertTextEquals("", "Email", includeEditableText = true)
     }
 
     // Patient Registration Step 2 Tests
@@ -306,8 +481,8 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(femaleChip).assertIsSelected()
         composeTestRule.onNode(nextBtn).assertIsEnabled()
         composeTestRule.onNode(nextBtn).performClick()
-        composeTestRule.onNode(title).assertExists("Title should be \"Patient Registration\".")
-        composeTestRule.onNode(backBtn, useUnmergedTree = true)
+        composeTestRule.onNode(titlePatientRegistration).assertExists("Title should be \"Patient Registration\".")
+        composeTestRule.onNode(backIcon, useUnmergedTree = true)
             .assertExists("Back Button should be displayed.")
         composeTestRule.onNode(clearIcon, useUnmergedTree = true)
             .assertExists("Clear Icon should be displayed.")
@@ -422,6 +597,99 @@ class PatientRegistrationKtTest {
     }
 
     @Test
+    fun patientRegistrationStepTwo_enter_alphabets_in_passport_id() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("ABCDEFGH")
+        composeTestRule.onNode(passportId).assertTextEquals("ABCDEFGH", "Passport ID", "Enter valid Passport ID (eg., A1098765)", includeEditableText = true)
+        composeTestRule.onNode(nextBtn).assertIsNotEnabled()
+    }
+
+    @Test
+    fun patientRegistrationStepTwo_enter_numeric_in_passport_id() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("12345678")
+        composeTestRule.onNode(passportId).assertTextEquals("12345678", "Passport ID", "Enter valid Passport ID (eg., A1098765)", includeEditableText = true)
+        composeTestRule.onNode(nextBtn).assertIsNotEnabled()
+    }
+
+    @Test
+    fun patientRegistrationStepTwo_enter_special_chars_in_passport_id() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("!@#$%^&*")
+        composeTestRule.onNode(passportId).assertTextEquals("!@#$%^&*", "Passport ID", "Enter valid Passport ID (eg., A1098765)", includeEditableText = true)
+        composeTestRule.onNode(nextBtn).assertIsNotEnabled()
+    }
+
+    @Test
+    fun patientRegistrationStepTwo_passport_id_length_tests(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportIdLength).assertExists("Passport Id length should be displayed.")
+        composeTestRule.onNode(passportIdLength).assertTextEquals("0/8")
+        composeTestRule.onNode(passportId).performTextInput("A")
+        composeTestRule.onNode(passportIdLength).assertTextEquals("1/8")
+    }
+
+    @Test
     fun patientRegistrationStepTwo_next_btn_enabled_on_valid_voter_id() {
         composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
         composeTestRule.onNode(firstName).performTextInput("mansi")
@@ -470,6 +738,100 @@ class PatientRegistrationKtTest {
     }
 
     @Test
+    fun patientRegistrationStepTwo_enter_alphabets_in_voter_id() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(voterIdChip).performClick()
+        composeTestRule.onNode(voterId).performTextInput("ABCDEFGHIJ")
+        composeTestRule.onNode(voterId).assertTextEquals("ABCDEFGHIJ", "Voter ID", "Enter valid Voter Id (eg., XYZ9876543)", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepTwo_enter_numeric_in_voter_id() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(voterIdChip).performClick()
+        composeTestRule.onNode(voterId).performTextInput("1234567890")
+        composeTestRule.onNode(voterId).assertTextEquals("1234567890", "Voter ID", "Enter valid Voter Id (eg., XYZ9876543)", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepTwo_enter_special_chars_in_voter_id() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(voterIdChip).performClick()
+        composeTestRule.onNode(voterId).performTextInput("!@#$%^&*()")
+        composeTestRule.onNode(voterId).assertTextEquals("!@#$%^&*()", "Voter ID", "Enter valid Voter Id (eg., XYZ9876543)", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepTwo_voter_id_length_tests(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(voterIdChip).performClick()
+        composeTestRule.onNode(voterIdLength).assertExists("Voter Id length should be displayed.")
+        composeTestRule.onNode(voterIdLength).assertTextEquals("0/10")
+        composeTestRule.onNode(voterId).performTextInput("ABC12")
+        composeTestRule.onNode(voterIdLength).assertTextEquals("5/10")
+    }
+
+    @Test
     fun patientRegistrationStepTwo_next_btn_enabled_on_valid_patient_id() {
         composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
         composeTestRule.onNode(firstName).performTextInput("mansi")
@@ -515,6 +877,137 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(patientIdChip).performClick()
         composeTestRule.onNode(patientId).performTextInput("abc")
         composeTestRule.onNode(nextBtn).assertIsNotEnabled()
+    }
+
+    @Test
+    fun patientRegistrationStepTwo_enter_alphabets_in_patient_id() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(patientIdChip).performClick()
+        composeTestRule.onNode(patientId).performTextInput("ABCDE")
+        composeTestRule.onNode(patientId).assertTextEquals("ABCDE", "Patient ID", "Patient Id should be of length 10.", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepTwo_enter_numeric_in_patient_id() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(patientIdChip).performClick()
+        composeTestRule.onNode(patientId).performTextInput("12345")
+        composeTestRule.onNode(patientId).assertTextEquals("12345", "Patient ID", "Patient Id should be of length 10.", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepTwo_enter_special_chars_in_patient_id() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(patientIdChip).performClick()
+        composeTestRule.onNode(patientId).performTextInput("!@#$%^")
+        composeTestRule.onNode(patientId).assertTextEquals("!@#$%^", "Patient ID", "Patient Id should be of length 10.", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepTwo_patient_id_length_tests(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(patientIdChip).performClick()
+        composeTestRule.onNode(patientIdLength).assertExists("Patient Id length should be displayed.")
+        composeTestRule.onNode(patientIdLength).assertTextEquals("0/10")
+        composeTestRule.onNode(patientId).performTextInput("ABC123456")
+        composeTestRule.onNode(patientIdLength).assertTextEquals("9/10")
+    }
+
+    @Test
+    fun patientRegistrationStepTwo_unselecting_id_fields_tests(){
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(passportIdChip).performClick()
+        composeTestRule.onNode(passportId).assertDoesNotExist()
+        composeTestRule.onNode(passportIdChip).performClick()
+        composeTestRule.onNode(passportId).assertTextEquals("", "Passport ID")
+        composeTestRule.onNode(patientIdChip).performClick()
+        composeTestRule.onNode(patientId).performTextInput("ABCDE12345")
+        composeTestRule.onNode(patientIdChip).performClick()
+        composeTestRule.onNode(patientId).assertDoesNotExist()
+        composeTestRule.onNode(patientIdChip).performClick()
+        composeTestRule.onNode(patientId).assertTextEquals("", "Patient ID")
+        composeTestRule.onNode(voterIdChip).performClick()
+        composeTestRule.onNode(voterId).performTextInput("XYZ1234567")
+        composeTestRule.onNode(voterIdChip).performClick()
+        composeTestRule.onNode(voterId).assertDoesNotExist()
+        composeTestRule.onNode(voterIdChip).performClick()
+        composeTestRule.onNode(voterId).assertTextEquals("", "Voter ID")
     }
 
     @Test
@@ -599,6 +1092,53 @@ class PatientRegistrationKtTest {
     }
 
     @Test
+    fun patientRegistrationStepTwo_verify_dialog_negative_btn_click() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(clearIcon, true).performClick()
+        composeTestRule.onNode(alertDialogCancelBtn, true).performClick()
+        composeTestRule.onNode(alertDialogTitle).assertDoesNotExist()
+    }
+
+    @Test
+    fun patientRegistrationStepTwo_verify_dialog_positive_btn_click() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(clearIcon, true).performClick()
+        composeTestRule.onNode(alertDialogConfirmBtn, true).performClick()
+        composeTestRule.onNode(titleMyPatients)
+            .assertExists("Should be navigated to My Patients page.")
+    }
+
+    @Test
     fun patientRegistrationStepTwo_verify_back_btn_click() {
         composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
         composeTestRule.onNode(firstName).performTextInput("mansi")
@@ -616,7 +1156,7 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(femaleChip).assertIsSelected()
         composeTestRule.onNode(nextBtn).assertIsEnabled()
         composeTestRule.onNode(nextBtn).performClick()
-        composeTestRule.onNode(backBtn, true).performClick()
+        composeTestRule.onNode(backIcon, true).performClick()
         composeTestRule.onNodeWithText("Page 1/3")
             .assertExists("Should be navigated to Page 1/3 screen.")
     }
@@ -647,15 +1187,15 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(patientId).performTextInput("ABCDE12345")
         composeTestRule.onNode(nextBtn).assertIsEnabled()
         composeTestRule.onNode(nextBtn).performClick()
-        composeTestRule.onNode(title).assertExists("Title should be \"Patient Registration\".")
-        composeTestRule.onNode(backBtn, useUnmergedTree = true)
+        composeTestRule.onNode(titlePatientRegistration).assertExists("Title should be \"Patient Registration\".")
+        composeTestRule.onNode(backIcon, useUnmergedTree = true)
             .assertExists("Back Button should be displayed.")
         composeTestRule.onNode(clearIcon, useUnmergedTree = true)
             .assertExists("Clear Icon should be displayed.")
         composeTestRule.onNodeWithText("Addresses").assertExists("Addresses should be displayed.")
         composeTestRule.onNodeWithText("Page 3/3").assertExists("Page 3/3 should be displayed.")
         composeTestRule.onNodeWithText("Home Address")
-            .assertExists("Home Address title should be displayed.")
+            .assertExists("Home Address subtitle should be displayed.")
         composeTestRule.onNode(postalCode)
             .assertExists("Postal Code input field should be displayed.")
         composeTestRule.onNode(state).assertExists("State input field should be displayed.")
@@ -703,13 +1243,431 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(submitBtn).assertIsEnabled()
     }
 
+    @Test
+    fun patientRegistrationStepThree_enter_alphabets_in_postal_address() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(postalCode).performTextInput("abcdef")
+        composeTestRule.onNode(postalCode).assertTextEquals("", "Postal Code *", "Enter valid 6 digit postal code", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_enter_special_chars_in_postal_address() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(postalCode).performTextInput("!@#$%^")
+        composeTestRule.onNode(postalCode).assertTextEquals("", "Postal Code *", "Enter valid 6 digit postal code", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_enter_numbers_in_postal_address() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(postalCode).performTextInput("123456")
+        composeTestRule.onNode(postalCode).assertTextEquals("123456", "Postal Code *", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_error_states_on_different_values_postal_address() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(postalCode).performTextInput("12")
+        composeTestRule.onNode(postalCode).assertTextEquals("12", "Postal Code *", "Enter valid 6 digit postal code", includeEditableText = true)
+        composeTestRule.onNode(postalCode).performTextClearance()
+        composeTestRule.onNode(postalCode).performTextInput("12345")
+        composeTestRule.onNode(postalCode).assertTextEquals("12345", "Postal Code *", "Enter valid 6 digit postal code", includeEditableText = true)
+        composeTestRule.onNode(postalCode).performTextClearance()
+        composeTestRule.onNode(postalCode).performTextInput("123456")
+        composeTestRule.onNode(postalCode).assertTextEquals("123456", "Postal Code *", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_check_if_state_drop_down_displayed() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(state).performClick()
+        composeTestRule.onNode(stateDropDownList).assertExists("State dropdown list should be displayed.")
+    }
+
+    @Test
+    fun patientRegistrationStepThree_check_default_value_of_state() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(state).assertTextEquals("", "State *", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_keeping_state_empty() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(femaleChip).assertIsSelected()
+        composeTestRule.onNode(nextBtn).assertIsEnabled()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(postalCode).performTextInput("111111")
+        composeTestRule.onNode(addressLine1).performTextInput("C-416")
+        composeTestRule.onNode(addressLine2).performTextInput("Sarita Vihar")
+        composeTestRule.onNode(city).performTextInput("South Delhi")
+        composeTestRule.onNode(submitBtn).assertIsNotEnabled()
+    }
+
+    @Test
+    fun patientRegistrationStepThree_150_chars_in_address_line_1() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(addressLine1).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst")
+        composeTestRule.onNode(addressLine1).assertTextEquals("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst", "Address Line 1 *", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_more_than_150_chars_in_address_line_1() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(addressLine1).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstu")
+        composeTestRule.onNode(addressLine1).assertTextEquals("", "Address Line 1 *", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_free_text_in_address_line_2() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(addressLine2).performTextInput("abcd123!@#$")
+        composeTestRule.onNode(addressLine2).assertTextEquals("abcd123!@#$", "Address Line 2", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_150_chars_in_address_line_2() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(addressLine2).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst")
+        composeTestRule.onNode(addressLine2).assertTextEquals("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst", "Address Line 2", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_more_than_150_chars_in_address_line_2() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(addressLine2).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstu")
+        composeTestRule.onNode(addressLine2).assertTextEquals("", "Address Line 2", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_free_text_in_city() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(city).performTextInput("abcd123!@#$")
+        composeTestRule.onNode(city).assertTextEquals("abcd123!@#$", "City *", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_150_chars_in_city() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(city).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst")
+        composeTestRule.onNode(city).assertTextEquals("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst", "City *", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_more_than_150_chars_in_city() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(city).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstu")
+        composeTestRule.onNode(city).assertTextEquals("", "City *", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_free_text_in_district() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(district).performTextInput("abcd123!@#$")
+        composeTestRule.onNode(district).assertTextEquals("abcd123!@#$", "District", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_150_chars_in_district() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(district).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst")
+        composeTestRule.onNode(district).assertTextEquals("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst", "District", includeEditableText = true)
+    }
+
+    @Test
+    fun patientRegistrationStepThree_more_than_150_chars_in_district() {
+        composeTestRule.onNode(addPatientText, useUnmergedTree = true).performClick()
+        composeTestRule.onNode(firstName).performTextInput("mansi")
+        composeTestRule.onNode(firstName).performImeAction()
+        composeTestRule.onNode(middleName).performImeAction()
+        composeTestRule.onNode(lastName).performImeAction()
+        composeTestRule.onNode(day).performTextInput("23")
+        composeTestRule.onNode(month).performClick()
+        composeTestRule.onNodeWithText("January").performClick()
+        composeTestRule.onNode(year).performTextInput("2001")
+        composeTestRule.onNode(phoneNo).performTextInput("9876543210")
+        composeTestRule.onNode(phoneNo).performImeAction()
+        composeTestRule.onNodeWithTag("columnLayout").performScrollToNode(hasTestTag("genderRow"))
+        composeTestRule.onNode(femaleChip).performClick()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(passportId).performTextInput("A1098765")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(district).performTextInput("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstu")
+        composeTestRule.onNode(district).assertTextEquals("", "District", includeEditableText = true)
+    }
+
 //    @Test
 //    fun patientRegistrationStepThree_verify_add_work_address_btn() {
 //        patientRegistrationStepTwo_next_btn_enabled_on_valid_id_inputs()
 //        composeTestRule.onNode(nextBtn).performClick()
 //        composeTestRule.onNode(addWorkAddressBtn).performClick()
 //        composeTestRule.onNode(addWorkAddressBtn).assertDoesNotExist()
-//        composeTestRule.onNodeWithText("Work Address").assertExists("Work Address title should be displayed.")
+//        composeTestRule.onNodeWithText("Work Address").assertExists("Work Address titleAdvancedSearch should be displayed.")
 //        composeTestRule.onNode(clearWorkAddressFields).assertExists("Clear work address icon should be displayed.")
 //        composeTestRule.onAllNodes(postalCode).assertCountEquals(2)
 //        composeTestRule.onAllNodes(state).assertCountEquals(2)
@@ -848,7 +1806,7 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(patientId).performTextInput("ABCDE12345")
         composeTestRule.onNode(nextBtn).assertIsEnabled()
         composeTestRule.onNode(nextBtn).performClick()
-        composeTestRule.onNode(backBtn, true).performClick()
+        composeTestRule.onNode(backIcon, true).performClick()
         composeTestRule.onNodeWithText("Page 2/3")
             .assertExists("Should be navigated to Page 2/3 screen.")
     }
@@ -888,7 +1846,7 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(submitBtn).assertIsEnabled()
         composeTestRule.onNode(submitBtn).performClick()
         composeTestRule.onNodeWithText("Preview").assertExists("Title should be \"Preview\".")
-        composeTestRule.onNode(backBtn, useUnmergedTree = true)
+        composeTestRule.onNode(backIcon, useUnmergedTree = true)
             .assertExists("Back Button should be displayed.")
         composeTestRule.onNode(clearIcon, useUnmergedTree = true)
             .assertExists("Clear Icon should be displayed.")
@@ -942,8 +1900,8 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(submitBtn).assertIsEnabled()
         composeTestRule.onNode(submitBtn).performClick()
         composeTestRule.onNode(saveBtn).performClick()
-        composeTestRule.onNode(landingScreenTitle)
-            .assertExists("Should be navigated to My Patients screen.")
+        composeTestRule.onNode(householdMemberCard)
+            .assertExists("Should be navigated to Patient Landing screen.")
     }
 
     @Test
@@ -979,7 +1937,7 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(city).performTextInput("South Delhi")
         composeTestRule.onNode(submitBtn).assertIsEnabled()
         composeTestRule.onNode(submitBtn).performClick()
-        composeTestRule.onNode(backBtn).performClick()
+        composeTestRule.onNode(backIcon).performClick()
         composeTestRule.onNodeWithText("Page 3/3")
             .assertExists("Should be navigated to Page 3/3 screen.")
     }
@@ -1173,7 +2131,7 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(submitBtn).assertIsEnabled()
         composeTestRule.onNode(submitBtn).performClick()
         composeTestRule.onNode(nameTag).assertTextEquals("Mansi, Female")
-        composeTestRule.onNode(dobTag).assertTextEquals("23-January-2001")
+        composeTestRule.onNode(dobTag).assertTextEquals("23-01-2001")
         composeTestRule.onNode(phoneNoTag).assertTextEquals("+91 9876543210")
         composeTestRule.onNode(passportIdTag).assertTextEquals("A1098765")
         composeTestRule.onNode(voterIdTag).assertTextEquals("XYZ1234567")
@@ -1181,6 +2139,17 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(addressLine1Tag).assertTextEquals("C-416, Sarita Vihar")
         composeTestRule.onNode(addressLine2Tag).assertTextEquals("South Delhi")
         composeTestRule.onNode(addressLine3Tag).assertTextEquals("Andhra Pradesh, 111111")
+    }
+
+    @Test
+    fun patientRegistrationPreview_edit_first_name_and_verify_content_on_preview(){
+        patientRegistrationPreview_verify_edit1_btn_click()
+        composeTestRule.onNode(firstName).performTextClearance()
+        composeTestRule.onNode(firstName).performTextInput("edited")
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(nextBtn).performClick()
+        composeTestRule.onNode(submitBtn).performClick()
+        composeTestRule.onNode(nameTag).assertTextEquals("Edited, Female")
     }
 
     @Test
@@ -1257,7 +2226,7 @@ class PatientRegistrationKtTest {
         composeTestRule.onNode(submitBtn).performClick()
         composeTestRule.onNode(clearIcon, true).performClick()
         composeTestRule.onNode(alertDialogConfirmBtn, true).performClick()
-        composeTestRule.onNode(landingScreenTitle)
+        composeTestRule.onNode(titleMyPatients)
             .assertExists("Should be navigated to My Patients page.")
     }
 

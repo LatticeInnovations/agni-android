@@ -80,9 +80,9 @@ fun FillDetailsScreen(
                 prescriptionViewModel.medicationToEdit!!.medication.qtyPerDose.toString()
             viewModel.frequency =
                 prescriptionViewModel.medicationToEdit!!.medication.frequency.toString()
-            viewModel.notes = prescriptionViewModel.medicationToEdit!!.medication.note?:""
+            viewModel.notes = prescriptionViewModel.medicationToEdit!!.medication.note ?: ""
             viewModel.medFhirId = prescriptionViewModel.medicationToEdit!!.medication.medFhirId
-            viewModel.timing = prescriptionViewModel.medicationToEdit!!.medication.timing?:""
+            viewModel.timing = prescriptionViewModel.medicationToEdit!!.medication.timing ?: ""
             viewModel.duration =
                 prescriptionViewModel.medicationToEdit!!.medication.duration.toString()
         }
@@ -94,7 +94,7 @@ fun FillDetailsScreen(
                     Text(
                         text = stringResource(id = R.string.fill_details),
                         style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.testTag("HEADING")
+                        modifier = Modifier.testTag("HEADING_TAG")
                     )
                 },
                 navigationIcon = {
@@ -170,7 +170,11 @@ fun FillDetailsScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("ACTIVE_INGREDIENT_FIELD"),
-                            value = prescriptionViewModel.checkedActiveIngredient.capitalize(Locale.getDefault()),
+                            value = prescriptionViewModel.checkedActiveIngredient.replaceFirstChar {
+                                if (it.isLowerCase()) it.titlecase(
+                                    Locale.getDefault()
+                                ) else it.toString()
+                            },
                             onValueChange = {
                             },
                             label = {
@@ -215,7 +219,11 @@ fun FillDetailsScreen(
                                     },
                                     text = {
                                         Text(
-                                            text = label.capitalize(Locale.getDefault()),
+                                            text = label.replaceFirstChar {
+                                                if (it.isLowerCase()) it.titlecase(
+                                                    Locale.getDefault()
+                                                ) else it.toString()
+                                            },
                                             style = MaterialTheme.typography.bodyLarge,
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
@@ -484,9 +492,11 @@ fun FormulationsForm(
                     .testTag("DURATION"),
                 value = viewModel.duration,
                 onValueChange = {
-                    if (it.matches(OnlyNumberRegex.onlyNumbers) && it != "0" && it.length<=3) viewModel.duration = it
+                    if (it.matches(OnlyNumberRegex.onlyNumbers) && it != "0" && it.length <= 3) viewModel.duration =
+                        it
                     else if (it.isEmpty()) viewModel.duration = it
-                    viewModel.isDurationInvalid = viewModel.duration.isNotBlank() && viewModel.duration.toInt() > 180
+                    viewModel.isDurationInvalid =
+                        viewModel.duration.isNotBlank() && viewModel.duration.toInt() > 180
                 },
                 label = {
                     Text(text = stringResource(id = R.string.duration_days))

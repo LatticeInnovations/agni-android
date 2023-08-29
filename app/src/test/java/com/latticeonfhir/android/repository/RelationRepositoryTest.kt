@@ -1,20 +1,28 @@
 package com.latticeonfhir.android.repository
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.latticeonfhir.android.base.BaseClass
-import com.latticeonfhir.android.data.local.model.relation.Relation
+import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
+import kotlinx.coroutines.test.*
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
+import com.latticeonfhir.android.utils.MainCoroutineRule
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.converters.responseconverter.toPatientAndIdentifierEntityResponse
+import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class RelationRepositoryTest: BaseClass() {
     @Mock
     lateinit var relationDao: RelationDao
@@ -22,19 +30,29 @@ class RelationRepositoryTest: BaseClass() {
     lateinit var patientDao: PatientDao
     lateinit var relationRepositoryImpl: RelationRepositoryImpl
 
+    @ExperimentalCoroutinesApi
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     @Before
     public override fun setUp(){
         MockitoAnnotations.openMocks(this)
         relationRepositoryImpl = RelationRepositoryImpl(relationDao, patientDao)
+        runBlocking {
+            `when`(patientDao.getPatientDataById(relationEntityBrother.fromId)).thenReturn(listOf(patientResponse.toPatientAndIdentifierEntityResponse()))
+            `when`(patientDao.getPatientDataById(relationEntityBrother.toId)).thenReturn(listOf(relative.toPatientAndIdentifierEntityResponse()))
+        }
     }
-
-    val relation = Relation(id, relativeId, relationSpouse.value)
 
     @Test
     fun addRelationTest() = runBlocking {
-        `when`(relationDao.insertRelation(relationEntity)).thenReturn(listOf(-1))
+        `when`(relationDao.insertRelation(relationBrother.toRelationEntity())).thenReturn(listOf(-1))
+        `when`(relationDao.insertRelation(relationEntityInverseBrother)).thenReturn(listOf(-1))
 
-        relationRepositoryImpl.addRelation(relation){
+        relationRepositoryImpl.addRelation(relationBrother){
             Assert.assertEquals(listOf<Long>(-1), it)
         }
     }
@@ -49,8 +67,9 @@ class RelationRepositoryTest: BaseClass() {
 
     @Test
     fun updateRelationTest() = runBlocking {
-        `when`(relationDao.updateRelation(relationSpouse, id, relativeId)).thenReturn(1)
-        relationRepositoryImpl.updateRelation(relation){
+        `when`(relationDao.updateRelation(RelationEnum.BROTHER, id, relativeId)).thenReturn(1)
+        `when`(relationDao.updateRelation(RelationEnum.BROTHER, relativeId, id)).thenReturn(1)
+        relationRepositoryImpl.updateRelation(relationBrother){
             Assert.assertEquals(1, it)
         }
     }
@@ -64,11 +83,13 @@ class RelationRepositoryTest: BaseClass() {
             patientLastName = patientResponse.lastName,
             patientId = patientResponse.id,
             patientGender = patientResponse.gender,
+            patientFhirId = patientResponse.fhirId,
             relation = relationSpouse,
             relativeId = relative.id,
             relativeFirstName = relative.firstName,
             relativeMiddleName = relative.middleName,
             relativeLastName = relative.lastName,
+            relativeFhirId = relative.fhirId,
             relativeGender = relative.gender
         )
         val relationView2 = RelationView(
@@ -78,11 +99,13 @@ class RelationRepositoryTest: BaseClass() {
             patientLastName = relative.lastName,
             patientId = relative.id,
             patientGender = relative.gender,
+            patientFhirId = relative.fhirId,
             relation = relationSpouse,
             relativeId = patientResponse.id,
             relativeFirstName = patientResponse.firstName,
             relativeMiddleName = patientResponse.middleName,
             relativeLastName = patientResponse.lastName,
+            relativeFhirId = patientResponse.fhirId,
             relativeGender = patientResponse.gender
         )
         `when`(relationDao.getRelation(id, relativeId)).thenReturn(listOf(relationView1, relationView2))

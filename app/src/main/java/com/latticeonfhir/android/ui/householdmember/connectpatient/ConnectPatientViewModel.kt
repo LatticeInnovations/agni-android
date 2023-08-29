@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
@@ -103,18 +102,17 @@ class ConnectPatientViewModel @Inject constructor(
     internal fun addRelationsToGenericEntity() {
         viewModelScope.launch(Dispatchers.IO) {
             connectedMembersList.forEach { relationView ->
-                genericRepository.insertOrUpdatePostEntity(
-                    patientId = relationView.patientId,
-                    entity = RelatedPersonResponse(
-                        id = relationView.patientId,
+                genericRepository.insertRelation(
+                    relationView.patientId,
+                    RelatedPersonResponse(
+                        id = relationView.patientFhirId ?: relationView.patientId,
                         relationship = listOf(
                             Relationship(
-                                relativeId = relationView.relativeId,
+                                relativeId = relationView.relativeFhirId ?: relationView.relativeId,
                                 patientIs = relationView.relation.value
                             )
                         )
-                    ),
-                    typeEnum = GenericTypeEnum.RELATION
+                    )
                 )
             }
         }
