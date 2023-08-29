@@ -1,8 +1,10 @@
 package com.latticeonfhir.android.viewmodel
 
 import com.latticeonfhir.android.base.BaseClass
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
+import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
+import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
@@ -14,19 +16,29 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.Prescri
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
+import com.latticeonfhir.android.utils.MainCoroutineRule
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import java.util.Date
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PrescriptionViewModelTest : BaseClass() {
+
+    @get:Rule
+    val mainCoroutineRule =  MainCoroutineRule()
+
     @Mock
     lateinit var prescriptionRepository: PrescriptionRepository
 
@@ -35,6 +47,9 @@ class PrescriptionViewModelTest : BaseClass() {
 
     @Mock
     lateinit var searchRepository: SearchRepository
+
+    @Mock
+    lateinit var appointmentRepository: AppointmentRepository
 
     @Mock
     lateinit var genericRepository: GenericRepository
@@ -50,15 +65,33 @@ class PrescriptionViewModelTest : BaseClass() {
         medFhirId = medicationResponse.medFhirId,
         timing = "Before food"
     )
+
+    private val medicationsResponseWithMedicationList = MedicationResponseWithMedication(
+        activeIngredient = medicationResponse.activeIngredient,
+        medName = medicationResponse.medName,
+        medUnit = medicationResponse.medUnit,
+        medication = medication
+    )
+
     private val prescriptionResponseLocal = PrescriptionResponseLocal(
         patientId = id,
         patientFhirId = patientResponse.fhirId,
-        generatedOn = Date(),
+        generatedOn = date,
         prescriptionId = prescribedResponse.prescriptionId,
+        appointmentId = prescribedResponse.appointmentId,
         prescription = listOf(medication)
     )
 
-    private val date = Date()
+    private val prescriptionResponse = PrescriptionResponse(
+        patientFhirId = patientResponse.fhirId?:patientResponse.id,
+        generatedOn = date,
+        prescriptionId = prescribedResponse.prescriptionId,
+        appointmentId = prescribedResponse.appointmentId,
+        prescription = listOf(medication),
+        prescriptionFhirId = null,
+        appointmentUuid = prescribedResponse.appointmentUuid
+    )
+
 
     private val prescriptionDirectionsEntity = PrescriptionDirectionsEntity(
         id = medication.medFhirId + prescribedResponse.prescriptionId,
@@ -89,7 +122,8 @@ class PrescriptionViewModelTest : BaseClass() {
         patientId = patientResponse.id,
         prescriptionFhirId = prescribedResponse.prescriptionFhirId,
         patientFhirId = patientResponse.fhirId,
-        prescriptionDate = date
+        prescriptionDate = date,
+        appointmentId = prescriptionResponse.appointmentId
     )
 
     @Before
@@ -99,7 +133,8 @@ class PrescriptionViewModelTest : BaseClass() {
             prescriptionRepository,
             medicationRepository,
             searchRepository,
-            genericRepository
+            genericRepository,
+            appointmentRepository
         )
 
         runBlocking {
@@ -107,10 +142,8 @@ class PrescriptionViewModelTest : BaseClass() {
                 -1
             )
             `when`(
-                genericRepository.insertOrUpdatePostEntity(
-                    patientId = patientResponse.id,
-                    entity = listOf(prescribedResponse),
-                    typeEnum = GenericTypeEnum.PRESCRIPTION
+                genericRepository.insertPrescription(
+                    prescriptionResponse
                 )
             ).thenReturn(-1)
             `when`(
@@ -125,14 +158,18 @@ class PrescriptionViewModelTest : BaseClass() {
 
     @Test
     fun insertPrescriptionTest() = runTest {
-        prescriptionViewModel.insertPrescription {
+        prescriptionViewModel.medicationsResponseWithMedicationList = listOf(
+            medicationsResponseWithMedicationList
+        )
+        prescriptionViewModel.patient = patientResponse
+        prescriptionViewModel.insertPrescription(date, prescribedResponse.prescriptionId) {
             assertEquals(-1, it)
         }
     }
 
     @Test
     fun insertRecentSearchTest() = runTest {
-        prescriptionViewModel.insertRecentSearch("search") {
+        prescriptionViewModel.insertRecentSearch("search", date) {
             assertEquals(-1, it)
         }
     }
@@ -214,5 +251,13 @@ class PrescriptionViewModelTest : BaseClass() {
                 ), it
             )
         }
+    }
+
+    @Test
+    fun `fetch patient's today's appointment`() = runBlocking {
+        `when`(appointmentRepository.getAppointmentListByDate(date.time,date.time)).thenReturn(listOf(appointmentResponseLocal.copy(status = AppointmentStatusEnum.ARRIVED.value)))
+        prescriptionViewModel.getPatientTodayAppointment(date,date, appointmentResponse.patientFhirId!!)
+        delay(20000)
+            assertEquals(appointmentResponseLocal.copy(status = AppointmentStatusEnum.ARRIVED.value), prescriptionViewModel.appointmentResponseLocal)
     }
 }

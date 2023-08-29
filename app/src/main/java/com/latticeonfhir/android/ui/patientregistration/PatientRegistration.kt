@@ -14,17 +14,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import androidx.lifecycle.viewmodel.compose.*
+import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.main.patientregistration.DiscardDialog
+import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
 import com.latticeonfhir.android.ui.patientregistration.step2.PatientRegistrationStepTwo
 import com.latticeonfhir.android.ui.patientregistration.step3.PatientRegistrationStepThree
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,7 +80,7 @@ fun PatientRegistration(
                         }) {
                             Icon(
                                 Icons.Default.ArrowBack,
-                                contentDescription = "Back button"
+                                contentDescription = "BACK_ICON"
                             )
                         }
                     }
@@ -93,7 +93,7 @@ fun PatientRegistration(
                         if (viewModel.currentStep == 1) navController.popBackStack()
                         else viewModel.openDialog = true
                     }) {
-                        Icon(Icons.Default.Clear, contentDescription = "clear icon")
+                        Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
                     }
                 }
             )
@@ -110,7 +110,7 @@ fun PatientRegistration(
                     3 -> PatientRegistrationStepThree(navController, patientRegister)
                 }
                 if (viewModel.openDialog) {
-                    DiscardDialog(navController, viewModel.fromHouseholdMember){
+                    DiscardDialog(navController, viewModel.fromHouseholdMember) {
                         viewModel.openDialog = false
                     }
                 }
@@ -139,14 +139,18 @@ fun PatientRegistration(
                                     viewModel.totalSteps = 3
                                 }
                             }) {
-                                Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
+                                Icon(Icons.Default.Clear, contentDescription = "DIALOG_CLEAR_ICON")
                             }
                         }
                     },
                     text = {
                         Column {
                             Text(
-                                NameConverter.getFullName(viewModel.patientFrom?.firstName, viewModel.patientFrom?.middleName, viewModel.patientFrom?.lastName),
+                                NameConverter.getFullName(
+                                    viewModel.patientFrom?.firstName,
+                                    viewModel.patientFrom?.middleName,
+                                    viewModel.patientFrom?.lastName
+                                ),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Spacer(modifier = Modifier.height(23.dp))
@@ -159,10 +163,11 @@ fun PatientRegistration(
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
-                                Column (
+                                Column(
                                     modifier = Modifier.testTag("RELATIONS_DROPDOWN")
-                                        ){
-                                    val relationsList = RelationshipList.getRelationshipList(viewModel.patientFrom?.gender!!)
+                                ) {
+                                    val relationsList =
+                                        RelationshipList.getRelationshipList(viewModel.patientFrom?.gender!!)
 
                                     TextField(
                                         value = viewModel.relation,
@@ -214,7 +219,8 @@ fun PatientRegistration(
                                                         style = MaterialTheme.typography.bodyLarge,
                                                         color = MaterialTheme.colorScheme.onSurface
                                                     )
-                                                }
+                                                },
+                                                modifier = Modifier.testTag("RELATION")
                                             )
                                         }
                                     }

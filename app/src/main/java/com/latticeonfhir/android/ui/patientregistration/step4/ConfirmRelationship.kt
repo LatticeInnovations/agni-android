@@ -19,17 +19,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.ui.theme.Neutral40
-import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
+import com.latticeonfhir.android.ui.theme.Neutral40
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationFromRelationEnum
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +70,8 @@ fun ConfirmRelationship(
                 title = {
                     Text(
                         text = stringResource(id = R.string.confirm_relationship),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.testTag("HEADING_TAG")
                     )
                 },
 //                navigationIcon = {
@@ -84,7 +86,7 @@ fun ConfirmRelationship(
 //                    }) {
 //                        Icon(
 //                            Icons.Default.ArrowBack,
-//                            contentDescription = "Back button"
+//                            contentDescription = "BACK_ICON"
 //                        )
 //                    }
 //                },
@@ -95,7 +97,7 @@ fun ConfirmRelationship(
                     IconButton(onClick = {
                         viewModel.discardAllRelationDialog = true
                     }) {
-                        Icon(Icons.Default.Clear, contentDescription = "clear icon")
+                        Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
                     }
                 }
             )
@@ -130,7 +132,10 @@ fun ConfirmRelationship(
                                 onClick = {
                                     viewModel.discardAllRelationDialog = false
                                     viewModel.discardRelations()
-                                    navController.popBackStack(Screen.HouseholdMembersScreen.route, false)
+                                    navController.popBackStack(
+                                        Screen.HouseholdMembersScreen.route,
+                                        false
+                                    )
                                 }) {
                                 Text(
                                     stringResource(id = R.string.yes_discard)
@@ -182,9 +187,11 @@ fun ConfirmRelationshipScreen(
             )
         }
         Spacer(modifier = Modifier.height(32.dp))
-        LazyColumn(modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f)) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
             items(viewModel.relationBetween) { relationView ->
                 MemberCard(context, relationView, viewModel)
                 Spacer(modifier = Modifier.height(24.dp))
@@ -198,6 +205,7 @@ fun ConfirmRelationshipScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp)
+                .testTag("CONNECT_BTN")
         ) {
             Text(text = "Connect Patient")
         }
@@ -206,7 +214,11 @@ fun ConfirmRelationshipScreen(
 }
 
 @Composable
-fun MemberCard(context: Context, relationView: RelationView, viewModel: ConfirmRelationshipViewModel) {
+fun MemberCard(
+    context: Context,
+    relationView: RelationView,
+    viewModel: ConfirmRelationshipViewModel
+) {
     var openDeleteDialog by remember {
         mutableStateOf(false)
     }
@@ -214,7 +226,9 @@ fun MemberCard(context: Context, relationView: RelationView, viewModel: ConfirmR
         mutableStateOf(false)
     }
     Row(
-        modifier = Modifier.padding(14.dp)
+        modifier = Modifier
+            .padding(14.dp)
+            .testTag("MEMBER_DETAIL_CARDS")
     ) {
         Text(
             text = "${
@@ -290,14 +304,16 @@ fun DeleteDialog(
         title = {
             Text(
                 text = "Remove relationship?",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.testTag("DIALOG_TITLE")
             )
         },
         text = {
-            Column() {
+            Column {
                 Text(
                     "Are you sure you want to remove this relationship? Patient records will not be affected.",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.testTag("DIALOG_SUBTITLE")
                 )
                 Text(
                     "${
@@ -307,7 +323,12 @@ fun DeleteDialog(
                             relationView.patientLastName
                         )
                     } " +
-                            "is the ${getRelationFromRelationEnum(context, relationView.relation)} of " +
+                            "is the ${
+                                getRelationFromRelationEnum(
+                                    context,
+                                    relationView.relation
+                                )
+                            } of " +
                             "${
                                 NameConverter.getFullName(
                                     relationView.relativeFirstName,
@@ -326,7 +347,9 @@ fun DeleteDialog(
                 onClick = {
                     viewModel.deleteRelation(relationView.patientId, relationView.relativeId)
                     closeDialog()
-                }) {
+                },
+                modifier = Modifier.testTag("POSITIVE_BTN")
+            ) {
                 Text(
                     "Confirm"
                 )
@@ -336,7 +359,9 @@ fun DeleteDialog(
             TextButton(
                 onClick = {
                     closeDialog()
-                }) {
+                },
+                modifier = Modifier.testTag("NEGATIVE_BTN")
+            ) {
                 Text(
                     "Cancel"
                 )
@@ -356,7 +381,15 @@ fun EditDialog(
         mutableStateOf(false)
     }
     var relation by remember {
-        mutableStateOf(getRelationFromRelationEnum(context, relationView.relation).capitalize())
+        mutableStateOf(
+            getRelationFromRelationEnum(
+                context,
+                relationView.relation
+            ).replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.getDefault()
+                ) else it.toString()
+            })
     }
     AlertDialog(
         onDismissRequest = {
@@ -365,7 +398,8 @@ fun EditDialog(
         title = {
             Text(
                 text = "Edit relationship",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.testTag("DIALOG_TITLE")
             )
         },
         text = {
@@ -388,8 +422,11 @@ fun EditDialog(
                         style = MaterialTheme.typography.bodyLarge
                     )
                     Spacer(modifier = Modifier.width(10.dp))
-                    Column() {
-                        val relationsList = RelationshipList.getRelationshipList(relationView.patientGender)
+                    Column(
+                        modifier = Modifier.testTag("RELATIONS_DROPDOWN")
+                    ) {
+                        val relationsList =
+                            RelationshipList.getRelationshipList(relationView.patientGender)
 
                         TextField(
                             value = relation,
@@ -458,12 +495,14 @@ fun EditDialog(
                     viewModel.updateRelation(
                         Relation(
                             patientId = relationView.patientId,
-                            relation = getRelationEnumFromString(relation) ,
+                            relation = getRelationEnumFromString(relation),
                             relativeId = relationView.relativeId
                         )
                     )
                     closeDialog()
-                }) {
+                },
+                modifier = Modifier.testTag("POSITIVE_BTN")
+            ) {
                 Text(
                     "Save"
                 )
@@ -473,7 +512,9 @@ fun EditDialog(
             TextButton(
                 onClick = {
                     closeDialog()
-                }) {
+                },
+                modifier = Modifier.testTag("NEGATIVE_BTN")
+            ) {
                 Text(
                     "Cancel"
                 )

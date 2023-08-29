@@ -1,18 +1,13 @@
 package com.latticeonfhir.android.ui.prescription
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -29,6 +24,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
@@ -48,6 +46,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -56,6 +55,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,25 +63,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.ui.common.customTabIndicatorOffset
 import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
 import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPrescriptionsScreen
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
 import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PrescriptionScreen(
     navController: NavController,
@@ -89,17 +96,28 @@ fun PrescriptionScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f
+    ) {
+        viewModel.appointmentResponseLocal.run {
+            if (this == null || (status != AppointmentStatusEnum.ARRIVED.value && status != AppointmentStatusEnum.WALK_IN.value))
+                1
+            else
+                viewModel.tabs.size
+        }
+    }
+    val context = LocalContext.current
 
     BackHandler(enabled = true) {
         if (viewModel.isSearching) viewModel.isSearching = false
         else if (viewModel.checkedActiveIngredient.isNotEmpty()) {
             viewModel.checkedActiveIngredient = ""
             viewModel.medicationToEdit = null
-        }
-        else if (viewModel.bottomNavExpanded) viewModel.bottomNavExpanded = false
+        } else if (viewModel.bottomNavExpanded) viewModel.bottomNavExpanded = false
         else if (viewModel.isSearchResult) viewModel.isSearchResult = false
-        else if (viewModel.tabIndex == 1) {
-            viewModel.tabIndex = 0
+        else if (pagerState.currentPage == 1) {
+            coroutineScope.launch { pagerState.animateScrollToPage(0) }
         } else navController.popBackStack()
     }
     LaunchedEffect(viewModel.isLaunched) {
@@ -111,9 +129,14 @@ fun PrescriptionScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     "patient"
                 )
+            viewModel.getPatientTodayAppointment(
+                Date(Date().toTodayStartDate()),
+                Date(Date().toEndOfDay()),
+                viewModel.patient!!.id
+            )
             viewModel.patient?.let {
-                viewModel.getPreviousPrescription(it.id) {
-                    viewModel.previousPrescriptionList = it
+                viewModel.getPreviousPrescription(it.id) { prescriptionList ->
+                    viewModel.previousPrescriptionList = prescriptionList
                 }
             }
         }
@@ -121,6 +144,14 @@ fun PrescriptionScreen(
             viewModel.medicationDirectionsList = it
         }
         viewModel.isLaunched = true
+    }
+    val density = LocalDensity.current
+    val tabWidths = remember {
+        val tabWidthStateList = mutableStateListOf<Dp>()
+        repeat(viewModel.tabs.size) {
+            tabWidthStateList.add(0.dp)
+        }
+        tabWidthStateList
     }
     Box(
         modifier = Modifier
@@ -142,16 +173,16 @@ fun PrescriptionScreen(
                         Text(
                             text = stringResource(id = R.string.prescription),
                             style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.testTag("HEADING")
+                            modifier = Modifier.testTag("HEADING_TAG")
                         )
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "ARROW_BACK")
+                            Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
                         }
                     },
                     actions = {
-                        if (viewModel.tabIndex == 1) {
+                        if (pagerState.currentPage == 1) {
                             IconButton(onClick = {
                                 viewModel.isSearching = true
                                 viewModel.getPreviousSearch {
@@ -174,46 +205,57 @@ fun PrescriptionScreen(
                             .fillMaxSize()
                     ) {
                         TabRow(
-                            selectedTabIndex = viewModel.tabIndex,
-                            modifier = Modifier.testTag("TABS")
+                            selectedTabIndex = pagerState.currentPage,
+                            modifier = Modifier.testTag("TABS"),
+                            indicator = { tabPositions ->
+                                TabRowDefaults.Indicator(
+                                    modifier = Modifier.customTabIndicatorOffset(
+                                        currentTabPosition = tabPositions[pagerState.currentPage],
+                                        tabWidth = tabWidths[pagerState.currentPage]
+                                    )
+                                )
+                            }
                         ) {
                             viewModel.tabs.forEachIndexed { index, title ->
                                 Tab(
-                                    text = { Text(title) },
+                                    text = {
+                                        Text(title,
+                                            onTextLayout = { textLayoutResult ->
+                                                tabWidths[index] =
+                                                    with(density) { textLayoutResult.size.width.toDp() - 10.dp }
+                                            })
+                                    },
                                     modifier = Modifier.testTag(title.uppercase()),
-                                    selected = viewModel.tabIndex == index,
-                                    onClick = { viewModel.tabIndex = index },
+                                    selected = pagerState.currentPage == index,
+                                    onClick = {
+                                        viewModel.appointmentResponseLocal.run {
+                                            if (index == 0 || (index == 1 && (this?.status == AppointmentStatusEnum.ARRIVED.value || this?.status == AppointmentStatusEnum.WALK_IN.value))) {
+                                                coroutineScope.launch {
+                                                    pagerState.animateScrollToPage(
+                                                        index
+                                                    )
+                                                }
+                                            } else if (index == 1 && this?.status == AppointmentStatusEnum.IN_PROGRESS.value || this?.status == AppointmentStatusEnum.COMPLETED.value) {
+                                                coroutineScope.launch {
+                                                    snackbarHostState.showSnackbar(
+                                                        context.getString(R.string.prescription_already_exists_for_today)
+                                                    )
+                                                }
+                                            } else coroutineScope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    context.getString(R.string.please_add_patient_to_queue)
+                                                )
+                                            }
+                                        }
+                                    },
                                     unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
-                        AnimatedContent(
-                            targetState = viewModel.tabIndex,
-                            transitionSpec = {
-                                if (viewModel.tabIndex == 0) {
-                                    slideIntoContainer(
-                                        animationSpec = tween(300, easing = EaseIn),
-                                        towards = AnimatedContentScope.SlideDirection.Right
-                                    ).with(
-                                        slideOutOfContainer(
-                                            animationSpec = tween(300, easing = EaseIn),
-                                            towards = AnimatedContentScope.SlideDirection.Right
-                                        )
-                                    )
-                                } else {
-                                    slideIntoContainer(
-                                        animationSpec = tween(300, easing = EaseIn),
-                                        towards = AnimatedContentScope.SlideDirection.Left
-                                    ).with(
-                                        slideOutOfContainer(
-                                            animationSpec = tween(300, easing = EaseIn),
-                                            towards = AnimatedContentScope.SlideDirection.Left
-                                        )
-                                    )
-                                }
-                            }
-                        ) { targetState ->
-                            when (targetState) {
+                        HorizontalPager(
+                            state = pagerState
+                        ) { index ->
+                            when (index) {
                                 0 -> PreviousPrescriptionsScreen(snackbarHostState, coroutineScope)
                                 1 -> QuickSelectScreen()
                             }
@@ -223,10 +265,16 @@ fun PrescriptionScreen(
                         AlertDialog(
                             onDismissRequest = { viewModel.clearAllConfirmDialog = false },
                             title = {
-                                Text(text = stringResource(id = R.string.discard_medications_dialog_title), modifier = Modifier.testTag("DIALOG_TITLE"))
+                                Text(
+                                    text = stringResource(id = R.string.discard_medications_dialog_title),
+                                    modifier = Modifier.testTag("DIALOG_TITLE")
+                                )
                             },
                             text = {
-                                Text(text = stringResource(id = R.string.discard_medications_dialog_description), modifier = Modifier.testTag("DIALOG_DESCRIPTION"))
+                                Text(
+                                    text = stringResource(id = R.string.discard_medications_dialog_description),
+                                    modifier = Modifier.testTag("DIALOG_DESCRIPTION")
+                                )
                             },
                             confirmButton = {
                                 TextButton(
@@ -236,7 +284,7 @@ fun PrescriptionScreen(
                                         viewModel.bottomNavExpanded = false
                                         viewModel.clearAllConfirmDialog = false
                                     },
-                                    modifier = Modifier.testTag("DIALOG_POSITIVE_BTN")
+                                    modifier = Modifier.testTag("POSITIVE_BTN")
                                 ) {
                                     Text(
                                         stringResource(id = R.string.yes_discard)
@@ -248,7 +296,7 @@ fun PrescriptionScreen(
                                     onClick = {
                                         viewModel.clearAllConfirmDialog = false
                                     },
-                                    modifier = Modifier.testTag("DIALOG_NEGATIVE_BTN")
+                                    modifier = Modifier.testTag("NEGATIVE_BTN")
                                 ) {
                                     Text(
                                         stringResource(id = R.string.no_go_back)
@@ -284,7 +332,7 @@ fun PrescriptionScreen(
                 .clickable(enabled = false) { },
             contentAlignment = Alignment.BottomCenter
         ) {
-            BottomNavLayout(viewModel, snackbarHostState, coroutineScope)
+            BottomNavLayout(viewModel, snackbarHostState, coroutineScope, pagerState)
         }
         Box(
             modifier = Modifier
@@ -318,11 +366,13 @@ fun PrescriptionScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BottomNavLayout(
     viewModel: PrescriptionViewModel,
     snackbarHostState: SnackbarHostState,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    pagerState: PagerState
 ) {
     val context = LocalContext.current
     val rotationState by animateFloatAsState(
@@ -425,11 +475,11 @@ fun BottomNavLayout(
                             viewModel.insertPrescription {
                                 viewModel.selectedActiveIngredientsList = listOf()
                                 viewModel.medicationsResponseWithMedicationList = emptyList()
-                                viewModel.tabIndex = 0
+                                coroutineScope.launch { pagerState.animateScrollToPage(0) }
                                 viewModel.isSearchResult = false
                                 viewModel.patient?.let {
-                                    viewModel.getPreviousPrescription(it.id) {
-                                        viewModel.previousPrescriptionList = it
+                                    viewModel.getPreviousPrescription(it.id) { prescriptionList ->
+                                        viewModel.previousPrescriptionList = prescriptionList
                                     }
                                 }
                                 coroutineScope.launch {

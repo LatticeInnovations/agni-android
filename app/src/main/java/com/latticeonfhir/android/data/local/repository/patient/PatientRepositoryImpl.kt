@@ -18,7 +18,7 @@ class PatientRepositoryImpl @Inject constructor(private val patientDao: PatientD
     PatientRepository {
 
     override suspend fun addPatient(patientResponse: PatientResponse): List<Long> {
-         return patientDao.insertPatientData(patientResponse.toPatientEntity())
+        return patientDao.insertPatientData(patientResponse.toPatientEntity())
     }
 
     override suspend fun getPatientList(): LiveData<PagingData<PatientResponse>> {
@@ -37,8 +37,8 @@ class PatientRepositoryImpl @Inject constructor(private val patientDao: PatientD
     }
 
     override suspend fun getPatientById(vararg patientId: String): List<PatientResponse> {
-        return patientDao.getPatientDataById(*patientId).map { patiendAndIdentifierEntity ->
-            patiendAndIdentifierEntity.toPatientResponse()
+        return patientDao.getPatientDataById(*patientId).map { patientAndIdentifierEntity ->
+            patientAndIdentifierEntity.toPatientResponse()
         }
     }
 }

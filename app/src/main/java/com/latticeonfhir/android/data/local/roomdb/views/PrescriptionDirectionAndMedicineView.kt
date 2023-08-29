@@ -1,8 +1,8 @@
 package com.latticeonfhir.android.data.local.roomdb.views
 
+import androidx.annotation.Keep
 import androidx.room.DatabaseView
 import androidx.room.Embedded
-import androidx.annotation.Keep
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 

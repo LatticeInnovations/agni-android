@@ -1,45 +1,185 @@
 package com.latticeonfhir.android.viewmodel
 
-import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.base.BaseClass
+import com.latticeonfhir.android.data.local.model.search.SearchParameters
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
+import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreenViewModel
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.converters.responseconverter.toPatientAndIdentifierEntityResponse
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert
+import kotlinx.coroutines.test.*
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
+import java.util.LinkedList
 
-class SuggestionsScreenViewModelTest: BaseClass() {
+@OptIn(ExperimentalCoroutinesApi::class)
+class SuggestionsScreenViewModelTest : BaseClass() {
     @Mock
     lateinit var patientDao: PatientDao
+
     @Mock
     lateinit var relationRepository: RelationRepository
+
     @Mock
     lateinit var genericRepository: GenericRepository
+
     @Mock
     lateinit var searchRepository: SearchRepository
     lateinit var viewModel: SuggestionsScreenViewModel
 
     @Before
-    public override fun setUp(){
-        MockitoAnnotations.initMocks(this)
-        viewModel = SuggestionsScreenViewModel(searchRepository, genericRepository, relationRepository, patientDao)
+    public override fun setUp() {
+        MockitoAnnotations.openMocks(this)
+        viewModel = SuggestionsScreenViewModel(
+            searchRepository,
+            genericRepository,
+            relationRepository,
+            patientDao
+        )
     }
 
     @Test
-    fun addRelationTest() = runBlocking {
-        var actual = listOf<Long>()
-        `when`(relationRepository.addRelation(Relation(id, relativeId, relationSpouse.value)){
-            actual = listOf(-1)
-        }).thenReturn(Unit)
-        viewModel.addRelation(Relation(id, relativeId, relationSpouse.value), relativeId){
-            Assert.assertEquals(listOf<Long>(-1), actual)
+    fun updateQueueLessThan5Test() {
+        viewModel.listOfSuggestions = mutableListOf(relative, patientResponse)
+        viewModel.updateQueue(patientResponse)
+        assertEquals(listOf(relative), viewModel.listOfSuggestions)
+    }
+
+    @Test
+    fun updateQueueMoreThan5Test() {
+        viewModel.listOfSuggestions = mutableListOf(relative, patientResponse, relative, relative, relative, relative, relative)
+        viewModel.updateQueue(patientResponse)
+        assertEquals(listOf(relative, relative, relative, relative, relative, relative), viewModel.listOfSuggestions)
+    }
+
+    @Test
+    fun getQueueItemsLessThan5Test() = runBlocking {
+        `when`(
+            searchRepository.getSuggestedMembers(
+                eq(patientResponse.id),
+                eq(SearchParameters(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    patientResponse.permanentAddress.addressLine1,
+                    patientResponse.permanentAddress.city,
+                    patientResponse.permanentAddress.district,
+                    patientResponse.permanentAddress.state,
+                    patientResponse.permanentAddress.postalCode,
+                    patientResponse.permanentAddress.addressLine2
+                )),
+                any()
+            )
+        ).thenAnswer { invocation ->
+            val callback = invocation.getArgument<(LinkedList<PatientResponse>) -> Unit>(2)
+            callback.invoke(LinkedList(listOf(relative)))
+        }
+        viewModel.getQueueItems(patientResponse)
+        delay(2000)
+        assertEquals(listOf(relative), viewModel.listOfSuggestions)
+    }
+
+    @Test
+    fun getQueueItemsMoreThan5Test() = runBlocking {
+        `when`(
+            searchRepository.getSuggestedMembers(
+                eq(patientResponse.id),
+                eq(SearchParameters(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    patientResponse.permanentAddress.addressLine1,
+                    patientResponse.permanentAddress.city,
+                    patientResponse.permanentAddress.district,
+                    patientResponse.permanentAddress.state,
+                    patientResponse.permanentAddress.postalCode,
+                    patientResponse.permanentAddress.addressLine2
+                )),
+                any()
+            )
+        ).thenAnswer { invocation ->
+            val callback = invocation.getArgument<(LinkedList<PatientResponse>) -> Unit>(2)
+            callback.invoke(LinkedList(listOf(relative, relative, relative, relative, relative, relative)))
+        }
+        viewModel.getQueueItems(patientResponse)
+        delay(2000)
+        assertEquals(listOf(relative, relative, relative, relative, relative, relative), viewModel.listOfSuggestions)
+    }
+
+    @Test
+    fun addRelationTest() = runTest {
+        `when`(patientDao.getPatientDataById(relationEntityBrother.fromId)).thenReturn(
+            listOf(
+                patientResponse.toPatientAndIdentifierEntityResponse()
+            )
+        )
+        `when`(patientDao.getPatientDataById(relationEntityBrother.toId)).thenReturn(
+            listOf(
+                relative.toPatientAndIdentifierEntityResponse()
+            )
+        )
+        `when`(
+            relationRepository.addRelation(
+                eq(relationBrother),
+                any()
+            )
+        ).thenAnswer { invocation ->
+            val callback = invocation.getArgument<(List<Long>) -> Unit>(1)
+            callback.invoke(listOf(-1L))
+        }
+        val genericUUID = UUIDBuilder.generateUUID()
+        val genericUUIDInverse = UUIDBuilder.generateUUID()
+        `when`(
+            genericRepository.insertRelation(
+                patientId = relationBrother.patientId,
+                RelatedPersonResponse(
+                    id = relationBrother.patientId,
+                    relationship = listOf(
+                        Relationship(
+                            patientIs = relationBrother.relation,
+                            relativeId = relativeId
+                        )
+                    )
+                ),
+                uuid = genericUUID
+            )
+        ).thenReturn(-1L)
+        `when`(
+            genericRepository.insertRelation(
+                patientId = relativeId,
+                 RelatedPersonResponse(
+                    id = relativeId,
+                    relationship = listOf(
+                        Relationship(
+                            patientIs = relationBrother.relation,
+                            relativeId = relationBrother.patientId
+                        )
+                    )
+                ),
+                uuid = genericUUIDInverse
+            )
+        ).thenReturn(-1L)
+        viewModel.addRelation(relationBrother, relativeId, genericUUID, genericUUIDInverse) {
+            assertEquals(listOf(-1L), it)
         }
     }
 }

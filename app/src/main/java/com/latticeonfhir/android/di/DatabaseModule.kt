@@ -2,12 +2,14 @@ package com.latticeonfhir.android.di
 
 import android.content.Context
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
+import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import dagger.Module
@@ -23,8 +25,11 @@ object DatabaseModule {
 
     @Singleton
     @Provides
-    fun provideAppDatabase(@ApplicationContext context: Context, preferenceStorage: PreferenceStorage): FhirAppDatabase {
-        return FhirAppDatabase.getInstance(context,preferenceStorage)
+    fun provideAppDatabase(
+        @ApplicationContext context: Context,
+        preferenceStorage: PreferenceStorage
+    ): FhirAppDatabase {
+        return FhirAppDatabase.getInstance(context, preferenceStorage)
     }
 
     @Singleton
@@ -67,5 +72,17 @@ object DatabaseModule {
     @Provides
     fun provideMedicationDao(fhirAppDatabase: FhirAppDatabase): MedicationDao {
         return fhirAppDatabase.getMedicationDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideScheduleDao(fhirAppDatabase: FhirAppDatabase): ScheduleDao {
+        return fhirAppDatabase.getScheduleDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideAppointmentDao(fhirAppDatabase: FhirAppDatabase): AppointmentDao {
+        return fhirAppDatabase.getAppointmentDao()
     }
 }

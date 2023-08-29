@@ -17,27 +17,27 @@
 package com.latticeonfhir.android.service.workmanager.utils
 
 import com.latticeonfhir.android.data.local.enums.SyncOperation
-import java.util.*
+import java.util.Date
 
 sealed class SyncJobStatus {
-  val timestamp: Date = Date()
+    val timestamp: Date = Date()
 
-  /** Sync job has been started on the client but the syncing is not necessarily in progress. */
-  class Started : SyncJobStatus()
+    /** Sync job has been started on the client but the syncing is not necessarily in progress. */
+    class Started : SyncJobStatus()
 
-  /** Syncing in progress with the server. */
-  data class InProgress(
-    val syncOperation: SyncOperation,
-    val total: Int = 0,
-    val completed: Int = 0
-  ) : SyncJobStatus()
+    /** Syncing in progress with the server. */
+    data class InProgress(
+        val syncOperation: SyncOperation,
+        val total: Int = 0,
+        val completed: Int = 0
+    ) : SyncJobStatus()
 
-  /** Glitched but sync job is being retried. */
-  data class Glitch(val exceptions: List<ResourceSyncException>) : SyncJobStatus()
+    /** Glitched but sync job is being retried. */
+    data class Glitch(val exceptions: List<ResourceSyncException>) : SyncJobStatus()
 
-  /** Sync job finished successfully. */
-  class Finished : SyncJobStatus()
+    /** Sync job finished successfully. */
+    class Finished : SyncJobStatus()
 
-  /** Sync job failed. */
-  data class Failed(val exceptions: List<ResourceSyncException>) : SyncJobStatus()
+    /** Sync job failed. */
+    data class Failed(val exceptions: List<ResourceSyncException>) : SyncJobStatus()
 }

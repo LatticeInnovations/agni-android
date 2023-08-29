@@ -27,6 +27,10 @@ class PreferenceRepositoryTest: TestCase() {
     private val userRole = "ROLE"
     private val userMobile = 987L
     private val userEmail = "EMAIL"
+    private val userId = "USER_ID"
+    private val roleId = "ROLE_ID"
+    private val orgId = "ORG_ID"
+    private val orgName = "ORG_NAME"
     private val lastSyncTime = 0L
     private val roomEncryptionKey = UUIDBuilder.generateUUID()
 
@@ -70,6 +74,20 @@ class PreferenceRepositoryTest: TestCase() {
         `when`(preferenceStorage.lastMedicineDosageInstructionSyncTime).thenReturn(lastSyncTime)
         preferenceRepositoryImpl.setLastMedicineDosageInstructionSyncDate(lastSyncTime)
         assertEquals(lastSyncTime,preferenceRepositoryImpl.getLastMedicineDosageInstructionSyncDate())
+    }
+
+    @Test
+    internal fun setAndGetLastSyncSchedule() = runTest {
+        `when`(preferenceStorage.lastScheduleSyncTime).thenReturn(lastSyncTime)
+        preferenceRepositoryImpl.setLastSyncSchedule(lastSyncTime)
+        assertEquals(lastSyncTime,preferenceRepositoryImpl.getLastSyncSchedule())
+    }
+
+    @Test
+    internal fun setAndGetLastSyncAppointment() = runTest {
+        `when`(preferenceStorage.lastAppointmentSyncTime).thenReturn(lastSyncTime)
+        preferenceRepositoryImpl.setLastSyncAppointment(lastSyncTime)
+        assertEquals(lastSyncTime,preferenceRepositoryImpl.getLastSyncAppointment())
     }
 
     @Test
@@ -130,5 +148,33 @@ class PreferenceRepositoryTest: TestCase() {
 
         assertEquals(true,preferenceRepositoryImpl.getUserRole().isBlank())
         assertEquals(0L,preferenceRepositoryImpl.getLastMedicationSyncDate())
+    }
+
+    @Test
+    fun `set and get user id`() {
+        `when`(preferenceStorage.userFhirId).thenReturn(userId)
+        preferenceRepositoryImpl.setUserFhirId(userId)
+        assertEquals(userId,preferenceRepositoryImpl.getUserFhirId())
+    }
+
+    @Test
+    fun `set and get role id`() {
+        `when`(preferenceStorage.userRoleId).thenReturn(roleId)
+        preferenceRepositoryImpl.setUserRoleId(roleId)
+        assertEquals(roleId,preferenceRepositoryImpl.getUserRoleId())
+    }
+
+    @Test
+    fun `set and get org id`() {
+        `when`(preferenceStorage.organizationFhirId).thenReturn(orgId)
+        preferenceRepositoryImpl.setOrganizationFhirId(orgId)
+        assertEquals(orgId,preferenceRepositoryImpl.getOrganizationFhirId())
+    }
+
+    @Test
+    fun `set and get org name`() {
+        `when`(preferenceStorage.organization).thenReturn(orgName)
+        preferenceRepositoryImpl.setOrganization(orgName)
+        assertEquals(orgName,preferenceRepositoryImpl.getOrganization())
     }
 }

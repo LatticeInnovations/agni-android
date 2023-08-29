@@ -3,7 +3,8 @@ package com.latticeonfhir.android.data.local.repository.preference
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import javax.inject.Inject
 
-class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage: PreferenceStorage): PreferenceRepository {
+class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage: PreferenceStorage) :
+    PreferenceRepository {
 
     override fun setLastSyncPatient(long: Long) {
         preferenceStorage.lastPatientSyncTime = long
@@ -33,19 +34,32 @@ class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage
         preferenceStorage.lastMedicineDosageInstructionSyncTime = long
     }
 
-    override fun getLastMedicineDosageInstructionSyncDate() = preferenceStorage.lastMedicineDosageInstructionSyncTime
+    override fun setLastSyncSchedule(long: Long) {
+        preferenceStorage.lastScheduleSyncTime = long
+    }
+
+    override fun getLastSyncSchedule() = preferenceStorage.lastScheduleSyncTime
+
+    override fun setLastSyncAppointment(long: Long) {
+        preferenceStorage.lastAppointmentSyncTime = long
+    }
+
+    override fun getLastSyncAppointment() = preferenceStorage.lastAppointmentSyncTime
+
+    override fun getLastMedicineDosageInstructionSyncDate() =
+        preferenceStorage.lastMedicineDosageInstructionSyncTime
+
+    override fun setUserFhirId(userFhirId: String) {
+        preferenceStorage.userFhirId = userFhirId
+    }
+
+    override fun getUserFhirId() = preferenceStorage.userFhirId
 
     override fun setUserName(userName: String) {
         preferenceStorage.userName = userName
     }
 
     override fun getUserName() = preferenceStorage.userName
-
-    override fun setUserRole(userRole: String) {
-        preferenceStorage.userRole = userRole
-    }
-
-    override fun getUserRole() = preferenceStorage.userRole
 
     override fun setUserMobile(userMobile: Long) {
         preferenceStorage.userMobile = userMobile
@@ -58,6 +72,30 @@ class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage
     }
 
     override fun getUserEmail() = preferenceStorage.userEmail
+
+    override fun setUserRoleId(userRoleId: String) {
+        preferenceStorage.userRoleId = userRoleId
+    }
+
+    override fun getUserRoleId() = preferenceStorage.userRoleId
+
+    override fun setUserRole(userRole: String) {
+        preferenceStorage.userRole = userRole
+    }
+
+    override fun getUserRole() = preferenceStorage.userRole
+
+    override fun setOrganizationFhirId(organizationFhirId: String) {
+        preferenceStorage.organizationFhirId = organizationFhirId
+    }
+
+    override fun getOrganizationFhirId() = preferenceStorage.organizationFhirId
+
+    override fun setOrganization(organization: String) {
+        preferenceStorage.organization = organization
+    }
+
+    override fun getOrganization() = preferenceStorage.organization
 
     override fun setAuthenticationToken(authToken: String) {
         preferenceStorage.token = authToken

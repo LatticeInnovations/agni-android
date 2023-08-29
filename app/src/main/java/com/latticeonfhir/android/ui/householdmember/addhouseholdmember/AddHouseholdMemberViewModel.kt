@@ -10,6 +10,7 @@ import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,8 +27,12 @@ class AddHouseholdMemberViewModel @Inject constructor(
     var suggestedMembersList = mutableStateListOf<PatientResponse>()
     var selectedSuggestedMembersList = mutableStateListOf<PatientResponse>()
 
-    internal fun getSuggestions(patient: PatientResponse, returnList: (List<PatientResponse>) -> Unit) {
-        viewModelScope.launch(Dispatchers.Main) {
+    internal fun getSuggestions(
+        patient: PatientResponse,
+        coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+        returnList: (List<PatientResponse>) -> Unit
+    ) {
+        viewModelScope.launch(coroutineDispatcher) {
             searchRepository.getSuggestedMembers(
                 patient.id,
                 SearchParameters(

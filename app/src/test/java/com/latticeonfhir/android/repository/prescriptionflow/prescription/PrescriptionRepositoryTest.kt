@@ -37,7 +37,8 @@ class PrescriptionRepositoryTest : BaseClass() {
         prescriptionDate = Date(),
         patientId = "DUMMY_ID_123",
         patientFhirId = "20401",
-        prescriptionFhirId = null
+        prescriptionFhirId = null,
+        appointmentId = "DUMMY_APPOINTMENT_ID"
     )
 
     private val prescriptionDirectionsEntity = PrescriptionDirectionsEntity(
@@ -80,6 +81,7 @@ class PrescriptionRepositoryTest : BaseClass() {
         patientFhirId = null,
         generatedOn = Date(),
         prescriptionId = UUID.randomUUID().toString(),
+        appointmentId = prescriptionEntity.appointmentId,
         prescription = listOf(
             Medication(
                 doseForm = "DUMMY_DOSE_FORM",
@@ -124,5 +126,13 @@ class PrescriptionRepositoryTest : BaseClass() {
     internal fun getLastPrescription() = runTest {
         val lastPrescriptions = prescriptionRepositoryImpl.getLastPrescription(patientResponse.id)
         assertEquals(listOf(prescriptionAndMedicineRelation),lastPrescriptions)
+    }
+
+    @Test
+    internal fun `get prescription by appointment id`() = runTest {
+        `when`(prescriptionDao.getPrescriptionByAppointmentId(prescriptionResponseLocal.appointmentId)).thenReturn(
+            listOf(prescriptionAndMedicineRelation)
+        )
+        assertEquals(prescriptionResponseLocal.appointmentId,prescriptionRepositoryImpl.getPrescriptionByAppointmentId(prescriptionResponseLocal.appointmentId)[0].appointmentId)
     }
 }

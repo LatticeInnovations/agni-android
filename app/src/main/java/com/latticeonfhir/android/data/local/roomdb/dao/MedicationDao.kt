@@ -30,4 +30,8 @@ interface MedicationDao {
     @Transaction
     @Query("SELECT * FROM MedicationEntity WHERE activeIngredient = :activeIngredient")
     suspend fun getMedicationByActiveIngredient(activeIngredient: String): List<MedicationEntity>
+
+    @Transaction
+    @Query("SELECT medicalDosage FROM MedicineTimingEntity WHERE medicalDosageId=:medicalDosageId")
+    suspend fun getMedicalDosageByMedicalDosageId(medicalDosageId: String): String
 }

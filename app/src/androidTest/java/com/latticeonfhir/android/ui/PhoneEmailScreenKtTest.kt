@@ -3,24 +3,12 @@ package com.latticeonfhir.android.ui
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.latticeonfhir.android.ui.main.MainActivity
-import org.junit.Rule
 import org.junit.Test
 
-class PhoneEmailScreenKtTest {
-
-    @get: Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
-
-    val heading = hasTestTag("HEADING_TAG")
-    val subHeading = hasTestTag("SUB_HEADING_TAG")
-    val inputField = hasTestTag("INPUT_FIELD")
-    val button = hasTestTag("BUTTON")
+class PhoneEmailScreenKtTest: UiTestsBase() {
 
     @Test
     fun verify_heading(){
@@ -168,6 +156,8 @@ class PhoneEmailScreenKtTest {
     fun error_msg_on_regenerating_otp_multiple_times(){
         composeTestRule.onNode(inputField).performTextInput("1111111111")
         composeTestRule.onNode(button).performClick()
+        Thread.sleep(2000)
+        composeTestRule.onNode(dialogPositiveBtn).performClick()
         Thread.sleep(2000)
         composeTestRule.onNodeWithContentDescription("BACK_ICON").performClick()
         composeTestRule.onNode(button).performClick()

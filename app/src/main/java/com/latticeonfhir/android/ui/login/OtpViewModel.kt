@@ -41,19 +41,20 @@ class OtpViewModel @Inject constructor(
             (firstDigit + secondDigit + thirdDigit + fourDigit + fiveDigit + sixDigit).trim()
     }
 
-    internal fun resendOTP(resent:(Boolean) -> Unit) {
+    internal fun resendOTP(resent: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             authenticationRepository.login(userInput).apply {
-                if(this is ApiEmptyResponse) {
+                if (this is ApiEmptyResponse) {
                     isResending = false
                     resent(true)
-                } else if(this is ApiErrorResponse) {
-                    when(errorMessage){
+                } else if (this is ApiErrorResponse) {
+                    when (errorMessage) {
                         TOO_MANY_ATTEMPTS_ERROR -> {
                             isOtpIncorrect = false
                             otpAttemptsExpired = true
                             fiveMinuteTimer = 300
                         }
+
                         else -> isOtpIncorrect = true
                     }
                     errorMsg = errorMessage
@@ -65,18 +66,19 @@ class OtpViewModel @Inject constructor(
     }
 
     internal fun validateOtp(navigate: (Boolean) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             authenticationRepository.validateOtp(userInput, otpEntered.toInt()).apply {
-                if(this is ApiEndResponse) {
+                if (this is ApiEndResponse) {
                     isVerifying = false
                     navigate(true)
-                } else if(this is ApiErrorResponse){
-                    when(errorMessage){
+                } else if (this is ApiErrorResponse) {
+                    when (errorMessage) {
                         TOO_MANY_ATTEMPTS_ERROR -> {
                             isOtpIncorrect = false
                             otpAttemptsExpired = true
                             fiveMinuteTimer = 300
                         }
+
                         else -> isOtpIncorrect = true
                     }
                     isVerifying = false

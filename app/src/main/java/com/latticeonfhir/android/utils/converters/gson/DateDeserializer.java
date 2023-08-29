@@ -10,16 +10,18 @@ import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
+import timber.log.Timber;
+
 public class DateDeserializer implements JsonDeserializer<Date> {
-    private static final String[] DATE_FORMATS = new String[] {
+    private static final String[] DATE_FORMATS = new String[]{
             "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'",
             "yyyy-MM-dd HH:mm:ssZ",
+            "yyyy-MM-dd'T'HH:mm:ssZ",
             "yyyy-MM-dd HH:mm:ss",
             "yyyy-MM-dd",
             "yyyy-MM-dd'T'HH:mm:ssXXX",
@@ -28,12 +30,12 @@ public class DateDeserializer implements JsonDeserializer<Date> {
 
     @NonNull
     @Override
-    public Date deserialize(@NonNull JsonElement jsonElement, @NonNull Type typeOF,
-                            @NonNull JsonDeserializationContext context) throws JsonParseException {
+    public Date deserialize(@NonNull JsonElement jsonElement, @NonNull Type typeOF, @NonNull JsonDeserializationContext context) throws JsonParseException {
         for (String format : DATE_FORMATS) {
             try {
                 return Objects.requireNonNull(new SimpleDateFormat(format, Locale.getDefault()).parse(jsonElement.getAsString()));
-            } catch (ParseException ignored) {
+            } catch (ParseException e) {
+                Timber.e("ParseException");
             }
         }
         throw new JsonParseException("Unparseable date: \"" + jsonElement.getAsString()

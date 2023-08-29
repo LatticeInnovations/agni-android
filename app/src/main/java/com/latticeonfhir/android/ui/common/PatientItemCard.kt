@@ -1,7 +1,12 @@
 package com.latticeonfhir.android.ui.common
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,7 +24,9 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 
 @Composable
 fun PatientItemCard(navController: NavController, patient: PatientResponse) {
-    val subtitle = "${patient.gender[0].uppercase()}/${patient.birthDate.toTimeInMilli().toAge()} · PID ${patient.fhirId}"
+    val subtitle = "${patient.gender[0].uppercase()}/${
+        patient.birthDate.toTimeInMilli().toAge()
+    } · PID ${patient.fhirId}"
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -36,7 +43,11 @@ fun PatientItemCard(navController: NavController, patient: PatientResponse) {
     ) {
         Column(modifier = Modifier.weight(8f)) {
             Text(
-                text = NameConverter.getFullName(patient.firstName, patient.middleName, patient.lastName),
+                text = NameConverter.getFullName(
+                    patient.firstName,
+                    patient.middleName,
+                    patient.lastName
+                ),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,
