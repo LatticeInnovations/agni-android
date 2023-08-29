@@ -34,6 +34,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -62,10 +63,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.NonLazyGrid
 import com.latticeonfhir.android.ui.theme.Green
+import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SCHEDULED
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
@@ -94,6 +97,15 @@ fun ScheduleAppointments(
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
+            viewModel.ifRescheduling = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                NavControllerConstants.IF_RESCHEDULING
+            ) == true
+            if (viewModel.ifRescheduling){
+                viewModel.appointment =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<AppointmentResponseLocal>(
+                        NavControllerConstants.APPOINTMENT_SELECTED
+                    )
+            }
             viewModel.patient =
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     "patient"
@@ -112,7 +124,9 @@ fun ScheduleAppointments(
                 ),
                 title = {
                     Text(
-                        text = stringResource(id = R.string.schedule_appointment),
+                        text = if (viewModel.ifRescheduling) stringResource(id = R.string.reschedule_appointment) else stringResource(
+                            id = R.string.schedule_appointment
+                        ),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.testTag("HEADING_TAG"),
                         maxLines = 1,
@@ -147,6 +161,28 @@ fun ScheduleAppointments(
                 modifier = Modifier
                     .padding(it)
             ) {
+                if (viewModel.ifRescheduling){
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.current_appointment),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                            Text(
+                                text = viewModel.appointment?.slot?.start?.toAppointmentDate() ?: "",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
                 Row(
                     modifier = Modifier
                         .padding(start = 20.dp, top = 15.dp, bottom = 15.dp)
@@ -392,24 +428,48 @@ fun ScheduleAppointments(
             if (viewModel.selectedSlot.isNotBlank()) {
                 Button(
                     onClick = {
-                        viewModel.insertScheduleAndAppointment { appointmentCreated ->
-                            if (appointmentCreated == false) {
-                                composableScope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = context.getString(R.string.appointment_exists)
-                                    )
+                        if (viewModel.ifRescheduling){
+                            viewModel.ifAnotherAppointmentExists { alreadyExists ->
+                                if (alreadyExists) {
+                                    composableScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = context.getString(
+                                                R.string.appointment_exists
+                                            )
+                                        )
+                                    }
+                                } else {
+                                    viewModel.rescheduleAppointment {
+                                        composableScope.launch {
+                                            navController.previousBackStackEntry?.savedStateHandle?.set(
+                                                NavControllerConstants.RESCHEDULED,
+                                                true
+                                            )
+                                            navController.popBackStack()
+                                        }
+                                    }
                                 }
-                            } else {
-                                composableScope.launch {
-                                    navController.popBackStack(
-                                        Screen.PatientLandingScreen.route,
-                                        false
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        SCHEDULED,
-                                        true
-                                    )
-                                    navController.navigate(Screen.Appointments.route)
+                            }
+                        } else {
+                            viewModel.insertScheduleAndAppointment { appointmentCreated ->
+                                if (appointmentCreated == false) {
+                                    composableScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = context.getString(R.string.appointment_exists)
+                                        )
+                                    }
+                                } else {
+                                    composableScope.launch {
+                                        navController.popBackStack(
+                                            Screen.PatientLandingScreen.route,
+                                            false
+                                        )
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            SCHEDULED,
+                                            true
+                                        )
+                                        navController.navigate(Screen.Appointments.route)
+                                    }
                                 }
                             }
                         }
