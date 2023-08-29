@@ -47,6 +47,7 @@ import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.theme.Neutral40
+import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList.getMonthsList
 import java.util.Locale
 
 @Composable
@@ -270,7 +271,7 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
                         viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 29
                     errorMsg = context.getString(R.string.error_msg_1_to_29_days)
                 }
-                viewModel.getMonthsList()
+                viewModel.monthsList = getMonthsList(viewModel.dobDay)
             }
         }
         Spacer(modifier = Modifier.width(10.dp))
@@ -422,7 +423,7 @@ fun ContactTextField(viewModel: PatientRegistrationStepOneViewModel) {
             value = viewModel.phoneNumber,
             onValueChange = {
                 viewModel.isPhoneValid = it.length < 10
-                if (it.length <= 10 && (it.matches(viewModel.onlyNumbers) || it.length == 0))
+                if (it.length <= 10 && (it.matches(viewModel.onlyNumbers) || it.isEmpty()))
                     viewModel.phoneNumber = it
             },
             modifier = Modifier
