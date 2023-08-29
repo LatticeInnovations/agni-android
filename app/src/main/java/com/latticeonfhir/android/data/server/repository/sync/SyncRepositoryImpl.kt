@@ -303,9 +303,7 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     override suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>> {
-        return genericDao.getSameTypeGenericEntityPayload(
-            genericTypeEnum = GenericTypeEnum.PATIENT, syncType = SyncType.POST
-        ).let { listOfGenericEntity ->
+        return genericDao.getSameTypeGenericEntityPayload(genericTypeEnum = GenericTypeEnum.PATIENT, syncType = SyncType.POST).let { listOfGenericEntity ->
             if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
             else ApiResponseConverter.convert(
                 patientApiService.createData(
@@ -317,12 +315,8 @@ class SyncRepositoryImpl @Inject constructor(
             ).run {
                 when (this) {
                     is ApiEndResponse -> {
-                        insertPatientFhirId(
-                            listOfGenericEntity,
-                            body
-                        ).let { deletedRows -> if (deletedRows > 0) sendPersonPostData() else this }
+                        insertPatientFhirId(listOfGenericEntity, body).let { deletedRows -> if (deletedRows > 0) sendPersonPostData() else this }
                     }
-
                     else -> this
                 }
             }
@@ -337,10 +331,7 @@ class SyncRepositoryImpl @Inject constructor(
             else ApiResponseConverter.convert(
                 patientApiService.createData(
                     RELATED_PERSON,
-                    listOfRelatedEntity.map { relationGenericEntity ->
-                        relationGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>()
-                            .mapToObject(RelatedPersonResponse::class.java)!!
-                    })
+                    listOfRelatedEntity.map { relationGenericEntity -> relationGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>().mapToObject(RelatedPersonResponse::class.java)!! })
             ).run {
                 when (this) {
                     is ApiEndResponse -> {
@@ -349,7 +340,6 @@ class SyncRepositoryImpl @Inject constructor(
                                 if (deletedRows > 0) sendRelatedPersonPostData() else this
                             }
                     }
-
                     else -> this
                 }
             }
@@ -396,7 +386,6 @@ class SyncRepositoryImpl @Inject constructor(
                             if (deletedRows > 0) sendSchedulePostData() else this
                         }
                     }
-
                     else -> this
                 }
             }
@@ -420,7 +409,6 @@ class SyncRepositoryImpl @Inject constructor(
                             if (deletedRows > 0) sendAppointmentPostData() else this
                         }
                     }
-
                     else -> this
                 }
             }
@@ -444,7 +432,6 @@ class SyncRepositoryImpl @Inject constructor(
                                 if (it > 0) sendPersonPatchData() else this
                             }
                         }
-
                         else -> this
                     }
                 }
@@ -469,7 +456,6 @@ class SyncRepositoryImpl @Inject constructor(
                                 if (it > 0) sendRelatedPersonPatchData() else this
                             }
                         }
-
                         else -> this
                     }
                 }
@@ -493,7 +479,6 @@ class SyncRepositoryImpl @Inject constructor(
                                 if (it > 0) sendAppointmentPatchData() else this
                             }
                         }
-
                         else -> this
                     }
                 }
