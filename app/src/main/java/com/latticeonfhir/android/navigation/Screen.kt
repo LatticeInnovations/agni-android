@@ -24,5 +24,4 @@ sealed class Screen(val route: String) {
 
     object Appointments : Screen("appointments")
     object ScheduleAppointments : Screen("schedule_appointments")
-    object RescheduleAppointments : Screen("reschedule_appointments")
 }

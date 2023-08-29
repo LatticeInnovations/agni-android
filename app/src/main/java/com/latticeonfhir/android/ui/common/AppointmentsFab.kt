@@ -29,6 +29,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.utils.constants.NavControllerConstants
 
 @Composable
 fun AppointmentsFab(
@@ -62,6 +63,10 @@ fun AppointmentsFab(
                         navController.currentBackStackEntry?.savedStateHandle?.set(
                             "patient",
                             patient
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            NavControllerConstants.IF_RESCHEDULING,
+                            false
                         )
                         navController.navigate(Screen.ScheduleAppointments.route)
                         queueFabClicked(false)
