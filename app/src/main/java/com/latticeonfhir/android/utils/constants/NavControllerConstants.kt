@@ -7,4 +7,5 @@ object NavControllerConstants {
     const val PATIENT_ARRIVED = "patient_arrived"
     const val RESCHEDULED = "rescheduled"
     const val SCHEDULED = "scheduled"
+    const val IF_RESCHEDULING = "ifRescheduling"
 }
