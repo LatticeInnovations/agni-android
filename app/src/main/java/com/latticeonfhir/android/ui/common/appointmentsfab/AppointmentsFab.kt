@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.common
+package com.latticeonfhir.android.ui.common.appointmentsfab
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -24,25 +25,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppointmentsFab(
     navController: NavController,
     patient: PatientResponse,
     isFabSelected: Boolean,
-    appointment: AppointmentResponseLocal?,
-    ifAlreadyWaiting: Boolean,
-    queueFabClicked: (Boolean) -> Unit
+    appointmentsFabViewModel: AppointmentsFabViewModel = hiltViewModel(),
+    showDialog: (Boolean) -> Unit
 ) {
+    LaunchedEffect(true) {
+        appointmentsFabViewModel.initialize(patient.id)
+    }
     AnimatedVisibility(visible = !isFabSelected) {
         FloatingActionButton(
-            onClick = { queueFabClicked(false) },
+            onClick = { showDialog(false) },
             modifier = Modifier
                 .testTag("ADD_APPOINTMENT_FAB")
                 .padding(bottom = 20.dp)
@@ -69,7 +77,7 @@ fun AppointmentsFab(
                             false
                         )
                         navController.navigate(Screen.ScheduleAppointments.route)
-                        queueFabClicked(false)
+                        showDialog(false)
                     },
                     modifier = Modifier.testTag("ADD_SCHEDULE_FAB")
                 ) {
@@ -91,9 +99,50 @@ fun AppointmentsFab(
                     }
                 }
                 Spacer(modifier = Modifier.height(20.dp))
-                if (!ifAlreadyWaiting) {
+                if (!appointmentsFabViewModel.ifAlreadyWaiting) {
                     FloatingActionButton(
-                        onClick = { queueFabClicked(true) },
+                        onClick = {
+                            //showDialog(true)
+                            if (appointmentsFabViewModel.appointment != null) {
+                                // change status of patient to arrived and navigate to queue screen
+                                appointmentsFabViewModel.updateStatusToArrived(
+                                    patient,
+                                    appointmentsFabViewModel.appointment!!
+                                ) {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        navController.popBackStack(
+                                            Screen.PatientLandingScreen.route,
+                                            false
+                                        )
+                                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                                            PATIENT_ARRIVED,
+                                            true
+                                        )
+                                        navController.popBackStack()
+                                    }
+                                }
+                            } else {
+                                // add patient to queue and navigate to queue screen
+                                if (appointmentsFabViewModel.ifAllSlotsBooked) {
+                                    showDialog(true)
+                                } else {
+                                    appointmentsFabViewModel.addPatientToQueue(patient) {
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            navController.popBackStack(
+                                                Screen.PatientLandingScreen.route,
+                                                false
+                                            )
+                                            navController.previousBackStackEntry?.savedStateHandle?.set(
+                                                ADD_TO_QUEUE,
+                                                true
+                                            )
+                                            navController.popBackStack()
+                                        }
+                                    }
+                                }
+                            }
+
+                        },
                         modifier = Modifier.testTag("QUEUE_FAB")
                     ) {
                         Row(
@@ -101,7 +150,9 @@ fun AppointmentsFab(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = if (appointment != null) stringResource(id = R.string.patient_arrived)
+                                text = if (appointmentsFabViewModel.appointment != null) stringResource(
+                                    id = R.string.patient_arrived
+                                )
                                 else stringResource(id = R.string.add_to_queue),
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -117,7 +168,7 @@ fun AppointmentsFab(
                     Spacer(modifier = Modifier.height(20.dp))
                 }
                 FloatingActionButton(
-                    onClick = { queueFabClicked(false) },
+                    onClick = { showDialog(false) },
                     modifier = Modifier
                         .testTag("CLEAR_FAB")
                         .padding(bottom = 20.dp)
