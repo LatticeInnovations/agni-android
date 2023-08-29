@@ -20,7 +20,6 @@ import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedu
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to30MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to5MinutesAfter
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
@@ -46,6 +45,8 @@ class ScheduleAppointmentViewModel @Inject constructor(
     var weekList by mutableStateOf(selectedDate.toWeekList())
     var selectedSlot by mutableStateOf("")
     var patient by mutableStateOf<PatientResponse?>(null)
+    var ifRescheduling by mutableStateOf(false)
+    var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
 
     internal fun getBookedSlotsCount(time: Long, slotsCount: (Int) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -174,7 +175,182 @@ class ScheduleAppointmentViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
 
+    internal fun ifAnotherAppointmentExists(appointmentExists: (Boolean) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            appointmentRepository.getAppointmentsOfPatientByDate(
+                patient!!.id,
+                selectedDate.toTodayStartDate(),
+                selectedDate.toEndOfDay()
+            ).let { todaysAppointment ->
+                if (todaysAppointment == null || todaysAppointment == appointment) appointmentExists(
+                    false
+                )
+                else {
+                    appointmentExists(true)
+                }
+            }
+        }
+    }
+
+    internal fun rescheduleAppointment(rescheduled: (Int) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // free the slot of previous schedule
+            scheduleRepository.getScheduleByStartTime(appointment!!.scheduleId.time)
+                .let { scheduleResponse ->
+                    scheduleResponse?.let { previousScheduleResponse ->
+                        scheduleRepository.updateSchedule(
+                            previousScheduleResponse.copy(
+                                bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+                            )
+                        )
+                    }
+                }
+            // check for new schedule
+            var scheduleId = selectedSlot.toCurrentTimeInMillis(
+                selectedDate
+            )
+            var scheduleFhirId: String? = null
+            var id = UUIDBuilder.generateUUID()
+            scheduleRepository.getScheduleByStartTime(
+                scheduleId
+            ).let { scheduleResponse ->
+                // if already exists, increase booked slots count
+                if (scheduleResponse != null) {
+                    scheduleId = scheduleResponse.planningHorizon.start.time
+                    id = scheduleRepository.getScheduleByStartTime(scheduleId)?.uuid!!
+                    scheduleFhirId = scheduleResponse.scheduleId
+                    scheduleRepository.updateSchedule(
+                        scheduleResponse.copy(
+                            bookedSlots = scheduleResponse.bookedSlots!! + 1
+                        )
+                    )
+                } else {
+                    // create new schedule
+                    scheduleRepository.insertSchedule(
+                        ScheduleResponse(
+                            uuid = id,
+                            scheduleId = null,
+                            bookedSlots = 1,
+                            orgId = preferenceRepository.getOrganizationFhirId(),
+                            planningHorizon = Slot(
+                                start = Date(
+                                    selectedSlot.toCurrentTimeInMillis(
+                                        selectedDate
+                                    )
+                                ),
+                                end = Date(
+                                    selectedSlot.to30MinutesAfter(
+                                        selectedDate
+                                    )
+                                )
+                            )
+                        )
+                    )
+                    genericRepository.insertSchedule(
+                        ScheduleResponse(
+                            uuid = id,
+                            scheduleId = null,
+                            bookedSlots = null,
+                            orgId = preferenceRepository.getOrganizationFhirId(),
+                            planningHorizon = Slot(
+                                start = Date(
+                                    selectedSlot.toCurrentTimeInMillis(
+                                        selectedDate
+                                    )
+                                ),
+                                end = Date(
+                                    selectedSlot.to30MinutesAfter(
+                                        selectedDate
+                                    )
+                                )
+                            )
+                        )
+                    )
+                }
+            }.also {
+                // update appointment
+                val createdOn = Date()
+                val slot = Slot(
+                    start = Date(
+                        selectedSlot.toCurrentTimeInMillis(
+                            selectedDate
+                        )
+                    ),
+                    end = Date(
+                        selectedSlot.to5MinutesAfter(
+                            selectedDate
+                        )
+                    )
+                )
+                rescheduled(
+                    appointmentRepository.updateAppointment(
+                        AppointmentResponseLocal(
+                            appointmentId = appointment!!.appointmentId,
+                            uuid = appointment!!.uuid,
+                            scheduleId = Date(scheduleId),
+                            createdOn = createdOn,
+                            slot = slot,
+                            orgId = appointment!!.orgId,
+                            patientId = patient?.id!!,
+                            status = appointment!!.status
+                        )
+                    ).also {
+                        if (appointment?.appointmentId.isNullOrBlank()) {
+                            // if fhir id is null, insert post request
+                            genericRepository.insertAppointment(
+                                AppointmentResponse(
+                                    scheduleId = scheduleFhirId ?: id,
+                                    createdOn = createdOn,
+                                    slot = slot,
+                                    patientFhirId = patient?.fhirId ?: patient?.id,
+                                    appointmentId = null,
+                                    orgId = appointment!!.orgId,
+                                    status = appointment!!.status,
+                                    uuid = appointment!!.uuid
+                                )
+                            )
+                        } else {
+                            //  if fhir id is not null send patch request in generic
+                            genericRepository.insertOrUpdateAppointmentPatch(
+                                appointmentFhirId = appointment?.appointmentId!!,
+                                map = mapOf(
+                                    Pair(
+                                        "status",
+                                        ChangeRequest(
+                                            operation = ChangeTypeEnum.REPLACE.value,
+                                            value = AppointmentStatusEnum.SCHEDULED.value
+                                        )
+                                    ),
+                                    Pair(
+                                        "slot",
+                                        ChangeRequest(
+                                            operation = ChangeTypeEnum.REPLACE.value,
+                                            value = slot
+                                        )
+                                    ),
+                                    Pair(
+                                        "scheduleId",
+                                        ChangeRequest(
+                                            operation = ChangeTypeEnum.REPLACE.value,
+                                            value = scheduleFhirId ?: id
+                                        )
+                                    ),
+                                    Pair(
+                                        "createdOn",
+                                        ChangeRequest(
+                                            operation = ChangeTypeEnum.REPLACE.value,
+                                            value = createdOn
+                                        )
+                                    )
+                                )
+                            )
+                        }
+                    }
+                )
+            }
         }
     }
 }

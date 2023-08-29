@@ -20,6 +20,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.*
 import org.junit.Before
 import org.junit.Test
@@ -458,4 +459,319 @@ class ScheduleAppointmentViewModelTest : BaseClass() {
 
             }
         }
+
+    @Test
+    fun rescheduleAppointment_existing_schedule_appointment_id_not_null() = runTest {
+        viewModel.appointment = appointmentResponseLocal
+        viewModel.patient = patientResponse
+        viewModel.selectedDate = date
+        viewModel.selectedSlot = date.toAppointmentTime()
+        val slot = Slot(
+            start = Date(
+                viewModel.selectedSlot.toCurrentTimeInMillis(
+                    date
+                )
+            ),
+            end = Date(
+                viewModel.selectedSlot.to5MinutesAfter(
+                    date
+                )
+            )
+        )
+        `when`(scheduleRepository.getScheduleByStartTime(appointmentResponseLocal.scheduleId.time)).thenReturn(scheduleResponse)
+        `when`(scheduleRepository.updateSchedule(
+            scheduleResponse.copy(
+                bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+            )
+        )).thenReturn(1)
+        `when`(scheduleRepository.getScheduleByStartTime(
+            viewModel.selectedSlot.toCurrentTimeInMillis(
+                date
+            )
+        )).thenReturn(scheduleResponse)
+        `when`(scheduleRepository.updateSchedule(
+            scheduleResponse.copy(
+                bookedSlots = scheduleResponse.bookedSlots!! + 1
+            )
+        )).thenReturn(1)
+        `when`(appointmentRepository.updateAppointment(
+            AppointmentResponseLocal(
+                appointmentId = appointmentResponseLocal.appointmentId,
+                uuid = appointmentResponseLocal.uuid,
+                scheduleId = date,
+                createdOn = date,
+                slot = slot,
+                orgId = appointmentResponseLocal.orgId,
+                patientId = id,
+                status = appointmentResponseLocal.status
+            )
+        )).thenReturn(1)
+        `when`(genericRepository.insertOrUpdateAppointmentPatch(
+            appointmentFhirId = appointmentResponseLocal.appointmentId!!,
+            map = mapOf(
+                Pair(
+                    "status",
+                    ChangeRequest(
+                        operation = ChangeTypeEnum.REPLACE.value,
+                        value = AppointmentStatusEnum.SCHEDULED.value
+                    )
+                ),
+                Pair(
+                    "slot",
+                    ChangeRequest(
+                        operation = ChangeTypeEnum.REPLACE.value,
+                        value = slot
+                    )
+                ),
+                Pair(
+                    "scheduleId",
+                    ChangeRequest(
+                        operation = ChangeTypeEnum.REPLACE.value,
+                        value = id
+                    )
+                ),
+                Pair(
+                    "createdOn",
+                    ChangeRequest(
+                        operation = ChangeTypeEnum.REPLACE.value,
+                        value = date
+                    )
+                )
+            )
+        )).thenReturn(-1L)
+        viewModel.rescheduleAppointment {
+            assertEquals(1, it)
+        }
+    }
+
+    @Test
+    fun rescheduleAppointment_existing_schedule_appointment_id_null() = runTest {
+        viewModel.appointment = appointmentResponseLocalNullFhirId
+        viewModel.patient = patientResponse
+        viewModel.selectedDate = date
+        viewModel.selectedSlot = date.toAppointmentTime()
+        val slot = Slot(
+            start = Date(
+                viewModel.selectedSlot.toCurrentTimeInMillis(
+                    date
+                )
+            ),
+            end = Date(
+                viewModel.selectedSlot.to5MinutesAfter(
+                    date
+                )
+            )
+        )
+        `when`(scheduleRepository.getScheduleByStartTime(appointmentResponseLocalNullFhirId.scheduleId.time)).thenReturn(scheduleResponse)
+        `when`(scheduleRepository.updateSchedule(
+            scheduleResponse.copy(
+                bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+            )
+        )).thenReturn(1)
+        `when`(scheduleRepository.getScheduleByStartTime(
+            viewModel.selectedSlot.toCurrentTimeInMillis(
+                date
+            )
+        )).thenReturn(scheduleResponse)
+        `when`(scheduleRepository.updateSchedule(
+            scheduleResponse.copy(
+                bookedSlots = scheduleResponse.bookedSlots!! + 1
+            )
+        )).thenReturn(1)
+        `when`(appointmentRepository.updateAppointment(
+            AppointmentResponseLocal(
+                appointmentId = appointmentResponseLocalNullFhirId.appointmentId,
+                uuid = appointmentResponseLocalNullFhirId.uuid,
+                scheduleId = date,
+                createdOn = date,
+                slot = slot,
+                orgId = appointmentResponseLocalNullFhirId.orgId,
+                patientId = id,
+                status = appointmentResponseLocalNullFhirId.status
+            )
+        )).thenReturn(1)
+        `when`(genericRepository.insertAppointment(
+            AppointmentResponse(
+                scheduleId = id,
+                createdOn = date,
+                slot = slot,
+                patientFhirId = patientResponse.fhirId,
+                appointmentId = appointmentResponseLocalNullFhirId.appointmentId,
+                orgId = appointmentResponseLocalNullFhirId.orgId,
+                status = appointmentResponseLocalNullFhirId.status,
+                uuid = appointmentResponseLocalNullFhirId.uuid
+            )
+        )).thenReturn(-1L)
+        viewModel.rescheduleAppointment {
+            assertEquals(1, it)
+        }
+    }
+
+    @Test
+    fun rescheduleAppointment_new_schedule_appointment_id_not_null() = runTest {
+        viewModel.appointment = appointmentResponseLocal
+        viewModel.patient = patientResponse
+        viewModel.selectedDate = date
+        viewModel.selectedSlot = date.toAppointmentTime()
+        val slot = Slot(
+            start = Date(
+                viewModel.selectedSlot.toCurrentTimeInMillis(
+                    date
+                )
+            ),
+            end = Date(
+                viewModel.selectedSlot.to5MinutesAfter(
+                    date
+                )
+            )
+        )
+        `when`(preferenceRepository.getOrganizationFhirId()).thenReturn(scheduleResponse.orgId)
+        `when`(scheduleRepository.getScheduleByStartTime(appointmentResponseLocal.scheduleId.time)).thenReturn(scheduleResponse)
+        `when`(scheduleRepository.updateSchedule(
+            scheduleResponse.copy(
+                bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+            )
+        )).thenReturn(1)
+        `when`(scheduleRepository.getScheduleByStartTime(
+            viewModel.selectedSlot.toCurrentTimeInMillis(
+                date
+            )
+        )).thenReturn(null)
+        `when`(scheduleRepository.insertSchedule(
+            ScheduleResponse(
+                uuid = id,
+                scheduleId = null,
+                bookedSlots = 1,
+                orgId = scheduleResponse.orgId,
+                planningHorizon = Slot(
+                    start = Date(
+                        viewModel.selectedSlot.toCurrentTimeInMillis(
+                            date
+                        )
+                    ),
+                    end = Date(
+                        viewModel.selectedSlot.to30MinutesAfter(
+                            date
+                        )
+                    )
+                )
+            )
+        )).thenReturn(listOf(-1L))
+        `when`(
+            genericRepository.insertSchedule(
+                ScheduleResponse(
+                    uuid = id,
+                    scheduleId = null,
+                    bookedSlots = null,
+                    orgId = scheduleResponse.orgId,
+                    planningHorizon = Slot(
+                        start = Date(
+                            viewModel.selectedSlot.toCurrentTimeInMillis(
+                                date
+                            )
+                        ),
+                        end = Date(
+                            viewModel.selectedSlot.to30MinutesAfter(
+                                date
+                            )
+                        )
+                    )
+                )
+            )
+        ).thenReturn(-1L)
+        `when`(appointmentRepository.updateAppointment(
+            AppointmentResponseLocal(
+                appointmentId = appointmentResponseLocal.appointmentId,
+                uuid = appointmentResponseLocal.uuid,
+                scheduleId = date,
+                createdOn = date,
+                slot = slot,
+                orgId = appointmentResponseLocal.orgId,
+                patientId = id,
+                status = appointmentResponseLocal.status
+            )
+        )).thenReturn(1)
+        `when`(genericRepository.insertOrUpdateAppointmentPatch(
+            appointmentFhirId = appointmentResponseLocal.appointmentId!!,
+            map = mapOf(
+                Pair(
+                    "status",
+                    ChangeRequest(
+                        operation = ChangeTypeEnum.REPLACE.value,
+                        value = AppointmentStatusEnum.SCHEDULED.value
+                    )
+                ),
+                Pair(
+                    "slot",
+                    ChangeRequest(
+                        operation = ChangeTypeEnum.REPLACE.value,
+                        value = slot
+                    )
+                ),
+                Pair(
+                    "scheduleId",
+                    ChangeRequest(
+                        operation = ChangeTypeEnum.REPLACE.value,
+                        value = id
+                    )
+                ),
+                Pair(
+                    "createdOn",
+                    ChangeRequest(
+                        operation = ChangeTypeEnum.REPLACE.value,
+                        value = date
+                    )
+                )
+            )
+        )).thenReturn(-1L)
+        viewModel.rescheduleAppointment {
+            assertEquals(1, it)
+        }
+    }
+
+    @Test
+    fun ifAnotherAppointmentExists_returns_null() = runBlocking {
+        viewModel.patient = patientResponse
+        viewModel.selectedDate = date
+        `when`(appointmentRepository.getAppointmentsOfPatientByDate(
+            id,
+            date.toTodayStartDate(),
+            date.toEndOfDay()
+        )).thenReturn(null)
+        viewModel.ifAnotherAppointmentExists {
+            assertEquals(false, it)
+        }
+    }
+
+    @Test
+    fun ifAnotherAppointmentExists_returns_same_appointment() = runBlocking {
+        viewModel.patient = patientResponse
+        viewModel.selectedDate = date
+        viewModel.appointment = appointmentResponseLocal
+        `when`(appointmentRepository.getAppointmentsOfPatientByDate(
+            id,
+            date.toTodayStartDate(),
+            date.toEndOfDay()
+        )).thenReturn(appointmentResponseLocal)
+        viewModel.ifAnotherAppointmentExists {
+            assertEquals(false, it)
+        }
+    }
+
+    @Test
+    fun ifAnotherAppointmentExists_returns_different_appointment() = runTest {
+        viewModel.patient = patientResponse
+        viewModel.selectedDate = date
+        viewModel.appointment = appointmentResponseLocal
+        `when`(appointmentRepository.getAppointmentsOfPatientByDate(
+            id,
+            date.toTodayStartDate(),
+            date.toEndOfDay()
+        )).thenReturn(appointmentResponseLocal.copy(
+            status = AppointmentStatusEnum.COMPLETED.value
+        ))
+        viewModel.ifAnotherAppointmentExists {
+            assertEquals(true, it)
+        }
+    }
 }
