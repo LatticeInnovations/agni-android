@@ -20,7 +20,8 @@ class PrescriptionDaoTest: FhirAppDatabaseTest() {
         prescriptionDate = Date(),
         patientId = "DUMMY_ID_123",
         patientFhirId = "20401",
-        prescriptionFhirId = null
+        prescriptionFhirId = null,
+        appointmentId = "APPOINTMENT_ID"
     )
 
     private val prescriptionDirectionsEntity = PrescriptionDirectionsEntity(
@@ -111,5 +112,10 @@ class PrescriptionDaoTest: FhirAppDatabaseTest() {
         val newFhirId = "NEW_FHIR_ID"
         prescriptionDao.updatePrescriptionFhirId(prescriptionEntity.id,newFhirId)
         assertEquals(newFhirId,prescriptionDao.getPastPrescriptions(prescriptionEntity.patientId).find { it.prescriptionEntity.id == prescriptionEntity.id }?.prescriptionEntity?.prescriptionFhirId)
+    }
+
+    @Test
+    fun getPrescriptionByAppointment() = runTest {
+        assertEquals(prescriptionEntity,prescriptionDao.getPrescriptionByAppointmentId(prescriptionEntity.appointmentId)[0].prescriptionEntity)
     }
 }

@@ -72,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.customTabIndicatorOffset
@@ -95,7 +96,17 @@ fun PrescriptionScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f
+    ) {
+        viewModel.appointmentResponseLocal.run {
+            if (this == null || (status != AppointmentStatusEnum.ARRIVED.value && status != AppointmentStatusEnum.WALK_IN.value))
+                1
+            else
+                viewModel.tabs.size
+        }
+    }
     val context = LocalContext.current
 
     BackHandler(enabled = true) {
@@ -217,16 +228,24 @@ fun PrescriptionScreen(
                                     modifier = Modifier.testTag(title.uppercase()),
                                     selected = pagerState.currentPage == index,
                                     onClick = {
-                                        if (index == 1 && viewModel.appointmentResponseLocal == null) {
-                                            coroutineScope.launch {
+                                        viewModel.appointmentResponseLocal.run {
+                                            if (index == 0 || (index == 1 && (this?.status == AppointmentStatusEnum.ARRIVED.value || this?.status == AppointmentStatusEnum.WALK_IN.value))) {
+                                                coroutineScope.launch {
+                                                    pagerState.animateScrollToPage(
+                                                        index
+                                                    )
+                                                }
+                                            } else if (index == 1 && this?.status == AppointmentStatusEnum.IN_PROGRESS.value || this?.status == AppointmentStatusEnum.COMPLETED.value) {
+                                                coroutineScope.launch {
+                                                    snackbarHostState.showSnackbar(
+                                                        context.getString(R.string.prescription_already_exists_for_today)
+                                                    )
+                                                }
+                                            } else coroutineScope.launch {
                                                 snackbarHostState.showSnackbar(
                                                     context.getString(R.string.please_add_patient_to_queue)
                                                 )
                                             }
-                                        } else coroutineScope.launch {
-                                            pagerState.animateScrollToPage(
-                                                index
-                                            )
                                         }
                                     },
                                     unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -234,7 +253,6 @@ fun PrescriptionScreen(
                             }
                         }
                         HorizontalPager(
-                            pageCount = if (viewModel.appointmentResponseLocal == null) 1 else viewModel.tabs.size,
                             state = pagerState
                         ) { index ->
                             when (index) {

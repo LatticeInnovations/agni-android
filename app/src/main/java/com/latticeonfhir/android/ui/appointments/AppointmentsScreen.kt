@@ -2,6 +2,7 @@
 
 package com.latticeonfhir.android.ui.appointments
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,7 +70,12 @@ fun AppointmentsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f
+    ) {
+        if (viewModel.completedAppointmentsList.isEmpty()) 1 else viewModel.tabs.size
+    }
     viewModel.rescheduled = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
         NavControllerConstants.RESCHEDULED
     ) == true
@@ -77,6 +83,16 @@ fun AppointmentsScreen(
         NavControllerConstants.SCHEDULED
     ) == true
 
+    BackHandler(enabled = true) {
+        if (pagerState.currentPage == 1) {
+            coroutineScope.launch {
+                pagerState.animateScrollToPage(0)
+            }
+        } else {
+            if (viewModel.isFabSelected) viewModel.isFabSelected = false
+            else navController.popBackStack()
+        }
+    }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.patient =
@@ -179,7 +195,6 @@ fun AppointmentsScreen(
                         }
                     }
                     HorizontalPager(
-                        pageCount = if (viewModel.completedAppointmentsList.isEmpty()) 1 else viewModel.tabs.size,
                         state = pagerState
                     ) { index ->
                         when (index) {

@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
@@ -18,13 +19,17 @@ import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
-import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
+import com.latticeonfhir.android.service.workmanager.utils.Sync.getWorkerInfo
+import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -58,42 +63,55 @@ class QueueViewModel @Inject constructor(
     var selectedChip by mutableStateOf(R.string.total_appointment)
     var rescheduled by mutableStateOf(false)
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).getWorkRequestBuilder() }
+    private val syncService by lazy { getApplication<FhirApp>().getSyncService() }
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setOneTimeTriggerWorker()
+    internal suspend fun syncData(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext).collectLatest { workInfo ->
+            if (workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
+                withContext(ioDispatcher) {
+                    syncService.syncLauncher { errorReceived, errorMessage ->
+                        getApplication<FhirApp>().sessionExpireFlow.postValue(
+                            mapOf(
+                                Pair("errorReceived", errorReceived),
+                                Pair("errorMsg", errorMessage)
+                            )
+                        )
+                    }
+                    getAppointmentListByDate(ioDispatcher)
+                }
+            }
         }
     }
 
-    internal fun getAppointmentListByDate() {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal fun getAppointmentListByDate(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             appointmentsList = appointmentRepository.getAppointmentListByDate(
                 selectedDate.toTodayStartDate(),
                 selectedDate.toEndOfDay()
-            ).filter { AppointmentResponseLocal ->
-                val patient = getPatientById(AppointmentResponseLocal.patientId)
+            ).filter { appointmentResponseLocal ->
+                val patient = getPatientById(appointmentResponseLocal.patientId)
                 patient.firstName.contains(searchQueueQuery, true)
                         || patient.middleName?.contains(searchQueueQuery, true) == true
                         || patient.lastName?.contains(searchQueueQuery, true) == true
+                        || patient.fhirId?.contains(searchQueueQuery, true) == true
             }
-            waitingQueueList = appointmentsList.filter { AppointmentResponseLocal ->
-                AppointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || AppointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value
+            waitingQueueList = appointmentsList.filter { appointmentResponseLocal ->
+                (appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
             }
-            inProgressQueueList = appointmentsList.filter { AppointmentResponseLocal ->
-                AppointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value
+            inProgressQueueList = appointmentsList.filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value
             }
-            scheduledQueueList = appointmentsList.filter { AppointmentResponseLocal ->
-                AppointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
+            scheduledQueueList = appointmentsList.filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
             }
-            completedQueueList = appointmentsList.filter { AppointmentResponseLocal ->
-                AppointmentResponseLocal.status == AppointmentStatusEnum.COMPLETED.value
+            completedQueueList = appointmentsList.filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status == AppointmentStatusEnum.COMPLETED.value
             }
-            cancelledQueueList = appointmentsList.filter { AppointmentResponseLocal ->
-                AppointmentResponseLocal.status == AppointmentStatusEnum.CANCELLED.value
+            cancelledQueueList = appointmentsList.filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status == AppointmentStatusEnum.CANCELLED.value
             }
-            noShowQueueList = appointmentsList.filter { AppointmentResponseLocal ->
-                AppointmentResponseLocal.status == AppointmentStatusEnum.NO_SHOW.value
+            noShowQueueList = appointmentsList.filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status == AppointmentStatusEnum.NO_SHOW.value
             }
         }
     }
@@ -164,19 +182,38 @@ class QueueViewModel @Inject constructor(
                         status = status
                     )
                 ).also {
-                    genericRepository.insertOrUpdateAppointmentPatch(
-                        appointmentFhirId = appointmentSelected!!.appointmentId
-                            ?: appointmentSelected!!.uuid,
-                        map = mapOf(
-                            Pair(
-                                "status",
-                                ChangeRequest(
-                                    operation = ChangeTypeEnum.REPLACE.value,
-                                    value = status
+                    if (appointmentSelected?.appointmentId.isNullOrBlank()) {
+                        genericRepository.insertAppointment(
+                            AppointmentResponse(
+                                scheduleId = scheduleRepository.getScheduleByStartTime(
+                                    appointmentSelected!!.scheduleId.time
+                                )?.scheduleId ?: scheduleRepository.getScheduleByStartTime(
+                                    appointmentSelected!!.scheduleId.time
+                                )?.uuid!!,
+                                createdOn = appointmentSelected!!.createdOn,
+                                slot = appointmentSelected!!.slot,
+                                patientFhirId = patientRepository.getPatientById(appointmentSelected!!.patientId)[0].fhirId,
+                                appointmentId = null,
+                                orgId = appointmentSelected!!.orgId,
+                                status = status,
+                                uuid = appointmentSelected!!.uuid
+                            )
+                        )
+                    } else {
+                        genericRepository.insertOrUpdateAppointmentPatch(
+                            appointmentFhirId = appointmentSelected!!.appointmentId
+                                ?: appointmentSelected!!.uuid,
+                            map = mapOf(
+                                Pair(
+                                    "status",
+                                    ChangeRequest(
+                                        operation = ChangeTypeEnum.REPLACE.value,
+                                        value = status
+                                    )
                                 )
                             )
                         )
-                    )
+                    }
                 }
             )
         }

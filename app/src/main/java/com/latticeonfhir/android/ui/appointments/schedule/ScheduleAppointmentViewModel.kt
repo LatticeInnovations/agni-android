@@ -20,6 +20,7 @@ import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedu
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to30MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to5MinutesAfter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
@@ -65,153 +66,8 @@ class ScheduleAppointmentViewModel @Inject constructor(
                 selectedDate.toEndOfDay()
             ).let { existingAppointment ->
                 if (existingAppointment != null) {
-                    // free the slot of previous schedule
-                    scheduleRepository.getScheduleByStartTime(existingAppointment.scheduleId.time)
-                        .let { scheduleResponse ->
-                            scheduleRepository.updateSchedule(
-                                scheduleResponse!!.copy(
-                                    bookedSlots = scheduleResponse.bookedSlots?.minus(1)
-                                )
-                            )
-                        }
-                    // check for new schedule
-                    var scheduleId = selectedSlot.toCurrentTimeInMillis(
-                        selectedDate
-                    )
-                    var id = UUIDBuilder.generateUUID()
-                    var scheduleFhirId: String? = null
-                    scheduleRepository.getScheduleByStartTime(
-                        scheduleId
-                    ).let { scheduleResponse ->
-                        // if already exists, increase booked slots count
-                        if (scheduleResponse != null) {
-                            scheduleId = scheduleResponse.planningHorizon.start.time
-                            id = scheduleResponse.uuid
-                            scheduleFhirId = scheduleResponse.scheduleId
-                            scheduleRepository.updateSchedule(
-                                scheduleResponse.copy(
-                                    bookedSlots = scheduleResponse.bookedSlots!! + 1
-                                )
-                            )
-                        } else {
-                            // create new schedule
-                            scheduleRepository.insertSchedule(
-                                ScheduleResponse(
-                                    uuid = id,
-                                    scheduleId = null,
-                                    bookedSlots = 1,
-                                    orgId = preferenceRepository.getOrganizationFhirId(),
-                                    planningHorizon = Slot(
-                                        start = Date(
-                                            selectedSlot.toCurrentTimeInMillis(
-                                                selectedDate
-                                            )
-                                        ),
-                                        end = Date(
-                                            selectedSlot.to30MinutesAfter(
-                                                selectedDate
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                            genericRepository.insertSchedule(
-                                ScheduleResponse(
-                                    uuid = id,
-                                    scheduleId = null,
-                                    bookedSlots = null,
-                                    orgId = preferenceRepository.getOrganizationFhirId(),
-                                    planningHorizon = Slot(
-                                        start = Date(
-                                            selectedSlot.toCurrentTimeInMillis(
-                                                selectedDate
-                                            )
-                                        ),
-                                        end = Date(
-                                            selectedSlot.to30MinutesAfter(
-                                                selectedDate
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        }
-                    }.also {
-                        // update appointment
-                        val createdOn = Date()
-                        val slot = Slot(
-                            start = Date(
-                                selectedSlot.toCurrentTimeInMillis(
-                                    selectedDate
-                                )
-                            ),
-                            end = Date(
-                                selectedSlot.to5MinutesAfter(
-                                    selectedDate
-                                )
-                            )
-                        )
-                        appointmentCreated(
-                            appointmentRepository.updateAppointment(
-                                existingAppointment.copy(
-                                    scheduleId = Date(scheduleId),
-                                    createdOn = createdOn,
-                                    slot = slot
-                                )
-                            ).also {
-                                if (existingAppointment.appointmentId.isNullOrBlank()) {
-                                    // if fhir id is null, insert post request
-                                    genericRepository.insertAppointment(
-                                        AppointmentResponse(
-                                            scheduleId = scheduleFhirId ?: id,
-                                            createdOn = createdOn,
-                                            slot = slot,
-                                            patientFhirId = patient?.fhirId ?: patient?.id,
-                                            appointmentId = existingAppointment.appointmentId,
-                                            uuid = existingAppointment.uuid,
-                                            orgId = existingAppointment.orgId,
-                                            status = existingAppointment.status
-                                        )
-                                    )
-                                } else {
-                                    // send patch request in generic
-                                    genericRepository.insertOrUpdateAppointmentPatch(
-                                        appointmentFhirId = existingAppointment.appointmentId,
-                                        map = mapOf(
-                                            Pair(
-                                                "status",
-                                                ChangeRequest(
-                                                    operation = ChangeTypeEnum.REPLACE.value,
-                                                    value = AppointmentStatusEnum.SCHEDULED.value
-                                                )
-                                            ),
-                                            Pair(
-                                                "slot",
-                                                ChangeRequest(
-                                                    operation = ChangeTypeEnum.REPLACE.value,
-                                                    value = slot
-                                                )
-                                            ),
-                                            Pair(
-                                                "scheduleId",
-                                                ChangeRequest(
-                                                    operation = ChangeTypeEnum.REPLACE.value,
-                                                    value = scheduleFhirId ?: id
-                                                )
-                                            ),
-                                            Pair(
-                                                "createdOn",
-                                                ChangeRequest(
-                                                    operation = ChangeTypeEnum.REPLACE.value,
-                                                    value = createdOn
-                                                )
-                                            )
-                                        )
-                                    )
-                                }
-                            }
-                        )
-                    }
+                    // appointment already exists for that day
+                    appointmentCreated(false)
                 } else {
                     var id = UUIDBuilder.generateUUID()
                     var scheduleFhirId: String? = null

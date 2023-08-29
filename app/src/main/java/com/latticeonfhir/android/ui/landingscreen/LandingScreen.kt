@@ -37,6 +37,7 @@ import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_Q
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -81,13 +82,28 @@ fun LandingScreen(
         }
     }
     BackHandler(enabled = true) {
-        if (viewModel.isSearching) {
-            viewModel.isSearching = false
-        } else if (viewModel.isSearchResult) {
-            viewModel.isSearchResult = false
-            viewModel.populateList()
-        } else {
-            activity.finish()
+        when (viewModel.selectedIndex) {
+            2 -> viewModel.selectedIndex = 0
+            1 -> {
+                if (queueViewModel.isSearchingInQueue || queueViewModel.searchQueueQuery.isNotBlank()) {
+                    queueViewModel.isSearchingInQueue = false
+                    queueViewModel.searchQueueQuery = ""
+                    queueViewModel.getAppointmentListByDate()
+                } else if (viewModel.showStatusChangeLayout) {
+                    viewModel.showStatusChangeLayout = false
+                } else viewModel.selectedIndex = 0
+            }
+
+            0 -> {
+                if (viewModel.isSearching) {
+                    viewModel.isSearching = false
+                } else if (viewModel.isSearchResult) {
+                    viewModel.isSearchResult = false
+                    viewModel.populateList()
+                } else {
+                    activity.finish()
+                }
+            }
         }
     }
     LaunchedEffect(viewModel.isLaunched) {
@@ -198,7 +214,7 @@ fun LandingScreen(
                                         queueViewModel.selectedDate.to14DaysWeek()
                                     queueViewModel.getAppointmentListByDate()
                                 },
-                                enabled = queueViewModel.selectedDate.toSlotDate() != Date().toSlotDate(),
+                                enabled = queueViewModel.selectedDate.toSlotDate() != Date().toSlotDate() || queueViewModel.selectedDate.toYear() != Date().toYear(),
                                 modifier = Modifier.testTag("RESET_BTN")
                             ) {
                                 Text(text = stringResource(id = R.string.reset))

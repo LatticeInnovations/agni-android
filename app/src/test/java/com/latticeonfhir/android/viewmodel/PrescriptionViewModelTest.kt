@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.viewmodel
 
 import com.latticeonfhir.android.base.BaseClass
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
@@ -17,11 +18,16 @@ import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAn
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
+import com.latticeonfhir.android.utils.MainCoroutineRule
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
@@ -29,6 +35,10 @@ import org.mockito.MockitoAnnotations
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PrescriptionViewModelTest : BaseClass() {
+
+    @get:Rule
+    val mainCoroutineRule =  MainCoroutineRule()
+
     @Mock
     lateinit var prescriptionRepository: PrescriptionRepository
 
@@ -78,7 +88,8 @@ class PrescriptionViewModelTest : BaseClass() {
         prescriptionId = prescribedResponse.prescriptionId,
         appointmentId = prescribedResponse.appointmentId,
         prescription = listOf(medication),
-        prescriptionFhirId = null
+        prescriptionFhirId = null,
+        appointmentUuid = prescribedResponse.appointmentUuid
     )
 
 
@@ -244,9 +255,9 @@ class PrescriptionViewModelTest : BaseClass() {
 
     @Test
     fun `fetch patient's today's appointment`() = runBlocking {
-        `when`(appointmentRepository.getAppointmentListByDate(date.time,date.time)).thenReturn(listOf(appointmentResponseLocal))
+        `when`(appointmentRepository.getAppointmentListByDate(date.time,date.time)).thenReturn(listOf(appointmentResponseLocal.copy(status = AppointmentStatusEnum.ARRIVED.value)))
         prescriptionViewModel.getPatientTodayAppointment(date,date, appointmentResponse.patientFhirId!!)
         delay(20000)
-            assertEquals(appointmentResponseLocal, prescriptionViewModel.appointmentResponseLocal)
+            assertEquals(appointmentResponseLocal.copy(status = AppointmentStatusEnum.ARRIVED.value), prescriptionViewModel.appointmentResponseLocal)
     }
 }

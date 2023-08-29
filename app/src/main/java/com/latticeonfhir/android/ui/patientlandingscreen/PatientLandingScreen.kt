@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.patientlandingscreen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,6 +59,10 @@ fun PatientLandingScreen(
         viewModel.patient?.id?.let { id ->
             viewModel.getScheduledAppointmentsCount(id)
         }
+    }
+    BackHandler(enabled = true) {
+        if (viewModel.isFabSelected) viewModel.isFabSelected = false
+        else navController.popBackStack()
     }
     Scaffold(
         topBar = {
