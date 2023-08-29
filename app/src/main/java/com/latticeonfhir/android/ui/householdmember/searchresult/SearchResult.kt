@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -88,15 +87,15 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
                 val patientsList = viewModel.searchResultList.collectAsLazyPagingItems()
                 LazyColumn(modifier = Modifier.padding(20.dp)) {
                     items(
-        count = patientsList.itemCount,
-        key = patientsList.itemKey(),
-        contentType = patientsList.itemContentType(
-            )
-    ) { index ->
-        val item = patientsList[index]
-        if (item != null) {
-            SearchResultRow(item, viewModel)
-        }
+                        count = patientsList.itemCount,
+                        key = patientsList.itemKey(),
+                        contentType = patientsList.itemContentType(
+                        )
+                    ) { index ->
+                        val item = patientsList[index]
+                        if (item != null) {
+                            SearchResultRow(item, viewModel)
+                        }
                     }
                     when (patientsList.loadState.append) {
                         is LoadState.NotLoading -> Unit

@@ -137,7 +137,8 @@ fun RescheduleAppointment(
                             viewModel.selectedDate = Date().tomorrow()
                             viewModel.weekList = viewModel.selectedDate.toWeekList()
                         },
-                        enabled = viewModel.selectedDate.toSlotDate() != Date().tomorrow().toSlotDate(),
+                        enabled = viewModel.selectedDate.toSlotDate() != Date().tomorrow()
+                            .toSlotDate(),
                         modifier = Modifier.testTag("RESET_BTN")
                     ) {
                         Text(text = stringResource(id = R.string.reset))
@@ -179,11 +180,11 @@ fun RescheduleAppointment(
                         modifier = Modifier
                             .testTag("DATE_DROPDOWN")
                             .clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = null
-                        ) {
-                            viewModel.showDatePicker = true
-                        }
+                                interactionSource = MutableInteractionSource(),
+                                indication = null
+                            ) {
+                                viewModel.showDatePicker = true
+                            }
                     ) {
                         Column {
                             Text(
@@ -403,7 +404,8 @@ fun RescheduleAppointment(
                     DatePicker(
                         state = datePickerState,
                         dateValidator = { date ->
-                            date >= Date().tomorrow().toTodayStartDate() && date <= Date().toOneYearFuture().time
+                            date >= Date().tomorrow()
+                                .toTodayStartDate() && date <= Date().toOneYearFuture().time
                         },
                         modifier = Modifier.testTag("DATE_PICKER_DIALOG")
                     )
@@ -420,14 +422,13 @@ fun RescheduleAppointment(
                                 composableScope.launch {
                                     snackbarHostState.showSnackbar(
                                         message = context.getString(
-                                            R.string.appointment_exists,
-                                            viewModel.existingAppointmentTime
+                                            R.string.appointment_exists
                                         )
                                     )
                                 }
                             } else {
                                 viewModel.rescheduleAppointment {
-                                    CoroutineScope(Dispatchers.Main).launch {
+                                    composableScope.launch {
                                         navController.previousBackStackEntry?.savedStateHandle?.set(
                                             RESCHEDULED,
                                             true

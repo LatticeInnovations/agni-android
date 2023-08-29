@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
@@ -20,8 +21,12 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -60,20 +65,18 @@ class PrescriptionViewModel @Inject constructor(
     var previousPrescriptionList by mutableStateOf(listOf<PrescriptionAndMedicineRelation?>(null))
 
     internal var appointmentResponseLocal: AppointmentResponseLocal? = null
-    private lateinit var timingList: List<MedicineTimingEntity>
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            timingList = medicationRepository.getAllMedicationDirections()
+    private var timingList: Deferred<List<MedicineTimingEntity>> =
+        viewModelScope.async(Dispatchers.IO) {
+            medicationRepository.getAllMedicationDirections()
         }
-    }
 
     internal fun getPatientTodayAppointment(startDate: Date, endDate: Date, patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             appointmentResponseLocal =
                 appointmentRepository.getAppointmentListByDate(startDate.time, endDate.time)
                     .firstOrNull { appointmentEntity ->
-                        appointmentEntity.patientId == patientId
+                        appointmentEntity.patientId == patientId && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
                     }
         }
     }
@@ -85,16 +88,6 @@ class PrescriptionViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             previousPrescriptionList(
                 prescriptionRepository.getLastPrescription(patientId)
-                    .map { prescriptionAndMedicineRelation ->
-                        prescriptionAndMedicineRelation.prescriptionDirectionAndMedicineView.map { prescriptionAndMedicineView ->
-                            prescriptionAndMedicineView.prescriptionDirectionsEntity.copy(
-                                timing = timingList.find { medicineTimingEntity ->
-                                    medicineTimingEntity.medicalDosageId == prescriptionAndMedicineView.prescriptionDirectionsEntity.timing
-                                }?.medicalDosage
-                            )
-                        }
-                        prescriptionAndMedicineRelation
-                    }
             )
         }
     }
@@ -110,7 +103,7 @@ class PrescriptionViewModel @Inject constructor(
     internal fun getAllMedicationDirections(medicationDirectionsList: (List<MedicineTimingEntity>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             medicationDirectionsList(
-                timingList
+                timingList.await()
             )
         }
     }
@@ -118,41 +111,27 @@ class PrescriptionViewModel @Inject constructor(
     internal fun insertPrescription(
         date: Date = Date(),
         prescriptionId: String = UUIDBuilder.generateUUID(),
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
         inserted: (Long) -> Unit
     ) {
         val medicationsList = mutableListOf<Medication>()
         medicationsResponseWithMedicationList.forEach { medicationResponseWithMedication ->
             medicationsList.add(
-                medicationResponseWithMedication.medication.copy(
-                    timing = medicationDirectionsList.find { timing -> timing.medicalDosage == medicationResponseWithMedication.medication.timing }?.medicalDosageId
-                )
+                medicationResponseWithMedication.medication
             )
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            inserted(
-                prescriptionRepository.insertPrescription(
-                    PrescriptionResponseLocal(
-                        patientId = patient!!.id,
-                        patientFhirId = patient?.fhirId,
-                        generatedOn = date,
-                        prescriptionId = prescriptionId,
-                        prescription = medicationsList,
-                        appointmentId = appointmentResponseLocal!!.uuid
-                    )
-                ).also {
-                    genericRepository.insertPrescription(
-                        PrescriptionResponse(
-                            patientFhirId = patient!!.fhirId ?: patient!!.id,
-                            generatedOn = date,
-                            prescriptionId = prescriptionId,
-                            prescription = medicationsList,
-                            prescriptionFhirId = null,
-                            appointmentId = appointmentResponseLocal!!.appointmentId
-                                ?: appointmentResponseLocal!!.uuid
-                        )
+        viewModelScope.launch {
+            inserted(withContext(ioDispatcher) {
+                insertPrescriptionInDB(date, prescriptionId, medicationsList).also {
+                    insertGenericEntityInDB(date, prescriptionId, medicationsList)
+                    appointmentRepository.updateAppointment(
+                        appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
+                            .also { updatedAppointmentResponse ->
+                                appointmentResponseLocal = updatedAppointmentResponse
+                            }
                     )
                 }
-            )
+            })
         }
     }
 
@@ -181,5 +160,45 @@ class PrescriptionViewModel @Inject constructor(
                 searchRepository.searchActiveIngredients(activeIngredient)
             )
         }
+    }
+
+    private suspend fun insertPrescriptionInDB(
+        date: Date,
+        prescriptionId: String,
+        medicationsList: List<Medication>
+    ): Long {
+        return prescriptionRepository.insertPrescription(
+            PrescriptionResponseLocal(
+                patientId = patient!!.id,
+                patientFhirId = patient?.fhirId,
+                generatedOn = date,
+                prescriptionId = prescriptionId,
+                prescription = medicationsList,
+                appointmentId = appointmentResponseLocal!!.uuid
+            )
+        )
+    }
+
+    private suspend fun insertGenericEntityInDB(
+        date: Date,
+        prescriptionId: String,
+        medicationsList: List<Medication>
+    ): Long {
+        return genericRepository.insertPrescription(
+            PrescriptionResponse(
+                patientFhirId = patient!!.fhirId ?: patient!!.id,
+                generatedOn = date,
+                prescriptionId = prescriptionId,
+                prescription = medicationsList.map { medication ->
+                    medication.copy(
+                        timing = timingList.await().find { timing -> timing.medicalDosage == medication.timing }?.medicalDosageId
+                    )
+                },
+                prescriptionFhirId = null,
+                appointmentUuid = appointmentResponseLocal!!.uuid,
+                appointmentId = appointmentResponseLocal!!.appointmentId
+                    ?: appointmentResponseLocal!!.uuid
+            )
+        )
     }
 }

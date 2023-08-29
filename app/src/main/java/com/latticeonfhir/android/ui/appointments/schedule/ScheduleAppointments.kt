@@ -30,6 +30,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
@@ -65,6 +67,7 @@ import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.NonLazyGrid
 import com.latticeonfhir.android.ui.theme.Green
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SCHEDULED
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonth
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
@@ -88,6 +91,7 @@ fun ScheduleAppointments(
     val dateScrollState = rememberLazyListState()
     val composableScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.patient =
@@ -99,6 +103,7 @@ fun ScheduleAppointments(
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 modifier = Modifier.fillMaxWidth(),
@@ -151,11 +156,11 @@ fun ScheduleAppointments(
                         modifier = Modifier
                             .testTag("DATE_DROPDOWN")
                             .clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = null
-                        ){
-                            viewModel.showDatePicker = true
-                        }
+                                interactionSource = MutableInteractionSource(),
+                                indication = null
+                            ) {
+                                viewModel.showDatePicker = true
+                            }
                     ) {
                         Column {
                             Text(
@@ -387,14 +392,25 @@ fun ScheduleAppointments(
             if (viewModel.selectedSlot.isNotBlank()) {
                 Button(
                     onClick = {
-                        viewModel.insertScheduleAndAppointment {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                navController.popBackStack(Screen.PatientLandingScreen.route, false)
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    SCHEDULED,
-                                    true
-                                )
-                                navController.navigate(Screen.Appointments.route)
+                        viewModel.insertScheduleAndAppointment { appointmentCreated ->
+                            if (appointmentCreated == false) {
+                                composableScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = context.getString(R.string.appointment_exists)
+                                    )
+                                }
+                            } else {
+                                composableScope.launch {
+                                    navController.popBackStack(
+                                        Screen.PatientLandingScreen.route,
+                                        false
+                                    )
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        SCHEDULED,
+                                        true
+                                    )
+                                    navController.navigate(Screen.Appointments.route)
+                                }
                             }
                         }
                     },
@@ -416,7 +432,8 @@ fun ScheduleAppointments(
 @Composable
 fun SlotsHeading(icon: Int, heading: String, testTag: String) {
     Row(
-        modifier = Modifier.padding(top = 12.dp, start = 17.dp, bottom = 18.dp)
+        modifier = Modifier
+            .padding(top = 12.dp, start = 17.dp, bottom = 18.dp)
             .testTag(heading),
         verticalAlignment = Alignment.CenterVertically
     ) {

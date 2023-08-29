@@ -18,11 +18,6 @@ import java.util.Date
             entity = PatientEntity::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("patientId")
-        ),
-        ForeignKey(
-            entity = AppointmentEntity::class,
-            parentColumns = arrayOf("id"),
-            childColumns = arrayOf("appointmentId")
         )
     ]
 )
