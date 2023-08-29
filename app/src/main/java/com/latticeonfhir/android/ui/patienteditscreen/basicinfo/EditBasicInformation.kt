@@ -31,6 +31,7 @@ import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
+import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import kotlinx.coroutines.launch
@@ -361,7 +362,7 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
                         viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 29
                     errorMsg = "Enter valid day between 1 and 29."
                 }
-                viewModel.getMonthsList()
+                viewModel.monthsList = MonthsList.getMonthsList(viewModel.dobDay)
             }
         }
         Spacer(modifier = Modifier.width(10.dp))
