@@ -37,27 +37,6 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
         "July", "August", "September", "October", "November", "December"
     )
 
-    internal fun getMonthsList() {
-        monthsList =
-            if (dobDay.toInt() > 30) mutableStateListOf(
-                "January",
-                "March",
-                "May",
-                "July",
-                "August",
-                "October",
-                "December"
-            )
-            else if (dobDay.toInt() > 29) mutableStateListOf(
-                "January", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-            )
-            else mutableStateListOf(
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-            )
-    }
-
     internal var isNameValid by mutableStateOf(false)
     internal var isEmailValid by mutableStateOf(false)
     internal var isPhoneValid by mutableStateOf(false)

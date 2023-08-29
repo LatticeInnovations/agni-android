@@ -71,34 +71,10 @@ class EditBasicInformationViewModel @Inject constructor(
     var genderTemp by mutableStateOf("")
     var birthDate by mutableStateOf("")
 
-    val daysList = (1..31).toList()
     var monthsList = mutableStateListOf(
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     )
-
-    fun getMonthsList() {
-        monthsList =
-            if (dobDay.toInt() > 30) mutableStateListOf(
-                "January",
-                "March",
-                "May",
-                "July",
-                "August",
-                "October",
-                "December"
-            )
-            else if (dobDay.toInt() > 29) mutableStateListOf(
-                "January", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-            )
-            else mutableStateListOf(
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-            )
-    }
-
-    val yearsList = (1920..2023).toList()
 
     var isNameValid by mutableStateOf(false)
     var isEmailValid by mutableStateOf(false)
