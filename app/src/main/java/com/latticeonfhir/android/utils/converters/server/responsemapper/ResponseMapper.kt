@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import com.latticeonfhir.android.base.server.BaseResponse
+import com.latticeonfhir.android.utils.constants.ErrorConstants.SERVER_ERROR
 import retrofit2.Response
 import timber.log.Timber
 
@@ -12,36 +13,15 @@ sealed class ResponseMapper<out T> {
     companion object {
 
         fun <T> create(error: Throwable?): ApiErrorResponse<T> {
-            return ApiErrorResponse(0, error?.message ?: "Server error")
+            return ApiErrorResponse(0, error?.message ?: SERVER_ERROR)
         }
 
         fun <T> create(
-            response: Response<BaseResponse<T>>?,
+            response: Response<BaseResponse<T>>,
             paginated: Boolean
         ): ResponseMapper<T> {
-            return if (response == null) {
-                return ApiNullResponse
-            } else if (response.isSuccessful) {
-                if (response.body()?.status != 0) {
-                    if (response.body()?.data == null) {
-                        ApiEmptyResponse()
-                    } else {
-                        when {
-                            paginated && response.body()?.status == 1 -> ApiContinueResponse(body = response.body()?.data!!)
-                            paginated && response.body()?.status == 2 -> ApiEndResponse(body = response.body()?.data!!)
-                            !paginated && response.body()?.status == 1 -> ApiEndResponse(body = response.body()?.data!!)
-                            else -> ApiErrorResponse(
-                                response.body()?.status ?: 0,
-                                response.body()?.message ?: "Server error"
-                            )
-                        }
-                    }
-                } else {
-                    ApiErrorResponse(
-                        response.body()?.status ?: 0,
-                        response.body()?.message ?: "Server error"
-                    )
-                }
+            return if (response.isSuccessful) {
+                mapData(response, paginated)
             } else {
                 val gson = GsonBuilder().setPrettyPrinting().create()
                 val collectionType = object : TypeToken<BaseResponse<T?>>() {}.type
@@ -51,8 +31,28 @@ sealed class ResponseMapper<out T> {
                     ApiErrorResponse(response.code(), data.message)
                 } catch (e: JsonSyntaxException) {
                     Timber.e(e)
-                    ApiErrorResponse(0, "Server error")
+                    ApiErrorResponse(0, SERVER_ERROR)
                 }
+            }
+        }
+
+        private fun <T> mapData(response: Response<BaseResponse<T>>, paginated: Boolean): ResponseMapper<T> {
+            return if (response.body()?.status != 0) {
+                if (response.body()?.data == null) {
+                    ApiEmptyResponse()
+                } else {
+                    when {
+                        paginated && response.body()?.status == 1 -> ApiContinueResponse(body = response.body()?.data!!)
+                        paginated && response.body()?.status == 2 -> ApiEndResponse(body = response.body()?.data!!)
+                        !paginated && response.body()?.status == 1 -> ApiEndResponse(body = response.body()?.data!!)
+                        else -> ApiErrorResponse(response.body()?.status ?: 0, response.body()?.message ?: SERVER_ERROR)
+                    }
+                }
+            } else {
+                ApiErrorResponse(
+                    response.body()?.status ?: 0,
+                    response.body()?.message ?: SERVER_ERROR
+                )
             }
         }
     }
