@@ -364,7 +364,6 @@ fun QueueScreen(
                             modifier = Modifier
                                 .background(MaterialTheme.colorScheme.secondaryContainer)
                         ) { _ ->
-                            //val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                             var patient by remember {
                                 mutableStateOf<PatientResponse?>(null)
                             }
@@ -862,7 +861,11 @@ fun QueuePatientCard(
                                     NavControllerConstants.PATIENT,
                                     patient
                                 )
-                                navController.navigate(Screen.RescheduleAppointments.route)
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    NavControllerConstants.IF_RESCHEDULING,
+                                    true
+                                )
+                                navController.navigate(Screen.ScheduleAppointments.route)
                             },
                             modifier = Modifier.testTag("APPOINTMENT_RESCHEDULE_BTN")
                         ) {
