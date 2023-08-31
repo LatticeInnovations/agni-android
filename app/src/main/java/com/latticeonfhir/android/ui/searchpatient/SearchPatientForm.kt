@@ -101,9 +101,9 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 AgeBox(searchPatientViewModel.minAge, "Min") {
-                    if (it.length == 0) searchPatientViewModel.minAge = it
+                    if (it.isEmpty()) searchPatientViewModel.minAge = it
                     else if (it.matches(searchPatientViewModel.onlyNumbers)) {
-                        if (it.toInt() >= 0 && it.toInt() <= 100) searchPatientViewModel.minAge = it
+                        if (it.toInt() in 0..100) searchPatientViewModel.minAge = it
                     }
                     searchPatientViewModel.updateRange(
                         searchPatientViewModel.minAge,
@@ -111,9 +111,9 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
                     )
                 }
                 AgeBox(searchPatientViewModel.maxAge, "Max") {
-                    if (it.length == 0) searchPatientViewModel.maxAge = it
+                    if (it.isEmpty()) searchPatientViewModel.maxAge = it
                     else if (it.matches(searchPatientViewModel.onlyNumbers)) {
-                        if (it.toInt() >= 0 && it.toInt() <= 100) searchPatientViewModel.maxAge = it
+                        if (it.toInt() in 0..100) searchPatientViewModel.maxAge = it
                     }
                     searchPatientViewModel.updateRange(
                         searchPatientViewModel.minAge,
@@ -126,7 +126,7 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             Spacer(modifier = Modifier.height(10.dp))
             VisitDropdown(searchPatientViewModel)
             Spacer(modifier = Modifier.height(30.dp))
-            AddressComposable(label = "Address", address = searchPatientViewModel.address) {}
+            AddressComposable(label = "Address", address = searchPatientViewModel.address)
             Spacer(
                 modifier = Modifier
                     .height(50.dp)
