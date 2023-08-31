@@ -26,36 +26,36 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     private val relationRepository: RelationRepository
 ) : BaseViewModel() {
 
-    var firstName by mutableStateOf("")
-    var middleName by mutableStateOf("")
-    var lastName by mutableStateOf("")
-    var phoneNumber by mutableStateOf("")
-    var email by mutableStateOf("")
-    var dob by mutableStateOf("")
-    var dobDay by mutableStateOf("")
-    var dobMonth by mutableStateOf("")
-    var dobYear by mutableStateOf("")
-    var years by mutableStateOf("")
-    var months by mutableStateOf("")
-    var days by mutableStateOf("")
-    var gender by mutableStateOf("")
-    var passportId by mutableStateOf("")
-    var voterId by mutableStateOf("")
-    var patientId by mutableStateOf("")
+    internal var firstName by mutableStateOf("")
+    internal var middleName by mutableStateOf("")
+    internal var lastName by mutableStateOf("")
+    internal var phoneNumber by mutableStateOf("")
+    internal var email by mutableStateOf("")
+    internal var dob by mutableStateOf("")
+    internal var dobDay by mutableStateOf("")
+    internal var dobMonth by mutableStateOf("")
+    internal var dobYear by mutableStateOf("")
+    internal var years by mutableStateOf("")
+    internal var months by mutableStateOf("")
+    internal var days by mutableStateOf("")
+    internal var gender by mutableStateOf("")
+    internal var passportId by mutableStateOf("")
+    internal var voterId by mutableStateOf("")
+    internal var patientId by mutableStateOf("")
 
-    var homeAddress by mutableStateOf(Address())
-    var workAddress by mutableStateOf(Address())
+    internal var homeAddress by mutableStateOf(Address())
+    internal var workAddress by mutableStateOf(Address())
 
-    var openDialog by mutableStateOf(false)
-    val identifierList = mutableListOf<PatientIdentifier>()
+    internal var openDialog by mutableStateOf(false)
+    internal val identifierList = mutableListOf<PatientIdentifier>()
 
-    var fromHouseholdMember by mutableStateOf(false)
-    var patientFrom by mutableStateOf<PatientResponse?>(null)
-    var patientFromId by mutableStateOf("")
-    var relativeId by mutableStateOf("")
-    var relation by mutableStateOf("")
+    internal var fromHouseholdMember by mutableStateOf(false)
+    internal var patientFrom by mutableStateOf<PatientResponse?>(null)
+    internal var patientFromId by mutableStateOf("")
+    internal var relativeId by mutableStateOf("")
+    internal var relation by mutableStateOf("")
 
-    fun addPatient(patientResponse: PatientResponse) {
+    internal fun addPatient(patientResponse: PatientResponse) {
         viewModelScope.launch(Dispatchers.IO) {
             patientRepository.addPatient(patientResponse)
             genericRepository.insertPatient(
@@ -65,7 +65,7 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
         }
     }
 
-    fun addRelation(relation: Relation, relationAdded: (List<Long>) -> Unit) {
+    internal fun addRelation(relation: Relation, relationAdded: (List<Long>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             relationRepository.addRelation(relation, relationAdded)
         }
