@@ -27,26 +27,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -54,7 +48,7 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.customTabIndicatorOffset
+import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.householdmember.members.MembersScreen
 import com.latticeonfhir.android.ui.main.patientlandingscreen.SuggestionsScreen
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
@@ -85,15 +79,6 @@ fun HouseholdMembersScreen(
         initialPageOffsetFraction = 0f
     ) {
         viewModel.tabs.size
-    }
-
-    val density = LocalDensity.current
-    val tabWidths = remember {
-        val tabWidthStateList = mutableStateListOf<Dp>()
-        repeat(viewModel.tabs.size) {
-            tabWidthStateList.add(0.dp)
-        }
-        tabWidthStateList
     }
 
     Scaffold(
@@ -140,33 +125,11 @@ fun HouseholdMembersScreen(
         content = {
             Box(modifier = Modifier.padding(it)) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    TabRow(
-                        selectedTabIndex = pagerState.currentPage,
-                        modifier = Modifier.testTag("TABS"),
-                        indicator = { tabPositions ->
-                            TabRowDefaults.Indicator(
-                                modifier = Modifier.customTabIndicatorOffset(
-                                    currentTabPosition = tabPositions[pagerState.currentPage],
-                                    tabWidth = tabWidths[pagerState.currentPage]
-                                )
-                            )
-                        }
-                    ) {
-                        viewModel.tabs.forEachIndexed { index, title ->
-                            Tab(
-                                text = {
-                                    Text(title,
-                                        onTextLayout = { textLayoutResult ->
-                                            tabWidths[index] =
-                                                with(density) { textLayoutResult.size.width.toDp() - 10.dp }
-                                        })
-                                },
-                                modifier = Modifier.testTag(title.uppercase()),
-                                selected = pagerState.currentPage == index,
-                                onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                    TabRowComposable(
+                        viewModel.tabs,
+                        pagerState
+                    ) { index ->
+                        scope.launch { pagerState.animateScrollToPage(index) }
                     }
                     HorizontalPager(
                         state = pagerState
