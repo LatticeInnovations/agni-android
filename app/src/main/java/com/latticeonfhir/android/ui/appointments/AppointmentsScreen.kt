@@ -20,31 +20,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
-import com.latticeonfhir.android.ui.common.customTabIndicatorOffset
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
@@ -57,14 +51,6 @@ fun AppointmentsScreen(
     navController: NavController,
     viewModel: AppointmentsScreenViewModel = hiltViewModel()
 ) {
-    val density = LocalDensity.current
-    val tabWidths = remember {
-        val tabWidthStateList = mutableStateListOf<Dp>()
-        repeat(viewModel.tabs.size) {
-            tabWidthStateList.add(0.dp)
-        }
-        tabWidthStateList
-    }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -151,44 +137,19 @@ fun AppointmentsScreen(
         content = {
             Box(modifier = Modifier.padding(it)) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    TabRow(
-                        selectedTabIndex = pagerState.currentPage,
-                        modifier = Modifier.testTag("TABS"),
-                        indicator = { tabPositions ->
-                            TabRowDefaults.Indicator(
-                                modifier = Modifier.customTabIndicatorOffset(
-                                    currentTabPosition = tabPositions[pagerState.currentPage],
-                                    tabWidth = tabWidths[pagerState.currentPage]
+                    TabRowComposable(
+                        viewModel.tabs,
+                        pagerState
+                    ) { index ->
+                        if (index == 1 && viewModel.completedAppointmentsList.isEmpty()) {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    context.getString(R.string.no_completed_appointments)
                                 )
-                            )
-                        }
-                    ) {
-                        viewModel.tabs.forEachIndexed { index, title ->
-                            Tab(
-                                text = {
-                                    Text(title,
-                                        onTextLayout = { textLayoutResult ->
-                                            tabWidths[index] =
-                                                with(density) { textLayoutResult.size.width.toDp() - 10.dp }
-                                        })
-                                },
-                                modifier = Modifier
-                                    .testTag(title.uppercase()),
-                                selected = pagerState.currentPage == index,
-                                onClick = {
-                                    if (index == 1 && viewModel.completedAppointmentsList.isEmpty()) {
-                                        coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                context.getString(R.string.no_completed_appointments)
-                                            )
-                                        }
-                                    } else coroutineScope.launch {
-                                        pagerState.animateScrollToPage(
-                                            index
-                                        )
-                                    }
-                                },
-                                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        } else coroutineScope.launch {
+                            pagerState.animateScrollToPage(
+                                index
                             )
                         }
                     }
