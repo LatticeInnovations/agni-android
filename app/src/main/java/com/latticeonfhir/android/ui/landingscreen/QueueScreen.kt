@@ -358,7 +358,7 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {patientId ->
+                        appointmentResponseLocal.patientId.let { patientId ->
                             LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
                                     patientId
@@ -387,7 +387,7 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {patientId ->
+                        appointmentResponseLocal.patientId.let { patientId ->
                             LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
                                     patientId
@@ -416,7 +416,7 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {patientId ->
+                        appointmentResponseLocal.patientId.let { patientId ->
                             LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
                                     patientId
@@ -442,7 +442,7 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {patientId ->
+                        appointmentResponseLocal.patientId.let { patientId ->
                             LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
                                     patientId
@@ -689,36 +689,15 @@ fun QueuePatientCard(
                         }
                     )
                 )
-                Text(
-                    text = NameConverter.getFullName(
+                PatientCardDetails(
+                    NameConverter.getFullName(
                         patient?.firstName,
                         patient?.middleName,
                         patient?.lastName
                     ),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    subTitle,
+                    appointmentResponseLocal.slot.start.toAppointmentTime()
                 )
-                Text(
-                    text = subTitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Row(
-                    modifier = Modifier.padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.schedule_icon),
-                        contentDescription = "SCHEDULE_ICON",
-                        tint = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = appointmentResponseLocal.slot.start.toAppointmentTime(),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                }
             }
             if ((appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
                 && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
@@ -848,37 +827,48 @@ fun CancelledQueueCard(
                         borderColor = CancelledLabel
                     )
                 )
-                Text(
-                    text = NameConverter.getFullName(
+                PatientCardDetails(
+                    NameConverter.getFullName(
                         patient?.firstName,
                         patient?.middleName,
                         patient?.lastName
                     ),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    subTitle,
+                    appointmentResponseLocal.slot.start.toAppointmentTime()
                 )
-                Text(
-                    text = subTitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Row(
-                    modifier = Modifier.padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.schedule_icon),
-                        contentDescription = "SCHEDULE_ICON",
-                        tint = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = appointmentResponseLocal.slot.start.toAppointmentTime(),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                }
             }
+        }
+    }
+}
+
+@Composable
+fun PatientCardDetails(name: String, subTitle: String, time: String) {
+    Column {
+        Text(
+            text = name,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = subTitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Row(
+            modifier = Modifier.padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.schedule_icon),
+                contentDescription = "SCHEDULE_ICON",
+                tint = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = time,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.tertiary
+            )
         }
     }
 }
