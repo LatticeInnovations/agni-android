@@ -8,6 +8,9 @@ import java.util.Locale
 
 object TimeConverter {
 
+    private const val YYYY_MM_DD = "yyyy-MM-dd"
+    private const val HH_MM_A = "hh:mm a"
+
     internal fun Long.toAge(): Int {
         val present = Calendar.getInstance()
         val personBirthDate = Calendar.getInstance()
@@ -41,9 +44,9 @@ object TimeConverter {
         today.timeInMillis = from
         dob.timeInMillis = this
 
-        var age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR)
+        var age = today[Calendar.YEAR] - dob[Calendar.YEAR]
 
-        if (today.get(Calendar.DAY_OF_YEAR) < dob.get(Calendar.DAY_OF_YEAR)) {
+        if (today[Calendar.DAY_OF_YEAR] < dob[Calendar.DAY_OF_YEAR]) {
             age--
         }
         return age
@@ -51,18 +54,16 @@ object TimeConverter {
 
     internal fun String.toPatientDate(): String {
         val inputFormat = SimpleDateFormat("dd-MMMM-yyyy", Locale.US)
-        val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val outputFormat = SimpleDateFormat(YYYY_MM_DD, Locale.US)
         val date = inputFormat.parse(this)
-        val outputDate = outputFormat.format(date!!)
-        return outputDate
+        return outputFormat.format(date!!)
     }
 
     internal fun String.toPatientPreviewDate(): String {
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val inputFormat = SimpleDateFormat(YYYY_MM_DD, Locale.US)
         val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
         val date = inputFormat.parse(this)
-        val outputDate = outputFormat.format(date!!)
-        return outputDate
+        return outputFormat.format(date!!)
     }
 
     internal fun ageToPatientDate(years: Int, months: Int, days: Int): String {
@@ -75,7 +76,7 @@ object TimeConverter {
         return formatter.format(dob)
     }
 
-    internal fun Calendar.isLeapYear(): Boolean {
+    private fun Calendar.isLeapYear(): Boolean {
         return (this[Calendar.YEAR] % 400 == 0 ||
                 (this[Calendar.YEAR] % 4 == 0 && this[Calendar.YEAR] % 100 != 0))
     }
@@ -107,19 +108,19 @@ object TimeConverter {
     }
 
     internal fun Date.toAppointmentTime(): String {
-        val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val formatter = SimpleDateFormat(HH_MM_A, Locale.getDefault())
         return formatter.format(this)
     }
 
     internal fun Date.toSlotStartTime(): String {
-        val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val formatter = SimpleDateFormat(HH_MM_A, Locale.getDefault())
         val minutes = SimpleDateFormat("mm", Locale.getDefault()).format(this).toInt()
         val calendar = Calendar.getInstance()
         calendar.time = this
-        if (minutes < 30) calendar.set(Calendar.MINUTE, 0)
-        else calendar.set(Calendar.MINUTE, 30)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
+        if (minutes < 30) calendar[Calendar.MINUTE] = 0
+        else calendar[Calendar.MINUTE] = 30
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
         return formatter.format(calendar.time)
     }
 
@@ -148,65 +149,42 @@ object TimeConverter {
     internal fun Date.yesterday(): Date {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = this.time
-        calendar.set(Calendar.DAY_OF_YEAR, calendar[Calendar.DAY_OF_YEAR] - 1)
+        calendar[Calendar.DAY_OF_YEAR] = calendar[Calendar.DAY_OF_YEAR] - 1
         return calendar.time
     }
 
-    internal fun String.toCurrentTimeInMillis(date: Date): Long {
-        val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    private fun String.toCalenderTime(date: Date): Calendar {
+        val inputFormat = SimpleDateFormat(HH_MM_A, Locale.getDefault())
         val currentTime = inputFormat.parse(this)
         val calendar = Calendar.getInstance()
         calendar.time = date
 
-        calendar.set(
-            Calendar.HOUR_OF_DAY,
+        calendar[Calendar.HOUR_OF_DAY] =
             SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt()
-        )
-        calendar.set(
-            Calendar.MINUTE,
+        calendar[Calendar.MINUTE] =
             SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt()
-        )
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar
+    }
+
+    internal fun String.toCurrentTimeInMillis(date: Date): Long {
+        val calendar = this.toCalenderTime(date)
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
         return calendar.timeInMillis
     }
 
     internal fun String.to30MinutesAfter(date: Date): Long {
-        val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
-        val currentTime = inputFormat.parse(this)
-        val calendar = Calendar.getInstance()
-        calendar.time = date
-
-        calendar.set(
-            Calendar.HOUR_OF_DAY,
-            SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt()
-        )
-        calendar.set(
-            Calendar.MINUTE,
-            SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt()
-        )
-        calendar.set(Calendar.SECOND, 59)
-        calendar.set(Calendar.MILLISECOND, 0)
+        val calendar = this.toCalenderTime(date)
+        calendar[Calendar.SECOND] = 59
+        calendar[Calendar.MILLISECOND] = 0
         calendar.add(Calendar.MINUTE, 29)
         return calendar.timeInMillis
     }
 
     internal fun String.to5MinutesAfter(date: Date): Long {
-        val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
-        val currentTime = inputFormat.parse(this)
-        val calendar = Calendar.getInstance()
-        calendar.time = date
-
-        calendar.set(
-            Calendar.HOUR_OF_DAY,
-            SimpleDateFormat("HH", Locale.getDefault()).format(currentTime!!).toInt()
-        )
-        calendar.set(
-            Calendar.MINUTE,
-            SimpleDateFormat("mm", Locale.getDefault()).format(currentTime).toInt()
-        )
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
+        val calendar = this.toCalenderTime(date)
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
         calendar.add(Calendar.MINUTE, 5)
         return calendar.timeInMillis
     }
@@ -274,7 +252,7 @@ object TimeConverter {
 
     internal fun Long.toPatientDate(): String {
         return if (this != 0.toLong()) {
-            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val formatter = SimpleDateFormat(YYYY_MM_DD, Locale.getDefault())
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = this
             formatter.format(calendar.time)
@@ -287,10 +265,10 @@ object TimeConverter {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = time
         calendar.add(Calendar.DAY_OF_YEAR, 1)
-        calendar.set(Calendar.HOUR_OF_DAY, 1)
-        calendar.set(Calendar.MINUTE, 30)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
+        calendar[Calendar.HOUR_OF_DAY] = 1
+        calendar[Calendar.MINUTE] = 30
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
         val endTimeMillis = calendar.timeInMillis
         return ((endTimeMillis - time) / (1000 * 60))
     }
@@ -311,7 +289,7 @@ object TimeConverter {
 
     internal fun String.toTimeInMilli(): Long {
         val myDate = this
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val sdf = SimpleDateFormat(YYYY_MM_DD, Locale.getDefault())
         val date = sdf.parse(myDate)
         return date?.time ?: 0L
     }
