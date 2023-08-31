@@ -28,7 +28,6 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
@@ -79,56 +78,12 @@ class ScheduleAppointmentViewModel @Inject constructor(
                         scheduleId
                     ).let { scheduleResponse ->
                         if (scheduleResponse != null) {
-                            Timber.d("manseeyy already scheduled")
                             id = scheduleResponse.uuid
                             scheduleFhirId = scheduleResponse.scheduleId
                             scheduleId = scheduleResponse.planningHorizon.start.time
-                            scheduleRepository.updateSchedule(
-                                scheduleResponse.copy(
-                                    bookedSlots = scheduleResponse.bookedSlots!! + 1
-                                )
-                            )
+                            updateSchedule(scheduleResponse)
                         } else {
-                            scheduleRepository.insertSchedule(
-                                ScheduleResponse(
-                                    uuid = id,
-                                    scheduleId = null,
-                                    bookedSlots = 1,
-                                    orgId = preferenceRepository.getOrganizationFhirId(),
-                                    planningHorizon = Slot(
-                                        start = Date(
-                                            selectedSlot.toCurrentTimeInMillis(
-                                                selectedDate
-                                            )
-                                        ),
-                                        end = Date(
-                                            selectedSlot.to30MinutesAfter(
-                                                selectedDate
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                            genericRepository.insertSchedule(
-                                ScheduleResponse(
-                                    uuid = id,
-                                    scheduleId = null,
-                                    bookedSlots = null,
-                                    orgId = preferenceRepository.getOrganizationFhirId(),
-                                    planningHorizon = Slot(
-                                        start = Date(
-                                            selectedSlot.toCurrentTimeInMillis(
-                                                selectedDate
-                                            )
-                                        ),
-                                        end = Date(
-                                            selectedSlot.to30MinutesAfter(
-                                                selectedDate
-                                            )
-                                        )
-                                    )
-                                )
-                            )
+                            createNewSchedule(id)
                         }
                     }.also {
                         val appointmentId = UUIDBuilder.generateUUID()
@@ -222,53 +177,10 @@ class ScheduleAppointmentViewModel @Inject constructor(
                     scheduleId = scheduleResponse.planningHorizon.start.time
                     id = scheduleRepository.getScheduleByStartTime(scheduleId)?.uuid!!
                     scheduleFhirId = scheduleResponse.scheduleId
-                    scheduleRepository.updateSchedule(
-                        scheduleResponse.copy(
-                            bookedSlots = scheduleResponse.bookedSlots!! + 1
-                        )
-                    )
+                    updateSchedule(scheduleResponse)
                 } else {
                     // create new schedule
-                    scheduleRepository.insertSchedule(
-                        ScheduleResponse(
-                            uuid = id,
-                            scheduleId = null,
-                            bookedSlots = 1,
-                            orgId = preferenceRepository.getOrganizationFhirId(),
-                            planningHorizon = Slot(
-                                start = Date(
-                                    selectedSlot.toCurrentTimeInMillis(
-                                        selectedDate
-                                    )
-                                ),
-                                end = Date(
-                                    selectedSlot.to30MinutesAfter(
-                                        selectedDate
-                                    )
-                                )
-                            )
-                        )
-                    )
-                    genericRepository.insertSchedule(
-                        ScheduleResponse(
-                            uuid = id,
-                            scheduleId = null,
-                            bookedSlots = null,
-                            orgId = preferenceRepository.getOrganizationFhirId(),
-                            planningHorizon = Slot(
-                                start = Date(
-                                    selectedSlot.toCurrentTimeInMillis(
-                                        selectedDate
-                                    )
-                                ),
-                                end = Date(
-                                    selectedSlot.to30MinutesAfter(
-                                        selectedDate
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    createNewSchedule(id)
                 }
             }.also {
                 // update appointment
@@ -352,5 +264,56 @@ class ScheduleAppointmentViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    private suspend fun updateSchedule(scheduleResponse: ScheduleResponse) {
+        scheduleRepository.updateSchedule(
+            scheduleResponse.copy(
+                bookedSlots = scheduleResponse.bookedSlots!! + 1
+            )
+        )
+    }
+
+    private suspend fun createNewSchedule(id: String) {
+        scheduleRepository.insertSchedule(
+            ScheduleResponse(
+                uuid = id,
+                scheduleId = null,
+                bookedSlots = 1,
+                orgId = preferenceRepository.getOrganizationFhirId(),
+                planningHorizon = Slot(
+                    start = Date(
+                        selectedSlot.toCurrentTimeInMillis(
+                            selectedDate
+                        )
+                    ),
+                    end = Date(
+                        selectedSlot.to30MinutesAfter(
+                            selectedDate
+                        )
+                    )
+                )
+            )
+        )
+        genericRepository.insertSchedule(
+            ScheduleResponse(
+                uuid = id,
+                scheduleId = null,
+                bookedSlots = null,
+                orgId = preferenceRepository.getOrganizationFhirId(),
+                planningHorizon = Slot(
+                    start = Date(
+                        selectedSlot.toCurrentTimeInMillis(
+                            selectedDate
+                        )
+                    ),
+                    end = Date(
+                        selectedSlot.to30MinutesAfter(
+                            selectedDate
+                        )
+                    )
+                )
+            )
+        )
     }
 }
