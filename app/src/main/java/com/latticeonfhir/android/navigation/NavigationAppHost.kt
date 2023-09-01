@@ -14,8 +14,8 @@ import com.latticeonfhir.android.ui.householdmember.searchresult.SearchResult
 import com.latticeonfhir.android.ui.landingscreen.LandingScreen
 import com.latticeonfhir.android.ui.login.OtpScreen
 import com.latticeonfhir.android.ui.login.PhoneEmailScreen
-import com.latticeonfhir.android.ui.main.patientregistration.PatientRegistrationPreview
-import com.latticeonfhir.android.ui.patienteditscreen.EditPatient
+import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreview
+import com.latticeonfhir.android.ui.patientprofile.EditPatient
 import com.latticeonfhir.android.ui.patienteditscreen.address.EditPatientAddress
 import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.EditBasicInformation
 import com.latticeonfhir.android.ui.patienteditscreen.identification.EditIdentification

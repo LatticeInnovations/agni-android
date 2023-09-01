@@ -16,8 +16,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.ui.main.patientregistration.Detail
-import com.latticeonfhir.android.ui.main.patientregistration.Label
+import com.latticeonfhir.android.ui.common.Detail
+import com.latticeonfhir.android.ui.common.Label
 
 @Composable
 fun ProfileScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {

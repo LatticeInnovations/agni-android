@@ -13,6 +13,7 @@ import com.latticeonfhir.android.data.local.repository.relation.RelationReposito
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,6 +26,8 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     private val identifierRepository: IdentifierRepository,
     private val relationRepository: RelationRepository
 ) : BaseViewModel() {
+
+    var patientResponse by mutableStateOf<PatientResponse?>(null)
 
     internal var firstName by mutableStateOf("")
     internal var middleName by mutableStateOf("")
@@ -52,7 +55,7 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     internal var fromHouseholdMember by mutableStateOf(false)
     internal var patientFrom by mutableStateOf<PatientResponse?>(null)
     internal var patientFromId by mutableStateOf("")
-    internal var relativeId by mutableStateOf("")
+    internal var relativeId by mutableStateOf(UUIDBuilder.generateUUID())
     internal var relation by mutableStateOf("")
 
     internal fun addPatient(patientResponse: PatientResponse) {
