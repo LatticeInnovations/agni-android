@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.main.patientlandingscreen
+package com.latticeonfhir.android.ui.householdmember.suggestions
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -45,7 +45,6 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
-import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreenViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
@@ -62,11 +61,8 @@ fun SuggestionsScreen(
     scope: CoroutineScope,
     viewModel: SuggestionsScreenViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(viewModel.isLaunched) {
-        if (!viewModel.isLaunched) {
-            viewModel.getQueueItems(patient)
-        }
-        viewModel.isLaunched = true
+    LaunchedEffect(true) {
+        viewModel.getQueueItems(patient)
     }
     if (viewModel.loading) {
         Box(
@@ -307,6 +303,7 @@ fun ConnectDialog(
                         member.id
                     ) {
                         if (it.isNotEmpty()) {
+                            viewModel.getQueueItems(patient)
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     message = "${
@@ -319,7 +316,6 @@ fun ConnectDialog(
                                     withDismissAction = true
                                 )
                             }
-                            viewModel.updateQueue(member)
                         } else {
                             scope.launch {
                                 snackbarHostState.showSnackbar(

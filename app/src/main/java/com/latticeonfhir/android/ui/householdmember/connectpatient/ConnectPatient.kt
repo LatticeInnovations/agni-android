@@ -67,6 +67,7 @@ import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.DiscardAllRelationDialog
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
@@ -170,46 +171,13 @@ fun ConnectPatient(
                     }
                 }
                 if (viewModel.discardAllRelationDialog) {
-                    AlertDialog(
-                        onDismissRequest = {
-                            viewModel.discardAllRelationDialog = false
-                        },
-                        title = {
-                            Text(
-                                text = stringResource(id = R.string.discard_relations_dialog_title),
-                                style = MaterialTheme.typography.headlineSmall,
-                                modifier = Modifier.testTag("delete dialog title")
-                            )
-                        },
-                        text = {
-                            Text(
-                                stringResource(id = R.string.discard_relations_dialog_description),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    viewModel.discardAllRelationDialog = false
-                                    viewModel.discardRelations()
-                                    navController.popBackStack()
-                                }) {
-                                Text(
-                                    stringResource(id = R.string.yes_discard)
-                                )
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = {
-                                    viewModel.discardAllRelationDialog = false
-                                }) {
-                                Text(
-                                    stringResource(id = R.string.no_go_back)
-                                )
-                            }
+                    DiscardAllRelationDialog { discard ->
+                        if (discard){
+                            viewModel.discardRelations()
+                            navController.popBackStack()
                         }
-                    )
+                        viewModel.discardAllRelationDialog = false
+                    }
                 }
 
                 if (viewModel.showConfirmDialog) {
