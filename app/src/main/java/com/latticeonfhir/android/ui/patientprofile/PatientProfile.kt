@@ -25,7 +25,7 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditPatient(
+fun PatientProfile(
     navController: NavController,
     viewModel: PatientProfileViewModel = hiltViewModel()
 ) {
