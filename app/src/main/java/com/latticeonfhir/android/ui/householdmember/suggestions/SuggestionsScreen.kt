@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,7 +34,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
-import com.latticeonfhir.android.ui.common.RelationsDropDown
+import com.latticeonfhir.android.ui.common.RelationDialogContent
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
@@ -188,46 +187,25 @@ fun ConnectDialog(
             )
         },
         text = {
-            Column {
-                Text(
+            RelationDialogContent(
+                NameConverter.getFullName(
+                    patient.firstName,
+                    patient.middleName,
+                    patient.lastName
+                ),
+                "of ${
                     NameConverter.getFullName(
-                        patient.firstName,
-                        patient.middleName,
-                        patient.lastName
-                    ),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.height(23.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "is the",
-                        style = MaterialTheme.typography.bodyLarge
+                        member.firstName,
+                        member.middleName,
+                        member.lastName
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    RelationsDropDown(
-                        patient.gender,
-                        relation,
-                        expanded
-                    ) { update, value ->
-                        if (update) relation = value
-                        expanded = !expanded
-                    }
-
-                }
-                Spacer(modifier = Modifier.height(23.dp))
-                Text(
-                    text = "of ${
-                        NameConverter.getFullName(
-                            member.firstName,
-                            member.middleName,
-                            member.lastName
-                        )
-                    }.",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                }.",
+                patient.gender,
+                relation,
+                expanded
+            ) { update, value ->
+                if (update) relation = value
+                expanded = !expanded
             }
         },
         confirmButton = {
