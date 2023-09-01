@@ -104,7 +104,7 @@ fun PatientLandingScreen(
                             key = "patient_detailsID",
                             value = viewModel.patient?.id
                         )
-                        navController.navigate(Screen.EditPatient.route)
+                        navController.navigate(Screen.PatientProfile.route)
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.profile_icon),
