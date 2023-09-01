@@ -68,7 +68,7 @@ import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.DiscardAllRelationDialog
-import com.latticeonfhir.android.ui.common.RelationsDropDown
+import com.latticeonfhir.android.ui.common.RelationDialogContent
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
@@ -480,45 +480,25 @@ fun EditDialog(
             )
         },
         text = {
-            Column {
-                Text(
+            RelationDialogContent(
+                NameConverter.getFullName(
+                    relationView.patientFirstName,
+                    relationView.patientMiddleName,
+                    relationView.patientLastName
+                ),
+                "of ${
                     NameConverter.getFullName(
-                        relationView.patientFirstName,
-                        relationView.patientMiddleName,
-                        relationView.patientLastName
-                    ),
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Spacer(modifier = Modifier.height(23.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "is the",
-                        style = MaterialTheme.typography.bodyLarge
+                        relationView.relativeFirstName,
+                        relationView.relativeMiddleName,
+                        relationView.relativeLastName
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    RelationsDropDown(
-                        relationView.patientGender,
-                        relation,
-                        expanded
-                    ) { update, value ->
-                        if (update) relation = value
-                        expanded = !expanded
-                    }
-                }
-                Spacer(modifier = Modifier.height(23.dp))
-                Text(
-                    text = "of ${
-                        NameConverter.getFullName(
-                            relationView.relativeFirstName,
-                            relationView.relativeMiddleName,
-                            relationView.relativeLastName
-                        )
-                    }.",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                }.",
+                relationView.patientGender,
+                relation,
+                expanded
+            ) { update, value ->
+                if (update) relation = value
+                expanded = !expanded
             }
         },
         confirmButton = {

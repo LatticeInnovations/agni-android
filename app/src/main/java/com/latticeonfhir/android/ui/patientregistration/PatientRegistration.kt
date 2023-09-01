@@ -15,7 +15,7 @@ import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.common.RelationsDropDown
+import com.latticeonfhir.android.ui.common.RelationDialogContent
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.patientregistration.preview.DiscardDialog
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
@@ -141,40 +141,19 @@ fun PatientRegistration(
                         }
                     },
                     text = {
-                        Column {
-                            Text(
-                                NameConverter.getFullName(
-                                    viewModel.patientFrom?.firstName,
-                                    viewModel.patientFrom?.middleName,
-                                    viewModel.patientFrom?.lastName
-                                ),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Spacer(modifier = Modifier.height(23.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "is the",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                RelationsDropDown(
-                                    viewModel.patientFrom?.gender!!,
-                                    viewModel.relation,
-                                    expanded
-                                ) { update, value ->
-                                    if (update) viewModel.relation = value
-                                    expanded = !expanded
-                                }
-
-                            }
-                            Spacer(modifier = Modifier.height(23.dp))
-                            Text(
-                                text = "of the patient I am about to create",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
+                        RelationDialogContent(
+                            NameConverter.getFullName(
+                                viewModel.patientFrom?.firstName,
+                                viewModel.patientFrom?.middleName,
+                                viewModel.patientFrom?.lastName
+                            ),
+                            "of the patient I am about to create",
+                            viewModel.patientFrom?.gender!!,
+                            viewModel.relation,
+                            expanded
+                        ){ update, value ->
+                            if (update) viewModel.relation = value
+                            expanded = !expanded
                         }
                     },
                     confirmButton = {
