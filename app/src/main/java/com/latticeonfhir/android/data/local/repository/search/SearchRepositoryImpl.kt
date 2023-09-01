@@ -12,6 +12,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
+import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.Paging.PAGE_SIZE
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientResponse
@@ -222,5 +223,33 @@ class SearchRepositoryImpl @Inject constructor(
         returnList(
             linkedList
         )
+    }
+
+    override suspend fun getFiveSuggestedMembers(
+        patientId: String,
+        address: PatientAddressResponse
+    ): List<PatientResponse> {
+        var suggestionsList = listOf<PatientResponse>()
+        getSuggestedMembers(
+            patientId, SearchParameters(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                address.addressLine1,
+                address.city,
+                address.district,
+                address.state,
+                address.postalCode,
+                address.addressLine2
+            )
+        ) { list ->
+            suggestionsList = if (list.size > 5) {
+                list.subList(0, 5)
+            } else list
+        }
+        return suggestionsList
     }
 }
