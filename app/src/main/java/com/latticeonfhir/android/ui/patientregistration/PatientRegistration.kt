@@ -1,11 +1,8 @@
 package com.latticeonfhir.android.ui.patientregistration
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,13 +15,13 @@ import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.patientregistration.preview.DiscardDialog
+import com.latticeonfhir.android.ui.common.RelationsDropDown
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
+import com.latticeonfhir.android.ui.patientregistration.preview.DiscardDialog
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
 import com.latticeonfhir.android.ui.patientregistration.step2.PatientRegistrationStepTwo
 import com.latticeonfhir.android.ui.patientregistration.step3.PatientRegistrationStepThree
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -163,67 +160,13 @@ fun PatientRegistration(
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
-                                Column(
-                                    modifier = Modifier.testTag("RELATIONS_DROPDOWN")
-                                ) {
-                                    val relationsList =
-                                        RelationshipList.getRelationshipList(viewModel.patientFrom?.gender!!)
-
-                                    TextField(
-                                        value = viewModel.relation,
-                                        onValueChange = {},
-                                        trailingIcon = {
-                                            IconButton(onClick = { expanded = !expanded }) {
-                                                Icon(
-                                                    Icons.Default.ArrowDropDown,
-                                                    contentDescription = ""
-                                                )
-                                            }
-                                        },
-                                        readOnly = true,
-                                        textStyle = MaterialTheme.typography.bodyLarge,
-                                        placeholder = {
-                                            Text(
-                                                text = "e.g. ${relationsList[0]}",
-                                                style = MaterialTheme.typography.bodyLarge
-                                            )
-                                        },
-                                        interactionSource = remember {
-                                            MutableInteractionSource()
-                                        }.also { interactionSource ->
-                                            LaunchedEffect(interactionSource) {
-                                                interactionSource.interactions.collect {
-                                                    if (it is PressInteraction.Release) {
-                                                        expanded = !expanded
-                                                    }
-                                                }
-                                            }
-                                        },
-                                    )
-                                    DropdownMenu(
-                                        modifier = Modifier
-                                            .fillMaxWidth(0.5f)
-                                            .fillMaxHeight(0.4f),
-                                        expanded = expanded,
-                                        onDismissRequest = { expanded = false },
-                                    ) {
-                                        relationsList.forEach { label ->
-                                            DropdownMenuItem(
-                                                onClick = {
-                                                    expanded = false
-                                                    viewModel.relation = label
-                                                },
-                                                text = {
-                                                    Text(
-                                                        text = label,
-                                                        style = MaterialTheme.typography.bodyLarge,
-                                                        color = MaterialTheme.colorScheme.onSurface
-                                                    )
-                                                },
-                                                modifier = Modifier.testTag("RELATION")
-                                            )
-                                        }
-                                    }
+                                RelationsDropDown(
+                                    viewModel.patientFrom?.gender!!,
+                                    viewModel.relation,
+                                    expanded
+                                ) { update, value ->
+                                    if (update) viewModel.relation = value
+                                    expanded = !expanded
                                 }
 
                             }
