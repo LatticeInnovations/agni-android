@@ -32,5 +32,7 @@ interface GenericRepository {
     suspend fun updateAppointmentFhirIdInPatch()
 
     suspend fun insertOrUpdatePatchEntity(patientFhirId: String, map: Map<String, Any>, typeEnum: GenericTypeEnum, uuid: String = UUIDBuilder.generateUUID()): Long
+    suspend fun insertOrUpdatePatientPatch(patientFhirId: String, map: Map<String, Any>, uuid: String = UUIDBuilder.generateUUID()): Long
+    suspend fun insertOrUpdateRelationPatch(patientFhirId: String, map: Map<String, Any>, uuid: String = UUIDBuilder.generateUUID()): Long
     suspend fun insertOrUpdateAppointmentPatch(appointmentFhirId: String, map: Map<String, Any>, uuid: String = UUIDBuilder.generateUUID()): Long
 }
