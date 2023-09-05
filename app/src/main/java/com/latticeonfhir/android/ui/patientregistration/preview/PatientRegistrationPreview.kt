@@ -1,16 +1,11 @@
-package com.latticeonfhir.android.ui.main.patientregistration
+package com.latticeonfhir.android.ui.patientregistration.preview
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -25,18 +20,14 @@ import com.latticeonfhir.android.data.server.model.patient.PatientAddressRespons
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.PreviewScreen
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreviewViewModel
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.*
 
@@ -155,13 +146,7 @@ fun PatientRegistrationPreview(
                     .padding(it)
             ) {
                 if (patientRegisterDetails != null) {
-                    PreviewScreen(navController, viewModel, patientRegisterDetails)
-                }
-            }
-        },
-        floatingActionButton = {
-            Button(
-                onClick = {
+                    viewModel.identifierList.clear()
                     if (viewModel.passportId.isNotEmpty()) {
                         viewModel.identifierList.add(
                             PatientIdentifier(
@@ -189,8 +174,7 @@ fun PatientRegistrationPreview(
                             )
                         )
                     }
-                    viewModel.relativeId = UUIDBuilder.generateUUID()
-                    val patient = PatientResponse(
+                    viewModel.patientResponse = PatientResponse(
                         id = viewModel.relativeId,
                         firstName = viewModel.firstName,
                         middleName = if (viewModel.middleName.isEmpty()) null else viewModel.middleName,
@@ -212,8 +196,31 @@ fun PatientRegistrationPreview(
                         ),
                         identifier = viewModel.identifierList
                     )
+                    PreviewScreen(
+                        viewModel.patientResponse!!
+                    ) { index ->
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "isEditing",
+                            true
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "currentStep",
+                            index
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "patient_register_details",
+                            patientRegisterDetails
+                        )
+                        navController.navigate(Screen.PatientRegistrationScreen.route)
+                    }
+                }
+            }
+        },
+        floatingActionButton = {
+            Button(
+                onClick = {
                     viewModel.addPatient(
-                        patient
+                        viewModel.patientResponse!!
                     )
                     if (viewModel.fromHouseholdMember) {
                         // adding relation
@@ -225,21 +232,19 @@ fun PatientRegistrationPreview(
                             )
                         ) {
                             CoroutineScope(Dispatchers.Main).launch {
-                                withContext(Dispatchers.Main) {
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "patientId",
-                                        viewModel.patientFromId
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "relativeId",
-                                        viewModel.relativeId
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "relation",
-                                        viewModel.relation
-                                    )
-                                    navController.navigate(Screen.ConfirmRelationship.route)
-                                }
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    "patientId",
+                                    viewModel.patientFromId
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    "relativeId",
+                                    viewModel.relativeId
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    "relation",
+                                    viewModel.relation
+                                )
+                                navController.navigate(Screen.ConfirmRelationship.route)
                             }
 
                         }
@@ -247,7 +252,7 @@ fun PatientRegistrationPreview(
                         navController.popBackStack(Screen.LandingScreen.route, false)
                         navController.currentBackStackEntry?.savedStateHandle?.set(
                             "patient",
-                            patient
+                            viewModel.patientResponse!!
                         )
                         navController.navigate(Screen.PatientLandingScreen.route)
                     }
@@ -260,157 +265,6 @@ fun PatientRegistrationPreview(
             }
         }
     )
-}
-
-@Composable
-fun PreviewScreen(
-    navController: NavController,
-    viewModel: PatientRegistrationPreviewViewModel,
-    patientRegister: PatientRegister
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(15.dp)
-            .verticalScroll(rememberScrollState())
-            .testTag("columnLayout")
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
-            ) {
-                Heading(
-                    stringResource(id = R.string.basic_information),
-                    1,
-                    patientRegister,
-                    navController
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = "${
-                        NameConverter.getFullName(
-                            viewModel.firstName,
-                            viewModel.middleName,
-                            viewModel.lastName
-                        )
-                    }, ${
-                        viewModel.gender.replaceFirstChar {
-                            if (it.isLowerCase()) it.titlecase(
-                                Locale.getDefault()
-                            ) else it.toString()
-                        }
-                    }",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.testTag("NAME_TAG")
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Label(stringResource(id = R.string.date_of_birth))
-                Detail(viewModel.dob, "DOB_TAG")
-                Spacer(modifier = Modifier.height(10.dp))
-                Label(stringResource(id = R.string.phone_number_label))
-                Detail("+91 ${viewModel.phoneNumber}", "PHONE_NO_TAG")
-                if (viewModel.email.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Label(stringResource(id = R.string.email))
-                    Detail(viewModel.email, "EMAIL_TAG")
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
-            ) {
-                Heading(
-                    stringResource(id = R.string.identification),
-                    2,
-                    patientRegister,
-                    navController
-                )
-                if (viewModel.passportId.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Label(stringResource(id = R.string.passport_id))
-                    Detail(viewModel.passportId, "PASSPORT_ID_TAG")
-                }
-                if (viewModel.voterId.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Label(stringResource(id = R.string.voter_id))
-                    Detail(viewModel.voterId, "VOTER_ID_TAG")
-                }
-                if (viewModel.patientId.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Label(stringResource(id = R.string.patient_id))
-                    Detail(viewModel.patientId, "PATIENT_ID_TAG")
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-        ) {
-            val homeAddressLine1 = viewModel.homeAddress.addressLine1 +
-                    if (viewModel.homeAddress.addressLine2.isEmpty()) "" else {
-                        ", " + viewModel.homeAddress.addressLine2
-                    }
-            val homeAddressLine2 = viewModel.homeAddress.city +
-                    if (viewModel.homeAddress.district.isEmpty()) "" else {
-                        ", " + viewModel.homeAddress.district
-                    }
-            val homeAddressLine3 =
-                "${viewModel.homeAddress.state}, ${viewModel.homeAddress.pincode}"
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
-            ) {
-                Heading(stringResource(id = R.string.addresses), 3, patientRegister, navController)
-                Spacer(modifier = Modifier.height(10.dp))
-                Label(stringResource(id = R.string.home_address))
-                Detail(homeAddressLine1, "ADDRESS_LINE1_TAG")
-                Detail(homeAddressLine2, "ADDRESS_LINE2_TAG")
-                Detail(homeAddressLine3, "ADDRESS_LINE3_TAG")
-//                if (viewModel.workAddress.pincode.isNotEmpty()) {
-//                    val workAddressLine1 = viewModel.workAddress.addressLine1 +
-//                            if (viewModel.workAddress.addressLine2.isEmpty()) "" else {
-//                                ", " + viewModel.workAddress.addressLine2
-//                            }
-//                    val workAddressLine2 = viewModel.workAddress.city +
-//                            if (viewModel.workAddress.district.isEmpty()) "" else {
-//                                ", " + viewModel.workAddress.district
-//                            }
-//                    val workAddressLine3 =
-//                        "${viewModel.workAddress.state}, ${viewModel.workAddress.pincode}"
-//                    Spacer(modifier = Modifier.height(10.dp))
-//                    Label("Work Address")
-//                    Detail(workAddressLine1)
-//                    Detail(workAddressLine2)
-//                    Detail(workAddressLine3)
-//                }
-            }
-        }
-        if (viewModel.openDialog) {
-            DiscardDialog(navController, viewModel.fromHouseholdMember) {
-                viewModel.openDialog = false
-            }
-        }
-        Spacer(
-            modifier = Modifier
-                .padding(bottom = 60.dp)
-                .testTag("end of page")
-        )
-    }
-
 }
 
 @Composable
@@ -459,78 +313,4 @@ fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDia
             }
         }
     )
-}
-
-@Composable
-fun Heading(
-    heading: String,
-    step: Int,
-    patientRegister: PatientRegister,
-    navController: NavController
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = heading,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.secondary
-        )
-        TextButton(
-            onClick = {
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "isEditing",
-                    true
-                )
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "currentStep",
-                    step
-                )
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "patient_register_details",
-                    patientRegister
-                )
-                navController.navigate(Screen.PatientRegistrationScreen.route)
-            },
-            modifier = Modifier
-                .testTag("edit btn $step")
-        ) {
-            Icon(
-                Icons.Outlined.Edit,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(5.dp))
-            Text(
-                text = stringResource(id = R.string.edit),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
-
-@Composable
-fun Label(label: String) {
-    Text(text = label, style = MaterialTheme.typography.bodySmall)
-}
-
-@Composable
-fun Detail(detail: String, tag: String) {
-    if (tag == "DOB_TAG") {
-        Text(
-            text = detail.toPatientDate().toPatientPreviewDate(),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.testTag(tag)
-        )
-    } else {
-        Text(
-            text = detail,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.testTag(tag)
-        )
-    }
 }

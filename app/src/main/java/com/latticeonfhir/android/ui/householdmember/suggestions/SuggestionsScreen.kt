@@ -1,35 +1,24 @@
-package com.latticeonfhir.android.ui.main.patientlandingscreen
+package com.latticeonfhir.android.ui.householdmember.suggestions
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,11 +34,10 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
-import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreenViewModel
+import com.latticeonfhir.android.ui.common.RelationDialogContent
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import kotlinx.coroutines.CoroutineScope
@@ -62,11 +50,8 @@ fun SuggestionsScreen(
     scope: CoroutineScope,
     viewModel: SuggestionsScreenViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(viewModel.isLaunched) {
-        if (!viewModel.isLaunched) {
-            viewModel.getQueueItems(patient)
-        }
-        viewModel.isLaunched = true
+    LaunchedEffect(true) {
+        viewModel.getQueueItems(patient)
     }
     if (viewModel.loading) {
         Box(
@@ -202,96 +187,25 @@ fun ConnectDialog(
             )
         },
         text = {
-            Column {
-                Text(
+            RelationDialogContent(
+                NameConverter.getFullName(
+                    patient.firstName,
+                    patient.middleName,
+                    patient.lastName
+                ),
+                "of ${
                     NameConverter.getFullName(
-                        patient.firstName,
-                        patient.middleName,
-                        patient.lastName
-                    ),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.height(23.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "is the",
-                        style = MaterialTheme.typography.bodyLarge
+                        member.firstName,
+                        member.middleName,
+                        member.lastName
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Column {
-                        val relationsList =
-                            RelationshipList.getRelationshipList(patient.gender)
-                        TextField(
-                            value = relation,
-                            onValueChange = {},
-                            trailingIcon = {
-                                IconButton(onClick = { expanded = !expanded }) {
-                                    Icon(
-                                        Icons.Default.ArrowDropDown,
-                                        contentDescription = ""
-                                    )
-                                }
-                            },
-                            readOnly = true,
-                            textStyle = MaterialTheme.typography.bodyLarge,
-                            placeholder = {
-                                Text(
-                                    text = "e.g. ${relationsList[0]}",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            },
-                            interactionSource = remember {
-                                MutableInteractionSource()
-                            }.also { interactionSource ->
-                                LaunchedEffect(interactionSource) {
-                                    interactionSource.interactions.collect {
-                                        if (it is PressInteraction.Release) {
-                                            expanded = !expanded
-                                        }
-                                    }
-                                }
-                            },
-                        )
-                        DropdownMenu(
-                            modifier = Modifier
-                                .fillMaxWidth(0.5f)
-                                .fillMaxHeight(0.4f),
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                        ) {
-                            relationsList.forEach { label ->
-                                DropdownMenuItem(
-                                    onClick = {
-                                        expanded = false
-                                        relation = label
-                                    },
-                                    text = {
-                                        Text(
-                                            text = label,
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-                }
-                Spacer(modifier = Modifier.height(23.dp))
-                Text(
-                    text = "of ${
-                        NameConverter.getFullName(
-                            member.firstName,
-                            member.middleName,
-                            member.lastName
-                        )
-                    }.",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                }.",
+                patient.gender,
+                relation,
+                expanded
+            ) { update, value ->
+                if (update) relation = value
+                expanded = !expanded
             }
         },
         confirmButton = {
@@ -307,6 +221,7 @@ fun ConnectDialog(
                         member.id
                     ) {
                         if (it.isNotEmpty()) {
+                            viewModel.getQueueItems(patient)
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     message = "${
@@ -319,7 +234,6 @@ fun ConnectDialog(
                                     withDismissAction = true
                                 )
                             }
-                            viewModel.updateQueue(member)
                         } else {
                             scope.launch {
                                 snackbarHostState.showSnackbar(
@@ -349,5 +263,4 @@ fun ConnectDialog(
             }
         }
     )
-
 }

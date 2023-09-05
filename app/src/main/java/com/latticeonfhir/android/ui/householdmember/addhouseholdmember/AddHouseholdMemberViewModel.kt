@@ -23,8 +23,7 @@ class AddHouseholdMemberViewModel @Inject constructor(
     var patient by mutableStateOf<PatientResponse?>(null)
 
     var showRelationDialogue by mutableStateOf(false)
-    var listOfSuggestions = mutableListOf<PatientResponse>()
-    var suggestedMembersList = mutableStateListOf<PatientResponse>()
+    var suggestedMembersList by mutableStateOf(listOf<PatientResponse>())
     var selectedSuggestedMembersList = mutableStateListOf<PatientResponse>()
 
     internal fun getSuggestions(
@@ -33,35 +32,10 @@ class AddHouseholdMemberViewModel @Inject constructor(
         returnList: (List<PatientResponse>) -> Unit
     ) {
         viewModelScope.launch(coroutineDispatcher) {
-            searchRepository.getSuggestedMembers(
+            suggestedMembersList = searchRepository.getFiveSuggestedMembers(
                 patient.id,
-                SearchParameters(
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    patient.permanentAddress.addressLine1,
-                    patient.permanentAddress.city,
-                    patient.permanentAddress.district,
-                    patient.permanentAddress.state,
-                    patient.permanentAddress.postalCode,
-                    patient.permanentAddress.addressLine2
-                )
-            ) {
-                listOfSuggestions = it
-                suggestedMembersList.clear()
-                if (listOfSuggestions.size > 5) {
-                    suggestedMembersList.add(listOfSuggestions[0])
-                    suggestedMembersList.add(listOfSuggestions[1])
-                    suggestedMembersList.add(listOfSuggestions[2])
-                    suggestedMembersList.add(listOfSuggestions[3])
-                    suggestedMembersList.add(listOfSuggestions[4])
-                } else {
-                    suggestedMembersList.addAll(listOfSuggestions)
-                }
-            }
+                patient.permanentAddress
+            )
             returnList(
                 suggestedMembersList
             )

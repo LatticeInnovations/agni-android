@@ -1,7 +1,5 @@
 package com.latticeonfhir.android.ui.appointments.schedule
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,20 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -34,6 +26,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -50,7 +43,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -62,23 +54,21 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.NonLazyGrid
+import com.latticeonfhir.android.ui.common.WeekDaysComposable
 import com.latticeonfhir.android.ui.theme.Green
+import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SCHEDULED
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonth
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.tomorrow
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -94,6 +84,16 @@ fun ScheduleAppointments(
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
+            viewModel.ifRescheduling =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                    NavControllerConstants.IF_RESCHEDULING
+                ) == true
+            if (viewModel.ifRescheduling) {
+                viewModel.appointment =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<AppointmentResponseLocal>(
+                        NavControllerConstants.APPOINTMENT_SELECTED
+                    )
+            }
             viewModel.patient =
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     "patient"
@@ -112,7 +112,9 @@ fun ScheduleAppointments(
                 ),
                 title = {
                     Text(
-                        text = stringResource(id = R.string.schedule_appointment),
+                        text = if (viewModel.ifRescheduling) stringResource(id = R.string.reschedule_appointment) else stringResource(
+                            id = R.string.schedule_appointment
+                        ),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.testTag("HEADING_TAG"),
                         maxLines = 1,
@@ -131,6 +133,7 @@ fun ScheduleAppointments(
                                 dateScrollState.animateScrollToItem(0)
                             }
                             viewModel.selectedDate = Date().tomorrow()
+                            viewModel.selectedSlot = ""
                             viewModel.weekList = viewModel.selectedDate.toWeekList()
                         },
                         enabled = viewModel.selectedDate.toSlotDate() != Date().tomorrow()
@@ -147,87 +150,42 @@ fun ScheduleAppointments(
                 modifier = Modifier
                     .padding(it)
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(start = 20.dp, top = 15.dp, bottom = 15.dp)
-                        .wrapContentSize()
-                ) {
-                    Row(
+                if (viewModel.ifRescheduling) {
+                    Surface(
                         modifier = Modifier
-                            .testTag("DATE_DROPDOWN")
-                            .clickable(
-                                interactionSource = MutableInteractionSource(),
-                                indication = null
-                            ) {
-                                viewModel.showDatePicker = true
-                            }
+                            .fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.primaryContainer
                     ) {
-                        Column {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
                             Text(
-                                text = viewModel.selectedDate.toMonth(),
-                                style = MaterialTheme.typography.titleLarge
+                                text = stringResource(id = R.string.current_appointment),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                             Text(
-                                text = viewModel.selectedDate.toYear(),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "DROP_DOWN_ICON")
-                    }
-                    Divider(
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        modifier = Modifier
-                            .padding(horizontal = 20.dp)
-                            .width(1.dp)
-                            .height(55.dp)
-                    )
-                    LazyRow(
-                        state = dateScrollState,
-                        modifier = Modifier.testTag("DAYS_TAB_ROW")
-                    ) {
-                        items(viewModel.weekList) { date ->
-                            SuggestionChip(
-                                onClick = {
-                                    viewModel.selectedDate = date
-                                    viewModel.selectedSlot = ""
-                                },
-                                label = {
-                                    Column(
-                                        modifier = Modifier.padding(vertical = 8.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = date.toWeekDay(),
-                                            style = MaterialTheme.typography.labelLarge
-                                        )
-                                        Text(
-                                            text = date.toSlotDate(),
-                                            style = MaterialTheme.typography.bodyLarge
-                                        )
-                                    }
-                                },
-                                modifier = Modifier
-                                    .padding(horizontal = 5.dp)
-                                    .testTag("DAYS_CHIP"),
-                                colors = SuggestionChipDefaults.suggestionChipColors(
-                                    containerColor = if (viewModel.selectedDate == date) MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.surface,
-                                    labelColor = if (viewModel.selectedDate == date) MaterialTheme.colorScheme.onPrimary
-                                    else MaterialTheme.colorScheme.outline
-                                ),
-                                border = SuggestionChipDefaults.suggestionChipBorder(
-                                    borderColor = Color.Transparent
-                                ),
-                                enabled = date < Date().toOneYearFuture()
+                                text = viewModel.appointment?.slot?.start?.toAppointmentDate()
+                                    ?: "",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                     }
                 }
-                Divider(
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
+                WeekDaysComposable(
+                    dateScrollState,
+                    viewModel.selectedDate,
+                    viewModel.weekList
+                ) { showDialog, date ->
+                    if (showDialog == true) viewModel.showDatePicker = true
+                    else {
+                        if (date != null) {
+                            viewModel.selectedDate = date
+                        }
+                        viewModel.selectedSlot = ""
+                    }
+                }
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
@@ -354,6 +312,7 @@ fun ScheduleAppointments(
                                     dateScrollState.scrollToItem(0)
                                 }
                                 viewModel.showDatePicker = false
+                                viewModel.selectedSlot = ""
                                 viewModel.selectedDate =
                                     datePickerState.selectedDateMillis?.let { dateInLong ->
                                         Date(
@@ -392,24 +351,48 @@ fun ScheduleAppointments(
             if (viewModel.selectedSlot.isNotBlank()) {
                 Button(
                     onClick = {
-                        viewModel.insertScheduleAndAppointment { appointmentCreated ->
-                            if (appointmentCreated == false) {
-                                composableScope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = context.getString(R.string.appointment_exists)
-                                    )
+                        if (viewModel.ifRescheduling) {
+                            viewModel.ifAnotherAppointmentExists { alreadyExists ->
+                                if (alreadyExists) {
+                                    composableScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = context.getString(
+                                                R.string.appointment_exists
+                                            )
+                                        )
+                                    }
+                                } else {
+                                    viewModel.rescheduleAppointment {
+                                        composableScope.launch {
+                                            navController.previousBackStackEntry?.savedStateHandle?.set(
+                                                NavControllerConstants.RESCHEDULED,
+                                                true
+                                            )
+                                            navController.popBackStack()
+                                        }
+                                    }
                                 }
-                            } else {
-                                composableScope.launch {
-                                    navController.popBackStack(
-                                        Screen.PatientLandingScreen.route,
-                                        false
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        SCHEDULED,
-                                        true
-                                    )
-                                    navController.navigate(Screen.Appointments.route)
+                            }
+                        } else {
+                            viewModel.insertScheduleAndAppointment { appointmentCreated ->
+                                if (appointmentCreated == false) {
+                                    composableScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = context.getString(R.string.appointment_exists)
+                                        )
+                                    }
+                                } else {
+                                    composableScope.launch {
+                                        navController.popBackStack(
+                                            Screen.PatientLandingScreen.route,
+                                            false
+                                        )
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            SCHEDULED,
+                                            true
+                                        )
+                                        navController.navigate(Screen.Appointments.route)
+                                    }
                                 }
                             }
                         }

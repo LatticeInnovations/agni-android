@@ -1,24 +1,31 @@
 package com.latticeonfhir.android.ui.patientregistration.step2
 
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.common.CustomTextField
+import com.latticeonfhir.android.ui.common.IdLength
+import com.latticeonfhir.android.ui.common.IdSelectionChip
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.theme.Neutral40
@@ -166,47 +173,4 @@ fun PatientRegistrationStepTwo(
             Text(text = "Next")
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun IdSelectionChip(idSelected: Boolean, label: String, updateSelection: (Boolean) -> Unit) {
-    FilterChip(
-        selected = idSelected,
-        onClick = {
-            updateSelection(idSelected)
-        },
-        label = { Text(text = label) },
-        colors = FilterChipDefaults.filterChipColors(
-            labelColor = MaterialTheme.colorScheme.outline,
-            selectedLabelColor = MaterialTheme.colorScheme.primary
-        ),
-        border = FilterChipDefaults.filterChipBorder(
-            selectedBorderColor = MaterialTheme.colorScheme.primary,
-            selectedBorderWidth = 1.dp
-        ),
-        leadingIcon = {
-            if (idSelected)
-                Icon(
-                    Icons.Default.Check,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.surfaceTint
-                )
-        },
-        modifier = Modifier.testTag("$label chip")
-    )
-}
-
-@Composable
-fun IdLength(idName: String, requiredLength: Int, tag: String) {
-    Text(
-        text = "${idName.length}/$requiredLength",
-        textAlign = TextAlign.Right,
-        style = MaterialTheme.typography.bodySmall,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 5.dp, end = 15.dp)
-            .testTag(tag),
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
 }

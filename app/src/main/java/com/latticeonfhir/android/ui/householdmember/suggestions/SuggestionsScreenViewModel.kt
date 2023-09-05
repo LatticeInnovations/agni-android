@@ -1,13 +1,11 @@
 package com.latticeonfhir.android.ui.householdmember.suggestions
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
@@ -30,61 +28,16 @@ class SuggestionsScreenViewModel @Inject constructor(
     private val relationRepository: RelationRepository,
     private val patientDao: PatientDao
 ) : BaseViewModel() {
-    var isLaunched by mutableStateOf(false)
     var loading by mutableStateOf(true)
-    var listOfSuggestions = mutableListOf<PatientResponse>()
-    var suggestedMembersList = mutableStateListOf<PatientResponse>()
     var membersList by mutableStateOf(listOf<PatientResponse>())
-
-    internal fun updateQueue(patient: PatientResponse) {
-        listOfSuggestions.remove(patient)
-        suggestedMembersList.clear()
-        if (listOfSuggestions.size > 5) {
-            suggestedMembersList.add(listOfSuggestions[0])
-            suggestedMembersList.add(listOfSuggestions[1])
-            suggestedMembersList.add(listOfSuggestions[2])
-            suggestedMembersList.add(listOfSuggestions[3])
-            suggestedMembersList.add(listOfSuggestions[4])
-        } else {
-            suggestedMembersList.addAll(listOfSuggestions)
-        }
-        membersList = suggestedMembersList
-    }
-
 
     internal fun getQueueItems(patient: PatientResponse) {
         viewModelScope.launch(Dispatchers.IO) {
-            searchRepository.getSuggestedMembers(
+            membersList = searchRepository.getFiveSuggestedMembers(
                 patient.id,
-                SearchParameters(
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    patient.permanentAddress.addressLine1,
-                    patient.permanentAddress.city,
-                    patient.permanentAddress.district,
-                    patient.permanentAddress.state,
-                    patient.permanentAddress.postalCode,
-                    patient.permanentAddress.addressLine2
-                )
-            ) {
-                listOfSuggestions = it
-                suggestedMembersList.clear()
-                if (listOfSuggestions.size > 5) {
-                    suggestedMembersList.add(listOfSuggestions[0])
-                    suggestedMembersList.add(listOfSuggestions[1])
-                    suggestedMembersList.add(listOfSuggestions[2])
-                    suggestedMembersList.add(listOfSuggestions[3])
-                    suggestedMembersList.add(listOfSuggestions[4])
-                } else {
-                    suggestedMembersList.addAll(listOfSuggestions)
-                }
-                membersList = suggestedMembersList
-                loading = false
-            }
+                patient.permanentAddress
+            )
+            loading = false
         }
     }
 
