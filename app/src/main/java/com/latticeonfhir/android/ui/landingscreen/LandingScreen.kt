@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.landingscreen
 
 import android.app.Activity
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
@@ -32,6 +33,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum.Companion.fromLabel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.fhirsdk.QuestionnaireActivity
 import com.latticeonfhir.android.ui.landingscreen.*
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
@@ -48,6 +50,7 @@ fun LandingScreen(
     viewModel: LandingScreenViewModel = hiltViewModel(),
     queueViewModel: QueueViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -270,7 +273,7 @@ fun LandingScreen(
                 if (viewModel.selectedIndex == 0) {
                     FloatingActionButton(
                         onClick = {
-                            navController.navigate(Screen.PatientRegistrationScreen.route)
+                            context.startActivity(Intent(context, QuestionnaireActivity::class.java))
                         },
                         content = {
                             Row(

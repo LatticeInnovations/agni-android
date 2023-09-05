@@ -29,6 +29,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_SELECTED
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.IF_RESCHEDULING
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 
@@ -119,7 +120,11 @@ fun UpcomingAppointmentCard(
                             APPOINTMENT_SELECTED,
                             viewModel.selectedAppointment
                         )
-                        navController.navigate(Screen.RescheduleAppointments.route)
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            IF_RESCHEDULING,
+                            true
+                        )
+                        navController.navigate(Screen.ScheduleAppointments.route)
                     }) {
                     Text(text = stringResource(id = R.string.reschedule))
                 }
