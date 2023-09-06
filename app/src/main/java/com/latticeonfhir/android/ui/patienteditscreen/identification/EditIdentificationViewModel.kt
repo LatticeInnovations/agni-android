@@ -265,15 +265,14 @@ class EditIdentificationViewModel @Inject constructor(
 
                     }
 
-                    genericRepository.insertOrUpdatePatchEntity(
+                    genericRepository.insertOrUpdatePatientPatchEntity(
                         patientFhirId = patientResponse.fhirId,
                         map = mapOf(
                             Pair(
                                 "identifier",
                                 list
                             )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
+                        )
                     )
 
                     Timber.tag("identifier").d(list.toJson())

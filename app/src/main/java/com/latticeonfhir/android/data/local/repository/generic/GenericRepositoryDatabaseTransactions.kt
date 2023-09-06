@@ -3,6 +3,7 @@ package com.latticeonfhir.android.data.local.repository.generic
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.AppointmentPatchRequest
+import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -13,6 +14,7 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.android.utils.builders.GenericEntity.processPatch
 import com.latticeonfhir.android.utils.constants.Id
 import com.latticeonfhir.android.utils.converters.responseconverter.FHIR.isFhirId
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
@@ -216,6 +218,65 @@ open class GenericRepositoryDatabaseTransactions(
                         mutableMap
                     }.toJson(),
                     type = GenericTypeEnum.APPOINTMENT,
+                    syncType = SyncType.PATCH
+                )
+            )[0]
+        }
+    }
+
+    private fun processPatientPatch(
+        mapEntry: Map.Entry<String, Any>,
+        existingMap: MutableMap<String, Any>
+    ) {
+        if (mapEntry.value is List<*>) {
+            /** Get Processed Data for List Change Request */
+            val processPatchData = processPatch(
+                existingMap,
+                mapEntry,
+                (mapEntry.value as List<ChangeRequest>)
+            )
+            /** Check for data is empty */
+            if (processPatchData.isNotEmpty()) {
+                existingMap[mapEntry.key] = processPatchData
+            } else {
+                /** If empty remove that key from map */
+                existingMap.remove(mapEntry.key)
+            }
+        } else {
+            processPatch(existingMap, mapEntry)
+        }
+    }
+
+    protected suspend fun insertPatientGenericEntityPatch(
+        patientGenericPatchEntity: GenericEntity?,
+        patientFhirId: String,
+        map: Map<String, Any>,
+        uuid: String
+    ): Long {
+        return if (patientGenericPatchEntity != null) {
+            /** Data with this record already present */
+            val existingMap = patientGenericPatchEntity.payload.fromJson<MutableMap<String, Any>>()
+            map.entries.forEach { mapEntry ->
+                processPatientPatch(mapEntry, existingMap)
+            }
+            /** It denotes only ID key is present in map */
+            if (existingMap.size == 1) {
+                genericDao.deleteSyncPayload(listOf(patientGenericPatchEntity.id)).toLong()
+            } else {
+                /** Insert Updated Map */
+                genericDao.insertGenericEntity(patientGenericPatchEntity.copy(payload = existingMap.toJson()))[0]
+            }
+        } else {
+            /** Insert Freshly Patch data */
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid,
+                    patientId = patientFhirId,
+                    payload = map.toMutableMap().let { mutableMap ->
+                        mutableMap[Id.ID] = patientFhirId
+                        mutableMap
+                    }.toJson(),
+                    type = GenericTypeEnum.PATIENT,
                     syncType = SyncType.PATCH
                 )
             )[0]
