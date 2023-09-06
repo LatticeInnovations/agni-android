@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.patienteditscreen
+package com.latticeonfhir.android.ui.patientprofile
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,7 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class EditPatientViewModel @Inject constructor(
+class PatientProfileViewModel @Inject constructor(
     private val patientRepository: PatientRepository
 ) : BaseViewModel() {
 

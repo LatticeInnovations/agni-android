@@ -2,7 +2,7 @@ package com.latticeonfhir.android.viewmodel.editpatient
 
 import com.latticeonfhir.android.base.BaseClass
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.ui.patienteditscreen.EditPatientViewModel
+import com.latticeonfhir.android.ui.patientprofile.PatientProfileViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -15,17 +15,17 @@ import org.mockito.MockitoAnnotations
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
-class EditPatientViewModelTest: BaseClass() {
+class PatientProfileViewModelTest: BaseClass() {
 
     @Mock
     private lateinit var patientRepository: PatientRepository
 
-    private lateinit var editPatientViewModel: EditPatientViewModel
+    private lateinit var patientProfileViewModel: PatientProfileViewModel
 
     @Before
     public override fun setUp() {
         MockitoAnnotations.openMocks(this)
-        editPatientViewModel = EditPatientViewModel(patientRepository)
+        patientProfileViewModel = PatientProfileViewModel(patientRepository)
     }
 
     @Test
@@ -35,7 +35,7 @@ class EditPatientViewModelTest: BaseClass() {
                 patientResponse
             )
         )
-        val result = editPatientViewModel.getPatientData(patientResponse.id)
+        val result = patientProfileViewModel.getPatientData(patientResponse.id)
         assertEquals(patientResponse, result)
     }
 }
