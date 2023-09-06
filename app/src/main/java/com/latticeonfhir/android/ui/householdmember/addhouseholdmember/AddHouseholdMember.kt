@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -29,6 +30,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -172,6 +174,7 @@ fun CardLayout(
     route: String,
     viewModel: AddHouseholdMemberViewModel
 ) {
+    val coroutineScope = rememberCoroutineScope()
     OutlinedCard(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         modifier = Modifier.testTag(btnText)
@@ -199,34 +202,38 @@ fun CardLayout(
             Button(
                 onClick = {
                     if (route == "register") {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "fromHouseholdMember",
-                            true
-                        )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "patient",
-                            patient
-                        )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "currentStep",
-                            1
-                        )
-                        navController.navigate(Screen.PatientRegistrationScreen.route)
+                        coroutineScope.launch {
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                "fromHouseholdMember",
+                                true
+                            )
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                "patient",
+                                patient
+                            )
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                "currentStep",
+                                1
+                            )
+                            navController.navigate(Screen.PatientRegistrationScreen.route)
+                        }
                     } else {
                         viewModel.selectedSuggestedMembersList.clear()
                         viewModel.getSuggestions(patient) {
                             if (viewModel.suggestedMembersList.isNotEmpty()) viewModel.showRelationDialogue =
                                 true
                             else {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "fromHouseholdMember",
-                                    true
-                                )
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "patient",
-                                    patient
-                                )
-                                navController.navigate(Screen.SearchPatientScreen.route)
+                                coroutineScope.launch {
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "fromHouseholdMember",
+                                        true
+                                    )
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "patient",
+                                        patient
+                                    )
+                                    navController.navigate(Screen.SearchPatientScreen.route)
+                                }
                             }
                         }
                     }
