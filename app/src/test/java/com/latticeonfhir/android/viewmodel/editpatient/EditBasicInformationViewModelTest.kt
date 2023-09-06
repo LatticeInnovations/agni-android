@@ -366,7 +366,7 @@ class EditBasicInformationViewModelTest : BaseClass() {
         `when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
 
         `when`(
-            genericRepository.insertOrUpdatePatchEntity(
+            genericRepository.insertOrUpdatePatientPatchEntity(
                 patientFhirId = patientResponse.fhirId!!,
                 map = mapOf(
                     Pair(
@@ -375,8 +375,7 @@ class EditBasicInformationViewModelTest : BaseClass() {
                             operation = ChangeTypeEnum.REPLACE.value
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.PATIENT
+                )
             )
         ).thenReturn(1)
 

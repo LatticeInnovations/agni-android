@@ -2,8 +2,6 @@ package com.latticeonfhir.android.data.local.repository.generic
 
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
-import com.latticeonfhir.android.data.local.model.patch.AppointmentPatchRequest
-import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -14,13 +12,6 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.utils.builders.GenericEntity.processPatch
-import com.latticeonfhir.android.utils.constants.Id
-import com.latticeonfhir.android.utils.constants.Id.APPOINTMENT_ID
-import com.latticeonfhir.android.utils.constants.Id.ID
-import com.latticeonfhir.android.utils.converters.responseconverter.FHIR.isFhirId
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import javax.inject.Inject
 
@@ -31,13 +22,13 @@ import javax.inject.Inject
  * Do not pass uuid from anywhere else it will automatically generate here.
  *
  */
-@Suppress("UNCHECKED_CAST")
 class GenericRepositoryImpl @Inject constructor(
     private val genericDao: GenericDao,
     patientDao: PatientDao,
     scheduleDao: ScheduleDao,
     appointmentDao: AppointmentDao
-) : GenericRepository, GenericRepositoryDatabaseTransactions(genericDao,patientDao, scheduleDao, appointmentDao) {
+) : GenericRepository,
+    GenericRepositoryDatabaseTransactions(genericDao, patientDao, scheduleDao, appointmentDao) {
 
     override suspend fun insertPatient(patientResponse: PatientResponse, uuid: String): Long {
         return genericDao.getGenericEntityById(
@@ -59,7 +50,12 @@ class GenericRepositoryImpl @Inject constructor(
             genericTypeEnum = GenericTypeEnum.RELATION,
             syncType = SyncType.POST
         ).let { relationGenericEntity ->
-            insertRelationGenericEntity(relationGenericEntity, relatedPersonResponse, uuid, patientId)
+            insertRelationGenericEntity(
+                relationGenericEntity,
+                relatedPersonResponse,
+                uuid,
+                patientId
+            )
         }
     }
 
@@ -85,9 +81,10 @@ class GenericRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updatePrescriptionFhirId() {
-        genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION).forEach { prescriptionGenericEntity ->
-            updatePrescriptionFhirIdInGenericEntity(prescriptionGenericEntity)
-        }
+        genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION)
+            .forEach { prescriptionGenericEntity ->
+                updatePrescriptionFhirIdInGenericEntity(prescriptionGenericEntity)
+            }
     }
 
     override suspend fun insertSchedule(scheduleResponse: ScheduleResponse, uuid: String): Long {
@@ -101,15 +98,17 @@ class GenericRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateAppointmentFhirIds() {
-        genericDao.getNotSyncedData(GenericTypeEnum.APPOINTMENT).forEach { appointmentGenericEntity ->
-            updateAppointmentFhirIdInGenericEntity(appointmentGenericEntity)
-        }
+        genericDao.getNotSyncedData(GenericTypeEnum.APPOINTMENT)
+            .forEach { appointmentGenericEntity ->
+                updateAppointmentFhirIdInGenericEntity(appointmentGenericEntity)
+            }
     }
 
     override suspend fun updateAppointmentFhirIdInPatch() {
-        genericDao.getNotSyncedData(GenericTypeEnum.APPOINTMENT, SyncType.PATCH).forEach { appointmentGenericEntity ->
-            updateAppointmentFhirIdInGenericEntityPatch(appointmentGenericEntity)
-        }
+        genericDao.getNotSyncedData(GenericTypeEnum.APPOINTMENT, SyncType.PATCH)
+            .forEach { appointmentGenericEntity ->
+                updateAppointmentFhirIdInGenericEntityPatch(appointmentGenericEntity)
+            }
     }
 
     override suspend fun insertAppointment(
@@ -125,104 +124,18 @@ class GenericRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun insertOrUpdatePatchEntity(
-        patientFhirId: String,
-        map: Map<String, Any>,
-        typeEnum: GenericTypeEnum,
-        uuid: String
-    ): Long {
-        return genericDao.getGenericEntityById(patientFhirId, typeEnum, SyncType.PATCH).run {
-            if (this != null) {
-                /** Data with this record already present */
-                val existingMap = payload.fromJson<MutableMap<String, Any>>()
-                if (existingMap[ID] == null) {
-                    existingMap[ID] = patientFhirId
-                }
-                map.entries.forEach { mapEntry ->
-                    if ((mapEntry.value is List<*>)) {
-                        /** Get Processed Data for List Change Request */
-                        val processPatchData = processPatch(
-                            existingMap,
-                            mapEntry,
-                            (mapEntry.value as List<ChangeRequest>)
-                        )
-
-                        /** Check for data is empty */
-                        if (processPatchData.isNotEmpty()) {
-                            existingMap[mapEntry.key] = processPatchData
-                        } else {
-                            /** If empty remove that key from map */
-                            existingMap.remove(mapEntry.key)
-                        }
-                    } else {
-                        processPatch(existingMap, mapEntry)
-                    }
-                }
-                /** It denotes only ID key is present in map */
-                if (existingMap.size == 1) {
-                    genericDao.deleteSyncPayload(listOf(id)).toLong()
-                } else {
-                    /** Insert Updated Map */
-                    genericDao.insertGenericEntity(
-                        copy(payload = existingMap.toJson())
-                    )[0]
-                }
-            } else {
-                /** Insert Freshly Patch data */
-                genericDao.insertGenericEntity(
-                    GenericEntity(
-                        id = uuid,
-                        patientId = patientFhirId,
-                        payload = map.toMutableMap().let { mutableMap ->
-                            mutableMap[ID] = patientFhirId
-                            mutableMap
-                        }.toJson(),
-                        type = typeEnum,
-                        syncType = SyncType.PATCH
-                    )
-                )[0]
-            }
-        }
-    }
-
-    override suspend fun insertOrUpdatePatientPatch(
+    override suspend fun insertOrUpdatePatientPatchEntity(
         patientFhirId: String,
         map: Map<String, Any>,
         uuid: String
     ): Long {
-        return genericDao.getGenericEntityById(patientFhirId,GenericTypeEnum.PATIENT,SyncType.PATCH).run {
-            if(this != null) {
-                map.entries.forEach { entry ->
-                    if(entry.value is List<*>) {
-
-                    } else {
-
-                    }
-                }
-                0
-            } else {
-                genericDao.insertGenericEntity(
-                    GenericEntity(
-                        id = uuid,
-                        patientId = patientFhirId,
-                        payload = map.toMutableMap().let { mutableMap ->
-                            mutableMap[ID] = patientFhirId
-                            mutableMap
-                        }.toJson(),
-                        type = GenericTypeEnum.PATIENT,
-                        syncType = SyncType.PATCH
-                    )
-                )[0]
-            }
+        return genericDao.getGenericEntityById(
+            patientId = patientFhirId,
+            genericTypeEnum = GenericTypeEnum.PATIENT,
+            syncType = SyncType.PATCH
+        ).let { patientPatchGenericEntity ->
+            insertPatientGenericEntityPatch(patientPatchGenericEntity, patientFhirId, map, uuid)
         }
-    }
-
-    override suspend fun insertOrUpdateRelationPatch(
-        patientId: String,
-        map: Map<String, Any>,
-        uuid: String
-    ): Long {
-        TODO("Not yet implemented")
     }
 
     override suspend fun insertOrUpdateAppointmentPatch(
@@ -235,7 +148,12 @@ class GenericRepositoryImpl @Inject constructor(
             GenericTypeEnum.APPOINTMENT,
             SyncType.PATCH
         ).let { appointmentGenericEntity ->
-            insertOrUpdateAppointmentGenericEntityPatch(appointmentGenericEntity, map, appointmentFhirId, uuid)
+            insertOrUpdateAppointmentGenericEntityPatch(
+                appointmentGenericEntity,
+                map,
+                appointmentFhirId,
+                uuid
+            )
         }
     }
 }
