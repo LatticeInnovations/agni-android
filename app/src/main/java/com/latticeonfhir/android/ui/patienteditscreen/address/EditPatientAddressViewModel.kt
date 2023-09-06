@@ -123,7 +123,7 @@ class EditPatientAddressViewModel @Inject constructor(
         tempValue: String
     ) {
         if (value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatchEntity(
+            genericRepository.insertOrUpdatePatientPatchEntity(
                 patientFhirId = patientResponse.fhirId!!,
                 map = mapOf(
                     Pair(
@@ -132,11 +132,10 @@ class EditPatientAddressViewModel @Inject constructor(
                             operation = ChangeTypeEnum.REPLACE.value
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.PATIENT
+                )
             )
         } else if (value != tempValue && tempValue.isNotEmpty() && value.isEmpty()) {
-            genericRepository.insertOrUpdatePatchEntity(
+            genericRepository.insertOrUpdatePatientPatchEntity(
                 patientFhirId = patientResponse.fhirId!!,
                 map = mapOf(
                     Pair(
@@ -145,12 +144,11 @@ class EditPatientAddressViewModel @Inject constructor(
                             operation = ChangeTypeEnum.REPLACE.value
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.PATIENT
+                )
             )
 
         } else if (value != tempValue && tempValue.isEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatchEntity(
+            genericRepository.insertOrUpdatePatientPatchEntity(
                 patientFhirId = patientResponse.fhirId!!,
                 map = mapOf(
                     Pair(
@@ -159,8 +157,7 @@ class EditPatientAddressViewModel @Inject constructor(
                             operation = ChangeTypeEnum.ADD.value
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.PATIENT
+                )
             )
 
         }
