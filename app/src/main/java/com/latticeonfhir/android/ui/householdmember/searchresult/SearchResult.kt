@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
@@ -39,6 +40,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
@@ -83,17 +85,42 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
         content = {
             Box(modifier = Modifier.padding(it)) {
                 val patientsList = viewModel.searchResultList.collectAsLazyPagingItems()
-                LazyColumn(modifier = Modifier.padding(20.dp)) {
+                LazyColumn(
+                    modifier = Modifier.padding(
+                        top = 20.dp,
+                        start = 20.dp,
+                        end = 20.dp,
+                        bottom = if (viewModel.selectedMembersList.isNotEmpty()) 60.dp else 20.dp
+                    )
+                ) {
                     items(
                         count = patientsList.itemCount,
                         key = patientsList.itemKey(),
                         contentType = patientsList.itemContentType(
                         )
                     ) { index ->
-                        val item = patientsList[index]
-                        if (item != null) {
-                            SearchResultRow(item, viewModel)
+                        SearchResultRow(patientsList[index]!!, viewModel)
+                    }
+                    when (patientsList.loadState.append) {
+                        is LoadState.NotLoading -> Unit
+                        LoadState.Loading -> {
+                            item {
+                                Loader()
+                            }
                         }
+
+                        is LoadState.Error -> Unit
+                    }
+
+                    when (patientsList.loadState.refresh) {
+                        is LoadState.NotLoading -> Unit
+                        LoadState.Loading -> {
+                            item {
+                                Loader()
+                            }
+                        }
+
+                        is LoadState.Error -> Unit
                     }
                 }
             }
