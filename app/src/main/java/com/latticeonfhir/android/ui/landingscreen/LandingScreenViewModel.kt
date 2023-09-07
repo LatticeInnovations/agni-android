@@ -44,8 +44,8 @@ class LandingScreenViewModel @Inject constructor(
     private val preferenceRepository: PreferenceRepository
 ) : BaseAndroidViewModel(application) {
 
-    private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).getWorkRequestBuilder() }
-    private val syncService: SyncService by lazy { (application as FhirApp).getSyncService() }
+    private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
+    private val syncService: SyncService by lazy { (application as FhirApp).syncService }
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)
