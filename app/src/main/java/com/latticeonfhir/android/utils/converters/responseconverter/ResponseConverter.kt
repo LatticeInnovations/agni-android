@@ -4,7 +4,6 @@ import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
@@ -236,7 +235,11 @@ internal suspend fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(m
             medFhirId = medication.medFhirId,
             qtyPerDose = medication.qtyPerDose,
             frequency = medication.frequency,
-            timing = medication.timing?.let { timing -> medicationDao.getMedicalDosageByMedicalDosageId(timing) } ,
+            timing = medication.timing?.let { timing ->
+                medicationDao.getMedicalDosageByMedicalDosageId(
+                    timing
+                )
+            },
             duration = medication.duration,
             qtyPrescribed = medication.qtyPrescribed,
             note = medication.note,

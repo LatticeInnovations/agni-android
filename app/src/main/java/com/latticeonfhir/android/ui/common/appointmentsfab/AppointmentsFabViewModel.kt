@@ -11,7 +11,6 @@ import com.latticeonfhir.android.data.local.model.appointment.AppointmentRespons
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -45,7 +44,7 @@ class AppointmentsFabViewModel @Inject constructor(
     var ifAlreadyWaiting by mutableStateOf(false)
     var ifAllSlotsBooked by mutableStateOf(false)
 
-    internal fun initialize(patientId: String){
+    internal fun initialize(patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             appointmentRepository.getAppointmentsOfPatientByDate(
                 patientId,
@@ -179,7 +178,11 @@ class AppointmentsFabViewModel @Inject constructor(
         }
     }
 
-    internal fun updateStatusToArrived(patient: PatientResponse, appointment: AppointmentResponseLocal, updated: (Int) -> Unit) {
+    internal fun updateStatusToArrived(
+        patient: PatientResponse,
+        appointment: AppointmentResponseLocal,
+        updated: (Int) -> Unit
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             updated(
                 appointmentRepository.updateAppointment(

@@ -112,7 +112,7 @@ fun ConfirmRelationship(
                 ConfirmRelationshipScreen(context, navController, viewModel)
                 if (viewModel.discardAllRelationDialog) {
                     DiscardAllRelationDialog { discard ->
-                        if (discard){
+                        if (discard) {
                             viewModel.discardRelations()
                             navController.popBackStack(
                                 Screen.HouseholdMembersScreen.route,
