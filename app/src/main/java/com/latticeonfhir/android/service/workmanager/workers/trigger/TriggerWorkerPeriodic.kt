@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 abstract class TriggerWorkerPeriodic(context: Context, workerParameters: WorkerParameters) :
     SyncWorker(context, workerParameters) {
     override suspend fun doWork(): Result {
-        (applicationContext as FhirApp).getSyncService()
+        (applicationContext as FhirApp).syncService
             .syncLauncher { errorReceived, errorMessage ->
                 CoroutineScope(Dispatchers.Main).launch {
                     (applicationContext as FhirApp).sessionExpireFlow.postValue(
