@@ -233,7 +233,7 @@ open class GenericRepositoryDatabaseTransactions(
             val processPatchData = processPatch(
                 existingMap,
                 mapEntry,
-                (mapEntry.value as List<ChangeRequest>)
+                ((mapEntry.value as List<*>).filterIsInstance<ChangeRequest>())
             )
             /** Check for data is empty */
             if (processPatchData.isNotEmpty()) {
