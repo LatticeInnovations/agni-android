@@ -18,15 +18,16 @@ import com.latticeonfhir.android.utils.constants.IdentificationConstants.PASSPOR
 import com.latticeonfhir.android.utils.constants.IdentificationConstants.PATIENT_ID_TYPE
 import com.latticeonfhir.android.utils.constants.IdentificationConstants.VOTER_ID_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientProfile(
     navController: NavController,
+    ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     viewModel: PatientProfileViewModel = hiltViewModel()
 ) {
     viewModel.id =
@@ -36,9 +37,8 @@ fun PatientProfile(
     viewModel.isProfileUpdated =
         navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("isProfileUpdated") == true
 
-
     LaunchedEffect(viewModel.isProfileUpdated) {
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             if (viewModel.id == "null") viewModel.id = viewModel.patientResponse!!.id
             viewModel.patientResponse = viewModel.getPatientData(viewModel.id)
             viewModel.patientResponse?.run {
@@ -67,9 +67,6 @@ fun PatientProfile(
                         PATIENT_ID_TYPE -> {
                             viewModel.patientId = identity.identifierNumber
                         }
-
-                        else -> {}
-
                     }
                 }
 
@@ -120,27 +117,7 @@ fun PatientProfile(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                if (viewModel.patientResponse != null) {
-
-                    PreviewScreen(viewModel.patientResponse!!) { step ->
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "isEditing",
-                            true
-                        )
-
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "patient_details",
-                            viewModel.patientResponse
-                        )
-                        when (step) {
-                            1 -> navController.navigate(Screen.EditBasicInfo.route)
-                            2 -> navController.navigate(Screen.EditIdentification.route)
-                            3 -> navController.navigate(Screen.EditAddress.route)
-                        }
-                    }
-                } else {
-                    Timber.d("PatientResponse is empty")
-                }
+                PatientProfileScreen(viewModel, navController)
 
                 if (viewModel.isProfileUpdated) {
                     LaunchedEffect(true) {
@@ -151,4 +128,29 @@ fun PatientProfile(
             }
         }
     )
+}
+
+@Composable
+fun PatientProfileScreen(
+    viewModel: PatientProfileViewModel,
+    navController: NavController
+) {
+    if (viewModel.patientResponse != null) {
+        PreviewScreen(viewModel.patientResponse!!) { step ->
+            navController.currentBackStackEntry?.savedStateHandle?.set(
+                "isEditing",
+                true
+            )
+
+            navController.currentBackStackEntry?.savedStateHandle?.set(
+                "patient_details",
+                viewModel.patientResponse
+            )
+            when (step) {
+                1 -> navController.navigate(Screen.EditBasicInfo.route)
+                2 -> navController.navigate(Screen.EditIdentification.route)
+                3 -> navController.navigate(Screen.EditAddress.route)
+            }
+        }
+    }
 }

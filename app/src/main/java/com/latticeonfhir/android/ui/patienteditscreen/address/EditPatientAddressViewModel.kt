@@ -70,46 +70,43 @@ class EditPatientAddressViewModel @Inject constructor(
     fun updateBasicInfo(patientResponse: PatientResponse) {
         viewModelScope.launch(Dispatchers.IO) {
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
-            if (response > 0) {
-                if (checkIsEdit()) {
-                    if (patientResponse.fhirId != null) {
+            if (checkIsEdit() && response > 0) {
+                if (patientResponse.fhirId != null) {
+                    checkIsValueChange(
+                        patientResponse,
+                        homeAddress.pincode,
+                        homeAddressTemp.pincode
+                    )
+                    checkIsValueChange(
+                        patientResponse,
+                        homeAddress.addressLine1,
+                        homeAddressTemp.addressLine1
+                    )
+                    checkIsValueChange(
+                        patientResponse,
+                        homeAddress.addressLine2,
+                        homeAddressTemp.addressLine2
+                    )
+                    checkIsValueChange(
+                        patientResponse,
+                        homeAddress.state,
+                        homeAddressTemp.state
+                    )
+                    checkIsValueChange(
+                        patientResponse,
+                        homeAddress.city,
+                        homeAddressTemp.city
+                    )
+                    checkIsValueChange(
+                        patientResponse,
+                        homeAddress.district,
+                        homeAddressTemp.district
+                    )
 
-                        checkIsValueChange(
-                            patientResponse,
-                            homeAddress.pincode,
-                            homeAddressTemp.pincode
-                        )
-                        checkIsValueChange(
-                            patientResponse,
-                            homeAddress.addressLine1,
-                            homeAddressTemp.addressLine1
-                        )
-                        checkIsValueChange(
-                            patientResponse,
-                            homeAddress.addressLine2,
-                            homeAddressTemp.addressLine2
-                        )
-                        checkIsValueChange(
-                            patientResponse,
-                            homeAddress.state,
-                            homeAddressTemp.state
-                        )
-                        checkIsValueChange(
-                            patientResponse,
-                            homeAddress.city,
-                            homeAddressTemp.city
-                        )
-                        checkIsValueChange(
-                            patientResponse,
-                            homeAddress.district,
-                            homeAddressTemp.district
-                        )
-
-                    } else {
-                        genericRepository.insertPatient(
-                            patientResponse
-                        )
-                    }
+                } else {
+                    genericRepository.insertPatient(
+                        patientResponse
+                    )
                 }
             }
         }
