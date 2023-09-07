@@ -9,7 +9,6 @@ import com.latticeonfhir.android.data.local.model.pagination.PaginationResponse
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
@@ -33,15 +32,14 @@ class SearchRepositoryImpl @Inject constructor(
     @Volatile
     private var searchPatientList: List<PatientAndIdentifierEntity>? = null
 
-    @Volatile
-    private var searchMedicationList: List<MedicationEntity>? = null
-
-    private suspend fun getSearchList(): List<PatientAndIdentifierEntity> {
+    override suspend fun getSearchList(): List<PatientAndIdentifierEntity> {
         return searchPatientList ?: searchDao.getPatientList().also { searchPatientList = it }
     }
 
-    override suspend fun searchPatients(searchParameters: SearchParameters): Flow<PagingData<PaginationResponse<PatientResponse>>> {
-        val searchList = getSearchList()
+    override fun searchPatients(
+        searchParameters: SearchParameters,
+        searchList: List<PatientAndIdentifierEntity>
+    ): Flow<PagingData<PaginationResponse<PatientResponse>>> {
         val fuzzySearchList = getFuzzySearchList(
             searchList,
             searchParameters,
@@ -68,13 +66,12 @@ class SearchRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun filteredSearchPatients(
-        patientId: String, searchParameters: SearchParameters
+    override fun filteredSearchPatients(
+        patientId: String,
+        searchParameters: SearchParameters,
+        searchList: List<PatientAndIdentifierEntity>,
+        existingMembers: Set<String>
     ): Flow<PagingData<PaginationResponse<PatientResponse>>> {
-        val searchList = getSearchList()
-        val existingMembers =
-            relationDao.getAllRelationOfPatient(patientId).map { it.toId }.toMutableSet()
-                .apply { add(patientId) }
         val fuzzySearchList = getFuzzySearchList(
             searchList,
             searchParameters,
@@ -103,7 +100,10 @@ class SearchRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun searchPatientByQuery(query: String): Flow<PagingData<PaginationResponse<PatientResponse>>> {
+    override fun searchPatientByQuery(
+        query: String,
+        searchList: List<PatientAndIdentifierEntity>
+    ): Flow<PagingData<PaginationResponse<PatientResponse>>> {
         return if (query.contains("[0-9]".toRegex())) {
             searchPatients(
                 SearchParameters(
@@ -119,7 +119,8 @@ class SearchRepositoryImpl @Inject constructor(
                     null,
                     null,
                     null
-                )
+                ),
+                searchList
             )
         } else {
             searchPatients(
@@ -136,7 +137,8 @@ class SearchRepositoryImpl @Inject constructor(
                     null,
                     null,
                     null
-                )
+                ),
+                searchList
             )
         }
     }
