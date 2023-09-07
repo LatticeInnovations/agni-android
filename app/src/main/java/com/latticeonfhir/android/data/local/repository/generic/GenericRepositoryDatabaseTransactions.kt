@@ -14,7 +14,7 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.utils.builders.GenericEntity.processPatch
+import com.latticeonfhir.android.utils.builders.GenericEntityPatchBuilder.processPatch
 import com.latticeonfhir.android.utils.constants.Id
 import com.latticeonfhir.android.utils.converters.responseconverter.FHIR.isFhirId
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
