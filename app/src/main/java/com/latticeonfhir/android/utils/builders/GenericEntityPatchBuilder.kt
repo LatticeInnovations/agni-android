@@ -176,7 +176,8 @@ object GenericEntityPatchBuilder {
         if (alreadyExistChangeRequest.operation != ChangeTypeEnum.ADD.value) {
             existingMap[mapEntry.key] = mapEntry.value
         } else {
-            existingMap[mapEntry.key] = alreadyExistChangeRequest.copy(value = (mapEntry.value as ChangeRequest).value)
+            existingMap[mapEntry.key] =
+                alreadyExistChangeRequest.copy(value = (mapEntry.value as ChangeRequest).value)
         }
     }
 

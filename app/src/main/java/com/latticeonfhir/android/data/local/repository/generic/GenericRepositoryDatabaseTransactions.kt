@@ -83,7 +83,8 @@ open class GenericRepositoryDatabaseTransactions(
     }
 
     protected suspend fun updateRelationFhirIdInGenericEntity(relationGenericEntity: GenericEntity) {
-        val existingMap = relationGenericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(RelatedPersonResponse::class.java)
+        val existingMap = relationGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+            .mapToObject(RelatedPersonResponse::class.java)
         if (existingMap != null) {
             genericDao.insertGenericEntity(
                 relationGenericEntity.copy(
@@ -124,7 +125,11 @@ open class GenericRepositoryDatabaseTransactions(
         }
     }
 
-    protected suspend fun insertScheduleGenericEntity(scheduleGenericEntity: GenericEntity?, scheduleResponse: ScheduleResponse, uuid: String): Long {
+    protected suspend fun insertScheduleGenericEntity(
+        scheduleGenericEntity: GenericEntity?,
+        scheduleResponse: ScheduleResponse,
+        uuid: String
+    ): Long {
         return if (scheduleGenericEntity != null) {
             genericDao.insertGenericEntity(
                 scheduleGenericEntity.copy(payload = scheduleResponse.toJson())
@@ -142,7 +147,11 @@ open class GenericRepositoryDatabaseTransactions(
         }
     }
 
-    protected suspend fun insertAppointmentGenericEntity(appointmentGenericEntity: GenericEntity?, appointmentResponse: AppointmentResponse, uuid: String): Long {
+    protected suspend fun insertAppointmentGenericEntity(
+        appointmentGenericEntity: GenericEntity?,
+        appointmentResponse: AppointmentResponse,
+        uuid: String
+    ): Long {
         return if (appointmentGenericEntity != null) {
             genericDao.insertGenericEntity(
                 appointmentGenericEntity.copy(payload = appointmentResponse.toJson())
@@ -161,7 +170,8 @@ open class GenericRepositoryDatabaseTransactions(
     }
 
     protected suspend fun updateAppointmentFhirIdInGenericEntity(appointmentGenericEntity: GenericEntity) {
-        val existingMap = appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(AppointmentResponse::class.java)
+        val existingMap = appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+            .mapToObject(AppointmentResponse::class.java)
         if (existingMap != null) {
             genericDao.insertGenericEntity(
                 appointmentGenericEntity.copy(
@@ -179,7 +189,8 @@ open class GenericRepositoryDatabaseTransactions(
     }
 
     protected suspend fun updateAppointmentFhirIdInGenericEntityPatch(appointmentGenericEntity: GenericEntity) {
-        val existingMap = appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>().mapToObject(AppointmentPatchRequest::class.java)
+        val existingMap = appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+            .mapToObject(AppointmentPatchRequest::class.java)
         if (existingMap?.scheduleId != null && !(existingMap.scheduleId.value as String).isFhirId()) {
             genericDao.insertGenericEntity(
                 appointmentGenericEntity.copy(
@@ -193,7 +204,12 @@ open class GenericRepositoryDatabaseTransactions(
         }
     }
 
-    protected suspend fun insertOrUpdateAppointmentGenericEntityPatch(appointmentGenericEntity: GenericEntity?, map: Map<String, Any>, appointmentFhirId: String, uuid: String): Long {
+    protected suspend fun insertOrUpdateAppointmentGenericEntityPatch(
+        appointmentGenericEntity: GenericEntity?,
+        map: Map<String, Any>,
+        appointmentFhirId: String,
+        uuid: String
+    ): Long {
         return if (appointmentGenericEntity != null) {
             val existingMap = appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
             map.entries.forEach { mapEntry ->

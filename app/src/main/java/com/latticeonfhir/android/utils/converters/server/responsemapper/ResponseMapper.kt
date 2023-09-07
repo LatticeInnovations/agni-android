@@ -36,7 +36,10 @@ sealed class ResponseMapper<out T> {
             }
         }
 
-        private fun <T> mapData(response: Response<BaseResponse<T>>, paginated: Boolean): ResponseMapper<T> {
+        private fun <T> mapData(
+            response: Response<BaseResponse<T>>,
+            paginated: Boolean
+        ): ResponseMapper<T> {
             return if (response.body()?.status != 0) {
                 if (response.body()?.data == null) {
                     ApiEmptyResponse()
@@ -45,7 +48,10 @@ sealed class ResponseMapper<out T> {
                         paginated && response.body()?.status == 1 -> ApiContinueResponse(body = response.body()?.data!!)
                         paginated && response.body()?.status == 2 -> ApiEndResponse(body = response.body()?.data!!)
                         !paginated && response.body()?.status == 1 -> ApiEndResponse(body = response.body()?.data!!)
-                        else -> ApiErrorResponse(response.body()?.status ?: 0, response.body()?.message ?: SERVER_ERROR)
+                        else -> ApiErrorResponse(
+                            response.body()?.status ?: 0,
+                            response.body()?.message ?: SERVER_ERROR
+                        )
                     }
                 }
             } else {

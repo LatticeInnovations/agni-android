@@ -13,14 +13,21 @@ import java.util.LinkedList
 interface SearchRepository {
 
     /** Patient Search */
-    fun searchPatients(searchParameters: SearchParameters, searchList: List<PatientAndIdentifierEntity>): Flow<PagingData<PaginationResponse<PatientResponse>>>
+    fun searchPatients(
+        searchParameters: SearchParameters,
+        searchList: List<PatientAndIdentifierEntity>
+    ): Flow<PagingData<PaginationResponse<PatientResponse>>>
+
     fun filteredSearchPatients(
         patientId: String,
         searchParameters: SearchParameters, searchList: List<PatientAndIdentifierEntity>,
         existingMembers: Set<String>
     ): Flow<PagingData<PaginationResponse<PatientResponse>>>
 
-    fun searchPatientByQuery(query: String, searchList: List<PatientAndIdentifierEntity>): Flow<PagingData<PaginationResponse<PatientResponse>>>
+    fun searchPatientByQuery(
+        query: String,
+        searchList: List<PatientAndIdentifierEntity>
+    ): Flow<PagingData<PaginationResponse<PatientResponse>>>
 
     /** Medication Search */
     suspend fun searchActiveIngredients(activeIngredient: String): List<String>

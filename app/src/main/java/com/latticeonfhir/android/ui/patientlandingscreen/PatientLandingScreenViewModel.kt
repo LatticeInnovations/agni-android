@@ -43,16 +43,17 @@ class PatientLandingScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            Sync.getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext).collectLatest { workInfo ->
-                if (workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
-                    syncService.syncLauncher { isErrorReceived, errorMsg ->
-                        if (isErrorReceived) {
-                            logoutUser = true
-                            logoutReason = errorMsg
+            Sync.getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext)
+                .collectLatest { workInfo ->
+                    if (workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
+                        syncService.syncLauncher { isErrorReceived, errorMsg ->
+                            if (isErrorReceived) {
+                                logoutUser = true
+                                logoutReason = errorMsg
+                            }
                         }
                     }
                 }
-            }
         }
     }
 

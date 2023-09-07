@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
@@ -17,20 +16,48 @@ import com.latticeonfhir.android.utils.builders.UUIDBuilder
  */
 interface GenericRepository {
 
-    suspend fun insertPatient(patientResponse: PatientResponse, uuid: String = UUIDBuilder.generateUUID()): Long
+    suspend fun insertPatient(
+        patientResponse: PatientResponse,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
 
-    suspend fun insertRelation(patientId: String, relatedPersonResponse: RelatedPersonResponse, uuid: String = UUIDBuilder.generateUUID()): Long
+    suspend fun insertRelation(
+        patientId: String,
+        relatedPersonResponse: RelatedPersonResponse,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
     suspend fun updateRelationFhirId()
 
-    suspend fun insertPrescription(prescriptionResponse: PrescriptionResponse, uuid: String = UUIDBuilder.generateUUID()): Long
+    suspend fun insertPrescription(
+        prescriptionResponse: PrescriptionResponse,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
     suspend fun updatePrescriptionFhirId()
 
-    suspend fun insertSchedule(scheduleResponse: ScheduleResponse, uuid: String = UUIDBuilder.generateUUID()): Long
+    suspend fun insertSchedule(
+        scheduleResponse: ScheduleResponse,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
 
-    suspend fun insertAppointment(appointmentResponse: AppointmentResponse, uuid: String = UUIDBuilder.generateUUID()): Long
+    suspend fun insertAppointment(
+        appointmentResponse: AppointmentResponse,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
     suspend fun updateAppointmentFhirIds()
     suspend fun updateAppointmentFhirIdInPatch()
 
-    suspend fun insertOrUpdatePatientPatchEntity(patientFhirId: String, map: Map<String, Any>, uuid: String = UUIDBuilder.generateUUID()): Long
-    suspend fun insertOrUpdateAppointmentPatch(appointmentFhirId: String, map: Map<String, Any>, uuid: String = UUIDBuilder.generateUUID()): Long
+    suspend fun insertOrUpdatePatientPatchEntity(
+        patientFhirId: String,
+        map: Map<String, Any>,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
+    suspend fun insertOrUpdateAppointmentPatch(
+        appointmentFhirId: String,
+        map: Map<String, Any>,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
 }

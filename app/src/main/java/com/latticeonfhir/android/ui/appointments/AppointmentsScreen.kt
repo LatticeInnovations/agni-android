@@ -200,8 +200,7 @@ fun AppointmentsScreen(
                     ) { showDialog ->
                         if (showDialog) {
                             viewModel.showAllSlotsBookedDialog = true
-                        }
-                        else viewModel.isFabSelected = !viewModel.isFabSelected
+                        } else viewModel.isFabSelected = !viewModel.isFabSelected
                     }
                 }
             }

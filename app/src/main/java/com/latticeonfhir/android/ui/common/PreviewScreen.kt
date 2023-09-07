@@ -99,25 +99,25 @@ fun PreviewScreen(
                     .fillMaxWidth()
             ) {
 
-                Heading("Identification", 2){ step ->
+                Heading("Identification", 2) { step ->
                     navigate(step)
                 }
                 patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == IdentificationConstants.PASSPORT_TYPE){
+                    if (identifier.identifierType == IdentificationConstants.PASSPORT_TYPE) {
                         Spacer(modifier = Modifier.height(10.dp))
                         Label("Passport ID")
                         Detail(identifier.identifierNumber, "PASSPORT_ID_TAG")
                     }
                 }
                 patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == IdentificationConstants.VOTER_ID_TYPE){
+                    if (identifier.identifierType == IdentificationConstants.VOTER_ID_TYPE) {
                         Spacer(modifier = Modifier.height(10.dp))
                         Label("Voter ID")
                         Detail(identifier.identifierNumber, "VOTER_ID_TAG")
                     }
                 }
                 patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == IdentificationConstants.PATIENT_ID_TYPE){
+                    if (identifier.identifierType == IdentificationConstants.PATIENT_ID_TYPE) {
                         Spacer(modifier = Modifier.height(10.dp))
                         Label("Patient ID")
                         Detail(identifier.identifierNumber, "PATIENT_ID_TAG")
@@ -145,7 +145,7 @@ fun PreviewScreen(
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
-                Heading("Addresses", 3){ step ->
+                Heading("Addresses", 3) { step ->
                     navigate(step)
                 }
                 Spacer(modifier = Modifier.height(10.dp))

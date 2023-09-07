@@ -173,7 +173,7 @@ fun ConnectPatient(
                 }
                 if (viewModel.discardAllRelationDialog) {
                     DiscardAllRelationDialog { discard ->
-                        if (discard){
+                        if (discard) {
                             viewModel.discardRelations()
                             navController.popBackStack()
                         }

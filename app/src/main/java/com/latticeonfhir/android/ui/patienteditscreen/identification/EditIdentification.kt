@@ -204,7 +204,11 @@ fun EditIdentification(
                             else
                                 viewModel.isPassportValid = false
                         }
-                        IdLength(viewModel.passportId, viewModel.maxPassportIdLength, "PASSPORT_ID_LENGTH")
+                        IdLength(
+                            viewModel.passportId,
+                            viewModel.maxPassportIdLength,
+                            "PASSPORT_ID_LENGTH"
+                        )
                     } else {
                         viewModel.passportId = ""
                     }
@@ -248,7 +252,11 @@ fun EditIdentification(
                             else
                                 viewModel.isPatientValid = false
                         }
-                        IdLength(viewModel.patientId, viewModel.maxPatientIdLength, "PATIENT_ID_LENGTH")
+                        IdLength(
+                            viewModel.patientId,
+                            viewModel.maxPatientIdLength,
+                            "PATIENT_ID_LENGTH"
+                        )
                     } else {
                         viewModel.patientId = ""
                     }
