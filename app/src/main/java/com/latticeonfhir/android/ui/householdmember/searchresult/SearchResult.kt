@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
-import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
@@ -40,7 +39,6 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
@@ -95,31 +93,6 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
                         val item = patientsList[index]
                         if (item != null) {
                             SearchResultRow(item, viewModel)
-                        }
-                    }
-                    when (patientsList.loadState.append) {
-                        is LoadState.NotLoading -> Unit
-                        LoadState.Loading -> {
-                            item {
-                                Loader()
-                            }
-                        }
-
-                        is LoadState.Error -> {
-                            // TODO
-                        }
-                    }
-
-                    when (patientsList.loadState.refresh) {
-                        is LoadState.NotLoading -> Unit
-                        LoadState.Loading -> {
-                            item {
-                                Loader()
-                            }
-                        }
-
-                        is LoadState.Error -> {
-                            // TODO
                         }
                     }
                 }
