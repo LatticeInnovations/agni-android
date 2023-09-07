@@ -151,7 +151,7 @@ fun PatientRegistration(
                             viewModel.patientFrom?.gender!!,
                             viewModel.relation,
                             expanded
-                        ){ update, value ->
+                        ) { update, value ->
                             if (update) viewModel.relation = value
                             expanded = !expanded
                         }

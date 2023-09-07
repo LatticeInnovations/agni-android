@@ -39,14 +39,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-open class SyncRepositoryDatabaseTransactions(private val patientApiService: PatientApiService,
-                                              private val patientDao: PatientDao,
-                                              private val genericDao: GenericDao,
-                                              private val relationDao: RelationDao,
-                                              private val medicationDao: MedicationDao,
-                                              private val prescriptionDao: PrescriptionDao,
-                                              private val scheduleDao: ScheduleDao,
-                                              private val appointmentDao: AppointmentDao
+open class SyncRepositoryDatabaseTransactions(
+    private val patientApiService: PatientApiService,
+    private val patientDao: PatientDao,
+    private val genericDao: GenericDao,
+    private val relationDao: RelationDao,
+    private val medicationDao: MedicationDao,
+    private val prescriptionDao: PrescriptionDao,
+    private val scheduleDao: ScheduleDao,
+    private val appointmentDao: AppointmentDao
 ) {
 
     protected suspend fun insertPatient(body: List<PatientResponse>) {
@@ -112,7 +113,11 @@ open class SyncRepositoryDatabaseTransactions(private val patientApiService: Pat
         }.toTypedArray())
         val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
         body.forEach { prescriptionResponse ->
-            medicineDirections.addAll(prescriptionResponse.toListOfPrescriptionDirectionsEntity(medicationDao))
+            medicineDirections.addAll(
+                prescriptionResponse.toListOfPrescriptionDirectionsEntity(
+                    medicationDao
+                )
+            )
         }
         prescriptionDao.insertPrescriptionMedicines(
             *medicineDirections.toTypedArray()
@@ -143,14 +148,20 @@ open class SyncRepositoryDatabaseTransactions(private val patientApiService: Pat
         }.toTypedArray())
     }
 
-    protected suspend fun insertPatientFhirId(listOfGenericEntities: List<GenericEntity>, body: List<CreateResponse>): Int {
+    protected suspend fun insertPatientFhirId(
+        listOfGenericEntities: List<GenericEntity>,
+        body: List<CreateResponse>
+    ): Int {
         body.map { createResponse ->
             patientDao.updateFhirId(createResponse.id!!, createResponse.fhirId!!)
         }
         return deleteGenericEntityData(listOfGenericEntities)
     }
 
-    protected suspend fun insertPrescriptionFhirId(listOfGenericEntities: List<GenericEntity>,body: List<CreateResponse>): Int {
+    protected suspend fun insertPrescriptionFhirId(
+        listOfGenericEntities: List<GenericEntity>,
+        body: List<CreateResponse>
+    ): Int {
         val idsToDelete = mutableSetOf<String>()
         idsToDelete.addAll(listOfGenericEntities.map { genericEntity -> genericEntity.id })
         body.forEach { createResponse ->
@@ -165,7 +176,10 @@ open class SyncRepositoryDatabaseTransactions(private val patientApiService: Pat
         return deleteGenericEntityByListOfIds(idsToDelete.toList())
     }
 
-    protected suspend fun insertScheduleFhirId(listOfGenericEntities: List<GenericEntity>,body: List<CreateResponse>): Int {
+    protected suspend fun insertScheduleFhirId(
+        listOfGenericEntities: List<GenericEntity>,
+        body: List<CreateResponse>
+    ): Int {
         val idsToDelete = mutableSetOf<String>()
         idsToDelete.addAll(listOfGenericEntities.map { genericEntity -> genericEntity.id })
         body.forEach { createResponse ->
@@ -184,7 +198,10 @@ open class SyncRepositoryDatabaseTransactions(private val patientApiService: Pat
         return deleteGenericEntityByListOfIds(idsToDelete.toList())
     }
 
-    protected suspend fun insertAppointmentFhirId(listOfGenericEntities: List<GenericEntity>, body: List<CreateResponse>): Int {
+    protected suspend fun insertAppointmentFhirId(
+        listOfGenericEntities: List<GenericEntity>,
+        body: List<CreateResponse>
+    ): Int {
         val idsToDelete = mutableSetOf<String>()
         idsToDelete.addAll(listOfGenericEntities.map { genericEntity -> genericEntity.id })
         body.forEach { createResponse ->

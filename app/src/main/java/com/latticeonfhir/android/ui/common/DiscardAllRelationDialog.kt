@@ -12,7 +12,7 @@ import com.latticeonfhir.android.R
 
 
 @Composable
-fun DiscardAllRelationDialog(discard: (Boolean) -> Unit){
+fun DiscardAllRelationDialog(discard: (Boolean) -> Unit) {
     AlertDialog(
         onDismissRequest = {
             discard(false)

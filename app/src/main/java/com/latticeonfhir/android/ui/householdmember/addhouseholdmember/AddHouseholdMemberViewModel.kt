@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import dagger.hilt.android.lifecycle.HiltViewModel

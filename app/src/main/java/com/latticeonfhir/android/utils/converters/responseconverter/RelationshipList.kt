@@ -16,6 +16,7 @@ object RelationshipList {
                 "Nephew",
                 "Husband"
             )
+
             "female" -> listOf(
                 "Daughter",
                 "Mother",
@@ -29,6 +30,7 @@ object RelationshipList {
                 "Niece",
                 "Wife"
             )
+
             else -> listOf(
                 "Child",
                 "Parent",
