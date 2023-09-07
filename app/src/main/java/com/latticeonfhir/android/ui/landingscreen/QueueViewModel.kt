@@ -63,7 +63,7 @@ class QueueViewModel @Inject constructor(
     var selectedChip by mutableStateOf(R.string.total_appointment)
     var rescheduled by mutableStateOf(false)
 
-    private val syncService by lazy { getApplication<FhirApp>().getSyncService() }
+    private val syncService by lazy { getApplication<FhirApp>().syncService }
 
     internal suspend fun syncData(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
         getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext).collectLatest { workInfo ->
