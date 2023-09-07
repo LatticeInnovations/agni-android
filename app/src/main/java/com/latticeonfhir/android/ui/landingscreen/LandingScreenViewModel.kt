@@ -89,7 +89,7 @@ class LandingScreenViewModel @Inject constructor(
         }
 
         //Medication Sync
-        if(CheckNetwork.isInternetAvailable(getApplication<Application>().applicationContext)) {
+        if (CheckNetwork.isInternetAvailable(getApplication<Application>().applicationContext)) {
             viewModelScope.launch(Dispatchers.IO) {
                 syncService.downloadMedication { isErrorReceived, errorMsg ->
                     if (isErrorReceived) {
@@ -165,19 +165,24 @@ class LandingScreenViewModel @Inject constructor(
 
     private fun searchPatient(searchParameters: SearchParameters) {
         viewModelScope.launch(Dispatchers.IO) {
-            searchResultList = searchRepository.searchPatients(searchParameters, searchRepository.getSearchList()).map { data ->
-                data.map { paginationResponse ->
-                    size = paginationResponse.size
-                    paginationResponse.data
-                }
-            }.cachedIn(viewModelScope)
+            searchResultList =
+                searchRepository.searchPatients(searchParameters, searchRepository.getSearchList())
+                    .map { data ->
+                        data.map { paginationResponse ->
+                            size = paginationResponse.size
+                            paginationResponse.data
+                        }
+                    }.cachedIn(viewModelScope)
             isLoading = false
         }
     }
 
     private fun searchPatientByQuery() {
         viewModelScope.launch(Dispatchers.IO) {
-            searchResultList = searchRepository.searchPatientByQuery(searchQuery.trim(), searchRepository.getSearchList()).map { data ->
+            searchResultList = searchRepository.searchPatientByQuery(
+                searchQuery.trim(),
+                searchRepository.getSearchList()
+            ).map { data ->
                 data.map { paginationResponse ->
                     size = paginationResponse.size
                     paginationResponse.data

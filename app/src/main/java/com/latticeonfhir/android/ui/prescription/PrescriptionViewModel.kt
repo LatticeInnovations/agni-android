@@ -191,7 +191,8 @@ class PrescriptionViewModel @Inject constructor(
                 prescriptionId = prescriptionId,
                 prescription = medicationsList.map { medication ->
                     medication.copy(
-                        timing = timingList.await().find { timing -> timing.medicalDosage == medication.timing }?.medicalDosageId
+                        timing = timingList.await()
+                            .find { timing -> timing.medicalDosage == medication.timing }?.medicalDosageId
                     )
                 },
                 prescriptionFhirId = null,

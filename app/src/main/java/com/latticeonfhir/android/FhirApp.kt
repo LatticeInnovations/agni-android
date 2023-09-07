@@ -87,7 +87,8 @@ class FhirApp : Application() {
         }
 
         if (!this::_syncService.isInitialized) {
-            _syncService = SyncService(this,syncRepository, genericRepository, preferenceRepository)
+            _syncService =
+                SyncService(this, syncRepository, genericRepository, preferenceRepository)
         }
     }
 

@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.dp
 fun TabRowComposable(
     tabs: List<String>,
     pagerState: PagerState,
-    onClick: (Int)-> Unit
-){
+    onClick: (Int) -> Unit
+) {
     val density = LocalDensity.current
     val tabWidths = remember {
         val tabWidthStateList = mutableStateListOf<Dp>()

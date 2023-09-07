@@ -21,7 +21,7 @@ fun RelationDialogContent(
     relation: String,
     expanded: Boolean,
     updateRelation: (Boolean, String) -> Unit
-){
+) {
     Column {
         Text(
             textBefore,
