@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.job.JobScheduler
 import android.content.Context
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.asFlow
@@ -54,12 +55,12 @@ class LandingScreenViewModel @Inject constructor(
     var isSearchingByQuery by mutableStateOf(false)
     var isSearchResult by mutableStateOf(false)
     var searchQuery by mutableStateOf("")
-    var selectedIndex by mutableStateOf(0)
+    var selectedIndex by mutableIntStateOf(0)
     var patientList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf())
     var searchResultList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf())
     var searchParameters by mutableStateOf<SearchParameters?>(null)
     var previousSearchList = mutableListOf<String>()
-    var size by mutableStateOf(0)
+    var size by mutableIntStateOf(0)
     var isLoggingOut by mutableStateOf(false)
     var addedToQueue by mutableStateOf(false)
     var patientArrived by mutableStateOf(false)
@@ -164,10 +165,10 @@ class LandingScreenViewModel @Inject constructor(
 
     private fun searchPatient(searchParameters: SearchParameters) {
         viewModelScope.launch(Dispatchers.IO) {
-            searchResultList = searchRepository.searchPatients(searchParameters).map {
-                it.map {
-                    size = it.size
-                    it.data
+            searchResultList = searchRepository.searchPatients(searchParameters, searchRepository.getSearchList()).map { data ->
+                data.map { paginationResponse ->
+                    size = paginationResponse.size
+                    paginationResponse.data
                 }
             }.cachedIn(viewModelScope)
             isLoading = false
@@ -176,10 +177,10 @@ class LandingScreenViewModel @Inject constructor(
 
     private fun searchPatientByQuery() {
         viewModelScope.launch(Dispatchers.IO) {
-            searchResultList = searchRepository.searchPatientByQuery(searchQuery.trim()).map {
-                it.map {
-                    size = it.size
-                    it.data
+            searchResultList = searchRepository.searchPatientByQuery(searchQuery.trim(), searchRepository.getSearchList()).map { data ->
+                data.map { paginationResponse ->
+                    size = paginationResponse.size
+                    paginationResponse.data
                 }
             }.cachedIn(viewModelScope)
             isLoading = false
