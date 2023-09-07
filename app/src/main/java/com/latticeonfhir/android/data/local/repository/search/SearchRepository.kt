@@ -3,6 +3,7 @@ package com.latticeonfhir.android.data.local.repository.search
 import androidx.paging.PagingData
 import com.latticeonfhir.android.data.local.model.pagination.PaginationResponse
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import kotlinx.coroutines.flow.Flow
@@ -12,13 +13,14 @@ import java.util.LinkedList
 interface SearchRepository {
 
     /** Patient Search */
-    suspend fun searchPatients(searchParameters: SearchParameters): Flow<PagingData<PaginationResponse<PatientResponse>>>
-    suspend fun filteredSearchPatients(
+    fun searchPatients(searchParameters: SearchParameters, searchList: List<PatientAndIdentifierEntity>): Flow<PagingData<PaginationResponse<PatientResponse>>>
+    fun filteredSearchPatients(
         patientId: String,
-        searchParameters: SearchParameters
+        searchParameters: SearchParameters, searchList: List<PatientAndIdentifierEntity>,
+        existingMembers: Set<String>
     ): Flow<PagingData<PaginationResponse<PatientResponse>>>
 
-    suspend fun searchPatientByQuery(query: String): Flow<PagingData<PaginationResponse<PatientResponse>>>
+    fun searchPatientByQuery(query: String, searchList: List<PatientAndIdentifierEntity>): Flow<PagingData<PaginationResponse<PatientResponse>>>
 
     /** Medication Search */
     suspend fun searchActiveIngredients(activeIngredient: String): List<String>
@@ -42,4 +44,6 @@ interface SearchRepository {
         patientId: String,
         address: PatientAddressResponse
     ): List<PatientResponse>
+
+    suspend fun getSearchList(): List<PatientAndIdentifierEntity>
 }
