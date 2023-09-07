@@ -8,5 +8,5 @@ class AppointmentCompletedStatusUpdateWorkerImpl(
     context: Context,
     workerParameters: WorkerParameters
 ) : AppointmentCompletedStatusUpdateWorker(context, workerParameters) {
-    override fun getSyncRepository() = (applicationContext as FhirApp).getSyncRepository()
+    override fun getSyncRepository() = (applicationContext as FhirApp).syncRepository
 }

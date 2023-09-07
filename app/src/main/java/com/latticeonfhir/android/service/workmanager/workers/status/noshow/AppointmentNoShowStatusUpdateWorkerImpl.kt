@@ -8,5 +8,5 @@ class AppointmentNoShowStatusUpdateWorkerImpl(
     context: Context,
     workerParameters: WorkerParameters
 ) : AppointmentNoShowStatusUpdateWorker(context, workerParameters) {
-    override fun getSyncRepository() = (applicationContext as FhirApp).getSyncRepository()
+    override fun getSyncRepository() = (applicationContext as FhirApp).syncRepository
 }
