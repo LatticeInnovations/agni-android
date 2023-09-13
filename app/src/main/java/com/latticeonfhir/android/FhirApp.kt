@@ -1,7 +1,14 @@
 package com.latticeonfhir.android
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import com.google.android.fhir.DatabaseErrorStrategy
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.FhirEngineConfiguration
+import com.google.android.fhir.FhirEngineProvider
+import com.google.android.fhir.ServerConfiguration
+import com.google.android.fhir.sync.remote.HttpLogger
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -49,6 +56,8 @@ class FhirApp : Application() {
     private lateinit var syncService: SyncService
     val sessionExpireFlow = MutableLiveData<Map<String, Any>>(emptyMap())
 
+    private val fhirEngine: FhirEngine by lazy { FhirEngineProvider.getInstance(this) }
+
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
@@ -85,6 +94,21 @@ class FhirApp : Application() {
         if (!this::syncService.isInitialized) {
             syncService = SyncService(this,syncRepository, genericRepository, preferenceRepository)
         }
+        FhirEngineProvider.init(
+            FhirEngineConfiguration(
+                enableEncryptionIfSupported = true,
+                DatabaseErrorStrategy.RECREATE_AT_OPEN,
+                ServerConfiguration(
+                    baseUrl = "http://10.0.2.2:8080/fhir/",
+                    httpLogger =
+                    HttpLogger(
+                        HttpLogger.Configuration(
+                            if (BuildConfig.DEBUG) HttpLogger.Level.BODY else HttpLogger.Level.BASIC
+                        )
+                    ) { Timber.d("App-HttpLog $it") },
+                ),
+            )
+        )
     }
 
     internal fun getSyncRepository(): SyncRepository {
@@ -106,5 +130,6 @@ class FhirApp : Application() {
                 .registerTypeAdapter(Date::class.java, DateSerializer())
                 .create()
         }
+        fun fhirEngine(context: Context) = (context.applicationContext as FhirApp).fhirEngine
     }
 }
