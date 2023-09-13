@@ -1,0 +1,382 @@
+{
+  "id": "patient-registration-sample",
+  "resourceType": "Questionnaire",
+  "title": "Patient Registration",
+  "status": "draft",
+  "language": "en",
+  "subjectType": [
+    "Patient"
+  ],
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext",
+      "valueExpression": {
+        "language": "application/x-fhir-query",
+        "expression": "Patient",
+        "name": "patient"
+      }
+    }
+  ],
+  "item": [
+    {
+      "linkId": "PR",
+      "type": "group",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Patient",
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "page",
+                    "display": "Page 1"
+                  }
+                ],
+                "text": "Page 1"
+              }
+            }
+          ],
+          "linkId": "1",
+          "text": "Basic Information",
+          "type": "group",
+          "item": [
+            {
+              "linkId": "PR",
+              "type": "group",
+              "item": [
+                {
+                  "linkId": "PR-name",
+                  "type": "group",
+                  "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.name",
+                  "item": [
+                    {
+                      "type": "string",
+                      "maxLength": 100,
+                      "linkId": "PR-name-given",
+                      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.name.given",
+                      "text": "First Name",
+                      "required": true,
+                      "repeats": false,
+                      "readOnly": false
+                    },
+                    {
+                      "type": "string",
+                      "maxLength": 100,
+                      "linkId": "PR-name-given",
+                      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.name.given",
+                      "text": "Middle Name",
+                      "required": false,
+                      "repeats": false,
+                      "readOnly": false
+                    },
+                    {
+                      "type": "string",
+                      "maxLength": 100,
+                      "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/StructureDefinition/regex",
+                          "valueString": "[a-zA-z\\s]*"
+                        }
+                      ],
+                      "linkId": "PR-name-family",
+                      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.name.family",
+                      "text": "Last Name",
+                      "required": false,
+                      "repeats": false,
+                      "readOnly": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "integer",
+              "maxLength": 2,
+              "linkId": "1924893932323",
+              "text": "Day",
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "choice",
+              "linkId": "9227884458215",
+              "text": "Month",
+              "required": true,
+              "repeats": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "display": "January"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "February"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "March"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "April"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "May"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "June"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "July"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "August"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "September"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "October"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "November"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "display": "December"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "integer",
+              "maxLength": 4,
+              "linkId": "5736620487073",
+              "text": "Year",
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "integer",
+              "maxLength": 10,
+              "linkId": "4395505293991",
+              "text": "Phone Number",
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "string",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/regex",
+                  "valueString": "[a-z0-9.]+@[a-z]+\\.[a-z]{2,3}"
+                }
+              ],
+              "linkId": "3368114710929",
+              "text": "Email",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "choice",
+              "linkId": "4292586226199",
+              "text": "Gender",
+              "required": true,
+              "repeats": false,
+              "answerOption": [
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/administrative-gender",
+                    "code": "male",
+                    "display": "Male"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/administrative-gender",
+                    "code": "female",
+                    "display": "Female"
+                  }
+                },
+                {
+                  "valueCoding": {
+                    "system": "http://hl7.org/fhir/administrative-gender",
+                    "code": "other",
+                    "display": "Other"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "page",
+                    "display": "Page 2"
+                  }
+                ],
+                "text": "Page 2"
+              }
+            }
+          ],
+          "linkId": "2",
+          "text": "Identification",
+          "type": "group",
+          "item": [
+            {
+              "type": "string",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/regex",
+                  "valueString": "^[A-PR-WYa-pr-wy][1-9]\\d\\s?\\d{4}[1-9]$"
+                }
+              ],
+              "linkId": "6107884391594",
+              "text": "Passport ID",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "string",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/regex",
+                  "valueString": "^[A-Za-z]{3}[0-9]{7}$"
+                }
+              ],
+              "linkId": "2786867985764",
+              "text": "Voter ID",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "string",
+              "maxLength": 10,
+              "linkId": "8606434896901",
+              "text": "Patient ID",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ]
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "page",
+                    "display": "Page 3"
+                  }
+                ],
+                "text": "Page 3"
+              }
+            }
+          ],
+          "linkId": "3",
+          "text": "Addresses",
+          "type": "group",
+          "item": [
+            {
+              "type": "integer",
+              "maxLength": 6,
+              "linkId": "4972184185474",
+              "text": "Postal Code",
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "string",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/regex",
+                  "valueString": "[a-zA-z\\s]*"
+                }
+              ],
+              "linkId": "2484661954257",
+              "text": "State",
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "string",
+              "linkId": "2078793250426",
+              "text": "Address Line 1",
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "string",
+              "linkId": "2250891214026",
+              "text": "Address Line 2",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "string",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/regex",
+                  "valueString": "[a-zA-z\\s]*"
+                }
+              ],
+              "linkId": "5263740226920",
+              "text": "City",
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            },
+            {
+              "type": "string",
+              "linkId": "8462870068009",
+              "text": "District",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
