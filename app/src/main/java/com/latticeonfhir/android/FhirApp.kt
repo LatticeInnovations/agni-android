@@ -99,7 +99,7 @@ class FhirApp : Application() {
                 enableEncryptionIfSupported = true,
                 DatabaseErrorStrategy.RECREATE_AT_OPEN,
                 ServerConfiguration(
-                    baseUrl = "http://10.0.2.2:8080/fhir/",
+                    baseUrl = "http://192.168.0.107:8080/fhir/",
                     httpLogger =
                     HttpLogger(
                         HttpLogger.Configuration(

@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
 import android.os.Build
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -74,6 +75,21 @@ object TimeConverter {
         val dob = calendar.time
         val formatter = SimpleDateFormat("dd-MMMM-yyyy", Locale.US)
         return formatter.format(dob)
+    }
+
+    internal fun toPatientResourceBirthDate(day: Int, month: String, year: Int): Date {
+        val inputFormat = SimpleDateFormat("MMMM", Locale.US)
+        val outputFormat = SimpleDateFormat("MM", Locale.US)
+        val m = inputFormat.parse(month)
+        val calendar = Calendar.getInstance()
+        calendar[Calendar.DAY_OF_MONTH] = day
+        calendar[Calendar.YEAR] = year
+        calendar[Calendar.MONTH] = outputFormat.format(m!!).toInt() - 1
+        calendar[Calendar.HOUR_OF_DAY] = 0
+        calendar[Calendar.MINUTE] = 0
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
+        return calendar.time
     }
 
     private fun Calendar.isLeapYear(): Boolean {
