@@ -1,0 +1,423 @@
+{
+  "id": "patient-registration-sample",
+  "resourceType": "Questionnaire",
+  "title": "Patient Registration",
+  "status": "draft",
+  "language": "en",
+  "subjectType": [
+    "Patient"
+  ],
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext",
+      "valueExpression": {
+        "language": "application/x-fhir-query",
+        "expression": "Patient",
+        "name": "patient"
+      }
+    }
+  ],
+  "item": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "page",
+                "display": "Page 1"
+              }
+            ],
+            "text": "Page 1"
+          }
+        }
+      ],
+      "linkId": "1",
+      "text": "Basic Information",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "PR",
+          "type": "group",
+          "item": [
+            {
+              "linkId": "PR-name",
+              "type": "group",
+              "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.name",
+              "item": [
+                {
+                  "type": "string",
+                  "maxLength": 100,
+                  "linkId": "PR-name-given",
+                  "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.name.given",
+                  "text": "First Name",
+                  "required": true,
+                  "repeats": false,
+                  "readOnly": false
+                },
+                {
+                  "type": "string",
+                  "maxLength": 100,
+                  "linkId": "PR-name-given-middle",
+                  "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.name.given",
+                  "text": "Middle Name",
+                  "required": false,
+                  "repeats": false,
+                  "readOnly": false
+                },
+                {
+                  "type": "string",
+                  "maxLength": 100,
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/regex",
+                      "valueString": "[a-zA-z\\s]*"
+                    }
+                  ],
+                  "linkId": "PR-name-family",
+                  "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.name.family",
+                  "text": "Last Name",
+                  "required": false,
+                  "repeats": false,
+                  "readOnly": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "integer",
+          "maxLength": 2,
+          "linkId": "PR-day",
+          "text": "Day",
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "choice",
+          "linkId": "PR-month",
+          "text": "Month",
+          "required": true,
+          "repeats": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "display": "January"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "February"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "March"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "April"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "May"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "June"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "July"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "August"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "September"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "October"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "November"
+              }
+            },
+            {
+              "valueCoding": {
+                "display": "December"
+              }
+            }
+          ]
+        },
+        {
+          "type": "integer",
+          "maxLength": 4,
+          "linkId": "PR-year",
+          "text": "Year",
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "linkId": "PR-telecom-phone",
+          "type": "group",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom",
+          "item": [
+            {
+              "type": "string",
+              "maxLength": 10,
+              "linkId": "PR-phone",
+              "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom.value",
+              "text": "Phone Number",
+              "required": true,
+              "repeats": false,
+              "readOnly": false
+            }
+          ]
+        },
+        {
+          "linkId": "PR-telecom-email",
+          "type": "group",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom",
+          "item": [
+            {
+              "type": "string",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/regex",
+                  "valueString": "[a-z0-9.]+@[a-z]+\\.[a-z]{2,3}"
+                }
+              ],
+              "linkId": "PR-email",
+              "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom.value",
+              "text": "Email",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ]
+        },
+        {
+          "type": "choice",
+          "linkId": "PR-gender",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.gender",
+          "text": "Gender",
+          "required": true,
+          "repeats": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://hl7.org/fhir/administrative-gender",
+                "code": "male",
+                "display": "Male"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://hl7.org/fhir/administrative-gender",
+                "code": "female",
+                "display": "Female"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://hl7.org/fhir/administrative-gender",
+                "code": "other",
+                "display": "Other"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "page",
+                "display": "Page 2"
+              }
+            ],
+            "text": "Page 2"
+          }
+        }
+      ],
+      "linkId": "2",
+      "text": "Identification",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "PR-identifier-passport",
+          "type": "group",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identifier",
+          "item": [
+            {
+              "type": "string",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/regex",
+                  "valueString": "^[A-PR-WYa-pr-wy][1-9]\\d\\s?\\d{4}[1-9]$"
+                }
+              ],
+              "linkId": "PR-passport",
+              "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identifier.value",
+              "text": "Passport ID",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ]
+        },
+        {
+          "linkId": "PR-identifier-voter",
+          "type": "group",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identifier",
+          "item": [
+            {
+              "type": "string",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/regex",
+                  "valueString": "^[A-Za-z]{3}[0-9]{7}$"
+                }
+              ],
+              "linkId": "PR-voter",
+              "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identifier.value",
+              "text": "Voter ID",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ]
+        },
+        {
+          "linkId": "PR-identifier-patient",
+          "type": "group",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identifier",
+          "item": [
+            {
+              "type": "string",
+              "maxLength": 10,
+              "linkId": "PR-patient",
+              "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identifier.value",
+              "text": "Patient ID",
+              "required": false,
+              "repeats": false,
+              "readOnly": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "page",
+                "display": "Page 3"
+              }
+            ],
+            "text": "Page 3"
+          }
+        }
+      ],
+      "linkId": "3",
+      "text": "Addresses",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.address",
+      "type": "group",
+      "item": [
+        {
+          "type": "string",
+          "maxLength": 6,
+          "linkId": "PR-address-postal",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.address.postalCode",
+          "text": "Postal Code",
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "string",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/regex",
+              "valueString": "[a-zA-z\\s]*"
+            }
+          ],
+          "linkId": "PR-address-state",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.address.state",
+          "text": "State",
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "string",
+          "linkId": "PR-address-line1",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.address.line",
+          "text": "Address Line 1",
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "string",
+          "linkId": "PR-address-line2",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.address.line",
+          "text": "Address Line 2",
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "string",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/regex",
+              "valueString": "[a-zA-z\\s]*"
+            }
+          ],
+          "linkId": "PR-address-city",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.address.city",
+          "text": "City",
+          "required": true,
+          "repeats": false,
+          "readOnly": false
+        },
+        {
+          "type": "string",
+          "linkId": "PR-address-district",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.address.district",
+          "text": "District",
+          "required": false,
+          "repeats": false,
+          "readOnly": false
+        }
+      ]
+    }
+  ]
+}
