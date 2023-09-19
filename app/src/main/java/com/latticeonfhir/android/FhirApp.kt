@@ -96,10 +96,11 @@ class FhirApp : Application() {
         }
         FhirEngineProvider.init(
             FhirEngineConfiguration(
-                enableEncryptionIfSupported = true,
+                enableEncryptionIfSupported = false,
                 DatabaseErrorStrategy.RECREATE_AT_OPEN,
                 ServerConfiguration(
-                    baseUrl = "http://192.168.0.107:8080/fhir/",
+                    //baseUrl = "http://192.168.0.107:8080/fhir/",
+                    baseUrl = "http://134.209.154.146:8080/fhir/",
                     httpLogger =
                     HttpLogger(
                         HttpLogger.Configuration(
@@ -131,5 +132,6 @@ class FhirApp : Application() {
                 .create()
         }
         fun fhirEngine(context: Context) = (context.applicationContext as FhirApp).fhirEngine
+        fun preferenceStorage(context: Context) = (context.applicationContext as FhirApp).preferenceStorage
     }
 }
