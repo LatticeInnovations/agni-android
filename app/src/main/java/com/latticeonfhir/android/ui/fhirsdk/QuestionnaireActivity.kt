@@ -15,6 +15,7 @@ import com.google.android.fhir.datacapture.allItems
 import com.google.android.fhir.datacapture.mapping.ResourceMapper
 import com.google.android.fhir.datacapture.validation.Invalid
 import com.google.android.fhir.datacapture.validation.QuestionnaireResponseValidator
+import com.google.android.fhir.logicalId
 import com.google.android.fhir.sync.Sync
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.R
@@ -28,9 +29,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Duration
+import org.hl7.fhir.r4.model.HumanName
+import org.hl7.fhir.r4.model.Medication
+import org.hl7.fhir.r4.model.MedicationRequest
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Questionnaire
 import org.hl7.fhir.r4.model.QuestionnaireResponse
+import org.hl7.fhir.r4.model.RelatedPerson
+import org.hl7.fhir.r4.model.codesystems.Relationship
 import timber.log.Timber
 
 class QuestionnaireActivity : BaseActivity() {
@@ -94,36 +101,82 @@ class QuestionnaireActivity : BaseActivity() {
         questionnaire: Questionnaire
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            val day = questionnaireResponse.allItems.find { component ->
-                component.linkId == "PR-day"
-            }?.answer?.get(0)?.valueIntegerType?.value
-            val month = questionnaireResponse.allItems.find { component ->
-                component.linkId == "PR-month"
-            }?.answer?.get(0)?.valueCoding?.display
-            val year = questionnaireResponse.allItems.find { component ->
-                component.linkId == "PR-year"
-            }?.answer?.get(0)?.valueIntegerType?.value
-            if (QuestionnaireResponseValidator.validateQuestionnaireResponse(
-                    questionnaire,
-                    questionnaireResponse,
-                    application
-                ).values.flatten().any { it is Invalid }
-            ) {
-                Timber.d("patient invalid")
-                isPatientSaved = false
-                return@launch
+//            val day = questionnaireResponse.allItems.find { component ->
+//                component.linkId == "PR-day"
+//            }?.answer?.get(0)?.valueIntegerType?.value
+//            val month = questionnaireResponse.allItems.find { component ->
+//                component.linkId == "PR-month"
+//            }?.answer?.get(0)?.valueCoding?.display
+//            val year = questionnaireResponse.allItems.find { component ->
+//                component.linkId == "PR-year"
+//            }?.answer?.get(0)?.valueIntegerType?.value
+//            if (QuestionnaireResponseValidator.validateQuestionnaireResponse(
+//                    questionnaire,
+//                    questionnaireResponse,
+//                    application
+//                ).values.flatten().any { it is Invalid }
+//            ) {
+//                Timber.d("patient invalid")
+//                isPatientSaved = false
+//                return@launch
+//            }
+//
+//
+//            val entry = ResourceMapper.extract(questionnaire, questionnaireResponse).entryFirstRep
+//            if (entry.resource !is Patient) {
+//                Timber.d("patient not")
+//                return@launch
+//            }
+//            val patient = entry.resource as Patient
+//            patient.id = UUIDBuilder.generateUUID()
+//            patient.birthDate = toPatientResourceBirthDate(day!!, month!!, year!!)
+//            val string = fhirEngine.create(patient)
+//            Timber.d("patient $string")
+
+//            val medication = Medication().apply {
+//                status = Medication.MedicationStatus.ACTIVE
+//            }
+//            medication.id = UUIDBuilder.generateUUID()
+//
+//            val prescription = MedicationRequest().apply {
+//                status = MedicationRequest.MedicationRequestStatus.ACTIVE
+//                intent = MedicationRequest.MedicationRequestIntent.PLAN
+//                subject.reference = "${patient.fhirType()}/${patient.logicalId}"
+//            }
+//            prescription.id = UUIDBuilder.generateUUID()
+//
+//            val ids = fhirEngine.create(medication, prescription, patient)
+
+            val patient1 = Patient().apply{
+                id = UUIDBuilder.generateUUID()
+                addName(
+                    HumanName().apply {
+                        addGiven("Alex")
+                        family = "Lee"
+                    }
+                )
+            }
+            val patient2 = Patient().apply{
+                id = UUIDBuilder.generateUUID()
+                addName(
+                    HumanName().apply {
+                        addGiven("Alice")
+                        family = "Lee"
+                    }
+                )
             }
 
-            val entry = ResourceMapper.extract(questionnaire, questionnaireResponse).entryFirstRep
-            if (entry.resource !is Patient) {
-                Timber.d("patient not")
-                return@launch
+            val related1 = RelatedPerson().apply {
+                id = UUIDBuilder.generateUUID()
+                patient.reference = "${patient1.fhirType()}/${patient1.logicalId}"
+                // relationship
             }
-            val patient = entry.resource as Patient
-            patient.id = UUIDBuilder.generateUUID()
-            patient.birthDate = toPatientResourceBirthDate(day!!, month!!, year!!)
-            val string = fhirEngine.create(patient)
-            Timber.d("patient $string")
+
+            fhirEngine.create(patient1)
+            val id = fhirEngine.create(related1)
+
+            Timber.d("manseeyyy $id")
+
             isPatientSaved = true
             Sync.oneTimeSync<FhirPeriodicSyncWorker>(applicationContext)
                 .shareIn(this, SharingStarted.Eagerly, 0)
