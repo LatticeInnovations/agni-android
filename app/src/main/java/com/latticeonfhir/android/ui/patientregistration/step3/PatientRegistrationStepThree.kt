@@ -9,12 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -91,38 +87,7 @@ fun PatientRegistrationStepThree(
             AddressComposable(
                 label = stringResource(id = R.string.home_address),
                 address = viewModel.homeAddress
-            ) {
-
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            if (viewModel.addWorkAddress) {
-                OutlinedButton(
-                    onClick = { viewModel.addWorkAddress = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("add work address btn")
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "add work address icon")
-                    Text(text = "Add a work address")
-                }
-            }
-
-            if (viewModel.addWorkAddress) {
-                AddressComposable(
-                    label = "Work Address",
-                    address = viewModel.workAddress
-                ) {
-                    viewModel.workAddress.pincode = ""
-                    viewModel.workAddress.state = ""
-                    viewModel.workAddress.city = ""
-                    viewModel.workAddress.addressLine2 = ""
-                    viewModel.workAddress.addressLine1 = ""
-                    viewModel.workAddress.district = ""
-                    viewModel.addWorkAddress = false
-                }
-            }
+            )
             Spacer(modifier = Modifier.testTag("end of page"))
         }
 

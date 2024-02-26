@@ -7,7 +7,6 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
@@ -265,15 +264,14 @@ class EditIdentificationViewModel @Inject constructor(
 
                     }
 
-                    genericRepository.insertOrUpdatePatchEntity(
+                    genericRepository.insertOrUpdatePatientPatchEntity(
                         patientFhirId = patientResponse.fhirId,
                         map = mapOf(
                             Pair(
                                 "identifier",
                                 list
                             )
-                        ),
-                        typeEnum = GenericTypeEnum.PATIENT
+                        )
                     )
 
                     Timber.tag("identifier").d(list.toJson())

@@ -5,7 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,11 +15,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,8 +36,6 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -55,7 +49,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -70,6 +63,7 @@ import com.latticeonfhir.android.data.local.model.appointment.AppointmentRespons
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.appointments.CancelAppointmentDialog
+import com.latticeonfhir.android.ui.common.WeekDaysComposable
 import com.latticeonfhir.android.ui.theme.ArrivedContainer
 import com.latticeonfhir.android.ui.theme.ArrivedLabel
 import com.latticeonfhir.android.ui.theme.CancelledContainer
@@ -91,14 +85,11 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentTime
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonth
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearPast
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
@@ -155,89 +146,19 @@ fun QueueScreen(
             .fillMaxSize()
     ) {
         AnimatedVisibility(queueListState.listState.firstVisibleItemScrollOffset == 0 && queueListState.listState.firstVisibleItemIndex == 0) {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .padding(start = 20.dp, top = 15.dp, bottom = 15.dp)
-                        .wrapContentSize()
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .testTag("DATE_DROPDOWN")
-                            .clickable(
-                                interactionSource = MutableInteractionSource(),
-                                indication = null
-                            ) {
-                                viewModel.showDatePicker = true
-                            }
-                    ) {
-                        Column {
-                            Text(
-                                text = viewModel.selectedDate.toMonth(),
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                            Text(
-                                text = viewModel.selectedDate.toYear(),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "DROP_DOWN_ICON")
+            WeekDaysComposable(
+                dateScrollState,
+                viewModel.selectedDate,
+                viewModel.weekList
+            ) { showDialog, date ->
+                if (showDialog == true) viewModel.showDatePicker = true
+                else {
+                    if (date != null) {
+                        viewModel.selectedDate = date
                     }
-                    Divider(
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        modifier = Modifier
-                            .padding(horizontal = 20.dp)
-                            .width(1.dp)
-                            .height(55.dp)
-                    )
-                    LazyRow(
-                        state = dateScrollState,
-                        modifier = Modifier.testTag("DAYS_TAB_ROW")
-                    ) {
-                        items(viewModel.weekList) { date ->
-                            SuggestionChip(
-                                onClick = {
-                                    viewModel.selectedDate = date
-                                    viewModel.selectedChip = R.string.total_appointment
-                                    viewModel.getAppointmentListByDate()
-                                },
-                                label = {
-                                    Column(
-                                        modifier = Modifier.padding(vertical = 8.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = date.toWeekDay(),
-                                            style = MaterialTheme.typography.labelLarge
-                                        )
-                                        Text(
-                                            text = date.toSlotDate(),
-                                            style = MaterialTheme.typography.bodyLarge
-                                        )
-                                    }
-                                },
-                                modifier = Modifier
-                                    .padding(horizontal = 5.dp)
-                                    .testTag("DAYS_CHIP"),
-                                colors = SuggestionChipDefaults.suggestionChipColors(
-                                    containerColor = if (viewModel.selectedDate == date) MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.surface,
-                                    labelColor = if (viewModel.selectedDate == date) MaterialTheme.colorScheme.onPrimary
-                                    else MaterialTheme.colorScheme.outline
-                                ),
-                                border = SuggestionChipDefaults.suggestionChipBorder(
-                                    borderColor = Color.Transparent
-                                ),
-                                enabled = date < Date().toOneYearFuture() && date > Date().toTodayStartDate()
-                                    .toOneYearPast()
-                            )
-                        }
-                    }
+                    viewModel.selectedChip = R.string.total_appointment
+                    viewModel.getAppointmentListByDate()
                 }
-                Divider(
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
             }
         }
         if (viewModel.appointmentsList.isEmpty()) {
@@ -262,7 +183,7 @@ fun QueueScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 17.dp, start = 17.dp, end = 17.dp)
+                    .padding(top = 7.dp, start = 17.dp, end = 17.dp)
                     .horizontalScroll(rememberScrollState())
             ) {
                 Row(
@@ -364,7 +285,6 @@ fun QueueScreen(
                             modifier = Modifier
                                 .background(MaterialTheme.colorScheme.secondaryContainer)
                         ) { _ ->
-                            //val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                             var patient by remember {
                                 mutableStateOf<PatientResponse?>(null)
                             }
@@ -438,7 +358,7 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {patientId ->
+                        appointmentResponseLocal.patientId.let { patientId ->
                             LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
                                     patientId
@@ -467,7 +387,7 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {patientId ->
+                        appointmentResponseLocal.patientId.let { patientId ->
                             LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
                                     patientId
@@ -496,7 +416,7 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {patientId ->
+                        appointmentResponseLocal.patientId.let { patientId ->
                             LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
                                     patientId
@@ -522,7 +442,7 @@ fun QueueScreen(
                         var patient by remember {
                             mutableStateOf<PatientResponse?>(null)
                         }
-                        appointmentResponseLocal.patientId.let {patientId ->
+                        appointmentResponseLocal.patientId.let { patientId ->
                             LaunchedEffect(key1 = patientId) {
                                 patient = viewModel.getPatientById(
                                     patientId
@@ -769,36 +689,15 @@ fun QueuePatientCard(
                         }
                     )
                 )
-                Text(
-                    text = NameConverter.getFullName(
+                PatientCardDetails(
+                    NameConverter.getFullName(
                         patient?.firstName,
                         patient?.middleName,
                         patient?.lastName
                     ),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    subTitle,
+                    appointmentResponseLocal.slot.start.toAppointmentTime()
                 )
-                Text(
-                    text = subTitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Row(
-                    modifier = Modifier.padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.schedule_icon),
-                        contentDescription = "SCHEDULE_ICON",
-                        tint = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = appointmentResponseLocal.slot.start.toAppointmentTime(),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                }
             }
             if ((appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
                 && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
@@ -862,7 +761,11 @@ fun QueuePatientCard(
                                     NavControllerConstants.PATIENT,
                                     patient
                                 )
-                                navController.navigate(Screen.RescheduleAppointments.route)
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    NavControllerConstants.IF_RESCHEDULING,
+                                    true
+                                )
+                                navController.navigate(Screen.ScheduleAppointments.route)
                             },
                             modifier = Modifier.testTag("APPOINTMENT_RESCHEDULE_BTN")
                         ) {
@@ -924,37 +827,48 @@ fun CancelledQueueCard(
                         borderColor = CancelledLabel
                     )
                 )
-                Text(
-                    text = NameConverter.getFullName(
+                PatientCardDetails(
+                    NameConverter.getFullName(
                         patient?.firstName,
                         patient?.middleName,
                         patient?.lastName
                     ),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    subTitle,
+                    appointmentResponseLocal.slot.start.toAppointmentTime()
                 )
-                Text(
-                    text = subTitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Row(
-                    modifier = Modifier.padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.schedule_icon),
-                        contentDescription = "SCHEDULE_ICON",
-                        tint = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = appointmentResponseLocal.slot.start.toAppointmentTime(),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                }
             }
+        }
+    }
+}
+
+@Composable
+fun PatientCardDetails(name: String, subTitle: String, time: String) {
+    Column {
+        Text(
+            text = name,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = subTitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Row(
+            modifier = Modifier.padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.schedule_icon),
+                contentDescription = "SCHEDULE_ICON",
+                tint = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = time,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.tertiary
+            )
         }
     }
 }

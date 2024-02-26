@@ -43,10 +43,14 @@ class FhirApp : Application() {
     @Inject
     lateinit var scheduleAndAppointmentApiService: ScheduleAndAppointmentApiService
 
-    private lateinit var syncRepository: SyncRepository
-    private lateinit var genericRepository: GenericRepository
-    private lateinit var workRequestBuilder: WorkRequestBuilders
-    private lateinit var syncService: SyncService
+    private lateinit var _syncRepository: SyncRepository
+    internal val syncRepository get() = _syncRepository
+    private lateinit var _genericRepository: GenericRepository
+    internal val genericRepository get() = _genericRepository
+    private lateinit var _workRequestBuilder: WorkRequestBuilders
+    internal val workRequestBuilder get() = _workRequestBuilder
+    private lateinit var _syncService: SyncService
+    internal val syncService get() = _syncService
     val sessionExpireFlow = MutableLiveData<Map<String, Any>>(emptyMap())
 
     override fun onCreate() {
@@ -57,7 +61,7 @@ class FhirApp : Application() {
 
         val preferenceRepository: PreferenceRepository = PreferenceRepositoryImpl(preferenceStorage)
 
-        syncRepository = SyncRepositoryImpl(
+        _syncRepository = SyncRepositoryImpl(
             patientApiService,
             prescriptionApiService,
             scheduleAndAppointmentApiService,
@@ -71,32 +75,21 @@ class FhirApp : Application() {
             fhirAppDatabase.getAppointmentDao()
         )
 
-        genericRepository = GenericRepositoryImpl(
+        _genericRepository = GenericRepositoryImpl(
             fhirAppDatabase.getGenericDao(),
             fhirAppDatabase.getPatientDao(),
             fhirAppDatabase.getScheduleDao(),
             fhirAppDatabase.getAppointmentDao()
         )
 
-        if (!this::workRequestBuilder.isInitialized) {
-            workRequestBuilder = WorkRequestBuilders(this)
+        if (!this::_workRequestBuilder.isInitialized) {
+            _workRequestBuilder = WorkRequestBuilders(this)
         }
 
-        if (!this::syncService.isInitialized) {
-            syncService = SyncService(this,syncRepository, genericRepository, preferenceRepository)
+        if (!this::_syncService.isInitialized) {
+            _syncService =
+                SyncService(this, syncRepository, genericRepository, preferenceRepository)
         }
-    }
-
-    internal fun getSyncRepository(): SyncRepository {
-        return syncRepository
-    }
-
-    internal fun getWorkRequestBuilder(): WorkRequestBuilders {
-        return workRequestBuilder
-    }
-
-    internal fun getSyncService(): SyncService {
-        return syncService
     }
 
     companion object {

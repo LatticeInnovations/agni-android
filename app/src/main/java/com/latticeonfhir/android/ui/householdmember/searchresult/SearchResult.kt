@@ -85,17 +85,21 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
         content = {
             Box(modifier = Modifier.padding(it)) {
                 val patientsList = viewModel.searchResultList.collectAsLazyPagingItems()
-                LazyColumn(modifier = Modifier.padding(20.dp)) {
+                LazyColumn(
+                    modifier = Modifier.padding(
+                        top = 20.dp,
+                        start = 20.dp,
+                        end = 20.dp,
+                        bottom = if (viewModel.selectedMembersList.isNotEmpty()) 60.dp else 20.dp
+                    )
+                ) {
                     items(
                         count = patientsList.itemCount,
                         key = patientsList.itemKey(),
                         contentType = patientsList.itemContentType(
                         )
                     ) { index ->
-                        val item = patientsList[index]
-                        if (item != null) {
-                            SearchResultRow(item, viewModel)
-                        }
+                        SearchResultRow(patientsList[index]!!, viewModel)
                     }
                     when (patientsList.loadState.append) {
                         is LoadState.NotLoading -> Unit
@@ -105,9 +109,7 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
                             }
                         }
 
-                        is LoadState.Error -> {
-                            // TODO
-                        }
+                        is LoadState.Error -> Unit
                     }
 
                     when (patientsList.loadState.refresh) {
@@ -118,9 +120,7 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
                             }
                         }
 
-                        is LoadState.Error -> {
-                            // TODO
-                        }
+                        is LoadState.Error -> Unit
                     }
                 }
             }

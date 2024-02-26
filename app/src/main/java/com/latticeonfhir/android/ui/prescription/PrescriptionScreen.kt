@@ -44,9 +44,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -55,7 +52,6 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,11 +59,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -75,7 +69,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.common.customTabIndicatorOffset
+import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
 import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPrescriptionsScreen
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
@@ -145,14 +139,6 @@ fun PrescriptionScreen(
         }
         viewModel.isLaunched = true
     }
-    val density = LocalDensity.current
-    val tabWidths = remember {
-        val tabWidthStateList = mutableStateListOf<Dp>()
-        repeat(viewModel.tabs.size) {
-            tabWidthStateList.add(0.dp)
-        }
-        tabWidthStateList
-    }
     Box(
         modifier = Modifier
             .fillMaxSize(),
@@ -204,52 +190,28 @@ fun PrescriptionScreen(
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
-                        TabRow(
-                            selectedTabIndex = pagerState.currentPage,
-                            modifier = Modifier.testTag("TABS"),
-                            indicator = { tabPositions ->
-                                TabRowDefaults.Indicator(
-                                    modifier = Modifier.customTabIndicatorOffset(
-                                        currentTabPosition = tabPositions[pagerState.currentPage],
-                                        tabWidth = tabWidths[pagerState.currentPage]
+                        TabRowComposable(
+                            viewModel.tabs,
+                            pagerState
+                        ) { index ->
+                            viewModel.appointmentResponseLocal.run {
+                                if (index == 0 || (index == 1 && (this?.status == AppointmentStatusEnum.ARRIVED.value || this?.status == AppointmentStatusEnum.WALK_IN.value))) {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(
+                                            index
+                                        )
+                                    }
+                                } else if (index == 1 && this?.status == AppointmentStatusEnum.IN_PROGRESS.value || this?.status == AppointmentStatusEnum.COMPLETED.value) {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            context.getString(R.string.prescription_already_exists_for_today)
+                                        )
+                                    }
+                                } else coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        context.getString(R.string.please_add_patient_to_queue)
                                     )
-                                )
-                            }
-                        ) {
-                            viewModel.tabs.forEachIndexed { index, title ->
-                                Tab(
-                                    text = {
-                                        Text(title,
-                                            onTextLayout = { textLayoutResult ->
-                                                tabWidths[index] =
-                                                    with(density) { textLayoutResult.size.width.toDp() - 10.dp }
-                                            })
-                                    },
-                                    modifier = Modifier.testTag(title.uppercase()),
-                                    selected = pagerState.currentPage == index,
-                                    onClick = {
-                                        viewModel.appointmentResponseLocal.run {
-                                            if (index == 0 || (index == 1 && (this?.status == AppointmentStatusEnum.ARRIVED.value || this?.status == AppointmentStatusEnum.WALK_IN.value))) {
-                                                coroutineScope.launch {
-                                                    pagerState.animateScrollToPage(
-                                                        index
-                                                    )
-                                                }
-                                            } else if (index == 1 && this?.status == AppointmentStatusEnum.IN_PROGRESS.value || this?.status == AppointmentStatusEnum.COMPLETED.value) {
-                                                coroutineScope.launch {
-                                                    snackbarHostState.showSnackbar(
-                                                        context.getString(R.string.prescription_already_exists_for_today)
-                                                    )
-                                                }
-                                            } else coroutineScope.launch {
-                                                snackbarHostState.showSnackbar(
-                                                    context.getString(R.string.please_add_patient_to_queue)
-                                                )
-                                            }
-                                        }
-                                    },
-                                    unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                }
                             }
                         }
                         HorizontalPager(
