@@ -7,7 +7,6 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
@@ -71,46 +70,43 @@ class EditPatientAddressViewModel @Inject constructor(
     fun updateBasicInfo(patientResponse: PatientResponse) {
         viewModelScope.launch(Dispatchers.IO) {
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
-            if (response > 0) {
-                if (checkIsEdit()) {
-                    if (patientResponse.fhirId != null) {
+            if (checkIsEdit() && response > 0) {
+                if (patientResponse.fhirId != null) {
+                    checkIsValueChange(
+                        patientResponse,
+                        homeAddress.pincode,
+                        homeAddressTemp.pincode
+                    )
+                    checkIsValueChange(
+                        patientResponse,
+                        homeAddress.addressLine1,
+                        homeAddressTemp.addressLine1
+                    )
+                    checkIsValueChange(
+                        patientResponse,
+                        homeAddress.addressLine2,
+                        homeAddressTemp.addressLine2
+                    )
+                    checkIsValueChange(
+                        patientResponse,
+                        homeAddress.state,
+                        homeAddressTemp.state
+                    )
+                    checkIsValueChange(
+                        patientResponse,
+                        homeAddress.city,
+                        homeAddressTemp.city
+                    )
+                    checkIsValueChange(
+                        patientResponse,
+                        homeAddress.district,
+                        homeAddressTemp.district
+                    )
 
-                        checkIsValueChange(
-                            patientResponse,
-                            homeAddress.pincode,
-                            homeAddressTemp.pincode
-                        )
-                        checkIsValueChange(
-                            patientResponse,
-                            homeAddress.addressLine1,
-                            homeAddressTemp.addressLine1
-                        )
-                        checkIsValueChange(
-                            patientResponse,
-                            homeAddress.addressLine2,
-                            homeAddressTemp.addressLine2
-                        )
-                        checkIsValueChange(
-                            patientResponse,
-                            homeAddress.state,
-                            homeAddressTemp.state
-                        )
-                        checkIsValueChange(
-                            patientResponse,
-                            homeAddress.city,
-                            homeAddressTemp.city
-                        )
-                        checkIsValueChange(
-                            patientResponse,
-                            homeAddress.district,
-                            homeAddressTemp.district
-                        )
-
-                    } else {
-                        genericRepository.insertPatient(
-                            patientResponse
-                        )
-                    }
+                } else {
+                    genericRepository.insertPatient(
+                        patientResponse
+                    )
                 }
             }
         }
@@ -123,7 +119,7 @@ class EditPatientAddressViewModel @Inject constructor(
         tempValue: String
     ) {
         if (value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatchEntity(
+            genericRepository.insertOrUpdatePatientPatchEntity(
                 patientFhirId = patientResponse.fhirId!!,
                 map = mapOf(
                     Pair(
@@ -132,11 +128,10 @@ class EditPatientAddressViewModel @Inject constructor(
                             operation = ChangeTypeEnum.REPLACE.value
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.PATIENT
+                )
             )
         } else if (value != tempValue && tempValue.isNotEmpty() && value.isEmpty()) {
-            genericRepository.insertOrUpdatePatchEntity(
+            genericRepository.insertOrUpdatePatientPatchEntity(
                 patientFhirId = patientResponse.fhirId!!,
                 map = mapOf(
                     Pair(
@@ -145,12 +140,11 @@ class EditPatientAddressViewModel @Inject constructor(
                             operation = ChangeTypeEnum.REPLACE.value
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.PATIENT
+                )
             )
 
         } else if (value != tempValue && tempValue.isEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatchEntity(
+            genericRepository.insertOrUpdatePatientPatchEntity(
                 patientFhirId = patientResponse.fhirId!!,
                 map = mapOf(
                     Pair(
@@ -159,8 +153,7 @@ class EditPatientAddressViewModel @Inject constructor(
                             operation = ChangeTypeEnum.ADD.value
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.PATIENT
+                )
             )
 
         }

@@ -247,7 +247,7 @@ class GenericRepositoryTest : BaseClass() {
         `when`(genericDao.insertGenericEntity(genericEntityPatch)).thenReturn(listOf(-1L))
 
 
-        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(
+        val actual = genericRepositoryImpl.insertOrUpdatePatientPatchEntity(
             patientFhirId = patientResponse.fhirId!!,
             map = mapOf(
                 Pair(
@@ -256,8 +256,7 @@ class GenericRepositoryTest : BaseClass() {
                         operation = ChangeTypeEnum.REPLACE.value
                     )
                 )
-            ),
-            typeEnum = GenericTypeEnum.PATIENT
+            )
         )
 
         assertEquals(-1L, actual)
@@ -275,7 +274,7 @@ class GenericRepositoryTest : BaseClass() {
         ).thenReturn(null)
         `when`(genericDao.insertGenericEntity(genericEntityPatch)).thenReturn(listOf(-1L))
 
-        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(
+        val actual = genericRepositoryImpl.insertOrUpdatePatientPatchEntity(
             patientFhirId = patientResponse.fhirId!!,
             map = mapOf(
                 Pair(
@@ -285,7 +284,6 @@ class GenericRepositoryTest : BaseClass() {
                     )
                 )
             ),
-            typeEnum = GenericTypeEnum.PATIENT,
             uuid = genericId
         )
 
@@ -305,7 +303,7 @@ class GenericRepositoryTest : BaseClass() {
         `when`(genericDao.insertGenericEntity(genericEntityPatch)).thenReturn(listOf(-1L))
 
 
-        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(
+        val actual = genericRepositoryImpl.insertOrUpdatePatientPatchEntity(
             patientFhirId = patientResponse.fhirId!!,
             map = mapOf(
                 Pair(
@@ -314,8 +312,7 @@ class GenericRepositoryTest : BaseClass() {
                         operation = ChangeTypeEnum.REPLACE.value
                     )
                 )
-            ),
-            typeEnum = GenericTypeEnum.PATIENT
+            )
         )
 
         assertEquals(-1L, actual)
@@ -334,7 +331,7 @@ class GenericRepositoryTest : BaseClass() {
         `when`(genericDao.deleteSyncPayload(listOf(genericEntityPatchAddOperation.id))).thenReturn(1)
 
 
-        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(
+        val actual = genericRepositoryImpl.insertOrUpdatePatientPatchEntity(
             patientFhirId = patientResponse.fhirId!!,
             map = mapOf(
                 Pair(
@@ -343,8 +340,7 @@ class GenericRepositoryTest : BaseClass() {
                         operation = ChangeTypeEnum.REMOVE.value
                     )
                 )
-            ),
-            typeEnum = GenericTypeEnum.PATIENT
+            )
         )
 
         assertEquals(1, actual)
@@ -385,7 +381,7 @@ class GenericRepositoryTest : BaseClass() {
             )
         ).thenReturn(addIdentifierEntity)
 
-        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(
+        val actual = genericRepositoryImpl.insertOrUpdatePatientPatchEntity(
             patientFhirId = patientResponse.fhirId!!,
             map = mapOf(
                 Pair(
@@ -397,8 +393,7 @@ class GenericRepositoryTest : BaseClass() {
                         )
                     )
                 )
-            ),
-            typeEnum = GenericTypeEnum.PATIENT
+            )
         )
 
         assertEquals(1, actual)
@@ -463,7 +458,7 @@ class GenericRepositoryTest : BaseClass() {
 
         `when`(genericDao.insertGenericEntity(addIdentifierEntity)).thenReturn(listOf(1))
 
-        val actual = genericRepositoryImpl.insertOrUpdatePatchEntity(
+        val actual = genericRepositoryImpl.insertOrUpdatePatientPatchEntity(
             patientFhirId = patientResponse.fhirId!!,
             map = mapOf(
                 Pair(
@@ -475,8 +470,7 @@ class GenericRepositoryTest : BaseClass() {
                         )
                     )
                 )
-            ),
-            typeEnum = GenericTypeEnum.PATIENT
+            )
         )
 
         assertEquals(1, actual)

@@ -1,8 +1,6 @@
 package com.latticeonfhir.android.navigation
 
-// defining routes
 sealed class Screen(val route: String) {
-    object SplashScreen : Screen("splash_screen")
     object PhoneEmailScreen : Screen("phone_email_screen")
     object OtpScreen : Screen("otp_screen")
     object LandingScreen : Screen("landing_screen")
@@ -17,12 +15,11 @@ sealed class Screen(val route: String) {
     object ConnectPatient : Screen("connect_patient")
     object Prescription : Screen("prescription")
 
-    object EditPatient : Screen("edit_patient")
+    object PatientProfile : Screen("patient_profile")
     object EditBasicInfo : Screen("edit_basic_info")
     object EditIdentification : Screen("edit_identification")
     object EditAddress : Screen("edit_address")
 
     object Appointments : Screen("appointments")
     object ScheduleAppointments : Screen("schedule_appointments")
-    object RescheduleAppointments : Screen("reschedule_appointments")
 }

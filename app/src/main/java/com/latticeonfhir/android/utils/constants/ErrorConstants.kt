@@ -10,4 +10,5 @@ object ErrorConstants {
     const val IO_EXCEPTION = "IO Exception from server"
     const val ERROR_MESSAGE = "Error Message"
     const val SCHEDULE_EXISTS = "Schedule already exists"
+    const val SERVER_ERROR = "Server error"
 }

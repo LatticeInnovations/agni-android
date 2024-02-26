@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.householdmember.searchresult
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +11,7 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
+import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,23 +24,31 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchResultViewModel @Inject constructor(
-    private val searchRepository: SearchRepository
+    private val searchRepository: SearchRepository,
+    private val relationRepository: RelationRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var patientFrom by mutableStateOf<PatientResponse?>(null)
-    var searchResultList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf<PagingData<PatientResponse>>())
+    var searchResultList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf())
     var searchParameters by mutableStateOf<SearchParameters?>(null)
     var selectedMembersList = mutableStateListOf<PatientResponse>()
-    var size by mutableStateOf(0)
+    var size by mutableIntStateOf(0)
 
     internal fun searchPatient(searchParameters: SearchParameters) {
         viewModelScope.launch(Dispatchers.IO) {
             searchResultList =
-                searchRepository.filteredSearchPatients(patientFrom?.id!!, searchParameters).map {
-                    it.map {
-                        if (size == 0) size = it.size
-                        it.data
+                searchRepository.filteredSearchPatients(
+                    patientFrom?.id!!,
+                    searchParameters,
+                    searchRepository.getSearchList(),
+                    relationRepository.getAllRelationOfPatient(patientFrom?.id!!).map { it.toId }
+                        .toMutableSet()
+                        .apply { add(patientFrom?.id!!) }
+                ).map { data ->
+                    data.map { paginationResponse ->
+                        if (size == 0) size = paginationResponse.size
+                        paginationResponse.data
                     }
                 }.cachedIn(viewModelScope)
         }
