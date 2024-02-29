@@ -28,13 +28,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -490,8 +491,15 @@ fun QueueScreen(
         }
     }
     if (viewModel.showDatePicker) {
+        val selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                return utcTimeMillis >= Date().toTodayStartDate()
+                    .toOneYearPast().time && utcTimeMillis <= Date().toOneYearFuture().time
+            }
+        }
         val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = viewModel.selectedDate.time
+            initialSelectedDateMillis = viewModel.selectedDate.time,
+            selectableDates = selectableDates
         )
         val confirmEnabled = remember {
             derivedStateOf { datePickerState.selectedDateMillis != null }
@@ -533,17 +541,12 @@ fun QueueScreen(
             }
         ) {
             DatePicker(
-                state = datePickerState,
-                dateValidator = { date ->
-                    date >= Date().toTodayStartDate()
-                        .toOneYearPast().time && date <= Date().toOneYearFuture().time
-                }
+                state = datePickerState
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppointmentStatusChips(
     label: Int, count: Int,
@@ -573,7 +576,9 @@ fun AppointmentStatusChips(
             selectedBorderWidth = 1.dp,
             selectedBorderColor = MaterialTheme.colorScheme.primary,
             borderColor = MaterialTheme.colorScheme.outline,
-            borderWidth = 1.dp
+            borderWidth = 1.dp,
+            enabled = true,
+            selected = viewModel.selectedChip == label
         ),
         enabled = count != 0
     )
@@ -678,6 +683,7 @@ fun QueuePatientCard(
                         }
                     ),
                     border = AssistChipDefaults.assistChipBorder(
+                        enabled = true,
                         borderColor = when (appointmentResponseLocal.status) {
                             AppointmentStatusEnum.WALK_IN.value -> WalkInLabel
                             AppointmentStatusEnum.ARRIVED.value -> ArrivedLabel
@@ -718,7 +724,7 @@ fun QueuePatientCard(
                             || appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value)
             && appointmentResponseLocal.slot.start.toTodayStartDate() >= Date().toTodayStartDate()
         ) {
-            Divider(
+            HorizontalDivider(
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant,
                 modifier = Modifier.fillMaxWidth()
@@ -824,6 +830,7 @@ fun CancelledQueueCard(
                         labelColor = CancelledLabel
                     ),
                     border = AssistChipDefaults.assistChipBorder(
+                        enabled = true,
                         borderColor = CancelledLabel
                     )
                 )

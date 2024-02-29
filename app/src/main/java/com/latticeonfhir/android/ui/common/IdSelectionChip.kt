@@ -2,7 +2,6 @@ package com.latticeonfhir.android.ui.common
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -14,7 +13,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IdSelectionChip(idSelected: Boolean, label: String, updateSelection: (Boolean) -> Unit) {
     FilterChip(
@@ -28,6 +26,8 @@ fun IdSelectionChip(idSelected: Boolean, label: String, updateSelection: (Boolea
             selectedLabelColor = MaterialTheme.colorScheme.primary
         ),
         border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = idSelected,
             selectedBorderColor = MaterialTheme.colorScheme.primary,
             selectedBorderWidth = 1.dp
         ),
