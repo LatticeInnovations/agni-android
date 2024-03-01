@@ -34,7 +34,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -204,10 +203,10 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                 .padding(5.dp)
                                 .focusRequester(focusRequester)
                                 .testTag("FIRST_DIGIT"), viewModel.isOtpIncorrect
-                        ) {
-                            if (it.isEmpty()) viewModel.firstDigit = it
-                            else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.firstDigit =
-                                it
+                        ) { digit ->
+                            if (digit.isEmpty()) viewModel.firstDigit = ""
+                            else if (digit.length <= 1 && digit.matches(OnlyNumberRegex.onlyNumbers)) viewModel.firstDigit =
+                                digit
                             viewModel.updateOtp()
                         }
                         OtpTextField(
@@ -216,10 +215,10 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                 .weight(1f)
                                 .padding(5.dp)
                                 .testTag("SECOND_DIGIT"), viewModel.isOtpIncorrect
-                        ) {
-                            if (it.isEmpty()) viewModel.secondDigit = it
-                            else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.secondDigit =
-                                it
+                        ) { digit ->
+                            if (digit.isEmpty()) viewModel.secondDigit = ""
+                            else if (digit.length <= 1 && digit.matches(OnlyNumberRegex.onlyNumbers)) viewModel.secondDigit =
+                                digit
                             viewModel.updateOtp()
                         }
                         OtpTextField(
@@ -228,10 +227,10 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                 .weight(1f)
                                 .padding(5.dp)
                                 .testTag("THIRD_DIGIT"), viewModel.isOtpIncorrect
-                        ) {
-                            if (it.isEmpty()) viewModel.thirdDigit = it
-                            else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.thirdDigit =
-                                it
+                        ) { digit ->
+                            if (digit.isEmpty()) viewModel.thirdDigit = ""
+                            else if (digit.length <= 1 && digit.matches(OnlyNumberRegex.onlyNumbers)) viewModel.thirdDigit =
+                                digit
                             viewModel.updateOtp()
                         }
                         OtpTextField(
@@ -240,10 +239,10 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                 .weight(1f)
                                 .padding(5.dp)
                                 .testTag("FOUR_DIGIT"), viewModel.isOtpIncorrect
-                        ) {
-                            if (it.isEmpty()) viewModel.fourDigit = it
-                            else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.fourDigit =
-                                it
+                        ) { digit ->
+                            if (digit.isEmpty()) viewModel.fourDigit = ""
+                            else if (digit.length <= 1 && digit.matches(OnlyNumberRegex.onlyNumbers)) viewModel.fourDigit =
+                                digit
                             viewModel.updateOtp()
                         }
                         OtpTextField(
@@ -252,10 +251,10 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                 .weight(1f)
                                 .padding(5.dp)
                                 .testTag("FIVE_DIGIT"), viewModel.isOtpIncorrect
-                        ) {
-                            if (it.isEmpty()) viewModel.fiveDigit = it
-                            else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.fiveDigit =
-                                it
+                        ) { digit ->
+                            if (digit.isEmpty()) viewModel.fiveDigit = ""
+                            else if (digit.length <= 1 && digit.matches(OnlyNumberRegex.onlyNumbers)) viewModel.fiveDigit =
+                                digit
                             viewModel.updateOtp()
                         }
                         OtpTextField(
@@ -264,10 +263,10 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                 .weight(1f)
                                 .padding(5.dp)
                                 .testTag("SIX_DIGIT"), viewModel.isOtpIncorrect
-                        ) {
-                            if (it.isEmpty()) viewModel.sixDigit = it
-                            else if (it.length <= 1 && it.matches(OnlyNumberRegex.onlyNumbers)) viewModel.sixDigit =
-                                it
+                        ) { digit ->
+                            if (digit.isEmpty()) viewModel.sixDigit = ""
+                            else if (digit.length <= 1 && digit.matches(OnlyNumberRegex.onlyNumbers)) viewModel.sixDigit =
+                                digit
                             viewModel.updateOtp()
                         }
                     }
@@ -295,67 +294,13 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             color = MaterialTheme.colorScheme.error
                         )
                     } else {
-                        if (viewModel.twoMinuteTimer > 0) {
-                            Text(
-                                text = "${
-                                    String.format(
-                                        "%02d", viewModel.twoMinuteTimer / 60
-                                    )
-                                }:${
-                                    String.format(
-                                        "%02d",
-                                        viewModel.twoMinuteTimer % 60
-                                    )
-                                }",
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 15.dp)
-                                    .testTag("TWO_MIN_TIMER"),
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        } else {
-                            if (viewModel.isResending) {
-                                Spacer(modifier = Modifier.height(15.dp))
-                                ButtonLoader()
-                                Spacer(modifier = Modifier.height(15.dp))
-                            } else TextButton(
-                                onClick = {
-                                    if (CheckNetwork.isInternetAvailable(activity)) {
-                                        viewModel.isResending = true
-                                        viewModel.firstDigit = ""
-                                        viewModel.secondDigit = ""
-                                        viewModel.thirdDigit = ""
-                                        viewModel.fourDigit = ""
-                                        viewModel.fiveDigit = ""
-                                        viewModel.sixDigit = ""
-                                        viewModel.isOtpIncorrect = false
-                                        viewModel.updateOtp()
-                                        viewModel.resendOTP { resent ->
-                                            if (resent) {
-                                                viewModel.twoMinuteTimer = 120
-                                            }
-                                        }
-                                    } else {
-                                        coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                message = activity.getString(R.string.no_internet_error_msg)
-                                            )
-                                        }
-                                    }
-                                }
-                            ) {
-                                Text(
-                                    text = stringResource(id = R.string.resend_otp),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .testTag("RESEND_BUTTON"),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
+                        // Two Minute Timer
+                        TwoMinuteTimer(
+                            viewModel,
+                            coroutineScope,
+                            activity,
+                            snackbarHostState
+                        )
                     }
                     Spacer(modifier = Modifier.height(15.dp))
                     Button(
@@ -386,18 +331,101 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
     )
 }
 
+@Composable
+fun TwoMinuteTimer(
+    viewModel: OtpViewModel,
+    coroutineScope: CoroutineScope,
+    activity: MainActivity,
+    snackbarHostState: SnackbarHostState
+) {
+    if (viewModel.twoMinuteTimer > 0) {
+        Text(
+            text = "${
+                String.format(
+                    "%02d", viewModel.twoMinuteTimer / 60
+                )
+            }:${
+                String.format(
+                    "%02d",
+                    viewModel.twoMinuteTimer % 60
+                )
+            }",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 15.dp)
+                .testTag("TWO_MIN_TIMER"),
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    } else {
+        ResendButton(
+            viewModel,
+            coroutineScope,
+            activity,
+            snackbarHostState
+        )
+    }
+}
+
+@Composable
+fun ResendButton(
+    viewModel: OtpViewModel,
+    coroutineScope: CoroutineScope,
+    activity: MainActivity,
+    snackbarHostState: SnackbarHostState
+){
+    if (viewModel.isResending) {
+        Spacer(modifier = Modifier.height(15.dp))
+        ButtonLoader()
+        Spacer(modifier = Modifier.height(15.dp))
+    } else TextButton(
+        onClick = {
+            if (CheckNetwork.isInternetAvailable(activity)) {
+                viewModel.isResending = true
+                viewModel.firstDigit = ""
+                viewModel.secondDigit = ""
+                viewModel.thirdDigit = ""
+                viewModel.fourDigit = ""
+                viewModel.fiveDigit = ""
+                viewModel.sixDigit = ""
+                viewModel.isOtpIncorrect = false
+                viewModel.updateOtp()
+                viewModel.resendOTP { resent ->
+                    if (resent) {
+                        viewModel.twoMinuteTimer = 120
+                    }
+                }
+            } else {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = activity.getString(R.string.no_internet_error_msg)
+                    )
+                }
+            }
+        }
+    ) {
+        Text(
+            text = stringResource(id = R.string.resend_otp),
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("RESEND_BUTTON"),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
 fun verifyClick(navController: NavController, viewModel: OtpViewModel) {
     viewModel.isVerifying = true
     viewModel.validateOtp {
         if (it) {
             CoroutineScope(Dispatchers.Main).launch {
-                withContext(Dispatchers.Main) {
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        "loggedIn",
-                        true
-                    )
-                    navController.navigate(Screen.LandingScreen.route)
-                }
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "loggedIn",
+                    true
+                )
+                navController.navigate(Screen.LandingScreen.route)
             }
         }
     }

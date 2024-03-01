@@ -9,7 +9,6 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
@@ -71,34 +70,10 @@ class EditBasicInformationViewModel @Inject constructor(
     var genderTemp by mutableStateOf("")
     var birthDate by mutableStateOf("")
 
-    val daysList = (1..31).toList()
     var monthsList = mutableStateListOf(
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     )
-
-    fun getMonthsList() {
-        monthsList =
-            if (dobDay.toInt() > 30) mutableStateListOf(
-                "January",
-                "March",
-                "May",
-                "July",
-                "August",
-                "October",
-                "December"
-            )
-            else if (dobDay.toInt() > 29) mutableStateListOf(
-                "January", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-            )
-            else mutableStateListOf(
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-            )
-    }
-
-    val yearsList = (1920..2023).toList()
 
     var isNameValid by mutableStateOf(false)
     var isEmailValid by mutableStateOf(false)
@@ -194,7 +169,7 @@ class EditBasicInformationViewModel @Inject constructor(
             if (response > 0) {
                 if (patientResponse.fhirId != null) {
                     if (firstName != firstNameTemp) {
-                        genericRepository.insertOrUpdatePatchEntity(
+                        genericRepository.insertOrUpdatePatientPatchEntity(
                             patientFhirId = patientResponse.fhirId,
                             map = mapOf(
                                 Pair(
@@ -202,8 +177,7 @@ class EditBasicInformationViewModel @Inject constructor(
                                         value = firstName, operation = ChangeTypeEnum.REPLACE.value
                                     )
                                 )
-                            ),
-                            typeEnum = GenericTypeEnum.PATIENT
+                            )
                         )
                     }
                     checkIsValueChange(patientResponse, middleName, middleNameTemp, "middleName")
@@ -211,7 +185,7 @@ class EditBasicInformationViewModel @Inject constructor(
                     checkIsValueChange(patientResponse, email, emailTemp, "email")
 
                     if (patientResponse.gender != genderTemp) {
-                        genericRepository.insertOrUpdatePatchEntity(
+                        genericRepository.insertOrUpdatePatientPatchEntity(
                             patientFhirId = patientResponse.fhirId,
                             map = mapOf(
                                 Pair(
@@ -220,12 +194,11 @@ class EditBasicInformationViewModel @Inject constructor(
                                         operation = ChangeTypeEnum.REPLACE.value
                                     )
                                 )
-                            ),
-                            typeEnum = GenericTypeEnum.PATIENT
+                            )
                         )
                     }
                     if (phoneNumber != phoneNumberTemp) {
-                        genericRepository.insertOrUpdatePatchEntity(
+                        genericRepository.insertOrUpdatePatientPatchEntity(
                             patientFhirId = patientResponse.fhirId,
                             map = mapOf(
                                 Pair(
@@ -234,12 +207,11 @@ class EditBasicInformationViewModel @Inject constructor(
                                         operation = ChangeTypeEnum.REPLACE.value
                                     )
                                 )
-                            ),
-                            typeEnum = GenericTypeEnum.PATIENT
+                            )
                         )
                     }
                     if (patientResponse.birthDate != birthDate) {
-                        genericRepository.insertOrUpdatePatchEntity(
+                        genericRepository.insertOrUpdatePatientPatchEntity(
                             patientFhirId = patientResponse.fhirId,
                             map = mapOf(
                                 Pair(
@@ -248,8 +220,7 @@ class EditBasicInformationViewModel @Inject constructor(
                                         operation = ChangeTypeEnum.REPLACE.value
                                     )
                                 )
-                            ),
-                            typeEnum = GenericTypeEnum.PATIENT
+                            )
                         )
                     }
 
@@ -269,7 +240,7 @@ class EditBasicInformationViewModel @Inject constructor(
         key: String
     ) {
         if (value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatchEntity(
+            genericRepository.insertOrUpdatePatientPatchEntity(
                 patientFhirId = patientResponse.fhirId!!,
                 map = mapOf(
                     Pair(
@@ -277,11 +248,10 @@ class EditBasicInformationViewModel @Inject constructor(
                             value = value, operation = ChangeTypeEnum.REPLACE.value
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.PATIENT
+                )
             )
         } else if (value != tempValue && tempValue.isNotEmpty() && value.isEmpty()) {
-            genericRepository.insertOrUpdatePatchEntity(
+            genericRepository.insertOrUpdatePatientPatchEntity(
                 patientFhirId = patientResponse.fhirId!!,
                 map = mapOf(
                     Pair(
@@ -289,12 +259,11 @@ class EditBasicInformationViewModel @Inject constructor(
                             value = tempValue, operation = ChangeTypeEnum.REMOVE.value
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.PATIENT
+                )
             )
 
         } else if (value != tempValue && tempValue.isEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatchEntity(
+            genericRepository.insertOrUpdatePatientPatchEntity(
                 patientFhirId = patientResponse.fhirId!!,
                 map = mapOf(
                     Pair(
@@ -302,8 +271,7 @@ class EditBasicInformationViewModel @Inject constructor(
                             value = value, operation = ChangeTypeEnum.ADD.value
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.PATIENT
+                )
             )
 
         }

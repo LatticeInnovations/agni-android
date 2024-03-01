@@ -7,6 +7,7 @@ import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.EditBasicInformationViewModel
+import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList.getMonthsList
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -243,17 +244,17 @@ class EditBasicInformationViewModelTest : BaseClass() {
     @Test
     fun checkForMonthListLessThen30() {
         viewModel.dobDay = "23"
-        viewModel.getMonthsList()
+        viewModel.monthsList = getMonthsList(viewModel.dobDay)
     }
     @Test
     fun checkForMonthListDob30() {
         viewModel.dobDay = "30"
-        viewModel.getMonthsList()
+        viewModel.monthsList = getMonthsList(viewModel.dobDay)
     }
     @Test
     fun checkForMonthListDob31() {
         viewModel.dobDay = "31"
-        viewModel.getMonthsList()
+        viewModel.monthsList = getMonthsList(viewModel.dobDay)
     }
  @Test
     fun checkRevertChanges() {
@@ -365,7 +366,7 @@ class EditBasicInformationViewModelTest : BaseClass() {
         `when`(patientRepository.updatePatientData(patientResponse)).thenReturn(1)
 
         `when`(
-            genericRepository.insertOrUpdatePatchEntity(
+            genericRepository.insertOrUpdatePatientPatchEntity(
                 patientFhirId = patientResponse.fhirId!!,
                 map = mapOf(
                     Pair(
@@ -374,8 +375,7 @@ class EditBasicInformationViewModelTest : BaseClass() {
                             operation = ChangeTypeEnum.REPLACE.value
                         )
                     )
-                ),
-                typeEnum = GenericTypeEnum.PATIENT
+                )
             )
         ).thenReturn(1)
 

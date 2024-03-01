@@ -15,7 +15,6 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
-import com.google.android.gms.tasks.Task
 import com.latticeonfhir.android.base.activity.BaseActivity
 import com.latticeonfhir.android.navigation.NavigationAppHost
 import com.latticeonfhir.android.ui.theme.FHIRAndroidTheme
@@ -31,7 +30,7 @@ class MainActivity : BaseActivity() {
     var otp by mutableStateOf("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             FHIRAndroidTheme {
@@ -46,7 +45,7 @@ class MainActivity : BaseActivity() {
 
     private fun startSMSRetrieverClient() {
         val client = SmsRetriever.getClient(this)
-        val task: Task<Void> = client.startSmsRetriever()
+        val task = client.startSmsRetriever()
         task.addOnFailureListener { e ->
             Timber.e(e.localizedMessage)
         }

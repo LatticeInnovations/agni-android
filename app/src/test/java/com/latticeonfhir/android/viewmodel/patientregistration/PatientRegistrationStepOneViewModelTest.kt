@@ -2,6 +2,7 @@ package com.latticeonfhir.android.viewmodel.patientregistration
 
 import android.util.Patterns
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOneViewModel
+import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList
 import junit.framework.TestCase.assertEquals
 import org.junit.Assert
 import org.junit.Before
@@ -198,21 +199,21 @@ class PatientRegistrationStepOneViewModelTest {
     @Test
     fun `get month list for 31 days month`() {
         viewModel.dobDay = "31"
-        viewModel.getMonthsList()
+        viewModel.monthsList = MonthsList.getMonthsList(viewModel.dobDay)
         assertEquals(false,viewModel.monthsList.toList().contains("June"))
     }
 
     @Test
     fun `get month list for 30 days month`() {
         viewModel.dobDay = "30"
-        viewModel.getMonthsList()
+        viewModel.monthsList = MonthsList.getMonthsList(viewModel.dobDay)
         assertEquals(false,viewModel.monthsList.toList().contains("February"))
     }
 
     @Test
     fun `get month list for 29 days month`() {
         viewModel.dobDay = "29"
-        viewModel.getMonthsList()
+        viewModel.monthsList = MonthsList.getMonthsList(viewModel.dobDay)
         assertEquals(12,viewModel.monthsList.toList().size)
     }
 
