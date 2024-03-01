@@ -1,7 +1,15 @@
 package com.latticeonfhir.android
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import com.google.android.fhir.DatabaseErrorStrategy
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.FhirEngineConfiguration
+import com.google.android.fhir.FhirEngineProvider
+import com.google.android.fhir.ServerConfiguration
+import com.google.android.fhir.sync.HttpAuthenticationMethod
+import com.google.android.fhir.sync.remote.HttpLogger
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -27,6 +35,8 @@ import javax.inject.Inject
 
 @HiltAndroidApp
 class FhirApp : Application() {
+
+    private val _fhirEngine: FhirEngine by lazy { FhirEngineProvider.getInstance(this) }
 
     @Inject
     lateinit var fhirAppDatabase: FhirAppDatabase
@@ -58,6 +68,7 @@ class FhirApp : Application() {
         if (BuildConfig.DEBUG) {
             plant(Timber.DebugTree())
         }
+        initializeFhirEngine()
 
         val preferenceRepository: PreferenceRepository = PreferenceRepositoryImpl(preferenceStorage)
 
@@ -92,6 +103,27 @@ class FhirApp : Application() {
         }
     }
 
+    private fun initializeFhirEngine() {
+        FhirEngineProvider.init(
+            FhirEngineConfiguration(
+                enableEncryptionIfSupported = !BuildConfig.DEBUG,
+                databaseErrorStrategy = DatabaseErrorStrategy.RECREATE_AT_OPEN,
+                ServerConfiguration(
+                    baseUrl = BuildConfig.BASE_URL,
+                    httpLogger =
+                    HttpLogger(
+                        HttpLogger.Configuration(
+                            if (BuildConfig.DEBUG) HttpLogger.Level.BODY else HttpLogger.Level.NONE
+                        )
+                    ) {
+                        Timber.d("App-HttpLog $it")
+                    },
+                    authenticator = { HttpAuthenticationMethod.Bearer(preferenceStorage.token) }
+                ),
+            )
+        )
+    }
+
     companion object {
         val gson: Gson by lazy {
             GsonBuilder()
@@ -99,5 +131,7 @@ class FhirApp : Application() {
                 .registerTypeAdapter(Date::class.java, DateSerializer())
                 .create()
         }
+
+        fun fhirEngine(context: Context) = (context.applicationContext as FhirApp)._fhirEngine
     }
 }
