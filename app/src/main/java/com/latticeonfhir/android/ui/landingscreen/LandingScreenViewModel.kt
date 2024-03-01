@@ -79,6 +79,8 @@ class LandingScreenViewModel @Inject constructor(
 
     init {
 
+        FhirApp.runEnqueuedWorker(application)
+
         viewModelScope.launch {
             getApplication<FhirApp>().sessionExpireFlow.asFlow().collectLatest { sessionExpireMap ->
                 if (sessionExpireMap["errorReceived"] == true) {
