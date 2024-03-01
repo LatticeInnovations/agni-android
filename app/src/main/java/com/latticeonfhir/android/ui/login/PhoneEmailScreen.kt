@@ -2,6 +2,7 @@ package com.latticeonfhir.android.ui.login
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -82,59 +83,35 @@ fun PhoneEmailScreen(
                         modifier = Modifier.testTag("HEADING_TAG")
                     )
                     Spacer(modifier = Modifier.height(50.dp))
-                    OutlinedTextField(
-                        value = viewModel.inputValue,
-                        onValueChange = {
-                            if (it.length <= 50) {
-                                viewModel.inputValue = it.trim()
-                                viewModel.updateError()
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("INPUT_FIELD"),
-                        supportingText = if (viewModel.isError) {
-                            {
-                                Text(text = viewModel.errorMsg)
-                            }
-                        } else null,
-                        isError = viewModel.isError,
-                        singleLine = true,
-                        leadingIcon = if (viewModel.isPhoneNumber) {
-                            {
-                                Text(text = " +91", color = MaterialTheme.colorScheme.outline)
-                            }
-                        } else null
-                    )
+                    InputField(viewModel)
                     Spacer(modifier = Modifier.height(45.dp))
                     Button(
                         onClick = {
-                            if (isInternetAvailable(activity)) {
-                                if (viewModel.isDifferentUserLogin()) {
-                                    viewModel.showDifferentUserLoginDialog = true
-                                } else {
-                                    navigate(viewModel, navController)
-                                }
-                            } else {
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = activity.getString(R.string.no_internet_error_msg)
-                                    )
+                            when (isInternetAvailable(activity)) {
+                                true -> proceed(viewModel, navController)
+                                false -> {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = activity.getString(R.string.no_internet_error_msg)
+                                        )
+                                    }
                                 }
                             }
                         },
-                        enabled = !viewModel.isInputInvalid && viewModel.inputValue.isNotEmpty(),
+                        enabled = viewModel.isEnabled(),
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("BUTTON")
                     ) {
                         if (!viewModel.isAuthenticating) Text(text = stringResource(id = R.string.send_me_otp))
-                        if (viewModel.isAuthenticating) ButtonLoader()
+                        else ButtonLoader()
                     }
                 }
-                if (viewModel.showDifferentUserLoginDialog) {
+                AnimatedVisibility (viewModel.showDifferentUserLoginDialog) {
                     AlertDialog(
-                        onDismissRequest = { viewModel.showDifferentUserLoginDialog = false },
+                        onDismissRequest = {
+                            viewModel.showDifferentUserLoginDialog = false
+                        },
                         title = {
                             Text(
                                 text = stringResource(id = R.string.different_user_login_dialog_title),
@@ -151,16 +128,7 @@ fun PhoneEmailScreen(
                             TextButton(
                                 onClick = {
                                     viewModel.showDifferentUserLoginDialog = false
-                                    if (isInternetAvailable(activity)) {
-                                        viewModel.clearAllAppData()
-                                        navigate(viewModel, navController)
-                                    } else {
-                                        coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                message = activity.getString(R.string.no_internet_error_msg)
-                                            )
-                                        }
-                                    }
+                                    checkNetwork(viewModel, navController, activity, coroutineScope, snackbarHostState)
                                 },
                                 modifier = Modifier.testTag("POSITIVE_BTN")
                             ) {
@@ -187,6 +155,58 @@ fun PhoneEmailScreen(
         }
     )
 
+}
+
+fun checkNetwork(viewModel: PhoneEmailViewModel, navController: NavController, activity: Activity, coroutineScope: CoroutineScope, snackbarHostState: SnackbarHostState) {
+    when (isInternetAvailable(activity)) {
+        true -> {
+            viewModel.clearAllAppData()
+            navigate(viewModel, navController)
+        }
+        false -> {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = activity.getString(R.string.no_internet_error_msg)
+                )
+            }
+        }
+    }
+}
+
+fun proceed(viewModel: PhoneEmailViewModel, navController: NavController) {
+    if (viewModel.isDifferentUserLogin()) {
+        viewModel.showDifferentUserLoginDialog = true
+    } else {
+        navigate(viewModel, navController)
+    }
+}
+
+@Composable
+fun InputField(viewModel: PhoneEmailViewModel) {
+    OutlinedTextField(
+        value = viewModel.inputValue,
+        onValueChange = {
+            if (it.length <= 50) {
+                viewModel.inputValue = it.trim()
+                viewModel.updateError()
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("INPUT_FIELD"),
+        supportingText = if (viewModel.isError) {
+            {
+                Text(text = viewModel.errorMsg)
+            }
+        } else null,
+        isError = viewModel.isError,
+        singleLine = true,
+        leadingIcon = if (viewModel.isPhoneNumber) {
+            {
+                Text(text = " +91", color = MaterialTheme.colorScheme.outline)
+            }
+        } else null
+    )
 }
 
 fun navigate(viewModel: PhoneEmailViewModel, navController: NavController) {

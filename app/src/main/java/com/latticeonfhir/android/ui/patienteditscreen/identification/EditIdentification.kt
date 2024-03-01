@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -17,10 +16,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,6 +26,8 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.CustomTextField
+import com.latticeonfhir.android.ui.common.IdLength
+import com.latticeonfhir.android.ui.common.IdSelectionChip
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
 import kotlinx.coroutines.launch
 
@@ -205,7 +204,11 @@ fun EditIdentification(
                             else
                                 viewModel.isPassportValid = false
                         }
-                        IdLength(viewModel.passportId, viewModel.maxPassportIdLength)
+                        IdLength(
+                            viewModel.passportId,
+                            viewModel.maxPassportIdLength,
+                            "PASSPORT_ID_LENGTH"
+                        )
                     } else {
                         viewModel.passportId = ""
                     }
@@ -228,7 +231,7 @@ fun EditIdentification(
                                 viewModel.isVoterValid = false
                             }
                         }
-                        IdLength(viewModel.voterId, viewModel.maxVoterIdLength)
+                        IdLength(viewModel.voterId, viewModel.maxVoterIdLength, "VOTER_ID_LENGTH")
                     } else {
                         viewModel.voterId = ""
                     }
@@ -249,7 +252,11 @@ fun EditIdentification(
                             else
                                 viewModel.isPatientValid = false
                         }
-                        IdLength(viewModel.patientId, viewModel.maxPatientIdLength)
+                        IdLength(
+                            viewModel.patientId,
+                            viewModel.maxPatientIdLength,
+                            "PATIENT_ID_LENGTH"
+                        )
                     } else {
                         viewModel.patientId = ""
                     }
@@ -305,49 +312,5 @@ fun EditIdentification(
             }
 
         }
-    )
-
-
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun IdSelectionChip(idSelected: Boolean, label: String, updateSelection: (Boolean) -> Unit) {
-    FilterChip(
-        selected = idSelected,
-        onClick = {
-            updateSelection(idSelected)
-        },
-        label = { Text(text = label) },
-        colors = FilterChipDefaults.filterChipColors(
-            labelColor = MaterialTheme.colorScheme.outline,
-            selectedLabelColor = MaterialTheme.colorScheme.primary
-        ),
-        border = FilterChipDefaults.filterChipBorder(
-            selectedBorderColor = MaterialTheme.colorScheme.primary,
-            selectedBorderWidth = 1.dp
-        ),
-        leadingIcon = {
-            if (idSelected)
-                Icon(
-                    Icons.Default.Check,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.surfaceTint
-                )
-        },
-        modifier = Modifier.testTag("$label chip")
-    )
-}
-
-@Composable
-fun IdLength(idName: String, requiredLength: Int) {
-    Text(
-        text = "${idName.length}/$requiredLength",
-        textAlign = TextAlign.Right,
-        style = MaterialTheme.typography.bodySmall,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(end = 15.dp),
-        color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }

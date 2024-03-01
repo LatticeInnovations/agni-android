@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -127,38 +126,7 @@ fun EditPatientAddress(
                         .padding(it)
                         .testTag("columnLayout")
                 ) {
-                    AddressComposable(label = "Home Address", address = viewModel.homeAddress) {
-
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    if (viewModel.addWorkAddress) {
-                        OutlinedButton(
-                            onClick = { viewModel.addWorkAddress = true },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .testTag("add work address btn")
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = "add work address icon")
-                            Text(text = "Add a work address")
-                        }
-                    }
-
-                    if (viewModel.addWorkAddress) {
-                        AddressComposable(
-                            label = "Work Address",
-                            address = viewModel.workAddress
-                        ) {
-                            viewModel.workAddress.pincode = ""
-                            viewModel.workAddress.state = ""
-                            viewModel.workAddress.city = ""
-                            viewModel.workAddress.addressLine2 = ""
-                            viewModel.workAddress.addressLine1 = ""
-                            viewModel.workAddress.district = ""
-                            viewModel.addWorkAddress = false
-                        }
-                    }
+                    AddressComposable(label = "Home Address", address = viewModel.homeAddress)
                     Spacer(modifier = Modifier.testTag("end of page"))
                 }
 

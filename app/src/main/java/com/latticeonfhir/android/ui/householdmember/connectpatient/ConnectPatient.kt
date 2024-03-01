@@ -67,6 +67,8 @@ import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.DiscardAllRelationDialog
+import com.latticeonfhir.android.ui.common.RelationDialogContent
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
@@ -170,46 +172,13 @@ fun ConnectPatient(
                     }
                 }
                 if (viewModel.discardAllRelationDialog) {
-                    AlertDialog(
-                        onDismissRequest = {
-                            viewModel.discardAllRelationDialog = false
-                        },
-                        title = {
-                            Text(
-                                text = stringResource(id = R.string.discard_relations_dialog_title),
-                                style = MaterialTheme.typography.headlineSmall,
-                                modifier = Modifier.testTag("delete dialog title")
-                            )
-                        },
-                        text = {
-                            Text(
-                                stringResource(id = R.string.discard_relations_dialog_description),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    viewModel.discardAllRelationDialog = false
-                                    viewModel.discardRelations()
-                                    navController.popBackStack()
-                                }) {
-                                Text(
-                                    stringResource(id = R.string.yes_discard)
-                                )
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = {
-                                    viewModel.discardAllRelationDialog = false
-                                }) {
-                                Text(
-                                    stringResource(id = R.string.no_go_back)
-                                )
-                            }
+                    DiscardAllRelationDialog { discard ->
+                        if (discard) {
+                            viewModel.discardRelations()
+                            navController.popBackStack()
                         }
-                    )
+                        viewModel.discardAllRelationDialog = false
+                    }
                 }
 
                 if (viewModel.showConfirmDialog) {
@@ -511,87 +480,25 @@ fun EditDialog(
             )
         },
         text = {
-            Column {
-                Text(
+            RelationDialogContent(
+                NameConverter.getFullName(
+                    relationView.patientFirstName,
+                    relationView.patientMiddleName,
+                    relationView.patientLastName
+                ),
+                "of ${
                     NameConverter.getFullName(
-                        relationView.patientFirstName,
-                        relationView.patientMiddleName,
-                        relationView.patientLastName
-                    ),
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Spacer(modifier = Modifier.height(23.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "is the",
-                        style = MaterialTheme.typography.bodyLarge
+                        relationView.relativeFirstName,
+                        relationView.relativeMiddleName,
+                        relationView.relativeLastName
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Column {
-                        val relationsList =
-                            RelationshipList.getRelationshipList(relationView.patientGender)
-
-                        TextField(
-                            value = relation,
-                            onValueChange = {
-                                relation = it
-                            },
-                            trailingIcon = {
-                                IconButton(onClick = { expanded = !expanded }) {
-                                    Icon(Icons.Default.ArrowDropDown, contentDescription = "")
-                                }
-                            },
-                            readOnly = true,
-                            textStyle = MaterialTheme.typography.bodyLarge,
-                            interactionSource = remember {
-                                MutableInteractionSource()
-                            }.also { interactionSource ->
-                                LaunchedEffect(interactionSource) {
-                                    interactionSource.interactions.collect {
-                                        if (it is PressInteraction.Release) {
-                                            expanded = !expanded
-                                        }
-                                    }
-                                }
-                            },
-                        )
-                        DropdownMenu(
-                            modifier = Modifier.fillMaxHeight(0.4f),
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                        ) {
-                            relationsList.forEach { label ->
-                                DropdownMenuItem(
-                                    onClick = {
-                                        expanded = false
-                                        relation = label
-                                    },
-                                    text = {
-                                        Text(
-                                            text = label,
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(23.dp))
-                Text(
-                    text = "of ${
-                        NameConverter.getFullName(
-                            relationView.relativeFirstName,
-                            relationView.relativeMiddleName,
-                            relationView.relativeLastName
-                        )
-                    }.",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                }.",
+                relationView.patientGender,
+                relation,
+                expanded
+            ) { update, value ->
+                if (update) relation = value
+                expanded = !expanded
             }
         },
         confirmButton = {

@@ -72,4 +72,8 @@ class PhoneEmailViewModel @Inject constructor(
             preferenceRepository.clearPreferences()
         }
     }
+
+    fun isEnabled(): Boolean {
+        return !isInputInvalid && inputValue.isNotEmpty()
+    }
 }
