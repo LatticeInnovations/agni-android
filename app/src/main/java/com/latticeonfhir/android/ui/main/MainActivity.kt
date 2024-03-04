@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -78,7 +79,11 @@ class MainActivity : BaseActivity() {
     fun registerBroadcastReceiver() {
         startSMSRetrieverClient()
         val intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
-        registerReceiver(smsVerificationBroadcastReceiver, intentFilter)
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(smsVerificationBroadcastReceiver, intentFilter, RECEIVER_EXPORTED)
+        } else {
+            registerReceiver(smsVerificationBroadcastReceiver, intentFilter)
+        }
     }
 
     fun unregisterBroadcastReceiver() {
