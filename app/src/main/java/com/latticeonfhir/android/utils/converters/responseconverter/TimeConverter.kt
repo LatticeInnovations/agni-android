@@ -1,7 +1,8 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
-import android.os.Build
 import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -274,17 +275,10 @@ object TimeConverter {
     }
 
     internal fun Long.toTimeStampDate(): String {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = this
-            formatter.format(calendar.time)
-        } else {
-            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sszzz", Locale.getDefault())
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = this
-            formatter.format(calendar.time).replace("GMT", "")
-        }
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this
+        return formatter.format(calendar.time)
     }
 
     internal fun String.toTimeInMilli(): Long {
@@ -292,5 +286,14 @@ object TimeConverter {
         val sdf = SimpleDateFormat(YYYY_MM_DD, Locale.getDefault())
         val date = sdf.parse(myDate)
         return date?.time ?: 0L
+    }
+
+    internal fun Date.toTimeZoneString(): String {
+        val simpleDateFormat =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.getDefault())
+                .withZone(
+                    ZoneId.of("Europe/London")
+                )
+        return simpleDateFormat.format(this.toInstant())
     }
 }
