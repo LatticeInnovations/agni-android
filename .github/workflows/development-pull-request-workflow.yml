@@ -28,7 +28,7 @@ jobs:
           gradle-version: 8.4
 
       - name: Grant rights
-        run: chmod +x build.gradle.kts
+        run: chmod +x build.gradle
 
       - name: Setup Gradle Cache
         uses: actions/cache@v3
