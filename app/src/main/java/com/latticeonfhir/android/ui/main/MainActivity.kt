@@ -81,8 +81,6 @@ class MainActivity : BaseActivity() {
         val intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(smsVerificationBroadcastReceiver, intentFilter, RECEIVER_EXPORTED)
-        } else {
-            registerReceiver(smsVerificationBroadcastReceiver, intentFilter)
         }
     }
 
