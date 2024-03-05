@@ -25,36 +25,26 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.AddressComposable
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.theme.Neutral40
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.FROM_HOUSEHOLD_MEMBER
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_FROM
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_REGISTER_DETAILS
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.RELATION
+import org.hl7.fhir.r4.model.Address
+import org.hl7.fhir.r4.model.StringType
 import java.util.Locale
 
 @Composable
 fun PatientRegistrationStepThree(
     navController: NavController,
-    patientRegister: PatientRegister,
+    patientRegistrationViewModel: PatientRegistrationViewModel,
     viewModel: PatientRegistrationStepThreeViewModel = viewModel()
 ) {
-    val patientRegistrationViewModel: PatientRegistrationViewModel = viewModel()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            patientRegister.run {
-                viewModel.homeAddress.pincode = homePostalCode.toString()
-                viewModel.homeAddress.state = homeState.toString()
-                viewModel.homeAddress.city = homeCity.toString()
-                viewModel.homeAddress.district = homeDistrict.toString()
-                viewModel.homeAddress.addressLine1 = homeAddressLine1.toString()
-                viewModel.homeAddress.addressLine2 = homeAddressLine2.toString()
-                viewModel.addWorkAddress = workPostalCode.toString().isNotEmpty()
-                viewModel.workAddress.pincode = workPostalCode.toString()
-                viewModel.workAddress.state = workState.toString()
-                viewModel.workAddress.city = workCity.toString()
-                viewModel.workAddress.district = workDistrict.toString()
-                viewModel.homeAddress.addressLine1 = homeAddressLine1.toString()
-                viewModel.homeAddress.addressLine2 = homeAddressLine2.toString()
-            }
+            if (patientRegistrationViewModel.isEditing) viewModel.setData(patientRegistrationViewModel.patient)
+            viewModel.isLaunched = true
         }
-        viewModel.isLaunched = true
     }
     Column(
         modifier = Modifier
@@ -93,67 +83,53 @@ fun PatientRegistrationStepThree(
 
         Button(
             onClick = {
-                patientRegister.run {
-                    homePostalCode = viewModel.homeAddress.pincode
-                    homeAddressLine1 = viewModel.homeAddress.addressLine1.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    homeAddressLine2 = viewModel.homeAddress.addressLine2.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    homeState = viewModel.homeAddress.state
-                    homeCity = viewModel.homeAddress.city.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    homeDistrict = viewModel.homeAddress.district.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    workPostalCode = viewModel.workAddress.pincode
-                    workAddressLine1 = viewModel.workAddress.addressLine1.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    workAddressLine2 = viewModel.workAddress.addressLine2.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    workState = viewModel.workAddress.state
-                    workCity = viewModel.workAddress.city.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    workDistrict = viewModel.workAddress.district.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
+                patientRegistrationViewModel.patient.apply {
+                    address.clear()
+                    address.add(
+                        Address().apply {
+                            use = Address.AddressUse.HOME
+                            postalCode = viewModel.homeAddress.pincode
+                            district = viewModel.homeAddress.district.replaceFirstChar {
+                                it.titlecase(Locale.getDefault())
+                            }
+                            state = viewModel.homeAddress.state
+                            city = viewModel.homeAddress.city.replaceFirstChar {
+                                it.titlecase(Locale.getDefault())
+                            }
+                            line.add(
+                                StringType(
+                                    viewModel.homeAddress.addressLine1.replaceFirstChar {
+                                        it.titlecase(Locale.getDefault())
+                                    }
+                                )
+                            )
+                            line.add(
+                                StringType(
+                                    viewModel.homeAddress.addressLine2.replaceFirstChar {
+                                        it.titlecase(Locale.getDefault())
+                                    }
+                                )
+                            )
+                            text = "${viewModel.homeAddress.addressLine1} ${viewModel.homeAddress.addressLine2}"
+                            country = "India"
+                        }
+                    )
                 }
                 navController.currentBackStackEntry?.savedStateHandle?.set(
-                    key = "patient_register_details",
-                    value = patientRegister
+                    key = PATIENT_REGISTER_DETAILS,
+                    value = patientRegistrationViewModel.patient
                 )
                 if (patientRegistrationViewModel.fromHouseholdMember) {
                     navController.currentBackStackEntry?.savedStateHandle?.set(
-                        key = "fromHouseholdMember",
+                        key = FROM_HOUSEHOLD_MEMBER,
                         value = patientRegistrationViewModel.fromHouseholdMember
                     )
                     navController.currentBackStackEntry?.savedStateHandle?.set(
-                        key = "patientFrom",
+                        key = PATIENT_FROM,
                         value = patientRegistrationViewModel.patientFrom
                     )
                     navController.currentBackStackEntry?.savedStateHandle?.set(
-                        key = "relation",
+                        key = RELATION,
                         value = patientRegistrationViewModel.relation
                     )
                 }

@@ -3,12 +3,30 @@ package com.latticeonfhir.android.ui.patienteditscreen.identification
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -21,14 +39,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.ui.common.IdLength
 import com.latticeonfhir.android.ui.common.IdSelectionChip
-import com.latticeonfhir.android.utils.constants.IdentificationConstants
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PASSPORT_TYPE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PATIENT_ID_TYPE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.VOTER_ID_TYPE
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,17 +68,17 @@ fun EditIdentification(
                 identifier.forEach { identity ->
 
                     when (identity.identifierType) {
-                        IdentificationConstants.PASSPORT_TYPE -> {
+                        PASSPORT_TYPE -> {
                             viewModel.passportId = identity.identifierNumber
                             viewModel.isPassportSelected = viewModel.passportId.isNotEmpty()
                         }
 
-                        IdentificationConstants.VOTER_ID_TYPE -> {
+                        VOTER_ID_TYPE -> {
                             viewModel.voterId = identity.identifierNumber
 
                         }
 
-                        IdentificationConstants.PATIENT_ID_TYPE -> {
+                        PATIENT_ID_TYPE -> {
                             viewModel.patientId = identity.identifierNumber
                         }
 
@@ -270,7 +289,7 @@ fun EditIdentification(
                     if (viewModel.passportId.isNotEmpty() && viewModel.isPassportSelected) {
                         viewModel.identifierList.add(
                             PatientIdentifier(
-                                identifierType = IdentificationConstants.PASSPORT_TYPE,
+                                identifierType = PASSPORT_TYPE,
                                 identifierNumber = viewModel.passportId,
                                 code = null
                             )
@@ -279,7 +298,7 @@ fun EditIdentification(
                     if (viewModel.voterId.isNotEmpty() && viewModel.isVoterSelected) {
                         viewModel.identifierList.add(
                             PatientIdentifier(
-                                identifierType = IdentificationConstants.VOTER_ID_TYPE,
+                                identifierType = VOTER_ID_TYPE,
                                 identifierNumber = viewModel.voterId,
                                 code = null
                             )
@@ -288,7 +307,7 @@ fun EditIdentification(
                     if (viewModel.patientId.isNotEmpty() && viewModel.isPatientSelected) {
                         viewModel.identifierList.add(
                             PatientIdentifier(
-                                identifierType = IdentificationConstants.PATIENT_ID_TYPE,
+                                identifierType = PATIENT_ID_TYPE,
                                 identifierNumber = viewModel.patientId,
                                 code = null
                             )
