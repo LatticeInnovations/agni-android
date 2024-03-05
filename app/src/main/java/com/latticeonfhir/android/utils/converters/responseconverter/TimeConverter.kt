@@ -67,6 +67,12 @@ object TimeConverter {
         return outputFormat.format(date!!)
     }
 
+
+    internal fun Date.toPatientPreviewDate(): String {
+        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        return outputFormat.format(this)
+    }
+
     internal fun ageToPatientDate(years: Int, months: Int, days: Int): String {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.YEAR, -years)
@@ -295,5 +301,28 @@ object TimeConverter {
                     ZoneId.of("Europe/London")
                 )
         return simpleDateFormat.format(this.toInstant())
+    }
+
+    internal fun Date.toDay(): String {
+        val formatter = SimpleDateFormat("dd", Locale.getDefault())
+        return formatter.format(this)
+    }
+
+    internal fun Date.toFullMonth(): String {
+        val formatter = SimpleDateFormat("MMMM", Locale.getDefault())
+        return formatter.format(this)
+    }
+
+    internal fun ageToPatientBirthDate(years: Int, months: Int, days: Int): Date {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.YEAR, -years)
+        calendar.add(Calendar.MONTH, -months)
+        calendar.add(Calendar.DAY_OF_MONTH, -days)
+        return calendar.time
+    }
+
+    internal fun String.dateToDOB(): Date {
+        val inputFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+        return inputFormat.parse(this)!!
     }
 }

@@ -1,27 +1,53 @@
 package com.latticeonfhir.android.ui.patientregistration
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.RelationDialogContent
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
+import com.latticeonfhir.android.ui.common.ScreenLoader
 import com.latticeonfhir.android.ui.patientregistration.preview.DiscardDialog
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
 import com.latticeonfhir.android.ui.patientregistration.step2.PatientRegistrationStepTwo
 import com.latticeonfhir.android.ui.patientregistration.step3.PatientRegistrationStepThree
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.CURRENT_STEP
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.FROM_HOUSEHOLD_MEMBER
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.IS_EDITING
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_REGISTER_DETAILS
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import org.hl7.fhir.r4.model.Patient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,36 +55,38 @@ fun PatientRegistration(
     navController: NavController,
     viewModel: PatientRegistrationViewModel = viewModel()
 ) {
-    var patientRegister = PatientRegister()
-    if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-            "isEditing"
-        ) == true
-    ) {
-        viewModel.currentStep = navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
-            "currentStep"
-        )!!
-        viewModel.isEditing = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-            "isEditing"
-        )!!
-        patientRegister =
-            navController.previousBackStackEntry?.savedStateHandle?.get<PatientRegister>(
-                "patient_register_details"
-            )!!
-    }
     LaunchedEffect(viewModel.isLaunched) {
-        if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-                "fromHouseholdMember"
-            ) == true
-        ) {
-            viewModel.fromHouseholdMember = true
-            viewModel.showRelationDialogue = true
-            viewModel.totalSteps = 4
-            viewModel.patientFrom =
-                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
-                )
+        if (!viewModel.isLaunched){
+            if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                    IS_EDITING
+                ) == true
+            ) {
+                viewModel.currentStep = navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
+                    CURRENT_STEP
+                )!!
+                viewModel.isEditing = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                    IS_EDITING
+                )!!
+                viewModel.patient =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
+                        PATIENT_REGISTER_DETAILS
+                    )!!
+            }
+
+            if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                    FROM_HOUSEHOLD_MEMBER
+                ) == true
+            ) {
+                viewModel.fromHouseholdMember = true
+                viewModel.showRelationDialogue = true
+                viewModel.totalSteps = 4
+                viewModel.patientFrom =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                        PATIENT
+                    )
+            }
+            viewModel.isLaunched = true
         }
-        viewModel.isLaunched = true
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -76,7 +104,7 @@ fun PatientRegistration(
                             viewModel.currentStep -= 1
                         }) {
                             Icon(
-                                Icons.Default.ArrowBack,
+                                Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "BACK_ICON"
                             )
                         }
@@ -102,9 +130,9 @@ fun PatientRegistration(
                     .padding(it)
             ) {
                 when (viewModel.currentStep) {
-                    1 -> PatientRegistrationStepOne(patientRegister)
-                    2 -> PatientRegistrationStepTwo(patientRegister)
-                    3 -> PatientRegistrationStepThree(navController, patientRegister)
+                    1 -> PatientRegistrationStepOne(viewModel)
+                    2 -> PatientRegistrationStepTwo(viewModel)
+                    3 -> PatientRegistrationStepThree(navController, viewModel)
                 }
                 if (viewModel.openDialog) {
                     DiscardDialog(navController, viewModel.fromHouseholdMember) {
@@ -186,4 +214,5 @@ fun PatientRegistration(
             }
         }
     )
+    if (viewModel.showLoader) ScreenLoader(text = stringResource(id = R.string.please_wait))
 }

@@ -206,4 +206,7 @@ include them in the household</string>
     <string name="appointment_exists">Appointment for this date already exists.</string>
     <string name="please_add_patient_to_queue">Please add patient to the queue to start prescription</string>
     <string name="prescription_already_exists_for_today">Prescription already exists for today</string>
+
+    <string name="please_wait">Please wait…</string>
+    <string name="saving">Saving…</string>
 </resources>

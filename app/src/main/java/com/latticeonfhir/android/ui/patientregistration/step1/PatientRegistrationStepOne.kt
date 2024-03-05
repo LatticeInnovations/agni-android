@@ -45,33 +45,26 @@ import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.theme.Neutral40
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList.getMonthsList
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientBirthDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.dateToDOB
+import org.hl7.fhir.r4.model.ContactPoint
+import org.hl7.fhir.r4.model.Enumerations
+import org.hl7.fhir.r4.model.HumanName
+import org.hl7.fhir.r4.model.StringType
 import java.util.Locale
 
 @Composable
 fun PatientRegistrationStepOne(
-    patientRegister: PatientRegister,
+    patientRegistrationViewModel: PatientRegistrationViewModel,
     viewModel: PatientRegistrationStepOneViewModel = viewModel()
 ) {
-    val patientRegistrationViewModel: PatientRegistrationViewModel = viewModel()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            patientRegister.run {
-                viewModel.firstName = firstName.toString()
-                viewModel.middleName = middleName.toString()
-                viewModel.lastName = lastName.toString()
-                viewModel.phoneNumber = phoneNumber.toString()
-                viewModel.email = email.toString()
-                viewModel.dobAgeSelector = dobAgeSelector.toString()
-                viewModel.dobDay = dobDay.toString()
-                viewModel.dobMonth = dobMonth.toString()
-                viewModel.dobYear = dobYear.toString()
-                viewModel.years = years.toString()
-                viewModel.months = months.toString()
-                viewModel.days = days.toString()
-                viewModel.gender = gender.toString()
+            if (patientRegistrationViewModel.isEditing) {
+                viewModel.setData(patientRegistrationViewModel.patient)
             }
             viewModel.isLaunched = true
         }
@@ -187,32 +180,54 @@ fun PatientRegistrationStepOne(
         }
         Button(
             onClick = {
-                patientRegister.run {
-                    firstName = viewModel.firstName.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
+                patientRegistrationViewModel.patient.apply {
+                    id = UUIDBuilder.generateUUID()
+                    active = true
+                    name.clear()
+                    name.add(
+                        HumanName().apply {
+                            given.add(
+                                StringType(
+                                    viewModel.firstName.replaceFirstChar {
+                                        it.titlecase(Locale.getDefault())
+                                    })
+                            )
+                            given.add(
+                                StringType(
+                                    viewModel.middleName.replaceFirstChar {
+                                        it.titlecase(Locale.getDefault())
+                                    }
+                                )
+                            )
+                            family = viewModel.lastName.replaceFirstChar {
+                                it.titlecase(Locale.getDefault())
+                            }
+                        }
+                    )
+                    birthDate = if (viewModel.dobAgeSelector == "dob")
+                        "${viewModel.dobDay} ${viewModel.dobMonth} ${viewModel.dobYear}".dateToDOB()
+                        else ageToPatientBirthDate(
+                        viewModel.years.toIntOrNull() ?: 0,
+                        viewModel.months.toIntOrNull() ?: 0,
+                        viewModel.days.toIntOrNull() ?: 0
+                    )
+                    telecom.clear()
+                    telecom.add(
+                        ContactPoint().apply {
+                            system = ContactPoint.ContactPointSystem.PHONE
+                            rank = 1
+                            value = viewModel.phoneNumber
+                        }
+                    )
+                    if (viewModel.email.isNotBlank()) {
+                        telecom.add(
+                            ContactPoint().apply {
+                                system = ContactPoint.ContactPointSystem.EMAIL
+                                value = viewModel.email
+                            }
+                        )
                     }
-                    middleName = viewModel.middleName.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    lastName = viewModel.lastName.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    dobAgeSelector = viewModel.dobAgeSelector
-                    dobDay = viewModel.dobDay
-                    dobMonth = viewModel.dobMonth
-                    dobYear = viewModel.dobYear
-                    years = viewModel.years
-                    months = viewModel.months
-                    days = viewModel.days
-                    phoneNumber = viewModel.phoneNumber
-                    email = viewModel.email
-                    gender = viewModel.gender
+                    gender = Enumerations.AdministrativeGender.fromCode(viewModel.genderAtBirth)
                 }
                 patientRegistrationViewModel.currentStep = 2
             },
@@ -261,7 +276,7 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
             error = errorMsg,
             KeyboardType.Number
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.dobDay = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobDay = it
             if (viewModel.dobDay.isNotEmpty()) {
                 viewModel.isDobDayValid =
                     viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 31
@@ -337,7 +352,7 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
             error = stringResource(id = R.string.year_error_msg),
             KeyboardType.Number
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.dobYear = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobYear = it
             if (viewModel.dobYear.isNotEmpty()) {
                 viewModel.isDobYearValid =
                     viewModel.dobYear.toInt() < 1900 || viewModel.dobYear.toInt() > 2023
@@ -362,7 +377,7 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
             ),
             KeyboardType.Number
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.years = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
             if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
                 viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
         }
@@ -378,7 +393,7 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
             ),
             KeyboardType.Number
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.months = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.months = it
             if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =
                 viewModel.months.toInt() < 1 || viewModel.months.toInt() > 11
         }
@@ -394,7 +409,7 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
             ),
             KeyboardType.Number
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.days = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
             if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
                 viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
         }
@@ -463,27 +478,27 @@ fun GenderComposable(viewModel: PatientRegistrationStepOneViewModel) {
         )
         Spacer(modifier = Modifier.width(20.dp))
         CustomFilterChip(
-            viewModel.gender,
+            viewModel.genderAtBirth,
             GenderEnum.MALE.value,
             stringResource(id = R.string.male)
         ) {
-            viewModel.gender = it
+            viewModel.genderAtBirth = it
         }
         Spacer(modifier = Modifier.width(15.dp))
         CustomFilterChip(
-            viewModel.gender,
+            viewModel.genderAtBirth,
             GenderEnum.FEMALE.value,
             stringResource(id = R.string.female)
         ) {
-            viewModel.gender = it
+            viewModel.genderAtBirth = it
         }
         Spacer(modifier = Modifier.width(15.dp))
         CustomFilterChip(
-            viewModel.gender,
+            viewModel.genderAtBirth,
             GenderEnum.OTHER.value,
             stringResource(id = R.string.other)
         ) {
-            viewModel.gender = it
+            viewModel.genderAtBirth = it
         }
     }
 }
