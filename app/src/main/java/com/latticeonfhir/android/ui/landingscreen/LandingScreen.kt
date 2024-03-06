@@ -75,7 +75,12 @@ import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum.Companio
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.IS_SEARCH_RESULT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.LOGGED_IN
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.LOGOUT_REASON
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.LOGOUT_USER
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SEARCH_PARAMETERS
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
@@ -150,17 +155,17 @@ fun LandingScreen(
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-                    "isSearchResult"
+                    IS_SEARCH_RESULT
                 ) == true
             ) {
                 viewModel.isSearchResult = true
                 viewModel.searchParameters =
                     navController.previousBackStackEntry?.savedStateHandle?.get<SearchParameters>(
-                        "searchParameters"
+                        SEARCH_PARAMETERS
                     )
             } else if (
                 navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-                    "loggedIn"
+                    LOGGED_IN
                 ) == true
             ) {
                 coroutineScope.launch {
@@ -178,11 +183,11 @@ fun LandingScreen(
         if (viewModel.logoutUser) {
             viewModel.logout()
             navController.currentBackStackEntry?.savedStateHandle?.set(
-                "logoutUser",
+                LOGOUT_USER,
                 viewModel.logoutUser
             )
             navController.currentBackStackEntry?.savedStateHandle?.set(
-                "logoutReason",
+                LOGOUT_REASON,
                 viewModel.logoutReason
             )
             navController.navigate(Screen.PhoneEmailScreen.route)
