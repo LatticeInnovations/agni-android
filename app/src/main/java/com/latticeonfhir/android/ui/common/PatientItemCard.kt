@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import org.hl7.fhir.r4.model.Patient
 
@@ -32,7 +33,7 @@ fun PatientItemCard(navController: NavController, patient: Patient) {
             .testTag("PATIENT")
             .clickable {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "patient",
+                    PATIENT,
                     patient
                 )
                 navController.navigate(Screen.PatientLandingScreen.route)
