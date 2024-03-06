@@ -9,30 +9,31 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
 import androidx.work.WorkManager
 import androidx.work.await
+import com.google.android.fhir.FhirEngine
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.android.utils.network.CheckNetwork
+import com.latticeonfhir.android.utils.paging.PatientPagingSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Patient
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -40,7 +41,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LandingScreenViewModel @Inject constructor(
     application: Application,
-    private val patientRepository: PatientRepository,
+    private val fhirEngine: FhirEngine,
     private val searchRepository: SearchRepository,
     private val preferenceRepository: PreferenceRepository
 ) : BaseAndroidViewModel(application) {
@@ -56,11 +57,11 @@ class LandingScreenViewModel @Inject constructor(
     var isSearchResult by mutableStateOf(false)
     var searchQuery by mutableStateOf("")
     var selectedIndex by mutableIntStateOf(0)
-    var patientList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf())
-    var searchResultList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf())
+
+    //var patientList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf())
+    var patientList: Flow<PagingData<Patient>> by mutableStateOf(flowOf())
     var searchParameters by mutableStateOf<SearchParameters?>(null)
     var previousSearchList = mutableListOf<String>()
-    var size by mutableIntStateOf(0)
     var isLoggingOut by mutableStateOf(false)
     var addedToQueue by mutableStateOf(false)
     var patientArrived by mutableStateOf(false)
@@ -137,20 +138,38 @@ class LandingScreenViewModel @Inject constructor(
 
     private fun getPatientList() {
         viewModelScope.launch(Dispatchers.IO) {
-            patientList = patientRepository.getPatientList().asFlow().cachedIn(viewModelScope)
+            patientList = Pager(
+                config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+                pagingSourceFactory = {
+                    PatientPagingSource(
+                        fhirEngine,
+                        20,
+                        isSearchResult,
+                        searchParameters
+                    )
+                }
+            ).flow.cachedIn(viewModelScope)
         }
     }
 
     fun populateList() {
-        size = 0
-        searchResultList = flowOf()
         isLoading = true
-        if (isSearchResult) {
-            if (isSearchingByQuery) searchPatientByQuery()
-            else searchPatient(searchParameters!!)
-        } else {
-            getPatientList()
-        }
+        if (isSearchingByQuery)
+            searchParameters = SearchParameters(
+                null,
+                searchQuery,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
+        getPatientList()
     }
 
     internal fun getPreviousSearches() {
@@ -162,35 +181,6 @@ class LandingScreenViewModel @Inject constructor(
     internal fun insertRecentSearch() {
         viewModelScope.launch(Dispatchers.IO) {
             searchRepository.insertRecentPatientSearch(searchQuery.trim())
-        }
-    }
-
-    private fun searchPatient(searchParameters: SearchParameters) {
-        viewModelScope.launch(Dispatchers.IO) {
-            searchResultList =
-                searchRepository.searchPatients(searchParameters, searchRepository.getSearchList())
-                    .map { data ->
-                        data.map { paginationResponse ->
-                            size = paginationResponse.size
-                            paginationResponse.data
-                        }
-                    }.cachedIn(viewModelScope)
-            isLoading = false
-        }
-    }
-
-    private fun searchPatientByQuery() {
-        viewModelScope.launch(Dispatchers.IO) {
-            searchResultList = searchRepository.searchPatientByQuery(
-                searchQuery.trim(),
-                searchRepository.getSearchList()
-            ).map { data ->
-                data.map { paginationResponse ->
-                    size = paginationResponse.size
-                    paginationResponse.data
-                }
-            }.cachedIn(viewModelScope)
-            isLoading = false
         }
     }
 
