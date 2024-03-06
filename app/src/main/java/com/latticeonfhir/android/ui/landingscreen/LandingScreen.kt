@@ -504,11 +504,13 @@ fun LandingScreen(
                         ),
                         keyboardActions = KeyboardActions(
                             onSearch = {
-                                viewModel.isSearchResult = true
                                 viewModel.isSearching = false
-                                viewModel.isSearchingByQuery = true
-                                viewModel.insertRecentSearch()
-                                viewModel.populateList()
+                                if (viewModel.searchQuery.isNotBlank()) {
+                                    viewModel.isSearchingByQuery = true
+                                    viewModel.isSearchResult = true
+                                    viewModel.insertRecentSearch()
+                                    viewModel.populateList()
+                                }
                             }
                         ),
                         singleLine = true
