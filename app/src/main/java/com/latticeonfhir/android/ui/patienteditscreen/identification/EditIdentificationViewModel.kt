@@ -13,7 +13,9 @@ import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepo
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.constants.IdentificationConstants
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PASSPORT_TYPE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PATIENT_ID_TYPE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.VOTER_ID_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.regex.PassportRegex
 import com.latticeonfhir.android.utils.regex.VoterRegex
@@ -102,7 +104,7 @@ class EditIdentificationViewModel @Inject constructor(
             if (passportIdTemp != passportId || !isPassportSelected) {
                 toBeDeletedList.add(
                     PatientIdentifier(
-                        identifierType = IdentificationConstants.PASSPORT_TYPE,
+                        identifierType = PASSPORT_TYPE,
                         identifierNumber = passportIdTemp,
                         code = null
                     )
@@ -112,7 +114,7 @@ class EditIdentificationViewModel @Inject constructor(
             if (voterIdTemp != voterId || !isPassportSelected) {
                 toBeDeletedList.add(
                     PatientIdentifier(
-                        identifierType = IdentificationConstants.VOTER_ID_TYPE,
+                        identifierType = VOTER_ID_TYPE,
                         identifierNumber = voterIdTemp,
                         code = null
                     )
@@ -121,7 +123,7 @@ class EditIdentificationViewModel @Inject constructor(
             if (patientIdTemp != patientId || !isPassportSelected) {
                 toBeDeletedList.add(
                     PatientIdentifier(
-                        identifierType = IdentificationConstants.PATIENT_ID_TYPE,
+                        identifierType = PATIENT_ID_TYPE,
                         identifierNumber = patientIdTemp,
                         code = null
                     )
@@ -147,11 +149,11 @@ class EditIdentificationViewModel @Inject constructor(
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
+                                    identifierType = PASSPORT_TYPE,
                                     identifierNumber = passportIdTemp,
                                     code = null
                                 ), operation = ChangeTypeEnum.REMOVE.value,
-                                key = IdentificationConstants.PASSPORT_TYPE
+                                key = PASSPORT_TYPE
                             )
 
                         )
@@ -160,11 +162,11 @@ class EditIdentificationViewModel @Inject constructor(
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
+                                    identifierType = PASSPORT_TYPE,
                                     identifierNumber = passportId,
                                     code = null
                                 ), operation = ChangeTypeEnum.REPLACE.value,
-                                key = IdentificationConstants.PASSPORT_TYPE
+                                key = PASSPORT_TYPE
                             )
 
                         )
@@ -173,11 +175,11 @@ class EditIdentificationViewModel @Inject constructor(
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
+                                    identifierType = PASSPORT_TYPE,
                                     identifierNumber = passportId,
                                     code = null
                                 ), operation = ChangeTypeEnum.ADD.value,
-                                key = IdentificationConstants.PASSPORT_TYPE
+                                key = PASSPORT_TYPE
                             )
 
                         )
@@ -188,11 +190,11 @@ class EditIdentificationViewModel @Inject constructor(
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
+                                    identifierType = VOTER_ID_TYPE,
                                     identifierNumber = voterIdTemp,
                                     code = null
                                 ), operation = ChangeTypeEnum.REMOVE.value,
-                                key = IdentificationConstants.VOTER_ID_TYPE
+                                key = VOTER_ID_TYPE
                             )
 
                         )
@@ -201,11 +203,11 @@ class EditIdentificationViewModel @Inject constructor(
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
+                                    identifierType = VOTER_ID_TYPE,
                                     identifierNumber = voterId,
                                     code = null
                                 ), operation = ChangeTypeEnum.REPLACE.value,
-                                key = IdentificationConstants.VOTER_ID_TYPE
+                                key = VOTER_ID_TYPE
                             )
                         )
 
@@ -213,11 +215,11 @@ class EditIdentificationViewModel @Inject constructor(
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
+                                    identifierType = VOTER_ID_TYPE,
                                     identifierNumber = voterId,
                                     code = null
                                 ), operation = ChangeTypeEnum.ADD.value,
-                                key = IdentificationConstants.VOTER_ID_TYPE
+                                key = VOTER_ID_TYPE
                             )
 
                         )
@@ -228,11 +230,11 @@ class EditIdentificationViewModel @Inject constructor(
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
+                                    identifierType = PATIENT_ID_TYPE,
                                     identifierNumber = patientIdTemp,
                                     code = null
                                 ), operation = ChangeTypeEnum.REMOVE.value,
-                                key = IdentificationConstants.PATIENT_ID_TYPE
+                                key = PATIENT_ID_TYPE
                             )
 
                         )
@@ -241,11 +243,11 @@ class EditIdentificationViewModel @Inject constructor(
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
+                                    identifierType = PATIENT_ID_TYPE,
                                     identifierNumber = patientId,
                                     code = null
                                 ), operation = ChangeTypeEnum.REPLACE.value,
-                                key = IdentificationConstants.PATIENT_ID_TYPE
+                                key = PATIENT_ID_TYPE
                             )
                         )
 
@@ -253,11 +255,11 @@ class EditIdentificationViewModel @Inject constructor(
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
+                                    identifierType = PATIENT_ID_TYPE,
                                     identifierNumber = patientId,
                                     code = null
                                 ), operation = ChangeTypeEnum.ADD.value,
-                                key = IdentificationConstants.PATIENT_ID_TYPE
+                                key = PATIENT_ID_TYPE
                             )
 
                         )

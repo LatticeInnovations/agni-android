@@ -28,7 +28,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.constants.IdentificationConstants
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PASSPORT_TYPE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PATIENT_ID_TYPE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.VOTER_ID_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
 import java.util.Locale
@@ -103,21 +105,21 @@ fun PreviewScreen(
                     navigate(step)
                 }
                 patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == IdentificationConstants.PASSPORT_TYPE) {
+                    if (identifier.identifierType == PASSPORT_TYPE) {
                         Spacer(modifier = Modifier.height(10.dp))
                         Label("Passport ID")
                         Detail(identifier.identifierNumber, "PASSPORT_ID_TAG")
                     }
                 }
                 patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == IdentificationConstants.VOTER_ID_TYPE) {
+                    if (identifier.identifierType == VOTER_ID_TYPE) {
                         Spacer(modifier = Modifier.height(10.dp))
                         Label("Voter ID")
                         Detail(identifier.identifierNumber, "VOTER_ID_TAG")
                     }
                 }
                 patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == IdentificationConstants.PATIENT_ID_TYPE) {
+                    if (identifier.identifierType == PATIENT_ID_TYPE) {
                         Spacer(modifier = Modifier.height(10.dp))
                         Label("Patient ID")
                         Detail(identifier.identifierNumber, "PATIENT_ID_TAG")

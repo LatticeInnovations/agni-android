@@ -16,37 +16,40 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.ui.common.IdLength
 import com.latticeonfhir.android.ui.common.IdSelectionChip
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.theme.Neutral40
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.LATTICE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.LATTICE_CODE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.LATTICE_SYSTEM
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PASSPORT_TYPE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PATIENT_ID_TYPE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.VOTER_ID_TYPE
+import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.Coding
+import org.hl7.fhir.r4.model.Identifier
 
 @Composable
 fun PatientRegistrationStepTwo(
-    patientRegister: PatientRegister,
-    viewModel: PatientRegistrationStepTwoViewModel = viewModel()
+    patientRegistrationViewModel: PatientRegistrationViewModel,
+    viewModel: PatientRegistrationStepTwoViewModel = hiltViewModel()
 ) {
-    val patientRegistrationViewModel: PatientRegistrationViewModel = viewModel()
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            patientRegister.run {
-                viewModel.patientId = patientId.toString()
-                viewModel.passportId = passportId.toString()
-                viewModel.voterId = voterId.toString()
-                if (patientRegistrationViewModel.isEditing) viewModel.isPassportSelected =
-                    passportId.toString().isNotEmpty()
-                viewModel.isVoterSelected = voterId.toString().isNotEmpty()
-                viewModel.isPatientSelected = patientId.toString().isNotEmpty()
-            }
+            if (patientRegistrationViewModel.isEditing) viewModel.setData(patientRegistrationViewModel.patient)
+            viewModel.isLaunched = true
         }
     }
     Column(
@@ -159,12 +162,54 @@ fun PatientRegistrationStepTwo(
         }
         Button(
             onClick = {
-                patientRegister.run {
-                    passportId = viewModel.passportId
-                    voterId = viewModel.voterId
-                    patientId = viewModel.patientId
+                patientRegistrationViewModel.showLoader = true
+                coroutineScope.launch {
+                    patientRegistrationViewModel.patient.apply {
+                        identifier.clear()
+                        identifier.add(
+                            Identifier().apply {
+                                system = LATTICE
+                                value = patientRegistrationViewModel.patient.id
+                                type = CodeableConcept(
+                                    Coding(
+                                        LATTICE_SYSTEM,
+                                        LATTICE_CODE,
+                                        ""
+                                    )
+                                )
+                            }
+                        )
+                        if (viewModel.isPassportSelected) {
+                            identifier.add(
+                                Identifier().apply {
+                                    system = PASSPORT_TYPE
+                                    value = viewModel.passportId
+                                    use = if (viewModel.isIdDuplicate(PASSPORT_TYPE, viewModel.passportId)) Identifier.IdentifierUse.TEMP else Identifier.IdentifierUse.OFFICIAL
+                                }
+                            )
+                        }
+                        if (viewModel.isVoterSelected) {
+                            identifier.add(
+                                Identifier().apply {
+                                    system = VOTER_ID_TYPE
+                                    value = viewModel.voterId
+                                    use = if (viewModel.isIdDuplicate(VOTER_ID_TYPE, viewModel.voterId)) Identifier.IdentifierUse.TEMP else Identifier.IdentifierUse.OFFICIAL
+                                }
+                            )
+                        }
+                        if (viewModel.isPatientSelected) {
+                            identifier.add(
+                                Identifier().apply {
+                                    system = PATIENT_ID_TYPE
+                                    value = viewModel.patientId
+                                    use = if (viewModel.isIdDuplicate(PATIENT_ID_TYPE, viewModel.patientId)) Identifier.IdentifierUse.TEMP else Identifier.IdentifierUse.OFFICIAL
+                                }
+                            )
+                        }
+                    }
+                    patientRegistrationViewModel.showLoader = false
+                    patientRegistrationViewModel.currentStep = 3
                 }
-                patientRegistrationViewModel.currentStep = 3
             },
             modifier = Modifier
                 .fillMaxWidth(),

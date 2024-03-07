@@ -5,29 +5,32 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.utils.constants.patient.AddressConstants.HOME
+import org.hl7.fhir.r4.model.Patient
 
 class PatientRegistrationStepThreeViewModel : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
 
     var homeAddress by mutableStateOf(Address())
 
-    // temp
-    val homeAddressTemp by mutableStateOf(Address())
-
-    var workAddress by mutableStateOf(Address())
-
-    var addWorkAddress by mutableStateOf(false)
-
     fun addressInfoValidation(): Boolean {
-        if (homeAddress.pincode.length < 6 || homeAddress.state == "" || homeAddress.addressLine1 == ""
-            || homeAddress.city == ""
-        )
-            return false
-        if (addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state == "" || workAddress.addressLine1 == ""
-                    || workAddress.city == "")
-        )
-            return false
-        return true
+        return !(homeAddress.pincode.length < 6 || homeAddress.state == "" || homeAddress.addressLine1 == ""
+                || homeAddress.city == "")
+    }
+
+    internal fun setData(patient: Patient) {
+        patient.run {
+            address.forEach { a ->
+                if (a.use.toCode() == HOME) {
+                    homeAddress.pincode = a.postalCode
+                    homeAddress.state = a.state
+                    homeAddress.city = a.city
+                    homeAddress.district = a.district ?: ""
+                    homeAddress.addressLine1 = a.line[0].value
+                    if (a.line.size > 1) homeAddress.addressLine2 = a.line[1].value
+                }
+            }
+        }
     }
 }
 

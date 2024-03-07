@@ -4,9 +4,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.search.search
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PASSPORT_TYPE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PATIENT_ID_TYPE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.VOTER_ID_TYPE
+import dagger.hilt.android.lifecycle.HiltViewModel
+import org.hl7.fhir.r4.model.Identifier
+import org.hl7.fhir.r4.model.Patient
+import javax.inject.Inject
 
-class PatientRegistrationStepTwoViewModel : BaseViewModel(), DefaultLifecycleObserver {
+@HiltViewModel
+class PatientRegistrationStepTwoViewModel @Inject constructor(
+    private val fhirEngine: FhirEngine
+) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
 
     val maxPassportIdLength = 8
@@ -27,14 +39,50 @@ class PatientRegistrationStepTwoViewModel : BaseViewModel(), DefaultLifecycleObs
     var isPatientValid by mutableStateOf(false)
 
     fun identityInfoValidation(): Boolean {
-        if (isPassportSelected == false && isVoterSelected == false && isPatientSelected == false)
+        if (!isPassportSelected && !isVoterSelected && !isPatientSelected)
             return false
         if (isPassportSelected && !passportPattern.matches(passportId))
             return false
         if (isVoterSelected && !voterPattern.matches(voterId))
             return false
-        if (isPatientSelected && patientId.length < 10)
-            return false
-        return true
+        return !(isPatientSelected && patientId.length < 10)
+    }
+    
+    internal fun setData(patient: Patient) {
+        isPassportSelected = false
+        patient.run {
+            identifier.forEach { id ->
+                when(id.system) {
+                    PASSPORT_TYPE -> {
+                        passportId = id.value
+                        isPassportSelected = passportId.isNotBlank()
+                    }
+                    VOTER_ID_TYPE -> {
+                        voterId = id.value
+                        isVoterSelected = voterId.isNotBlank()
+                    }
+                    PATIENT_ID_TYPE -> {
+                        patientId = id.value
+                        isPatientSelected = patientId.isNotBlank()
+                    }
+                }
+            }
+        }
+    }
+
+    internal suspend fun isIdDuplicate(idSystem: String, idValue: String): Boolean {
+        fhirEngine.search<Patient> {
+            filter(
+                Patient.IDENTIFIER,
+                {
+                    value = of(Identifier().apply {
+                        system = idSystem
+                        value = idValue
+                    })
+                }
+            )
+        }.let { results ->
+            return results.isNotEmpty()
+        }
     }
 }
