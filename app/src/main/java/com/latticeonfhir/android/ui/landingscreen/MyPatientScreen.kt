@@ -28,9 +28,9 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.common.PatientItemCard
+import org.hl7.fhir.r4.model.Patient
 
 @Composable
 fun MyPatientScreen(
@@ -99,18 +99,12 @@ fun MyPatientScreen(
                 }
             )
         }
-        val patientsList: LazyPagingItems<PatientResponse>
-        if (viewModel.isSearchResult) {
-            patientsList = viewModel.searchResultList.collectAsLazyPagingItems()
-        } else {
-            patientsList = viewModel.patientList.collectAsLazyPagingItems()
-        }
+        val patientsList: LazyPagingItems<Patient> = viewModel.patientList.collectAsLazyPagingItems()
         LazyColumn(modifier = Modifier.testTag("patients list")) {
             items(
                 count = patientsList.itemCount,
                 key = patientsList.itemKey(),
-                contentType = patientsList.itemContentType(
-                )
+                contentType = patientsList.itemContentType()
             ) { index ->
                 val item = patientsList[index]
                 if (item != null) {

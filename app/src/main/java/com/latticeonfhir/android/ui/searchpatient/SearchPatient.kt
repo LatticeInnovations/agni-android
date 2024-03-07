@@ -14,6 +14,9 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.IS_SEARCH_RESULT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SEARCH_PARAMETERS
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,7 +32,7 @@ fun SearchPatient(
             viewModel.fromHouseholdMember = true
             viewModel.patientFrom =
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
+                    PATIENT
                 )
         }
         viewModel.isLaunched = true
@@ -89,18 +92,18 @@ fun SearchPatient(
                     )
                     if (viewModel.fromHouseholdMember) {
                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "searchParameters", searchParameters
+                            SEARCH_PARAMETERS, searchParameters
                         )
                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "patient", viewModel.patientFrom
+                            PATIENT, viewModel.patientFrom
                         )
                         navController.navigate(Screen.SearchResult.route)
                     } else {
                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "isSearchResult", true
+                            IS_SEARCH_RESULT, true
                         )
                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "searchParameters", searchParameters
+                            SEARCH_PARAMETERS, searchParameters
                         )
                         navController.navigate(Screen.LandingScreen.route)
                     }
