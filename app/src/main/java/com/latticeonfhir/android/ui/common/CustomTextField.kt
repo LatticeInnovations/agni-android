@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import com.latticeonfhir.android.R
 
@@ -43,7 +44,8 @@ fun CustomTextField(
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             imeAction = if (label == stringResource(id = R.string.email)) ImeAction.Done else ImeAction.Next,
-            keyboardType = keyboardType
+            keyboardType = keyboardType,
+            capitalization = KeyboardCapitalization.Sentences
         ),
         isError = isError,
         supportingText = {

@@ -8,4 +8,12 @@ object NavControllerConstants {
     const val RESCHEDULED = "rescheduled"
     const val SCHEDULED = "scheduled"
     const val IF_RESCHEDULING = "ifRescheduling"
+    const val IS_EDITING = "isEditing"
+    const val CURRENT_STEP = "currentStep"
+    const val FROM_HOUSEHOLD_MEMBER = "fromHouseholdMember"
+    const val PATIENT_REGISTER_DETAILS = "patient_register_details"
+    const val PATIENT_ID = "patientId"
+    const val RELATIVE_ID = "relativeId"
+    const val RELATION = "relation"
+    const val PATIENT_FROM = "patientFrom"
 }
