@@ -58,7 +58,6 @@ class LandingScreenViewModel @Inject constructor(
     var searchQuery by mutableStateOf("")
     var selectedIndex by mutableIntStateOf(0)
 
-    //var patientList: Flow<PagingData<PatientResponse>> by mutableStateOf(flowOf())
     var patientList: Flow<PagingData<Patient>> by mutableStateOf(flowOf())
     var searchParameters by mutableStateOf<SearchParameters?>(null)
     var previousSearchList = mutableListOf<String>()
