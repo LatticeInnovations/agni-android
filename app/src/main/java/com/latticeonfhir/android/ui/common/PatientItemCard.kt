@@ -16,17 +16,16 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import org.hl7.fhir.r4.model.Patient
 
 @Composable
-fun PatientItemCard(navController: NavController, patient: PatientResponse) {
-    val subtitle = "${patient.gender[0].uppercase()}/${
-        patient.birthDate.toTimeInMilli().toAge()
-    } · PID ${patient.fhirId}"
+fun PatientItemCard(navController: NavController, patient: Patient) {
+    val subtitle = "${patient.gender.display[0]}/${
+        patient.birthDate.time.toAge()
+    }"
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -34,7 +33,7 @@ fun PatientItemCard(navController: NavController, patient: PatientResponse) {
             .testTag("PATIENT")
             .clickable {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "patient",
+                    PATIENT,
                     patient
                 )
                 navController.navigate(Screen.PatientLandingScreen.route)
@@ -43,11 +42,7 @@ fun PatientItemCard(navController: NavController, patient: PatientResponse) {
     ) {
         Column(modifier = Modifier.weight(8f)) {
             Text(
-                text = NameConverter.getFullName(
-                    patient.firstName,
-                    patient.middleName,
-                    patient.lastName
-                ),
+                text = patient.nameFirstRep.nameAsSingleString,
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,

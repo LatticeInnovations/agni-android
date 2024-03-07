@@ -149,7 +149,17 @@ class SearchRepositoryImpl @Inject constructor(
 
     override suspend fun insertRecentPatientSearch(searchQuery: String, date: Date): Long {
         return searchDao.getRecentSearches(SearchTypeEnum.PATIENT).run {
-            if (size == 5) {
+            val duplicateId = searchDao.getIdOfDuplicateSearch(SearchTypeEnum.PATIENT, searchQuery)
+            if (duplicateId != null){
+                searchDao.deleteRecentSearch(duplicateId)
+                searchDao.insertRecentSearch(
+                    SearchHistoryEntity(
+                        searchQuery = searchQuery,
+                        date = date,
+                        searchType = SearchTypeEnum.PATIENT
+                    )
+                )
+            } else if (size == 5) {
                 searchDao.getOldestRecentSearchId(SearchTypeEnum.PATIENT).run {
                     searchDao.deleteRecentSearch(this)
                     searchDao.insertRecentSearch(

@@ -16,4 +16,9 @@ object NavControllerConstants {
     const val RELATIVE_ID = "relativeId"
     const val RELATION = "relation"
     const val PATIENT_FROM = "patientFrom"
+    const val IS_SEARCH_RESULT = "isSearchResult"
+    const val SEARCH_PARAMETERS = "searchParameters"
+    const val LOGGED_IN = "loggedIn"
+    const val LOGOUT_USER = "logoutUser"
+    const val LOGOUT_REASON = "logoutReason"
 }
