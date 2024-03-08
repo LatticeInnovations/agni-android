@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
@@ -104,7 +105,7 @@ fun PatientLandingScreen(
                         IconButton(onClick = {
                             navController.currentBackStackEntry?.savedStateHandle?.set(
                                 key = "patient_detailsID",
-                                value = viewModel.patient.id
+                                value = viewModel.patient.logicalId
                             )
                             navController.navigate(Screen.PatientProfile.route)
                         }) {
