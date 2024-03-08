@@ -13,13 +13,14 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,7 +53,7 @@ fun WeekDaysComposable(
                 modifier = Modifier
                     .testTag("DATE_DROPDOWN")
                     .clickable(
-                        interactionSource = MutableInteractionSource(),
+                        interactionSource = remember { MutableInteractionSource () },
                         indication = null
                     ) {
                         callBack(true, null)
@@ -70,12 +71,12 @@ fun WeekDaysComposable(
                 }
                 Icon(Icons.Default.ArrowDropDown, contentDescription = "DROP_DOWN_ICON")
             }
-            Divider(
-                color = MaterialTheme.colorScheme.outlineVariant,
+            HorizontalDivider(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
                     .width(1.dp)
-                    .height(55.dp)
+                    .height(55.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
             )
             LazyRow(
                 state = dateScrollState,
@@ -111,6 +112,8 @@ fun WeekDaysComposable(
                             else MaterialTheme.colorScheme.outline
                         ),
                         border = SuggestionChipDefaults.suggestionChipBorder(
+                            enabled = date < Date().toOneYearFuture() && date > Date().toTodayStartDate()
+                                .toOneYearPast(),
                             borderColor = Color.Transparent
                         ),
                         enabled = date < Date().toOneYearFuture() && date > Date().toTodayStartDate()
@@ -119,10 +122,10 @@ fun WeekDaysComposable(
                 }
             }
         }
-        Divider(
+        HorizontalDivider(
+            modifier = Modifier.padding(bottom = 10.dp),
             thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant,
-            modifier = Modifier.padding(bottom = 10.dp)
+            color = MaterialTheme.colorScheme.outlineVariant
         )
     }
 }

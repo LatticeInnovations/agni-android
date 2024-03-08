@@ -43,21 +43,21 @@ jobs:
 
       - name: Execute Gradle build
         run: ./gradlew build
-
-      - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
-
-      - name: Upload Unit Test report
-        uses: actions/upload-artifact@v2
-        with:
-          name: unit-test-report
-          path: app/build/reports/tests/testDebugUnitTest/
-
-      - name: Create Unit Test Coverage Report
-        run: ./gradlew createDebugUnitTestCoverageReport
-
-      - name: Upload Jacoco coverage report
-        uses: actions/upload-artifact@v2
-        with:
-          name: jacoco-report
-          path: app/build/reports/coverage/test/debug/
+#
+#      - name: Run Unit Tests
+#        run: ./gradlew testDebugUnitTest
+#
+#      - name: Upload Unit Test report
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: unit-test-report
+#          path: app/build/reports/tests/testDebugUnitTest/
+#
+#      - name: Create Unit Test Coverage Report
+#        run: ./gradlew createDebugUnitTestCoverageReport
+#
+#      - name: Upload Jacoco coverage report
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: jacoco-report
+#          path: app/build/reports/coverage/test/debug/

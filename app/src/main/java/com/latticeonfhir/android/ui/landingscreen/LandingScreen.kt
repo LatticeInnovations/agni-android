@@ -2,19 +2,60 @@ package com.latticeonfhir.android.ui.landingscreen
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -28,13 +69,18 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum.Companion.fromLabel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.landingscreen.*
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.IS_SEARCH_RESULT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.LOGGED_IN
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.LOGOUT_REASON
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.LOGOUT_USER
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SEARCH_PARAMETERS
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
@@ -109,17 +155,17 @@ fun LandingScreen(
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-                    "isSearchResult"
+                    IS_SEARCH_RESULT
                 ) == true
             ) {
                 viewModel.isSearchResult = true
                 viewModel.searchParameters =
                     navController.previousBackStackEntry?.savedStateHandle?.get<SearchParameters>(
-                        "searchParameters"
+                        SEARCH_PARAMETERS
                     )
             } else if (
                 navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-                    "loggedIn"
+                    LOGGED_IN
                 ) == true
             ) {
                 coroutineScope.launch {
@@ -137,11 +183,11 @@ fun LandingScreen(
         if (viewModel.logoutUser) {
             viewModel.logout()
             navController.currentBackStackEntry?.savedStateHandle?.set(
-                "logoutUser",
+                LOGOUT_USER,
                 viewModel.logoutUser
             )
             navController.currentBackStackEntry?.savedStateHandle?.set(
-                "logoutReason",
+                LOGOUT_REASON,
                 viewModel.logoutReason
             )
             navController.navigate(Screen.PhoneEmailScreen.route)
@@ -162,7 +208,7 @@ fun LandingScreen(
                     TopAppBar(
                         title = {
                             Text(
-                                text = if (viewModel.isLoading) "Searching..." else "${viewModel.size} matches found",
+                                text = if (viewModel.isLoading) "Searching..." else "${viewModel.patientList.collectAsLazyPagingItems().itemSnapshotList.size} matches found",
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.testTag("SEARCH_TITLE_TEXT")
                             )
@@ -326,7 +372,7 @@ fun LandingScreen(
                             },
                             selected = viewModel.selectedIndex == index,
                             onClick = { viewModel.selectedIndex = index },
-                            modifier = Modifier.testTag(item + " tab")
+                            modifier = Modifier.testTag("$item tab")
                         )
                     }
                 }
@@ -434,7 +480,7 @@ fun LandingScreen(
                                 viewModel.searchQuery = ""
                                 viewModel.isSearching = false
                             }) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                             }
                         },
                         trailingIcon = {
@@ -463,11 +509,13 @@ fun LandingScreen(
                         ),
                         keyboardActions = KeyboardActions(
                             onSearch = {
-                                viewModel.isSearchResult = true
                                 viewModel.isSearching = false
-                                viewModel.isSearchingByQuery = true
-                                viewModel.insertRecentSearch()
-                                viewModel.populateList()
+                                if (viewModel.searchQuery.isNotBlank()) {
+                                    viewModel.isSearchingByQuery = true
+                                    viewModel.isSearchResult = true
+                                    viewModel.insertRecentSearch()
+                                    viewModel.populateList()
+                                }
                             }
                         ),
                         singleLine = true
@@ -523,7 +571,7 @@ fun LandingScreen(
                                 queueViewModel.isSearchingInQueue = false
                                 queueViewModel.getAppointmentListByDate()
                             }) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                             }
                         },
                         trailingIcon = {
@@ -629,7 +677,7 @@ fun LandingScreen(
                                     }
                                 }
                         )
-                        Divider(
+                        HorizontalDivider(
                             thickness = 1.dp,
                             color = MaterialTheme.colorScheme.outlineVariant
                         )

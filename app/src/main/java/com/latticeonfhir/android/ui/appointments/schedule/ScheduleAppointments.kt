@@ -12,7 +12,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChip
@@ -37,7 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -51,7 +52,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
@@ -123,7 +123,7 @@ fun ScheduleAppointments(
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 },
                 actions = {
@@ -201,7 +201,7 @@ fun ScheduleAppointments(
                             .padding(horizontal = 17.dp)
                     ) { index ->
                         var slots by remember {
-                            mutableStateOf(0)
+                            mutableIntStateOf(0)
                         }
                         LaunchedEffect(viewModel.selectedDate) {
                             viewModel.getBookedSlotsCount(
@@ -235,7 +235,7 @@ fun ScheduleAppointments(
                             .padding(horizontal = 17.dp)
                     ) { index ->
                         var slots by remember {
-                            mutableStateOf(0)
+                            mutableIntStateOf(0)
                         }
                         LaunchedEffect(viewModel.selectedDate) {
                             viewModel.getBookedSlotsCount(
@@ -269,7 +269,7 @@ fun ScheduleAppointments(
                             .padding(horizontal = 17.dp)
                     ) { index ->
                         var slots by remember {
-                            mutableStateOf(0)
+                            mutableIntStateOf(0)
                         }
                         LaunchedEffect(viewModel.selectedDate) {
                             viewModel.getBookedSlotsCount(
@@ -295,8 +295,15 @@ fun ScheduleAppointments(
                 }
             }
             if (viewModel.showDatePicker) {
+                val selectableDates = object : SelectableDates {
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                        return utcTimeMillis >= Date().tomorrow()
+                            .toTodayStartDate() && utcTimeMillis <= Date().toOneYearFuture().time
+                    }
+                }
                 val datePickerState = rememberDatePickerState(
-                    initialSelectedDateMillis = viewModel.selectedDate.time
+                    initialSelectedDateMillis = viewModel.selectedDate.time,
+                    selectableDates = selectableDates
                 )
                 val confirmEnabled = remember {
                     derivedStateOf { datePickerState.selectedDateMillis != null }
@@ -338,10 +345,6 @@ fun ScheduleAppointments(
                 ) {
                     DatePicker(
                         state = datePickerState,
-                        dateValidator = { date ->
-                            date >= Date().tomorrow()
-                                .toTodayStartDate() && date <= Date().toOneYearFuture().time
-                        },
                         modifier = Modifier.testTag("DATE_PICKER_DIALOG")
                     )
                 }
@@ -476,6 +479,7 @@ fun SlotChips(
             else MaterialTheme.colorScheme.primary
         ),
         border = SuggestionChipDefaults.suggestionChipBorder(
+            enabled = true,
             borderColor = if (slots > 0) MaterialTheme.colorScheme.outline
             else MaterialTheme.colorScheme.primary
         ),

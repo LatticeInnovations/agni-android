@@ -33,6 +33,10 @@ interface SearchDao {
     suspend fun deleteRecentSearch(id: Int): Int
 
     @Transaction
+    @Query("SELECT id FROM SearchHistoryEntity WHERE searchType = :searchTypeEnum AND searchQuery=:searchQuery")
+    suspend fun getIdOfDuplicateSearch(searchTypeEnum: SearchTypeEnum, searchQuery: String): Int?
+
+    @Transaction
     @Query("SELECT DISTINCT activeIngredient FROM MedicationEntity")
     suspend fun getActiveIngredients(): List<String>
 }

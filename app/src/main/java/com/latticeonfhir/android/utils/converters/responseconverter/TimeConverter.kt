@@ -1,7 +1,8 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
-import android.os.Build
 import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -64,6 +65,12 @@ object TimeConverter {
         val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
         val date = inputFormat.parse(this)
         return outputFormat.format(date!!)
+    }
+
+
+    internal fun Date.toPatientPreviewDate(): String {
+        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        return outputFormat.format(this)
     }
 
     internal fun ageToPatientDate(years: Int, months: Int, days: Int): String {
@@ -274,17 +281,10 @@ object TimeConverter {
     }
 
     internal fun Long.toTimeStampDate(): String {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = this
-            formatter.format(calendar.time)
-        } else {
-            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sszzz", Locale.getDefault())
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = this
-            formatter.format(calendar.time).replace("GMT", "")
-        }
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this
+        return formatter.format(calendar.time)
     }
 
     internal fun String.toTimeInMilli(): Long {
@@ -292,5 +292,37 @@ object TimeConverter {
         val sdf = SimpleDateFormat(YYYY_MM_DD, Locale.getDefault())
         val date = sdf.parse(myDate)
         return date?.time ?: 0L
+    }
+
+    internal fun Date.toTimeZoneString(): String {
+        val simpleDateFormat =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.getDefault())
+                .withZone(
+                    ZoneId.of("Europe/London")
+                )
+        return simpleDateFormat.format(this.toInstant())
+    }
+
+    internal fun Date.toDay(): String {
+        val formatter = SimpleDateFormat("dd", Locale.getDefault())
+        return formatter.format(this)
+    }
+
+    internal fun Date.toFullMonth(): String {
+        val formatter = SimpleDateFormat("MMMM", Locale.getDefault())
+        return formatter.format(this)
+    }
+
+    internal fun ageToPatientBirthDate(years: Int, months: Int, days: Int): Date {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.YEAR, -years)
+        calendar.add(Calendar.MONTH, -months)
+        calendar.add(Calendar.DAY_OF_MONTH, -days)
+        return calendar.time
+    }
+
+    internal fun String.dateToDOB(): Date {
+        val inputFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+        return inputFormat.parse(this)!!
     }
 }
