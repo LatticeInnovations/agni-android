@@ -5,83 +5,74 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import androidx.work.WorkInfo
+import ca.uhn.fhir.rest.param.ParamPrefixEnum
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.logicalId
+import com.google.android.fhir.search.include
+import com.google.android.fhir.search.search
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.service.workmanager.utils.Sync
-import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Appointment
+import org.hl7.fhir.r4.model.DateTimeType
+import org.hl7.fhir.r4.model.Encounter
+import org.hl7.fhir.r4.model.Patient
+import org.hl7.fhir.r4.model.ResourceType
 import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class PatientLandingScreenViewModel @Inject constructor(
     application: Application,
-    private val patientRepository: PatientRepository,
-    private val appointmentRepository: AppointmentRepository
+    private val fhirEngine: FhirEngine
 ) : BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
-    var patient by mutableStateOf<PatientResponse?>(null)
+    var patient by mutableStateOf(Patient())
 
-    private var logoutUser by mutableStateOf(false)
-    private var logoutReason by mutableStateOf("")
-
-    var appointmentsCount by mutableStateOf(0)
+    var appointmentsIds = mutableListOf<String>()
     var isFabSelected by mutableStateOf(false)
     var showAllSlotsBookedDialog by mutableStateOf(false)
 
-    private val syncService by lazy { getApplication<FhirApp>().syncService }
-
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            Sync.getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext)
-                .collectLatest { workInfo ->
-                    if (workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
-                        syncService.syncLauncher { isErrorReceived, errorMsg ->
-                            if (isErrorReceived) {
-                                logoutUser = true
-                                logoutReason = errorMsg
-                            }
-                        }
-                    }
-                }
+            FhirApp.runEnqueuedWorker(application)
         }
     }
 
-    internal fun downloadPrescriptions(patientFhirId: String) {
-        if (CheckNetwork.isInternetAvailable(getApplication<FhirApp>().applicationContext)) {
-            viewModelScope.launch(Dispatchers.IO) {
-                syncService.downloadPrescription(patientFhirId) { isErrorReceived, errorMsg ->
-                    if (isErrorReceived) {
-                        logoutUser = true
-                        logoutReason = errorMsg
+    internal suspend fun getPatientData(): Patient {
+        return fhirEngine.get(ResourceType.Patient, patient.logicalId) as Patient
+    }
+
+    internal fun getScheduledAppointmentsCount() {
+        viewModelScope.launch(Dispatchers.IO) {
+            fhirEngine.search<Encounter> {
+                filter(
+                    Encounter.SUBJECT, {
+                        value = "${patient.fhirType()}/${patient.logicalId}"
+                    }
+                )
+                include(ResourceType.Appointment, Encounter.APPOINTMENT) {
+                    filter(
+                        Appointment.STATUS, {
+                            value = of("proposed")
+                        }
+                    )
+                    filter(
+                        Appointment.DATE, {
+                            prefix = ParamPrefixEnum.GREATERTHAN
+                            value = of(DateTimeType(Date()))
+                        }
+                    )
+                }
+            }.forEach { result ->
+                result.included?.get(Encounter.APPOINTMENT.paramName)?.forEach { appointment ->
+                    if (!appointmentsIds.contains(appointment.logicalId)) {
+                        appointmentsIds.add(appointment.logicalId)
                     }
                 }
             }
-        }
-    }
-
-    internal suspend fun getPatientData(id: String): PatientResponse {
-        return patientRepository.getPatientById(id)[0]
-    }
-
-    internal fun getScheduledAppointmentsCount(patientId: String) {
-        viewModelScope.launch {
-            appointmentsCount = appointmentRepository.getAppointmentsOfPatientByStatus(
-                patientId,
-                AppointmentStatusEnum.SCHEDULED.value
-            ).filter { appointmentResponseLocal ->
-                appointmentResponseLocal.slot.start.time > Date().toTodayStartDate()
-            }.size
         }
     }
 }
