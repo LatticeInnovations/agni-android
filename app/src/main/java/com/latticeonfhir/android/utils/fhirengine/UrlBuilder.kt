@@ -18,6 +18,7 @@ object UrlBuilder {
         urls.add(ResourceType.Appointment.name)
         urls.add(ResourceType.Encounter.name)
         urls.add(ResourceType.Medication.name)
+        urls.add(ResourceType.MedicationRequest.name)
         if (!sortBy.isNullOrBlank()) urlWithSorting(sortBy)
         affixCount(count)
         return LinkedList(urls)
