@@ -7,33 +7,38 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
+import com.google.android.fhir.FhirEngine
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.regex.AgeRegex
-import com.latticeonfhir.android.utils.regex.DobRegex
+import com.latticeonfhir.android.utils.constants.patient.ContactPointConstants.EMAIL
+import com.latticeonfhir.android.utils.constants.patient.ContactPointConstants.PHONE
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientBirthDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.dateToDOB
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toFullMonth
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.ContactPoint
+import org.hl7.fhir.r4.model.Enumerations
+import org.hl7.fhir.r4.model.HumanName
+import org.hl7.fhir.r4.model.Patient
+import org.hl7.fhir.r4.model.StringType
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
 class EditBasicInformationViewModel @Inject constructor(
-    val patientRepository: PatientRepository,
-    val genericRepository: GenericRepository
+    private val fhirEngine: FhirEngine
 ) :
     BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
+    var isUpdating by mutableStateOf(false)
+    var patient by mutableStateOf(Patient())
 
     val onlyNumbers = OnlyNumberRegex.onlyNumbers
-    val ageRegex = AgeRegex.ageRegex
-    val dobRegex = DobRegex.dobRegex
-
 
     val maxFirstNameLength = 100
     val maxMiddleNameLength = 100
@@ -52,23 +57,22 @@ class EditBasicInformationViewModel @Inject constructor(
     var years by mutableStateOf("")
     var months by mutableStateOf("")
     var days by mutableStateOf("")
-    var gender by mutableStateOf("")
+    var genderAtBirth by mutableStateOf("")
 
     //temp var
-    var firstNameTemp by mutableStateOf("")
-    var middleNameTemp by mutableStateOf("")
-    var lastNameTemp by mutableStateOf("")
-    var phoneNumberTemp by mutableStateOf("")
-    var emailTemp by mutableStateOf("")
-    var dobAgeSelectorTemp by mutableStateOf("dob")
-    var dobDayTemp by mutableStateOf("")
-    var dobMonthTemp by mutableStateOf("")
-    var dobYearTemp by mutableStateOf("")
-    var yearsTemp by mutableStateOf("")
-    var monthsTemp by mutableStateOf("")
-    var daysTemp by mutableStateOf("")
-    var genderTemp by mutableStateOf("")
-    var birthDate by mutableStateOf("")
+    private var firstNameTemp by mutableStateOf("")
+    private var middleNameTemp by mutableStateOf("")
+    private var lastNameTemp by mutableStateOf("")
+    private var phoneNumberTemp by mutableStateOf("")
+    private var emailTemp by mutableStateOf("")
+    private var dobAgeSelectorTemp by mutableStateOf("dob")
+    private var dobDayTemp by mutableStateOf("")
+    private var dobMonthTemp by mutableStateOf("")
+    private var dobYearTemp by mutableStateOf("")
+    private var yearsTemp by mutableStateOf("")
+    private var monthsTemp by mutableStateOf("")
+    private var daysTemp by mutableStateOf("")
+    private var genderTemp by mutableStateOf("")
 
     var monthsList = mutableStateListOf(
         "January", "February", "March", "April", "May", "June",
@@ -79,7 +83,7 @@ class EditBasicInformationViewModel @Inject constructor(
     var isEmailValid by mutableStateOf(false)
     var isPhoneValid by mutableStateOf(false)
     var isDobDayValid by mutableStateOf(false)
-    var isDobMonthValid by mutableStateOf(false)
+    private var isDobMonthValid by mutableStateOf(false)
     var isDobYearValid by mutableStateOf(false)
     var isAgeDaysValid by mutableStateOf(false)
     var isAgeMonthsValid by mutableStateOf(false)
@@ -99,26 +103,7 @@ class EditBasicInformationViewModel @Inject constructor(
             return false
         if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return false
-        if (gender == "")
-            return false
-        return true
-    }
-
-    fun splitDOB(dob: String): Triple<Int, String, Int> {
-        val dobParts = dob.trim().split("-")
-        val year = dobParts[0].toInt()
-        val month = dobParts[1].toInt()
-        val day = dobParts[2].toInt()
-        return Triple(day, monthsList[month - 1], year)
-    }
-
-    fun splitAge(dob: String): Triple<Int, Int, Int> {
-        val dobParts = dob.trim().split("-")
-        val year = dobParts[0].toInt()
-        val month = dobParts[1].toInt()
-        val day = dobParts[2].toInt()
-
-        return Triple(day, month, year)
+        return genderAtBirth != ""
     }
 
     fun checkIsEdit(): Boolean {
@@ -131,7 +116,7 @@ class EditBasicInformationViewModel @Inject constructor(
                 dobDay != dobDayTemp ||
                 dobMonth != dobMonthTemp ||
                 dobYear != dobYearTemp ||
-                gender != genderTemp
+                genderAtBirth != genderTemp
     }
 
     fun revertChanges(): Boolean {
@@ -147,7 +132,7 @@ class EditBasicInformationViewModel @Inject constructor(
         days = ""
         months = ""
         years = ""
-        gender = genderTemp
+        genderAtBirth = genderTemp
         isNameValid = false
         isEmailValid = false
         isPhoneValid = false
@@ -161,122 +146,92 @@ class EditBasicInformationViewModel @Inject constructor(
     }
 
 
-    fun updateBasicInfo(patientResponse: PatientResponse) {
-
+    fun updateBasicInfo(updated: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-
-            val response = patientRepository.updatePatientData(patientResponse = patientResponse)
-            if (response > 0) {
-                if (patientResponse.fhirId != null) {
-                    if (firstName != firstNameTemp) {
-                        genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
-                            map = mapOf(
-                                Pair(
-                                    "firstName", ChangeRequest(
-                                        value = firstName, operation = ChangeTypeEnum.REPLACE.value
-                                    )
+            fhirEngine.update(
+                patient.apply {
+                    name.clear()
+                    name.add(
+                        HumanName().apply {
+                            given.add(
+                                StringType(
+                                    firstName.replaceFirstChar {
+                                        it.titlecase(Locale.getDefault())
+                                    })
+                            )
+                            given.add(
+                                StringType(
+                                    middleName.replaceFirstChar {
+                                        it.titlecase(Locale.getDefault())
+                                    }
                                 )
                             )
-                        )
-                    }
-                    checkIsValueChange(patientResponse, middleName, middleNameTemp, "middleName")
-                    checkIsValueChange(patientResponse, lastName, lastNameTemp, "lastName")
-                    checkIsValueChange(patientResponse, email, emailTemp, "email")
-
-                    if (patientResponse.gender != genderTemp) {
-                        genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
-                            map = mapOf(
-                                Pair(
-                                    "gender", ChangeRequest(
-                                        value = patientResponse.gender,
-                                        operation = ChangeTypeEnum.REPLACE.value
-                                    )
-                                )
-                            )
-                        )
-                    }
-                    if (phoneNumber != phoneNumberTemp) {
-                        genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
-                            map = mapOf(
-                                Pair(
-                                    "mobileNumber", ChangeRequest(
-                                        value = patientResponse.mobileNumber,
-                                        operation = ChangeTypeEnum.REPLACE.value
-                                    )
-                                )
-                            )
-                        )
-                    }
-                    if (patientResponse.birthDate != birthDate) {
-                        genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
-                            map = mapOf(
-                                Pair(
-                                    "birthDate", ChangeRequest(
-                                        value = patientResponse.birthDate,
-                                        operation = ChangeTypeEnum.REPLACE.value
-                                    )
-                                )
-                            )
-                        )
-                    }
-
-                } else {
-                    genericRepository.insertPatient(
-                        patientResponse
+                            family = lastName.replaceFirstChar {
+                                it.titlecase(Locale.getDefault())
+                            }
+                        }
                     )
+                    birthDate = if (dobAgeSelector == "dob")
+                        "$dobDay $dobMonth $dobYear".dateToDOB()
+                    else ageToPatientBirthDate(
+                        years.toIntOrNull() ?: 0,
+                        months.toIntOrNull() ?: 0,
+                        days.toIntOrNull() ?: 0
+                    )
+                    telecom.clear()
+                    telecom.add(
+                        ContactPoint().apply {
+                            system = ContactPoint.ContactPointSystem.PHONE
+                            rank = 1
+                            value = phoneNumber
+                        }
+                    )
+                    if (email.isNotBlank()) {
+                        telecom.add(
+                            ContactPoint().apply {
+                                system = ContactPoint.ContactPointSystem.EMAIL
+                                value = email
+                            }
+                        )
+                    }
+                    gender = Enumerations.AdministrativeGender.fromCode(genderAtBirth)
+                }
+            )
+            updated()
+        }
+    }
+    
+    internal fun setData() {
+        patient.run {
+            firstName = nameFirstRep.given[0].value
+            middleName = if (nameFirstRep.given.size > 1) nameFirstRep.given[1].value else ""
+            lastName = nameFirstRep.family ?: ""
+            telecom.forEach { contactPoint ->
+                when (contactPoint.system.toCode()) {
+                    PHONE -> phoneNumber = contactPoint.value
+                    EMAIL -> email = contactPoint.value
                 }
             }
-        }
-    }
-
-    private suspend fun checkIsValueChange(
-        patientResponse: PatientResponse,
-        value: String,
-        tempValue: String,
-        key: String
-    ) {
-        if (value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        key, ChangeRequest(
-                            value = value, operation = ChangeTypeEnum.REPLACE.value
-                        )
-                    )
-                )
-            )
-        } else if (value != tempValue && tempValue.isNotEmpty() && value.isEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        key, ChangeRequest(
-                            value = tempValue, operation = ChangeTypeEnum.REMOVE.value
-                        )
-                    )
-                )
-            )
-
-        } else if (value != tempValue && tempValue.isEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        key, ChangeRequest(
-                            value = value, operation = ChangeTypeEnum.ADD.value
-                        )
-                    )
-                )
-            )
-
+            dobAgeSelector = "dob"
+            dobDay = birthDate.toDay()
+            dobMonth = birthDate.toFullMonth()
+            dobYear = birthDate.toYear()
+            genderAtBirth = gender.toCode()
         }
 
-
+        //set temp value
+        firstNameTemp = firstName
+        middleNameTemp = middleName
+        lastNameTemp = lastName
+        phoneNumberTemp = phoneNumber
+        emailTemp = email
+        dobAgeSelectorTemp = dobAgeSelector
+        dobDayTemp = dobDay
+        dobMonthTemp = dobMonth
+        dobYearTemp = dobYear
+        daysTemp = days
+        monthsTemp = months
+        yearsTemp = years
+        genderTemp = genderAtBirth
     }
-
 }
