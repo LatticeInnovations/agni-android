@@ -21,4 +21,5 @@ object NavControllerConstants {
     const val LOGGED_IN = "loggedIn"
     const val LOGOUT_USER = "logoutUser"
     const val LOGOUT_REASON = "logoutReason"
+    const val IS_PROFILE_UPDATED = "isProfileUpdated"
 }
