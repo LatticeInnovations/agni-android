@@ -117,7 +117,7 @@ fun PreviewScreen(
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         ) {
             val homeAddressLine1 = patient.addressFirstRep.line[0].value +
-                    if (patient.addressFirstRep.line.size < 1) "" else {
+                    if (patient.addressFirstRep.line.size < 2) "" else {
                         ", " + patient.addressFirstRep.line[1].value
                     }
             val homeAddressLine2 = patient.addressFirstRep.city +
