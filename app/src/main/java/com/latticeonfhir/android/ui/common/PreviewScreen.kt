@@ -27,17 +27,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PASSPORT_TYPE
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PATIENT_ID_TYPE
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.VOTER_ID_TYPE
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
-import java.util.Locale
+import org.hl7.fhir.r4.model.Patient
 
 @Composable
 fun PreviewScreen(
-    patientResponse: PatientResponse,
+    patient: Patient,
     navigate: (Int) -> Unit
 ) {
     Column(
@@ -61,32 +59,20 @@ fun PreviewScreen(
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = "${
-                        NameConverter.getFullName(
-                            patientResponse.firstName,
-                            patientResponse.middleName,
-                            patientResponse.lastName
-                        )
-                    }, ${
-                        patientResponse.gender.replaceFirstChar {
-                            if (it.isLowerCase()) it.titlecase(
-                                Locale.getDefault()
-                            ) else it.toString()
-                        }
-                    }",
+                    text = "${patient.nameFirstRep.nameAsSingleString}, ${patient.gender.display}",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.testTag("NAME_TAG")
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Label("Date of birth")
-                Detail(patientResponse.birthDate.toPatientPreviewDate(), "DOB_TAG")
+                Detail(patient.birthDate.toPatientPreviewDate(), "DOB_TAG")
                 Spacer(modifier = Modifier.height(10.dp))
                 Label("Phone No.")
-                Detail("+91 ${patientResponse.mobileNumber}", "PHONE_NO_TAG")
-                if (!patientResponse.email.isNullOrBlank()) {
+                Detail("+91 ${patient.telecom[0].value}", "PHONE_NO_TAG")
+                if (patient.telecom.size > 1) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label("Email")
-                    Detail(patientResponse.email, "EMAIL_TAG")
+                    Detail(patient.telecom[1].value, "EMAIL_TAG")
                 }
             }
         }
@@ -104,25 +90,23 @@ fun PreviewScreen(
                 Heading("Identification", 2) { step ->
                     navigate(step)
                 }
-                patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == PASSPORT_TYPE) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Label("Passport ID")
-                        Detail(identifier.identifierNumber, "PASSPORT_ID_TAG")
-                    }
-                }
-                patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == VOTER_ID_TYPE) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Label("Voter ID")
-                        Detail(identifier.identifierNumber, "VOTER_ID_TAG")
-                    }
-                }
-                patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == PATIENT_ID_TYPE) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Label("Patient ID")
-                        Detail(identifier.identifierNumber, "PATIENT_ID_TAG")
+                patient.identifier.forEach { identifier ->
+                    when(identifier.system) {
+                        PASSPORT_TYPE -> {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Label("Passport ID")
+                            Detail(identifier.value, "PASSPORT_ID_TAG")
+                        }
+                        VOTER_ID_TYPE -> {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Label("Voter ID")
+                            Detail(identifier.value, "VOTER_ID_TAG")
+                        }
+                        PATIENT_ID_TYPE -> {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Label("Patient ID")
+                            Detail(identifier.value, "PATIENT_ID_TAG")
+                        }
                     }
                 }
             }
@@ -132,16 +116,16 @@ fun PreviewScreen(
             modifier = Modifier.fillMaxWidth(),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         ) {
-            val homeAddressLine1 = patientResponse.permanentAddress.addressLine1 +
-                    if (patientResponse.permanentAddress.addressLine2.isNullOrBlank()) "" else {
-                        ", " + patientResponse.permanentAddress.addressLine2
+            val homeAddressLine1 = patient.addressFirstRep.line[0].value +
+                    if (patient.addressFirstRep.line.size > 1) "" else {
+                        ", " + patient.addressFirstRep.line[1].value
                     }
-            val homeAddressLine2 = patientResponse.permanentAddress.city +
-                    if (patientResponse.permanentAddress.district.isNullOrBlank()) "" else {
-                        ", " + patientResponse.permanentAddress.district
+            val homeAddressLine2 = patient.addressFirstRep.city +
+                    if (patient.addressFirstRep.district.isNullOrBlank()) "" else {
+                        ", " + patient.addressFirstRep.district
                     }
             val homeAddressLine3 =
-                "${patientResponse.permanentAddress.state}, ${patientResponse.permanentAddress.postalCode}"
+                "${patient.addressFirstRep.state}, ${patient.addressFirstRep.postalCode}"
             Column(
                 modifier = Modifier
                     .padding(20.dp)
