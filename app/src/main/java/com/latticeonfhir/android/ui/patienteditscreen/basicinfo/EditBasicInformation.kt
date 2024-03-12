@@ -5,15 +5,43 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,15 +53,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.data.local.enums.GenderEnum
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
+import com.latticeonfhir.android.ui.common.ScreenLoader
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.IS_PROFILE_UPDATED
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,54 +69,16 @@ fun EditBasicInformation(
     navController: NavController,
     viewModel: EditBasicInformationViewModel = hiltViewModel()
 ) {
-    val patientResponse =
-        navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>("patient_details")
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            patientResponse?.run {
-                viewModel.firstName = firstName
-                viewModel.middleName = middleName ?: ""
-                viewModel.lastName = lastName ?: ""
-                viewModel.phoneNumber = mobileNumber.toString()
-                viewModel.email = email ?: ""
-                if (viewModel.dobRegex.matches(birthDate)) {
-                    viewModel.dobAgeSelector = "dob"
-                    val (day, month, year) = viewModel.splitDOB(birthDate)
-                    viewModel.dobDay = day.toString()
-                    viewModel.dobMonth = month
-                    viewModel.dobYear = year.toString()
-                } else if (viewModel.ageRegex.matches(birthDate)) {
-                    val (day, month, year) = viewModel.splitAge(birthDate.toPatientDate())
-                    viewModel.dobAgeSelector = "age"
-                    viewModel.years = year.toString()
-                    viewModel.months = month.toString()
-                    viewModel.days = day.toString()
-                }
-                viewModel.gender = gender
-                viewModel.birthDate = birthDate
-            }
+            viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get(PATIENT)!!
+            viewModel.setData()
             viewModel.isLaunched = true
-
-            //set temp value
-            viewModel.firstNameTemp = viewModel.firstName
-            viewModel.middleNameTemp = viewModel.middleName
-            viewModel.lastNameTemp = viewModel.lastName
-            viewModel.phoneNumberTemp = viewModel.phoneNumber
-            viewModel.emailTemp = viewModel.email
-            viewModel.dobAgeSelectorTemp = viewModel.dobAgeSelector
-            viewModel.dobDayTemp = viewModel.dobDay
-            viewModel.dobMonthTemp = viewModel.dobMonth
-            viewModel.dobYearTemp = viewModel.dobYear
-            viewModel.daysTemp = viewModel.days
-            viewModel.monthsTemp = viewModel.months
-            viewModel.yearsTemp = viewModel.years
-            viewModel.genderTemp = viewModel.gender
-
         }
     }
 
     BackHandler(enabled = true) {
-        navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated", false)
+        navController.previousBackStackEntry?.savedStateHandle?.set(IS_PROFILE_UPDATED, false)
         navController.popBackStack()
     }
     val snackBarHostState = remember { SnackbarHostState() }
@@ -109,18 +98,16 @@ fun EditBasicInformation(
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.previousBackStackEntry?.savedStateHandle?.set(
-                            "isProfileUpdated",
+                            IS_PROFILE_UPDATED,
                             false
                         )
                         navController.popBackStack()
-
                     }) {
                         Icon(
                             Icons.Default.Clear,
                             contentDescription = "clear icon"
                         )
                     }
-
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
@@ -137,11 +124,9 @@ fun EditBasicInformation(
                                 if (viewModel.revertChanges()) {
                                     coroutineScope.launch {
                                         snackBarHostState.showSnackbar("Changes undone")
-
                                     }
                                 }
                             })
-
                     )
                 }
             )
@@ -268,30 +253,17 @@ fun EditBasicInformation(
         }, floatingActionButton = {
             Button(
                 onClick = {
-
-                    viewModel.updateBasicInfo(
-                        patientResponse!!.copy(
-                            firstName = viewModel.firstName,
-                            middleName = viewModel.middleName,
-                            lastName = viewModel.lastName,
-                            mobileNumber = viewModel.phoneNumber.toLong(),
-                            email = viewModel.email,
-                            birthDate = if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
-                            else ageToPatientDate(
-                                viewModel.years.toInt(),
-                                viewModel.months.toInt(),
-                                viewModel.days.toInt()
-                            ).toPatientDate(),
-                            gender = viewModel.gender
-                        )
-                    )
-                    navController.previousBackStackEntry?.savedStateHandle?.set(
-                        "isProfileUpdated",
-                        true
-                    )
-                    navController.popBackStack()
-
-
+                    viewModel.isUpdating = true
+                    viewModel.updateBasicInfo {
+                        viewModel.isUpdating = false
+                        coroutineScope.launch {
+                            navController.previousBackStackEntry?.savedStateHandle?.set(
+                                IS_PROFILE_UPDATED,
+                                true
+                            )
+                            navController.popBackStack()
+                        }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -304,7 +276,9 @@ fun EditBasicInformation(
 
         }
     )
-
+    if (viewModel.isUpdating) {
+        ScreenLoader()
+    }
 }
 
 @Composable
@@ -539,16 +513,16 @@ fun GenderComposable(viewModel: EditBasicInformationViewModel) {
     ) {
         Text(text = "Gender", style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.width(20.dp))
-        CustomFilterChip(viewModel.gender, GenderEnum.MALE.value, "Male") {
-            viewModel.gender = it
+        CustomFilterChip(viewModel.genderAtBirth, GenderEnum.MALE.value, "Male") {
+            viewModel.genderAtBirth = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(viewModel.gender, GenderEnum.FEMALE.value, "Female") {
-            viewModel.gender = it
+        CustomFilterChip(viewModel.genderAtBirth, GenderEnum.FEMALE.value, "Female") {
+            viewModel.genderAtBirth = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(viewModel.gender, GenderEnum.OTHER.value, "Other") {
-            viewModel.gender = it
+        CustomFilterChip(viewModel.genderAtBirth, GenderEnum.OTHER.value, "Other") {
+            viewModel.genderAtBirth = it
         }
     }
 }
