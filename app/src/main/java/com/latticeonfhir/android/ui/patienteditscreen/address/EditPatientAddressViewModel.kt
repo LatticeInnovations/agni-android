@@ -5,25 +5,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
+import com.google.android.fhir.FhirEngine
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
+import com.latticeonfhir.android.utils.constants.patient.AddressConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Patient
+import org.hl7.fhir.r4.model.StringType
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
 class EditPatientAddressViewModel @Inject constructor(
-    val patientRepository: PatientRepository,
-    val genericRepository: GenericRepository
+    private val fhirEngine: FhirEngine
 ) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
+    var isUpdating by mutableStateOf(false)
+    var patient by mutableStateOf(Patient())
 
     var homeAddress by mutableStateOf(Address())
     var homeAddressTemp by mutableStateOf(Address())
@@ -36,11 +37,8 @@ class EditPatientAddressViewModel @Inject constructor(
             || homeAddress.city.isBlank()
         )
             return false
-        if (addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state.isBlank() || workAddress.addressLine1.isBlank()
-                    || workAddress.city.isBlank())
-        )
-            return false
-        return true
+        return !(addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state.isBlank() || workAddress.addressLine1.isBlank()
+                || workAddress.city.isBlank()))
     }
 
     fun checkIsEdit(): Boolean {
@@ -67,100 +65,67 @@ class EditPatientAddressViewModel @Inject constructor(
         return true
     }
 
-    fun updateBasicInfo(patientResponse: PatientResponse) {
+    fun updateAddressInfo(updated: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = patientRepository.updatePatientData(patientResponse = patientResponse)
-            if (checkIsEdit() && response > 0) {
-                if (patientResponse.fhirId != null) {
-                    checkIsValueChange(
-                        patientResponse,
-                        homeAddress.pincode,
-                        homeAddressTemp.pincode
-                    )
-                    checkIsValueChange(
-                        patientResponse,
-                        homeAddress.addressLine1,
-                        homeAddressTemp.addressLine1
-                    )
-                    checkIsValueChange(
-                        patientResponse,
-                        homeAddress.addressLine2,
-                        homeAddressTemp.addressLine2
-                    )
-                    checkIsValueChange(
-                        patientResponse,
-                        homeAddress.state,
-                        homeAddressTemp.state
-                    )
-                    checkIsValueChange(
-                        patientResponse,
-                        homeAddress.city,
-                        homeAddressTemp.city
-                    )
-                    checkIsValueChange(
-                        patientResponse,
-                        homeAddress.district,
-                        homeAddressTemp.district
-                    )
-
-                } else {
-                    genericRepository.insertPatient(
-                        patientResponse
+            fhirEngine.update(
+                patient.apply {
+                    address.clear()
+                    address.add(
+                        org.hl7.fhir.r4.model.Address().apply {
+                            use = org.hl7.fhir.r4.model.Address.AddressUse.HOME
+                            postalCode = homeAddress.pincode
+                            district = homeAddress.district.replaceFirstChar {
+                                it.titlecase(Locale.getDefault())
+                            }
+                            state = homeAddress.state
+                            city = homeAddress.city.replaceFirstChar {
+                                it.titlecase(Locale.getDefault())
+                            }
+                            line.add(
+                                StringType(
+                                    homeAddress.addressLine1.replaceFirstChar {
+                                        it.titlecase(Locale.getDefault())
+                                    }
+                                )
+                            )
+                            line.add(
+                                StringType(
+                                    homeAddress.addressLine2.replaceFirstChar {
+                                        it.titlecase(Locale.getDefault())
+                                    }
+                                )
+                            )
+                            text = "${homeAddress.addressLine1} ${homeAddress.addressLine2}"
+                            country = "India"
+                        }
                     )
                 }
+            )
+            updated()
+        }
+    }
+
+
+    internal fun setData() {
+        patient.run {
+            address.forEach { a ->
+                if (a.use.toCode() == AddressConstants.HOME) {
+                    homeAddress.pincode = a.postalCode
+                    homeAddress.state = a.state
+                    homeAddress.city = a.city
+                    homeAddress.district = a.district ?: ""
+                    homeAddress.addressLine1 = a.line[0].value
+                    if (a.line.size > 1) homeAddress.addressLine2 = a.line[1].value
+                }
             }
+
+            homeAddressTemp.pincode = homeAddress.pincode
+            homeAddressTemp.state = homeAddress.state
+            homeAddressTemp.city = homeAddress.city
+            homeAddressTemp.district = homeAddress.district
+            homeAddressTemp.addressLine1 = homeAddress.addressLine1
+            homeAddressTemp.addressLine2 = homeAddress.addressLine2
         }
     }
-
-
-    private suspend fun checkIsValueChange(
-        patientResponse: PatientResponse,
-        value: String,
-        tempValue: String
-    ) {
-        if (value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        "permanentAddress", ChangeRequest(
-                            value = patientResponse.permanentAddress,
-                            operation = ChangeTypeEnum.REPLACE.value
-                        )
-                    )
-                )
-            )
-        } else if (value != tempValue && tempValue.isNotEmpty() && value.isEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        "permanentAddress", ChangeRequest(
-                            value = patientResponse.permanentAddress,
-                            operation = ChangeTypeEnum.REPLACE.value
-                        )
-                    )
-                )
-            )
-
-        } else if (value != tempValue && tempValue.isEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        "permanentAddress", ChangeRequest(
-                            value = patientResponse.permanentAddress,
-                            operation = ChangeTypeEnum.ADD.value
-                        )
-                    )
-                )
-            )
-
-        }
-
-
-    }
-
-
 }
 
