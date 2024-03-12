@@ -2,13 +2,31 @@ package com.latticeonfhir.android.ui.patienteditscreen.address
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,13 +35,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
-import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.AddressComposable
+import com.latticeonfhir.android.ui.common.ScreenLoader
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.IS_PROFILE_UPDATED
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,31 +48,15 @@ fun EditPatientAddress(
     navController: NavController,
     viewModel: EditPatientAddressViewModel = hiltViewModel()
 ) {
-    val patientResponse =
-        navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(key = "patient_details")
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            patientResponse?.run {
-                viewModel.homeAddress.pincode = permanentAddress.postalCode
-                viewModel.homeAddress.state = permanentAddress.state
-                viewModel.homeAddress.city = permanentAddress.city
-                viewModel.homeAddress.district = permanentAddress.district ?: ""
-                viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1
-                viewModel.homeAddress.addressLine2 = permanentAddress.addressLine2 ?: ""
-
-                viewModel.homeAddressTemp.pincode = viewModel.homeAddress.pincode
-                viewModel.homeAddressTemp.state = viewModel.homeAddress.state
-                viewModel.homeAddressTemp.city = viewModel.homeAddress.city
-                viewModel.homeAddressTemp.district = viewModel.homeAddress.district
-                viewModel.homeAddressTemp.addressLine1 = viewModel.homeAddress.addressLine1
-                viewModel.homeAddressTemp.addressLine2 = viewModel.homeAddress.addressLine2
-            }
+            viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get(PATIENT)!!
+            viewModel.setData()
+            viewModel.isLaunched = true
         }
-        viewModel.isLaunched = true
-
     }
     BackHandler(enabled = true) {
-        navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated", false)
+        navController.previousBackStackEntry?.savedStateHandle?.set(IS_PROFILE_UPDATED, false)
         navController.popBackStack()
     }
 
@@ -76,11 +77,10 @@ fun EditPatientAddress(
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.previousBackStackEntry?.savedStateHandle?.set(
-                            "isProfileUpdated",
+                            IS_PROFILE_UPDATED,
                             false
                         )
                         navController.popBackStack()
-
                     }) {
                         Icon(
                             Icons.Default.Clear,
@@ -108,7 +108,6 @@ fun EditPatientAddress(
                                     }
                                 }
                             })
-
                     )
                 }
             )
@@ -131,35 +130,22 @@ fun EditPatientAddress(
                 }
 
                 viewModel.isEditing = viewModel.checkIsEdit()
-                Timber.tag("CheckEdit").d(viewModel.isEditing.toString())
-
             }
 
         }, floatingActionButton = {
             Button(
                 onClick = {
-
-                    viewModel.updateBasicInfo(
-                        patientResponse!!.copy(
-                            permanentAddress = PatientAddressResponse(
-                                addressLine1 = viewModel.homeAddress.addressLine1,
-                                city = viewModel.homeAddress.city,
-                                district = viewModel.homeAddress.district.ifEmpty { null },
-                                state = viewModel.homeAddress.state,
-                                postalCode = viewModel.homeAddress.pincode,
-                                country = "India",
-                                addressLine2 = viewModel.homeAddress.addressLine2.ifEmpty { null },
+                    viewModel.isUpdating = true
+                    viewModel.updateAddressInfo {
+                        viewModel.isUpdating = false
+                        coroutineScope.launch {
+                            navController.previousBackStackEntry?.savedStateHandle?.set(
+                                IS_PROFILE_UPDATED,
+                                true
                             )
-                        )
-                    )
-
-                    navController.previousBackStackEntry?.savedStateHandle?.set(
-                        "isProfileUpdated",
-                        true
-                    )
-                    navController.popBackStack()
-
-
+                            navController.popBackStack()
+                        }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -171,5 +157,7 @@ fun EditPatientAddress(
 
         }
     )
-
+    if (viewModel.isUpdating) {
+        ScreenLoader()
+    }
 }

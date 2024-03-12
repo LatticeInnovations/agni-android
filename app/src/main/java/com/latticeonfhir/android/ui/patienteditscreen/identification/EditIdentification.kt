@@ -40,15 +40,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.ui.common.IdLength
 import com.latticeonfhir.android.ui.common.IdSelectionChip
-import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PASSPORT_TYPE
-import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PATIENT_ID_TYPE
-import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.VOTER_ID_TYPE
+import com.latticeonfhir.android.ui.common.ScreenLoader
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.IS_EDITING
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.IS_PROFILE_UPDATED
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Patient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,59 +56,19 @@ fun EditIdentification(
     navController: NavController,
     viewModel: EditIdentificationViewModel = hiltViewModel()
 ) {
-    val patientResponse =
-        navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>("patient_details")
-    viewModel.patient = patientResponse
     viewModel.isEditing = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-        "isEditing"
+        IS_EDITING
     ) == true
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            patientResponse?.run {
-                identifier.forEach { identity ->
-
-                    when (identity.identifierType) {
-                        PASSPORT_TYPE -> {
-                            viewModel.passportId = identity.identifierNumber
-                            viewModel.isPassportSelected = viewModel.passportId.isNotEmpty()
-                        }
-
-                        VOTER_ID_TYPE -> {
-                            viewModel.voterId = identity.identifierNumber
-
-                        }
-
-                        PATIENT_ID_TYPE -> {
-                            viewModel.patientId = identity.identifierNumber
-                        }
-
-                        else -> {}
-
-                    }
-
-                    if (viewModel.isEditing) {
-                        viewModel.isPassportSelected = viewModel.passportId.isNotEmpty()
-                        viewModel.isVoterSelected = viewModel.voterId.isNotEmpty()
-                        viewModel.isPatientSelected = viewModel.patientId.isNotEmpty()
-                    }
-                }
-
-                viewModel.isPassportSelectedTemp = viewModel.isPassportSelected
-                viewModel.isVoterSelectedTemp = viewModel.isVoterSelected
-                viewModel.isPatientSelectedTemp = viewModel.isPatientSelected
-                viewModel.passportIdTemp = viewModel.passportId
-                viewModel.voterIdTemp = viewModel.voterId
-                viewModel.patientIdTemp = viewModel.patientId
-
-
-            }
+            viewModel.patient = navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(PATIENT)!!
+            viewModel.setData()
             viewModel.isLaunched = true
-
         }
     }
 
     BackHandler(enabled = true) {
-        navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated", false)
+        navController.previousBackStackEntry?.savedStateHandle?.set(IS_PROFILE_UPDATED, false)
         navController.popBackStack()
     }
     val snackBarHostState = remember { SnackbarHostState() }
@@ -128,7 +88,7 @@ fun EditIdentification(
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.previousBackStackEntry?.savedStateHandle?.set(
-                            "isProfileUpdated",
+                            IS_PROFILE_UPDATED,
                             false
                         )
                         navController.popBackStack()
@@ -286,41 +246,17 @@ fun EditIdentification(
         }, floatingActionButton = {
             Button(
                 onClick = {
-                    if (viewModel.passportId.isNotEmpty() && viewModel.isPassportSelected) {
-                        viewModel.identifierList.add(
-                            PatientIdentifier(
-                                identifierType = PASSPORT_TYPE,
-                                identifierNumber = viewModel.passportId,
-                                code = null
+                    viewModel.isUpdating = true
+                    viewModel.updateIdentifierInfo {
+                        viewModel.isUpdating = false
+                        coroutineScope.launch {
+                            navController.previousBackStackEntry?.savedStateHandle?.set(
+                                IS_PROFILE_UPDATED,
+                                true
                             )
-                        )
+                            navController.popBackStack()
+                        }
                     }
-                    if (viewModel.voterId.isNotEmpty() && viewModel.isVoterSelected) {
-                        viewModel.identifierList.add(
-                            PatientIdentifier(
-                                identifierType = VOTER_ID_TYPE,
-                                identifierNumber = viewModel.voterId,
-                                code = null
-                            )
-                        )
-                    }
-                    if (viewModel.patientId.isNotEmpty() && viewModel.isPatientSelected) {
-                        viewModel.identifierList.add(
-                            PatientIdentifier(
-                                identifierType = PATIENT_ID_TYPE,
-                                identifierNumber = viewModel.patientId,
-                                code = null
-                            )
-                        )
-                    }
-
-
-                    viewModel.updateBasicInfo(patientResponse!!.copy(identifier = viewModel.identifierList))
-                    navController.previousBackStackEntry?.savedStateHandle?.set(
-                        "isProfileUpdated",
-                        true
-                    )
-                    navController.popBackStack()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -332,4 +268,7 @@ fun EditIdentification(
 
         }
     )
+    if (viewModel.isUpdating) {
+        ScreenLoader()
+    }
 }
