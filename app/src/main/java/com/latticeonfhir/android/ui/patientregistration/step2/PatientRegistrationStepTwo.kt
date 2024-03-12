@@ -35,6 +35,7 @@ import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PASSPORT_TYPE
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PATIENT_ID_TYPE
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.VOTER_ID_TYPE
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.isIdDuplicate
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
@@ -48,7 +49,9 @@ fun PatientRegistrationStepTwo(
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            if (patientRegistrationViewModel.isEditing) viewModel.setData(patientRegistrationViewModel.patient)
+            if (patientRegistrationViewModel.isEditing) viewModel.setData(
+                patientRegistrationViewModel.patient
+            )
             viewModel.isLaunched = true
         }
     }
@@ -184,7 +187,12 @@ fun PatientRegistrationStepTwo(
                                 Identifier().apply {
                                     system = PASSPORT_TYPE
                                     value = viewModel.passportId
-                                    use = if (viewModel.isIdDuplicate(PASSPORT_TYPE, viewModel.passportId)) Identifier.IdentifierUse.TEMP else Identifier.IdentifierUse.OFFICIAL
+                                    use = if (isIdDuplicate(
+                                            viewModel.fhirEngine,
+                                            PASSPORT_TYPE,
+                                            viewModel.passportId
+                                        )
+                                    ) Identifier.IdentifierUse.TEMP else Identifier.IdentifierUse.OFFICIAL
                                 }
                             )
                         }
@@ -193,7 +201,12 @@ fun PatientRegistrationStepTwo(
                                 Identifier().apply {
                                     system = VOTER_ID_TYPE
                                     value = viewModel.voterId
-                                    use = if (viewModel.isIdDuplicate(VOTER_ID_TYPE, viewModel.voterId)) Identifier.IdentifierUse.TEMP else Identifier.IdentifierUse.OFFICIAL
+                                    use = if (isIdDuplicate(
+                                            viewModel.fhirEngine,
+                                            VOTER_ID_TYPE,
+                                            viewModel.voterId
+                                        )
+                                    ) Identifier.IdentifierUse.TEMP else Identifier.IdentifierUse.OFFICIAL
                                 }
                             )
                         }
@@ -202,7 +215,12 @@ fun PatientRegistrationStepTwo(
                                 Identifier().apply {
                                     system = PATIENT_ID_TYPE
                                     value = viewModel.patientId
-                                    use = if (viewModel.isIdDuplicate(PATIENT_ID_TYPE, viewModel.patientId)) Identifier.IdentifierUse.TEMP else Identifier.IdentifierUse.OFFICIAL
+                                    use = if (isIdDuplicate(
+                                            viewModel.fhirEngine,
+                                            PATIENT_ID_TYPE,
+                                            viewModel.patientId
+                                        )
+                                    ) Identifier.IdentifierUse.TEMP else Identifier.IdentifierUse.OFFICIAL
                                 }
                             )
                         }

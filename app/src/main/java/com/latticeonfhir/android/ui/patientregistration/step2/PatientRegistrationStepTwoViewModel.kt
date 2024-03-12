@@ -5,19 +5,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import com.google.android.fhir.FhirEngine
-import com.google.android.fhir.search.search
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PASSPORT_TYPE
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PATIENT_ID_TYPE
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.VOTER_ID_TYPE
 import dagger.hilt.android.lifecycle.HiltViewModel
-import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Patient
 import javax.inject.Inject
 
 @HiltViewModel
 class PatientRegistrationStepTwoViewModel @Inject constructor(
-    private val fhirEngine: FhirEngine
+    val fhirEngine: FhirEngine
 ) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
 
@@ -67,22 +65,6 @@ class PatientRegistrationStepTwoViewModel @Inject constructor(
                     }
                 }
             }
-        }
-    }
-
-    internal suspend fun isIdDuplicate(idSystem: String, idValue: String): Boolean {
-        fhirEngine.search<Patient> {
-            filter(
-                Patient.IDENTIFIER,
-                {
-                    value = of(Identifier().apply {
-                        system = idSystem
-                        value = idValue
-                    })
-                }
-            )
-        }.let { results ->
-            return results.isNotEmpty()
         }
     }
 }
