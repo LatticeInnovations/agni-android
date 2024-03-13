@@ -13,6 +13,7 @@ object UrlBuilder {
         urls.add(ResourceType.Location.name)
         urls.add(ResourceType.Patient.name)
         urls.add(ResourceType.Person.name)
+        urls.add(ResourceType.RelatedPerson.name)
         urls.add(ResourceType.Schedule.name)
         urls.add(ResourceType.Slot.name)
         urls.add(ResourceType.Appointment.name)
