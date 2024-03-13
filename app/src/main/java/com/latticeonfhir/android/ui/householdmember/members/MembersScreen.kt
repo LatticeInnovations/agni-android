@@ -19,20 +19,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.ui.common.Loader
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationFromRelationEnum
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import org.hl7.fhir.r4.model.Patient
+import org.hl7.fhir.r4.model.RelatedPerson
 import java.util.Locale
 
 @Composable
-fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = hiltViewModel()) {
+fun MembersScreen(
+    patient: Patient,
+    viewModel: MembersScreenViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     LaunchedEffect(true) {
-        viewModel.getAllRelations(patientId = patient.id)
+        viewModel.getAllRelations(patientId = patient.logicalId)
     }
     if (viewModel.loading) {
         Box(
@@ -42,7 +46,7 @@ fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = 
             Loader()
         }
     } else {
-        if (viewModel.relationsList.isEmpty()) {
+        if (viewModel.relationsListWithRelation.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -57,12 +61,12 @@ fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = 
             ) {
                 items(viewModel.relationsListWithRelation) { relation ->
                     MembersCard(
-                        RelationConverter.getRelationFromRelationEnum(
+                        getRelationFromRelationEnum(
                             context,
-                            relation.relation
+                            RelationEnum.fromString(relation.resource.relationship[0].coding[0].code)
                         )
-                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
-                        relation.patientResponse
+                            .replaceFirstChar { it.titlecase(Locale.getDefault()) },
+                        relation.included?.get(RelatedPerson.PATIENT.paramName)?.get(0) as Patient
                     )
                 }
             }
@@ -71,10 +75,10 @@ fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = 
 }
 
 @Composable
-fun MembersCard(relation: String, relative: PatientResponse) {
-    val name = NameConverter.getFullName(relative.firstName, relative.middleName, relative.lastName)
-    val age = relative.birthDate.toTimeInMilli().toAge()
-    val subtitle = "${relative.gender[0].uppercase()}/$age · PID ${relative.fhirId}"
+fun MembersCard(relation: String, relative: Patient) {
+    val name = relative.nameFirstRep.nameAsSingleString
+    val age = relative.birthDate.time.toAge()
+    val subtitle = "${relative.gender.display[0]}/$age · PID ${relative.logicalId}"
     Surface(
         modifier = Modifier
             .fillMaxWidth()
