@@ -7,12 +7,12 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.logicalId
-import com.google.android.fhir.search.search
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.LATTICE
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PASSPORT_TYPE
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.PATIENT_ID_TYPE
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.VOTER_ID_TYPE
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getPersonResource
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.isIdDuplicate
 import com.latticeonfhir.android.utils.regex.PassportRegex
 import com.latticeonfhir.android.utils.regex.VoterRegex
@@ -21,7 +21,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Patient
-import org.hl7.fhir.r4.model.Person
 import javax.inject.Inject
 
 @HiltViewModel
@@ -144,13 +143,7 @@ class EditIdentificationViewModel @Inject constructor(
                         )
                     }
                 }
-            val person = fhirEngine.search<Person> {
-                filter(
-                    Person.LINK, {
-                        value = "${patient.fhirType()}/${patient.logicalId}"
-                    }
-                )
-            }[0].resource.apply {
+            val person = getPersonResource(fhirEngine, patient.logicalId).apply {
                 identifier.clear()
                 identifier = patient.identifier
             }
