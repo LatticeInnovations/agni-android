@@ -48,12 +48,12 @@ android {
             debuggable true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "FACADE_URL", "\"https://fhir.api.thelattice.org/fhir/api/v1/\""
-            buildConfigField "String", "FHIR_URL", "\"http://134.209.154.146:8080/fhir/\""
+            buildConfigField "String", "FHIR_URL", "\"http://64.227.149.63:8080/fhir/\""
         }
         release {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "FACADE_URL", "\"https://fhir.api.thelattice.org/fhir/api/v1/\""
-            buildConfigField "String", "FHIR_URL", "\"http://134.209.154.146:8080/fhir/\""
+            buildConfigField "String", "FHIR_URL", "\"http://64.227.149.63:8080/fhir/\""
             signingConfig signingConfigs.release
         }
     }
