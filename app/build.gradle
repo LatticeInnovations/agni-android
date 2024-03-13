@@ -48,12 +48,12 @@ android {
             debuggable true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "FACADE_URL", "YOUR_BASE_URL"
-            buildConfigField "String", "FHIR_URL", "\"http://134.209.154.146:8080/fhir/\""
+            buildConfigField "String", "FHIR_URL", "YOUR_FHIR_BASE_URL"
         }
         release {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "FACADE_URL", "YOUR_BASE_URL"
-            buildConfigField "String", "FHIR_URL", "\"http://134.209.154.146:8080/fhir/\""
+            buildConfigField "String", "FHIR_URL", "YOUR_FHIR_BASE_URL"
             signingConfig signingConfigs.release
         }
     }
