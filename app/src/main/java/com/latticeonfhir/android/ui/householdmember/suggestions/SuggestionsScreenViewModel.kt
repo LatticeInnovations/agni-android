@@ -4,86 +4,106 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
+import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getInverseRelation
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getPersonResource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.Coding
+import org.hl7.fhir.r4.model.Patient
+import org.hl7.fhir.r4.model.Person
+import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.RelatedPerson
 import javax.inject.Inject
 
 @HiltViewModel
 class SuggestionsScreenViewModel @Inject constructor(
-    private val searchRepository: SearchRepository,
-    private val genericRepository: GenericRepository,
-    private val relationRepository: RelationRepository,
-    private val patientDao: PatientDao
+    private val fhirEngine: FhirEngine,
+    private val searchRepository: SearchRepository
 ) : BaseViewModel() {
     var loading by mutableStateOf(true)
-    var membersList by mutableStateOf(listOf<PatientResponse>())
+    var membersList by mutableStateOf(listOf<Patient>())
 
-    internal fun getQueueItems(patient: PatientResponse) {
+    internal fun getQueueItems(patient: Patient) {
         viewModelScope.launch(Dispatchers.IO) {
-            membersList = searchRepository.getFiveSuggestedMembers(
-                patient.id,
-                patient.permanentAddress
+            membersList = searchRepository.getFiveSuggestedMembersFhir(
+                patient.logicalId,
+                patient.addressFirstRep
             )
             loading = false
         }
     }
 
     fun addRelation(
-        relation: Relation,
-        relativeId: String,
-        genericUUID: String = UUIDBuilder.generateUUID(),
-        genericUUIDInverse: String = UUIDBuilder.generateUUID(),
-        relationAdded: (List<Long>) -> Unit
+        patientResource: Patient,
+        relativeResource: Patient,
+        relation: String,
+        relationAdded: () -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            RelationConverter.getInverseRelation(
-                relation.toRelationEntity(),
-                patientDao
-            ) { inverseRelation ->
-                viewModelScope.launch(Dispatchers.IO) {
-                    genericRepository.insertRelation(
-                        relation.patientId,
-                        RelatedPersonResponse(
-                            id = relation.patientId,
-                            relationship = listOf(
-                                Relationship(
-                                    patientIs = relation.relation,
-                                    relativeId = relativeId
-                                )
-                            )
-                        ),
-                        genericUUID
-                    ).also {
-                        genericRepository.insertRelation(
-                            relativeId,
-                            RelatedPersonResponse(
-                                id = relativeId,
-                                relationship = listOf(
-                                    Relationship(
-                                        patientIs = inverseRelation.value,
-                                        relativeId = relation.patientId
-                                    )
-                                )
-                            ),
-                            genericUUIDInverse
+            val relatedPersonPatient = RelatedPerson().apply {
+                id = UUIDBuilder.generateUUID()
+                patient.reference = "${patientResource.fhirType()}/${patientResource.logicalId}"
+                relationship.add(
+                    CodeableConcept(
+                        Coding(
+                            "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                            relation,
+                            ""
                         )
-                    }
+                    )
+                )
+            }
+            val relatedPersonRelative = RelatedPerson()
+            getInverseRelation(
+                fromGender = patientResource.gender.toCode(),
+                toGender = relativeResource.gender.toCode(),
+                relation = RelationEnum.fromString(relation)
+            ) { inverseRelation ->
+                relatedPersonRelative.apply {
+                    id = UUIDBuilder.generateUUID()
+                    patient.reference = "${relativeResource.fhirType()}/${relativeResource.logicalId}"
+                    relationship.add(
+                        CodeableConcept(
+                            Coding(
+                                "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                                inverseRelation.value,
+                                ""
+                            )
+                        )
+                    )
                 }
             }
-            relationRepository.addRelation(relation, relationAdded)
+            val personPatient = getPersonResource(
+                fhirEngine,
+                patientResource.logicalId
+            ).apply {
+                link.add(
+                    Person.PersonLinkComponent()
+                        .setAssurance(Person.IdentityAssuranceLevel.LEVEL3)
+                        .setTarget(Reference("${relatedPersonRelative.fhirType()}/${relatedPersonRelative.logicalId}"))
+                )
+            }
+            val personRelative = getPersonResource(
+                fhirEngine,
+                relativeResource.logicalId
+            ).apply {
+                link.add(
+                    Person.PersonLinkComponent()
+                        .setAssurance(Person.IdentityAssuranceLevel.LEVEL3)
+                        .setTarget(Reference("${relatedPersonPatient.fhirType()}/${relatedPersonPatient.logicalId}"))
+                )
+            }
+            fhirEngine.create(relatedPersonPatient, relatedPersonRelative)
+            fhirEngine.update(personPatient, personRelative)
+            relationAdded()
         }
     }
 }

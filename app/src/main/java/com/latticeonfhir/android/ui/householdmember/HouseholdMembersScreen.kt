@@ -49,6 +49,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.householdmember.members.MembersScreen
+import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import kotlinx.coroutines.launch
@@ -126,11 +127,11 @@ fun HouseholdMembersScreen(
                         ) { index ->
                         when (index) {
                             0 -> MembersScreen(viewModel.patient)
-//                            1 -> SuggestionsScreen(
-//                                viewModel.patient,
-//                                snackbarHostState,
-//                                scope
-//                            )
+                            1 -> SuggestionsScreen(
+                                viewModel.patient,
+                                snackbarHostState,
+                                scope
+                            )
                         }
                         }
                     }
