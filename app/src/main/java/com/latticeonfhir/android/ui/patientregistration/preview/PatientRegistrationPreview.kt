@@ -28,9 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.PreviewScreen
 import com.latticeonfhir.android.ui.common.ScreenLoader
@@ -39,11 +38,9 @@ import com.latticeonfhir.android.utils.constants.NavControllerConstants.FROM_HOU
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.IS_EDITING
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_FROM
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ID
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_REGISTER_DETAILS
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.RELATION
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.RELATIVE_ID
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.RELATIVE
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Patient
 
@@ -65,14 +62,15 @@ fun PatientRegistrationPreview(
                 ) == true
             ) {
                 viewModel.fromHouseholdMember = true
-                viewModel.relation = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-                    key = RELATION
-                )!!
+                viewModel.relation =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                        key = RELATION
+                    )!!
                 viewModel.patientFrom =
-                    navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
                         key = PATIENT_FROM
                     )!!
-                viewModel.patientFromId = viewModel.patientFrom!!.id
+                viewModel.patientFromId = viewModel.patientFrom.logicalId
             }
             viewModel.isLaunched = true
         }
@@ -151,30 +149,20 @@ fun PatientRegistrationPreview(
                     viewModel.addPatient {
                         viewModel.showLoader = false
                         if (viewModel.fromHouseholdMember) {
-                            // adding relation
-                            viewModel.addRelation(
-                                Relation(
-                                    patientId = viewModel.patientFromId,
-                                    relativeId = viewModel.relativeId,
-                                    relation = getRelationEnumFromString(viewModel.relation)
+                            coroutineScope.launch {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patientFrom
                                 )
-                            ) {
-                                coroutineScope.launch {
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        PATIENT_ID,
-                                        viewModel.patientFromId
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        RELATIVE_ID,
-                                        viewModel.relativeId
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        RELATION,
-                                        viewModel.relation
-                                    )
-                                    navController.navigate(Screen.ConfirmRelationship.route)
-                                }
-
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    RELATIVE,
+                                    viewModel.patient!!
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    RELATION,
+                                    viewModel.relation
+                                )
+                                navController.navigate(Screen.ConfirmRelationship.route)
                             }
                         } else {
                             coroutineScope.launch {

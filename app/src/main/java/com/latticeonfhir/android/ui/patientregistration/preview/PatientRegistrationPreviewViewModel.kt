@@ -7,9 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,8 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PatientRegistrationPreviewViewModel @Inject constructor(
-    private val fhirEngine: FhirEngine,
-    private val relationRepository: RelationRepository
+    private val fhirEngine: FhirEngine
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var showLoader by mutableStateOf(false)
@@ -32,7 +28,7 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     internal var openDialog by mutableStateOf(false)
 
     internal var fromHouseholdMember by mutableStateOf(false)
-    internal var patientFrom by mutableStateOf<PatientResponse?>(null)
+    internal var patientFrom by mutableStateOf(Patient())
     internal var patientFromId by mutableStateOf("")
     internal var relativeId by mutableStateOf(UUIDBuilder.generateUUID())
     internal var relation by mutableStateOf("")
@@ -52,12 +48,6 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
             if (i.isNotEmpty()) {
                 created()
             }
-        }
-    }
-
-    internal fun addRelation(relation: Relation, relationAdded: (List<Long>) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            relationRepository.addRelation(relation, relationAdded)
         }
     }
 }

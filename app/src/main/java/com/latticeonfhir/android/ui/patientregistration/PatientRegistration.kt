@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.RelationDialogContent
 import com.latticeonfhir.android.ui.common.ScreenLoader
 import com.latticeonfhir.android.ui.patientregistration.preview.DiscardDialog
@@ -46,7 +45,6 @@ import com.latticeonfhir.android.utils.constants.NavControllerConstants.FROM_HOU
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.IS_EDITING
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_REGISTER_DETAILS
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import org.hl7.fhir.r4.model.Patient
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,9 +79,9 @@ fun PatientRegistration(
                 viewModel.showRelationDialogue = true
                 viewModel.totalSteps = 4
                 viewModel.patientFrom =
-                    navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
                         PATIENT
-                    )
+                    )!!
             }
             viewModel.isLaunched = true
         }
@@ -170,13 +168,9 @@ fun PatientRegistration(
                     },
                     text = {
                         RelationDialogContent(
-                            NameConverter.getFullName(
-                                viewModel.patientFrom?.firstName,
-                                viewModel.patientFrom?.middleName,
-                                viewModel.patientFrom?.lastName
-                            ),
+                            viewModel.patientFrom.nameFirstRep.nameAsSingleString,
                             "of the patient I am about to create",
-                            viewModel.patientFrom?.gender!!,
+                            viewModel.patientFrom.gender.toCode(),
                             viewModel.relation,
                             expanded
                         ) { update, value ->
