@@ -4,6 +4,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.logicalId
+import com.google.android.fhir.search.search
 import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.model.pagination.PaginationResponse
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
@@ -15,16 +18,24 @@ import com.latticeonfhir.android.data.server.model.patient.PatientAddressRespons
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.Paging.PAGE_SIZE
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientResponse
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getPersonResource
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getRelatedPerson
 import com.latticeonfhir.android.utils.paging.SearchPagingSource
 import com.latticeonfhir.android.utils.search.Search.getFuzzySearchList
 import com.latticeonfhir.android.utils.search.Search.getFuzzySearchMedicationList
+import com.latticeonfhir.android.utils.search.Search.getFuzzySearchPatientList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.hl7.fhir.r4.model.Address
+import org.hl7.fhir.r4.model.Patient
+import org.hl7.fhir.r4.model.RelatedPerson
+import org.hl7.fhir.r4.model.ResourceType
 import java.util.Date
 import java.util.LinkedList
 import javax.inject.Inject
 
 class SearchRepositoryImpl @Inject constructor(
+    private val fhirEngine: FhirEngine,
     private val searchDao: SearchDao,
     private val relationDao: RelationDao
 ) : SearchRepository {
@@ -32,8 +43,20 @@ class SearchRepositoryImpl @Inject constructor(
     @Volatile
     private var searchPatientList: List<PatientAndIdentifierEntity>? = null
 
+    @Volatile
+    private var searchPatientListFhir: List<Patient>? = null
+
     override suspend fun getSearchList(): List<PatientAndIdentifierEntity> {
         return searchPatientList ?: searchDao.getPatientList().also { searchPatientList = it }
+    }
+
+    override suspend fun getSearchListFhir(): List<Patient> {
+        if (searchPatientListFhir.isNullOrEmpty()){
+            searchPatientListFhir = fhirEngine.search<Patient> {}.map {
+                it.resource
+            }
+        }
+        return searchPatientListFhir!!
     }
 
     override fun searchPatients(
@@ -215,7 +238,8 @@ class SearchRepositoryImpl @Inject constructor(
         return searchDao.getRecentSearches(SearchTypeEnum.ACTIVE_INGREDIENT)
     }
 
-    override suspend fun getSuggestedMembers(
+    // TODO: to be removed after complete binding
+    private suspend fun getSuggestedMembers(
         patientId: String,
         searchParameters: SearchParameters,
         returnList: (LinkedList<PatientResponse>) -> Unit
@@ -231,6 +255,42 @@ class SearchRepositoryImpl @Inject constructor(
             !existingMembers.contains(it.patientEntity.id)
         }.map { patientAndIdentifierEntity ->
             linkedList.add(patientAndIdentifierEntity.toPatientResponse())
+        }
+        returnList(
+            linkedList
+        )
+    }
+
+    private suspend fun getSuggestedMemberFhir(
+        patientId: String,
+        searchParameters: SearchParameters,
+        returnList: (LinkedList<Patient>) -> Unit
+    ) {
+        val linkedList = LinkedList<Patient>()
+        val existingMembers = mutableSetOf<String>()
+        getPersonResource(fhirEngine, patientId)
+            .link.forEach { relatedPersonLink ->
+                if (relatedPersonLink.target.reference.contains(ResourceType.RelatedPerson.name)) {
+                    getRelatedPerson(
+                        fhirEngine,
+                        relatedPersonLink.target.reference.substringAfter("/")
+                    ).forEach { result ->
+                        result.included?.get(RelatedPerson.PATIENT.paramName)?.get(0)?.logicalId?.let { id ->
+                            existingMembers.add(
+                                id
+                            )
+                        }
+                    }
+                }
+            }
+        getFuzzySearchPatientList(
+            getSearchListFhir(),
+            searchParameters,
+            90
+        ).filter {
+            !existingMembers.contains(it.logicalId)
+        }.map {
+            linkedList.add(it)
         }
         returnList(
             linkedList
@@ -256,6 +316,36 @@ class SearchRepositoryImpl @Inject constructor(
                 address.state,
                 address.postalCode,
                 address.addressLine2
+            )
+        ) { list ->
+            suggestionsList = if (list.size > 5) {
+                list.subList(0, 5)
+            } else list
+        }
+        return suggestionsList
+    }
+
+
+    override suspend fun getFiveSuggestedMembersFhir(
+        patientId: String,
+        address: Address
+    ): List<Patient> {
+        var suggestionsList = listOf<Patient>()
+        val addressLine2 = if (address.line.size >1) address.line[1].value else ""
+        getSuggestedMemberFhir(
+            patientId, SearchParameters(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                address.line[0].value,
+                address.city,
+                address.district?:"",
+                address.state,
+                address.postalCode,
+                addressLine2
             )
         ) { list ->
             suggestionsList = if (list.size > 5) {
