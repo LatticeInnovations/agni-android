@@ -22,4 +22,5 @@ object NavControllerConstants {
     const val LOGOUT_USER = "logoutUser"
     const val LOGOUT_REASON = "logoutReason"
     const val IS_PROFILE_UPDATED = "isProfileUpdated"
+    const val SELECTED_MEMBERS_LIST = "selectedMembersList"
 }
