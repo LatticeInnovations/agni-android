@@ -7,8 +7,9 @@ import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndId
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import kotlinx.coroutines.flow.Flow
+import org.hl7.fhir.r4.model.Address
+import org.hl7.fhir.r4.model.Patient
 import java.util.Date
-import java.util.LinkedList
 
 interface SearchRepository {
 
@@ -40,17 +41,20 @@ interface SearchRepository {
     suspend fun insertRecentActiveIngredientSearch(searchQuery: String, date: Date = Date()): Long
     suspend fun getRecentActiveIngredientSearches(): List<String>
 
+    // TODO: to be removed after Add Household member screen binding
     /** Get Suggested Members */
-    suspend fun getSuggestedMembers(
-        patientId: String,
-        searchParameters: SearchParameters,
-        returnList: (LinkedList<PatientResponse>) -> Unit
-    )
-
     suspend fun getFiveSuggestedMembers(
         patientId: String,
         address: PatientAddressResponse
     ): List<PatientResponse>
 
+    // TODO: to be removed after whole binding
     suspend fun getSearchList(): List<PatientAndIdentifierEntity>
+
+    suspend fun getFiveSuggestedMembersFhir(
+        patientId: String,
+        address: Address
+    ): List<Patient>
+
+    suspend fun getSearchListFhir(): List<Patient>
 }
