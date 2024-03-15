@@ -4,9 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
+import org.hl7.fhir.r4.model.Patient
 import javax.inject.Inject
 
 @HiltViewModel
@@ -14,7 +14,7 @@ class SearchPatientViewModel @Inject constructor() : BaseViewModel() {
     val onlyNumbers = Regex("^\\d+\$")
     var isLaunched by mutableStateOf(false)
     var fromHouseholdMember by mutableStateOf(false)
-    var patientFrom by mutableStateOf<PatientResponse?>(null)
+    var patientFrom by mutableStateOf(Patient())
     var patientName by mutableStateOf("")
     var patientId by mutableStateOf("")
     var gender by mutableStateOf("")
@@ -31,10 +31,8 @@ class SearchPatientViewModel @Inject constructor() : BaseViewModel() {
     var address = Address()
 
     fun updateRange(minAge: String, maxAge: String) {
-        val min: String
-        val max: String
-        if (minAge.isEmpty()) min = "0" else min = minAge
-        if (maxAge.isEmpty()) max = "0" else max = maxAge
+        val min: String = minAge.ifEmpty { "0" }
+        val max: String = maxAge.ifEmpty { "0" }
         range = min.toFloat()..max.toFloat()
     }
 }
