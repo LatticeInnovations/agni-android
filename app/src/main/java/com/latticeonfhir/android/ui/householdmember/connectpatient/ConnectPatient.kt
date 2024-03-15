@@ -304,7 +304,7 @@ fun ConnectedMemberCard(
                 relationFhir.patient.nameFirstRep.nameAsSingleString
             } " +
                     "is the ${
-                        relationFhir.relation
+                        relationFhir.relation.lowercase()
                     } of " +
                     "${
                         relationFhir.relative.nameFirstRep.nameAsSingleString
@@ -379,7 +379,7 @@ fun DeleteDialog(
                     } " +
                             "is the ${
                                 
-                                    relationFhir.relation
+                                    relationFhir.relation.lowercase()
                                 
                             } of " +
                             "${
