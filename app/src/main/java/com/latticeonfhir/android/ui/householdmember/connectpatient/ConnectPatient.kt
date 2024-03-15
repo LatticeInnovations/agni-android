@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.householdmember.connectpatient
 
-import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -51,31 +50,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.roomdb.views.RelationView
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.local.model.relation.RelationFhir
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.DiscardAllRelationDialog
 import com.latticeonfhir.android.ui.common.RelationDialogContent
-import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_FROM
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_MEMBERS_LIST
+import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter.getAddressFhir
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
-import java.util.Locale
+import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Patient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,216 +80,214 @@ fun ConnectPatient(
     navController: NavController,
     viewModel: ConnectPatientViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.patientFrom =
-                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patientFrom"
-                )
+                navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
+                    PATIENT_FROM
+                )!!
             viewModel.selectedMembersList =
-                navController.previousBackStackEntry?.savedStateHandle?.get<MutableList<PatientResponse>>(
-                    "selectedMembersList"
+                navController.previousBackStackEntry?.savedStateHandle?.get<MutableList<Patient>>(
+                    SELECTED_MEMBERS_LIST
                 )!!.toMutableList()
             viewModel.membersList =
                 mutableStateListOf(*viewModel.selectedMembersList.toTypedArray())
+            viewModel.isLaunched = true
         }
-        viewModel.isLaunched = true
     }
-    val context = LocalContext.current
-    Scaffold(
-        topBar = {
-            LargeTopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = stringResource(id = R.string.connect_to),
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                        Text(
-                            text = NameConverter.getFullName(
-                                viewModel.patientFrom?.firstName,
-                                viewModel.patientFrom?.middleName,
-                                viewModel.patientFrom?.lastName
-                            ),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        if (viewModel.connectedMembersList.isEmpty()) navController.popBackStack()
-                        else viewModel.discardAllRelationDialog = true
-                    }) {
-                        Icon(Icons.Default.Clear, contentDescription = "back")
-                    }
-                },
-                colors = TopAppBarDefaults.largeTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
-                )
-            )
-        },
-        content = {
-            Box(
-                modifier = Modifier
-                    .padding(it)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 20.dp, start = 20.dp, end = 20.dp, bottom = 55.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    AnimatedVisibility(
-                        visible = viewModel.connectedMembersList.isNotEmpty(),
-                        enter = expandVertically(),
-                        exit = shrinkVertically()
-                    ) {
+    if (viewModel.isLaunched) {
+        Scaffold(
+            topBar = {
+                LargeTopAppBar(
+                    title = {
                         Column {
                             Text(
-                                text = stringResource(id = R.string.connected_patients),
-                                style = MaterialTheme.typography.bodyLarge
+                                text = stringResource(id = R.string.connect_to),
+                                style = MaterialTheme.typography.headlineSmall
                             )
-                            viewModel.connectedMembersList.forEach { relationView ->
-                                ConnectedMemberCard(context, relationView, viewModel)
-                                Spacer(modifier = Modifier.height(24.dp))
-                            }
-                        }
-                    }
-                    if (viewModel.membersList.isNotEmpty()) {
-                        Text(
-                            text = stringResource(id = R.string.patients_to_connect),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        viewModel.membersList.forEach { member ->
-                            if (member != null) {
-                                PatientRow(member, viewModel)
-                            }
-                        }
-                    }
-                }
-                if (viewModel.discardAllRelationDialog) {
-                    DiscardAllRelationDialog { discard ->
-                        if (discard) {
-                            viewModel.discardRelations()
-                            navController.popBackStack()
-                        }
-                        viewModel.discardAllRelationDialog = false
-                    }
-                }
-
-                if (viewModel.showConfirmDialog) {
-                    AlertDialog(
-                        onDismissRequest = {
-                            viewModel.showConfirmDialog = false
-                        },
-                        title = {
                             Text(
-                                text = "Connect patient",
-                                style = MaterialTheme.typography.headlineSmall,
-                                modifier = Modifier.testTag("delete dialog title")
+                                text = viewModel.patientFrom.nameFirstRep.nameAsSingleString,
+                                style = MaterialTheme.typography.titleMedium
                             )
-                        },
-                        text = {
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            if (viewModel.connectedMembersList.isEmpty()) navController.popBackStack()
+                            else viewModel.discardAllRelationDialog = true
+                        }) {
+                            Icon(Icons.Default.Clear, contentDescription = "back")
+                        }
+                    },
+                    colors = TopAppBarDefaults.largeTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                    )
+                )
+            },
+            content = {
+                Box(
+                    modifier = Modifier
+                        .padding(it)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 20.dp, start = 20.dp, end = 20.dp, bottom = 55.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        AnimatedVisibility(
+                            visible = viewModel.connectedMembersList.isNotEmpty(),
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
+                        ) {
                             Column {
                                 Text(
-                                    text = "You have also selected",
+                                    text = stringResource(id = R.string.connected_patients),
                                     style = MaterialTheme.typography.bodyLarge
                                 )
-                                Spacer(modifier = Modifier.height(20.dp))
-                                LazyColumn(modifier = Modifier.wrapContentHeight()) {
-                                    items(viewModel.selectedMembersList) { member ->
-                                        val color = MaterialTheme.colorScheme.onSurface
-                                        Row(
-                                            Modifier.padding(8.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Canvas(
-                                                modifier = Modifier
-                                                    .padding(
-                                                        start = 8.dp,
-                                                        end = 8.dp
-                                                    )
-                                                    .size(4.dp)
+                                viewModel.connectedMembersList.forEach { relationFhir ->
+                                    ConnectedMemberCard(relationFhir, viewModel)
+                                    Spacer(modifier = Modifier.height(24.dp))
+                                }
+                            }
+                        }
+                        if (viewModel.membersList.isNotEmpty()) {
+                            Text(
+                                text = stringResource(id = R.string.patients_to_connect),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            viewModel.membersList.forEach { member ->
+                                if (member != null) {
+                                    PatientRow(member, viewModel)
+                                }
+                            }
+                        }
+                    }
+                    if (viewModel.discardAllRelationDialog) {
+                        DiscardAllRelationDialog { discard ->
+                            if (discard) {
+                                navController.popBackStack()
+                            }
+                            viewModel.discardAllRelationDialog = false
+                        }
+                    }
+
+                    if (viewModel.showConfirmDialog) {
+                        AlertDialog(
+                            onDismissRequest = {
+                                viewModel.showConfirmDialog = false
+                            },
+                            title = {
+                                Text(
+                                    text = "Connect patient",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    modifier = Modifier.testTag("delete dialog title")
+                                )
+                            },
+                            text = {
+                                Column {
+                                    Text(
+                                        text = "You have also selected",
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    LazyColumn(modifier = Modifier.wrapContentHeight()) {
+                                        items(viewModel.selectedMembersList) { member ->
+                                            val color = MaterialTheme.colorScheme.onSurface
+                                            Row(
+                                                Modifier.padding(8.dp),
+                                                verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                drawCircle(color = color)
+                                                Canvas(
+                                                    modifier = Modifier
+                                                        .padding(
+                                                            start = 8.dp,
+                                                            end = 8.dp
+                                                        )
+                                                        .size(4.dp)
+                                                ) {
+                                                    drawCircle(color = color)
+                                                }
+                                                Text(
+                                                    text = member!!.nameFirstRep.nameAsSingleString,
+                                                    style = MaterialTheme.typography.bodyLarge
+                                                )
                                             }
-                                            Text(
-                                                text = NameConverter.getFullName(
-                                                    member?.firstName,
-                                                    member?.middleName,
-                                                    member?.lastName
-                                                ),
-                                                style = MaterialTheme.typography.bodyLarge
-                                            )
                                         }
                                     }
-                                }
-                                Spacer(modifier = Modifier.height(20.dp))
-                                Text(
-                                    text = "These persons are not connected to the others.",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    Text(
+                                        text = "These persons are not connected to the others.",
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
 
+                                }
+                            },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        viewModel.addRelations {
+                                            coroutineScope.launch {
+                                                navController.popBackStack(
+                                                    Screen.HouseholdMembersScreen.route,
+                                                    false
+                                                )
+                                            }
+                                        }
+                                    }) {
+                                    Text(
+                                        "Proceed anyway"
+                                    )
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(
+                                    onClick = {
+                                        viewModel.showConfirmDialog = false
+                                    }) {
+                                    Text(
+                                        "Go back"
+                                    )
+                                }
                             }
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    viewModel.addRelationsToGenericEntity()
+                        )
+                    }
+                }
+            },
+            floatingActionButton = {
+                Button(
+                    onClick = {
+                        if (viewModel.selectedMembersList.isEmpty()) {
+                            viewModel.addRelations {
+                                coroutineScope.launch {
                                     navController.popBackStack(
                                         Screen.HouseholdMembersScreen.route,
                                         false
                                     )
-                                }) {
-                                Text(
-                                    "Proceed anyway"
-                                )
+                                }
                             }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = {
-                                    viewModel.showConfirmDialog = false
-                                }) {
-                                Text(
-                                    "Go back"
-                                )
-                            }
+                        } else {
+                            viewModel.showConfirmDialog = true
                         }
-                    )
+
+                    },
+                    enabled = viewModel.connectedMembersList.isNotEmpty(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 30.dp)
+                ) {
+                    Text(text = "Confirm", style = MaterialTheme.typography.labelLarge)
                 }
             }
-        },
-        floatingActionButton = {
-            Button(
-                onClick = {
-                    if (viewModel.selectedMembersList.isEmpty()) {
-                        viewModel.addRelationsToGenericEntity()
-                        navController.popBackStack(
-                            Screen.HouseholdMembersScreen.route,
-                            false
-                        )
-                    } else {
-                        viewModel.showConfirmDialog = true
-                    }
-
-                },
-                enabled = viewModel.connectedMembersList.isNotEmpty(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 30.dp)
-            ) {
-                Text(text = "Confirm", style = MaterialTheme.typography.labelLarge)
-            }
-        }
-    )
+        )
+    }
 }
 
 @Composable
 fun ConnectedMemberCard(
-    context: Context,
-    relationView: RelationView,
+    relationFhir: RelationFhir,
     viewModel: ConnectPatientViewModel
 ) {
     var openDeleteDialog by remember {
@@ -306,24 +301,13 @@ fun ConnectedMemberCard(
     ) {
         Text(
             text = "${
-                NameConverter.getFullName(
-                    relationView.patientFirstName,
-                    relationView.patientMiddleName,
-                    relationView.patientLastName
-                )
+                relationFhir.patient.nameFirstRep.nameAsSingleString
             } " +
                     "is the ${
-                        RelationConverter.getRelationFromRelationEnum(
-                            context,
-                            relationView.relation
-                        )
+                        relationFhir.relation.lowercase()
                     } of " +
                     "${
-                        NameConverter.getFullName(
-                            relationView.relativeFirstName,
-                            relationView.relativeMiddleName,
-                            relationView.relativeLastName
-                        )
+                        relationFhir.relative.nameFirstRep.nameAsSingleString
                     }.",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f)
@@ -350,8 +334,7 @@ fun ConnectedMemberCard(
 
     if (openDeleteDialog) {
         DeleteDialog(
-            context,
-            relationView,
+            relationFhir,
             viewModel
         ) {
             openDeleteDialog = false
@@ -360,8 +343,7 @@ fun ConnectedMemberCard(
 
     if (openEditDialog) {
         EditDialog(
-            context,
-            relationView,
+            relationFhir,
             viewModel
         ) {
             openEditDialog = false
@@ -371,8 +353,7 @@ fun ConnectedMemberCard(
 
 @Composable
 fun DeleteDialog(
-    context: Context,
-    relationView: RelationView,
+    relationFhir: RelationFhir,
     viewModel: ConnectPatientViewModel,
     closeDialog: () -> Unit
 ) {
@@ -394,24 +375,15 @@ fun DeleteDialog(
                 )
                 Text(
                     "${
-                        NameConverter.getFullName(
-                            relationView.patientFirstName,
-                            relationView.patientMiddleName,
-                            relationView.patientLastName
-                        )
+                        relationFhir.patient.nameFirstRep.nameAsSingleString
                     } " +
                             "is the ${
-                                RelationConverter.getRelationFromRelationEnum(
-                                    context,
-                                    relationView.relation
-                                )
+                                
+                                    relationFhir.relation.lowercase()
+                                
                             } of " +
                             "${
-                                NameConverter.getFullName(
-                                    relationView.relativeFirstName,
-                                    relationView.relativeMiddleName,
-                                    relationView.relativeLastName
-                                )
+                                relationFhir.relative.nameFirstRep.nameAsSingleString
                             }.",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
@@ -422,17 +394,7 @@ fun DeleteDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    viewModel.removeRelationBetween(
-                        relationView.patientId,
-                        relationView.relativeId
-                    ) {
-                        viewModel.deleteRelation(relationView.patientId, relationView.relativeId) {
-                            viewModel.getRelationBetween(
-                                relationView.patientId,
-                                relationView.relativeId
-                            )
-                        }
-                    }
+                    viewModel.connectedMembersList.remove(relationFhir)
                     closeDialog()
                 }) {
                 Text(
@@ -455,8 +417,7 @@ fun DeleteDialog(
 
 @Composable
 fun EditDialog(
-    context: Context,
-    relationView: RelationView,
+    relationFhir: RelationFhir,
     viewModel: ConnectPatientViewModel,
     closeDialog: () -> Unit
 ) {
@@ -465,8 +426,7 @@ fun EditDialog(
     }
     var relation by remember {
         mutableStateOf(
-            RelationConverter.getRelationFromRelationEnum(context, relationView.relation)
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+            relationFhir.relation
         )
     }
     AlertDialog(
@@ -481,19 +441,11 @@ fun EditDialog(
         },
         text = {
             RelationDialogContent(
-                NameConverter.getFullName(
-                    relationView.patientFirstName,
-                    relationView.patientMiddleName,
-                    relationView.patientLastName
-                ),
+                relationFhir.patient.nameFirstRep.nameAsSingleString,
                 "of ${
-                    NameConverter.getFullName(
-                        relationView.relativeFirstName,
-                        relationView.relativeMiddleName,
-                        relationView.relativeLastName
-                    )
+                    relationFhir.relative.nameFirstRep.nameAsSingleString
                 }.",
-                relationView.patientGender,
+                relationFhir.patient.gender.toCode(),
                 relation,
                 expanded
             ) { update, value ->
@@ -504,18 +456,10 @@ fun EditDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    viewModel.removeRelationBetween(
-                        relationView.patientId,
-                        relationView.relativeId
-                    ) {
-                        viewModel.updateRelation(
-                            Relation(
-                                patientId = relationView.patientId,
-                                relation = RelationConverter.getRelationEnumFromString(relation),
-                                relativeId = relationView.relativeId
-                            )
-                        )
-                    }
+                    viewModel.editRelationList(
+                        relationFhir,
+                        relation
+                    )
                     closeDialog()
                 }) {
                 Text(
@@ -537,7 +481,7 @@ fun EditDialog(
 }
 
 @Composable
-fun PatientRow(member: PatientResponse, viewModel: ConnectPatientViewModel) {
+fun PatientRow(member: Patient, viewModel: ConnectPatientViewModel) {
     var showConnectDialog by remember {
         mutableStateOf(false)
     }
@@ -558,23 +502,19 @@ fun PatientRow(member: PatientResponse, viewModel: ConnectPatientViewModel) {
                 .padding(15.dp)
         ) {
             Text(
-                text = NameConverter.getFullName(
-                    member.firstName,
-                    member.middleName,
-                    member.lastName
-                ),
+                text = member.nameFirstRep.nameAsSingleString,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "${member.gender[0].uppercase()}/${
-                    member.birthDate.toTimeInMilli().toAge()
-                } · PID ${member.fhirId}",
+                text = "${member.gender.display[0].uppercase()}/${
+                    member.birthDate.time.toAge()
+                } · PID ${member.logicalId}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = AddressConverter.getAddress(member.permanentAddress),
+                text = getAddressFhir(member.addressFirstRep),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -589,7 +529,7 @@ fun PatientRow(member: PatientResponse, viewModel: ConnectPatientViewModel) {
 
 @Composable
 fun ConnectMemberDialog(
-    member: PatientResponse,
+    member: Patient,
     viewModel: ConnectPatientViewModel,
     closeDialog: () -> (Unit)
 ) {
@@ -612,11 +552,7 @@ fun ConnectMemberDialog(
         text = {
             Column {
                 Text(
-                    NameConverter.getFullName(
-                        viewModel.patientFrom?.firstName,
-                        viewModel.patientFrom?.middleName,
-                        viewModel.patientFrom?.lastName
-                    ),
+                    viewModel.patientFrom.nameFirstRep.nameAsSingleString,
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(23.dp))
@@ -631,11 +567,9 @@ fun ConnectMemberDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         val relationsList =
-                            viewModel.patientFrom?.gender?.let {
                                 RelationshipList.getRelationshipList(
-                                    it
+                                    viewModel.patientFrom.gender.toCode()
                                 )
-                            }
                         TextField(
                             value = relation,
                             onValueChange = {},
@@ -651,7 +585,7 @@ fun ConnectMemberDialog(
                             textStyle = MaterialTheme.typography.bodyLarge,
                             placeholder = {
                                 Text(
-                                    text = "e.g. ${relationsList?.get(0)}",
+                                    text = "e.g. ${relationsList[0]}",
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             },
@@ -674,7 +608,7 @@ fun ConnectMemberDialog(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
                         ) {
-                            relationsList?.forEach { label ->
+                            relationsList.forEach { label ->
                                 DropdownMenuItem(
                                     onClick = {
                                         expanded = false
@@ -696,11 +630,7 @@ fun ConnectMemberDialog(
                 Spacer(modifier = Modifier.height(23.dp))
                 Text(
                     text = "of ${
-                        NameConverter.getFullName(
-                            member.firstName,
-                            member.middleName,
-                            member.lastName
-                        )
+                        member.nameFirstRep.nameAsSingleString
                     }.",
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -710,18 +640,10 @@ fun ConnectMemberDialog(
             TextButton(
                 onClick = {
                     // call add member to household function here
-                    viewModel.addRelation(
-                        Relation(
-                            patientId = viewModel.patientFrom!!.id,
-                            relativeId = member.id,
-                            relation = RelationConverter.getRelationEnumFromString(relation)
-                        )
-                    ) {
-                        viewModel.getRelationBetween(viewModel.patientFrom?.id!!, member.id)
-                        viewModel.selectedMembersList.remove(member)
-                        viewModel.membersList =
-                            mutableStateListOf(*viewModel.selectedMembersList.toTypedArray())
-                    }
+                    viewModel.addToRelationList(viewModel.patientFrom, member, relation)
+                    viewModel.selectedMembersList.remove(member)
+                    viewModel.membersList =
+                        mutableStateListOf(*viewModel.selectedMembersList.toTypedArray())
                     closeDialog()
                 },
                 enabled = relation.isNotEmpty()

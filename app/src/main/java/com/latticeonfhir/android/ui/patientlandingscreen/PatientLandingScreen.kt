@@ -83,7 +83,7 @@ fun PatientLandingScreen(
                     title = {
                         val age = viewModel.patient.birthDate.time.toAge()
                         val subTitle = "${
-                            viewModel.patient.gender.display
+                            viewModel.patient.gender.display[0]
                         }/$age · +91 ${viewModel.patient.telecom[0].value}"
                         Column {
                             Text(

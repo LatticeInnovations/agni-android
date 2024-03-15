@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,21 +30,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.Loader
-import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_FROM
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SEARCH_PARAMETERS
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_MEMBERS_LIST
+import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter.getAddressFhir
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import org.hl7.fhir.r4.model.Patient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,16 +54,16 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.patientFrom =
-                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
-                )
+                navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
+                    PATIENT
+                )!!
             viewModel.searchParameters =
                 navController.previousBackStackEntry?.savedStateHandle?.get<SearchParameters>(
-                    "searchParameters"
+                    SEARCH_PARAMETERS
                 )
+            viewModel.searchPatient(viewModel.searchParameters!!)
+            viewModel.isLaunched = true
         }
-        viewModel.searchPatient(viewModel.searchParameters!!)
-        viewModel.isLaunched = true
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -74,7 +76,7 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -130,11 +132,11 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
                 Button(
                     onClick = {
                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "patientFrom",
+                            PATIENT_FROM,
                             viewModel.patientFrom
                         )
                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "selectedMembersList",
+                            SELECTED_MEMBERS_LIST,
                             viewModel.selectedMembersList.toMutableList()
                         )
                         navController.navigate(Screen.ConnectPatient.route)
@@ -154,7 +156,7 @@ fun SearchResult(navController: NavController, viewModel: SearchResultViewModel 
 }
 
 @Composable
-fun SearchResultRow(patient: PatientResponse, viewModel: SearchResultViewModel) {
+fun SearchResultRow(patient: Patient, viewModel: SearchResultViewModel) {
     val checkedState = remember { mutableStateOf(viewModel.selectedMembersList.contains(patient)) }
     Row(
         modifier = Modifier
@@ -184,23 +186,19 @@ fun SearchResultRow(patient: PatientResponse, viewModel: SearchResultViewModel) 
             modifier = Modifier.padding(10.dp)
         ) {
             Text(
-                text = NameConverter.getFullName(
-                    patient.firstName,
-                    patient.middleName,
-                    patient.lastName
-                ),
+                text = patient.nameFirstRep.nameAsSingleString,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "${patient.gender[0].uppercase()}/${
-                    patient.birthDate.toTimeInMilli().toAge()
-                } · PID ${patient.fhirId}",
+                text = "${patient.gender.display[0].uppercase()}/${
+                    patient.birthDate.time.toAge()
+                } · PID ${patient.logicalId}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = AddressConverter.getAddress(patient.permanentAddress),
+                text = getAddressFhir(patient.addressFirstRep),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

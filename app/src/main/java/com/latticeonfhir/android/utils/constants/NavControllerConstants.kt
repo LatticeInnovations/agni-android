@@ -2,6 +2,7 @@ package com.latticeonfhir.android.utils.constants
 
 object NavControllerConstants {
     const val PATIENT = "patient"
+    const val RELATIVE = "relative"
     const val APPOINTMENT_SELECTED = "appointment_selected"
     const val ADD_TO_QUEUE = "added_to_queue"
     const val PATIENT_ARRIVED = "patient_arrived"
@@ -12,8 +13,6 @@ object NavControllerConstants {
     const val CURRENT_STEP = "currentStep"
     const val FROM_HOUSEHOLD_MEMBER = "fromHouseholdMember"
     const val PATIENT_REGISTER_DETAILS = "patient_register_details"
-    const val PATIENT_ID = "patientId"
-    const val RELATIVE_ID = "relativeId"
     const val RELATION = "relation"
     const val PATIENT_FROM = "patientFrom"
     const val IS_SEARCH_RESULT = "isSearchResult"
@@ -22,4 +21,5 @@ object NavControllerConstants {
     const val LOGOUT_USER = "logoutUser"
     const val LOGOUT_REASON = "logoutReason"
     const val IS_PROFILE_UPDATED = "isProfileUpdated"
+    const val SELECTED_MEMBERS_LIST = "selectedMembersList"
 }

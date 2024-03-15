@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import org.hl7.fhir.r4.model.Patient
 
 class PatientRegistrationViewModel : BaseViewModel(), DefaultLifecycleObserver {
@@ -21,6 +20,6 @@ class PatientRegistrationViewModel : BaseViewModel(), DefaultLifecycleObserver {
     var fromHouseholdMember by mutableStateOf(false)
     var showRelationDialogue by mutableStateOf(false)
     var relation by mutableStateOf("")
-    var patientFrom by mutableStateOf<PatientResponse?>(null)
+    var patientFrom by mutableStateOf(Patient())
     var openDialog by mutableStateOf(false)
 }

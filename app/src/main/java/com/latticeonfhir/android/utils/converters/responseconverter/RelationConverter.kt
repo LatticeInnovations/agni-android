@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 
 object RelationConverter {
 
+    // TODO: to be removed after complete binding
     internal fun getInverseRelation(
         relationEntity: RelationEntity,
         patientDao: PatientDao,
@@ -37,15 +38,45 @@ object RelationConverter {
             relationFetched(
                 when (GenderEnum.fromString(fromGender)) {
                     GenderEnum.MALE -> {
-                        fromIsMale(toGender, relationEntity)
+                        fromIsMale(toGender, relationEntity.relation)
                     }
 
                     GenderEnum.FEMALE -> {
-                        fromIsFemale(toGender, relationEntity)
+                        fromIsFemale(toGender, relationEntity.relation)
                     }
 
                     GenderEnum.OTHER -> {
-                        fromIsOther(toGender, relationEntity)
+                        fromIsOther(toGender, relationEntity.relation)
+                    }
+
+                    GenderEnum.UNKNOWN -> {
+                        fromIsUnknown()
+                    }
+                }
+            )
+        }
+    }
+
+
+    internal fun getInverseRelation(
+        fromGender: String,
+        toGender: String,
+        relation: RelationEnum,
+        relationFetched: (RelationEnum) -> Unit
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            relationFetched(
+                when (GenderEnum.fromString(fromGender)) {
+                    GenderEnum.MALE -> {
+                        fromIsMale(toGender, relation)
+                    }
+
+                    GenderEnum.FEMALE -> {
+                        fromIsFemale(toGender, relation)
+                    }
+
+                    GenderEnum.OTHER -> {
+                        fromIsOther(toGender, relation)
                     }
 
                     GenderEnum.UNKNOWN -> {
@@ -95,18 +126,18 @@ object RelationConverter {
         return context.resources.getStringArray(R.array.relation)[relationEnum.number]
     }
 
-    private fun fromIsMale(toGender: String, relationEntity: RelationEntity): RelationEnum {
+    private fun fromIsMale(toGender: String, relationEnum: RelationEnum): RelationEnum {
         return when (GenderEnum.fromString(toGender)) {
             GenderEnum.MALE -> {
-                maleToMale(relationEntity)
+                maleToMale(relationEnum)
             }
 
             GenderEnum.FEMALE -> {
-                maleToFemale(relationEntity)
+                maleToFemale(relationEnum)
             }
 
             GenderEnum.OTHER -> {
-                maleToOther(relationEntity)
+                maleToOther(relationEnum)
             }
 
             GenderEnum.UNKNOWN -> {
@@ -115,18 +146,18 @@ object RelationConverter {
         }
     }
 
-    private fun fromIsFemale(toGender: String, relationEntity: RelationEntity): RelationEnum {
+    private fun fromIsFemale(toGender: String, relationEnum: RelationEnum): RelationEnum {
         return when (GenderEnum.fromString(toGender)) {
             GenderEnum.MALE -> {
-                femaleToMale(relationEntity)
+                femaleToMale(relationEnum)
             }
 
             GenderEnum.FEMALE -> {
-                femaleToFemale(relationEntity)
+                femaleToFemale(relationEnum)
             }
 
             GenderEnum.OTHER -> {
-                femaleToOther(relationEntity)
+                femaleToOther(relationEnum)
             }
 
             GenderEnum.UNKNOWN -> {
@@ -135,18 +166,18 @@ object RelationConverter {
         }
     }
 
-    private fun fromIsOther(toGender: String, relationEntity: RelationEntity): RelationEnum {
+    private fun fromIsOther(toGender: String, relationEnum: RelationEnum): RelationEnum {
         return when (GenderEnum.fromString(toGender)) {
             GenderEnum.MALE -> {
-                otherToMale(relationEntity)
+                otherToMale(relationEnum)
             }
 
             GenderEnum.FEMALE -> {
-                otherToFemale(relationEntity)
+                otherToFemale(relationEnum)
             }
 
             GenderEnum.OTHER -> {
-                otherToOther(relationEntity)
+                otherToOther(relationEnum)
             }
 
             GenderEnum.UNKNOWN -> {
@@ -160,8 +191,8 @@ object RelationConverter {
     }
 
     object RelationMapping {
-        internal fun maleToMale(relationEntity: RelationEntity): RelationEnum {
-            return when (relationEntity.relation) {
+        internal fun maleToMale(relationEnum: RelationEnum): RelationEnum {
+            return when (relationEnum) {
                 RelationEnum.FATHER -> RelationEnum.SON
                 RelationEnum.GRAND_FATHER -> RelationEnum.GRAND_SON
                 RelationEnum.BROTHER -> RelationEnum.BROTHER
@@ -179,8 +210,8 @@ object RelationConverter {
             }
         }
 
-        internal fun maleToFemale(relationEntity: RelationEntity): RelationEnum {
-            return when (relationEntity.relation) {
+        internal fun maleToFemale(relationEnum: RelationEnum): RelationEnum {
+            return when (relationEnum) {
                 RelationEnum.FATHER -> RelationEnum.DAUGHTER
                 RelationEnum.GRAND_FATHER -> RelationEnum.GRAND_DAUGHTER
                 RelationEnum.BROTHER -> RelationEnum.SISTER
@@ -198,8 +229,8 @@ object RelationConverter {
             }
         }
 
-        internal fun maleToOther(relationEntity: RelationEntity): RelationEnum {
-            return when (relationEntity.relation) {
+        internal fun maleToOther(relationEnum: RelationEnum): RelationEnum {
+            return when (relationEnum) {
                 RelationEnum.FATHER -> RelationEnum.CHILD
                 RelationEnum.GRAND_FATHER -> RelationEnum.GRAND_CHILD
                 RelationEnum.BROTHER -> RelationEnum.SIBLING
@@ -221,8 +252,8 @@ object RelationConverter {
             return RelationEnum.UNKNOWN
         }
 
-        internal fun femaleToMale(relationEntity: RelationEntity): RelationEnum {
-            return when (relationEntity.relation) {
+        internal fun femaleToMale(relationEnum: RelationEnum): RelationEnum {
+            return when (relationEnum) {
                 RelationEnum.MOTHER -> RelationEnum.SON
                 RelationEnum.GRAND_MOTHER -> RelationEnum.GRAND_SON
                 RelationEnum.SISTER -> RelationEnum.BROTHER
@@ -240,8 +271,8 @@ object RelationConverter {
             }
         }
 
-        internal fun femaleToFemale(relationEntity: RelationEntity): RelationEnum {
-            return when (relationEntity.relation) {
+        internal fun femaleToFemale(relationEnum: RelationEnum): RelationEnum {
+            return when (relationEnum) {
                 RelationEnum.MOTHER -> RelationEnum.DAUGHTER
                 RelationEnum.GRAND_MOTHER -> RelationEnum.GRAND_DAUGHTER
                 RelationEnum.SISTER -> RelationEnum.SISTER
@@ -259,8 +290,8 @@ object RelationConverter {
             }
         }
 
-        internal fun femaleToOther(relationEntity: RelationEntity): RelationEnum {
-            return when (relationEntity.relation) {
+        internal fun femaleToOther(relationEnum: RelationEnum): RelationEnum {
+            return when (relationEnum) {
                 RelationEnum.MOTHER -> RelationEnum.CHILD
                 RelationEnum.GRAND_MOTHER -> RelationEnum.GRAND_CHILD
                 RelationEnum.SISTER -> RelationEnum.SIBLING
@@ -282,8 +313,8 @@ object RelationConverter {
             return RelationEnum.UNKNOWN
         }
 
-        internal fun otherToMale(relationEntity: RelationEntity): RelationEnum {
-            return when (relationEntity.relation) {
+        internal fun otherToMale(relationEnum: RelationEnum): RelationEnum {
+            return when (relationEnum) {
                 RelationEnum.PARENT -> RelationEnum.SON
                 RelationEnum.GRAND_PARENT -> RelationEnum.GRAND_SON
                 RelationEnum.SIBLING -> RelationEnum.BROTHER
@@ -297,8 +328,8 @@ object RelationConverter {
             }
         }
 
-        internal fun otherToFemale(relationEntity: RelationEntity): RelationEnum {
-            return when (relationEntity.relation) {
+        internal fun otherToFemale(relationEnum: RelationEnum): RelationEnum {
+            return when (relationEnum) {
                 RelationEnum.PARENT -> RelationEnum.DAUGHTER
                 RelationEnum.GRAND_PARENT -> RelationEnum.GRAND_DAUGHTER
                 RelationEnum.SIBLING -> RelationEnum.SISTER
@@ -312,8 +343,8 @@ object RelationConverter {
             }
         }
 
-        internal fun otherToOther(relationEntity: RelationEntity): RelationEnum {
-            return when (relationEntity.relation) {
+        internal fun otherToOther(relationEnum: RelationEnum): RelationEnum {
+            return when (relationEnum) {
                 RelationEnum.PARENT -> RelationEnum.CHILD
                 RelationEnum.GRAND_PARENT -> RelationEnum.GRAND_CHILD
                 RelationEnum.SIBLING -> RelationEnum.SIBLING

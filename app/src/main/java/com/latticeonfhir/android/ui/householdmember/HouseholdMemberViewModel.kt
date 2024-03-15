@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import org.hl7.fhir.r4.model.Patient
 
 class HouseholdMemberViewModel : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
@@ -13,5 +13,5 @@ class HouseholdMemberViewModel : BaseViewModel() {
 
     var isUpdateSelected by mutableStateOf(false)
 
-    var patient by mutableStateOf<PatientResponse?>(null)
+    var patient by mutableStateOf(Patient())
 }

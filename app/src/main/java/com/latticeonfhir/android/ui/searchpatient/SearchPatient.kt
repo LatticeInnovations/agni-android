@@ -1,10 +1,23 @@
 package com.latticeonfhir.android.ui.searchpatient
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -12,11 +25,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.FROM_HOUSEHOLD_MEMBER
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.IS_SEARCH_RESULT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SEARCH_PARAMETERS
+import org.hl7.fhir.r4.model.Patient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,16 +40,16 @@ fun SearchPatient(
 ) {
     LaunchedEffect(viewModel.isLaunched) {
         if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-                "fromHouseholdMember"
+                FROM_HOUSEHOLD_MEMBER
             ) == true
         ) {
             viewModel.fromHouseholdMember = true
             viewModel.patientFrom =
-                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
                     PATIENT
-                )
+                )!!
+            viewModel.isLaunched = true
         }
-        viewModel.isLaunched = true
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -77,18 +91,18 @@ fun SearchPatient(
             Button(
                 onClick = {
                     val searchParameters = SearchParameters(
-                        name = if (viewModel.patientName.isEmpty()) null else viewModel.patientName,
-                        patientId = if (viewModel.patientId.isEmpty()) null else viewModel.patientId,
+                        name = viewModel.patientName.ifEmpty { null },
+                        patientId = viewModel.patientId.ifEmpty { null },
                         minAge = viewModel.minAge.toInt(),
                         maxAge = viewModel.maxAge.toInt(),
-                        addressLine1 = if (viewModel.address.addressLine1.isEmpty()) null else viewModel.address.addressLine1,
-                        addressLine2 = if (viewModel.address.addressLine2.isEmpty()) null else viewModel.address.addressLine2,
-                        postalCode = if (viewModel.address.pincode.isEmpty()) null else viewModel.address.pincode,
-                        state = if (viewModel.address.state.isEmpty()) null else viewModel.address.state,
-                        district = if (viewModel.address.district.isEmpty()) null else viewModel.address.district,
-                        city = if (viewModel.address.city.isEmpty()) null else viewModel.address.city,
+                        addressLine1 = viewModel.address.addressLine1.ifEmpty { null },
+                        addressLine2 = viewModel.address.addressLine2.ifEmpty { null },
+                        postalCode = viewModel.address.pincode.ifEmpty { null },
+                        state = viewModel.address.state.ifEmpty { null },
+                        district = viewModel.address.district.ifEmpty { null },
+                        city = viewModel.address.city.ifEmpty { null },
                         lastFacilityVisit = viewModel.visitSelected,
-                        gender = if (viewModel.gender.isEmpty()) null else viewModel.gender
+                        gender = viewModel.gender.ifEmpty { null }
                     )
                     if (viewModel.fromHouseholdMember) {
                         navController.currentBackStackEntry?.savedStateHandle?.set(
