@@ -76,7 +76,7 @@ class SearchRepositoryImpl @Inject constructor(
     }
 
     private suspend fun getExistingRelationIds(patientId: String): Set<String> {
-        val existingMembers = mutableSetOf<String>()
+        val existingMembers = mutableSetOf(patientId)
         getPersonResource(fhirEngine, patientId)
             .link.forEach { relatedPersonLink ->
                 if (relatedPersonLink.target.reference.contains(ResourceType.RelatedPerson.name)) {
