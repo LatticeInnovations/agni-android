@@ -30,22 +30,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.common.RelationDialogContent
-import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter.getAddressFhir
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.ContactPoint
+import org.hl7.fhir.r4.model.Patient
 
 @Composable
 fun SuggestionsScreen(
-    patient: PatientResponse,
+    patient: Patient,
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope,
     viewModel: SuggestionsScreenViewModel = hiltViewModel()
@@ -99,8 +98,8 @@ fun SuggestedMembersCard(
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
     viewModel: SuggestionsScreenViewModel,
-    member: PatientResponse,
-    patient: PatientResponse
+    member: Patient,
+    patient: Patient
 ) {
     var showConnectDialog by remember {
         mutableStateOf(false)
@@ -126,29 +125,25 @@ fun SuggestedMembersCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = NameConverter.getFullName(
-                        member.firstName,
-                        member.middleName,
-                        member.lastName
-                    ),
+                    text = member.nameFirstRep.nameAsSingleString,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${member.gender[0].uppercase()}/${
-                        member.birthDate.toTimeInMilli().toAge()
+                    text = "${member.gender.display[0].uppercase()}/${
+                        member.birthDate.time.toAge()
                     }",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Text(
-                text = AddressConverter.getAddress(member.permanentAddress),
+                text = getAddressFhir(member.addressFirstRep),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "+91-${member.mobileNumber} · PID ${member.fhirId}",
+                text = "+91-${member.telecom.first { it.system == ContactPoint.ContactPointSystem.PHONE }.value} · PID ${member.logicalId}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -165,8 +160,8 @@ fun SuggestedMembersCard(
 fun ConnectDialog(
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope,
-    member: PatientResponse,
-    patient: PatientResponse,
+    member: Patient,
+    patient: Patient,
     viewModel: SuggestionsScreenViewModel,
     closeDialog: () -> (Unit)
 ) {
@@ -188,19 +183,11 @@ fun ConnectDialog(
         },
         text = {
             RelationDialogContent(
-                NameConverter.getFullName(
-                    patient.firstName,
-                    patient.middleName,
-                    patient.lastName
-                ),
+                patient.nameFirstRep.nameAsSingleString,
                 "of ${
-                    NameConverter.getFullName(
-                        member.firstName,
-                        member.middleName,
-                        member.lastName
-                    )
+                    member.nameFirstRep.nameAsSingleString
                 }.",
-                patient.gender,
+                patient.gender.toCode(),
                 relation,
                 expanded
             ) { update, value ->
@@ -213,35 +200,20 @@ fun ConnectDialog(
                 onClick = {
                     // call add member to household function here
                     viewModel.addRelation(
-                        Relation(
-                            patientId = patient.id,
-                            relativeId = member.id,
-                            relation = RelationConverter.getRelationEnumFromString(relation)
-                        ),
-                        member.id
+                        patient,
+                        member,
+                        RelationConverter.getRelationEnumFromString(relation)
                     ) {
-                        if (it.isNotEmpty()) {
-                            viewModel.getQueueItems(patient)
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = "${
-                                        NameConverter.getFullName(
-                                            member.firstName,
-                                            member.middleName,
-                                            member.lastName
-                                        )
-                                    } added to the household.",
-                                    withDismissAction = true
-                                )
-                            }
-                        } else {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = "Relation not added.",
-                                    withDismissAction = true
-                                )
-                            }
+                        viewModel.getQueueItems(patient)
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "${
+                                    member.nameFirstRep.nameAsSingleString
+                                } added to the household.",
+                                withDismissAction = true
+                            )
                         }
+
                     }
                     closeDialog()
                 },

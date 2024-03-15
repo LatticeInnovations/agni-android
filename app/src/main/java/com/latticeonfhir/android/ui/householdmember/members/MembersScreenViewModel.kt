@@ -4,54 +4,43 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.SearchResult
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.model.patient.PatientResponseWithRelation
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
-import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getPersonResource
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getRelatedPerson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import org.hl7.fhir.r4.model.RelatedPerson
+import org.hl7.fhir.r4.model.ResourceType
 import javax.inject.Inject
 
 @HiltViewModel
 class MembersScreenViewModel @Inject constructor(
-    private val relationRepository: RelationRepository,
-    private val patientRepository: PatientRepository
+    private val fhirEngine: FhirEngine
 ) : BaseViewModel() {
     var loading by mutableStateOf(true)
-    var relationsList by mutableStateOf(listOf<RelationEntity>())
-    var relationsListWithRelation by mutableStateOf(listOf<PatientResponseWithRelation>())
+    private var relationsIdList = mutableSetOf<String>()
+    var relationsListWithRelation by mutableStateOf(listOf<SearchResult<RelatedPerson>>())
 
     internal fun getAllRelations(patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            relationsList = relationRepository.getAllRelationOfPatient(patientId)
-            relationsList.forEach { relation ->
-                val patientResponseWithRelation = getPatientData(relation.toId)
-                if (!relationsListWithRelation.contains(
-                        PatientResponseWithRelation(
-                            patientResponseWithRelation,
-                            relation.relation
-                        )
-                    )
-                ) {
-                    relationsListWithRelation = relationsListWithRelation + listOf(
-                        PatientResponseWithRelation(
-                            patientResponseWithRelation,
-                            relation.relation
-                        )
-                    )
+            getPersonResource(fhirEngine, patientId).link.forEach { relatedPersonLink ->
+                if (relatedPersonLink.target.reference.contains(ResourceType.RelatedPerson.name)) {
+                    getRelatedPerson(
+                        fhirEngine,
+                        relatedPersonLink.target.reference.substringAfter("/")
+                    ).forEach { result ->
+                        relationsListWithRelation.forEach {
+                            relationsIdList.add(it.resource.logicalId)
+                        }
+                        if (!relationsIdList.contains(result.resource.logicalId)) relationsListWithRelation = relationsListWithRelation + listOf(result)
+                    }
                 }
-
             }
             loading = false
-            Timber.d("manseeyy ${relationsListWithRelation.size} $relationsListWithRelation")
         }
-    }
-
-    internal suspend fun getPatientData(id: String): PatientResponse {
-        return patientRepository.getPatientById(id)[0]
     }
 }

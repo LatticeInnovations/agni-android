@@ -2,22 +2,22 @@ package com.latticeonfhir.android.utils.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import okio.IOException
+import org.hl7.fhir.r4.model.Patient
 
 class SearchPagingSource(
-    private val fuzzyList: List<PatientAndIdentifierEntity>,
+    private val fuzzyList: List<Patient>,
     private val pageSize: Int
-) : PagingSource<Int, PatientAndIdentifierEntity>() {
+) : PagingSource<Int, Patient>() {
 
-    override fun getRefreshKey(state: PagingState<Int, PatientAndIdentifierEntity>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, Patient>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
         }
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PatientAndIdentifierEntity> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Patient> {
         return try {
             val position = params.key ?: 0
             val left = position * pageSize
