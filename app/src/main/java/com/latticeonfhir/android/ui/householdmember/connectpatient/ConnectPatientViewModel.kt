@@ -5,116 +5,113 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
-import com.latticeonfhir.android.data.local.roomdb.views.RelationView
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.relation.RelationFhir
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getPersonResource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.Coding
+import org.hl7.fhir.r4.model.Patient
+import org.hl7.fhir.r4.model.Person
+import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.RelatedPerson
 import javax.inject.Inject
 
 @HiltViewModel
 class ConnectPatientViewModel @Inject constructor(
-    private val genericRepository: GenericRepository,
-    private val relationRepository: RelationRepository
+    private val fhirEngine: FhirEngine
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var discardAllRelationDialog by mutableStateOf(false)
     var showConfirmDialog by mutableStateOf(false)
 
-    var patientFrom by mutableStateOf<PatientResponse?>(null)
-    var selectedMembersList = mutableListOf<PatientResponse?>(null)
-    var connectedMembersList = mutableStateListOf<RelationView>()
+    var patientFrom by mutableStateOf(Patient())
+    var selectedMembersList = mutableListOf<Patient?>(null)
+    var connectedMembersList = mutableStateListOf<RelationFhir>()
     var membersList = mutableStateListOf(*selectedMembersList.toTypedArray())
 
-    internal fun getRelationBetween(
-        patientId: String,
-        relativeId: String,
+    internal fun editRelationList(
+        relationFhir: RelationFhir,
+        relation: String
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            connectedMembersList.addAll(
-                relationRepository.getRelationBetween(
-                    patientId,
-                    relativeId
-                )
-            )
-            Timber.d("manseeyy added to connected patients : ${connectedMembersList.toList()}")
+        connectedMembersList.remove(relationFhir)
+        RelationConverter.getInverseRelation(
+            fromGender = relationFhir.patient.gender.toCode(),
+            toGender = relationFhir.relative.gender.toCode(),
+            relation = RelationEnum.fromString(RelationConverter.getRelationEnumFromString(relationFhir.relation))
+        ) { inverseRelation ->
+            connectedMembersList.remove(
+                RelationFhir(
+                    relationFhir.relative, relationFhir.patient, RelationEnum.fromString(inverseRelation.value).display
+                ))
         }
+        addToRelationList(
+            relationFhir.patient,
+            relationFhir.relative,
+            relation
+        )
     }
 
-    internal fun removeRelationBetween(
-        patientId: String,
-        relativeId: String,
-        removed: (Boolean) -> Unit
+    internal fun addToRelationList(
+        patient: Patient,
+        relative: Patient,
+        relation: String
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            removed(
-                connectedMembersList.removeAll(
-                    relationRepository.getRelationBetween(
-                        patientId,
-                        relativeId
-                    )
-                )
+        connectedMembersList.add(
+            RelationFhir(
+                patient, relative, relation
             )
+        )
+        RelationConverter.getInverseRelation(
+            fromGender = patient.gender.toCode(),
+            toGender = relative.gender.toCode(),
+            relation = RelationEnum.fromString(RelationConverter.getRelationEnumFromString(relation))
+        ) { inverseRelation ->
+            connectedMembersList.add(
+                RelationFhir(
+                relative, patient, RelationEnum.fromString(inverseRelation.value).display
+            ))
         }
     }
 
-    internal fun discardRelations() {
+    internal fun addRelations(added: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            relationRepository.deleteRelation(*connectedMembersList.map { it.id }.toTypedArray())
-        }
-    }
-
-    internal fun deleteRelation(fromId: String, toId: String, relationDeleted: (Int) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            relationDeleted(
-                relationRepository.deleteRelation(
-                    fromId,
-                    toId
-                )
-            )
-        }
-    }
-
-    internal fun updateRelation(relation: Relation) {
-        viewModelScope.launch(Dispatchers.IO) {
-            relationRepository.updateRelation(relation) {
-                if (it > 0) {
-                    getRelationBetween(relation.patientId, relation.relativeId)
-                }
-            }
-        }
-    }
-
-    fun addRelation(relation: Relation, relationAdded: (List<Long>) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            relationRepository.addRelation(relation, relationAdded)
-        }
-    }
-
-    internal fun addRelationsToGenericEntity() {
-        viewModelScope.launch(Dispatchers.IO) {
-            connectedMembersList.forEach { relationView ->
-                genericRepository.insertRelation(
-                    relationView.patientId,
-                    RelatedPersonResponse(
-                        id = relationView.patientFhirId ?: relationView.patientId,
-                        relationship = listOf(
-                            Relationship(
-                                relativeId = relationView.relativeFhirId ?: relationView.relativeId,
-                                patientIs = relationView.relation.value
+            connectedMembersList.forEach { relationFhir ->
+                val relatedPersonRelative = RelatedPerson().apply {
+                    id = UUIDBuilder.generateUUID()
+                    patient.reference = "${relationFhir.relative.fhirType()}/${relationFhir.relative.logicalId}"
+                    relationship.add(
+                        CodeableConcept(
+                            Coding(
+                                "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                                RelationEnum.fromDisplay(relationFhir.relation).value,
+                                ""
                             )
                         )
                     )
-                )
+                }
+                val personPatient = getPersonResource(
+                    fhirEngine,
+                    relationFhir.patient.logicalId
+                ).apply {
+                    link.add(
+                        Person.PersonLinkComponent()
+                            .setAssurance(Person.IdentityAssuranceLevel.LEVEL3)
+                            .setTarget(Reference("${relatedPersonRelative.fhirType()}/${relatedPersonRelative.logicalId}"))
+                    )
+                }
+                fhirEngine.create(relatedPersonRelative)
+                fhirEngine.update(personPatient)
             }
+            added()
         }
     }
 }

@@ -4,96 +4,87 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
-import com.latticeonfhir.android.data.local.roomdb.views.RelationView
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
+import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.android.data.local.model.relation.RelationFhir
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getInverseRelation
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getPersonResource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.Coding
+import org.hl7.fhir.r4.model.Patient
+import org.hl7.fhir.r4.model.Person
+import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.RelatedPerson
 import javax.inject.Inject
 
 @HiltViewModel
 class ConfirmRelationshipViewModel @Inject constructor(
-    private val relationRepository: RelationRepository,
-    private val patientRepository: PatientRepository,
-    private val genericRepository: GenericRepository
+    private val fhirEngine: FhirEngine
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var discardAllRelationDialog by mutableStateOf(false)
 
-    var patientId by mutableStateOf("")
-    var relativeId by mutableStateOf("")
     var relation by mutableStateOf("")
 
-    var patient by mutableStateOf<PatientResponse?>(null)
-    var relative by mutableStateOf<PatientResponse?>(null)
-    var relationBetween by mutableStateOf(listOf<RelationView>())
+    var patient by mutableStateOf(Patient())
+    var relative by mutableStateOf(Patient())
+    var relationList by mutableStateOf(listOf<RelationFhir>())
 
-    internal fun getPatientData(id: String, patientResponse: (PatientResponse) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            patientResponse(patientRepository.getPatientById(id)[0])
-        }
-    }
-
-    internal fun getRelationBetween(
-        patientId: String,
-        relativeId: String,
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            relationBetween = relationRepository.getRelationBetween(patientId, relativeId)
-        }
-    }
-
-    internal fun deleteRelation(fromId: String, toId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            relationRepository.deleteRelation(
-                fromId,
-                toId
+    internal fun setRelationList() {
+        relationList = relationList + listOf(
+            RelationFhir(
+                patient, relative, relation
             )
-            getRelationBetween(fromId, toId)
+        )
+        getInverseRelation(
+            fromGender = patient.gender.toCode(),
+            toGender = relative.gender.toCode(),
+            relation = RelationEnum.fromString(RelationConverter.getRelationEnumFromString(relation))
+        ) { inverseRelation ->
+            relationList = relationList + RelationFhir(
+                relative, patient, RelationEnum.fromString(inverseRelation.value).display
+            )
         }
     }
 
-    internal fun discardRelations() {
+    internal fun addRelations(added: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            relationRepository.deleteRelation(*relationBetween.map { it.id }.toTypedArray())
-        }
-    }
-
-    internal fun updateRelation(relation: Relation) {
-        viewModelScope.launch(Dispatchers.IO) {
-            relationRepository.updateRelation(relation) {
-                if (it > 0) {
-                    getRelationBetween(patientId, relativeId)
-                }
-            }
-        }
-    }
-
-
-    internal fun addRelationsToGenericEntity() {
-        relationBetween.forEach { relationView ->
-            viewModelScope.launch(Dispatchers.IO) {
-                genericRepository.insertRelation(
-                    relationView.patientId,
-                    RelatedPersonResponse(
-                        id = relationView.patientFhirId ?: relationView.patientId,
-                        relationship = listOf(
-                            Relationship(
-                                relativeId = relationView.relativeFhirId ?: relationView.relativeId,
-                                patientIs = relationView.relation.value
+            relationList.forEach { relationFhir ->
+                val relatedPersonRelative = RelatedPerson().apply {
+                    id = UUIDBuilder.generateUUID()
+                    patient.reference = "${relationFhir.relative.fhirType()}/${relationFhir.relative.logicalId}"
+                    relationship.add(
+                        CodeableConcept(
+                            Coding(
+                                "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                                RelationEnum.fromDisplay(relationFhir.relation).value,
+                                ""
                             )
                         )
                     )
-                )
+                }
+                val personPatient = getPersonResource(
+                    fhirEngine,
+                    relationFhir.patient.logicalId
+                ).apply {
+                    link.add(
+                        Person.PersonLinkComponent()
+                            .setAssurance(Person.IdentityAssuranceLevel.LEVEL3)
+                            .setTarget(Reference("${relatedPersonRelative.fhirType()}/${relatedPersonRelative.logicalId}"))
+                    )
+                }
+                fhirEngine.create(relatedPersonRelative)
+                fhirEngine.update(personPatient)
             }
+            added()
         }
     }
 }

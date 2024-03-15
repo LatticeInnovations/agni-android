@@ -1,37 +1,66 @@
 package com.latticeonfhir.android.ui.patientregistration.step4
 
-import android.content.Context
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.roomdb.views.RelationView
+import com.latticeonfhir.android.data.local.model.relation.RelationFhir
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.DiscardAllRelationDialog
 import com.latticeonfhir.android.ui.theme.Neutral40
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationFromRelationEnum
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.RELATION
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.RELATIVE
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
-import java.util.Locale
+import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Patient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,28 +68,21 @@ fun ConfirmRelationship(
     navController: NavController,
     viewModel: ConfirmRelationshipViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.relation =
                 navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-                    key = "relation"
+                    key = RELATION
                 )!!
-            viewModel.patientId =
-                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-                    key = "patientId"
+            viewModel.patient =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
+                    key = PATIENT
                 )!!
-            viewModel.relativeId =
-                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-                    key = "relativeId"
+            viewModel.relative =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
+                    key = RELATIVE
                 )!!
-            viewModel.getPatientData(viewModel.patientId) {
-                viewModel.patient = it
-            }
-            viewModel.getPatientData(viewModel.relativeId) {
-                viewModel.relative = it
-            }
-            viewModel.getRelationBetween(viewModel.patientId, viewModel.relativeId)
+            viewModel.setRelationList()
         }
         viewModel.isLaunched = true
     }
@@ -109,11 +131,10 @@ fun ConfirmRelationship(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                ConfirmRelationshipScreen(context, navController, viewModel)
+                ConfirmRelationshipScreen(navController, viewModel)
                 if (viewModel.discardAllRelationDialog) {
                     DiscardAllRelationDialog { discard ->
                         if (discard) {
-                            viewModel.discardRelations()
                             navController.popBackStack(
                                 Screen.HouseholdMembersScreen.route,
                                 false
@@ -129,10 +150,10 @@ fun ConfirmRelationship(
 
 @Composable
 fun ConfirmRelationshipScreen(
-    context: Context,
     navController: NavController,
     viewModel: ConfirmRelationshipViewModel
 ) {
+    val coroutineScope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -160,15 +181,18 @@ fun ConfirmRelationshipScreen(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            items(viewModel.relationBetween) { relationView ->
-                MemberCard(context, relationView, viewModel)
+            items(viewModel.relationList) { relationItem ->
+                MemberCard(relationItem, viewModel)
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
         Button(
             onClick = {
-                viewModel.addRelationsToGenericEntity()
-                navController.popBackStack(Screen.HouseholdMembersScreen.route, false)
+                viewModel.addRelations {
+                    coroutineScope.launch {
+                        navController.popBackStack(Screen.HouseholdMembersScreen.route, false)
+                    }
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -177,14 +201,12 @@ fun ConfirmRelationshipScreen(
         ) {
             Text(text = "Connect Patient")
         }
-
     }
 }
 
 @Composable
 fun MemberCard(
-    context: Context,
-    relationView: RelationView,
+    relationFhir: RelationFhir,
     viewModel: ConfirmRelationshipViewModel
 ) {
     var openDeleteDialog by remember {
@@ -200,19 +222,11 @@ fun MemberCard(
     ) {
         Text(
             text = "${
-                NameConverter.getFullName(
-                    relationView.patientFirstName,
-                    relationView.patientMiddleName,
-                    relationView.patientLastName
-                )
+                relationFhir.patient.nameFirstRep.nameAsSingleString
             } " +
-                    "is the ${getRelationFromRelationEnum(context, relationView.relation)} of " +
+                    "is the ${relationFhir.relation.lowercase()} of " +
                     "${
-                        NameConverter.getFullName(
-                            relationView.relativeFirstName,
-                            relationView.relativeMiddleName,
-                            relationView.relativeLastName
-                        )
+                        relationFhir.relative.nameFirstRep.nameAsSingleString
                     }.",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f)
@@ -239,8 +253,7 @@ fun MemberCard(
 
     if (openDeleteDialog) {
         DeleteDialog(
-            context,
-            relationView,
+            relationFhir,
             viewModel
         ) {
             openDeleteDialog = false
@@ -249,8 +262,7 @@ fun MemberCard(
 
     if (openEditDialog) {
         EditDialog(
-            context,
-            relationView,
+            relationFhir,
             viewModel
         ) {
             openEditDialog = false
@@ -260,8 +272,7 @@ fun MemberCard(
 
 @Composable
 fun DeleteDialog(
-    context: Context,
-    relationView: RelationView,
+    relationFhir: RelationFhir,
     viewModel: ConfirmRelationshipViewModel,
     closeDialog: () -> Unit
 ) {
@@ -285,24 +296,13 @@ fun DeleteDialog(
                 )
                 Text(
                     "${
-                        NameConverter.getFullName(
-                            relationView.patientFirstName,
-                            relationView.patientMiddleName,
-                            relationView.patientLastName
-                        )
+                        relationFhir.patient.nameFirstRep.nameAsSingleString
                     } " +
                             "is the ${
-                                getRelationFromRelationEnum(
-                                    context,
-                                    relationView.relation
-                                )
+                                relationFhir.relation.lowercase()
                             } of " +
                             "${
-                                NameConverter.getFullName(
-                                    relationView.relativeFirstName,
-                                    relationView.relativeMiddleName,
-                                    relationView.relativeLastName
-                                )
+                                relationFhir.relative.nameFirstRep.nameAsSingleString
                             }.",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
@@ -313,7 +313,7 @@ fun DeleteDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    viewModel.deleteRelation(relationView.patientId, relationView.relativeId)
+                    viewModel.relationList = viewModel.relationList - listOf(relationFhir).toSet()
                     closeDialog()
                 },
                 modifier = Modifier.testTag("POSITIVE_BTN")
@@ -340,8 +340,7 @@ fun DeleteDialog(
 
 @Composable
 fun EditDialog(
-    context: Context,
-    relationView: RelationView,
+    relationFhir: RelationFhir,
     viewModel: ConfirmRelationshipViewModel,
     closeDialog: () -> Unit
 ) {
@@ -350,14 +349,8 @@ fun EditDialog(
     }
     var relation by remember {
         mutableStateOf(
-            getRelationFromRelationEnum(
-                context,
-                relationView.relation
-            ).replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(
-                    Locale.getDefault()
-                ) else it.toString()
-            })
+            relationFhir.relation
+        )
     }
     AlertDialog(
         onDismissRequest = {
@@ -373,11 +366,7 @@ fun EditDialog(
         text = {
             Column {
                 Text(
-                    NameConverter.getFullName(
-                        relationView.patientFirstName,
-                        relationView.patientMiddleName,
-                        relationView.patientLastName
-                    ),
+                    relationFhir.patient.nameFirstRep.nameAsSingleString,
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 Spacer(modifier = Modifier.height(23.dp))
@@ -394,7 +383,7 @@ fun EditDialog(
                         modifier = Modifier.testTag("RELATIONS_DROPDOWN")
                     ) {
                         val relationsList =
-                            RelationshipList.getRelationshipList(relationView.patientGender)
+                            RelationshipList.getRelationshipList(relationFhir.patient.gender.toCode())
 
                         TextField(
                             value = relation,
@@ -446,11 +435,7 @@ fun EditDialog(
                 Spacer(modifier = Modifier.height(23.dp))
                 Text(
                     text = "of ${
-                        NameConverter.getFullName(
-                            relationView.relativeFirstName,
-                            relationView.relativeMiddleName,
-                            relationView.relativeLastName
-                        )
+                        relationFhir.relative.nameFirstRep.nameAsSingleString
                     }.",
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -460,13 +445,17 @@ fun EditDialog(
             TextButton(
                 onClick = {
                     viewModel.relation = relation
-                    viewModel.updateRelation(
-                        Relation(
-                            patientId = relationView.patientId,
-                            relation = getRelationEnumFromString(relation),
-                            relativeId = relationView.relativeId
-                        )
-                    )
+                    viewModel.patient = relationFhir.patient
+                    viewModel.relative = relationFhir.relative
+                    viewModel.relationList = listOf()
+                    viewModel.setRelationList()
+//                    viewModel.updateRelation(
+//                        Relation(
+//                            patientId = relationView.patientId,
+//                            relation = getRelationEnumFromString(relation),
+//                            relativeId = relationView.relativeId
+//                        )
+//                    )
                     closeDialog()
                 },
                 modifier = Modifier.testTag("POSITIVE_BTN")

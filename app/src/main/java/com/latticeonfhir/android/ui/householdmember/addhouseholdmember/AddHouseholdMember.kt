@@ -2,14 +2,35 @@ package com.latticeonfhir.android.ui.householdmember.addhouseholdmember
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -23,14 +44,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.CURRENT_STEP
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.FROM_HOUSEHOLD_MEMBER
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_FROM
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_MEMBERS_LIST
+import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter.getAddressFhir
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Patient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,11 +65,11 @@ fun AddHouseholdMember(
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.patient =
-                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
-                )
+                navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
+                    PATIENT
+                )!!
+            viewModel.isLaunched = true
         }
-        viewModel.isLaunched = true
     }
     Scaffold(
         topBar = {
@@ -60,7 +84,7 @@ fun AddHouseholdMember(
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -76,27 +100,25 @@ fun AddHouseholdMember(
                         .verticalScroll(rememberScrollState())
                         .padding(vertical = 40.dp, horizontal = 60.dp)
                 ) {
-                    viewModel.patient?.let { patient ->
-                        CardLayout(
-                            navController,
-                            R.drawable.person_add,
-                            stringResource(id = R.string.create_new_patient),
-                            stringResource(id = R.string.add_a_patient),
-                            patient,
-                            "register",
-                            viewModel
-                        )
-                        Spacer(modifier = Modifier.height(40.dp))
-                        CardLayout(
-                            navController,
-                            R.drawable.patient_list,
-                            stringResource(id = R.string.search_existing_patient),
-                            stringResource(id = R.string.search_patients),
-                            patient,
-                            "search",
-                            viewModel
-                        )
-                    }
+                    CardLayout(
+                        navController,
+                        R.drawable.person_add,
+                        stringResource(id = R.string.create_new_patient),
+                        stringResource(id = R.string.add_a_patient),
+                        viewModel.patient,
+                        "register",
+                        viewModel
+                    )
+                    Spacer(modifier = Modifier.height(40.dp))
+                    CardLayout(
+                        navController,
+                        R.drawable.patient_list,
+                        stringResource(id = R.string.search_existing_patient),
+                        stringResource(id = R.string.search_patients),
+                        viewModel.patient,
+                        "search",
+                        viewModel
+                    )
 
                     if (viewModel.showRelationDialogue) {
                         AlertDialog(
@@ -121,11 +143,11 @@ fun AddHouseholdMember(
                                     onClick = {
                                         viewModel.showRelationDialogue = false
                                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            "patientFrom",
+                                            PATIENT_FROM,
                                             viewModel.patient
                                         )
                                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            "selectedMembersList",
+                                            SELECTED_MEMBERS_LIST,
                                             viewModel.selectedSuggestedMembersList.toMutableList()
                                         )
                                         navController.navigate(Screen.ConnectPatient.route)
@@ -142,11 +164,11 @@ fun AddHouseholdMember(
                                     onClick = {
                                         viewModel.showRelationDialogue = false
                                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            "fromHouseholdMember",
+                                            FROM_HOUSEHOLD_MEMBER,
                                             true
                                         )
                                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            "patient",
+                                            PATIENT,
                                             viewModel.patient
                                         )
                                         navController.navigate(Screen.SearchPatientScreen.route)
@@ -170,7 +192,7 @@ fun CardLayout(
     icon: Int,
     description: String,
     btnText: String,
-    patient: PatientResponse,
+    patient: Patient,
     route: String,
     viewModel: AddHouseholdMemberViewModel
 ) {
@@ -204,32 +226,34 @@ fun CardLayout(
                     if (route == "register") {
                         coroutineScope.launch {
                             navController.currentBackStackEntry?.savedStateHandle?.set(
-                                "fromHouseholdMember",
+                                FROM_HOUSEHOLD_MEMBER,
                                 true
                             )
                             navController.currentBackStackEntry?.savedStateHandle?.set(
-                                "patient",
+                                PATIENT,
                                 patient
                             )
                             navController.currentBackStackEntry?.savedStateHandle?.set(
-                                "currentStep",
+                                CURRENT_STEP,
                                 1
                             )
                             navController.navigate(Screen.PatientRegistrationScreen.route)
                         }
                     } else {
                         viewModel.selectedSuggestedMembersList.clear()
+                        viewModel.searching = true
                         viewModel.getSuggestions(patient) {
+                            viewModel.searching = false
                             if (viewModel.suggestedMembersList.isNotEmpty()) viewModel.showRelationDialogue =
                                 true
                             else {
                                 coroutineScope.launch {
                                     navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "fromHouseholdMember",
+                                        FROM_HOUSEHOLD_MEMBER,
                                         true
                                     )
                                     navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "patient",
+                                        PATIENT,
                                         patient
                                     )
                                     navController.navigate(Screen.SearchPatientScreen.route)
@@ -238,7 +262,8 @@ fun CardLayout(
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth(0.7f)
+                modifier = Modifier.fillMaxWidth(0.7f),
+                enabled = !viewModel.searching
             ) {
                 Text(text = btnText)
             }
@@ -247,7 +272,7 @@ fun CardLayout(
 }
 
 @Composable
-fun DialogPatientRow(member: PatientResponse, viewModel: AddHouseholdMemberViewModel) {
+fun DialogPatientRow(member: Patient, viewModel: AddHouseholdMemberViewModel) {
     val checkedState = remember { mutableStateOf(false) }
     Column {
         Row(
@@ -278,26 +303,21 @@ fun DialogPatientRow(member: PatientResponse, viewModel: AddHouseholdMemberViewM
                 modifier = Modifier.padding(10.dp)
             ) {
                 Text(
-                    text = NameConverter.getFullName(
-                        member.firstName,
-                        member.middleName,
-                        member.lastName
-                    ),
+                    text = member.nameFirstRep.nameAsSingleString,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = AddressConverter.getAddress(member.permanentAddress),
+                    text = getAddressFhir(member.addressFirstRep),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Divider(
+        HorizontalDivider(
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant
         )
     }
-
 }
