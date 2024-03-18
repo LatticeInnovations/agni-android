@@ -54,6 +54,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
                     preferenceRepository.setUserRole(role[0].role)
                     preferenceRepository.setOrganizationFhirId(role[0].orgId)
                     preferenceRepository.setOrganization(role[0].orgName)
+                    preferenceRepository.setLocationFhirId("22345")
                     userEmail?.let { email -> preferenceRepository.setUserEmail(email) }
                     mobileNumber?.let { mobileNumber ->
                         preferenceRepository.setUserMobile(
