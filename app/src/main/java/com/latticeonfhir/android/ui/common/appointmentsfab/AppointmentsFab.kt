@@ -28,19 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Patient
 
 @Composable
 fun AppointmentsFab(
     navController: NavController,
-    patient: PatientResponse,
+    patient: Patient,
     isFabSelected: Boolean,
     appointmentsFabViewModel: AppointmentsFabViewModel = hiltViewModel(),
     showDialog: (Boolean) -> Unit
@@ -105,40 +100,40 @@ fun AppointmentsFab(
                             //showDialog(true)
                             if (appointmentsFabViewModel.appointment != null) {
                                 // change status of patient to arrived and navigate to queue screen
-                                appointmentsFabViewModel.updateStatusToArrived(
-                                    patient,
-                                    appointmentsFabViewModel.appointment!!
-                                ) {
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        navController.popBackStack(
-                                            Screen.PatientLandingScreen.route,
-                                            false
-                                        )
-                                        navController.previousBackStackEntry?.savedStateHandle?.set(
-                                            PATIENT_ARRIVED,
-                                            true
-                                        )
-                                        navController.popBackStack()
-                                    }
-                                }
+//                                appointmentsFabViewModel.updateStatusToArrived(
+//                                    patient,
+//                                    appointmentsFabViewModel.appointment!!
+//                                ) {
+//                                    CoroutineScope(Dispatchers.Main).launch {
+//                                        navController.popBackStack(
+//                                            Screen.PatientLandingScreen.route,
+//                                            false
+//                                        )
+//                                        navController.previousBackStackEntry?.savedStateHandle?.set(
+//                                            PATIENT_ARRIVED,
+//                                            true
+//                                        )
+//                                        navController.popBackStack()
+//                                    }
+//                                }
                             } else {
                                 // add patient to queue and navigate to queue screen
                                 if (appointmentsFabViewModel.ifAllSlotsBooked) {
                                     showDialog(true)
                                 } else {
-                                    appointmentsFabViewModel.addPatientToQueue(patient) {
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            navController.popBackStack(
-                                                Screen.PatientLandingScreen.route,
-                                                false
-                                            )
-                                            navController.previousBackStackEntry?.savedStateHandle?.set(
-                                                ADD_TO_QUEUE,
-                                                true
-                                            )
-                                            navController.popBackStack()
-                                        }
-                                    }
+//                                    appointmentsFabViewModel.addPatientToQueue(patient) {
+//                                        CoroutineScope(Dispatchers.Main).launch {
+//                                            navController.popBackStack(
+//                                                Screen.PatientLandingScreen.route,
+//                                                false
+//                                            )
+//                                            navController.previousBackStackEntry?.savedStateHandle?.set(
+//                                                ADD_TO_QUEUE,
+//                                                true
+//                                            )
+//                                            navController.popBackStack()
+//                                        }
+//                                    }
                                 }
                             }
 
