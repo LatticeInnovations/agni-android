@@ -47,6 +47,8 @@ interface PreferenceRepository {
     fun getOrganizationFhirId(): String
     fun setOrganization(organization: String)
     fun getOrganization(): String
+    fun setLocationFhirId(locationFhirId: String)
+    fun getLocationFhirId(): String
 
     /** Authentication Token */
     fun setAuthenticationToken(authToken: String)
