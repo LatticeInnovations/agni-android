@@ -6,14 +6,25 @@ import com.google.android.fhir.SearchResult
 import com.google.android.fhir.search.include
 import com.google.android.fhir.search.search
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusFhir
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.ENCOUNTER_SYSTEM
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.LATTICE
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.LATTICE_SYSTEM
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import org.hl7.fhir.r4.model.Appointment
+import org.hl7.fhir.r4.model.Appointment.AppointmentStatus
+import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.Encounter
 import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Person
+import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.RelatedPerson
 import org.hl7.fhir.r4.model.ResourceType
+import org.hl7.fhir.r4.model.Schedule
+import org.hl7.fhir.r4.model.Slot
 import java.util.Date
 
 object FhirQueries {
@@ -67,7 +78,7 @@ object FhirQueries {
     suspend fun getScheduledAppointments(
         fhirEngine: FhirEngine,
         patientId: String
-    ): List<SearchResult<Encounter>>{
+    ): List<SearchResult<Encounter>> {
         return fhirEngine.search<Encounter> {
             filter(
                 Encounter.SUBJECT, {
@@ -82,7 +93,7 @@ object FhirQueries {
             include(ResourceType.Appointment, Encounter.APPOINTMENT) {
                 filter(
                     Appointment.STATUS, {
-                        value = of(Appointment.AppointmentStatus.PROPOSED.toCode())
+                        value = of(AppointmentStatus.PROPOSED.toCode())
                     }
                 )
                 filter(
@@ -103,7 +114,7 @@ object FhirQueries {
     suspend fun getCompletedAppointments(
         fhirEngine: FhirEngine,
         patientId: String
-    ): List<SearchResult<Encounter>>{
+    ): List<SearchResult<Encounter>> {
         return fhirEngine.search<Encounter> {
             filter(
                 Encounter.SUBJECT, {
@@ -118,7 +129,7 @@ object FhirQueries {
             include(ResourceType.Appointment, Encounter.APPOINTMENT) {
                 filter(
                     Appointment.STATUS, {
-                        value = of(Appointment.AppointmentStatus.ARRIVED.toCode())
+                        value = of(AppointmentStatus.ARRIVED.toCode())
                     }
                 )
                 filter(
@@ -128,6 +139,256 @@ object FhirQueries {
                     }
                 )
             }
+        }
+    }
+
+    suspend fun getAppointmentToday(
+        fhirEngine: FhirEngine,
+        patientId: String
+    ): List<SearchResult<Encounter>> {
+        return fhirEngine.search<Encounter> {
+            filter(
+                Encounter.SUBJECT, {
+                    value = "${ResourceType.Patient.name}/$patientId"
+                }
+            )
+            include(ResourceType.Appointment, Encounter.APPOINTMENT) {
+                filter(
+                    Appointment.STATUS, {
+                        value = of(AppointmentStatus.ARRIVED.toCode())
+                    }, {
+                        value = of(AppointmentStatus.NOSHOW.toCode())
+                    }
+                )
+                filter(
+                    Appointment.DATE, {
+                        prefix = ParamPrefixEnum.LESSTHAN_OR_EQUALS
+                        value = of(DateTimeType(Date(Date().toEndOfDay())))
+                    }
+                )
+                filter(
+                    Appointment.DATE, {
+                        prefix = ParamPrefixEnum.GREATERTHAN_OR_EQUALS
+                        value = of(DateTimeType(Date(Date().toTodayStartDate())))
+                    }
+                )
+            }
+        }
+    }
+
+    suspend fun getTotalNumberOfAppointmentsToday(
+        fhirEngine: FhirEngine
+    ): Int {
+        return fhirEngine.search<Appointment> {
+            filter(
+                Appointment.STATUS, {
+                    value = of(AppointmentStatus.ARRIVED.toCode())
+                }, {
+                    value = of(AppointmentStatus.NOSHOW.toCode())
+                }, {
+                    value = of(AppointmentStatus.PROPOSED.toCode())
+                }
+            )
+            filter(
+                Appointment.DATE, {
+                    prefix = ParamPrefixEnum.LESSTHAN_OR_EQUALS
+                    value = of(DateTimeType(Date(Date().toEndOfDay())))
+                }
+            )
+            filter(
+                Appointment.DATE, {
+                    prefix = ParamPrefixEnum.GREATERTHAN_OR_EQUALS
+                    value = of(DateTimeType(Date(Date().toTodayStartDate())))
+                }
+            )
+        }.size
+    }
+
+    suspend fun getTodayScheduledAppointmentOfPatient(
+        fhirEngine: FhirEngine,
+        patientId: String
+    ): Appointment? {
+        fhirEngine.search<Encounter> {
+            filter(
+                Encounter.SUBJECT, {
+                    value = "${ResourceType.Patient.name}/$patientId"
+                }
+            )
+            filter(
+                Encounter.STATUS, {
+                    value = of(Encounter.EncounterStatus.PLANNED.toCode())
+                }
+            )
+            include(ResourceType.Appointment, Encounter.APPOINTMENT) {
+                filter(
+                    Appointment.STATUS, {
+                        value = of(AppointmentStatus.PROPOSED.toCode())
+                    }
+                )
+                filter(
+                    Appointment.APPOINTMENT_TYPE, {
+                        value = of(AppointmentStatusFhir.SCHEDULE.type)
+                    }
+                )
+
+                filter(
+                    Appointment.DATE, {
+                        prefix = ParamPrefixEnum.LESSTHAN_OR_EQUALS
+                        value = of(DateTimeType(Date(Date().toEndOfDay())))
+                    }
+                )
+                filter(
+                    Appointment.DATE, {
+                        prefix = ParamPrefixEnum.GREATERTHAN_OR_EQUALS
+                        value = of(DateTimeType(Date(Date().toTodayStartDate())))
+                    }
+                )
+            }
+        }.forEach { searchResult ->
+            return searchResult.included?.get(Encounter.APPOINTMENT.paramName)
+                ?.get(0) as Appointment?
+        }
+        return null
+    }
+
+    suspend fun getScheduleByTime(
+        fhirEngine: FhirEngine,
+        startTime: Date,
+        endTime: Date
+    ): Schedule? {
+        fhirEngine.search<Schedule> {
+            filter(
+                Schedule.DATE, {
+                    prefix = ParamPrefixEnum.GREATERTHAN_OR_EQUALS
+                    value = of(DateTimeType(startTime))
+                }
+            )
+            filter(
+                Schedule.DATE, {
+                    prefix = ParamPrefixEnum.LESSTHAN_OR_EQUALS
+                    value = of(DateTimeType(endTime))
+                }
+            )
+        }.forEach { result ->
+            return result.resource
+        }
+        return null
+    }
+
+    suspend fun createScheduleResource(
+        fhirEngine: FhirEngine,
+        scheduleId: String,
+        locationId: String,
+        startTime: Date,
+        endTime: Date
+    ) {
+        fhirEngine.create(
+            Schedule().apply {
+                id = scheduleId
+                identifier.add(
+                    Identifier().apply {
+                        type = CodeableConcept(
+                            Coding(
+                                LATTICE_SYSTEM,
+                                "U",
+                                ""
+                            )
+                        )
+                        system = LATTICE
+                        value = scheduleId
+                    }
+                )
+                active = true
+                actor.add(
+                    Reference("Location/$locationId")
+                )
+                planningHorizon.start = startTime
+                planningHorizon.end = endTime
+            }
+        )
+    }
+
+    fun createSlotResource(
+        slotId: String,
+        scheduleId: String,
+        startTime: Date,
+        endTime: Date
+    ): Slot {
+        return Slot().apply {
+            id = slotId
+            schedule.reference = "Schedule/$scheduleId"
+            status = Slot.SlotStatus.FREE
+            start = startTime
+            end = endTime
+        }
+    }
+
+    fun createAppointmentResource(
+        patientId: String,
+        locationId: String,
+        appointmentId: String,
+        appointmentStatus: AppointmentStatus,
+        typeOfAppointment: String,
+        startTime: Date,
+        slotId: String
+    ): Appointment {
+        return Appointment().apply {
+            id = appointmentId
+            identifier.add(
+                Identifier().apply {
+                    type = CodeableConcept(
+                        Coding(
+                            LATTICE_SYSTEM,
+                            "U",
+                            ""
+                        )
+                    )
+                    system = LATTICE
+                    value = appointmentId
+                }
+            )
+            status = appointmentStatus
+            appointmentType = CodeableConcept(
+                Coding(
+                    "http://snomed.info/sct",
+                    typeOfAppointment,
+                    ""
+                )
+            )
+            start = startTime
+            slot.add(
+                Reference("Slot/$slotId")
+            )
+            created = startTime
+            participant.addAll(
+                listOf(
+                    Appointment.AppointmentParticipantComponent()
+                        .setActor(Reference("Patient/$patientId")),
+                    Appointment.AppointmentParticipantComponent()
+                        .setActor(Reference("Location/$locationId"))
+                )
+            )
+        }
+    }
+
+    fun createEncounterResource(
+        patientId: String,
+        encounterId: String,
+        appointmentId: String
+    ): Encounter {
+        return Encounter().apply {
+            id = encounterId
+            identifier.add(
+                Identifier().apply {
+                    system = ENCOUNTER_SYSTEM
+                    value = encounterId
+                }
+            )
+            status = Encounter.EncounterStatus.PLANNED
+            subject.reference = "Patient/$patientId"
+            appointment.add(
+                Reference("Appointment/$appointmentId")
+            )
         }
     }
 }

@@ -4,222 +4,131 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusFhir
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to30MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to5MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentTime
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotStartTime
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createAppointmentResource
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createEncounterResource
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createScheduleResource
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createSlotResource
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getAppointmentToday
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getScheduleByTime
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getTodayScheduledAppointmentOfPatient
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getTotalNumberOfAppointmentsToday
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import org.hl7.fhir.r4.model.Appointment
+import org.hl7.fhir.r4.model.Patient
 import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class AppointmentsFabViewModel @Inject constructor(
-    private val appointmentRepository: AppointmentRepository,
-    private val scheduleRepository: ScheduleRepository,
-    private val genericRepository: GenericRepository,
+    private val fhirEngine: FhirEngine,
     private val preferenceRepository: PreferenceRepository
 ) : BaseViewModel() {
 
-    var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
+    var appointment by mutableStateOf<Appointment?>(null)
     var ifAlreadyWaiting by mutableStateOf(false)
     var ifAllSlotsBooked by mutableStateOf(false)
+    var adding by mutableStateOf(false)
 
     internal fun initialize(patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            appointmentRepository.getAppointmentsOfPatientByDate(
-                patientId,
-                Date().toTodayStartDate(),
-                Date().toEndOfDay()
-            ).let { appointmentResponse ->
-                ifAlreadyWaiting = if (appointmentResponse == null) false
-                else appointmentResponse.status != AppointmentStatusEnum.SCHEDULED.value
+            getAppointmentToday(
+                fhirEngine, patientId
+            ).forEach { _ ->
+                ifAlreadyWaiting = true
             }
-            ifAllSlotsBooked = appointmentRepository.getAppointmentListByDate(
-                Date().toTodayStartDate(),
-                Date().toEndOfDay()
-            ).filter { appointmentResponseLocal ->
-                appointmentResponseLocal.status != AppointmentStatusEnum.CANCELLED.value
-            }.size >= 80
-            appointment = appointmentRepository.getAppointmentsOfPatientByStatus(
-                patientId,
-                AppointmentStatusEnum.SCHEDULED.value
-            ).firstOrNull { appointmentResponse ->
-                appointmentResponse.slot.start.time < Date().toEndOfDay() && appointmentResponse.slot.start.time > Date().toTodayStartDate()
-            }
+            ifAllSlotsBooked = getTotalNumberOfAppointmentsToday(fhirEngine) >= 80
+            appointment = getTodayScheduledAppointmentOfPatient(fhirEngine, patientId)
         }
     }
 
-    internal fun addPatientToQueue(patient: PatientResponse, addedToQueue: (List<Long>) -> Unit) {
+    internal fun addPatientToQueue(patient: Patient, addedToQueue: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            val selectedSlot = Date().toSlotStartTime()
-            var scheduleId = Date(
-                selectedSlot.toCurrentTimeInMillis(
+            var scheduleId = UUIDBuilder.generateUUID()
+            val scheduleStartTime = Date(
+                Date().toSlotStartTime().toCurrentTimeInMillis(
                     Date()
                 )
             )
-            var scheduleFhirId: String? = null
-            scheduleRepository.getScheduleByStartTime(
-                selectedSlot.toCurrentTimeInMillis(
+            val scheduleEndTime = Date(
+                Date().toSlotStartTime().to30MinutesAfter(
                     Date()
                 )
-            ).let { scheduleResponse ->
-                if (scheduleResponse != null) {
-                    Timber.d("manseeyy already scheduled")
-                    scheduleId = scheduleResponse.planningHorizon.start
-                    scheduleFhirId = scheduleResponse.scheduleId
-                    scheduleRepository.updateSchedule(
-                        scheduleResponse.copy(
-                            bookedSlots = scheduleResponse.bookedSlots!! + 1
-                        )
-                    )
-                } else {
-                    val uuid = UUIDBuilder.generateUUID()
-                    scheduleRepository.insertSchedule(
-                        ScheduleResponse(
-                            uuid = uuid,
-                            scheduleId = null,
-                            bookedSlots = 1,
-                            orgId = preferenceRepository.getOrganizationFhirId(),
-                            planningHorizon = Slot(
-                                start = Date(
-                                    selectedSlot.toCurrentTimeInMillis(
-                                        Date()
-                                    )
-                                ),
-                                end = Date(
-                                    selectedSlot.to30MinutesAfter(
-                                        Date()
-                                    )
-                                )
-                            )
-                        )
-                    )
-                    genericRepository.insertSchedule(
-                        ScheduleResponse(
-                            uuid = uuid,
-                            scheduleId = null,
-                            bookedSlots = null,
-                            orgId = preferenceRepository.getOrganizationFhirId(),
-                            planningHorizon = Slot(
-                                start = Date(
-                                    selectedSlot.toCurrentTimeInMillis(
-                                        Date()
-                                    )
-                                ),
-                                end = Date(
-                                    selectedSlot.to30MinutesAfter(
-                                        Date()
-                                    )
-                                )
-                            )
-                        )
-                    )
-                }
-            }.also {
-                val appointmentId = UUIDBuilder.generateUUID()
-                val createdOn = Date()
-                val slot = Slot(
-                    start = Date(Date().toAppointmentTime().toCurrentTimeInMillis(Date())),
-                    end = Date(
-                        Date().toAppointmentTime().to5MinutesAfter(
-                            Date()
-                        )
-                    )
+            )
+            val slotStartTime = Date(Date().toAppointmentTime().toCurrentTimeInMillis(Date()))
+            val slotEndTime = Date(
+                Date().toAppointmentTime().to5MinutesAfter(
+                    Date()
                 )
-                addedToQueue(
-                    appointmentRepository.addAppointment(
-                        AppointmentResponseLocal(
-                            appointmentId = null,
-                            uuid = appointmentId,
-                            patientId = patient.id,
-                            scheduleId = scheduleId,
-                            createdOn = createdOn,
-                            orgId = preferenceRepository.getOrganizationFhirId(),
-                            slot = slot,
-                            status = AppointmentStatusEnum.WALK_IN.value
-                        )
-                    ).also {
-                        genericRepository.insertAppointment(
-                            AppointmentResponse(
-                                appointmentId = null,
-                                uuid = appointmentId,
-                                patientFhirId = patient.fhirId ?: patient.id,
-                                scheduleId = scheduleFhirId
-                                    ?: scheduleRepository.getScheduleByStartTime(scheduleId.time)?.uuid!!,
-                                createdOn = createdOn,
-                                orgId = preferenceRepository.getOrganizationFhirId(),
-                                slot = slot,
-                                status = AppointmentStatusEnum.WALK_IN.value
-                            )
-                        )
-                    }
+            )
+            val scheduleResource = getScheduleByTime(
+                fhirEngine,
+                scheduleStartTime,
+                scheduleEndTime
+            )
+            if (scheduleResource != null){
+                scheduleId = scheduleResource.logicalId
+            } else {
+                // create a schedule
+                createScheduleResource(
+                    fhirEngine,
+                    scheduleId,
+                    preferenceRepository.getLocationFhirId(),
+                    scheduleStartTime,
+                    scheduleEndTime
                 )
             }
+            val slotId = UUIDBuilder.generateUUID()
+            val appointmentId = UUIDBuilder.generateUUID()
+            fhirEngine.create(
+                createSlotResource(
+                    slotId = slotId,
+                    scheduleId = scheduleId,
+                    startTime = slotStartTime,
+                    endTime = slotEndTime
+                ),
+                createAppointmentResource(
+                    patientId = patient.logicalId,
+                    locationId = preferenceRepository.getLocationFhirId(),
+                    appointmentId = appointmentId,
+                    appointmentStatus = Appointment.AppointmentStatus.ARRIVED,
+                    typeOfAppointment = AppointmentStatusFhir.WALK_IN.type,
+                    startTime = slotStartTime,
+                    slotId = slotId
+                ),
+                createEncounterResource(
+                    patientId = patient.logicalId,
+                    encounterId = UUIDBuilder.generateUUID(),
+                    appointmentId = appointmentId
+                )
+            )
+            addedToQueue()
         }
     }
 
     internal fun updateStatusToArrived(
-        patient: PatientResponse,
-        appointment: AppointmentResponseLocal,
-        updated: (Int) -> Unit
+        appointment: Appointment,
+        updated: () -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            updated(
-                appointmentRepository.updateAppointment(
-                    appointment.copy(
-                        status = AppointmentStatusEnum.ARRIVED.value
-                    )
-                ).also {
-                    if (appointment.appointmentId.isNullOrBlank()) {
-                        genericRepository.insertAppointment(
-                            AppointmentResponse(
-                                appointmentId = null,
-                                createdOn = appointment.createdOn,
-                                uuid = appointment.uuid,
-                                patientFhirId = patient.fhirId ?: patient.id,
-                                orgId = preferenceRepository.getOrganizationFhirId(),
-                                scheduleId = scheduleRepository.getScheduleByStartTime(appointment.scheduleId.time)?.scheduleId
-                                    ?: scheduleRepository.getScheduleByStartTime(appointment.scheduleId.time)?.uuid!!,
-                                slot = appointment.slot,
-                                status = AppointmentStatusEnum.ARRIVED.value
-                            )
-                        )
-                    } else {
-                        genericRepository.insertOrUpdateAppointmentPatch(
-                            appointmentFhirId = appointment.appointmentId,
-                            map = mapOf(
-                                Pair(
-                                    "status",
-                                    ChangeRequest(
-                                        operation = ChangeTypeEnum.REPLACE.value,
-                                        value = AppointmentStatusEnum.ARRIVED.value
-                                    )
-                                )
-                            )
-                        )
-                    }
+            fhirEngine.update(
+                appointment.apply {
+                    status = Appointment.AppointmentStatus.ARRIVED
                 }
             )
+            updated()
         }
     }
 }
