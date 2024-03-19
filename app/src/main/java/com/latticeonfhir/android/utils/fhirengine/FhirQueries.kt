@@ -206,7 +206,9 @@ object FhirQueries {
 
     suspend fun getTodayScheduledAppointmentOfPatient(
         fhirEngine: FhirEngine,
-        patientId: String
+        patientId: String,
+        startTime: Date,
+        endTime: Date
     ): Appointment? {
         fhirEngine.search<Encounter> {
             filter(
@@ -234,13 +236,13 @@ object FhirQueries {
                 filter(
                     Appointment.DATE, {
                         prefix = ParamPrefixEnum.LESSTHAN_OR_EQUALS
-                        value = of(DateTimeType(Date(Date().toEndOfDay())))
+                        value = of(DateTimeType(endTime))
                     }
                 )
                 filter(
                     Appointment.DATE, {
                         prefix = ParamPrefixEnum.GREATERTHAN_OR_EQUALS
-                        value = of(DateTimeType(Date(Date().toTodayStartDate())))
+                        value = of(DateTimeType(startTime))
                     }
                 )
             }
@@ -300,7 +302,7 @@ object FhirQueries {
                 )
                 active = true
                 actor.add(
-                    Reference("Location/$locationId")
+                    Reference("${ResourceType.Location.name}/$locationId")
                 )
                 planningHorizon.start = startTime
                 planningHorizon.end = endTime
@@ -316,7 +318,7 @@ object FhirQueries {
     ): Slot {
         return Slot().apply {
             id = slotId
-            schedule.reference = "Schedule/$scheduleId"
+            schedule.reference = "${ResourceType.Schedule.name}/$scheduleId"
             status = Slot.SlotStatus.FREE
             start = startTime
             end = endTime
@@ -357,15 +359,15 @@ object FhirQueries {
             )
             start = startTime
             slot.add(
-                Reference("Slot/$slotId")
+                Reference("${ResourceType.Slot.name}/$slotId")
             )
             created = startTime
             participant.addAll(
                 listOf(
                     Appointment.AppointmentParticipantComponent()
-                        .setActor(Reference("Patient/$patientId")),
+                        .setActor(Reference("${ResourceType.Patient.name}/$patientId")),
                     Appointment.AppointmentParticipantComponent()
-                        .setActor(Reference("Location/$locationId"))
+                        .setActor(Reference("${ResourceType.Location.name}/$locationId"))
                 )
             )
         }
@@ -385,9 +387,9 @@ object FhirQueries {
                 }
             )
             status = Encounter.EncounterStatus.PLANNED
-            subject.reference = "Patient/$patientId"
+            subject.reference = "${ResourceType.Patient.name}/$patientId"
             appointment.add(
-                Reference("Appointment/$appointmentId")
+                Reference("${ResourceType.Appointment.name}/$appointmentId")
             )
         }
     }
