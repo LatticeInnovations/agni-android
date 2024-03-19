@@ -4,8 +4,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusFhir
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
@@ -13,7 +16,6 @@ import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRe
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
@@ -25,14 +27,24 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.tomorrow
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createAppointmentResource
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createEncounterResource
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createScheduleResource
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createSlotResource
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getNumberOfSlotsByScheduleId
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getScheduleByTime
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getTodayScheduledAppointmentOfPatient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Appointment
+import org.hl7.fhir.r4.model.Patient
 import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class ScheduleAppointmentViewModel @Inject constructor(
+    private val fhirEngine: FhirEngine,
     private val scheduleRepository: ScheduleRepository,
     private val appointmentRepository: AppointmentRepository,
     private val preferenceRepository: PreferenceRepository,
@@ -43,15 +55,30 @@ class ScheduleAppointmentViewModel @Inject constructor(
     var selectedDate by mutableStateOf(Date().tomorrow())
     var weekList by mutableStateOf(selectedDate.toWeekList())
     var selectedSlot by mutableStateOf("")
-    var patient by mutableStateOf<PatientResponse?>(null)
+    var patient by mutableStateOf(Patient())
     var ifRescheduling by mutableStateOf(false)
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
 
-    internal fun getBookedSlotsCount(time: Long, slotsCount: (Int) -> Unit) {
+    internal fun getBookedSlotsCount(
+        startTime: Long,
+        endTime: Long,
+        slotsCount: (Int) -> Unit
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
-            slotsCount(
-                scheduleRepository.getBookedSlotsCount(time)
+            val scheduleResource = getScheduleByTime(
+                fhirEngine,
+                Date(startTime),
+                Date(endTime)
             )
+            if (scheduleResource == null) slotsCount(0)
+            else {
+                slotsCount(
+                    getNumberOfSlotsByScheduleId(
+                        fhirEngine,
+                        scheduleResource.logicalId
+                    )
+                )
+            }
         }
     }
 
@@ -60,75 +87,75 @@ class ScheduleAppointmentViewModel @Inject constructor(
             // check if appointment already exists for that date
             // if exists, reschedule that appointment
             // else create new appointment
-            appointmentRepository.getAppointmentsOfPatientByDate(
-                patient!!.id,
-                selectedDate.toTodayStartDate(),
-                selectedDate.toEndOfDay()
-            ).let { existingAppointment ->
-                if (existingAppointment != null) {
-                    // appointment already exists for that day
-                    appointmentCreated(false)
-                } else {
-                    var id = UUIDBuilder.generateUUID()
-                    var scheduleFhirId: String? = null
-                    var scheduleId = selectedSlot.toCurrentTimeInMillis(
+            val existingAppointment = getTodayScheduledAppointmentOfPatient(
+                fhirEngine,
+                patient.logicalId,
+                Date(selectedDate.toTodayStartDate()),
+                Date(selectedDate.toEndOfDay())
+            )
+            if (existingAppointment != null) {
+                // appointment already exists for that day
+                appointmentCreated(false)
+            } else {
+                // create appointment
+                var scheduleId = UUIDBuilder.generateUUID()
+                val startTime = Date(
+                    selectedSlot.toCurrentTimeInMillis(
                         selectedDate
                     )
-                    scheduleRepository.getScheduleByStartTime(
-                        scheduleId
-                    ).let { scheduleResponse ->
-                        if (scheduleResponse != null) {
-                            id = scheduleResponse.uuid
-                            scheduleFhirId = scheduleResponse.scheduleId
-                            scheduleId = scheduleResponse.planningHorizon.start.time
-                            updateSchedule(scheduleResponse)
-                        } else {
-                            createNewSchedule(id)
-                        }
-                    }.also {
-                        val appointmentId = UUIDBuilder.generateUUID()
-                        val createdOn = Date()
-                        val slot = Slot(
-                            start = Date(
-                                selectedSlot.toCurrentTimeInMillis(
-                                    selectedDate
-                                )
-                            ),
-                            end = Date(
-                                selectedSlot.to5MinutesAfter(
-                                    selectedDate
-                                )
-                            )
-                        )
-                        appointmentCreated(
-                            appointmentRepository.addAppointment(
-                                AppointmentResponseLocal(
-                                    appointmentId = null,
-                                    uuid = appointmentId,
-                                    patientId = patient?.id!!,
-                                    scheduleId = Date(scheduleId),
-                                    createdOn = createdOn,
-                                    orgId = preferenceRepository.getOrganizationFhirId(),
-                                    slot = slot,
-                                    status = AppointmentStatusEnum.SCHEDULED.value
-                                )
-                            ).also {
-                                genericRepository.insertAppointment(
-                                    AppointmentResponse(
-                                        appointmentId = null,
-                                        uuid = appointmentId,
-                                        patientFhirId = patient?.fhirId ?: patient?.id,
-                                        scheduleId = scheduleFhirId ?: id,
-                                        createdOn = createdOn,
-                                        orgId = preferenceRepository.getOrganizationFhirId(),
-                                        slot = slot,
-                                        status = AppointmentStatusEnum.SCHEDULED.value
-                                    )
-                                )
-                            }
-                        )
-                    }
+                )
+                val scheduleEndTime = Date(
+                    selectedSlot.to30MinutesAfter(
+                        selectedDate
+                    )
+                )
+                val slotEndTime = Date(
+                    selectedSlot.to5MinutesAfter(
+                        selectedDate
+                    )
+                )
+                val scheduleResource = getScheduleByTime(
+                    fhirEngine,
+                    startTime,
+                    scheduleEndTime
+                )
+                if (scheduleResource != null) {
+                    scheduleId = scheduleResource.logicalId
+                } else {
+                    // create a schedule
+                    createScheduleResource(
+                        fhirEngine,
+                        scheduleId,
+                        preferenceRepository.getLocationFhirId(),
+                        startTime,
+                        scheduleEndTime
+                    )
                 }
+                val slotId = UUIDBuilder.generateUUID()
+                val appointmentId = UUIDBuilder.generateUUID()
+                fhirEngine.create(
+                    createSlotResource(
+                        slotId = slotId,
+                        scheduleId = scheduleId,
+                        startTime = startTime,
+                        endTime = slotEndTime
+                    ),
+                    createAppointmentResource(
+                        patientId = patient.logicalId,
+                        locationId = preferenceRepository.getLocationFhirId(),
+                        appointmentId = appointmentId,
+                        appointmentStatus = Appointment.AppointmentStatus.PROPOSED,
+                        typeOfAppointment = AppointmentStatusFhir.SCHEDULE.type,
+                        startTime = startTime,
+                        slotId = slotId
+                    ),
+                    createEncounterResource(
+                        patientId = patient.logicalId,
+                        encounterId = UUIDBuilder.generateUUID(),
+                        appointmentId = appointmentId
+                    )
+                )
+                appointmentCreated(true)
             }
         }
     }
@@ -217,7 +244,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
                                     scheduleId = scheduleFhirId ?: id,
                                     createdOn = createdOn,
                                     slot = slot,
-                                    patientFhirId = patient?.fhirId ?: patient?.id,
+                                    patientFhirId = patient?.id,
                                     appointmentId = null,
                                     orgId = appointment!!.orgId,
                                     status = appointment!!.status,

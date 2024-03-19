@@ -55,13 +55,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.NonLazyGrid
 import com.latticeonfhir.android.ui.common.WeekDaysComposable
 import com.latticeonfhir.android.ui.theme.Green
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_SELECTED
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.IF_RESCHEDULING
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SCHEDULED
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to30MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
@@ -70,6 +73,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.tomorrow
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Patient
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,20 +90,20 @@ fun ScheduleAppointments(
         if (!viewModel.isLaunched) {
             viewModel.ifRescheduling =
                 navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-                    NavControllerConstants.IF_RESCHEDULING
+                    IF_RESCHEDULING
                 ) == true
             if (viewModel.ifRescheduling) {
                 viewModel.appointment =
                     navController.previousBackStackEntry?.savedStateHandle?.get<AppointmentResponseLocal>(
-                        NavControllerConstants.APPOINTMENT_SELECTED
+                        APPOINTMENT_SELECTED
                     )
             }
             viewModel.patient =
-                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
-                )
+                navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
+                    PATIENT
+                )!!
+            viewModel.isLaunched = true
         }
-        viewModel.isLaunched = true
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -205,7 +209,10 @@ fun ScheduleAppointments(
                         }
                         LaunchedEffect(viewModel.selectedDate) {
                             viewModel.getBookedSlotsCount(
-                                context.resources.getStringArray(R.array.morning_slot_timings)[index].toCurrentTimeInMillis(
+                                startTime = context.resources.getStringArray(R.array.morning_slot_timings)[index].toCurrentTimeInMillis(
+                                    viewModel.selectedDate
+                                ),
+                                endTime = context.resources.getStringArray(R.array.morning_slot_timings)[index].to30MinutesAfter(
                                     viewModel.selectedDate
                                 )
                             ) { slotsCount ->
@@ -241,6 +248,9 @@ fun ScheduleAppointments(
                             viewModel.getBookedSlotsCount(
                                 context.resources.getStringArray(R.array.afternoon_slot_timings)[index].toCurrentTimeInMillis(
                                     viewModel.selectedDate
+                                ),
+                                endTime = context.resources.getStringArray(R.array.afternoon_slot_timings)[index].to30MinutesAfter(
+                                    viewModel.selectedDate
                                 )
                             ) { slotsCount ->
                                 slots = slotsCount
@@ -274,6 +284,9 @@ fun ScheduleAppointments(
                         LaunchedEffect(viewModel.selectedDate) {
                             viewModel.getBookedSlotsCount(
                                 context.resources.getStringArray(R.array.evening_slot_timings)[index].toCurrentTimeInMillis(
+                                    viewModel.selectedDate
+                                ),
+                                endTime = context.resources.getStringArray(R.array.evening_slot_timings)[index].to30MinutesAfter(
                                     viewModel.selectedDate
                                 )
                             ) { slotsCount ->
