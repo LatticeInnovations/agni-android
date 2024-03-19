@@ -3,7 +3,6 @@ package com.latticeonfhir.android.utils.fhirengine
 import ca.uhn.fhir.rest.param.ParamPrefixEnum
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.SearchResult
-import com.google.android.fhir.logicalId
 import com.google.android.fhir.search.include
 import com.google.android.fhir.search.search
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusFhir
@@ -26,7 +25,6 @@ import org.hl7.fhir.r4.model.RelatedPerson
 import org.hl7.fhir.r4.model.ResourceType
 import org.hl7.fhir.r4.model.Schedule
 import org.hl7.fhir.r4.model.Slot
-import timber.log.Timber
 import java.util.Date
 
 object FhirQueries {
@@ -249,8 +247,6 @@ object FhirQueries {
                 )
             }
         }.forEach { searchResult ->
-            Timber.d("manseeyy encounter ${searchResult.resource.logicalId}")
-            Timber.d("manseeyy included size ${searchResult.included?.get(Encounter.APPOINTMENT.paramName)?.size}")
             return searchResult.included?.get(Encounter.APPOINTMENT.paramName)
                 ?.get(0) as Appointment?
         }

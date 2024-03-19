@@ -52,6 +52,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var showDatePicker by mutableStateOf(false)
+    var isScheduling by mutableStateOf(false)
     var selectedDate by mutableStateOf(Date().tomorrow())
     var weekList by mutableStateOf(selectedDate.toWeekList())
     var selectedSlot by mutableStateOf("")
@@ -97,6 +98,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
                 // appointment already exists for that day
                 appointmentCreated(false)
             } else {
+                isScheduling = true
                 // create appointment
                 var scheduleId = UUIDBuilder.generateUUID()
                 val startTime = Date(
