@@ -57,6 +57,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.NonLazyGrid
+import com.latticeonfhir.android.ui.common.ScreenLoader
 import com.latticeonfhir.android.ui.common.WeekDaysComposable
 import com.latticeonfhir.android.ui.theme.Green
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
@@ -398,6 +399,7 @@ fun ScheduleAppointments(
                                         )
                                     }
                                 } else {
+                                    viewModel.isScheduling = false
                                     composableScope.launch {
                                         navController.popBackStack(
                                             Screen.PatientLandingScreen.route,
@@ -426,6 +428,11 @@ fun ScheduleAppointments(
             }
         }
     )
+    if (viewModel.isScheduling) {
+        ScreenLoader(
+            stringResource(id = R.string.please_wait)
+        )
+    }
 }
 
 @Composable
