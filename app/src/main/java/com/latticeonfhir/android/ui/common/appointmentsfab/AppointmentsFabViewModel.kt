@@ -14,7 +14,9 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to5MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentTime
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotStartTime
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createAppointmentResource
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createEncounterResource
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createScheduleResource
@@ -50,7 +52,12 @@ class AppointmentsFabViewModel @Inject constructor(
                 ifAlreadyWaiting = true
             }
             ifAllSlotsBooked = getTotalNumberOfAppointmentsToday(fhirEngine) >= 80
-            appointment = getTodayScheduledAppointmentOfPatient(fhirEngine, patientId)
+            appointment = getTodayScheduledAppointmentOfPatient(
+                fhirEngine,
+                patientId,
+                startTime = Date(Date().toTodayStartDate()),
+                endTime = Date(Date().toEndOfDay())
+            )
         }
     }
 
