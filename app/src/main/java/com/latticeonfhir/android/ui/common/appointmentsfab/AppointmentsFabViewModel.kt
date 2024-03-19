@@ -48,8 +48,8 @@ class AppointmentsFabViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getAppointmentToday(
                 fhirEngine, patientId
-            ).forEach { _ ->
-                ifAlreadyWaiting = true
+            ).forEach { searchResult ->
+                if (!searchResult.included.isNullOrEmpty()) ifAlreadyWaiting = true
             }
             ifAllSlotsBooked = getTotalNumberOfAppointmentsToday(fhirEngine) >= 80
             appointment = getTodayScheduledAppointmentOfPatient(
