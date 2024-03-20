@@ -43,6 +43,9 @@ class AppointmentsScreenViewModel @Inject constructor(
 
     internal fun getAppointmentsList() {
         viewModelScope.launch(Dispatchers.IO) {
+            appointmentsIds.clear()
+            upcomingAppointmentsList = listOf()
+            completedAppointmentsList = listOf()
             getScheduledAppointments(fhirEngine, patient.logicalId).forEach { result ->
                 result.included?.get(Encounter.APPOINTMENT.paramName)?.forEach { appointment ->
                     upcomingAppointmentsList.forEach {
@@ -58,6 +61,12 @@ class AppointmentsScreenViewModel @Inject constructor(
                     }
                     if (!appointmentsIds.contains(appointment.logicalId)) completedAppointmentsList = completedAppointmentsList + listOf(appointment as Appointment)
                 }
+            }
+            upcomingAppointmentsList = upcomingAppointmentsList.sortedBy {
+                it.start
+            }
+            completedAppointmentsList = completedAppointmentsList.sortedByDescending {
+                it.start
             }
         }
     }
