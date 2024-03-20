@@ -330,7 +330,7 @@ object FhirQueries {
         }
     }
 
-    fun createAppointmentResource(
+    private fun createAppointmentResource(
         patientId: String,
         locationId: String,
         appointmentId: String,
@@ -378,7 +378,7 @@ object FhirQueries {
         }
     }
 
-    fun createEncounterResource(
+    private fun createEncounterResource(
         patientId: String,
         encounterId: String,
         appointmentId: String
@@ -399,17 +399,29 @@ object FhirQueries {
         }
     }
 
-    suspend fun getNumberOfSlotsByScheduleId(
+    suspend fun getNumberOfAppointmentsByScheduleId(
         fhirEngine: FhirEngine,
         scheduleId: String
     ): Int {
-        return fhirEngine.search<Slot> {
+        var numberOfAppointments = 0
+        fhirEngine.search<Slot> {
             filter(
                 Slot.SCHEDULE, {
                     value = "${ResourceType.Schedule.name}/$scheduleId"
                 }
             )
-        }.size
+        }.forEach { slot ->
+            fhirEngine.search<Appointment> {
+                filter(
+                    Appointment.SLOT, {
+                        value = "${ResourceType.Slot.name}/${slot.resource.logicalId}"
+                    }
+                )
+            }.forEach { _ ->
+                numberOfAppointments++
+            }
+        }
+        return numberOfAppointments
     }
 
     suspend fun createNewAppointment(

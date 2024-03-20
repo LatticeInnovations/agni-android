@@ -54,16 +54,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.NonLazyGrid
 import com.latticeonfhir.android.ui.common.ScreenLoader
 import com.latticeonfhir.android.ui.common.WeekDaysComposable
 import com.latticeonfhir.android.ui.theme.Green
-import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_SELECTED
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.IF_RESCHEDULING
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.RESCHEDULED
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SCHEDULED
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to30MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
@@ -74,6 +73,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.tomorrow
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Appointment
 import org.hl7.fhir.r4.model.Patient
 import java.util.Date
 
@@ -95,7 +95,7 @@ fun ScheduleAppointments(
                 ) == true
             if (viewModel.ifRescheduling) {
                 viewModel.appointment =
-                    navController.previousBackStackEntry?.savedStateHandle?.get<AppointmentResponseLocal>(
+                    navController.previousBackStackEntry?.savedStateHandle?.get<Appointment>(
                         APPOINTMENT_SELECTED
                     )
             }
@@ -170,7 +170,7 @@ fun ScheduleAppointments(
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                             Text(
-                                text = viewModel.appointment?.slot?.start?.toAppointmentDate()
+                                text = viewModel.appointment?.start?.toAppointmentDate()
                                     ?: "",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -379,10 +379,12 @@ fun ScheduleAppointments(
                                         )
                                     }
                                 } else {
+                                    viewModel.isScheduling = true
                                     viewModel.rescheduleAppointment {
+                                        viewModel.isScheduling = false
                                         composableScope.launch {
                                             navController.previousBackStackEntry?.savedStateHandle?.set(
-                                                NavControllerConstants.RESCHEDULED,
+                                                RESCHEDULED,
                                                 true
                                             )
                                             navController.popBackStack()
