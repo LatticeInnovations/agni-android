@@ -3,9 +3,11 @@ package com.latticeonfhir.android.utils.fhirengine
 import ca.uhn.fhir.rest.param.ParamPrefixEnum
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.SearchResult
+import com.google.android.fhir.logicalId
 import com.google.android.fhir.search.include
 import com.google.android.fhir.search.search
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusFhir
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.ENCOUNTER_SYSTEM
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.LATTICE
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.LATTICE_SYSTEM
@@ -247,8 +249,11 @@ object FhirQueries {
                 )
             }
         }.forEach { searchResult ->
-            return searchResult.included?.get(Encounter.APPOINTMENT.paramName)
-                ?.get(0) as Appointment?
+            searchResult.included?.get(Encounter.APPOINTMENT.paramName)
+                ?.forEach { appointment ->
+                    if ((appointment as Appointment).start > startTime && appointment.start < endTime)
+                        return appointment
+                }
         }
         return null
     }
@@ -397,7 +402,7 @@ object FhirQueries {
     suspend fun getNumberOfSlotsByScheduleId(
         fhirEngine: FhirEngine,
         scheduleId: String
-    ): Int{
+    ): Int {
         return fhirEngine.search<Slot> {
             filter(
                 Slot.SCHEDULE, {
@@ -405,5 +410,60 @@ object FhirQueries {
                 }
             )
         }.size
+    }
+
+    suspend fun createNewAppointment(
+        fhirEngine: FhirEngine,
+        patientId: String,
+        locationId: String,
+        scheduleStartTime: Date,
+        scheduleEndTime: Date,
+        slotStartTime: Date,
+        slotEndTime: Date,
+        appointmentStatus : AppointmentStatus,
+        typeOfAppointment: String
+    ) {
+        var scheduleId = UUIDBuilder.generateUUID()
+        val scheduleResource = getScheduleByTime(
+            fhirEngine,
+            scheduleStartTime,
+            scheduleEndTime
+        )
+        if (scheduleResource != null) {
+            scheduleId = scheduleResource.logicalId
+        } else {
+            // create a schedule
+            createScheduleResource(
+                fhirEngine,
+                scheduleId,
+                locationId,
+                scheduleStartTime,
+                scheduleEndTime
+            )
+        }
+        val slotId = UUIDBuilder.generateUUID()
+        val appointmentId = UUIDBuilder.generateUUID()
+        fhirEngine.create(
+            createSlotResource(
+                slotId = slotId,
+                scheduleId = scheduleId,
+                startTime = slotStartTime,
+                endTime = slotEndTime
+            ),
+            createAppointmentResource(
+                patientId = patientId,
+                locationId = locationId,
+                appointmentId = appointmentId,
+                appointmentStatus = appointmentStatus,
+                typeOfAppointment = typeOfAppointment,
+                startTime = slotStartTime,
+                slotId = slotId
+            ),
+            createEncounterResource(
+                patientId = patientId,
+                encounterId = UUIDBuilder.generateUUID(),
+                appointmentId = appointmentId
+            )
+        )
     }
 }

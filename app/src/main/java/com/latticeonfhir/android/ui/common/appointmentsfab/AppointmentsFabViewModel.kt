@@ -9,7 +9,6 @@ import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusFhir
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to30MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to5MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentTime
@@ -17,12 +16,8 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotStartTime
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createAppointmentResource
-import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createEncounterResource
-import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createScheduleResource
-import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createSlotResource
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getAppointmentToday
-import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getScheduleByTime
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getTodayScheduledAppointmentOfPatient
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getTotalNumberOfAppointmentsToday
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,63 +58,28 @@ class AppointmentsFabViewModel @Inject constructor(
 
     internal fun addPatientToQueue(patient: Patient, addedToQueue: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            var scheduleId = UUIDBuilder.generateUUID()
-            val scheduleStartTime = Date(
-                Date().toSlotStartTime().toCurrentTimeInMillis(
-                    Date()
-                )
-            )
-            val scheduleEndTime = Date(
-                Date().toSlotStartTime().to30MinutesAfter(
-                    Date()
-                )
-            )
-            val slotStartTime = Date(Date().toAppointmentTime().toCurrentTimeInMillis(Date()))
-            val slotEndTime = Date(
-                Date().toAppointmentTime().to5MinutesAfter(
-                    Date()
-                )
-            )
-            val scheduleResource = getScheduleByTime(
-                fhirEngine,
-                scheduleStartTime,
-                scheduleEndTime
-            )
-            if (scheduleResource != null){
-                scheduleId = scheduleResource.logicalId
-            } else {
-                // create a schedule
-                createScheduleResource(
-                    fhirEngine,
-                    scheduleId,
-                    preferenceRepository.getLocationFhirId(),
-                    scheduleStartTime,
-                    scheduleEndTime
-                )
-            }
-            val slotId = UUIDBuilder.generateUUID()
-            val appointmentId = UUIDBuilder.generateUUID()
-            fhirEngine.create(
-                createSlotResource(
-                    slotId = slotId,
-                    scheduleId = scheduleId,
-                    startTime = slotStartTime,
-                    endTime = slotEndTime
+            FhirQueries.createNewAppointment(
+                fhirEngine = fhirEngine,
+                patientId = patient.logicalId,
+                locationId = preferenceRepository.getLocationFhirId(),
+                scheduleStartTime = Date(
+                    Date().toSlotStartTime().toCurrentTimeInMillis(
+                        Date()
+                    )
                 ),
-                createAppointmentResource(
-                    patientId = patient.logicalId,
-                    locationId = preferenceRepository.getLocationFhirId(),
-                    appointmentId = appointmentId,
-                    appointmentStatus = Appointment.AppointmentStatus.ARRIVED,
-                    typeOfAppointment = AppointmentStatusFhir.WALK_IN.type,
-                    startTime = slotStartTime,
-                    slotId = slotId
+                scheduleEndTime = Date(
+                    Date().toSlotStartTime().to30MinutesAfter(
+                        Date()
+                    )
                 ),
-                createEncounterResource(
-                    patientId = patient.logicalId,
-                    encounterId = UUIDBuilder.generateUUID(),
-                    appointmentId = appointmentId
-                )
+                slotStartTime = Date(Date().toAppointmentTime().toCurrentTimeInMillis(Date())),
+                slotEndTime = Date(
+                    Date().toAppointmentTime().to5MinutesAfter(
+                        Date()
+                    )
+                ),
+                appointmentStatus = Appointment.AppointmentStatus.ARRIVED,
+                typeOfAppointment = AppointmentStatusFhir.WALK_IN.type
             )
             addedToQueue()
         }
