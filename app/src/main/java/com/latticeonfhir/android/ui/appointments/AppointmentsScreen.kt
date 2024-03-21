@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,14 +36,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import org.hl7.fhir.r4.model.Patient
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -80,16 +79,14 @@ fun AppointmentsScreen(
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.patient =
-                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
-                )
+                navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
+                    PATIENT
+                )!!
+            viewModel.isLaunched = true
         }
-        viewModel.isLaunched = true
     }
     LaunchedEffect(true) {
-        viewModel.patient?.id?.let { patientId ->
-            viewModel.getAppointmentsList(patientId)
-        }
+        viewModel.getAppointmentsList()
         if (viewModel.rescheduled) {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
@@ -111,91 +108,90 @@ fun AppointmentsScreen(
             )
         }
     }
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            TopAppBar(
-                modifier = Modifier.fillMaxWidth(),
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
-                ),
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.appointments),
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.testTag("HEADING_TAG")
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+    if (viewModel.isLaunched) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                TopAppBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                    ),
+                    title = {
+                        Text(
+                            text = stringResource(id = R.string.appointments),
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.testTag("HEADING_TAG")
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
+                        }
                     }
-                }
-            )
-        },
-        content = {
-            Box(modifier = Modifier.padding(it)) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    TabRowComposable(
-                        viewModel.tabs,
-                        pagerState
-                    ) { index ->
-                        if (index == 1 && viewModel.completedAppointmentsList.isEmpty()) {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar(
-                                    context.getString(R.string.no_completed_appointments)
+                )
+            },
+            content = {
+                Box(modifier = Modifier.padding(it)) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        TabRowComposable(
+                            viewModel.tabs,
+                            pagerState
+                        ) { index ->
+                            if (index == 1 && viewModel.completedAppointmentsList.isEmpty()) {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        context.getString(R.string.no_completed_appointments)
+                                    )
+                                }
+                            } else coroutineScope.launch {
+                                pagerState.animateScrollToPage(
+                                    index
                                 )
                             }
-                        } else coroutineScope.launch {
-                            pagerState.animateScrollToPage(
-                                index
-                            )
                         }
-                    }
-                    HorizontalPager(
-                        state = pagerState
-                    ) { index ->
-                        when (index) {
-                            0 -> UpcomingAppointments(navController, viewModel)
-                            1 -> CompletedAppointments(viewModel)
-                        }
-                    }
-                }
-                if (viewModel.showAllSlotsBookedDialog) {
-                    AllSlotsBookedDialog {
-                        viewModel.showAllSlotsBookedDialog = false
-                    }
-                }
-                if (viewModel.showCancelAppointmentDialog) {
-                    viewModel.patient?.let { patient ->
-                        CancelAppointmentDialog(
-                            patient = patient,
-                            dateAndTime = viewModel.selectedAppointment!!.slot.start.toAppointmentDate()
-                        ) { cancel ->
-                            if (cancel) {
-                                viewModel.cancelAppointment {
-                                    Timber.d("manseeyy appointment cancelled")
-                                    viewModel.getAppointmentsList(viewModel.patient!!.id)
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            message = context.getString(R.string.appointment_cancelled)
-                                        )
-                                    }
-                                }
+                        HorizontalPager(
+                            state = pagerState
+                        ) { index ->
+                            when (index) {
+                                0 -> UpcomingAppointments(navController, viewModel)
+                                1 -> CompletedAppointments(viewModel)
                             }
-                            viewModel.showCancelAppointmentDialog = false
                         }
                     }
+                    if (viewModel.showAllSlotsBookedDialog) {
+                        AllSlotsBookedDialog {
+                            viewModel.showAllSlotsBookedDialog = false
+                        }
+                    }
+                    // TODO: after queue screen
+//                    if (viewModel.showCancelAppointmentDialog) {
+//                        CancelAppointmentDialog(
+//                            patient = viewModel.patient,
+//                            dateAndTime = viewModel.selectedAppointment!!.start.toAppointmentDate()
+//                        ) { cancel ->
+//                            if (cancel) {
+//                                viewModel.cancelAppointment {
+//                                    Timber.d("manseeyy appointment cancelled")
+//                                    viewModel.getAppointmentsList(viewModel.patient.logicalId)
+//                                    coroutineScope.launch {
+//                                        snackbarHostState.showSnackbar(
+//                                            message = context.getString(R.string.appointment_cancelled)
+//                                        )
+//                                    }
+//                                }
+//                            }
+//                            viewModel.showCancelAppointmentDialog = false
+//                        }
+//                    }
                 }
-            }
-        },
-        floatingActionButton = {
-            if (pagerState.currentPage == 0) {
-                viewModel.patient?.let { patient ->
+            },
+            floatingActionButton = {
+                if (pagerState.currentPage == 0) {
                     AppointmentsFab(
                         navController,
-                        patient,
+                        viewModel.patient,
                         viewModel.isFabSelected
                     ) { showDialog ->
                         if (showDialog) {
@@ -204,6 +200,6 @@ fun AppointmentsScreen(
                     }
                 }
             }
-        }
-    )
+        )
+    }
 }

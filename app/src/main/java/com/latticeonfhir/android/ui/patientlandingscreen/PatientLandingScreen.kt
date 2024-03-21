@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import org.hl7.fhir.r4.model.Patient
@@ -56,10 +57,10 @@ fun PatientLandingScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
                     PATIENT
                 )!!
+            viewModel.isLaunched = true
         }
         viewModel.patient = viewModel.getPatientData()
         viewModel.getScheduledAppointmentsCount()
-        viewModel.isLaunched = true
     }
     BackHandler(enabled = true) {
         if (viewModel.isFabSelected) viewModel.isFabSelected = false
@@ -157,18 +158,15 @@ fun PatientLandingScreen(
                 }
             },
             floatingActionButton = {
-                // TODO: to be implemented after appointment screen binding
-//            viewModel.patient?.let { patient ->
-//                AppointmentsFab(
-//                    navController,
-//                    patient,
-//                    viewModel.isFabSelected
-//                ) { showDialog ->
-//                    if (showDialog) {
-//                        viewModel.showAllSlotsBookedDialog = true
-//                    } else viewModel.isFabSelected = !viewModel.isFabSelected
-//                }
-//            }
+                AppointmentsFab(
+                    navController,
+                    viewModel.patient,
+                    viewModel.isFabSelected
+                ) { showDialog ->
+                    if (showDialog) {
+                        viewModel.showAllSlotsBookedDialog = true
+                    } else viewModel.isFabSelected = !viewModel.isFabSelected
+                }
             }
         )
     }
