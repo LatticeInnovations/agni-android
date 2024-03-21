@@ -4,32 +4,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getCompletedAppointments
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getScheduledAppointments
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Date
+import org.hl7.fhir.r4.model.Appointment
+import org.hl7.fhir.r4.model.Encounter
+import org.hl7.fhir.r4.model.Patient
 import javax.inject.Inject
 
 @HiltViewModel
 class AppointmentsScreenViewModel @Inject constructor(
-    private val appointmentRepository: AppointmentRepository,
-    private val genericRepository: GenericRepository,
-    private val scheduleRepository: ScheduleRepository
+    private val fhirEngine: FhirEngine
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
-    var patient by mutableStateOf<PatientResponse?>(null)
+    var patient by mutableStateOf(Patient())
+    private var appointmentsIds = mutableSetOf<String>()
 
     val tabs = listOf("Upcoming", "Completed")
 
@@ -39,82 +34,98 @@ class AppointmentsScreenViewModel @Inject constructor(
     var scheduled by mutableStateOf(false)
 
     var showCancelAppointmentDialog by mutableStateOf(false)
-    var selectedAppointment by mutableStateOf<AppointmentResponseLocal?>(null)
+    var selectedAppointment by mutableStateOf<Appointment?>(null)
     var upcomingAppointmentsList by mutableStateOf(
-        listOf<AppointmentResponseLocal>()
+        listOf<Appointment>()
     )
 
-    var completedAppointmentsList by mutableStateOf(listOf<AppointmentResponseLocal>())
+    var completedAppointmentsList by mutableStateOf(listOf<Appointment>())
 
-    internal fun getAppointmentsList(patientId: String) {
+    internal fun getAppointmentsList() {
         viewModelScope.launch(Dispatchers.IO) {
-            upcomingAppointmentsList = appointmentRepository.getAppointmentsOfPatientByStatus(
-                patientId,
-                AppointmentStatusEnum.SCHEDULED.value
-            ).filter { appointmentResponseLocal ->
-                appointmentResponseLocal.slot.start.time > Date().toTodayStartDate()
-            }
-            completedAppointmentsList = appointmentRepository.getAppointmentsOfPatientByStatus(
-                patientId,
-                AppointmentStatusEnum.COMPLETED.value
-            )
-        }
-    }
-
-    internal fun cancelAppointment(cancelled: (Int) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            cancelled(
-                appointmentRepository.updateAppointment(
-                    selectedAppointment!!.copy(
-                        status = AppointmentStatusEnum.CANCELLED.value
-                    )
-                ).also {
-                    // update previous schedule
-                    scheduleRepository.getScheduleByStartTime(selectedAppointment?.scheduleId?.time!!)
-                        .let { scheduleResponse ->
-                            scheduleResponse?.let { previousScheduleResponse ->
-                                scheduleRepository.updateSchedule(
-                                    previousScheduleResponse.copy(
-                                        bookedSlots = scheduleResponse.bookedSlots?.minus(1)
-                                    )
-                                )
-                            }
-                        }
-                    if (selectedAppointment?.appointmentId.isNullOrBlank()) {
-                        // if fhir id is null, insert post request
-                        genericRepository.insertAppointment(
-                            AppointmentResponse(
-                                appointmentId = null,
-                                uuid = selectedAppointment!!.uuid,
-                                patientFhirId = patient?.fhirId ?: patient?.id,
-                                scheduleId = (scheduleRepository.getScheduleByStartTime(
-                                    selectedAppointment!!.scheduleId.time
-                                )?.scheduleId ?: scheduleRepository.getScheduleByStartTime(
-                                    selectedAppointment!!.scheduleId.time
-                                )?.uuid)!!,
-                                slot = selectedAppointment!!.slot,
-                                orgId = selectedAppointment!!.orgId,
-                                createdOn = selectedAppointment!!.createdOn,
-                                status = AppointmentStatusEnum.CANCELLED.value
-                            )
-                        )
-                    } else {
-                        // insert patch request
-                        genericRepository.insertOrUpdateAppointmentPatch(
-                            appointmentFhirId = selectedAppointment?.appointmentId!!,
-                            map = mapOf(
-                                Pair(
-                                    "status",
-                                    ChangeRequest(
-                                        value = AppointmentStatusEnum.CANCELLED.value,
-                                        operation = ChangeTypeEnum.REPLACE.value
-                                    )
-                                )
-                            )
-                        )
+            appointmentsIds.clear()
+            upcomingAppointmentsList = listOf()
+            completedAppointmentsList = listOf()
+            getScheduledAppointments(fhirEngine, patient.logicalId).forEach { result ->
+                result.included?.get(Encounter.APPOINTMENT.paramName)?.forEach { appointment ->
+                    upcomingAppointmentsList.forEach {
+                        appointmentsIds.add(it.logicalId)
                     }
+                    if (!appointmentsIds.contains(appointment.logicalId)) upcomingAppointmentsList = upcomingAppointmentsList + listOf(appointment as Appointment)
                 }
-            )
+            }
+            getCompletedAppointments(fhirEngine, patient.logicalId).forEach { result ->
+                result.included?.get(Encounter.APPOINTMENT.paramName)?.forEach { appointment ->
+                    completedAppointmentsList.forEach {
+                        appointmentsIds.add(it.logicalId)
+                    }
+                    if (!appointmentsIds.contains(appointment.logicalId)) completedAppointmentsList = completedAppointmentsList + listOf(appointment as Appointment)
+                }
+            }
+            upcomingAppointmentsList = upcomingAppointmentsList.sortedBy {
+                it.start
+            }
+            completedAppointmentsList = completedAppointmentsList.sortedByDescending {
+                it.start
+            }
         }
     }
+
+    // TODO: after queue screen
+//    internal fun cancelAppointment(cancelled: (Int) -> Unit) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            cancelled(
+//                appointmentRepository.updateAppointment(
+//                    selectedAppointment!!.copy(
+//                        status = AppointmentStatusEnum.CANCELLED.value
+//                    )
+//                ).also {
+//                    // update previous schedule
+//                    scheduleRepository.getScheduleByStartTime(selectedAppointment?.scheduleId?.time!!)
+//                        .let { scheduleResponse ->
+//                            scheduleResponse?.let { previousScheduleResponse ->
+//                                scheduleRepository.updateSchedule(
+//                                    previousScheduleResponse.copy(
+//                                        bookedSlots = scheduleResponse.bookedSlots?.minus(1)
+//                                    )
+//                                )
+//                            }
+//                        }
+//                    if (selectedAppointment?.appointmentId.isNullOrBlank()) {
+                        // if fhir id is null, insert post request
+//                        genericRepository.insertAppointment(
+//                            AppointmentResponse(
+//                                appointmentId = null,
+//                                uuid = selectedAppointment!!.uuid,
+//                                patientFhirId = patient?.fhirId ?: patient?.id,
+//                                scheduleId = (scheduleRepository.getScheduleByStartTime(
+//                                    selectedAppointment!!.scheduleId.time
+//                                )?.scheduleId ?: scheduleRepository.getScheduleByStartTime(
+//                                    selectedAppointment!!.scheduleId.time
+//                                )?.uuid)!!,
+//                                slot = selectedAppointment!!.slot,
+//                                orgId = selectedAppointment!!.orgId,
+//                                createdOn = selectedAppointment!!.createdOn,
+//                                status = AppointmentStatusEnum.CANCELLED.value
+//                            )
+//                        )
+//                    } else {
+//                        // insert patch request
+//                        genericRepository.insertOrUpdateAppointmentPatch(
+//                            appointmentFhirId = selectedAppointment?.appointmentId!!,
+//                            map = mapOf(
+//                                Pair(
+//                                    "status",
+//                                    ChangeRequest(
+//                                        value = AppointmentStatusEnum.CANCELLED.value,
+//                                        operation = ChangeTypeEnum.REPLACE.value
+//                                    )
+//                                )
+//                            )
+//                        )
+//                    }
+//                }
+//            )
+//        }
+//    }
 }

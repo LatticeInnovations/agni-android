@@ -13,7 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,12 +26,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.APPOINTMENT_SELECTED
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.IF_RESCHEDULING
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
+import org.hl7.fhir.r4.model.Appointment
 
 @Composable
 fun UpcomingAppointments(navController: NavController, viewModel: AppointmentsScreenViewModel) {
@@ -51,8 +51,8 @@ fun UpcomingAppointments(navController: NavController, viewModel: AppointmentsSc
                 Text(text = stringResource(id = R.string.no_upcoming_appointments))
             }
         } else {
-            viewModel.upcomingAppointmentsList.forEach { appointmentResponseLocal ->
-                UpcomingAppointmentCard(navController, appointmentResponseLocal, viewModel)
+            viewModel.upcomingAppointmentsList.forEach { appointment ->
+                UpcomingAppointmentCard(navController, appointment, viewModel)
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -62,7 +62,7 @@ fun UpcomingAppointments(navController: NavController, viewModel: AppointmentsSc
 @Composable
 fun UpcomingAppointmentCard(
     navController: NavController,
-    appointmentResponseLocal: AppointmentResponseLocal,
+    appointment: Appointment,
     viewModel: AppointmentsScreenViewModel
 ) {
     Card(
@@ -76,7 +76,7 @@ fun UpcomingAppointmentCard(
         modifier = Modifier.testTag("UPCOMING_APPOINTMENT_CARD")
     ) {
         Text(
-            text = appointmentResponseLocal.slot.start.toAppointmentDate(),
+            text = appointment.start.toAppointmentDate(),
             modifier = Modifier
                 .padding(
                     vertical = 32.dp,
@@ -84,7 +84,7 @@ fun UpcomingAppointmentCard(
                 )
                 .testTag("APPOINTMENT_DATE_AND_TIME")
         )
-        Divider(
+        HorizontalDivider(
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant
         )
@@ -98,7 +98,7 @@ fun UpcomingAppointmentCard(
                 TextButton(
                     modifier = Modifier.testTag("APPOINTMENT_CANCEL_BTN"),
                     onClick = {
-                        viewModel.selectedAppointment = appointmentResponseLocal
+                        viewModel.selectedAppointment = appointment
                         viewModel.showCancelAppointmentDialog = true
                     }) {
                     Text(text = stringResource(id = R.string.cancel))
@@ -111,7 +111,7 @@ fun UpcomingAppointmentCard(
                 TextButton(
                     modifier = Modifier.testTag("APPOINTMENT_RESCHEDULE_BTN"),
                     onClick = {
-                        viewModel.selectedAppointment = appointmentResponseLocal
+                        viewModel.selectedAppointment = appointment
                         navController.currentBackStackEntry?.savedStateHandle?.set(
                             PATIENT,
                             viewModel.patient
