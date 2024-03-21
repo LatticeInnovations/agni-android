@@ -16,6 +16,7 @@ import androidx.paging.cachedIn
 import androidx.work.WorkManager
 import androidx.work.await
 import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.sync.CurrentSyncJobStatus
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
@@ -79,7 +80,11 @@ class LandingScreenViewModel @Inject constructor(
 
     init {
 
-        FhirApp.runEnqueuedWorker(application)
+        if (getApplication<FhirApp>().periodicSyncJobStatus.value?.currentSyncJobStatus !is CurrentSyncJobStatus.Running) {
+            viewModelScope.launch(Dispatchers.IO) {
+                FhirApp.runEnqueuedWorker(application)
+            }
+        }
 
         viewModelScope.launch {
             getApplication<FhirApp>().sessionExpireFlow.asFlow().collectLatest { sessionExpireMap ->
