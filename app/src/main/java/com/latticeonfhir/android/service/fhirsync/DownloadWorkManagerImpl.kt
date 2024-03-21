@@ -19,7 +19,7 @@ import org.hl7.fhir.r4.model.ResourceType
 class DownloadWorkManagerImpl(private val sharedPreferences: SharedPreferences) : DownloadWorkManager {
 
     private val resourceTypeList = ResourceType.entries.map { it.name }
-    private val urls = buildSyncUrls("-_lastUpdated",1000)
+    private val urls = buildSyncUrls("-_lastUpdated", 1000, sharedPreferences)
 
     override suspend fun getNextRequest(): DownloadRequest? {
         var url = urls.poll() ?: return null

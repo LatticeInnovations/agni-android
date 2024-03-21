@@ -20,6 +20,11 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         ""
     )
     override var organization by StringPreference(sharedPreferences, PREF_ORGANIZATION, "")
+    override var locationFhirId by StringPreference(
+        sharedPreferences,
+        PREF_LOCATION_FHIR_ID,
+        ""
+    )
     override var roomDBEncryptionKey by StringPreference(
         sharedPreferences,
         PREF_ROOM_ENCRYPTION_KEY,
@@ -81,6 +86,7 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         const val PREF_USER_ROLE = "pref_user_role"
         const val PREF_ORGANIZATION_FHIR_ID = "pref_organization_fhir_id"
         const val PREF_ORGANIZATION = "pref_organization"
+        const val PREF_LOCATION_FHIR_ID = "pref_location_fhir_id"
 
         const val PREF_ROOM_ENCRYPTION_KEY = "pref_room_encryption_key"
 
