@@ -19,6 +19,7 @@ import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.Encounter
+import org.hl7.fhir.r4.model.Encounter.EncounterStatus
 import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Person
@@ -89,7 +90,7 @@ object FhirQueries {
             )
             filter(
                 Encounter.STATUS, {
-                    value = of(Encounter.EncounterStatus.PLANNED.toCode())
+                    value = of(EncounterStatus.PLANNED.toCode())
                 }
             )
             include(ResourceType.Appointment, Encounter.APPOINTMENT) {
@@ -125,7 +126,7 @@ object FhirQueries {
             )
             filter(
                 Encounter.STATUS, {
-                    value = of(Encounter.EncounterStatus.FINISHED.toCode())
+                    value = of(EncounterStatus.FINISHED.toCode())
                 }
             )
             include(ResourceType.Appointment, Encounter.APPOINTMENT) {
@@ -220,7 +221,7 @@ object FhirQueries {
             )
             filter(
                 Encounter.STATUS, {
-                    value = of(Encounter.EncounterStatus.PLANNED.toCode())
+                    value = of(EncounterStatus.PLANNED.toCode())
                 }
             )
             include(ResourceType.Appointment, Encounter.APPOINTMENT) {
@@ -315,7 +316,7 @@ object FhirQueries {
         )
     }
 
-    fun createSlotResource(
+    private fun createSlotResource(
         slotId: String,
         scheduleId: String,
         startTime: Date,
@@ -391,7 +392,7 @@ object FhirQueries {
                     value = encounterId
                 }
             )
-            status = Encounter.EncounterStatus.PLANNED
+            status = EncounterStatus.PLANNED
             subject.reference = "${ResourceType.Patient.name}/$patientId"
             appointment.add(
                 Reference("${ResourceType.Appointment.name}/$appointmentId")
@@ -502,6 +503,36 @@ object FhirQueries {
         }.filter { searchResult ->
             !(searchResult.included?.get(Encounter.SUBJECT.paramName).isNullOrEmpty() ||
                     searchResult.included?.get(Encounter.APPOINTMENT.paramName).isNullOrEmpty())
+        }
+    }
+
+    suspend fun getAppointments(
+        fhirEngine: FhirEngine,
+        date: Date,
+        encounterStatus: EncounterStatus,
+        appointmentStatus: AppointmentStatus
+    ): List<SearchResult<Encounter>> {
+        return fhirEngine.search<Encounter> {
+            filter(
+                Encounter.STATUS, {
+                    value = of(encounterStatus.toCode())
+                }
+            )
+            include(ResourceType.Appointment, Encounter.APPOINTMENT) {
+                filter(
+                    Appointment.STATUS, {
+                        value = of(appointmentStatus.toCode())
+                    }
+                )
+                filter(
+                    Appointment.DATE, {
+                        prefix = ParamPrefixEnum.LESSTHAN_OR_EQUALS
+                        value = of(DateTimeType(date))
+                    }
+                )
+            }
+        }.filter { searchResult ->
+            !searchResult.included?.get(Encounter.APPOINTMENT.paramName).isNullOrEmpty()
         }
     }
 }
