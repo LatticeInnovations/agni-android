@@ -19,7 +19,6 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.tomorrow
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createNewAppointment
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createScheduleResource
-import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createSlotResource
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getNumberOfAppointmentsByScheduleId
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getScheduleByTime
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getTodayScheduledAppointmentOfPatient
@@ -28,8 +27,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Appointment
 import org.hl7.fhir.r4.model.Patient
-import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.ResourceType
+import org.hl7.fhir.r4.model.Slot
 import java.util.Date
 import javax.inject.Inject
 
@@ -173,21 +172,14 @@ class ScheduleAppointmentViewModel @Inject constructor(
                     scheduleEndTime
                 )
             }
-            val slotId = UUIDBuilder.generateUUID()
-            fhirEngine.create(
-                createSlotResource(
-                    slotId = slotId,
-                    scheduleId = scheduleId,
-                    startTime = startTime,
-                    endTime = slotEndTime
-                )
-            )
+            val appointmentSlot = fhirEngine.get(ResourceType.Slot, appointment!!.slotFirstRep.reference.substringAfter("/")) as Slot
             fhirEngine.update(
+                appointmentSlot.apply {
+                    schedule.reference = "${ResourceType.Schedule.name}/$scheduleId"
+                    start = startTime
+                    end = slotEndTime
+                },
                 appointment!!.apply {
-                    slot.clear()
-                    slot.add(
-                        Reference("${ResourceType.Slot.name}/$slotId")
-                    )
                     start = startTime
                 }
             )
