@@ -432,7 +432,7 @@ object FhirQueries {
         scheduleEndTime: Date,
         slotStartTime: Date,
         slotEndTime: Date,
-        appointmentStatus : AppointmentStatus,
+        appointmentStatus: AppointmentStatus,
         typeOfAppointment: String
     ) {
         var scheduleId = UUIDBuilder.generateUUID()
@@ -477,5 +477,31 @@ object FhirQueries {
                 appointmentId = appointmentId
             )
         )
+    }
+
+    suspend fun getAllAppointmentByDate(
+        fhirEngine: FhirEngine,
+        date: Date
+    ): List<SearchResult<Encounter>> {
+        return fhirEngine.search<Encounter> {
+            include(ResourceType.Patient, Encounter.SUBJECT)
+            include(ResourceType.Appointment, Encounter.APPOINTMENT) {
+                filter(
+                    Appointment.DATE, {
+                        prefix = ParamPrefixEnum.LESSTHAN_OR_EQUALS
+                        value = of(DateTimeType(Date(date.toEndOfDay())))
+                    }
+                )
+                filter(
+                    Appointment.DATE, {
+                        prefix = ParamPrefixEnum.GREATERTHAN_OR_EQUALS
+                        value = of(DateTimeType(Date(date.toTodayStartDate())))
+                    }
+                )
+            }
+        }.filter { searchResult ->
+            !(searchResult.included?.get(Encounter.SUBJECT.paramName).isNullOrEmpty() ||
+                    searchResult.included?.get(Encounter.APPOINTMENT.paramName).isNullOrEmpty())
+        }
     }
 }

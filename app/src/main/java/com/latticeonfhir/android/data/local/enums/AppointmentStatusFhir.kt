@@ -24,4 +24,10 @@ enum class  AppointmentStatusFhir(
     SCHEDULED_COMPLETED_CANCELLED("cancelled", "cancelled", "routine", "finished"),
     WALK_IN_COMPLETED_NO_SHOW("noshow", "noshow", "walkin", "finished"),
     SCHEDULED_COMPLETED_NO_SHOW("noshow", "noshow", "routine", "finished");
+
+    companion object {
+        fun getUiStatus(fhirStatus: String, type: String, encounter: String): String = entries.first {
+            it.fhirStatus == fhirStatus && it.type == type && it.encounter == encounter
+        }.uiStatus
+    }
 }
