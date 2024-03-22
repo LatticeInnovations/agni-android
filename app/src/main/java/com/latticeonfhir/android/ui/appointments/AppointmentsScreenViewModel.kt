@@ -22,6 +22,7 @@ class AppointmentsScreenViewModel @Inject constructor(
     private val fhirEngine: FhirEngine
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
+    var isCancelling by mutableStateOf(false)
 
     var patient by mutableStateOf(Patient())
     private var appointmentsIds = mutableSetOf<String>()
@@ -71,61 +72,14 @@ class AppointmentsScreenViewModel @Inject constructor(
         }
     }
 
-    // TODO: after queue screen
-//    internal fun cancelAppointment(cancelled: (Int) -> Unit) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            cancelled(
-//                appointmentRepository.updateAppointment(
-//                    selectedAppointment!!.copy(
-//                        status = AppointmentStatusEnum.CANCELLED.value
-//                    )
-//                ).also {
-//                    // update previous schedule
-//                    scheduleRepository.getScheduleByStartTime(selectedAppointment?.scheduleId?.time!!)
-//                        .let { scheduleResponse ->
-//                            scheduleResponse?.let { previousScheduleResponse ->
-//                                scheduleRepository.updateSchedule(
-//                                    previousScheduleResponse.copy(
-//                                        bookedSlots = scheduleResponse.bookedSlots?.minus(1)
-//                                    )
-//                                )
-//                            }
-//                        }
-//                    if (selectedAppointment?.appointmentId.isNullOrBlank()) {
-                        // if fhir id is null, insert post request
-//                        genericRepository.insertAppointment(
-//                            AppointmentResponse(
-//                                appointmentId = null,
-//                                uuid = selectedAppointment!!.uuid,
-//                                patientFhirId = patient?.fhirId ?: patient?.id,
-//                                scheduleId = (scheduleRepository.getScheduleByStartTime(
-//                                    selectedAppointment!!.scheduleId.time
-//                                )?.scheduleId ?: scheduleRepository.getScheduleByStartTime(
-//                                    selectedAppointment!!.scheduleId.time
-//                                )?.uuid)!!,
-//                                slot = selectedAppointment!!.slot,
-//                                orgId = selectedAppointment!!.orgId,
-//                                createdOn = selectedAppointment!!.createdOn,
-//                                status = AppointmentStatusEnum.CANCELLED.value
-//                            )
-//                        )
-//                    } else {
-//                        // insert patch request
-//                        genericRepository.insertOrUpdateAppointmentPatch(
-//                            appointmentFhirId = selectedAppointment?.appointmentId!!,
-//                            map = mapOf(
-//                                Pair(
-//                                    "status",
-//                                    ChangeRequest(
-//                                        value = AppointmentStatusEnum.CANCELLED.value,
-//                                        operation = ChangeTypeEnum.REPLACE.value
-//                                    )
-//                                )
-//                            )
-//                        )
-//                    }
-//                }
-//            )
-//        }
-//    }
+    internal fun cancelAppointment(cancelled: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            fhirEngine.update(
+                selectedAppointment!!.apply {
+                    status = Appointment.AppointmentStatus.CANCELLED
+                }
+            )
+            cancelled()
+        }
+    }
 }
