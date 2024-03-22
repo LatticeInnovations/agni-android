@@ -36,11 +36,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.ui.common.ScreenLoader
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Patient
 
@@ -127,7 +129,10 @@ fun AppointmentsScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "BACK_ICON"
+                            )
                         }
                     }
                 )
@@ -165,26 +170,26 @@ fun AppointmentsScreen(
                             viewModel.showAllSlotsBookedDialog = false
                         }
                     }
-                    // TODO: after queue screen
-//                    if (viewModel.showCancelAppointmentDialog) {
-//                        CancelAppointmentDialog(
-//                            patient = viewModel.patient,
-//                            dateAndTime = viewModel.selectedAppointment!!.start.toAppointmentDate()
-//                        ) { cancel ->
-//                            if (cancel) {
-//                                viewModel.cancelAppointment {
-//                                    Timber.d("manseeyy appointment cancelled")
-//                                    viewModel.getAppointmentsList(viewModel.patient.logicalId)
-//                                    coroutineScope.launch {
-//                                        snackbarHostState.showSnackbar(
-//                                            message = context.getString(R.string.appointment_cancelled)
-//                                        )
-//                                    }
-//                                }
-//                            }
-//                            viewModel.showCancelAppointmentDialog = false
-//                        }
-//                    }
+                    if (viewModel.showCancelAppointmentDialog) {
+                        CancelAppointmentDialog(
+                            patient = viewModel.patient,
+                            dateAndTime = viewModel.selectedAppointment!!.start.toAppointmentDate()
+                        ) { cancel ->
+                            if (cancel) {
+                                viewModel.isCancelling = true
+                                viewModel.cancelAppointment {
+                                    viewModel.getAppointmentsList()
+                                    viewModel.isCancelling = false
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = context.getString(R.string.appointment_cancelled)
+                                        )
+                                    }
+                                }
+                            }
+                            viewModel.showCancelAppointmentDialog = false
+                        }
+                    }
                 }
             },
             floatingActionButton = {
@@ -201,5 +206,8 @@ fun AppointmentsScreen(
                 }
             }
         )
+    }
+    if (viewModel.isCancelling) {
+        ScreenLoader(stringResource(id = R.string.please_wait))
     }
 }
