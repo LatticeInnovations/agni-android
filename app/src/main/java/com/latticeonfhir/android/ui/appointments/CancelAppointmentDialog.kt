@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -13,21 +13,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter.getFullName
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import org.hl7.fhir.r4.model.Patient
 
 @Composable
 fun CancelAppointmentDialog(
-    patient: PatientResponse,
+    patient: Patient,
     dateAndTime: String,
     closeDialog: (Boolean) -> Unit
 ) {
-    val subtitle = "${patient.gender[0].uppercase()}/${
-        patient.birthDate.toTimeInMilli().toAge()
-    }, PID: ${patient.fhirId}"
+    val subtitle = "${patient.gender.display[0].uppercase()}/${
+        patient.birthDate.time.toAge()
+    }, PID: ${patient.logicalId}"
     AlertDialog(
         onDismissRequest = { },
         title = {
@@ -40,11 +39,7 @@ fun CancelAppointmentDialog(
         text = {
             Column {
                 Text(
-                    text = getFullName(
-                        patient.firstName,
-                        patient.middleName,
-                        patient.lastName
-                    ),
+                    text = patient.nameFirstRep.nameAsSingleString,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -59,7 +54,7 @@ fun CancelAppointmentDialog(
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Divider(
+                HorizontalDivider(
                     thickness = 1.dp,
                     color = MaterialTheme.colorScheme.outlineVariant
                 )

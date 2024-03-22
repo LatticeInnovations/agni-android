@@ -2,220 +2,143 @@ package com.latticeonfhir.android.ui.landingscreen
 
 import android.app.Application
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import androidx.work.WorkInfo
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.sync.CurrentSyncJobStatus
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
-import com.latticeonfhir.android.service.workmanager.utils.Sync.getWorkerInfo
-import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
+import com.latticeonfhir.android.data.local.model.appointment.QueueData
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getAllAppointmentByDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import org.hl7.fhir.r4.model.Appointment
+import org.hl7.fhir.r4.model.Encounter
+import org.hl7.fhir.r4.model.Patient
 import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class QueueViewModel @Inject constructor(
     application: Application,
-    private val patientRepository: PatientRepository,
-    private val appointmentRepository: AppointmentRepository,
-    private val scheduleRepository: ScheduleRepository,
-    private val genericRepository: GenericRepository
+    private val fhirEngine: FhirEngine
 ) : BaseAndroidViewModel(application) {
 
     // queue screen
     var isLaunched by mutableStateOf(false)
+    var isLoading by mutableStateOf(true)
     var selectedDate by mutableStateOf(Date())
     var weekList by mutableStateOf(selectedDate.to14DaysWeek())
     var showDatePicker by mutableStateOf(false)
-    var appointmentsList by mutableStateOf(listOf<AppointmentResponseLocal>())
+    var appointmentsList by mutableStateOf(listOf<QueueData>())
     var showCancelAppointmentDialog by mutableStateOf(false)
     var statusList by mutableStateOf(listOf<String>())
     var isSearchingInQueue by mutableStateOf(false)
     var searchQueueQuery by mutableStateOf("")
-    var waitingQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
-    var inProgressQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
-    var scheduledQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
-    var completedQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
-    var cancelledQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
-    var noShowQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
-    var patientSelected by mutableStateOf<PatientResponse?>(null)
-    var appointmentSelected by mutableStateOf<AppointmentResponseLocal?>(null)
-    var selectedChip by mutableStateOf(R.string.total_appointment)
+    var waitingQueueList by mutableStateOf(listOf<QueueData>())
+    var inProgressQueueList by mutableStateOf(listOf<QueueData>())
+    var scheduledQueueList by mutableStateOf(listOf<QueueData>())
+    var completedQueueList by mutableStateOf(listOf<QueueData>())
+    var cancelledQueueList by mutableStateOf(listOf<QueueData>())
+    var noShowQueueList by mutableStateOf(listOf<QueueData>())
+    var queueDataSelected by mutableStateOf<QueueData?>(null)
+    var selectedChip by mutableIntStateOf(R.string.total_appointment)
     var rescheduled by mutableStateOf(false)
 
-    private val syncService by lazy { getApplication<FhirApp>().syncService }
-
-    internal suspend fun syncData(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
-        getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext).collectLatest { workInfo ->
-            if (workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
-                withContext(ioDispatcher) {
-                    syncService.syncLauncher { errorReceived, errorMessage ->
-                        getApplication<FhirApp>().sessionExpireFlow.postValue(
-                            mapOf(
-                                Pair("errorReceived", errorReceived),
-                                Pair("errorMsg", errorMessage)
-                            )
-                        )
-                    }
-                    getAppointmentListByDate(ioDispatcher)
-                }
+    internal fun syncData(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
+            if (getApplication<FhirApp>().periodicSyncJobStatus.value?.currentSyncJobStatus !is CurrentSyncJobStatus.Running) {
+                FhirApp.runEnqueuedWorker(getApplication<FhirApp>().applicationContext)
+                getAppointmentListByDate()
             }
         }
     }
 
     internal fun getAppointmentListByDate(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
         viewModelScope.launch(ioDispatcher) {
-            appointmentsList = appointmentRepository.getAppointmentListByDate(
-                selectedDate.toTodayStartDate(),
-                selectedDate.toEndOfDay()
-            ).filter { appointmentResponseLocal ->
-                val patient = getPatientById(appointmentResponseLocal.patientId)
-                patient.firstName.contains(searchQueueQuery, true)
-                        || patient.middleName?.contains(searchQueueQuery, true) == true
-                        || patient.lastName?.contains(searchQueueQuery, true) == true
-                        || patient.fhirId?.contains(searchQueueQuery, true) == true
+            appointmentsList = getAllAppointmentByDate(
+                fhirEngine,
+                selectedDate
+            ).map { result ->
+                QueueData(
+                    encounter = result.resource,
+                    patient = result.included?.get(Encounter.SUBJECT.paramName)?.get(0) as Patient,
+                    appointment = result.included?.get(Encounter.APPOINTMENT.paramName)?.get(0) as Appointment
+                )
+            }.filter {
+                it.patient.nameFirstRep.nameAsSingleString.contains(searchQueueQuery, ignoreCase = true)
+            }.sortedBy {
+                it.appointment.start
             }
-            waitingQueueList = appointmentsList.filter { appointmentResponseLocal ->
-                (appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
+            waitingQueueList = appointmentsList.filter { queueData ->
+                (queueData.encounter.status == Encounter.EncounterStatus.PLANNED
+                        && queueData.appointment.status == Appointment.AppointmentStatus.ARRIVED)
             }
-            inProgressQueueList = appointmentsList.filter { appointmentResponseLocal ->
-                appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value
+            inProgressQueueList = appointmentsList.filter { queueData ->
+                (queueData.encounter.status == Encounter.EncounterStatus.INPROGRESS
+                        && queueData.appointment.status == Appointment.AppointmentStatus.ARRIVED)
             }
-            scheduledQueueList = appointmentsList.filter { appointmentResponseLocal ->
-                appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
+            scheduledQueueList = appointmentsList.filter { queueData ->
+                (queueData.encounter.status == Encounter.EncounterStatus.PLANNED
+                        && queueData.appointment.status == Appointment.AppointmentStatus.PROPOSED)
             }
-            completedQueueList = appointmentsList.filter { appointmentResponseLocal ->
-                appointmentResponseLocal.status == AppointmentStatusEnum.COMPLETED.value
+            completedQueueList = appointmentsList.filter { queueData ->
+                (queueData.encounter.status == Encounter.EncounterStatus.FINISHED
+                        && queueData.appointment.status == Appointment.AppointmentStatus.ARRIVED)
             }
-            cancelledQueueList = appointmentsList.filter { appointmentResponseLocal ->
-                appointmentResponseLocal.status == AppointmentStatusEnum.CANCELLED.value
+            cancelledQueueList = appointmentsList.filter { queueData ->
+                (queueData.encounter.status == Encounter.EncounterStatus.PLANNED
+                        || queueData.encounter.status == Encounter.EncounterStatus.INPROGRESS
+                        || queueData.encounter.status == Encounter.EncounterStatus.FINISHED)
+                        && queueData.appointment.status == Appointment.AppointmentStatus.CANCELLED
             }
-            noShowQueueList = appointmentsList.filter { appointmentResponseLocal ->
-                appointmentResponseLocal.status == AppointmentStatusEnum.NO_SHOW.value
+            noShowQueueList = appointmentsList.filter { queueData ->
+                (queueData.encounter.status == Encounter.EncounterStatus.PLANNED
+                        || queueData.encounter.status == Encounter.EncounterStatus.INPROGRESS
+                        || queueData.encounter.status == Encounter.EncounterStatus.FINISHED)
+                        && queueData.appointment.status == Appointment.AppointmentStatus.NOSHOW
             }
+            isLoading = false
         }
     }
 
-    internal suspend fun getPatientById(patientId: String): PatientResponse {
-        return patientRepository.getPatientById(patientId)[0]
+    internal fun cancelAppointment(cancelled: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            fhirEngine.update(
+                queueDataSelected!!.appointment.apply {
+                    status = Appointment.AppointmentStatus.CANCELLED
+                }
+            )
+            cancelled()
+        }
     }
 
-    internal fun cancelAppointment(cancelled: (Int) -> Unit) {
+    internal fun updateAppointmentStatus(updatedStatus: String, updated: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            cancelled(
-                appointmentRepository.updateAppointment(
-                    appointmentSelected!!.copy(
-                        status = AppointmentStatusEnum.CANCELLED.value
-                    )
-                ).also {
-                    scheduleRepository.getScheduleByStartTime(appointmentSelected?.scheduleId?.time!!)
-                        .let { scheduleResponse ->
-                            scheduleResponse?.let { previousScheduleResponse ->
-                                scheduleRepository.updateSchedule(
-                                    previousScheduleResponse.copy(
-                                        bookedSlots = scheduleResponse.bookedSlots?.minus(1)
-                                    )
-                                )
-                            }
+            when(updatedStatus) {
+                AppointmentStatusEnum.ARRIVED.value -> {
+                    fhirEngine.update(
+                        queueDataSelected!!.appointment.apply {
+                            status = Appointment.AppointmentStatus.ARRIVED
                         }
-                    if (appointmentSelected?.appointmentId.isNullOrBlank()) {
-                        genericRepository.insertAppointment(
-                            AppointmentResponse(
-                                scheduleId = scheduleRepository.getScheduleByStartTime(
-                                    appointmentSelected!!.scheduleId.time
-                                )?.scheduleId ?: scheduleRepository.getScheduleByStartTime(
-                                    appointmentSelected!!.scheduleId.time
-                                )?.uuid!!,
-                                createdOn = appointmentSelected!!.createdOn,
-                                slot = appointmentSelected!!.slot,
-                                patientFhirId = patientRepository.getPatientById(appointmentSelected!!.patientId)[0].fhirId,
-                                appointmentId = null,
-                                orgId = appointmentSelected!!.orgId,
-                                status = AppointmentStatusEnum.CANCELLED.value,
-                                uuid = appointmentSelected!!.uuid
-                            )
-                        )
-                    } else {
-                        genericRepository.insertOrUpdateAppointmentPatch(
-                            appointmentFhirId = appointmentSelected?.appointmentId!!,
-                            map = mapOf(
-                                Pair(
-                                    "status",
-                                    ChangeRequest(
-                                        value = AppointmentStatusEnum.CANCELLED.value,
-                                        operation = ChangeTypeEnum.REPLACE.value
-                                    )
-                                )
-                            )
-                        )
-                    }
-                }
-            )
-        }
-    }
-
-    internal fun updateAppointmentStatus(status: String, updated: (Int) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            updated(
-                appointmentRepository.updateAppointment(
-                    appointmentSelected!!.copy(
-                        status = status
                     )
-                ).also {
-                    if (appointmentSelected?.appointmentId.isNullOrBlank()) {
-                        genericRepository.insertAppointment(
-                            AppointmentResponse(
-                                scheduleId = scheduleRepository.getScheduleByStartTime(
-                                    appointmentSelected!!.scheduleId.time
-                                )?.scheduleId ?: scheduleRepository.getScheduleByStartTime(
-                                    appointmentSelected!!.scheduleId.time
-                                )?.uuid!!,
-                                createdOn = appointmentSelected!!.createdOn,
-                                slot = appointmentSelected!!.slot,
-                                patientFhirId = patientRepository.getPatientById(appointmentSelected!!.patientId)[0].fhirId,
-                                appointmentId = null,
-                                orgId = appointmentSelected!!.orgId,
-                                status = status,
-                                uuid = appointmentSelected!!.uuid
-                            )
-                        )
-                    } else {
-                        genericRepository.insertOrUpdateAppointmentPatch(
-                            appointmentFhirId = appointmentSelected!!.appointmentId
-                                ?: appointmentSelected!!.uuid,
-                            map = mapOf(
-                                Pair(
-                                    "status",
-                                    ChangeRequest(
-                                        operation = ChangeTypeEnum.REPLACE.value,
-                                        value = status
-                                    )
-                                )
-                            )
-                        )
-                    }
                 }
-            )
+                AppointmentStatusEnum.COMPLETED.value -> {
+                    fhirEngine.update(
+                        queueDataSelected!!.encounter.apply {
+                            status = Encounter.EncounterStatus.FINISHED
+                        }
+                    )
+                }
+            }
+            updated()
         }
     }
 }
