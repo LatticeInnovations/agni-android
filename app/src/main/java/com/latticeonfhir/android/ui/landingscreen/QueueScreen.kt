@@ -44,10 +44,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -57,13 +54,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum.Companion.fromValue
-import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusFhir
+import com.latticeonfhir.android.data.local.model.appointment.QueueData
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.appointments.CancelAppointmentDialog
+import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.common.WeekDaysComposable
 import com.latticeonfhir.android.ui.theme.ArrivedContainer
 import com.latticeonfhir.android.ui.theme.ArrivedLabel
@@ -80,7 +79,6 @@ import com.latticeonfhir.android.ui.theme.TodayScheduledLabel
 import com.latticeonfhir.android.ui.theme.WalkInContainer
 import com.latticeonfhir.android.ui.theme.WalkInLabel
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
@@ -89,7 +87,6 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearPast
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -158,6 +155,8 @@ fun QueueScreen(
                         viewModel.selectedDate = date
                     }
                     viewModel.selectedChip = R.string.total_appointment
+                    viewModel.appointmentsList = listOf()
+                    viewModel.isLoading = true
                     viewModel.getAppointmentListByDate()
                 }
             }
@@ -169,12 +168,13 @@ fun QueueScreen(
                     .fillMaxSize()
                     .padding(16.dp)
                     .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        color = if (viewModel.isLoading) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(8.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
+                if (viewModel.isLoading) Loader()
+                else Text(
                     text = stringResource(id = R.string.no_appointment),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.outline
@@ -285,17 +285,7 @@ fun QueueScreen(
                             queueListState, key = waitingAppointmentResponse,
                             modifier = Modifier
                                 .background(MaterialTheme.colorScheme.secondaryContainer)
-                        ) { _ ->
-                            var patient by remember {
-                                mutableStateOf<PatientResponse?>(null)
-                            }
-                            waitingAppointmentResponse.patientId.let { patientId ->
-                                LaunchedEffect(key1 = patientId) {
-                                    patient = viewModel.getPatientById(
-                                        patientId
-                                    )
-                                }
-                            }
+                        ) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -307,8 +297,7 @@ fun QueueScreen(
                                     viewModel,
                                     landingViewModel,
                                     queueListState,
-                                    waitingAppointmentResponse,
-                                    patient
+                                    waitingAppointmentResponse
                                 )
                             }
                         }
@@ -330,16 +319,6 @@ fun QueueScreen(
                         }
                     // in-progress
                     items(viewModel.inProgressQueueList) { appointmentResponseLocal ->
-                        var patient by remember {
-                            mutableStateOf<PatientResponse?>(null)
-                        }
-                        appointmentResponseLocal.patientId.let { patientId ->
-                            LaunchedEffect(key1 = patientId) {
-                                patient = viewModel.getPatientById(
-                                    patientId
-                                )
-                            }
-                        }
                         Column(
                             modifier = Modifier
                                 .padding(top = 16.dp, start = 16.dp, end = 16.dp)
@@ -349,23 +328,12 @@ fun QueueScreen(
                                 viewModel,
                                 landingViewModel,
                                 queueListState,
-                                appointmentResponseLocal,
-                                patient
+                                appointmentResponseLocal
                             )
                         }
                     }
                     // scheduled
                     items(viewModel.scheduledQueueList) { appointmentResponseLocal ->
-                        var patient by remember {
-                            mutableStateOf<PatientResponse?>(null)
-                        }
-                        appointmentResponseLocal.patientId.let { patientId ->
-                            LaunchedEffect(key1 = patientId) {
-                                patient = viewModel.getPatientById(
-                                    patientId
-                                )
-                            }
-                        }
                         Column(
                             modifier = Modifier.padding(
                                 top = 16.dp,
@@ -378,23 +346,12 @@ fun QueueScreen(
                                 viewModel,
                                 landingViewModel,
                                 queueListState,
-                                appointmentResponseLocal,
-                                patient
+                                appointmentResponseLocal
                             )
                         }
                     }
                     // completed
                     items(viewModel.completedQueueList) { appointmentResponseLocal ->
-                        var patient by remember {
-                            mutableStateOf<PatientResponse?>(null)
-                        }
-                        appointmentResponseLocal.patientId.let { patientId ->
-                            LaunchedEffect(key1 = patientId) {
-                                patient = viewModel.getPatientById(
-                                    patientId
-                                )
-                            }
-                        }
                         Column(
                             modifier = Modifier.padding(
                                 top = 16.dp,
@@ -407,23 +364,12 @@ fun QueueScreen(
                                 viewModel,
                                 landingViewModel,
                                 queueListState,
-                                appointmentResponseLocal,
-                                patient
+                                appointmentResponseLocal
                             )
                         }
                     }
                     // no show
                     items(viewModel.noShowQueueList) { appointmentResponseLocal ->
-                        var patient by remember {
-                            mutableStateOf<PatientResponse?>(null)
-                        }
-                        appointmentResponseLocal.patientId.let { patientId ->
-                            LaunchedEffect(key1 = patientId) {
-                                patient = viewModel.getPatientById(
-                                    patientId
-                                )
-                            }
-                        }
                         Column(
                             modifier = Modifier
                                 .padding(top = 16.dp, start = 16.dp, end = 16.dp)
@@ -433,23 +379,12 @@ fun QueueScreen(
                                 viewModel,
                                 landingViewModel,
                                 queueListState,
-                                appointmentResponseLocal,
-                                patient
+                                appointmentResponseLocal
                             )
                         }
                     }
                     // cancelled
                     items(viewModel.cancelledQueueList) { appointmentResponseLocal ->
-                        var patient by remember {
-                            mutableStateOf<PatientResponse?>(null)
-                        }
-                        appointmentResponseLocal.patientId.let { patientId ->
-                            LaunchedEffect(key1 = patientId) {
-                                patient = viewModel.getPatientById(
-                                    patientId
-                                )
-                            }
-                        }
                         Column(
                             modifier = Modifier.padding(
                                 top = 16.dp,
@@ -459,8 +394,7 @@ fun QueueScreen(
                         ) {
                             CancelledQueueCard(
                                 navController,
-                                appointmentResponseLocal,
-                                patient
+                                appointmentResponseLocal
                             )
                         }
                     }
@@ -473,8 +407,8 @@ fun QueueScreen(
     }
     if (viewModel.showCancelAppointmentDialog) {
         CancelAppointmentDialog(
-            patient = viewModel.patientSelected!!,
-            dateAndTime = viewModel.appointmentSelected?.slot?.start?.toAppointmentDate()!!
+            patient = viewModel.queueDataSelected!!.patient,
+            dateAndTime = viewModel.queueDataSelected!!.appointment.start?.toAppointmentDate()!!
         ) { cancel ->
             if (cancel) {
                 viewModel.cancelAppointment {
@@ -590,24 +524,29 @@ fun QueuePatientCard(
     viewModel: QueueViewModel,
     landingViewModel: LandingScreenViewModel,
     queueListState: ReorderableLazyListState,
-    appointmentResponseLocal: AppointmentResponseLocal,
-    patient: PatientResponse?
+    queueData: QueueData
 ) {
-    val age = patient?.birthDate?.toTimeInMilli()?.toAge()
+    val age = queueData.patient.birthDate?.time?.toAge()
     val subTitle = "${
-        patient?.gender?.get(0)?.uppercase()
-    }/$age${if (patient?.fhirId.isNullOrEmpty()) "" else ", PID: ${patient?.fhirId}"} "
+        queueData.patient.gender?.display?.get(0)?.uppercase()
+    }/$age, PID: ${queueData.patient.logicalId}"
+    val appointmentUiStatus = AppointmentStatusFhir.getUiStatus(
+        queueData.appointment.status.toCode(),
+        queueData.appointment.appointmentType.codingFirstRep.code,
+        queueData.encounter.status.toCode()
+    )
 
     ElevatedCard(
         colors = CardDefaults.elevatedCardColors(
-            containerColor = if (appointmentResponseLocal.status == AppointmentStatusEnum.NO_SHOW.value) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
+            containerColor = if (appointmentUiStatus== AppointmentStatusEnum.NO_SHOW.value
+            ) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
         ),
         modifier = Modifier
             .testTag("QUEUE_PATIENT_CARD")
             .clickable {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
                     NavControllerConstants.PATIENT,
-                    patient
+                    queueData.patient
                 )
                 navController.navigate(Screen.PatientLandingScreen.route)
             }
@@ -627,31 +566,31 @@ fun QueuePatientCard(
             Column {
                 AssistChip(
                     onClick = {
-                        if ((appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
-                                    || appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value)
-                            && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
+                        if ((appointmentUiStatus == AppointmentStatusEnum.SCHEDULED.value
+                                    || appointmentUiStatus == AppointmentStatusEnum.IN_PROGRESS.value)
+                            && queueData.appointment.start.toEndOfDay() == Date().toEndOfDay()
                         ) {
-                            viewModel.statusList = when (appointmentResponseLocal.status) {
+                            viewModel.statusList = when (appointmentUiStatus) {
                                 AppointmentStatusEnum.SCHEDULED.value -> listOf("Arrived")
                                 AppointmentStatusEnum.IN_PROGRESS.value -> listOf("Completed")
                                 else -> listOf()
                             }
-                            viewModel.appointmentSelected = appointmentResponseLocal
+                            viewModel.queueDataSelected = queueData
                             landingViewModel.showStatusChangeLayout = true
                         }
                     },
                     label = {
-                        Text(text = fromValue(appointmentResponseLocal.status).label)
+                        Text(text = fromValue(appointmentUiStatus).label)
                     },
                     trailingIcon = {
-                        if ((appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
-                                    || appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value)
-                            && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
+                        if ((appointmentUiStatus == AppointmentStatusEnum.SCHEDULED.value
+                                    || appointmentUiStatus == AppointmentStatusEnum.IN_PROGRESS.value)
+                            && queueData.appointment.start.toEndOfDay() == Date().toEndOfDay()
                         ) {
                             Icon(
                                 Icons.Default.ArrowDropDown,
                                 contentDescription = "DROP_DOWN_ICON",
-                                tint = when (appointmentResponseLocal.status) {
+                                tint = when (appointmentUiStatus) {
                                     AppointmentStatusEnum.WALK_IN.value -> WalkInLabel
                                     AppointmentStatusEnum.ARRIVED.value -> ArrivedLabel
                                     AppointmentStatusEnum.SCHEDULED.value -> TodayScheduledLabel
@@ -663,7 +602,7 @@ fun QueuePatientCard(
                         }
                     },
                     colors = AssistChipDefaults.assistChipColors(
-                        containerColor = when (appointmentResponseLocal.status) {
+                        containerColor = when (appointmentUiStatus) {
                             AppointmentStatusEnum.WALK_IN.value -> WalkInContainer
                             AppointmentStatusEnum.ARRIVED.value -> ArrivedContainer
                             AppointmentStatusEnum.SCHEDULED.value -> TodayScheduledContainer
@@ -672,7 +611,7 @@ fun QueuePatientCard(
                             AppointmentStatusEnum.IN_PROGRESS.value -> InProgressContainer
                             else -> NoShowContainer
                         },
-                        labelColor = when (appointmentResponseLocal.status) {
+                        labelColor = when (appointmentUiStatus) {
                             AppointmentStatusEnum.WALK_IN.value -> WalkInLabel
                             AppointmentStatusEnum.ARRIVED.value -> ArrivedLabel
                             AppointmentStatusEnum.SCHEDULED.value -> TodayScheduledLabel
@@ -684,7 +623,7 @@ fun QueuePatientCard(
                     ),
                     border = AssistChipDefaults.assistChipBorder(
                         enabled = true,
-                        borderColor = when (appointmentResponseLocal.status) {
+                        borderColor = when (appointmentUiStatus) {
                             AppointmentStatusEnum.WALK_IN.value -> WalkInLabel
                             AppointmentStatusEnum.ARRIVED.value -> ArrivedLabel
                             AppointmentStatusEnum.SCHEDULED.value -> TodayScheduledLabel
@@ -696,17 +635,13 @@ fun QueuePatientCard(
                     )
                 )
                 PatientCardDetails(
-                    NameConverter.getFullName(
-                        patient?.firstName,
-                        patient?.middleName,
-                        patient?.lastName
-                    ),
+                    queueData.patient.nameFirstRep.nameAsSingleString,
                     subTitle,
-                    appointmentResponseLocal.slot.start.toAppointmentTime()
+                    queueData.appointment.start.toAppointmentTime()
                 )
             }
-            if ((appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
-                && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
+            if ((appointmentUiStatus == AppointmentStatusEnum.WALK_IN.value || appointmentUiStatus == AppointmentStatusEnum.ARRIVED.value)
+                && queueData.appointment.start.toEndOfDay() == Date().toEndOfDay()
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.drag_handle_icon),
@@ -719,10 +654,10 @@ fun QueuePatientCard(
             }
         }
         if ((
-                    appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
-                            || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value
-                            || appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value)
-            && appointmentResponseLocal.slot.start.toTodayStartDate() >= Date().toTodayStartDate()
+                    appointmentUiStatus == AppointmentStatusEnum.WALK_IN.value
+                            || appointmentUiStatus == AppointmentStatusEnum.ARRIVED.value
+                            || appointmentUiStatus == AppointmentStatusEnum.SCHEDULED.value)
+            && queueData.appointment.start.toTodayStartDate() >= Date().toTodayStartDate()
         ) {
             HorizontalDivider(
                 thickness = 1.dp,
@@ -731,19 +666,18 @@ fun QueuePatientCard(
             )
         }
         if (
-            appointmentResponseLocal.slot.start.toTodayStartDate() >= Date().toTodayStartDate()
+            queueData.appointment.start.toTodayStartDate() >= Date().toTodayStartDate()
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 if (
-                    appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
-                    || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value
-                    || appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
+                    appointmentUiStatus == AppointmentStatusEnum.WALK_IN.value
+                    || appointmentUiStatus == AppointmentStatusEnum.ARRIVED.value
+                    || appointmentUiStatus == AppointmentStatusEnum.SCHEDULED.value
                 ) {
                     TextButton(
                         onClick = {
                             viewModel.showCancelAppointmentDialog = true
-                            viewModel.patientSelected = patient
-                            viewModel.appointmentSelected = appointmentResponseLocal
+                            viewModel.queueDataSelected = queueData
                         },
                         modifier = Modifier
                             .weight(1f)
@@ -752,7 +686,7 @@ fun QueuePatientCard(
                         Text(text = stringResource(id = R.string.cancel))
                     }
                 }
-                if (appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value) {
+                if (appointmentUiStatus == AppointmentStatusEnum.SCHEDULED.value) {
                     Surface(
                         modifier = Modifier.weight(1f),
                         color = MaterialTheme.colorScheme.secondaryContainer
@@ -761,11 +695,11 @@ fun QueuePatientCard(
                             onClick = {
                                 navController.currentBackStackEntry?.savedStateHandle?.set(
                                     NavControllerConstants.APPOINTMENT_SELECTED,
-                                    appointmentResponseLocal
+                                    queueData.appointment
                                 )
                                 navController.currentBackStackEntry?.savedStateHandle?.set(
                                     NavControllerConstants.PATIENT,
-                                    patient
+                                    queueData.patient
                                 )
                                 navController.currentBackStackEntry?.savedStateHandle?.set(
                                     NavControllerConstants.IF_RESCHEDULING,
@@ -787,14 +721,17 @@ fun QueuePatientCard(
 @Composable
 fun CancelledQueueCard(
     navController: NavController,
-    appointmentResponseLocal: AppointmentResponseLocal,
-    patient: PatientResponse?
+    queueData: QueueData
 ) {
-    val age = patient?.birthDate?.toTimeInMilli()?.toAge()
+    val age = queueData.patient.birthDate.time.toAge()
     val subTitle = "${
-        patient?.gender?.get(0)?.uppercase()
-    }/$age${if (patient?.fhirId.isNullOrEmpty()) "" else ", PID: ${patient?.fhirId}"} "
-
+        queueData.patient.gender.display[0].uppercase()
+    }/$age, PID: ${queueData.patient.logicalId}"
+    val appointmentUiStatus = AppointmentStatusFhir.getUiStatus(
+        queueData.appointment.status.toCode(),
+        queueData.appointment.appointmentType.codingFirstRep.code,
+        queueData.encounter.status.toCode()
+    )
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer
@@ -802,7 +739,7 @@ fun CancelledQueueCard(
         modifier = Modifier.clickable {
             navController.currentBackStackEntry?.savedStateHandle?.set(
                 NavControllerConstants.PATIENT,
-                patient
+                queueData.patient
             )
             navController.navigate(Screen.PatientLandingScreen.route)
         }
@@ -823,7 +760,7 @@ fun CancelledQueueCard(
                 AssistChip(
                     onClick = { },
                     label = {
-                        Text(text = fromValue(appointmentResponseLocal.status).label)
+                        Text(text = fromValue(appointmentUiStatus).label)
                     },
                     colors = AssistChipDefaults.assistChipColors(
                         containerColor = CancelledContainer,
@@ -835,13 +772,9 @@ fun CancelledQueueCard(
                     )
                 )
                 PatientCardDetails(
-                    NameConverter.getFullName(
-                        patient?.firstName,
-                        patient?.middleName,
-                        patient?.lastName
-                    ),
+                    queueData.patient.nameFirstRep.nameAsSingleString,
                     subTitle,
-                    appointmentResponseLocal.slot.start.toAppointmentTime()
+                    queueData.appointment.start.toAppointmentTime()
                 )
             }
         }

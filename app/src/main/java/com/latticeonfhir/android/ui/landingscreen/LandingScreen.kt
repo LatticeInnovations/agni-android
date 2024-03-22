@@ -258,6 +258,8 @@ fun LandingScreen(
                                     queueViewModel.selectedDate = Date()
                                     queueViewModel.weekList =
                                         queueViewModel.selectedDate.to14DaysWeek()
+                                    queueViewModel.appointmentsList = listOf()
+                                    queueViewModel.isLoading = true
                                     queueViewModel.getAppointmentListByDate()
                                 },
                                 enabled = queueViewModel.selectedDate.toSlotDate() != Date().toSlotDate() || queueViewModel.selectedDate.toYear() != Date().toYear(),

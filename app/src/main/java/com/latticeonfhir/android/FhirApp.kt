@@ -12,6 +12,7 @@ import com.google.android.fhir.FhirEngineConfiguration
 import com.google.android.fhir.FhirEngineProvider
 import com.google.android.fhir.ServerConfiguration
 import com.google.android.fhir.sync.PeriodicSyncConfiguration
+import com.google.android.fhir.sync.PeriodicSyncJobStatus
 import com.google.android.fhir.sync.RepeatInterval
 import com.google.android.fhir.sync.Sync
 import com.google.android.fhir.sync.remote.HttpLogger
@@ -72,12 +73,14 @@ class FhirApp : Application() {
     private lateinit var _syncRepository: SyncRepository
     internal val syncRepository get() = _syncRepository
     private lateinit var _genericRepository: GenericRepository
-    internal val genericRepository get() = _genericRepository
+    private val genericRepository get() = _genericRepository
     private lateinit var _workRequestBuilder: WorkRequestBuilders
     internal val workRequestBuilder get() = _workRequestBuilder
     private lateinit var _syncService: SyncService
     internal val syncService get() = _syncService
     val sessionExpireFlow = MutableLiveData<Map<String, Any>>(emptyMap())
+
+    internal var periodicSyncJobStatus = MutableLiveData<PeriodicSyncJobStatus>()
 
     override fun onCreate() {
         super.onCreate()
@@ -156,6 +159,7 @@ class FhirApp : Application() {
             )
         ).shareIn(this, SharingStarted.Eagerly, 10)
             .collect { syncJobStatus ->
+                periodicSyncJobStatus.postValue(syncJobStatus)
                 Timber.d("sync done $syncJobStatus")
             }
     }
