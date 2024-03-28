@@ -13,4 +13,5 @@ plugins {
     // Crashlytics Gradle plugin
     id 'com.google.firebase.crashlytics' version '2.9.5' apply false
     id 'com.google.devtools.ksp' version '1.9.20-1.0.14' apply false
+    id "org.sonarqube" version "3.5.0.2730" apply false
 }

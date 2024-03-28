@@ -8,6 +8,7 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
     id 'com.google.devtools.ksp'
+    id "org.sonarqube"
 }
 
 android {
@@ -205,5 +206,11 @@ dependencies {
 allprojects {
     configurations.configureEach {
         resolutionStrategy.force 'org.objenesis:objenesis:2.6'
+    }
+}
+
+sonar {
+    properties {
+        property "sonar.projectKey", "LatticeInnovations_FHIR-Android_AY6D5NcrY4V-vQ4f3Wlv"
     }
 }
