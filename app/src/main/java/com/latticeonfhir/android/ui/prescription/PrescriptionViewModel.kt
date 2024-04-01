@@ -8,16 +8,14 @@ import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
-import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
+import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationRequestAndMedication
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getMedicationList
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getTodayAppointmentAndEncounterOfPatient
@@ -58,9 +56,8 @@ class PrescriptionViewModel @Inject constructor(
     var selectedActiveIngredientsList by mutableStateOf(listOf<String>())
     var checkedActiveIngredient by mutableStateOf("")
 
-    var medicationDirectionsList by mutableStateOf(listOf<MedicineTimingEntity>())
-    var medicationsResponseWithMedicationList by mutableStateOf(listOf<MedicationResponseWithMedication>())
-    var medicationToEdit by mutableStateOf<MedicationResponseWithMedication?>(null)
+    var medicationRequestAndMedicationList by mutableStateOf(listOf<MedicationRequestAndMedication>())
+    var medicationToEdit by mutableStateOf<MedicationRequestAndMedication?>(null)
 
     var searchQuery by mutableStateOf("")
     var previousSearchList by mutableStateOf(listOf<String>())

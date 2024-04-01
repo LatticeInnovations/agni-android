@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.hl7.fhir.r4.model.Medication
+import org.hl7.fhir.r4.model.MedicationRequest
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,7 +44,7 @@ class FillDetailsViewModel @Inject constructor() : BaseViewModel() {
         medUnit = ""
         isDurationInvalid = false
     }
-    
+
     internal fun setData(formulation: Medication) {
         medicationSelected = formulation
         medSelected = formulation.code.codingFirstRep.display
@@ -52,16 +53,28 @@ class FillDetailsViewModel @Inject constructor() : BaseViewModel() {
         medFhirId = formulation.code.codingFirstRep.code
     }
 
+    internal fun setFormData(medicationRequest: MedicationRequest) {
+        quantityPerDose = medicationRequest.dosageInstructionFirstRep.doseAndRateFirstRep.doseQuantity.value.toString()
+        frequency = medicationRequest.dosageInstructionFirstRep.timing.repeat.frequency.toString()
+        notes = medicationRequest.noteFirstRep?.text?:""
+        timing = medicationRequest.dosageInstructionFirstRep.additionalInstructionFirstRep?.codingFirstRep?.display?:""
+        duration = medicationRequest.dosageInstructionFirstRep.timing.repeat.period.toString()
+    }
+
     internal fun getMedicationByActiveIngredient(
         activeIngredientName: String,
         medicationList: List<Medication>
     ) {
-        formulationsList = if (activeIngredientName.contains("+")){
+        formulationsList = if (activeIngredientName.contains("+")) {
             medicationList.filter {
                 it.ingredient.size > 1
             }.filter {
-                it.ingredient[0].itemCodeableConcept.codingFirstRep.display == activeIngredientName.substringBefore("+") &&
-                        it.ingredient[1].itemCodeableConcept.codingFirstRep.display == activeIngredientName.substringAfter("+")
+                it.ingredient[0].itemCodeableConcept.codingFirstRep.display == activeIngredientName.substringBefore(
+                    "+"
+                ) &&
+                        it.ingredient[1].itemCodeableConcept.codingFirstRep.display == activeIngredientName.substringAfter(
+                    "+"
+                )
             }
         } else {
             medicationList.filter {

@@ -67,7 +67,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
+import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationRequestAndMedication
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
 import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPrescriptionsScreen
@@ -75,6 +75,7 @@ import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
 import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getActiveIngredient
 import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -242,7 +243,7 @@ fun PrescriptionScreen(
                                 TextButton(
                                     onClick = {
                                         viewModel.selectedActiveIngredientsList = listOf()
-                                        viewModel.medicationsResponseWithMedicationList = listOf()
+                                        viewModel.medicationRequestAndMedicationList = listOf()
                                         viewModel.bottomNavExpanded = false
                                         viewModel.clearAllConfirmDialog = false
                                     },
@@ -342,7 +343,7 @@ fun BottomNavLayout(
         label = "Rotation state of expand icon button",
     )
     AnimatedVisibility(
-        visible = viewModel.medicationsResponseWithMedicationList.isNotEmpty(),
+        visible = viewModel.medicationRequestAndMedicationList.isNotEmpty(),
         enter = expandVertically(),
         exit = shrinkVertically()
     ) {
@@ -383,7 +384,7 @@ fun BottomNavLayout(
                             modifier = Modifier
                                 .heightIn(0.dp, 450.dp)
                         ) {
-                            items(viewModel.medicationsResponseWithMedicationList) { medication ->
+                            items(viewModel. medicationRequestAndMedicationList) { medication ->
                                 SelectedCompoundCard(
                                     viewModel = viewModel,
                                     medication = medication
@@ -436,7 +437,7 @@ fun BottomNavLayout(
                             // add medications to prescriptions
                             viewModel.insertPrescription {
                                 viewModel.selectedActiveIngredientsList = listOf()
-                                viewModel.medicationsResponseWithMedicationList = emptyList()
+                                viewModel. medicationRequestAndMedicationList = emptyList()
                                 coroutineScope.launch { pagerState.animateScrollToPage(0) }
                                 viewModel.isSearchResult = false
                                 viewModel.getPreviousPrescription(viewModel.patient.logicalId) { prescriptionList ->
@@ -466,7 +467,7 @@ fun BottomNavLayout(
 @Composable
 fun SelectedCompoundCard(
     viewModel: PrescriptionViewModel,
-    medication: MedicationResponseWithMedication
+    medication: MedicationRequestAndMedication
 ) {
     val context = LocalContext.current
     val checkedState = remember {
@@ -483,9 +484,9 @@ fun SelectedCompoundCard(
                 onCheckedChange = {
                     if (!it) {
                         viewModel.selectedActiveIngredientsList =
-                            viewModel.selectedActiveIngredientsList - listOf(medication.activeIngredient).toSet()
-                        viewModel.medicationsResponseWithMedicationList =
-                            viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
+                            viewModel.selectedActiveIngredientsList - listOf(getActiveIngredient(medication.medication)).toSet()
+                        viewModel.medicationRequestAndMedicationList =
+                            viewModel. medicationRequestAndMedicationList - listOf(medication).toSet()
                         if (viewModel.selectedActiveIngredientsList.isEmpty()) viewModel.bottomNavExpanded =
                             false
                     }
@@ -498,19 +499,18 @@ fun SelectedCompoundCard(
                     .weight(1f)
             ) {
                 Text(
-                    text = medication.medName,
+                    text = medication.medication.code.text,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = getMedInfo(
-                        duration = medication.medication.duration,
-                        frequency = medication.medication.frequency,
-                        medUnit = medication.medUnit,
-                        timing = medication.medication.timing,
-                        note = medication.medication.note,
-                        qtyPerDose = medication.medication.qtyPerDose,
-                        qtyPrescribed = medication.medication.qtyPrescribed,
+                        duration = medication.medicationRequest.dosageInstructionFirstRep.timing.repeat.period.toInt(),
+                        frequency = medication.medicationRequest.dosageInstructionFirstRep.timing.repeat.frequency,
+                        medUnit = medication.medication.ingredientFirstRep.strength.denominator.code,
+                        timing = medication.medicationRequest.dosageInstructionFirstRep.additionalInstructionFirstRep?.codingFirstRep?.display?:"",
+                        note = medication.medicationRequest.noteFirstRep?.text?:"",
+                        qtyPerDose = medication.medicationRequest.dosageInstructionFirstRep.doseAndRateFirstRep.doseQuantity.value.toInt(),
                         context = context
                     ),
                     style = MaterialTheme.typography.bodyMedium,
@@ -518,7 +518,7 @@ fun SelectedCompoundCard(
                 )
             }
             IconButton(onClick = {
-                viewModel.checkedActiveIngredient = medication.activeIngredient
+                viewModel.checkedActiveIngredient = getActiveIngredient(medication.medication)
                 viewModel.medicationToEdit = medication
             }) {
                 Icon(

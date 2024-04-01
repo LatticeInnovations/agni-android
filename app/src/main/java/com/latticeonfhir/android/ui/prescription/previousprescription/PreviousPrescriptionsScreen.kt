@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.prescription.previousprescription
 
-import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
@@ -17,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,15 +35,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun PreviousPrescriptionsScreen(
@@ -149,7 +143,6 @@ fun PrescriptionCard(
                                 timing = directionAndMedication.prescriptionDirectionsEntity.timing,
                                 note = directionAndMedication.prescriptionDirectionsEntity.note,
                                 qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
-                                qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed,
                                 context = context
                             )
                         )
@@ -217,43 +210,43 @@ fun MedicineDetails(medName: String, details: String) {
     }
 }
 
-fun saveRePrescription(
-    context: Context,
-    viewModel: PrescriptionViewModel,
-    prescription: PrescriptionAndMedicineRelation,
-    coroutineScope: CoroutineScope,
-    snackbarHostState: SnackbarHostState
-) {
-    viewModel.medicationsResponseWithMedicationList = emptyList()
-    viewModel.selectedActiveIngredientsList = emptyList()
-    prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
-        viewModel.selectedActiveIngredientsList =
-            viewModel.selectedActiveIngredientsList + listOf(
-                directionAndMedication.medicationEntity.activeIngredient
-            )
-        viewModel.medicationsResponseWithMedicationList =
-            viewModel.medicationsResponseWithMedicationList + listOf(
-                MedicationResponseWithMedication(
-                    activeIngredient = directionAndMedication.medicationEntity.activeIngredient,
-                    medName = directionAndMedication.medicationEntity.medName,
-                    medUnit = directionAndMedication.medicationEntity.medUnit,
-                    medication = Medication(
-                        doseForm = directionAndMedication.medicationEntity.doseForm,
-                        duration = directionAndMedication.prescriptionDirectionsEntity.duration,
-                        qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
-                        frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
-                        medFhirId = directionAndMedication.medicationEntity.medFhirId,
-                        note = directionAndMedication.prescriptionDirectionsEntity.note,
-                        timing = directionAndMedication.prescriptionDirectionsEntity.timing,
-                        qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed
-                    )
-                )
-            )
-    }
-    viewModel.bottomNavExpanded = false
-    coroutineScope.launch {
-        snackbarHostState.showSnackbar(
-            message = context.getString(R.string.re_prescribed_successfully)
-        )
-    }
-}
+//fun saveRePrescription(
+//    context: Context,
+//    viewModel: PrescriptionViewModel,
+//    prescription: PrescriptionAndMedicineRelation,
+//    coroutineScope: CoroutineScope,
+//    snackbarHostState: SnackbarHostState
+//) {
+//    viewModel.medicationsResponseWithMedicationList = emptyList()
+//    viewModel.selectedActiveIngredientsList = emptyList()
+//    prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
+//        viewModel.selectedActiveIngredientsList =
+//            viewModel.selectedActiveIngredientsList + listOf(
+//                directionAndMedication.medicationEntity.activeIngredient
+//            )
+//        viewModel.medicationsResponseWithMedicationList =
+//            viewModel.medicationsResponseWithMedicationList + listOf(
+//                MedicationResponseWithMedication(
+//                    activeIngredient = directionAndMedication.medicationEntity.activeIngredient,
+//                    medName = directionAndMedication.medicationEntity.medName,
+//                    medUnit = directionAndMedication.medicationEntity.medUnit,
+//                    medication = Medication(
+//                        doseForm = directionAndMedication.medicationEntity.doseForm,
+//                        duration = directionAndMedication.prescriptionDirectionsEntity.duration,
+//                        qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
+//                        frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
+//                        medFhirId = directionAndMedication.medicationEntity.medFhirId,
+//                        note = directionAndMedication.prescriptionDirectionsEntity.note,
+//                        timing = directionAndMedication.prescriptionDirectionsEntity.timing,
+//                        qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed
+//                    )
+//                )
+//            )
+//    }
+//    viewModel.bottomNavExpanded = false
+//    coroutineScope.launch {
+//        snackbarHostState.showSnackbar(
+//            message = context.getString(R.string.re_prescribed_successfully)
+//        )
+//    }
+//}

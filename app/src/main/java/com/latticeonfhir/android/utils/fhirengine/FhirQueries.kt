@@ -7,21 +7,27 @@ import com.google.android.fhir.logicalId
 import com.google.android.fhir.search.include
 import com.google.android.fhir.search.search
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusFhir
+import com.latticeonfhir.android.data.local.enums.MedicationTimingEnum
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.ENCOUNTER_SYSTEM
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.GROUP_IDENTIFIER
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.LATTICE
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.LATTICE_SYSTEM
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.SCT_URL
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import org.hl7.fhir.r4.model.Annotation
 import org.hl7.fhir.r4.model.Appointment
 import org.hl7.fhir.r4.model.Appointment.AppointmentStatus
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DateTimeType
+import org.hl7.fhir.r4.model.Dosage
 import org.hl7.fhir.r4.model.Encounter
 import org.hl7.fhir.r4.model.Encounter.EncounterStatus
 import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Medication
+import org.hl7.fhir.r4.model.MedicationRequest
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Person
 import org.hl7.fhir.r4.model.Reference
@@ -29,6 +35,7 @@ import org.hl7.fhir.r4.model.RelatedPerson
 import org.hl7.fhir.r4.model.ResourceType
 import org.hl7.fhir.r4.model.Schedule
 import org.hl7.fhir.r4.model.Slot
+import org.hl7.fhir.r4.model.Timing
 import java.util.Date
 
 object FhirQueries {
@@ -573,6 +580,88 @@ object FhirQueries {
     ): List<Medication> {
         return fhirEngine.search<Medication> { }.map {
             it.resource
+        }
+    }
+
+    fun createMedicationRequestResource(
+        encounterId: String,
+        medicationId: String,
+        patientId: String,
+        notes: String,
+        medTiming: String,
+        freq: String,
+        duration: String,
+        qty: String,
+        formDisplay: String,
+        formCode: String
+    ): MedicationRequest {
+        val uuid = UUIDBuilder.generateUUID()
+        return MedicationRequest().apply {
+            id = uuid
+            identifier.addAll(
+                listOf(
+                    Identifier().apply {
+                        system = ENCOUNTER_SYSTEM
+                        value = uuid
+                    },
+                    Identifier().apply {
+                        system = ENCOUNTER_SYSTEM
+                        value = encounterId
+                    },
+                    Identifier().apply {
+                        system = SCT_URL
+                        value = medicationId
+                    }
+                )
+            )
+            intent = MedicationRequest.MedicationRequestIntent.ORDER
+            medicationReference.reference = "${ResourceType.Medication.name}/$medicationId"
+            subject.reference = "${ResourceType.Patient.name}/$patientId"
+            encounter.reference = "${ResourceType.Encounter.name}/$encounterId"
+            groupIdentifier = Identifier().apply {
+                system = GROUP_IDENTIFIER
+            }
+            if (notes.isNotBlank()) {
+                note.add(
+                    Annotation().apply {
+                        text = notes
+                    }
+                )
+            }
+            dosageInstruction.add(
+                Dosage().apply {
+                    if (medTiming.isNotBlank()) {
+                        additionalInstruction.add(
+                            CodeableConcept(
+                                Coding(
+                                    "",
+                                    MedicationTimingEnum.getCode(medTiming),
+                                    medTiming
+                                )
+                            )
+                        )
+                    }
+                    timing.repeat.apply {
+                        boundsDuration.apply {
+                            unit = "days"
+                            system = "http://unitsofmeasure.org"
+                            code = "d"
+                        }
+                        frequency = freq.toInt()
+                        period = duration.toBigDecimal()
+                        periodUnit = Timing.UnitsOfTime.D
+                    }
+                    doseAndRate.add(
+                        Dosage.DosageDoseAndRateComponent().apply {
+                            doseQuantity.apply {
+                                value = qty.toBigDecimal()
+                                unit = formDisplay
+                                code = formCode
+                            }
+                        }
+                    )
+                }
+            )
         }
     }
 }
