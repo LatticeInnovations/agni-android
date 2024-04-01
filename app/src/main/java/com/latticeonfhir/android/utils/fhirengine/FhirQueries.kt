@@ -21,6 +21,7 @@ import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.Encounter
 import org.hl7.fhir.r4.model.Encounter.EncounterStatus
 import org.hl7.fhir.r4.model.Identifier
+import org.hl7.fhir.r4.model.Medication
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Person
 import org.hl7.fhir.r4.model.Reference
@@ -533,6 +534,45 @@ object FhirQueries {
             }
         }.filter { searchResult ->
             !searchResult.included?.get(Encounter.APPOINTMENT.paramName).isNullOrEmpty()
+        }
+    }
+
+    suspend fun getTodayAppointmentAndEncounterOfPatient(
+        fhirEngine: FhirEngine,
+        patientId: String
+    ): SearchResult<Encounter>? {
+        return fhirEngine.search<Encounter> {
+            filter(
+                Encounter.SUBJECT, {
+                    value = "${ResourceType.Patient.name}/$patientId"
+                }
+            )
+            include(ResourceType.Appointment, Encounter.APPOINTMENT) {
+                filter(
+                    Appointment.DATE, {
+                        prefix = ParamPrefixEnum.LESSTHAN_OR_EQUALS
+                        value = of(DateTimeType(Date(Date().toEndOfDay())))
+                    }
+                )
+                filter(
+                    Appointment.DATE, {
+                        prefix = ParamPrefixEnum.GREATERTHAN_OR_EQUALS
+                        value = of(DateTimeType(Date(Date().toTodayStartDate())))
+                    }
+                )
+            }
+        }.firstOrNull { searchResult ->
+            val appointment =
+                searchResult.included?.get(Encounter.APPOINTMENT.paramName)?.get(0) as Appointment?
+            (appointment != null) && (appointment.status != AppointmentStatus.CANCELLED)
+        }
+    }
+
+    suspend fun getMedicationList(
+        fhirEngine: FhirEngine
+    ): List<Medication> {
+        return fhirEngine.search<Medication> { }.map {
+            it.resource
         }
     }
 }
