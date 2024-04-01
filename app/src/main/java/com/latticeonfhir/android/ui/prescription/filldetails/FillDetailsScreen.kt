@@ -51,7 +51,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
@@ -66,9 +65,10 @@ fun FillDetailsScreen(
     viewModel: FillDetailsViewModel = hiltViewModel()
 ) {
     LaunchedEffect(prescriptionViewModel.checkedActiveIngredient) {
-        viewModel.getMedicationByActiveIngredient(prescriptionViewModel.checkedActiveIngredient) {
-            viewModel.formulationsList = it
-        }
+        viewModel.getMedicationByActiveIngredient(
+            prescriptionViewModel.checkedActiveIngredient,
+            prescriptionViewModel.medicationList.await()
+        )
         viewModel.reset()
     }
     LaunchedEffect(viewModel.isLaunched) {
@@ -156,8 +156,8 @@ fun FillDetailsScreen(
                 }
             )
         },
-        content = {
-            Box(modifier = Modifier.padding(it)) {
+        content = { paddingValue ->
+            Box(modifier = Modifier.padding(paddingValue)) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -170,10 +170,8 @@ fun FillDetailsScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("ACTIVE_INGREDIENT_FIELD"),
-                            value = prescriptionViewModel.checkedActiveIngredient.replaceFirstChar {
-                                if (it.isLowerCase()) it.titlecase(
-                                    Locale.getDefault()
-                                ) else it.toString()
+                            value = prescriptionViewModel.checkedActiveIngredient.replaceFirstChar { char ->
+                                char.titlecase(Locale.getDefault())
                             },
                             onValueChange = {
                             },
@@ -219,10 +217,8 @@ fun FillDetailsScreen(
                                     },
                                     text = {
                                         Text(
-                                            text = label.replaceFirstChar {
-                                                if (it.isLowerCase()) it.titlecase(
-                                                    Locale.getDefault()
-                                                ) else it.toString()
+                                            text = label.replaceFirstChar { char ->
+                                                char.titlecase(Locale.getDefault())
                                             },
                                             style = MaterialTheme.typography.bodyLarge,
                                             color = MaterialTheme.colorScheme.onSurface
@@ -261,30 +257,24 @@ fun FormulationRadioList(viewModel: FillDetailsViewModel) {
                 .fillMaxWidth()
                 .testTag("FORMULATION_LIST")
                 .selectable(
-                    selected = (formulation.medFhirId == viewModel.medFhirId),
+                    selected = (formulation.code.codingFirstRep.code == viewModel.medFhirId),
                     onClick = {
                         viewModel.reset()
-                        viewModel.medSelected = formulation.medName
-                        viewModel.medUnit = formulation.medUnit
-                        viewModel.medDoseForm = formulation.doseForm
-                        viewModel.medFhirId = formulation.medFhirId
+                        viewModel.setData(formulation)
                     }
                 )
                 .padding(bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             RadioButton(
-                selected = formulation.medFhirId == viewModel.medFhirId,
+                selected = formulation.code.codingFirstRep.code == viewModel.medFhirId,
                 onClick = {
                     viewModel.reset()
-                    viewModel.medSelected = formulation.medName
-                    viewModel.medUnit = formulation.medUnit
-                    viewModel.medDoseForm = formulation.doseForm
-                    viewModel.medFhirId = formulation.medFhirId
+                    viewModel.setData(formulation)
                 }
             )
             Text(
-                text = formulation.medName,
+                text = formulation.code.codingFirstRep.display,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )

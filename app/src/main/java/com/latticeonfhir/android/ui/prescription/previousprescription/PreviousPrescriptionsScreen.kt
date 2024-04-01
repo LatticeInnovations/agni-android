@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -37,7 +38,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
@@ -134,10 +134,10 @@ fun PrescriptionCard(
                 Column(
                     modifier = Modifier.testTag("PREVIOUS_PRESCRIPTION_EXPANDED_CARD")
                 ) {
-                    Divider(
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 20.dp),
                         thickness = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        modifier = Modifier.padding(vertical = 20.dp)
+                        color = MaterialTheme.colorScheme.outlineVariant
                     )
                     prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
                         MedicineDetails(
@@ -158,33 +158,33 @@ fun PrescriptionCard(
                     if (isLatest) {
                         TextButton(
                             onClick = {
-                                viewModel.appointmentResponseLocal.run {
-                                    when (this?.status) {
-                                        AppointmentStatusEnum.ARRIVED.value, AppointmentStatusEnum.WALK_IN.value -> {
-                                            saveRePrescription(
-                                                context,
-                                                viewModel,
-                                                prescription,
-                                                coroutineScope,
-                                                snackbarHostState
-                                            )
-                                        }
-
-                                        AppointmentStatusEnum.IN_PROGRESS.value, AppointmentStatusEnum.COMPLETED.value -> {
-                                            coroutineScope.launch {
-                                                snackbarHostState.showSnackbar(
-                                                    context.getString(R.string.prescription_already_exists_for_today)
-                                                )
-                                            }
-                                        }
-
-                                        else -> coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                context.getString(R.string.please_add_patient_to_queue)
-                                            )
-                                        }
-                                    }
-                                }
+//                                viewModel.appointmentResponseLocal.run {
+//                                    when (this?.status) {
+//                                        AppointmentStatusEnum.ARRIVED.value, AppointmentStatusEnum.WALK_IN.value -> {
+//                                            saveRePrescription(
+//                                                context,
+//                                                viewModel,
+//                                                prescription,
+//                                                coroutineScope,
+//                                                snackbarHostState
+//                                            )
+//                                        }
+//
+//                                        AppointmentStatusEnum.IN_PROGRESS.value, AppointmentStatusEnum.COMPLETED.value -> {
+//                                            coroutineScope.launch {
+//                                                snackbarHostState.showSnackbar(
+//                                                    context.getString(R.string.prescription_already_exists_for_today)
+//                                                )
+//                                            }
+//                                        }
+//
+//                                        else -> coroutineScope.launch {
+//                                            snackbarHostState.showSnackbar(
+//                                                context.getString(R.string.please_add_patient_to_queue)
+//                                            )
+//                                        }
+//                                    }
+//                                }
                             },
                             modifier = Modifier
                                 .align(Alignment.End)
