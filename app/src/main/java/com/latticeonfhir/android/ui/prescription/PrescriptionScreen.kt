@@ -127,9 +127,6 @@ fun PrescriptionScreen(
             }
             viewModel.isLaunched = true
         }
-        viewModel.getAllMedicationDirections {
-            viewModel.medicationDirectionsList = it
-        }
     }
     Box(
         modifier = Modifier

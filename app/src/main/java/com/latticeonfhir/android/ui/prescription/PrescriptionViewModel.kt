@@ -71,11 +71,6 @@ class PrescriptionViewModel @Inject constructor(
     internal var todayAppointment by mutableStateOf<Appointment?>(null)
     internal var todayEncounter by mutableStateOf<Encounter?>(null)
 
-    private var timingList: Deferred<List<MedicineTimingEntity>> =
-        viewModelScope.async(Dispatchers.IO) {
-            medicationRepository.getAllMedicationDirections()
-        }
-
     var medicationList: Deferred<List<org.hl7.fhir.r4.model.Medication>> =
         viewModelScope.async(Dispatchers.IO) {
             getMedicationList(fhirEngine)
@@ -113,14 +108,6 @@ class PrescriptionViewModel @Inject constructor(
                 if (!activeIngredientsList.contains(activeIngredient))
                     activeIngredientsList = activeIngredientsList + listOf(activeIngredient)
             }
-        }
-    }
-
-    internal fun getAllMedicationDirections(medicationDirectionsList: (List<MedicineTimingEntity>) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            medicationDirectionsList(
-                timingList.await()
-            )
         }
     }
 
@@ -195,26 +182,26 @@ class PrescriptionViewModel @Inject constructor(
         )
     }
 
-    private suspend fun insertGenericEntityInDB(
-        date: Date,
-        prescriptionId: String,
-        medicationsList: List<Medication>
-    ): Long {
-        return genericRepository.insertPrescription(
-            PrescriptionResponse(
-                patientFhirId = patient.logicalId,
-                generatedOn = date,
-                prescriptionId = prescriptionId,
-                prescription = medicationsList.map { medication ->
-                    medication.copy(
-                        timing = timingList.await()
-                            .find { timing -> timing.medicalDosage == medication.timing }?.medicalDosageId
-                    )
-                },
-                prescriptionFhirId = null,
-                appointmentUuid = todayAppointment!!.logicalId,
-                appointmentId = todayAppointment!!.logicalId
-            )
-        )
-    }
+//    private suspend fun insertGenericEntityInDB(
+//        date: Date,
+//        prescriptionId: String,
+//        medicationsList: List<Medication>
+//    ): Long {
+//        return genericRepository.insertPrescription(
+//            PrescriptionResponse(
+//                patientFhirId = patient.logicalId,
+//                generatedOn = date,
+//                prescriptionId = prescriptionId,
+//                prescription = medicationsList.map { medication ->
+//                    medication.copy(
+//                        timing = timingList.await()
+//                            .find { timing -> timing.medicalDosage == medication.timing }?.medicalDosageId
+//                    )
+//                },
+//                prescriptionFhirId = null,
+//                appointmentUuid = todayAppointment!!.logicalId,
+//                appointmentId = todayAppointment!!.logicalId
+//            )
+//        )
+//    }
 }

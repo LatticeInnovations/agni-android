@@ -52,6 +52,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.MedicationTimingEnum
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
@@ -241,7 +242,7 @@ fun FillDetailsScreen(
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
-                        FormulationsForm(prescriptionViewModel, viewModel)
+                        FormulationsForm(viewModel)
                     }
                 }
             }
@@ -284,7 +285,6 @@ fun FormulationRadioList(viewModel: FillDetailsViewModel) {
 
 @Composable
 fun FormulationsForm(
-    prescriptionViewModel: PrescriptionViewModel,
     viewModel: FillDetailsViewModel
 ) {
     Column {
@@ -455,15 +455,15 @@ fun FormulationsForm(
                 expanded = timingsExpanded,
                 onDismissRequest = { timingsExpanded = !timingsExpanded },
             ) {
-                prescriptionViewModel.medicationDirectionsList.forEach { timing ->
+                MedicationTimingEnum.getListOfTiming().forEach { timing ->
                     DropdownMenuItem(
                         onClick = {
                             timingsExpanded = !timingsExpanded
-                            viewModel.timing = timing.medicalDosage
+                            viewModel.timing = timing
                         },
                         text = {
                             Text(
-                                text = timing.medicalDosage,
+                                text = timing,
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
