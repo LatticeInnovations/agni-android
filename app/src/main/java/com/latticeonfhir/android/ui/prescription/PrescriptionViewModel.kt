@@ -7,16 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationRequestAndMedication
-import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getMedicationList
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getTodayAppointmentAndEncounterOfPatient
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,12 +29,10 @@ import javax.inject.Inject
 class PrescriptionViewModel @Inject constructor(
     private val fhirEngine: FhirEngine,
     private val prescriptionRepository: PrescriptionRepository,
-    private val medicationRepository: MedicationRepository,
-    private val searchRepository: SearchRepository,
-    private val genericRepository: GenericRepository,
-    private val appointmentRepository: AppointmentRepository
+    private val searchRepository: SearchRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
+    var isPrescribing by mutableStateOf(false)
 
     var isSearching by mutableStateOf(false)
     var isSearchResult by mutableStateOf(false)
@@ -109,29 +101,17 @@ class PrescriptionViewModel @Inject constructor(
     }
 
     internal fun insertPrescription(
-        date: Date = Date(),
-        prescriptionId: String = UUIDBuilder.generateUUID(),
         ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-        inserted: (Long) -> Unit
+        inserted: () -> Unit
     ) {
-//        val medicationsList = mutableListOf<Medication>()
-//        medicationsResponseWithMedicationList.forEach { medicationResponseWithMedication ->
-//            medicationsList.add(
-//                medicationResponseWithMedication.medication
-//            )
-//        }
-        viewModelScope.launch {
-//            inserted(withContext(ioDispatcher) {
-//                insertPrescriptionInDB(date, prescriptionId, medicationsList).also {
-//                    insertGenericEntityInDB(date, prescriptionId, medicationsList)
-//                    appointmentRepository.updateAppointment(
-//                        todayAppointment!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
-//                            .also { updatedAppointmentResponse ->
-//                                todayAppointment = updatedAppointmentResponse
-//                            }
-//                    )
-//                }
-//            })
+        viewModelScope.launch(ioDispatcher) {
+            fhirEngine.create(*medicationRequestAndMedicationList.map { it.medicationRequest }.toTypedArray())
+            fhirEngine.update(
+                todayEncounter!!.apply {
+                    status = Encounter.EncounterStatus.INPROGRESS
+                }
+            )
+            inserted()
         }
     }
 
@@ -161,44 +141,4 @@ class PrescriptionViewModel @Inject constructor(
             )
         }
     }
-
-    private suspend fun insertPrescriptionInDB(
-        date: Date,
-        prescriptionId: String,
-        medicationsList: List<Medication>
-    ): Long {
-        return prescriptionRepository.insertPrescription(
-            PrescriptionResponseLocal(
-                patientId = patient.id,
-                patientFhirId = patient.logicalId,
-                generatedOn = date,
-                prescriptionId = prescriptionId,
-                prescription = medicationsList,
-                appointmentId = todayAppointment!!.logicalId
-            )
-        )
-    }
-
-//    private suspend fun insertGenericEntityInDB(
-//        date: Date,
-//        prescriptionId: String,
-//        medicationsList: List<Medication>
-//    ): Long {
-//        return genericRepository.insertPrescription(
-//            PrescriptionResponse(
-//                patientFhirId = patient.logicalId,
-//                generatedOn = date,
-//                prescriptionId = prescriptionId,
-//                prescription = medicationsList.map { medication ->
-//                    medication.copy(
-//                        timing = timingList.await()
-//                            .find { timing -> timing.medicalDosage == medication.timing }?.medicalDosageId
-//                    )
-//                },
-//                prescriptionFhirId = null,
-//                appointmentUuid = todayAppointment!!.logicalId,
-//                appointmentId = todayAppointment!!.logicalId
-//            )
-//        )
-//    }
 }

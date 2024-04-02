@@ -596,6 +596,7 @@ object FhirQueries {
         formCode: String
     ): MedicationRequest {
         val uuid = UUIDBuilder.generateUUID()
+        val groupId = Date().time.toString().slice(9 .. 11)+patientId
         return MedicationRequest().apply {
             id = uuid
             identifier.addAll(
@@ -620,6 +621,7 @@ object FhirQueries {
             encounter.reference = "${ResourceType.Encounter.name}/$encounterId"
             groupIdentifier = Identifier().apply {
                 system = GROUP_IDENTIFIER
+                value = groupId
             }
             if (notes.isNotBlank()) {
                 note.add(
