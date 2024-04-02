@@ -23,7 +23,7 @@ interface SearchRepository {
     ): Flow<PagingData<PaginationResponse<Patient>>>
 
     /** Medication Search */
-    suspend fun searchActiveIngredients(activeIngredient: String): List<String>
+    suspend fun searchActiveIngredients(activeIngredient: String, activeIngredientList: List<String>): List<String>
 
     /** Recent Patient Search*/
     suspend fun insertRecentPatientSearch(searchQuery: String, date: Date = Date()): Long

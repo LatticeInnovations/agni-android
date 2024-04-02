@@ -9,4 +9,6 @@ object IdentificationConstants {
     const val VOTER_ID_TYPE = "https://www.nvsp.in/"
     const val PATIENT_ID_TYPE = "https://www.apollohospitals.com/"
     const val ENCOUNTER_SYSTEM = "http://hl7.org/fhir/sid/sn"
+    const val SCT_URL = "http://snomed.info/sct"
+    const val GROUP_IDENTIFIER = "http://hospital.smarthealthit.org/prescriptions"
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
+import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getActiveIngredient
 import java.util.Locale
 
 @Composable
@@ -55,10 +56,10 @@ fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
                 } else {
                     viewModel.selectedActiveIngredientsList =
                         viewModel.selectedActiveIngredientsList - listOf(activeIngredient).toSet()
-                    viewModel.medicationsResponseWithMedicationList.forEach { medication ->
-                        if (medication.activeIngredient == activeIngredient) {
-                            viewModel.medicationsResponseWithMedicationList =
-                                viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
+                    viewModel. medicationRequestAndMedicationList.forEach { medication ->
+                        if (getActiveIngredient(medication.medication) == activeIngredient) {
+                            viewModel. medicationRequestAndMedicationList =
+                                viewModel. medicationRequestAndMedicationList - listOf(medication).toSet()
                         }
                     }
                 }
@@ -76,10 +77,10 @@ fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
                 } else {
                     viewModel.selectedActiveIngredientsList =
                         viewModel.selectedActiveIngredientsList - listOf(activeIngredient).toSet()
-                    viewModel.medicationsResponseWithMedicationList.forEach { medication ->
-                        if (medication.activeIngredient == activeIngredient) {
-                            viewModel.medicationsResponseWithMedicationList =
-                                viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
+                    viewModel. medicationRequestAndMedicationList.forEach { medication ->
+                        if (getActiveIngredient(medication.medication) == activeIngredient) {
+                            viewModel. medicationRequestAndMedicationList =
+                                viewModel. medicationRequestAndMedicationList - listOf(medication).toSet()
                         }
                     }
                 }
