@@ -9,7 +9,6 @@ import java.util.Locale
 
 object TimeConverter {
 
-    private const val YYYY_MM_DD = "yyyy-MM-dd"
     private const val HH_MM_A = "hh:mm a"
 
     internal fun Long.toAge(): Int {
@@ -53,50 +52,14 @@ object TimeConverter {
         return age
     }
 
-    internal fun String.toPatientDate(): String {
-        val inputFormat = SimpleDateFormat("dd-MMMM-yyyy", Locale.US)
-        val outputFormat = SimpleDateFormat(YYYY_MM_DD, Locale.US)
-        val date = inputFormat.parse(this)
-        return outputFormat.format(date!!)
-    }
-
-    internal fun String.toPatientPreviewDate(): String {
-        val inputFormat = SimpleDateFormat(YYYY_MM_DD, Locale.US)
-        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
-        val date = inputFormat.parse(this)
-        return outputFormat.format(date!!)
-    }
-
-
     internal fun Date.toPatientPreviewDate(): String {
         val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
         return outputFormat.format(this)
     }
 
-    internal fun ageToPatientDate(years: Int, months: Int, days: Int): String {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.YEAR, -years)
-        calendar.add(Calendar.MONTH, -months)
-        calendar.add(Calendar.DAY_OF_MONTH, -days)
-        val dob = calendar.time
-        val formatter = SimpleDateFormat("dd-MMMM-yyyy", Locale.US)
-        return formatter.format(dob)
-    }
-
     private fun Calendar.isLeapYear(): Boolean {
         return (this[Calendar.YEAR] % 400 == 0 ||
                 (this[Calendar.YEAR] % 4 == 0 && this[Calendar.YEAR] % 100 != 0))
-    }
-
-    internal fun Long.toDate(): String {
-        return if (this != 0.toLong()) {
-            val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = this
-            formatter.format(calendar.time)
-        } else {
-            ""
-        }
     }
 
     internal fun Date.toPrescriptionDate(): String {
@@ -257,17 +220,6 @@ object TimeConverter {
         return calendar.timeInMillis
     }
 
-    internal fun Long.toPatientDate(): String {
-        return if (this != 0.toLong()) {
-            val formatter = SimpleDateFormat(YYYY_MM_DD, Locale.getDefault())
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = this
-            formatter.format(calendar.time)
-        } else {
-            ""
-        }
-    }
-
     internal fun Date.calculateMinutesToOneThirty(): Long {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = time
@@ -278,20 +230,6 @@ object TimeConverter {
         calendar[Calendar.MILLISECOND] = 0
         val endTimeMillis = calendar.timeInMillis
         return ((endTimeMillis - time) / (1000 * 60))
-    }
-
-    internal fun Long.toTimeStampDate(): String {
-        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = this
-        return formatter.format(calendar.time)
-    }
-
-    internal fun String.toTimeInMilli(): Long {
-        val myDate = this
-        val sdf = SimpleDateFormat(YYYY_MM_DD, Locale.getDefault())
-        val date = sdf.parse(myDate)
-        return date?.time ?: 0L
     }
 
     internal fun Date.toTimeZoneString(): String {

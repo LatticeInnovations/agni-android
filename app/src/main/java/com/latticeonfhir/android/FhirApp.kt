@@ -18,19 +18,8 @@ import com.google.android.fhir.sync.Sync
 import com.google.android.fhir.sync.remote.HttpLogger
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepositoryImpl
-import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
-import com.latticeonfhir.android.data.server.api.PatientApiService
-import com.latticeonfhir.android.data.server.api.PrescriptionApiService
-import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
-import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
-import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import com.latticeonfhir.android.service.fhirsync.FhirPeriodicSyncWorker
-import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.converters.gson.DateDeserializer
 import com.latticeonfhir.android.utils.converters.gson.DateSerializer
@@ -56,28 +45,9 @@ class FhirApp : Application() {
     lateinit var sharedPreferences: SharedPreferences
 
     @Inject
-    lateinit var fhirAppDatabase: FhirAppDatabase
-
-    @Inject
     lateinit var preferenceStorage: PreferenceStorage
-
-    @Inject
-    lateinit var patientApiService: PatientApiService
-
-    @Inject
-    lateinit var prescriptionApiService: PrescriptionApiService
-
-    @Inject
-    lateinit var scheduleAndAppointmentApiService: ScheduleAndAppointmentApiService
-
-    private lateinit var _syncRepository: SyncRepository
-    internal val syncRepository get() = _syncRepository
-    private lateinit var _genericRepository: GenericRepository
-    private val genericRepository get() = _genericRepository
     private lateinit var _workRequestBuilder: WorkRequestBuilders
     internal val workRequestBuilder get() = _workRequestBuilder
-    private lateinit var _syncService: SyncService
-    internal val syncService get() = _syncService
     val sessionExpireFlow = MutableLiveData<Map<String, Any>>(emptyMap())
 
     internal var periodicSyncJobStatus = MutableLiveData<PeriodicSyncJobStatus>()
@@ -87,41 +57,12 @@ class FhirApp : Application() {
         if (BuildConfig.DEBUG) {
             plant(Timber.DebugTree())
         }
-        initializeFhirEngine()
-        if (preferenceStorage.token.isNotBlank()) {
-            enqueueWorker()
-        }
-
-        val preferenceRepository: PreferenceRepository = PreferenceRepositoryImpl(preferenceStorage)
-
-        _syncRepository = SyncRepositoryImpl(
-            patientApiService,
-            prescriptionApiService,
-            scheduleAndAppointmentApiService,
-            fhirAppDatabase.getPatientDao(),
-            fhirAppDatabase.getGenericDao(),
-            preferenceRepository,
-            fhirAppDatabase.getRelationDao(),
-            fhirAppDatabase.getMedicationDao(),
-            fhirAppDatabase.getPrescriptionDao(),
-            fhirAppDatabase.getScheduleDao(),
-            fhirAppDatabase.getAppointmentDao()
-        )
-
-        _genericRepository = GenericRepositoryImpl(
-            fhirAppDatabase.getGenericDao(),
-            fhirAppDatabase.getPatientDao(),
-            fhirAppDatabase.getScheduleDao(),
-            fhirAppDatabase.getAppointmentDao()
-        )
-
         if (!this::_workRequestBuilder.isInitialized) {
             _workRequestBuilder = WorkRequestBuilders(this)
         }
-
-        if (!this::_syncService.isInitialized) {
-            _syncService =
-                SyncService(this, syncRepository, genericRepository, preferenceRepository)
+        initializeFhirEngine()
+        if (preferenceStorage.token.isNotBlank()) {
+            enqueueWorker()
         }
     }
 

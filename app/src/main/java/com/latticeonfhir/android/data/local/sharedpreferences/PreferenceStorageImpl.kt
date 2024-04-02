@@ -30,42 +30,6 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         PREF_ROOM_ENCRYPTION_KEY,
         ""
     )
-    override var lastPatientSyncTime by LongPreference(
-        sharedPreferences,
-        PREF_LAST_PATIENT_SYNC_TIME,
-        0L
-    )
-    override var lastRelationSyncTime by LongPreference(
-        sharedPreferences,
-        PREF_LAST_RELATION_SYNC_TIME,
-        0L
-    )
-    override var lastPrescriptionSyncTime by LongPreference(
-        sharedPreferences,
-        PREF_LAST_PRESCRIPTION_SYNC_TIME,
-        0L
-    )
-    override var lastMedicationSyncTime by LongPreference(
-        sharedPreferences,
-        PREF_LAST_MEDICATION_SYNC_TIME,
-        0L
-    )
-    override var lastMedicineDosageInstructionSyncTime by LongPreference(
-        sharedPreferences,
-        PREF_LAST_MEDICINE_DOSAGE_INSTRUCTION_SYNC_TIME,
-        0L
-    )
-    override var lastScheduleSyncTime by LongPreference(
-        sharedPreferences,
-        PREF_LAST_SCHEDULE_SYNC_TIME,
-        0L
-    )
-    override var lastAppointmentSyncTime by LongPreference(
-        sharedPreferences,
-        PREF_LAST_APPOINTMENT_SYNC_TIME,
-        0L
-    )
-
     override fun clear() {
         sharedPreferences.edit {
             clear()
@@ -89,14 +53,5 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         const val PREF_LOCATION_FHIR_ID = "pref_location_fhir_id"
 
         const val PREF_ROOM_ENCRYPTION_KEY = "pref_room_encryption_key"
-
-        const val PREF_LAST_PATIENT_SYNC_TIME = "pref_last_patient_sync_time"
-        const val PREF_LAST_RELATION_SYNC_TIME = "pref_last_relation_sync_time"
-        const val PREF_LAST_PRESCRIPTION_SYNC_TIME = "pref_last_prescription_sync_time"
-        const val PREF_LAST_MEDICATION_SYNC_TIME = "pref_last_medication_sync_time"
-        const val PREF_LAST_MEDICINE_DOSAGE_INSTRUCTION_SYNC_TIME =
-            "pref_last_medication_timing_sync_time"
-        const val PREF_LAST_SCHEDULE_SYNC_TIME = "pref_last_schedule_sync_time"
-        const val PREF_LAST_APPOINTMENT_SYNC_TIME = "pref_last_appointment_sync_time"
     }
 }
