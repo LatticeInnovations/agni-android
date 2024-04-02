@@ -5,7 +5,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 fun TabRowComposable(
     tabs: List<String>,
     pagerState: PagerState,
+    enabled: Boolean = true,
     onClick: (Int) -> Unit
 ) {
     val density = LocalDensity.current
@@ -36,7 +37,7 @@ fun TabRowComposable(
         selectedTabIndex = pagerState.currentPage,
         modifier = Modifier.testTag("TABS"),
         indicator = { tabPositions ->
-            TabRowDefaults.Indicator(
+            SecondaryIndicator(
                 modifier = Modifier.customTabIndicatorOffset(
                     currentTabPosition = tabPositions[pagerState.currentPage],
                     tabWidth = tabWidths[pagerState.currentPage]
@@ -56,7 +57,8 @@ fun TabRowComposable(
                 modifier = Modifier.testTag(title.uppercase()),
                 selected = pagerState.currentPage == index,
                 onClick = { onClick(index) },
-                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                enabled = enabled
             )
         }
     }
