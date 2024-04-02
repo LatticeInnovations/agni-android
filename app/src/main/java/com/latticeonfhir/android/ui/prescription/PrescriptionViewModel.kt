@@ -126,7 +126,7 @@ class PrescriptionViewModel @Inject constructor(
     internal fun insertRecentSearch(query: String, date: Date = Date(), inserted: (Long) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             inserted(
-                searchRepository.insertRecentActiveIngredientSearch(query, date)
+                searchRepository.insertRecentActiveIngredientSearch(query.trim(), date)
             )
         }
     }
@@ -137,7 +137,7 @@ class PrescriptionViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             searchList(
-                searchRepository.searchActiveIngredients(activeIngredient)
+                searchRepository.searchActiveIngredients(activeIngredient, activeIngredientsList)
             )
         }
     }
