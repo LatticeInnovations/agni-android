@@ -35,7 +35,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.latticeonfhir.android.data.local.model.prescription.PreviousPrescription
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
+import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
@@ -53,7 +55,8 @@ fun PreviousPrescriptionsScreen(
             .padding(20.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        if (viewModel.previousPrescriptionList.isEmpty()) {
+        if (!viewModel.isLaunched) Loader()
+        else if (viewModel.previousPrescriptionList.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -79,7 +82,7 @@ fun PreviousPrescriptionsScreen(
 @Composable
 fun PrescriptionCard(
     viewModel: PrescriptionViewModel,
-    prescription: PrescriptionAndMedicineRelation,
+    prescription: PreviousPrescription,
     isLatest: Boolean,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope
@@ -112,7 +115,7 @@ fun PrescriptionCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = prescription.prescriptionEntity.prescriptionDate.toPrescriptionDate(),
+                    text = prescription.encounter.period.start.toPrescriptionDate(),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -133,16 +136,16 @@ fun PrescriptionCard(
                         thickness = 1.dp,
                         color = MaterialTheme.colorScheme.outlineVariant
                     )
-                    prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
+                    prescription.medicationRequestList.forEach { medReqAndMedication ->
                         MedicineDetails(
-                            medName = directionAndMedication.medicationEntity.medName,
+                            medName = medReqAndMedication.medication.code.codingFirstRep.display,
                             details = getMedInfo(
-                                duration = directionAndMedication.prescriptionDirectionsEntity.duration,
-                                frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
-                                medUnit = directionAndMedication.medicationEntity.medUnit,
-                                timing = directionAndMedication.prescriptionDirectionsEntity.timing,
-                                note = directionAndMedication.prescriptionDirectionsEntity.note,
-                                qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
+                                duration = medReqAndMedication.medicationRequest.dosageInstructionFirstRep.timing.repeat.period.toInt(),
+                                frequency = medReqAndMedication.medicationRequest.dosageInstructionFirstRep.timing.repeat.frequency,
+                                medUnit = medReqAndMedication.medication.ingredientFirstRep.strength.denominator.code,
+                                timing = medReqAndMedication.medicationRequest.dosageInstructionFirstRep.additionalInstructionFirstRep?.codingFirstRep?.display?:"",
+                                note = medReqAndMedication.medicationRequest.noteFirstRep?.text?:"",
+                                qtyPerDose = medReqAndMedication.medicationRequest.dosageInstructionFirstRep.doseAndRateFirstRep.doseQuantity.value.toInt(),
                                 context = context
                             )
                         )

@@ -7,11 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.model.prescription.PreviousPrescription
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationRequestAndMedication
-import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
+import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.GROUP_IDENTIFIER
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getMedicationList
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getPreviousPrescriptionOfPatient
 import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getTodayAppointmentAndEncounterOfPatient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,6 +22,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Appointment
 import org.hl7.fhir.r4.model.Encounter
+import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Patient
 import java.util.Date
 import javax.inject.Inject
@@ -28,7 +30,6 @@ import javax.inject.Inject
 @HiltViewModel
 class PrescriptionViewModel @Inject constructor(
     private val fhirEngine: FhirEngine,
-    private val prescriptionRepository: PrescriptionRepository,
     private val searchRepository: SearchRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
@@ -55,7 +56,7 @@ class PrescriptionViewModel @Inject constructor(
     var previousSearchList by mutableStateOf(listOf<String>())
     var activeIngredientSearchList by mutableStateOf(listOf<String>())
 
-    var previousPrescriptionList by mutableStateOf(listOf<PrescriptionAndMedicineRelation?>(null))
+    var previousPrescriptionList by mutableStateOf(listOf<PreviousPrescription?>(null))
 
     internal var todayAppointment by mutableStateOf<Appointment?>(null)
     internal var todayEncounter by mutableStateOf<Encounter?>(null)
@@ -78,11 +79,11 @@ class PrescriptionViewModel @Inject constructor(
 
     internal fun getPreviousPrescription(
         patientId: String,
-        previousPrescriptionList: (List<PrescriptionAndMedicineRelation>) -> Unit
+        previousPrescriptionList: (List<PreviousPrescription>) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             previousPrescriptionList(
-                prescriptionRepository.getLastPrescription(patientId)
+                getPreviousPrescriptionOfPatient(fhirEngine, patientId)
             )
         }
     }
@@ -105,10 +106,23 @@ class PrescriptionViewModel @Inject constructor(
         inserted: () -> Unit
     ) {
         viewModelScope.launch(ioDispatcher) {
-            fhirEngine.create(*medicationRequestAndMedicationList.map { it.medicationRequest }.toTypedArray())
+            val createdAt = Date()
+            val groupId = createdAt.time.toString().slice(9..11) + patient.logicalId
+            fhirEngine.create(
+                *medicationRequestAndMedicationList.map {
+                    it.medicationRequest.apply {
+                        groupIdentifier = Identifier().apply {
+                            system = GROUP_IDENTIFIER
+                            value = groupId
+                        }
+                    }
+                }.toTypedArray()
+            )
             fhirEngine.update(
                 todayEncounter!!.apply {
                     status = Encounter.EncounterStatus.INPROGRESS
+                    period.start = createdAt
+                    period.end = createdAt
                 }
             )
             inserted()
