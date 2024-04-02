@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
 
 @Dao
@@ -15,10 +14,6 @@ interface SearchDao {
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecentSearch(searchHistoryEntity: SearchHistoryEntity): Long
-
-    @Transaction
-    @Query("SELECT * FROM PatientEntity")
-    suspend fun getPatientList(): List<PatientAndIdentifierEntity>
 
     @Transaction
     @Query("SELECT searchQuery FROM SearchHistoryEntity WHERE searchType = :searchTypeEnum ORDER BY date DESC")
@@ -35,8 +30,4 @@ interface SearchDao {
     @Transaction
     @Query("SELECT id FROM SearchHistoryEntity WHERE searchType = :searchTypeEnum AND searchQuery=:searchQuery")
     suspend fun getIdOfDuplicateSearch(searchTypeEnum: SearchTypeEnum, searchQuery: String): Int?
-
-    @Transaction
-    @Query("SELECT DISTINCT activeIngredient FROM MedicationEntity")
-    suspend fun getActiveIngredients(): List<String>
 }

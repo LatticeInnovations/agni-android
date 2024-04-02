@@ -129,8 +129,11 @@ class SearchRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun searchActiveIngredients(activeIngredient: String): List<String> {
-        return getFuzzySearchMedicationList(activeIngredient, searchDao.getActiveIngredients(), 60)
+    override suspend fun searchActiveIngredients(
+        activeIngredient: String,
+        activeIngredientList: List<String>
+    ): List<String> {
+        return getFuzzySearchMedicationList(activeIngredient, activeIngredientList, 60)
     }
 
     override suspend fun insertRecentPatientSearch(searchQuery: String, date: Date): Long {
@@ -174,7 +177,17 @@ class SearchRepositoryImpl @Inject constructor(
 
     override suspend fun insertRecentActiveIngredientSearch(searchQuery: String, date: Date): Long {
         return searchDao.getRecentSearches(SearchTypeEnum.ACTIVE_INGREDIENT).run {
-            if (size == 5) {
+            val duplicateId = searchDao.getIdOfDuplicateSearch(SearchTypeEnum.ACTIVE_INGREDIENT, searchQuery)
+            if (duplicateId != null){
+                searchDao.deleteRecentSearch(duplicateId)
+                searchDao.insertRecentSearch(
+                    SearchHistoryEntity(
+                        searchQuery = searchQuery,
+                        date = date,
+                        searchType = SearchTypeEnum.ACTIVE_INGREDIENT
+                    )
+                )
+            } else if (size == 5) {
                 searchDao.getOldestRecentSearchId(SearchTypeEnum.ACTIVE_INGREDIENT).run {
                     searchDao.deleteRecentSearch(this)
                     searchDao.insertRecentSearch(
