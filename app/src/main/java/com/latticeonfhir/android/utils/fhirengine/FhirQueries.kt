@@ -5,12 +5,14 @@ import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.SearchResult
 import com.google.android.fhir.logicalId
 import com.google.android.fhir.search.include
+import com.google.android.fhir.search.revInclude
 import com.google.android.fhir.search.search
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusFhir
 import com.latticeonfhir.android.data.local.enums.MedicationTimingEnum
+import com.latticeonfhir.android.data.local.model.prescription.PreviousPrescription
+import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationRequestAndMedication
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.ENCOUNTER_SYSTEM
-import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.GROUP_IDENTIFIER
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.LATTICE
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.LATTICE_SYSTEM
 import com.latticeonfhir.android.utils.constants.patient.IdentificationConstants.SCT_URL
@@ -596,7 +598,6 @@ object FhirQueries {
         formCode: String
     ): MedicationRequest {
         val uuid = UUIDBuilder.generateUUID()
-        val groupId = Date().time.toString().slice(9 .. 11)+patientId
         return MedicationRequest().apply {
             id = uuid
             identifier.addAll(
@@ -619,10 +620,6 @@ object FhirQueries {
             medicationReference.reference = "${ResourceType.Medication.name}/$medicationId"
             subject.reference = "${ResourceType.Patient.name}/$patientId"
             encounter.reference = "${ResourceType.Encounter.name}/$encounterId"
-            groupIdentifier = Identifier().apply {
-                system = GROUP_IDENTIFIER
-                value = groupId
-            }
             if (notes.isNotBlank()) {
                 note.add(
                     Annotation().apply {
@@ -665,5 +662,43 @@ object FhirQueries {
                 }
             )
         }
+    }
+
+    suspend fun getPreviousPrescriptionOfPatient(
+        fhirEngine: FhirEngine,
+        patientId: String
+    ): List<PreviousPrescription> {
+        val previousPrescriptionList = mutableListOf<PreviousPrescription>()
+        fhirEngine.search<Encounter> {
+            filter(
+                Encounter.SUBJECT, {
+                    value = "${ResourceType.Patient.name}/$patientId"
+                }
+            )
+            revInclude(ResourceType.MedicationRequest, MedicationRequest.ENCOUNTER)
+        }.forEach { searchResult ->
+            val medicationReqList = mutableListOf<MedicationRequestAndMedication>()
+            searchResult.revIncluded?.get(
+                Pair(ResourceType.MedicationRequest, MedicationRequest.ENCOUNTER.paramName)
+            )?.forEach { medReq ->
+                val mr = medReq as MedicationRequest
+                val medication = fhirEngine.get(ResourceType.Medication, mr.medicationReference.reference.substringAfter("/")) as Medication
+                medicationReqList.add(
+                    MedicationRequestAndMedication(
+                        medication = medication,
+                        medicationRequest = mr
+                    )
+                )
+            }
+            if (medicationReqList.isNotEmpty()) {
+                previousPrescriptionList.add(
+                    PreviousPrescription(
+                        encounter = searchResult.resource,
+                        medicationRequestList = medicationReqList
+                    )
+                )
+            }
+        }
+        return previousPrescriptionList.sortedByDescending { it.encounter.period.start }
     }
 }
