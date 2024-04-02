@@ -68,6 +68,7 @@ import androidx.navigation.NavController
 import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationRequestAndMedication
+import com.latticeonfhir.android.ui.common.ScreenLoader
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
 import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPrescriptionsScreen
@@ -327,6 +328,7 @@ fun PrescriptionScreen(
             }
         }
     }
+    if (viewModel.isPrescribing) ScreenLoader()
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -435,6 +437,7 @@ fun BottomNavLayout(
                     Button(
                         onClick = {
                             // add medications to prescriptions
+                            viewModel.isPrescribing = true
                             viewModel.insertPrescription {
                                 viewModel.selectedActiveIngredientsList = listOf()
                                 viewModel. medicationRequestAndMedicationList = emptyList()
@@ -443,6 +446,7 @@ fun BottomNavLayout(
                                 viewModel.getPreviousPrescription(viewModel.patient.logicalId) { prescriptionList ->
                                     viewModel.previousPrescriptionList = prescriptionList
                                 }
+                                viewModel.isPrescribing = false
                                 coroutineScope.launch {
                                     snackbarHostState.showSnackbar(
                                         message = context.getString(R.string.prescribed_successfully),
