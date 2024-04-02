@@ -98,7 +98,7 @@ object Sync {
 //      }
 
     @PublishedApi
-    internal inline fun <W : SyncWorker> createOneTimeWorkRequest(
+    internal fun <W : SyncWorker> createOneTimeWorkRequest(
         retryConfiguration: RetryConfiguration?,
         clazz: Class<W>
     ): OneTimeWorkRequest {
@@ -120,7 +120,7 @@ object Sync {
     }
 
     @PublishedApi
-    internal inline fun <W : SyncWorker> createPeriodicWorkRequest(
+    internal fun <W : SyncWorker> createPeriodicWorkRequest(
         periodicSyncConfiguration: PeriodicSyncConfiguration,
         clazz: Class<W>
     ): PeriodicWorkRequest {
