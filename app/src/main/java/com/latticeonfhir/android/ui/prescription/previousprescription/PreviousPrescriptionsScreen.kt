@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.prescription.previousprescription
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
@@ -35,13 +36,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.prescription.PreviousPrescription
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getActiveIngredient
 import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Appointment
+import org.hl7.fhir.r4.model.Encounter
 
 @Composable
 fun PreviousPrescriptionsScreen(
@@ -143,8 +148,10 @@ fun PrescriptionCard(
                                 duration = medReqAndMedication.medicationRequest.dosageInstructionFirstRep.timing.repeat.period.toInt(),
                                 frequency = medReqAndMedication.medicationRequest.dosageInstructionFirstRep.timing.repeat.frequency,
                                 medUnit = medReqAndMedication.medication.ingredientFirstRep.strength.denominator.code,
-                                timing = medReqAndMedication.medicationRequest.dosageInstructionFirstRep.additionalInstructionFirstRep?.codingFirstRep?.display?:"",
-                                note = medReqAndMedication.medicationRequest.noteFirstRep?.text?:"",
+                                timing = medReqAndMedication.medicationRequest.dosageInstructionFirstRep.additionalInstructionFirstRep?.codingFirstRep?.display
+                                    ?: "",
+                                note = medReqAndMedication.medicationRequest.noteFirstRep?.text
+                                    ?: "",
                                 qtyPerDose = medReqAndMedication.medicationRequest.dosageInstructionFirstRep.doseAndRateFirstRep.doseQuantity.value.toInt(),
                                 context = context
                             )
@@ -154,33 +161,33 @@ fun PrescriptionCard(
                     if (isLatest) {
                         TextButton(
                             onClick = {
-//                                viewModel.appointmentResponseLocal.run {
-//                                    when (this?.status) {
-//                                        AppointmentStatusEnum.ARRIVED.value, AppointmentStatusEnum.WALK_IN.value -> {
-//                                            saveRePrescription(
-//                                                context,
-//                                                viewModel,
-//                                                prescription,
-//                                                coroutineScope,
-//                                                snackbarHostState
-//                                            )
-//                                        }
-//
-//                                        AppointmentStatusEnum.IN_PROGRESS.value, AppointmentStatusEnum.COMPLETED.value -> {
-//                                            coroutineScope.launch {
-//                                                snackbarHostState.showSnackbar(
-//                                                    context.getString(R.string.prescription_already_exists_for_today)
-//                                                )
-//                                            }
-//                                        }
-//
-//                                        else -> coroutineScope.launch {
-//                                            snackbarHostState.showSnackbar(
-//                                                context.getString(R.string.please_add_patient_to_queue)
-//                                            )
-//                                        }
-//                                    }
-//                                }
+                                viewModel.todayAppointment.run {
+                                    if (this?.status == Appointment.AppointmentStatus.ARRIVED && viewModel.todayEncounter?.status == Encounter.EncounterStatus.PLANNED) {
+                                        saveRePrescription(
+                                            context,
+                                            viewModel,
+                                            prescription,
+                                            coroutineScope,
+                                            snackbarHostState
+                                        )
+                                    } else if (this?.status == Appointment.AppointmentStatus.ARRIVED
+                                        && (viewModel.todayEncounter!!.status == Encounter.EncounterStatus.INPROGRESS
+                                                || viewModel.todayEncounter!!.status == Encounter.EncounterStatus.FINISHED
+                                                )
+                                    ) {
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                context.getString(R.string.prescription_already_exists_for_today)
+                                            )
+                                        }
+                                    } else {
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                context.getString(R.string.please_add_patient_to_queue)
+                                            )
+                                        }
+                                    }
+                                }
                             },
                             modifier = Modifier
                                 .align(Alignment.End)
@@ -213,43 +220,26 @@ fun MedicineDetails(medName: String, details: String) {
     }
 }
 
-//fun saveRePrescription(
-//    context: Context,
-//    viewModel: PrescriptionViewModel,
-//    prescription: PrescriptionAndMedicineRelation,
-//    coroutineScope: CoroutineScope,
-//    snackbarHostState: SnackbarHostState
-//) {
-//    viewModel.medicationsResponseWithMedicationList = emptyList()
-//    viewModel.selectedActiveIngredientsList = emptyList()
-//    prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
-//        viewModel.selectedActiveIngredientsList =
-//            viewModel.selectedActiveIngredientsList + listOf(
-//                directionAndMedication.medicationEntity.activeIngredient
-//            )
-//        viewModel.medicationsResponseWithMedicationList =
-//            viewModel.medicationsResponseWithMedicationList + listOf(
-//                MedicationResponseWithMedication(
-//                    activeIngredient = directionAndMedication.medicationEntity.activeIngredient,
-//                    medName = directionAndMedication.medicationEntity.medName,
-//                    medUnit = directionAndMedication.medicationEntity.medUnit,
-//                    medication = Medication(
-//                        doseForm = directionAndMedication.medicationEntity.doseForm,
-//                        duration = directionAndMedication.prescriptionDirectionsEntity.duration,
-//                        qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
-//                        frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
-//                        medFhirId = directionAndMedication.medicationEntity.medFhirId,
-//                        note = directionAndMedication.prescriptionDirectionsEntity.note,
-//                        timing = directionAndMedication.prescriptionDirectionsEntity.timing,
-//                        qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed
-//                    )
-//                )
-//            )
-//    }
-//    viewModel.bottomNavExpanded = false
-//    coroutineScope.launch {
-//        snackbarHostState.showSnackbar(
-//            message = context.getString(R.string.re_prescribed_successfully)
-//        )
-//    }
-//}
+fun saveRePrescription(
+    context: Context,
+    viewModel: PrescriptionViewModel,
+    prescription: PreviousPrescription,
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
+    viewModel.medicationRequestAndMedicationList = emptyList()
+    viewModel.selectedActiveIngredientsList = emptyList()
+    prescription.medicationRequestList.forEach { medReqAndMedication ->
+        viewModel.selectedActiveIngredientsList =
+            viewModel.selectedActiveIngredientsList + listOf(
+                getActiveIngredient(medReqAndMedication.medication)
+            )
+        viewModel.medicationRequestAndMedicationList = prescription.medicationRequestList
+    }
+    viewModel.bottomNavExpanded = false
+    coroutineScope.launch {
+        snackbarHostState.showSnackbar(
+            message = context.getString(R.string.re_prescribed_successfully)
+        )
+    }
+}
