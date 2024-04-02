@@ -28,15 +28,15 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -65,22 +65,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationRequestAndMedication
+import com.latticeonfhir.android.ui.common.ScreenLoader
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
 import com.latticeonfhir.android.ui.prescription.previousprescription.PreviousPrescriptionsScreen
 import com.latticeonfhir.android.ui.prescription.quickselect.QuickSelectScreen
 import com.latticeonfhir.android.ui.prescription.search.PrescriptionSearchResult
 import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getActiveIngredient
 import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.util.Date
+import org.hl7.fhir.r4.model.Appointment
+import org.hl7.fhir.r4.model.Encounter
+import org.hl7.fhir.r4.model.Patient
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -94,8 +96,8 @@ fun PrescriptionScreen(
         initialPage = 0,
         initialPageOffsetFraction = 0f
     ) {
-        viewModel.appointmentResponseLocal.run {
-            if (this == null || (status != AppointmentStatusEnum.ARRIVED.value && status != AppointmentStatusEnum.WALK_IN.value))
+        viewModel.todayAppointment.run {
+            if (this == null || (status != Appointment.AppointmentStatus.ARRIVED))
                 1
             else
                 viewModel.tabs.size
@@ -116,28 +118,17 @@ fun PrescriptionScreen(
     }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            viewModel.getActiveIngredients {
-                viewModel.activeIngredientsList = it
-            }
+            viewModel.getActiveIngredients()
             viewModel.patient =
-                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
-                )
-            viewModel.getPatientTodayAppointment(
-                Date(Date().toTodayStartDate()),
-                Date(Date().toEndOfDay()),
-                viewModel.patient!!.id
-            )
-            viewModel.patient?.let {
-                viewModel.getPreviousPrescription(it.id) { prescriptionList ->
-                    viewModel.previousPrescriptionList = prescriptionList
-                }
+                navController.previousBackStackEntry?.savedStateHandle?.get<Patient>(
+                    PATIENT
+                )!!
+            viewModel.getPatientTodayAppointment()
+            viewModel.getPreviousPrescription(viewModel.patient.logicalId) { prescriptionList ->
+                viewModel.previousPrescriptionList = prescriptionList
             }
+            viewModel.isLaunched = true
         }
-        viewModel.getAllMedicationDirections {
-            viewModel.medicationDirectionsList = it
-        }
-        viewModel.isLaunched = true
     }
     Box(
         modifier = Modifier
@@ -164,7 +155,10 @@ fun PrescriptionScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "BACK_ICON"
+                            )
                         }
                     },
                     actions = {
@@ -192,16 +186,24 @@ fun PrescriptionScreen(
                     ) {
                         TabRowComposable(
                             viewModel.tabs,
-                            pagerState
+                            pagerState,
+                            viewModel.isLaunched
                         ) { index ->
-                            viewModel.appointmentResponseLocal.run {
-                                if (index == 0 || (index == 1 && (this?.status == AppointmentStatusEnum.ARRIVED.value || this?.status == AppointmentStatusEnum.WALK_IN.value))) {
+                            viewModel.todayAppointment.run {
+                                if (index == 0 || (index == 1 && (this?.status == Appointment.AppointmentStatus.ARRIVED
+                                            && viewModel.todayEncounter!!.status == Encounter.EncounterStatus.PLANNED))
+                                ) {
                                     coroutineScope.launch {
                                         pagerState.animateScrollToPage(
                                             index
                                         )
                                     }
-                                } else if (index == 1 && this?.status == AppointmentStatusEnum.IN_PROGRESS.value || this?.status == AppointmentStatusEnum.COMPLETED.value) {
+                                } else if (index == 1 && (this?.status == Appointment.AppointmentStatus.ARRIVED
+                                            && (
+                                            viewModel.todayEncounter!!.status == Encounter.EncounterStatus.INPROGRESS
+                                                    || viewModel.todayEncounter!!.status == Encounter.EncounterStatus.FINISHED
+                                            ))
+                                ) {
                                     coroutineScope.launch {
                                         snackbarHostState.showSnackbar(
                                             context.getString(R.string.prescription_already_exists_for_today)
@@ -242,7 +244,7 @@ fun PrescriptionScreen(
                                 TextButton(
                                     onClick = {
                                         viewModel.selectedActiveIngredientsList = listOf()
-                                        viewModel.medicationsResponseWithMedicationList = listOf()
+                                        viewModel.medicationRequestAndMedicationList = listOf()
                                         viewModel.bottomNavExpanded = false
                                         viewModel.clearAllConfirmDialog = false
                                     },
@@ -326,6 +328,7 @@ fun PrescriptionScreen(
             }
         }
     }
+    if (viewModel.isPrescribing) ScreenLoader()
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -342,7 +345,7 @@ fun BottomNavLayout(
         label = "Rotation state of expand icon button",
     )
     AnimatedVisibility(
-        visible = viewModel.medicationsResponseWithMedicationList.isNotEmpty(),
+        visible = viewModel.medicationRequestAndMedicationList.isNotEmpty(),
         enter = expandVertically(),
         exit = shrinkVertically()
     ) {
@@ -378,12 +381,12 @@ fun BottomNavLayout(
                                 Text(text = stringResource(id = R.string.clear_all))
                             }
                         }
-                        Divider()
+                        HorizontalDivider()
                         LazyColumn(
                             modifier = Modifier
                                 .heightIn(0.dp, 450.dp)
                         ) {
-                            items(viewModel.medicationsResponseWithMedicationList) { medication ->
+                            items(viewModel. medicationRequestAndMedicationList) { medication ->
                                 SelectedCompoundCard(
                                     viewModel = viewModel,
                                     medication = medication
@@ -434,16 +437,16 @@ fun BottomNavLayout(
                     Button(
                         onClick = {
                             // add medications to prescriptions
+                            viewModel.isPrescribing = true
                             viewModel.insertPrescription {
                                 viewModel.selectedActiveIngredientsList = listOf()
-                                viewModel.medicationsResponseWithMedicationList = emptyList()
+                                viewModel. medicationRequestAndMedicationList = emptyList()
                                 coroutineScope.launch { pagerState.animateScrollToPage(0) }
                                 viewModel.isSearchResult = false
-                                viewModel.patient?.let {
-                                    viewModel.getPreviousPrescription(it.id) { prescriptionList ->
-                                        viewModel.previousPrescriptionList = prescriptionList
-                                    }
+                                viewModel.getPreviousPrescription(viewModel.patient.logicalId) { prescriptionList ->
+                                    viewModel.previousPrescriptionList = prescriptionList
                                 }
+                                viewModel.isPrescribing = false
                                 coroutineScope.launch {
                                     snackbarHostState.showSnackbar(
                                         message = context.getString(R.string.prescribed_successfully),
@@ -468,7 +471,7 @@ fun BottomNavLayout(
 @Composable
 fun SelectedCompoundCard(
     viewModel: PrescriptionViewModel,
-    medication: MedicationResponseWithMedication
+    medication: MedicationRequestAndMedication
 ) {
     val context = LocalContext.current
     val checkedState = remember {
@@ -485,9 +488,9 @@ fun SelectedCompoundCard(
                 onCheckedChange = {
                     if (!it) {
                         viewModel.selectedActiveIngredientsList =
-                            viewModel.selectedActiveIngredientsList - listOf(medication.activeIngredient).toSet()
-                        viewModel.medicationsResponseWithMedicationList =
-                            viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
+                            viewModel.selectedActiveIngredientsList - listOf(getActiveIngredient(medication.medication)).toSet()
+                        viewModel.medicationRequestAndMedicationList =
+                            viewModel. medicationRequestAndMedicationList - listOf(medication).toSet()
                         if (viewModel.selectedActiveIngredientsList.isEmpty()) viewModel.bottomNavExpanded =
                             false
                     }
@@ -500,19 +503,18 @@ fun SelectedCompoundCard(
                     .weight(1f)
             ) {
                 Text(
-                    text = medication.medName,
+                    text = medication.medication.code.text,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = getMedInfo(
-                        duration = medication.medication.duration,
-                        frequency = medication.medication.frequency,
-                        medUnit = medication.medUnit,
-                        timing = medication.medication.timing,
-                        note = medication.medication.note,
-                        qtyPerDose = medication.medication.qtyPerDose,
-                        qtyPrescribed = medication.medication.qtyPrescribed,
+                        duration = medication.medicationRequest.dosageInstructionFirstRep.timing.repeat.period.toInt(),
+                        frequency = medication.medicationRequest.dosageInstructionFirstRep.timing.repeat.frequency,
+                        medUnit = medication.medication.ingredientFirstRep.strength.denominator.code,
+                        timing = medication.medicationRequest.dosageInstructionFirstRep.additionalInstructionFirstRep?.codingFirstRep?.display?:"",
+                        note = medication.medicationRequest.noteFirstRep?.text?:"",
+                        qtyPerDose = medication.medicationRequest.dosageInstructionFirstRep.doseAndRateFirstRep.doseQuantity.value.toInt(),
                         context = context
                     ),
                     style = MaterialTheme.typography.bodyMedium,
@@ -520,7 +522,7 @@ fun SelectedCompoundCard(
                 )
             }
             IconButton(onClick = {
-                viewModel.checkedActiveIngredient = medication.activeIngredient
+                viewModel.checkedActiveIngredient = getActiveIngredient(medication.medication)
                 viewModel.medicationToEdit = medication
             }) {
                 Icon(
@@ -531,6 +533,6 @@ fun SelectedCompoundCard(
                 )
             }
         }
-        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
     }
 }

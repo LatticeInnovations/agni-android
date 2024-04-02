@@ -3,22 +3,18 @@ package com.latticeonfhir.android.ui.prescription.filldetails
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
-import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Medication
+import org.hl7.fhir.r4.model.MedicationRequest
 import javax.inject.Inject
 
 @HiltViewModel
-class FillDetailsViewModel @Inject constructor(
-    private val medicationRepository: MedicationRepository
-) : BaseViewModel() {
+class FillDetailsViewModel @Inject constructor() : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
-    var formulationsList by mutableStateOf(listOf<MedicationResponse>())
+    var formulationsList by mutableStateOf(listOf<Medication>())
     var medSelected by mutableStateOf("")
+    var medicationSelected by mutableStateOf<Medication?>(null)
 
     var quantityPerDose by mutableStateOf("1")
     var frequency by mutableStateOf("1")
@@ -49,14 +45,43 @@ class FillDetailsViewModel @Inject constructor(
         isDurationInvalid = false
     }
 
+    internal fun setData(formulation: Medication) {
+        medicationSelected = formulation
+        medSelected = formulation.code.codingFirstRep.display
+        medUnit = formulation.ingredientFirstRep.strength.denominator.code
+        medDoseForm = formulation.form.text
+        medFhirId = formulation.code.codingFirstRep.code
+    }
+
+    internal fun setFormData(medicationRequest: MedicationRequest) {
+        quantityPerDose = medicationRequest.dosageInstructionFirstRep.doseAndRateFirstRep.doseQuantity.value.toString()
+        frequency = medicationRequest.dosageInstructionFirstRep.timing.repeat.frequency.toString()
+        notes = medicationRequest.noteFirstRep?.text?:""
+        timing = medicationRequest.dosageInstructionFirstRep.additionalInstructionFirstRep?.codingFirstRep?.display?:""
+        duration = medicationRequest.dosageInstructionFirstRep.timing.repeat.period.toString()
+    }
+
     internal fun getMedicationByActiveIngredient(
         activeIngredientName: String,
-        formulationsList: (List<MedicationResponse>) -> Unit
+        medicationList: List<Medication>
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            formulationsList(
-                medicationRepository.getMedicationByActiveIngredient(activeIngredientName)
-            )
+        formulationsList = if (activeIngredientName.contains("+")) {
+            medicationList.filter {
+                it.ingredient.size > 1
+            }.filter {
+                it.ingredient[0].itemCodeableConcept.codingFirstRep.display == activeIngredientName.substringBefore(
+                    "+"
+                ) &&
+                        it.ingredient[1].itemCodeableConcept.codingFirstRep.display == activeIngredientName.substringAfter(
+                    "+"
+                )
+            }
+        } else {
+            medicationList.filter {
+                it.ingredient.size == 1
+            }.filter {
+                it.ingredientFirstRep.itemCodeableConcept.codingFirstRep.display == activeIngredientName
+            }
         }
     }
 }

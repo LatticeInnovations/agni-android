@@ -51,11 +51,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
+import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
+import com.latticeonfhir.android.data.local.enums.MedicationTimingEnum
+import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationRequestAndMedication
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
+import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getActiveIngredient
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.createMedicationRequestResource
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
 import java.util.Locale
 
@@ -66,25 +68,16 @@ fun FillDetailsScreen(
     viewModel: FillDetailsViewModel = hiltViewModel()
 ) {
     LaunchedEffect(prescriptionViewModel.checkedActiveIngredient) {
-        viewModel.getMedicationByActiveIngredient(prescriptionViewModel.checkedActiveIngredient) {
-            viewModel.formulationsList = it
-        }
+        viewModel.getMedicationByActiveIngredient(
+            prescriptionViewModel.checkedActiveIngredient,
+            prescriptionViewModel.medicationList.await()
+        )
         viewModel.reset()
     }
     LaunchedEffect(viewModel.isLaunched) {
         if (prescriptionViewModel.medicationToEdit != null) {
-            viewModel.medSelected = prescriptionViewModel.medicationToEdit!!.medName
-            viewModel.medUnit = prescriptionViewModel.medicationToEdit!!.medUnit
-            viewModel.medDoseForm = prescriptionViewModel.medicationToEdit!!.medication.doseForm
-            viewModel.quantityPerDose =
-                prescriptionViewModel.medicationToEdit!!.medication.qtyPerDose.toString()
-            viewModel.frequency =
-                prescriptionViewModel.medicationToEdit!!.medication.frequency.toString()
-            viewModel.notes = prescriptionViewModel.medicationToEdit!!.medication.note ?: ""
-            viewModel.medFhirId = prescriptionViewModel.medicationToEdit!!.medication.medFhirId
-            viewModel.timing = prescriptionViewModel.medicationToEdit!!.medication.timing ?: ""
-            viewModel.duration =
-                prescriptionViewModel.medicationToEdit!!.medication.duration.toString()
+            viewModel.setData(prescriptionViewModel.medicationToEdit!!.medication)
+            viewModel.setFormData(prescriptionViewModel.medicationToEdit!!.medicationRequest)
         }
     }
     Scaffold(
@@ -115,10 +108,10 @@ fun FillDetailsScreen(
                             if (prescriptionViewModel.medicationToEdit != null) {
                                 prescriptionViewModel.selectedActiveIngredientsList =
                                     prescriptionViewModel.selectedActiveIngredientsList - listOf(
-                                        prescriptionViewModel.medicationToEdit!!.activeIngredient
+                                        getActiveIngredient(prescriptionViewModel.medicationToEdit!!.medication)
                                     ).toSet()
-                                prescriptionViewModel.medicationsResponseWithMedicationList =
-                                    prescriptionViewModel.medicationsResponseWithMedicationList - listOf(
+                                prescriptionViewModel.medicationRequestAndMedicationList =
+                                    prescriptionViewModel.medicationRequestAndMedicationList - listOf(
                                         prescriptionViewModel.medicationToEdit!!
                                     ).toSet()
                             }
@@ -126,21 +119,21 @@ fun FillDetailsScreen(
                                 prescriptionViewModel.selectedActiveIngredientsList + listOf(
                                     prescriptionViewModel.checkedActiveIngredient
                                 )
-                            prescriptionViewModel.medicationsResponseWithMedicationList =
-                                prescriptionViewModel.medicationsResponseWithMedicationList + listOf(
-                                    MedicationResponseWithMedication(
-                                        medName = viewModel.medSelected,
-                                        medUnit = viewModel.medUnit,
-                                        activeIngredient = prescriptionViewModel.checkedActiveIngredient,
-                                        medication = Medication(
-                                            duration = viewModel.duration.toInt(),
-                                            frequency = viewModel.frequency.toInt(),
-                                            note = viewModel.notes,
-                                            qtyPerDose = viewModel.quantityPerDose.toInt(),
-                                            qtyPrescribed = viewModel.quantityPrescribed().toInt(),
-                                            timing = viewModel.timing,
-                                            doseForm = viewModel.medDoseForm,
-                                            medFhirId = viewModel.medFhirId
+                            prescriptionViewModel.medicationRequestAndMedicationList =
+                                prescriptionViewModel.medicationRequestAndMedicationList + listOf(
+                                    MedicationRequestAndMedication(
+                                        medication = viewModel.medicationSelected!!,
+                                        medicationRequest = createMedicationRequestResource(
+                                            encounterId = prescriptionViewModel.todayEncounter!!.logicalId,
+                                            medicationId = viewModel.medicationSelected!!.logicalId,
+                                            patientId = prescriptionViewModel.patient.logicalId,
+                                            notes = viewModel.notes,
+                                            medTiming = viewModel.timing,
+                                            freq = viewModel.frequency,
+                                            duration = viewModel.duration,
+                                            qty = viewModel.quantityPerDose,
+                                            formDisplay = viewModel.medDoseForm,
+                                            formCode = viewModel.medicationSelected!!.form.codingFirstRep.code
                                         )
                                     )
                                 )
@@ -156,8 +149,8 @@ fun FillDetailsScreen(
                 }
             )
         },
-        content = {
-            Box(modifier = Modifier.padding(it)) {
+        content = { paddingValue ->
+            Box(modifier = Modifier.padding(paddingValue)) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -170,10 +163,8 @@ fun FillDetailsScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("ACTIVE_INGREDIENT_FIELD"),
-                            value = prescriptionViewModel.checkedActiveIngredient.replaceFirstChar {
-                                if (it.isLowerCase()) it.titlecase(
-                                    Locale.getDefault()
-                                ) else it.toString()
+                            value = prescriptionViewModel.checkedActiveIngredient.replaceFirstChar { char ->
+                                char.titlecase(Locale.getDefault())
                             },
                             onValueChange = {
                             },
@@ -219,10 +210,8 @@ fun FillDetailsScreen(
                                     },
                                     text = {
                                         Text(
-                                            text = label.replaceFirstChar {
-                                                if (it.isLowerCase()) it.titlecase(
-                                                    Locale.getDefault()
-                                                ) else it.toString()
+                                            text = label.replaceFirstChar { char ->
+                                                char.titlecase(Locale.getDefault())
                                             },
                                             style = MaterialTheme.typography.bodyLarge,
                                             color = MaterialTheme.colorScheme.onSurface
@@ -245,7 +234,7 @@ fun FillDetailsScreen(
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
-                        FormulationsForm(prescriptionViewModel, viewModel)
+                        FormulationsForm(viewModel)
                     }
                 }
             }
@@ -261,30 +250,24 @@ fun FormulationRadioList(viewModel: FillDetailsViewModel) {
                 .fillMaxWidth()
                 .testTag("FORMULATION_LIST")
                 .selectable(
-                    selected = (formulation.medFhirId == viewModel.medFhirId),
+                    selected = (formulation.code.codingFirstRep.code == viewModel.medFhirId),
                     onClick = {
                         viewModel.reset()
-                        viewModel.medSelected = formulation.medName
-                        viewModel.medUnit = formulation.medUnit
-                        viewModel.medDoseForm = formulation.doseForm
-                        viewModel.medFhirId = formulation.medFhirId
+                        viewModel.setData(formulation)
                     }
                 )
                 .padding(bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             RadioButton(
-                selected = formulation.medFhirId == viewModel.medFhirId,
+                selected = formulation.code.codingFirstRep.code == viewModel.medFhirId,
                 onClick = {
                     viewModel.reset()
-                    viewModel.medSelected = formulation.medName
-                    viewModel.medUnit = formulation.medUnit
-                    viewModel.medDoseForm = formulation.doseForm
-                    viewModel.medFhirId = formulation.medFhirId
+                    viewModel.setData(formulation)
                 }
             )
             Text(
-                text = formulation.medName,
+                text = formulation.code.codingFirstRep.display,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -294,7 +277,6 @@ fun FormulationRadioList(viewModel: FillDetailsViewModel) {
 
 @Composable
 fun FormulationsForm(
-    prescriptionViewModel: PrescriptionViewModel,
     viewModel: FillDetailsViewModel
 ) {
     Column {
@@ -465,15 +447,15 @@ fun FormulationsForm(
                 expanded = timingsExpanded,
                 onDismissRequest = { timingsExpanded = !timingsExpanded },
             ) {
-                prescriptionViewModel.medicationDirectionsList.forEach { timing ->
+                MedicationTimingEnum.getListOfTiming().forEach { timing ->
                     DropdownMenuItem(
                         onClick = {
                             timingsExpanded = !timingsExpanded
-                            viewModel.timing = timing.medicalDosage
+                            viewModel.timing = timing
                         },
                         text = {
                             Text(
-                                text = timing.medicalDosage,
+                                text = timing,
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
