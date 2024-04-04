@@ -5,50 +5,6 @@ import javax.inject.Inject
 
 class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage: PreferenceStorage) :
     PreferenceRepository {
-
-    override fun setLastSyncPatient(long: Long) {
-        preferenceStorage.lastPatientSyncTime = long
-    }
-
-    override fun getLastSyncPatient() = preferenceStorage.lastPatientSyncTime
-
-    override fun setLastSyncRelation(long: Long) {
-        preferenceStorage.lastRelationSyncTime = long
-    }
-
-    override fun getLastSyncRelation() = preferenceStorage.lastRelationSyncTime
-
-    override fun setLastSyncPrescription(long: Long) {
-        preferenceStorage.lastPrescriptionSyncTime = long
-    }
-
-    override fun getLastSyncPrescription() = preferenceStorage.lastPrescriptionSyncTime
-
-    override fun setLastMedicationSyncDate(long: Long) {
-        preferenceStorage.lastMedicationSyncTime = long
-    }
-
-    override fun getLastMedicationSyncDate(): Long = preferenceStorage.lastMedicationSyncTime
-
-    override fun setLastMedicineDosageInstructionSyncDate(long: Long) {
-        preferenceStorage.lastMedicineDosageInstructionSyncTime = long
-    }
-
-    override fun setLastSyncSchedule(long: Long) {
-        preferenceStorage.lastScheduleSyncTime = long
-    }
-
-    override fun getLastSyncSchedule() = preferenceStorage.lastScheduleSyncTime
-
-    override fun setLastSyncAppointment(long: Long) {
-        preferenceStorage.lastAppointmentSyncTime = long
-    }
-
-    override fun getLastSyncAppointment() = preferenceStorage.lastAppointmentSyncTime
-
-    override fun getLastMedicineDosageInstructionSyncDate() =
-        preferenceStorage.lastMedicineDosageInstructionSyncTime
-
     override fun setUserFhirId(userFhirId: String) {
         preferenceStorage.userFhirId = userFhirId
     }

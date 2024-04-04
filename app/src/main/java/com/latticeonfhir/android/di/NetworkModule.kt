@@ -4,9 +4,6 @@ import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.FhirApp.Companion.gson
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import com.latticeonfhir.android.data.server.api.AuthenticationApiService
-import com.latticeonfhir.android.data.server.api.PatientApiService
-import com.latticeonfhir.android.data.server.api.PrescriptionApiService
-import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
 import com.latticeonfhir.android.utils.constants.AuthenticationConstants.X_ACCESS_TOKEN
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import dagger.Module
@@ -88,25 +85,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun providePatientApiService(retrofit: Retrofit): PatientApiService {
-        return retrofit.create(PatientApiService::class.java)
-    }
-
-    @Provides
-    @Singleton
     fun provideAuthenticationApiService(retrofit: Retrofit): AuthenticationApiService {
         return retrofit.create(AuthenticationApiService::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun providePrescriptionApiService(retrofit: Retrofit): PrescriptionApiService {
-        return retrofit.create(PrescriptionApiService::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideScheduleApiService(retrofit: Retrofit): ScheduleAndAppointmentApiService {
-        return retrofit.create(ScheduleAndAppointmentApiService::class.java)
     }
 }
