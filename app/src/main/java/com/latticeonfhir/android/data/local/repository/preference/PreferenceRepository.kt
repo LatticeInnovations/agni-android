@@ -1,35 +1,6 @@
 package com.latticeonfhir.android.data.local.repository.preference
 
 interface PreferenceRepository {
-
-    /** Last Sync Patient */
-    fun setLastSyncPatient(long: Long)
-    fun getLastSyncPatient(): Long
-
-    /** Last Sync Relation */
-    fun setLastSyncRelation(long: Long)
-    fun getLastSyncRelation(): Long
-
-    /** Last Sync Prescription */
-    fun setLastSyncPrescription(long: Long)
-    fun getLastSyncPrescription(): Long
-
-    /** Last Medication Sync Date */
-    fun setLastMedicationSyncDate(long: Long)
-    fun getLastMedicationSyncDate(): Long
-
-    /** Last Medicine Dosage Instruction Sync Date */
-    fun setLastMedicineDosageInstructionSyncDate(long: Long)
-    fun getLastMedicineDosageInstructionSyncDate(): Long
-
-    /** Last Sync Schedule */
-    fun setLastSyncSchedule(long: Long)
-    fun getLastSyncSchedule(): Long
-
-    /** Last Sync Appointment */
-    fun setLastSyncAppointment(long: Long)
-    fun getLastSyncAppointment(): Long
-
     /** User Data */
     fun setUserFhirId(userFhirId: String)
     fun getUserFhirId(): String

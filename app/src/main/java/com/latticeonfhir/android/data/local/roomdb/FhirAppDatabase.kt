@@ -3,71 +3,75 @@ package com.latticeonfhir.android.data.local.roomdb
 import android.content.Context
 import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.DeleteTable
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.AutoMigrationSpec
 import com.latticeonfhir.android.BuildConfig
-import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
-import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
-import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
-import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
-import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
-import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
-import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
-import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
-import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
 import com.latticeonfhir.android.data.local.roomdb.typeconverters.TypeConverter
-import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
-import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
 import java.util.UUID
 
 @Database(
-    entities = [
-        PatientEntity::class,
-        GenericEntity::class,
-        IdentifierEntity::class,
-        RelationEntity::class,
-        SearchHistoryEntity::class,
-        MedicationEntity::class,
-        PrescriptionEntity::class,
-        PrescriptionDirectionsEntity::class,
-        MedicineTimingEntity::class,
-        ScheduleEntity::class,
-        AppointmentEntity::class],
-    views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
-    version = 3,
+    entities = [SearchHistoryEntity::class],
+    version = 4,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
-        AutoMigration(from = 2, to = 3)
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4, spec = FhirAppDatabase.Migration3to4::class)
     ],
     exportSchema = true
 )
 @TypeConverters(TypeConverter::class)
 abstract class FhirAppDatabase : RoomDatabase() {
+    @DeleteTable.Entries(
+        value = [
+            DeleteTable(
+                tableName = "PatientEntity"
+            ),
+            DeleteTable(
+                tableName = "IdentifierEntity"
+            ),
+            DeleteTable(
+                tableName = "PatientAndIdentifierEntity"
+            ),
+            DeleteTable(
+                tableName = "PermanentAddressEntity"
+            ),
+            DeleteTable(
+                tableName = "AppointmentEntity"
+            ),
+            DeleteTable(
+                tableName = "GenericEntity"
+            ),
+            DeleteTable(
+                tableName = "MedicationEntity"
+            ),
+            DeleteTable(
+                tableName = "PrescriptionDirectionsEntity"
+            ),
+            DeleteTable(
+                tableName = "PrescriptionEntity"
+            ),
+            DeleteTable(
+                tableName = "RelationEntity"
+            ),
+            DeleteTable(
+                tableName = "ScheduleEntity"
+            ),
+            DeleteTable(
+                tableName = "MedicineTimingEntity"
+            )
+        ]
+    )
+    class Migration3to4 : AutoMigrationSpec
 
-    abstract fun getPatientDao(): PatientDao
-    abstract fun getIdentifierDao(): IdentifierDao
-    abstract fun getGenericDao(): GenericDao
-    abstract fun getRelationDao(): RelationDao
     abstract fun getSearchDao(): SearchDao
-    abstract fun getPrescriptionDao(): PrescriptionDao
-    abstract fun getMedicationDao(): MedicationDao
-    abstract fun getScheduleDao(): ScheduleDao
-    abstract fun getAppointmentDao(): AppointmentDao
 
     companion object {
         @Volatile

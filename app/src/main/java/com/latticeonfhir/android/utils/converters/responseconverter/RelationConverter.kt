@@ -4,8 +4,6 @@ import android.content.Context
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.data.local.enums.RelationEnum
-import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
-import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.RelationMapping.femaleToFemale
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.RelationMapping.femaleToMale
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.RelationMapping.femaleToOther
@@ -23,40 +21,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object RelationConverter {
-
-    // TODO: to be removed after complete binding
-    internal fun getInverseRelation(
-        relationEntity: RelationEntity,
-        patientDao: PatientDao,
-        relationFetched: (RelationEnum) -> Unit
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val fromGender =
-                patientDao.getPatientDataById(relationEntity.fromId)[0].patientEntity.gender
-            val toGender =
-                patientDao.getPatientDataById(relationEntity.toId)[0].patientEntity.gender
-            relationFetched(
-                when (GenderEnum.fromString(fromGender)) {
-                    GenderEnum.MALE -> {
-                        fromIsMale(toGender, relationEntity.relation)
-                    }
-
-                    GenderEnum.FEMALE -> {
-                        fromIsFemale(toGender, relationEntity.relation)
-                    }
-
-                    GenderEnum.OTHER -> {
-                        fromIsOther(toGender, relationEntity.relation)
-                    }
-
-                    GenderEnum.UNKNOWN -> {
-                        fromIsUnknown()
-                    }
-                }
-            )
-        }
-    }
-
 
     internal fun getInverseRelation(
         fromGender: String,

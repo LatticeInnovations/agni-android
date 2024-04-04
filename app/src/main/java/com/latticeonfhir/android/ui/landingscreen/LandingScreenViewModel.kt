@@ -22,11 +22,9 @@ import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
-import com.latticeonfhir.android.utils.network.CheckNetwork
 import com.latticeonfhir.android.utils.paging.PatientPagingSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +46,6 @@ class LandingScreenViewModel @Inject constructor(
 ) : BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
-    private val syncService: SyncService by lazy { (application as FhirApp).syncService }
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)
@@ -93,23 +90,6 @@ class LandingScreenViewModel @Inject constructor(
                     logoutReason = sessionExpireMap["errorMsg"]?.toString() ?: "SERVER ERROR"
                 }
             }
-        }
-
-        //Medication Sync
-        if (CheckNetwork.isInternetAvailable(getApplication<Application>().applicationContext)) {
-            viewModelScope.launch(Dispatchers.IO) {
-                syncService.downloadMedication { isErrorReceived, errorMsg ->
-                    if (isErrorReceived) {
-                        logoutUser = true
-                        logoutReason = errorMsg
-                    }
-                }
-            }
-        }
-
-        // Trigger Periodic Sync Worker
-        viewModelScope.launch(Dispatchers.IO) {
-            workRequestBuilders.setPeriodicTriggerWorker()
         }
 
         // Trigger Periodic Update Appointment No Show Status Worker
