@@ -211,6 +211,7 @@ allprojects {
 
 sonar {
     properties {
-        property "sonar.projectKey", "LatticeInnovations_FHIR-Android_AY6D5NcrY4V-vQ4f3Wlv"
+        property "sonar.projectKey", "LatticeInnovations_FHIR-Android_AY6ictsa8C5ErDkBCb36"
+        property "sonar.projectName", "FHIR-Android"
     }
 }
