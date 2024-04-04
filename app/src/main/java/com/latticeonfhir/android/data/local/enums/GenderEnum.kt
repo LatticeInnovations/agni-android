@@ -7,7 +7,6 @@ enum class GenderEnum(val number: Int, val value: String) {
     UNKNOWN(3, "unknown");
 
     companion object {
-        fun fromInt(number: Int) = values().first { it.number == number }
-        fun fromString(value: String) = values().first { it.value == value }
+        fun fromString(value: String) = entries.first { it.value == value }
     }
 }
