@@ -15,9 +15,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +39,6 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
 import com.latticeonfhir.android.utils.regex.OnlyAlphabetRegex.onlyAlphabets
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchPrescription(viewModel: PrescriptionViewModel) {
     val focusRequester = remember { FocusRequester() }
@@ -63,7 +61,7 @@ fun SearchPrescription(viewModel: PrescriptionViewModel) {
                     viewModel.searchQuery = ""
                     viewModel.isSearching = false
                 }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                 }
             },
             trailingIcon = {
