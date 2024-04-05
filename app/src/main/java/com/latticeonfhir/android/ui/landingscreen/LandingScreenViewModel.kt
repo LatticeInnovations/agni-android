@@ -19,6 +19,7 @@ import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.sync.CurrentSyncJobStatus
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
+import com.latticeonfhir.android.data.local.enums.UserRoleEnum
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
@@ -83,6 +84,10 @@ class LandingScreenViewModel @Inject constructor(
             }
         }
 
+        getApplication<FhirApp>().periodicSyncJobStatus.observeForever {
+            if(it.currentSyncJobStatus is CurrentSyncJobStatus.Succeeded) populateList()
+        }
+
         viewModelScope.launch {
             getApplication<FhirApp>().sessionExpireFlow.asFlow().collectLatest { sessionExpireMap ->
                 if (sessionExpireMap["errorReceived"] == true) {
@@ -115,9 +120,12 @@ class LandingScreenViewModel @Inject constructor(
         }
 
         userName = preferenceRepository.getUserName()
-        userRole = preferenceRepository.getUserRole()
+        userRole = UserRoleEnum.fromCode(preferenceRepository.getUserRoleId()).display
         userPhoneNo = preferenceRepository.getUserMobile().toString()
-        userEmail = preferenceRepository.getUserEmail()
+        userEmail = preferenceRepository.getUserEmail().run {
+            if (isNullOrBlank()) "NA"
+            else this
+        }
     }
 
     private fun getPatientList() {
