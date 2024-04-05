@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.login
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -27,8 +28,8 @@ class OtpViewModel @Inject constructor(
     var fourDigit by mutableStateOf("")
     var fiveDigit by mutableStateOf("")
     var sixDigit by mutableStateOf("")
-    var twoMinuteTimer by mutableStateOf(120)
-    var fiveMinuteTimer by mutableStateOf(0)
+    var twoMinuteTimer by mutableIntStateOf(120)
+    var fiveMinuteTimer by mutableIntStateOf(0)
     var isVerifying by mutableStateOf(false)
     var isResending by mutableStateOf(false)
     var isOtpIncorrect by mutableStateOf(false)
@@ -67,7 +68,7 @@ class OtpViewModel @Inject constructor(
 
     internal fun validateOtp(navigate: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            authenticationRepository.validateOtp(userInput, otpEntered.toInt()).apply {
+            authenticationRepository.validateOtp(userInput, otpEntered).apply {
                 if (this is ApiEndResponse) {
                     isVerifying = false
                     navigate(true)

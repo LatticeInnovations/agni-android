@@ -8,7 +8,7 @@ import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import com.latticeonfhir.android.utils.regex.EmailRegex
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
@@ -25,7 +25,7 @@ class PhoneEmailViewModel @Inject constructor(
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var inputValue by mutableStateOf("")
-    var isInputInvalid by mutableStateOf(true)
+    private var isInputInvalid by mutableStateOf(true)
     var isAuthenticating by mutableStateOf(false)
     var isPhoneNumber by mutableStateOf(false)
     var isError by mutableStateOf(false)
@@ -44,7 +44,7 @@ class PhoneEmailViewModel @Inject constructor(
     internal fun login(navigate: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             authenticationRepository.login(inputValue).apply {
-                if (this is ApiEmptyResponse) {
+                if (this is ApiEndResponse) {
                     isAuthenticating = false
                     navigate(true)
                 } else if (this is ApiErrorResponse) {
