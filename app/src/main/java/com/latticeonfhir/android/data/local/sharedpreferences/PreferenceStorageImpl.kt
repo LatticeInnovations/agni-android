@@ -30,6 +30,8 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         PREF_ROOM_ENCRYPTION_KEY,
         ""
     )
+    override var sessionId by StringPreference(sharedPreferences, PREF_SESSION_ID, "")
+    override var patientID by StringPreference(sharedPreferences, PREF_PATIENT_ID, "")
     override fun clear() {
         sharedPreferences.edit {
             clear()
@@ -51,6 +53,8 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         const val PREF_ORGANIZATION_FHIR_ID = "pref_organization_fhir_id"
         const val PREF_ORGANIZATION = "pref_organization"
         const val PREF_LOCATION_FHIR_ID = "pref_location_fhir_id"
+        const val PREF_SESSION_ID = "pref_session_id"
+        const val PREF_PATIENT_ID = "pref_patient_id"
 
         const val PREF_ROOM_ENCRYPTION_KEY = "pref_room_encryption_key"
     }

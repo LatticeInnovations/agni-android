@@ -47,6 +47,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
                     preferenceRepository.setOrganizationFhirId(orgId)
                     preferenceRepository.setLocationFhirId(locationId[0].reference.substringAfter("/"))
                     preferenceRepository.setUserMobile(contactNumber.toLong())
+                    preferenceRepository.setUserSessionID(sessionId)
                 }
             }
         }

@@ -165,6 +165,7 @@ fun PatientRegistrationStepTwo(
         }
         Button(
             onClick = {
+                viewModel.generateLatticeId()
                 patientRegistrationViewModel.showLoader = true
                 coroutineScope.launch {
                     patientRegistrationViewModel.patient.apply {
@@ -172,7 +173,7 @@ fun PatientRegistrationStepTwo(
                         identifier.add(
                             Identifier().apply {
                                 system = LATTICE
-                                value = patientRegistrationViewModel.patient.id
+                                value = viewModel.latticeId
                                 type = CodeableConcept(
                                     Coding(
                                         LATTICE_SYSTEM,

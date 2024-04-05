@@ -15,6 +15,8 @@ interface PreferenceStorage {
     var organizationFhirId: String
     var organization: String
     var locationFhirId: String
+    var sessionId: String
+    var patientID: String
 
     /** Room DB Encryption Key */
     var roomDBEncryptionKey: String
