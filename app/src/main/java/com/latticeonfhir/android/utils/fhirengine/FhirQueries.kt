@@ -44,7 +44,8 @@ object FhirQueries {
     suspend fun isIdDuplicate(
         fhirEngine: FhirEngine,
         idSystem: String,
-        idValue: String
+        idValue: String,
+        patientLogicalId: String? = null
     ): Boolean {
         fhirEngine.search<Patient> {
             filter(
@@ -57,7 +58,7 @@ object FhirQueries {
                 }
             )
         }.let { results ->
-            return results.isNotEmpty()
+            return results.any { it.resource.logicalId != patientLogicalId }
         }
     }
 
