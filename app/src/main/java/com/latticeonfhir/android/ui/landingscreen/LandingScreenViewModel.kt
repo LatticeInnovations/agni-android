@@ -129,7 +129,7 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     private fun getPatientList() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Main) {
             patientList = Pager(
                 config = PagingConfig(pageSize = 20, enablePlaceholders = false),
                 pagingSourceFactory = {
