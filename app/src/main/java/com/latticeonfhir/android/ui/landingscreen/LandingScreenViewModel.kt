@@ -27,6 +27,7 @@ import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.android.utils.paging.PatientPagingSource
+import com.latticeonfhir.android.utils.regex.LatticeIdRegex.LATTICE_ID_REGEX
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -146,21 +147,39 @@ class LandingScreenViewModel @Inject constructor(
 
     fun populateList() {
         isLoading = true
-        if (isSearchingByQuery)
-            searchParameters = SearchParameters(
-                null,
-                searchQuery,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            )
+        if (isSearchingByQuery) {
+            if (LATTICE_ID_REGEX.matches(searchQuery)){
+                searchParameters = SearchParameters(
+                    searchQuery,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            } else {
+                searchParameters = SearchParameters(
+                    null,
+                    searchQuery,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            }
+        }
         getPatientList()
     }
 
