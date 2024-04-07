@@ -43,6 +43,7 @@ import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getLatticeId
 import org.hl7.fhir.r4.model.Patient
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,7 +86,7 @@ fun PatientLandingScreen(
                         val age = viewModel.patient.birthDate.time.toAge()
                         val subTitle = "${
                             viewModel.patient.gender.display[0]
-                        }/$age · +91 ${viewModel.patient.telecom[0].value}"
+                        }/$age · +91 ${viewModel.patient.telecom[0].value} · ${getLatticeId(viewModel.patient)}"
                         Column {
                             Text(
                                 text = viewModel.patient.nameFirstRep.nameAsSingleString,

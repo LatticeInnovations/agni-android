@@ -13,9 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getLatticeId
 import org.hl7.fhir.r4.model.Patient
 
 @Composable
@@ -26,7 +26,7 @@ fun CancelAppointmentDialog(
 ) {
     val subtitle = "${patient.gender.display[0].uppercase()}/${
         patient.birthDate.time.toAge()
-    }, PID: ${patient.logicalId}"
+    }, PID: ${getLatticeId(patient)}"
     AlertDialog(
         onDismissRequest = { },
         title = {
