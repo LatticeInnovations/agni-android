@@ -52,6 +52,7 @@ import com.latticeonfhir.android.ui.householdmember.members.MembersScreen
 import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getLatticeId
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Patient
 
@@ -97,7 +98,7 @@ fun HouseholdMembersScreen(
                     title = {
                         val subTitle = "${viewModel.patient.gender.display[0].uppercase()}/${
                             viewModel.patient.birthDate.time.toAge()
-                        }"
+                        } · ${getLatticeId(viewModel.patient)}"
                         Column {
                             Text(
                                 text = stringResource(id = R.string.household_members),

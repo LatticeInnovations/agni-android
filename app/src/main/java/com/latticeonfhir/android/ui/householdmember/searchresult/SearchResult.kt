@@ -35,7 +35,6 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
@@ -46,6 +45,7 @@ import com.latticeonfhir.android.utils.constants.NavControllerConstants.SEARCH_P
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_MEMBERS_LIST
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter.getAddressFhir
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getLatticeId
 import org.hl7.fhir.r4.model.Patient
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -193,7 +193,7 @@ fun SearchResultRow(patient: Patient, viewModel: SearchResultViewModel) {
             Text(
                 text = "${patient.gender.display[0].uppercase()}/${
                     patient.birthDate.time.toAge()
-                } · PID ${patient.logicalId}",
+                } · PID ${getLatticeId(patient)}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

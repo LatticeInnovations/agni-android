@@ -54,7 +54,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum.Companion.fromValue
@@ -88,6 +87,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearPast
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getLatticeId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
@@ -529,7 +529,7 @@ fun QueuePatientCard(
     val age = queueData.patient.birthDate?.time?.toAge()
     val subTitle = "${
         queueData.patient.gender?.display?.get(0)?.uppercase()
-    }/$age, PID: ${queueData.patient.logicalId}"
+    }/$age, PID: ${getLatticeId(queueData.patient)}"
     val appointmentUiStatus = AppointmentStatusFhir.getUiStatus(
         queueData.appointment.status.toCode(),
         queueData.appointment.appointmentType.codingFirstRep.code,
@@ -726,7 +726,7 @@ fun CancelledQueueCard(
     val age = queueData.patient.birthDate.time.toAge()
     val subTitle = "${
         queueData.patient.gender.display[0].uppercase()
-    }/$age, PID: ${queueData.patient.logicalId}"
+    }/$age, PID: ${getLatticeId(queueData.patient)}"
     val appointmentUiStatus = AppointmentStatusFhir.getUiStatus(
         queueData.appointment.status.toCode(),
         queueData.appointment.appointmentType.codingFirstRep.code,
