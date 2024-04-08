@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PatientRegistrationPreviewViewModel @Inject constructor(
-    private val fhirEngine: FhirEngine
+    private val fhirEngine: FhirEngine,
+    private val preferenceRepository: PreferenceRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var showLoader by mutableStateOf(false)
@@ -30,7 +32,6 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     internal var fromHouseholdMember by mutableStateOf(false)
     internal var patientFrom by mutableStateOf(Patient())
     internal var patientFromId by mutableStateOf("")
-    internal var relativeId by mutableStateOf(UUIDBuilder.generateUUID())
     internal var relation by mutableStateOf("")
 
     internal fun addPatient(created: () -> Unit) {
@@ -45,9 +46,19 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
                 )
             }
             val i = fhirEngine.create(patient!!, person)
+            preferenceRepository.setPatientId(
+                patientId = String.format(
+                    "%03d",
+                    preferenceRepository.getPatientId().ifEmpty { INITIAL_PATIENT_ID }.toInt() + 1
+                )
+            )
             if (i.isNotEmpty()) {
                 created()
             }
         }
+    }
+
+    companion object {
+        const val INITIAL_PATIENT_ID = "001"
     }
 }

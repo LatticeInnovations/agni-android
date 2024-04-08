@@ -25,6 +25,7 @@ import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationFromRelationEnum
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getLatticeId
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.RelatedPerson
 import java.util.Locale
@@ -78,7 +79,7 @@ fun MembersScreen(
 fun MembersCard(relation: String, relative: Patient) {
     val name = relative.nameFirstRep.nameAsSingleString
     val age = relative.birthDate.time.toAge()
-    val subtitle = "${relative.gender.display[0]}/$age · PID ${relative.logicalId}"
+    val subtitle = "${relative.gender.display[0]}/$age · PID ${getLatticeId(relative)}"
     Surface(
         modifier = Modifier
             .fillMaxWidth()

@@ -19,13 +19,14 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getLatticeId
 import org.hl7.fhir.r4.model.Patient
 
 @Composable
 fun PatientItemCard(navController: NavController, patient: Patient) {
     val subtitle = "${patient.gender.display[0]}/${
         patient.birthDate.time.toAge()
-    }"
+    } · PID ${getLatticeId(patient)}"
     Row(
         modifier = Modifier
             .fillMaxWidth()

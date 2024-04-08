@@ -2,10 +2,11 @@ package com.latticeonfhir.android.data.server.repository.authentication
 
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.api.AuthenticationApiService
-import com.latticeonfhir.android.data.server.model.authentication.Login
-import com.latticeonfhir.android.data.server.model.authentication.Otp
-import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
-import com.latticeonfhir.android.data.server.model.user.UserResponse
+import com.latticeonfhir.android.data.server.model.authentication.request.Login
+import com.latticeonfhir.android.data.server.model.authentication.request.Otp
+import com.latticeonfhir.android.data.server.model.authentication.response.OtpResponse
+import com.latticeonfhir.android.data.server.model.authentication.response.LoginResponse
+import com.latticeonfhir.android.utils.constants.patient.ISDCodes.ISD_INDIA
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
@@ -16,51 +17,37 @@ class AuthenticationRepositoryImpl @Inject constructor(
     private val preferenceRepository: PreferenceRepository
 ) : AuthenticationRepository {
 
-    override suspend fun login(userContact: String): ResponseMapper<String?> {
+    override suspend fun login(userContact: String): ResponseMapper<LoginResponse> {
         return ApiResponseConverter.convert(
             authenticationApiService.login(
                 Login(
-                    userContact = userContact
+                    isdCode = ISD_INDIA,
+                    mobileNumber = userContact
                 )
             )
         )
     }
 
-    override suspend fun validateOtp(userContact: String, otp: Int): ResponseMapper<TokenResponse> {
+    override suspend fun validateOtp(userContact: String, otp: String): ResponseMapper<OtpResponse> {
         return ApiResponseConverter.convert(
             authenticationApiService.validateOtp(
                 Otp(
-                    userContact = userContact,
+                    isdCode = ISD_INDIA,
+                    mobileNumber = userContact,
                     otp = otp
                 )
             )
         ).apply {
             if (this is ApiEndResponse) {
-                preferenceRepository.setAuthenticationToken(body.token)
-                getUserDetails()
-            }
-        }
-    }
-
-    private suspend fun getUserDetails(): ResponseMapper<UserResponse> {
-        return ApiResponseConverter.convert(
-            authenticationApiService.getUserDetails()
-        ).apply {
-            if (this is ApiEndResponse) {
                 body.apply {
+                    preferenceRepository.setAuthenticationToken(token)
                     preferenceRepository.setUserFhirId(userId)
-                    preferenceRepository.setUserName(userName)
-                    preferenceRepository.setUserRoleId(role[0].roleId)
-                    preferenceRepository.setUserRole(role[0].role)
-                    preferenceRepository.setOrganizationFhirId(role[0].orgId)
-                    preferenceRepository.setOrganization(role[0].orgName)
-                    preferenceRepository.setLocationFhirId("22345")
-                    userEmail?.let { email -> preferenceRepository.setUserEmail(email) }
-                    mobileNumber?.let { mobileNumber ->
-                        preferenceRepository.setUserMobile(
-                            mobileNumber
-                        )
-                    }
+                    preferenceRepository.setUserName(username)
+                    preferenceRepository.setUserRoleId(roles[0])
+                    preferenceRepository.setOrganizationFhirId(orgId)
+                    preferenceRepository.setLocationFhirId(locationId[0].reference.substringAfter("/"))
+                    preferenceRepository.setUserMobile(contactNumber.toLong())
+                    preferenceRepository.setUserSessionID(sessionId)
                 }
             }
         }

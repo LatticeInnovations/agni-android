@@ -41,7 +41,7 @@ object Search {
             if (!patientId.isNullOrBlank()) {
                 finalList = finalList.filter { patient ->
                     val identifier = patient.identifier.firstOrNull {
-                        it.system == IdentificationConstants.PATIENT_ID_TYPE
+                        it.system == IdentificationConstants.LATTICE
                     }?.value ?: ""
                     FuzzySearch.weightedRatio(
                         patientId,

@@ -41,10 +41,18 @@ import org.hl7.fhir.r4.model.Timing
 import java.util.Date
 
 object FhirQueries {
+
+    fun getLatticeId(patient: Patient): String {
+        return patient.identifier.firstOrNull {
+            it.system == LATTICE
+        }?.value?.slice(0..9) ?: "NA"
+    }
+
     suspend fun isIdDuplicate(
         fhirEngine: FhirEngine,
         idSystem: String,
-        idValue: String
+        idValue: String,
+        patientLogicalId: String? = null
     ): Boolean {
         fhirEngine.search<Patient> {
             filter(
@@ -57,7 +65,7 @@ object FhirQueries {
                 }
             )
         }.let { results ->
-            return results.isNotEmpty()
+            return results.any { it.resource.logicalId != patientLogicalId }
         }
     }
 
@@ -682,7 +690,10 @@ object FhirQueries {
                 Pair(ResourceType.MedicationRequest, MedicationRequest.ENCOUNTER.paramName)
             )?.forEach { medReq ->
                 val mr = medReq as MedicationRequest
-                val medication = fhirEngine.get(ResourceType.Medication, mr.medicationReference.reference.substringAfter("/")) as Medication
+                val medication = fhirEngine.get(
+                    ResourceType.Medication,
+                    mr.medicationReference.reference.substringAfter("/")
+                ) as Medication
                 medicationReqList.add(
                     MedicationRequestAndMedication(
                         medication = medication,
