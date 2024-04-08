@@ -30,13 +30,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.common.RelationDialogContent
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter.getAddressFhir
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getLatticeId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.ContactPoint
@@ -143,7 +143,9 @@ fun SuggestedMembersCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "+91-${member.telecom.first { it.system == ContactPoint.ContactPointSystem.PHONE }.value} · PID ${member.logicalId}",
+                text = "+91-${member.telecom.first { it.system == ContactPoint.ContactPointSystem.PHONE }.value} · PID ${
+                    getLatticeId(member)
+                }",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

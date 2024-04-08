@@ -57,6 +57,16 @@ class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage
     }
 
     override fun getLocationFhirId() = preferenceStorage.locationFhirId
+    override fun setPatientId(patientId: String) {
+        preferenceStorage.patientID = patientId
+    }
+
+    override fun getPatientId() = preferenceStorage.patientID
+    override fun setUserSessionID(sessionId: String) {
+        preferenceStorage.sessionId= sessionId
+    }
+
+    override fun getUserSessionId()= preferenceStorage.sessionId
 
     override fun setAuthenticationToken(authToken: String) {
         preferenceStorage.token = authToken

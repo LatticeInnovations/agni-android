@@ -60,7 +60,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.google.android.fhir.logicalId
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.relation.RelationFhir
 import com.latticeonfhir.android.navigation.Screen
@@ -71,6 +70,7 @@ import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter.getAddressFhir
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.fhirengine.FhirQueries.getLatticeId
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Patient
 
@@ -509,7 +509,7 @@ fun PatientRow(member: Patient, viewModel: ConnectPatientViewModel) {
             Text(
                 text = "${member.gender.display[0].uppercase()}/${
                     member.birthDate.time.toAge()
-                } · PID ${member.logicalId}",
+                } · PID ${getLatticeId(member)}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

@@ -108,7 +108,8 @@ class EditIdentificationViewModel @Inject constructor(
                                 use = if (isIdDuplicate(
                                         fhirEngine,
                                         PASSPORT_TYPE,
-                                        passportId
+                                        passportId,
+                                        patient.logicalId
                                     )
                                 ) Identifier.IdentifierUse.TEMP else Identifier.IdentifierUse.OFFICIAL
                             }
@@ -122,7 +123,8 @@ class EditIdentificationViewModel @Inject constructor(
                                 use = if (isIdDuplicate(
                                         fhirEngine,
                                         VOTER_ID_TYPE,
-                                        voterId
+                                        voterId,
+                                        patient.logicalId
                                     )
                                 ) Identifier.IdentifierUse.TEMP else Identifier.IdentifierUse.OFFICIAL
                             }
@@ -136,7 +138,8 @@ class EditIdentificationViewModel @Inject constructor(
                                 use = if (isIdDuplicate(
                                         fhirEngine,
                                         PATIENT_ID_TYPE,
-                                        patientId
+                                        patientId,
+                                        patient.logicalId
                                     )
                                 ) Identifier.IdentifierUse.TEMP else Identifier.IdentifierUse.OFFICIAL
                             }

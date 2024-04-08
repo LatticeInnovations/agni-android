@@ -20,6 +20,10 @@ interface PreferenceRepository {
     fun getOrganization(): String
     fun setLocationFhirId(locationFhirId: String)
     fun getLocationFhirId(): String
+    fun setPatientId(patientId: String)
+    fun getPatientId(): String
+    fun setUserSessionID(sessionId: String)
+    fun getUserSessionId(): String
 
     /** Authentication Token */
     fun setAuthenticationToken(authToken: String)

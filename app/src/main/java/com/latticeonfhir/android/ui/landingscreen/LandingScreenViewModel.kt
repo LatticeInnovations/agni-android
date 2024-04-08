@@ -19,6 +19,7 @@ import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.sync.CurrentSyncJobStatus
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
+import com.latticeonfhir.android.data.local.enums.UserRoleEnum
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
@@ -26,6 +27,7 @@ import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.android.utils.paging.PatientPagingSource
+import com.latticeonfhir.android.utils.regex.LatticeIdRegex.LATTICE_ID_REGEX
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -83,6 +85,10 @@ class LandingScreenViewModel @Inject constructor(
             }
         }
 
+        getApplication<FhirApp>().periodicSyncJobStatus.observeForever {
+            if(it.currentSyncJobStatus is CurrentSyncJobStatus.Succeeded) populateList()
+        }
+
         viewModelScope.launch {
             getApplication<FhirApp>().sessionExpireFlow.asFlow().collectLatest { sessionExpireMap ->
                 if (sessionExpireMap["errorReceived"] == true) {
@@ -115,13 +121,16 @@ class LandingScreenViewModel @Inject constructor(
         }
 
         userName = preferenceRepository.getUserName()
-        userRole = preferenceRepository.getUserRole()
+        userRole = UserRoleEnum.fromCode(preferenceRepository.getUserRoleId()).display
         userPhoneNo = preferenceRepository.getUserMobile().toString()
-        userEmail = preferenceRepository.getUserEmail()
+        userEmail = preferenceRepository.getUserEmail().run {
+            if (isNullOrBlank()) "NA"
+            else this
+        }
     }
 
     private fun getPatientList() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Main) {
             patientList = Pager(
                 config = PagingConfig(pageSize = 20, enablePlaceholders = false),
                 pagingSourceFactory = {
@@ -138,21 +147,39 @@ class LandingScreenViewModel @Inject constructor(
 
     fun populateList() {
         isLoading = true
-        if (isSearchingByQuery)
-            searchParameters = SearchParameters(
-                null,
-                searchQuery,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            )
+        if (isSearchingByQuery) {
+            if (LATTICE_ID_REGEX.matches(searchQuery)){
+                searchParameters = SearchParameters(
+                    searchQuery,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            } else {
+                searchParameters = SearchParameters(
+                    null,
+                    searchQuery,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            }
+        }
         getPatientList()
     }
 
