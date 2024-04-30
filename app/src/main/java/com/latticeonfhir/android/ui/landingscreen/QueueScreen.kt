@@ -95,7 +95,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.ReorderableLazyListState
-import org.burnoutcrew.reorderable.detectReorder
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 import timber.log.Timber
@@ -628,12 +627,14 @@ fun QueuePatientCard(
                 AssistChip(
                     onClick = {
                         if ((appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
-                                    || appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value)
+                                    || appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value
+                                    || appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
+                                    || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
                             && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
                         ) {
                             viewModel.statusList = when (appointmentResponseLocal.status) {
-                                AppointmentStatusEnum.SCHEDULED.value -> listOf("Arrived")
-                                AppointmentStatusEnum.IN_PROGRESS.value -> listOf("Completed")
+                                AppointmentStatusEnum.SCHEDULED.value -> listOf("Arrived", "Completed")
+                                AppointmentStatusEnum.IN_PROGRESS.value, AppointmentStatusEnum.WALK_IN.value, AppointmentStatusEnum.ARRIVED.value -> listOf("Completed")
                                 else -> listOf()
                             }
                             viewModel.appointmentSelected = appointmentResponseLocal
@@ -645,7 +646,9 @@ fun QueuePatientCard(
                     },
                     trailingIcon = {
                         if ((appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
-                                    || appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value)
+                                    || appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value
+                                    || appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
+                                    || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
                             && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
                         ) {
                             Icon(
@@ -705,7 +708,8 @@ fun QueuePatientCard(
                     appointmentResponseLocal.slot.start.toAppointmentTime()
                 )
             }
-            if ((appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
+            /***** Drag and drop feature - future scope *****/
+            /*if ((appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
                 && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
             ) {
                 Icon(
@@ -716,7 +720,7 @@ fun QueuePatientCard(
                         .size(36.dp)
                         .detectReorder(queueListState)
                 )
-            }
+            }*/
         }
         if ((
                     appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
