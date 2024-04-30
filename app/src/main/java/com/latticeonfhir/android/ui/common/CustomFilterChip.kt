@@ -6,7 +6,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomFilterChip(
     selector: String,
@@ -29,6 +28,8 @@ fun CustomFilterChip(
             selectedLabelColor = MaterialTheme.colorScheme.primary
         ),
         border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = selector == selected,
             selectedBorderColor = MaterialTheme.colorScheme.primary,
             selectedBorderWidth = 1.dp
         )

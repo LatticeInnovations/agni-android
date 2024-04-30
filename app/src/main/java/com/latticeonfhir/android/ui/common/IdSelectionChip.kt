@@ -28,6 +28,8 @@ fun IdSelectionChip(idSelected: Boolean, label: String, updateSelection: (Boolea
             selectedLabelColor = MaterialTheme.colorScheme.primary
         ),
         border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = idSelected,
             selectedBorderColor = MaterialTheme.colorScheme.primary,
             selectedBorderWidth = 1.dp
         ),
