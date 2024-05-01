@@ -2,6 +2,7 @@ package com.latticeonfhir.android.ui.landingscreen
 
 import android.app.Application
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -60,7 +61,7 @@ class QueueViewModel @Inject constructor(
     var noShowQueueList by mutableStateOf(listOf<AppointmentResponseLocal>())
     var patientSelected by mutableStateOf<PatientResponse?>(null)
     var appointmentSelected by mutableStateOf<AppointmentResponseLocal?>(null)
-    var selectedChip by mutableStateOf(R.string.total_appointment)
+    var selectedChip by mutableIntStateOf(R.string.total_appointment)
     var rescheduled by mutableStateOf(false)
 
     private val syncService by lazy { getApplication<FhirApp>().syncService }
@@ -148,7 +149,8 @@ class QueueViewModel @Inject constructor(
                                 )?.uuid!!,
                                 createdOn = appointmentSelected!!.createdOn,
                                 slot = appointmentSelected!!.slot,
-                                patientFhirId = patientRepository.getPatientById(appointmentSelected!!.patientId)[0].fhirId,
+                                patientFhirId = patientRepository.getPatientById(appointmentSelected!!.patientId)[0].fhirId
+                                    ?: patientRepository.getPatientById(appointmentSelected!!.patientId)[0].id,
                                 appointmentId = null,
                                 orgId = appointmentSelected!!.orgId,
                                 status = AppointmentStatusEnum.CANCELLED.value,
@@ -192,7 +194,8 @@ class QueueViewModel @Inject constructor(
                                 )?.uuid!!,
                                 createdOn = appointmentSelected!!.createdOn,
                                 slot = appointmentSelected!!.slot,
-                                patientFhirId = patientRepository.getPatientById(appointmentSelected!!.patientId)[0].fhirId,
+                                patientFhirId = patientRepository.getPatientById(appointmentSelected!!.patientId)[0].fhirId
+                                    ?: patientRepository.getPatientById(appointmentSelected!!.patientId)[0].id,
                                 appointmentId = null,
                                 orgId = appointmentSelected!!.orgId,
                                 status = status,

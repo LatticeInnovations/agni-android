@@ -86,7 +86,7 @@ class AppointmentsScreenViewModel @Inject constructor(
                             AppointmentResponse(
                                 appointmentId = null,
                                 uuid = selectedAppointment!!.uuid,
-                                patientFhirId = patient?.fhirId ?: patient?.id,
+                                patientFhirId = patient!!.fhirId ?: patient!!.id,
                                 scheduleId = (scheduleRepository.getScheduleByStartTime(
                                     selectedAppointment!!.scheduleId.time
                                 )?.scheduleId ?: scheduleRepository.getScheduleByStartTime(
