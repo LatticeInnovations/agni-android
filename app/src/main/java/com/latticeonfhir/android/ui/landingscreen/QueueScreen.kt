@@ -214,7 +214,7 @@ fun QueueScreen(
                             viewModel.inProgressQueueList.size,
                             queueListState.listState,
                             coroutineScope,
-                            viewModel.waitingQueueList.size + if (viewModel.waitingQueueList.isNotEmpty()) 2 else 0,
+                            if (viewModel.waitingQueueList.isNotEmpty()) 1 else 0,
                             viewModel
                         )
                 }
@@ -228,7 +228,7 @@ fun QueueScreen(
                             viewModel.scheduledQueueList.size,
                             queueListState.listState,
                             coroutineScope,
-                            viewModel.waitingQueueList.size + viewModel.inProgressQueueList.size + if (viewModel.waitingQueueList.isNotEmpty()) 2 else 0,
+                            viewModel.inProgressQueueList.size + if (viewModel.waitingQueueList.isNotEmpty()) 1 else 0,
                             viewModel
                         )
                         AppointmentStatusChips(
@@ -236,7 +236,7 @@ fun QueueScreen(
                             viewModel.completedQueueList.size,
                             queueListState.listState,
                             coroutineScope,
-                            viewModel.waitingQueueList.size + viewModel.inProgressQueueList.size + viewModel.scheduledQueueList.size + if (viewModel.waitingQueueList.isNotEmpty()) 2 else 0,
+                            viewModel.inProgressQueueList.size + viewModel.scheduledQueueList.size + if (viewModel.waitingQueueList.isNotEmpty()) 1 else 0,
                             viewModel
                         )
                         AppointmentStatusChips(
@@ -244,7 +244,7 @@ fun QueueScreen(
                             viewModel.cancelledQueueList.size,
                             queueListState.listState,
                             coroutineScope,
-                            viewModel.waitingQueueList.size + viewModel.inProgressQueueList.size + viewModel.scheduledQueueList.size + viewModel.completedQueueList.size + if (viewModel.waitingQueueList.isNotEmpty()) 2 else 0,
+                            viewModel.inProgressQueueList.size + viewModel.scheduledQueueList.size + viewModel.completedQueueList.size + if (viewModel.waitingQueueList.isNotEmpty()) 1 else 0,
                             viewModel
                         )
                     }
@@ -261,14 +261,15 @@ fun QueueScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(top = 10.dp),
-                                shape = RoundedCornerShape(topEnd = 18.dp, topStart = 18.dp)
+                                shape = RoundedCornerShape(18.dp)
                             ) {
                                 Column(
                                     modifier = Modifier
                                         .padding(
                                             top = 18.dp,
-                                            start = 20.dp,
-                                            end = 18.dp
+                                            start = 18.dp,
+                                            end = 18.dp,
+                                            bottom = 10.dp
                                         )
                                 ) {
                                     Text(
@@ -276,56 +277,41 @@ fun QueueScreen(
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.outline
                                     )
+                                    viewModel.waitingQueueList.forEach { waitingAppointmentResponse ->
+                                        ReorderableItem(
+                                            queueListState, key = waitingAppointmentResponse,
+                                            modifier = Modifier
+                                                .background(MaterialTheme.colorScheme.secondaryContainer)
+                                        ) { _ ->
+                                            var patient by remember {
+                                                mutableStateOf<PatientResponse?>(null)
+                                            }
+                                            waitingAppointmentResponse.patientId.let { patientId ->
+                                                LaunchedEffect(key1 = patientId) {
+                                                    patient = viewModel.getPatientById(
+                                                        patientId
+                                                    )
+                                                }
+                                            }
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 9.dp),
+                                                horizontalArrangement = Arrangement.SpaceBetween
+                                            ) {
+                                                QueuePatientCard(
+                                                    navController,
+                                                    viewModel,
+                                                    landingViewModel,
+                                                    queueListState,
+                                                    waitingAppointmentResponse,
+                                                    patient
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    items(viewModel.waitingQueueList, { it }) { waitingAppointmentResponse ->
-                        ReorderableItem(
-                            queueListState, key = waitingAppointmentResponse,
-                            modifier = Modifier
-                                .background(MaterialTheme.colorScheme.secondaryContainer)
-                        ) { _ ->
-                            var patient by remember {
-                                mutableStateOf<PatientResponse?>(null)
-                            }
-                            waitingAppointmentResponse.patientId.let { patientId ->
-                                LaunchedEffect(key1 = patientId) {
-                                    patient = viewModel.getPatientById(
-                                        patientId
-                                    )
-                                }
-                            }
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 18.dp, vertical = 9.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                QueuePatientCard(
-                                    navController,
-                                    viewModel,
-                                    landingViewModel,
-                                    queueListState,
-                                    waitingAppointmentResponse,
-                                    patient
-                                )
-                            }
-                        }
-                    }
-                    if (viewModel.waitingQueueList.isNotEmpty())
-                        item {
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(10.dp)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.secondaryContainer,
-                                        shape = RoundedCornerShape(
-                                            bottomEnd = 18.dp,
-                                            bottomStart = 18.dp
-                                        )
-                                    )
-                            )
                         }
                     // in-progress
                     items(viewModel.inProgressQueueList) { appointmentResponseLocal ->
