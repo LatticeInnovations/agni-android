@@ -117,7 +117,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
                                     AppointmentResponse(
                                         appointmentId = null,
                                         uuid = appointmentId,
-                                        patientFhirId = patient?.fhirId ?: patient?.id,
+                                        patientFhirId = patient!!.fhirId ?: patient!!.id,
                                         scheduleId = scheduleFhirId ?: id,
                                         createdOn = createdOn,
                                         orgId = preferenceRepository.getOrganizationFhirId(),
@@ -217,7 +217,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
                                     scheduleId = scheduleFhirId ?: id,
                                     createdOn = createdOn,
                                     slot = slot,
-                                    patientFhirId = patient?.fhirId ?: patient?.id,
+                                    patientFhirId = patient!!.fhirId ?: patient!!.id,
                                     appointmentId = null,
                                     orgId = appointment!!.orgId,
                                     status = appointment!!.status,
