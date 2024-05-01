@@ -13,7 +13,7 @@ data class AppointmentResponse(
     val appointmentId: String?,
     val uuid: String,
     @SerializedName("patientId")
-    val patientFhirId: String?,
+    val patientFhirId: String,
     val scheduleId: String,
     val slot: Slot,
     val orgId: String,
