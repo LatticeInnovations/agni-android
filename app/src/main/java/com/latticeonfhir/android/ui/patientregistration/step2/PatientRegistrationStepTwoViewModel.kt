@@ -13,7 +13,7 @@ class PatientRegistrationStepTwoViewModel : BaseViewModel(), DefaultLifecycleObs
     val maxVoterIdLength = 10
     val maxPatientIdLength = 10
 
-    var isPassportSelected by mutableStateOf(true)
+    var isPassportSelected by mutableStateOf(false)
     var isVoterSelected by mutableStateOf(false)
     var isPatientSelected by mutableStateOf(false)
     var passportId by mutableStateOf("")
@@ -27,14 +27,10 @@ class PatientRegistrationStepTwoViewModel : BaseViewModel(), DefaultLifecycleObs
     var isPatientValid by mutableStateOf(false)
 
     fun identityInfoValidation(): Boolean {
-        if (isPassportSelected == false && isVoterSelected == false && isPatientSelected == false)
-            return false
         if (isPassportSelected && !passportPattern.matches(passportId))
             return false
         if (isVoterSelected && !voterPattern.matches(voterId))
             return false
-        if (isPatientSelected && patientId.length < 10)
-            return false
-        return true
+        return !(isPatientSelected && patientId.length < 10)
     }
 }
