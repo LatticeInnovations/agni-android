@@ -160,13 +160,15 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                     }
                                 }
                             ) { value ->
-                                viewModel.apply {
-                                    otpValues[index].value = value.trim().filter { otp ->
-                                        otp.isDigit()
-                                    }
-                                    viewModel.updateOtp()
-                                    coroutineScope.launch {
-                                        requestFocus(value, index, focusManager)
+                                if (value.isNotBlank()) {
+                                    viewModel.apply {
+                                        otpValues[index].value = value.trim().filter { otp ->
+                                            otp.isDigit()
+                                        }
+                                        viewModel.updateOtp()
+                                        coroutineScope.launch {
+                                            requestFocus(value, index, focusManager)
+                                        }
                                     }
                                 }
                             }
@@ -238,7 +240,12 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
 private fun setKeyEvent(keyEvent: KeyEvent, viewModel: OtpViewModel, index: Int): Boolean {
     return if (keyEvent.key == Key.Backspace) {
         if (index > 0) {
-            viewModel.focusRequesters[index - 1].requestFocus()
+            if (viewModel.otpValues[index].value.isBlank()) {
+                viewModel.focusRequesters[index - 1].requestFocus()
+                viewModel.otpValues[index - 1].value = ""
+            } else viewModel.otpValues[index].value = ""
+        } else {
+            viewModel.otpValues[index].value = ""
         }
         true
     } else {
@@ -301,7 +308,7 @@ fun ResendButton(
     coroutineScope: CoroutineScope,
     activity: MainActivity,
     snackbarHostState: SnackbarHostState
-){
+) {
     if (viewModel.isResending) {
         Spacer(modifier = Modifier.height(15.dp))
         ButtonLoader()
@@ -363,11 +370,12 @@ fun OtpTextField(
 ) {
     TextField(
         value = value,
-        onValueChange = {if (it.length <= 1) {
-            updateValue(it)
-            if (it.isNotEmpty()) next?.invoke()
-        } else
-            next?.invoke()
+        onValueChange = {
+            if (it.length <= 1) {
+                updateValue(it)
+                if (it.isNotEmpty()) next?.invoke()
+            } else
+                next?.invoke()
         },
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surface,
