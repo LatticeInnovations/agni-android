@@ -1,10 +1,24 @@
 package com.latticeonfhir.android.ui.patientregistration.preview
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -12,7 +26,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.relation.Relation
@@ -29,7 +42,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,9 +102,9 @@ fun PatientRegistrationPreview(
                 viewModel.dob = "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
             } else {
                 viewModel.dob = ageToPatientDate(
-                    viewModel.years.toInt(),
-                    viewModel.months.toInt(),
-                    viewModel.days.toInt()
+                    viewModel.years.toIntOrNull() ?: 0,
+                    viewModel.months.toIntOrNull() ?: 0,
+                    viewModel.days.toIntOrNull() ?: 0
                 )
                 Timber.d("manseeyy ${viewModel.dob.toPatientDate()}")
             }
@@ -124,7 +136,7 @@ fun PatientRegistrationPreview(
                         navController.navigate(Screen.PatientRegistrationScreen.route)
                     }) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "BACK_ICON"
                         )
                     }
@@ -177,10 +189,10 @@ fun PatientRegistrationPreview(
                     viewModel.patientResponse = PatientResponse(
                         id = viewModel.relativeId,
                         firstName = viewModel.firstName,
-                        middleName = if (viewModel.middleName.isEmpty()) null else viewModel.middleName,
-                        lastName = if (viewModel.lastName.isEmpty()) null else viewModel.lastName,
+                        middleName = viewModel.middleName.ifBlank { null },
+                        lastName = viewModel.lastName.ifBlank { null },
                         birthDate = viewModel.dob.toPatientDate(),
-                        email = if (viewModel.email.isEmpty()) null else viewModel.email,
+                        email = viewModel.email.ifBlank { null },
                         active = true,
                         gender = viewModel.gender,
                         mobileNumber = viewModel.phoneNumber.toLong(),
@@ -189,10 +201,10 @@ fun PatientRegistrationPreview(
                             postalCode = viewModel.homeAddress.pincode,
                             state = viewModel.homeAddress.state,
                             addressLine1 = viewModel.homeAddress.addressLine1,
-                            addressLine2 = if (viewModel.homeAddress.addressLine2.isEmpty()) null else viewModel.homeAddress.addressLine2,
+                            addressLine2 = viewModel.homeAddress.addressLine2.ifBlank { null },
                             city = viewModel.homeAddress.city,
                             country = "India",
-                            district = if (viewModel.homeAddress.district.isEmpty()) null else viewModel.homeAddress.district
+                            district = viewModel.homeAddress.district.ifBlank { null }
                         ),
                         identifier = viewModel.identifierList
                     )
