@@ -171,7 +171,7 @@ include them in the household</string>
     <string name="no_upcoming_appointments">No upcoming appointments</string>
     <string name="cancel_appointment">Cancel appointment ?</string>
     <string name="yes_i_want_to_cancel">Yes, I want to cancel</string>
-    <string name="reset">Reset</string>
+    <string name="today">Today</string>
     <string name="morning_slots">Morning slots</string>
     <string name="afternoon_slots">Afternoon slots</string>
     <string name="evening_slots">Evening slots</string>
