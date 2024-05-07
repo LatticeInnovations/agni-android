@@ -248,6 +248,7 @@ private fun setKeyEvent(keyEvent: KeyEvent, viewModel: OtpViewModel, index: Int)
         } else {
             viewModel.otpValues[index].value = ""
         }
+        viewModel.updateOtp()
         true
     } else {
         false
