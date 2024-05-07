@@ -1,8 +1,10 @@
 package com.latticeonfhir.android.ui.login
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusRequester
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
@@ -20,15 +22,11 @@ class OtpViewModel @Inject constructor(
     private val authenticationRepository: AuthenticationRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
+    val otpValues = List(6) { mutableStateOf("") }
+    val focusRequesters = List(6) { FocusRequester() }
     var userInput by mutableStateOf("")
-    var firstDigit by mutableStateOf("")
-    var secondDigit by mutableStateOf("")
-    var thirdDigit by mutableStateOf("")
-    var fourDigit by mutableStateOf("")
-    var fiveDigit by mutableStateOf("")
-    var sixDigit by mutableStateOf("")
-    var twoMinuteTimer by mutableStateOf(120)
-    var fiveMinuteTimer by mutableStateOf(0)
+    var twoMinuteTimer by mutableIntStateOf(120)
+    var fiveMinuteTimer by mutableIntStateOf(0)
     var isVerifying by mutableStateOf(false)
     var isResending by mutableStateOf(false)
     var isOtpIncorrect by mutableStateOf(false)
@@ -37,8 +35,7 @@ class OtpViewModel @Inject constructor(
     var otpAttemptsExpired by mutableStateOf(false)
 
     fun updateOtp() {
-        otpEntered =
-            (firstDigit + secondDigit + thirdDigit + fourDigit + fiveDigit + sixDigit).trim()
+        otpEntered = otpValues.joinToString(separator = "") { it.value }
     }
 
     internal fun resendOTP(resent: (Boolean) -> Unit) {
