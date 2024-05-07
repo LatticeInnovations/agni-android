@@ -140,7 +140,7 @@ fun ScheduleAppointments(
                             .toSlotDate(),
                         modifier = Modifier.testTag("RESET_BTN")
                     ) {
-                        Text(text = stringResource(id = R.string.reset))
+                        Text(text = stringResource(id = R.string.today))
                     }
                 }
             )
