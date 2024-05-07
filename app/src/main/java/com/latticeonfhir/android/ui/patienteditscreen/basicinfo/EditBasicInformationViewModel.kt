@@ -93,7 +93,7 @@ class EditBasicInformationViewModel @Inject constructor(
             return false
         if (dobAgeSelector == "dob" && (dobDay.isEmpty() || dobMonth.isEmpty() || dobYear.isEmpty()) || (isDobDayValid || isDobMonthValid || isDobYearValid))
             return false
-        if (dobAgeSelector == "age" && (days.isEmpty() || months.isEmpty() || years.isEmpty()) || (isAgeDaysValid || isAgeMonthsValid || isAgeYearsValid))
+        if (dobAgeSelector == "age" && (days.isEmpty() && months.isEmpty() && years.isEmpty()) || (isAgeDaysValid || isAgeMonthsValid || isAgeYearsValid))
             return false
         if (phoneNumber.length != 10)
             return false
