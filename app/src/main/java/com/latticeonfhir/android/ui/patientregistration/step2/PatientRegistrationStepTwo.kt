@@ -19,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -110,7 +111,8 @@ fun PatientRegistrationStepTwo(
                     viewModel.maxPassportIdLength,
                     viewModel.isPassportValid,
                     stringResource(id = R.string.passport_id_error_msg),
-                    KeyboardType.Text
+                    KeyboardType.Text,
+                    KeyboardCapitalization.Characters
                 ) {
                     viewModel.passportId = it
                     viewModel.isPassportValid =
@@ -129,7 +131,8 @@ fun PatientRegistrationStepTwo(
                     viewModel.maxVoterIdLength,
                     viewModel.isVoterValid,
                     stringResource(id = R.string.voter_id_error_msg),
-                    KeyboardType.Text
+                    KeyboardType.Text,
+                    KeyboardCapitalization.Characters
                 ) {
                     viewModel.voterId = it
                     viewModel.isVoterValid = !viewModel.voterPattern.matches(viewModel.voterId)
@@ -147,7 +150,8 @@ fun PatientRegistrationStepTwo(
                     viewModel.maxPatientIdLength,
                     viewModel.isPatientValid,
                     stringResource(id = R.string.patient_id_error_msg),
-                    KeyboardType.Text
+                    KeyboardType.Text,
+                    KeyboardCapitalization.Characters
                 ) {
                     viewModel.patientId = it
                     viewModel.isPatientValid = viewModel.patientId.length < viewModel.minPatientIdLength
