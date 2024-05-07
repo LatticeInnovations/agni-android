@@ -95,7 +95,7 @@ include them in the household</string>
     <string name="patient_name">Patient Name</string>
     <string name="patient_name_error_msg">Name length should be between 3 and 100.</string>
     <string name="patient_id">Patient ID</string>
-    <string name="patient_id_error_msg">Patient Id should be of length 10.</string>
+    <string name="patient_id_error_msg">Patient Id should be between 2 and 12.</string>
     <string name="select_age_range">Select age range</string>
     <string name="gender">Gender</string>
     <string name="male">Male</string>
