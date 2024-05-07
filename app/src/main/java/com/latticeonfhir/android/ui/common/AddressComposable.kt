@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
@@ -59,7 +60,8 @@ fun AddressComposable(label: String, address: Address) {
             maxLength = 6,
             address.isPostalCodeValid,
             stringResource(id = R.string.postal_code_error_msg),
-            KeyboardType.Number
+            KeyboardType.Number,
+            KeyboardCapitalization.None
         ) {
             if (it.matches(onlyNumbers) || it.isEmpty()) address.pincode = it
             address.isPostalCodeValid = address.pincode.length < 6
@@ -141,7 +143,8 @@ fun AddressComposable(label: String, address: Address) {
         weight = 1f,
         maxLength = 150, address.isAddressLine1Valid,
         stringResource(id = R.string.address_line_1_error_msg),
-        KeyboardType.Text
+        KeyboardType.Text,
+        KeyboardCapitalization.Words
     ) {
         address.addressLine1 = it
         address.isAddressLine1Valid = address.addressLine1.isEmpty()
@@ -153,7 +156,8 @@ fun AddressComposable(label: String, address: Address) {
         weight = 1f,
         maxLength = 150, false,
         "Enter valid input.",
-        KeyboardType.Text
+        KeyboardType.Text,
+        KeyboardCapitalization.Words
     ) {
         address.addressLine2 = it
     }
@@ -164,7 +168,8 @@ fun AddressComposable(label: String, address: Address) {
         weight = 1f,
         maxLength = 150, address.isCityValid,
         stringResource(id = R.string.city_error_msg),
-        KeyboardType.Text
+        KeyboardType.Text,
+        KeyboardCapitalization.Words
     ) {
         address.city = it
         address.isCityValid = address.city.isEmpty()
@@ -176,7 +181,8 @@ fun AddressComposable(label: String, address: Address) {
         weight = 1f,
         maxLength = 150, false,
         stringResource(id = R.string.district_error_msg),
-        KeyboardType.Text
+        KeyboardType.Text,
+        KeyboardCapitalization.Words
     ) {
         address.district = it
     }
