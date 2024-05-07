@@ -111,7 +111,7 @@ include them in the household</string>
 
     <string name="basic_information">Basic Information</string>
     <string name="date_of_birth">Date of birth</string>
-    <string name="identification">Identification</string>
+    <string name="optional_identification">Optional: Identification</string>
     <string name="passport_id">Passport ID</string>
     <string name="voter_id">Voter ID</string>
     <string name="addresses">Addresses</string>
