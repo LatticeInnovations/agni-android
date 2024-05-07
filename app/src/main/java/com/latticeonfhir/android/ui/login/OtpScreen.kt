@@ -1,18 +1,42 @@
 package com.latticeonfhir.android.ui.login
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
@@ -22,7 +46,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.*
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.navigation.Screen
@@ -39,104 +62,29 @@ import kotlinx.coroutines.launch
 @Composable
 fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewModel()) {
     val focusManager = LocalFocusManager.current
-    val focusRequester = remember { FocusRequester() }
     val activity = LocalContext.current as MainActivity
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+
     LaunchedEffect(viewModel.isLaunched) {
-        viewModel.userInput =
-            navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput")
-                .toString()
-        if (viewModel.userInput.matches(OnlyNumberRegex.onlyNumbers)) {
-            activity.registerBroadcastReceiver()
+        if (!viewModel.isLaunched) {
+            viewModel.userInput =
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput")
+                    .toString()
+            if (viewModel.userInput.matches(OnlyNumberRegex.onlyNumbers)) {
+                activity.registerBroadcastReceiver()
+            }
+            viewModel.focusRequesters[0].requestFocus()
+            viewModel.isLaunched = true
         }
-        viewModel.isLaunched = true
     }
     LaunchedEffect(activity.otp) {
         if (activity.otp.isNotEmpty()) {
-            viewModel.firstDigit = activity.otp[0].toString()
-            viewModel.secondDigit = activity.otp[1].toString()
-            viewModel.thirdDigit = activity.otp[2].toString()
-            viewModel.fourDigit = activity.otp[3].toString()
-            viewModel.fiveDigit = activity.otp[4].toString()
-            viewModel.sixDigit = activity.otp[5].toString()
-            viewModel.updateOtp()
+            viewModel.otpEntered = activity.otp
             verifyClick(navController, viewModel)
             activity.otp = ""
             activity.unregisterBroadcastReceiver()
-        }
-    }
-    LaunchedEffect(
-        key1 = viewModel.secondDigit,
-    ) {
-        if (viewModel.secondDigit.isNotEmpty()) {
-            focusManager.moveFocus(
-                focusDirection = FocusDirection.Next,
-            )
-        } else {
-            focusManager.moveFocus(
-                focusDirection = FocusDirection.Previous,
-            )
-        }
-    }
-    LaunchedEffect(
-        key1 = viewModel.thirdDigit,
-    ) {
-        if (viewModel.thirdDigit.isNotEmpty()) {
-            focusManager.moveFocus(
-                focusDirection = FocusDirection.Next,
-            )
-        } else {
-            focusManager.moveFocus(
-                focusDirection = FocusDirection.Previous,
-            )
-        }
-    }
-    LaunchedEffect(
-        key1 = viewModel.fourDigit,
-    ) {
-        if (viewModel.fourDigit.isNotEmpty()) {
-            focusManager.moveFocus(
-                focusDirection = FocusDirection.Next,
-            )
-        } else {
-            focusManager.moveFocus(
-                focusDirection = FocusDirection.Previous,
-            )
-        }
-    }
-    LaunchedEffect(
-        key1 = viewModel.fiveDigit,
-    ) {
-        if (viewModel.fiveDigit.isNotEmpty()) {
-            focusManager.moveFocus(
-                focusDirection = FocusDirection.Next,
-            )
-        } else {
-            focusManager.moveFocus(
-                focusDirection = FocusDirection.Previous,
-            )
-        }
-    }
-    LaunchedEffect(
-        key1 = viewModel.sixDigit,
-    ) {
-        if (viewModel.sixDigit.isEmpty()) {
-            focusManager.moveFocus(
-                focusDirection = FocusDirection.Previous,
-            )
-        }
-    }
-    LaunchedEffect(
-        key1 = viewModel.firstDigit,
-    ) {
-        if (viewModel.firstDigit.isNotEmpty()) {
-            focusManager.moveFocus(
-                focusDirection = FocusDirection.Next,
-            )
-        } else {
-            focusRequester.requestFocus()
         }
     }
     LaunchedEffect(viewModel.twoMinuteTimer > 0) {
@@ -163,7 +111,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                 modifier = Modifier.fillMaxWidth(),
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 },
                 title = {
@@ -192,83 +140,41 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                     )
                     Spacer(modifier = Modifier.height(50.dp))
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp)
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
                     ) {
-                        OtpTextField(
-                            viewModel.firstDigit,
-                            Modifier
-                                .weight(1f)
-                                .padding(5.dp)
-                                .focusRequester(focusRequester)
-                                .testTag("FIRST_DIGIT"), viewModel.isOtpIncorrect
-                        ) { digit ->
-                            if (digit.isEmpty()) viewModel.firstDigit = ""
-                            else if (digit.length <= 1 && digit.matches(OnlyNumberRegex.onlyNumbers)) viewModel.firstDigit =
-                                digit
-                            viewModel.updateOtp()
+                        repeat(6) { index ->
+                            OtpTextField(
+                                value = viewModel.otpValues[index].value,
+                                modifier = Modifier
+                                    .width(45.dp)
+                                    .focusRequester(viewModel.focusRequesters[index])
+                                    .testTag("m_pin_Field")
+                                    .onKeyEvent { keyEvent ->
+                                        setKeyEvent(keyEvent, viewModel, index)
+                                    },
+                                errorCondition = viewModel.isOtpIncorrect,
+                                next = {
+                                    if (index < 5) {
+                                        viewModel.focusRequesters[index + 1].requestFocus()
+                                    }
+                                }
+                            ) { value ->
+                                if (value.isNotBlank()) {
+                                    viewModel.apply {
+                                        otpValues[index].value = value.trim().filter { otp ->
+                                            otp.isDigit()
+                                        }
+                                        viewModel.updateOtp()
+                                        coroutineScope.launch {
+                                            requestFocus(value, index, focusManager)
+                                        }
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
                         }
-                        OtpTextField(
-                            viewModel.secondDigit,
-                            Modifier
-                                .weight(1f)
-                                .padding(5.dp)
-                                .testTag("SECOND_DIGIT"), viewModel.isOtpIncorrect
-                        ) { digit ->
-                            if (digit.isEmpty()) viewModel.secondDigit = ""
-                            else if (digit.length <= 1 && digit.matches(OnlyNumberRegex.onlyNumbers)) viewModel.secondDigit =
-                                digit
-                            viewModel.updateOtp()
-                        }
-                        OtpTextField(
-                            viewModel.thirdDigit,
-                            Modifier
-                                .weight(1f)
-                                .padding(5.dp)
-                                .testTag("THIRD_DIGIT"), viewModel.isOtpIncorrect
-                        ) { digit ->
-                            if (digit.isEmpty()) viewModel.thirdDigit = ""
-                            else if (digit.length <= 1 && digit.matches(OnlyNumberRegex.onlyNumbers)) viewModel.thirdDigit =
-                                digit
-                            viewModel.updateOtp()
-                        }
-                        OtpTextField(
-                            viewModel.fourDigit,
-                            Modifier
-                                .weight(1f)
-                                .padding(5.dp)
-                                .testTag("FOUR_DIGIT"), viewModel.isOtpIncorrect
-                        ) { digit ->
-                            if (digit.isEmpty()) viewModel.fourDigit = ""
-                            else if (digit.length <= 1 && digit.matches(OnlyNumberRegex.onlyNumbers)) viewModel.fourDigit =
-                                digit
-                            viewModel.updateOtp()
-                        }
-                        OtpTextField(
-                            viewModel.fiveDigit,
-                            Modifier
-                                .weight(1f)
-                                .padding(5.dp)
-                                .testTag("FIVE_DIGIT"), viewModel.isOtpIncorrect
-                        ) { digit ->
-                            if (digit.isEmpty()) viewModel.fiveDigit = ""
-                            else if (digit.length <= 1 && digit.matches(OnlyNumberRegex.onlyNumbers)) viewModel.fiveDigit =
-                                digit
-                            viewModel.updateOtp()
-                        }
-                        OtpTextField(
-                            viewModel.sixDigit,
-                            Modifier
-                                .weight(1f)
-                                .padding(5.dp)
-                                .testTag("SIX_DIGIT"), viewModel.isOtpIncorrect
-                        ) { digit ->
-                            if (digit.isEmpty()) viewModel.sixDigit = ""
-                            else if (digit.length <= 1 && digit.matches(OnlyNumberRegex.onlyNumbers)) viewModel.sixDigit =
-                                digit
-                            viewModel.updateOtp()
-                        }
+
                     }
                     if (viewModel.isOtpIncorrect) {
                         Text(
@@ -331,6 +237,34 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
     )
 }
 
+private fun setKeyEvent(keyEvent: KeyEvent, viewModel: OtpViewModel, index: Int): Boolean {
+    return if (keyEvent.key == Key.Backspace) {
+        if (index > 0) {
+            if (viewModel.otpValues[index].value.isBlank()) {
+                viewModel.focusRequesters[index - 1].requestFocus()
+                viewModel.otpValues[index - 1].value = ""
+            } else viewModel.otpValues[index].value = ""
+        } else {
+            viewModel.otpValues[index].value = ""
+        }
+        true
+    } else {
+        false
+    }
+}
+
+private fun requestFocus(
+    value: String,
+    index: Int,
+    focusManager: FocusManager,
+) {
+    when {
+        index == 5 && value.isNotEmpty() -> {
+            focusManager.clearFocus()
+        }
+    }
+}
+
 @Composable
 fun TwoMinuteTimer(
     viewModel: OtpViewModel,
@@ -374,7 +308,7 @@ fun ResendButton(
     coroutineScope: CoroutineScope,
     activity: MainActivity,
     snackbarHostState: SnackbarHostState
-){
+) {
     if (viewModel.isResending) {
         Spacer(modifier = Modifier.height(15.dp))
         ButtonLoader()
@@ -383,12 +317,7 @@ fun ResendButton(
         onClick = {
             if (CheckNetwork.isInternetAvailable(activity)) {
                 viewModel.isResending = true
-                viewModel.firstDigit = ""
-                viewModel.secondDigit = ""
-                viewModel.thirdDigit = ""
-                viewModel.fourDigit = ""
-                viewModel.fiveDigit = ""
-                viewModel.sixDigit = ""
+                viewModel.otpValues.forEach { it.value = "" }
                 viewModel.isOtpIncorrect = false
                 viewModel.updateOtp()
                 viewModel.resendOTP { resent ->
@@ -436,12 +365,17 @@ fun OtpTextField(
     value: String,
     modifier: Modifier,
     errorCondition: Boolean,
+    next: (() -> Unit)? = null,
     updateValue: (String) -> Unit
 ) {
     TextField(
         value = value,
         onValueChange = {
-            updateValue(it)
+            if (it.length <= 1) {
+                updateValue(it)
+                if (it.isNotEmpty()) next?.invoke()
+            } else
+                next?.invoke()
         },
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surface,
