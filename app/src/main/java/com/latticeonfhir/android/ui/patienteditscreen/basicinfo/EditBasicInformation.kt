@@ -310,9 +310,9 @@ fun EditBasicInformation(
                             email = viewModel.email,
                             birthDate = if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
                             else ageToPatientDate(
-                                viewModel.years.toInt(),
-                                viewModel.months.toInt(),
-                                viewModel.days.toInt()
+                                viewModel.years.toIntOrNull() ?: 0,
+                                viewModel.months.toIntOrNull() ?: 0,
+                                viewModel.days.toIntOrNull() ?: 0
                             ).toPatientDate(),
                             gender = viewModel.gender
                         )

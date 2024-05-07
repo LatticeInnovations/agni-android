@@ -183,6 +183,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .padding(top = 8.dp)
                                 .testTag("ERROR_MSG"),
                             textAlign = TextAlign.Center
                         )
@@ -247,6 +248,7 @@ private fun setKeyEvent(keyEvent: KeyEvent, viewModel: OtpViewModel, index: Int)
         } else {
             viewModel.otpValues[index].value = ""
         }
+        viewModel.updateOtp()
         true
     } else {
         false
