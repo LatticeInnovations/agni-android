@@ -52,16 +52,14 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
             return false
         if (middleName.length > 100 || lastName.length > 100)
             return false
-        if (dobAgeSelector == "dob" && (isDobDayValid || isDobMonthValid || isDobYearValid))
+        if (dobAgeSelector == "dob" && ((dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()) || (isDobDayValid || isDobMonthValid || isDobYearValid)))
             return false
-        if (dobAgeSelector == "age" && (isAgeDaysValid || isAgeMonthsValid || isAgeYearsValid))
+        if (dobAgeSelector == "age" &&  ((years.isBlank() && months.isBlank() && days.isBlank()) || (isAgeYearsValid || isAgeDaysValid || isAgeMonthsValid)))
             return false
         if (phoneNumber.length != 10)
             return false
         if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return false
-        if (gender == "")
-            return false
-        return true
+        return gender != ""
     }
 }

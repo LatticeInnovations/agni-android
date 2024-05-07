@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -214,7 +215,8 @@ fun EditIdentification(
                             viewModel.maxPassportIdLength,
                             viewModel.isPassportValid,
                             "Enter valid Passport ID (eg., A1098765)",
-                            KeyboardType.Text
+                            KeyboardType.Text,
+                            KeyboardCapitalization.Characters
                         ) {
                             viewModel.passportId = it
                             if (viewModel.passportId.isNotEmpty())
@@ -240,7 +242,8 @@ fun EditIdentification(
                             viewModel.maxVoterIdLength,
                             viewModel.isVoterValid,
                             "Enter valid Voter Id (eg., XYZ9876543)",
-                            KeyboardType.Text
+                            KeyboardType.Text,
+                            KeyboardCapitalization.Characters
                         ) {
                             viewModel.voterId = it
                             if (viewModel.voterId.isNotEmpty())
@@ -263,7 +266,8 @@ fun EditIdentification(
                             viewModel.maxPatientIdLength,
                             viewModel.isPatientValid,
                             stringResource(id = R.string.patient_id_error_msg),
-                            KeyboardType.Text
+                            KeyboardType.Text,
+                            KeyboardCapitalization.Characters
                         ) {
                             viewModel.patientId = it
                             if (viewModel.patientId.isNotEmpty())

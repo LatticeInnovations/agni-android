@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -111,7 +112,8 @@ fun PatientRegistrationStepOne(
                 viewModel.maxFirstNameLength,
                 viewModel.isNameValid,
                 stringResource(id = R.string.first_name_error_msg),
-                KeyboardType.Text
+                KeyboardType.Text,
+                KeyboardCapitalization.Words
             ) {
                 viewModel.firstName = it
                 viewModel.isNameValid =
@@ -125,7 +127,8 @@ fun PatientRegistrationStepOne(
                 viewModel.maxMiddleNameLength,
                 false,
                 "",
-                KeyboardType.Text
+                KeyboardType.Text,
+                KeyboardCapitalization.Words
             ) {
                 viewModel.middleName = it
             }
@@ -137,7 +140,8 @@ fun PatientRegistrationStepOne(
                 viewModel.maxLastNameLength,
                 false,
                 "",
-                KeyboardType.Text
+                KeyboardType.Text,
+                KeyboardCapitalization.Words
             ) {
                 viewModel.lastName = it
             }
@@ -175,7 +179,8 @@ fun PatientRegistrationStepOne(
                 viewModel.maxEmailLength,
                 viewModel.isEmailValid,
                 stringResource(id = R.string.email_error_msg),
-                KeyboardType.Email
+                KeyboardType.Email,
+                KeyboardCapitalization.None
             ) {
                 viewModel.email = it
                 viewModel.isEmailValid = !Patterns.EMAIL_ADDRESS.matcher(viewModel.email).matches()
@@ -259,7 +264,8 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
             maxLength = 2,
             isError = viewModel.isDobDayValid,
             error = errorMsg,
-            KeyboardType.Number
+            KeyboardType.Number,
+            KeyboardCapitalization.None
         ) {
             if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.dobDay = it
             if (viewModel.dobDay.isNotEmpty()) {
@@ -335,7 +341,8 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
             maxLength = 4,
             isError = viewModel.isDobYearValid,
             error = stringResource(id = R.string.year_error_msg),
-            KeyboardType.Number
+            KeyboardType.Number,
+            KeyboardCapitalization.None
         ) {
             if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.dobYear = it
             if (viewModel.dobYear.isNotEmpty()) {
@@ -360,7 +367,8 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
             stringResource(
                 id = R.string.age_years_error_msg
             ),
-            KeyboardType.Number
+            KeyboardType.Number,
+            KeyboardCapitalization.None
         ) {
             if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.years = it
             if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
@@ -376,7 +384,8 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
             stringResource(
                 id = R.string.age_months_error_msg
             ),
-            KeyboardType.Number
+            KeyboardType.Number,
+            KeyboardCapitalization.None
         ) {
             if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.months = it
             if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =
@@ -392,7 +401,8 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
             stringResource(
                 id = R.string.age_days_error_msg
             ),
-            KeyboardType.Number
+            KeyboardType.Number,
+            KeyboardCapitalization.None
         ) {
             if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.days = it
             if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
