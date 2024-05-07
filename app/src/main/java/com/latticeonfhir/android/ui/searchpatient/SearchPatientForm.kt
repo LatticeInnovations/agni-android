@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -70,7 +71,8 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
                 weight = 1f,
                 maxLength = 100, searchPatientViewModel.isNameValid,
                 stringResource(id = R.string.patient_name_error_msg),
-                KeyboardType.Text
+                KeyboardType.Text,
+                KeyboardCapitalization.Words
             ) {
                 searchPatientViewModel.patientName = it
                 searchPatientViewModel.isNameValid =
@@ -81,9 +83,10 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
                 value = searchPatientViewModel.patientId,
                 label = stringResource(id = R.string.patient_id),
                 weight = 1f,
-                maxLength = 10, searchPatientViewModel.isPatientIdValid,
+                maxLength = 12, searchPatientViewModel.isPatientIdValid,
                 stringResource(id = R.string.patient_id_error_msg),
-                KeyboardType.Text
+                KeyboardType.Text,
+                KeyboardCapitalization.Characters
             ) {
                 searchPatientViewModel.patientId = it
                 searchPatientViewModel.isPatientIdValid =
