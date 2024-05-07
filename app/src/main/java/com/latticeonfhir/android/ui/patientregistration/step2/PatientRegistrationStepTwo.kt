@@ -58,7 +58,7 @@ fun PatientRegistrationStepTwo(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = stringResource(id = R.string.identification),
+                text = stringResource(id = R.string.optional_identification),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )

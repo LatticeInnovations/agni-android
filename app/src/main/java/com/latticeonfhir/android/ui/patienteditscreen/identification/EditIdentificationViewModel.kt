@@ -36,7 +36,7 @@ class EditIdentificationViewModel @Inject constructor(
     val maxVoterIdLength = 10
     val maxPatientIdLength = 10
 
-    var isPassportSelected by mutableStateOf(true)
+    var isPassportSelected by mutableStateOf(false)
     var isVoterSelected by mutableStateOf(false)
     var isPatientSelected by mutableStateOf(false)
     var passportId by mutableStateOf("")
@@ -63,15 +63,11 @@ class EditIdentificationViewModel @Inject constructor(
 
 
     fun identityInfoValidation(): Boolean {
-        if (!isPassportSelected && !isVoterSelected && !isPatientSelected)
-            return false
         if (isPassportSelected && !passportPattern.matches(passportId))
             return false
         if (isVoterSelected && !voterPattern.matches(voterId))
             return false
-        if (isPatientSelected && patientId.length < 10)
-            return false
-        return true
+        return !(isPatientSelected && patientId.length < 10)
     }
 
     fun checkIsEdit(): Boolean {
