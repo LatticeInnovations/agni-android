@@ -150,7 +150,7 @@ fun PatientRegistrationStepTwo(
                     KeyboardType.Text
                 ) {
                     viewModel.patientId = it
-                    viewModel.isPatientValid = viewModel.patientId.length < 10
+                    viewModel.isPatientValid = viewModel.patientId.length < viewModel.minPatientIdLength
                 }
                 IdLength(viewModel.patientId, viewModel.maxPatientIdLength, "PATIENT_ID_LENGTH")
             } else {
