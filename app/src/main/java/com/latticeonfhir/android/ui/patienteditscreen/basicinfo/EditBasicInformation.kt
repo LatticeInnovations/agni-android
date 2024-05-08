@@ -63,6 +63,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.regex.NameRegex.nameRegex
+import com.latticeonfhir.android.utils.regex.PhoneNumberRegex.phoneNumberRegex
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -543,9 +544,9 @@ fun ContactTextField(viewModel: EditBasicInformationViewModel) {
         OutlinedTextField(
             value = viewModel.phoneNumber,
             onValueChange = {
-                viewModel.isPhoneValid = it.length < 10
                 if (it.length <= 10 && (it.matches(viewModel.onlyNumbers) || it.isEmpty()))
                     viewModel.phoneNumber = it
+                viewModel.isPhoneValid = !viewModel.phoneNumber.matches(phoneNumberRegex)
             },
             modifier = Modifier
                 .fillMaxWidth(1f)

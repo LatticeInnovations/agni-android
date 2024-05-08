@@ -56,7 +56,7 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
             return false
         if (dobAgeSelector == "age" &&  ((years.isBlank() && months.isBlank() && days.isBlank()) || (isAgeYearsValid || isAgeDaysValid || isAgeMonthsValid)))
             return false
-        if (phoneNumber.length != 10)
+        if (isPhoneValid)
             return false
         if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return false
