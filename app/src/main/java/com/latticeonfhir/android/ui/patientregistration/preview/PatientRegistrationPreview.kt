@@ -226,6 +226,11 @@ fun PatientRegistrationPreview(
                         navController.navigate(Screen.PatientRegistrationScreen.route)
                     }
                 }
+                if (viewModel.openDialog) {
+                    DiscardDialog(navController, viewModel.fromHouseholdMember) {
+                        viewModel.openDialog = false
+                    }
+                }
             }
         },
         floatingActionButton = {
