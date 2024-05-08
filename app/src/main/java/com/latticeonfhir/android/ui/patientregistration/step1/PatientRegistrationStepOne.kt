@@ -50,6 +50,7 @@ import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.theme.Neutral40
 import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList.getMonthsList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
+import com.latticeonfhir.android.utils.regex.OnlyAlphabetRegex.onlyAlphabets
 import java.util.Date
 import java.util.Locale
 
@@ -117,7 +118,7 @@ fun PatientRegistrationStepOne(
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                viewModel.firstName = it
+                if (it.matches(onlyAlphabets)) viewModel.firstName = it
                 viewModel.isNameValid =
                     viewModel.firstName.length < 3 || viewModel.firstName.length > 100
             }
@@ -132,7 +133,7 @@ fun PatientRegistrationStepOne(
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                viewModel.middleName = it
+                if (it.matches(onlyAlphabets)) viewModel.middleName = it
             }
             ValueLength(viewModel.middleName, "MIDDLE_NAME_LENGTH")
             CustomTextField(
@@ -145,7 +146,7 @@ fun PatientRegistrationStepOne(
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                viewModel.lastName = it
+                if (it.matches(onlyAlphabets)) viewModel.lastName = it
             }
             ValueLength(viewModel.lastName, "LAST_NAME_LENGTH")
             Row(modifier = Modifier.fillMaxWidth()) {
