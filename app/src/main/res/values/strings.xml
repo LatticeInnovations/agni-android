@@ -130,7 +130,7 @@ include them in the household</string>
     <string name="year">Year</string>
     <string name="error_msg_1_to_31_days">Enter valid day between 1 and 31.</string>
     <string name="error_msg_1_to_29_days">Enter valid day between 1 and 29.</string>
-    <string name="year_error_msg">Enter valid year between 1900 and 2023</string>
+    <string name="year_error_msg">Enter valid year between 1900 and %s</string>
 
     <string name="age_days">Days</string>
     <string name="age_months">Months</string>
