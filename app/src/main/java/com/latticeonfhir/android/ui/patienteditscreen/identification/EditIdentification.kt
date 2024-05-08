@@ -57,43 +57,36 @@ fun EditIdentification(
     navController: NavController,
     viewModel: EditIdentificationViewModel = hiltViewModel()
 ) {
-    val patientResponse =
-        navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>("patient_details")
-    viewModel.patient = patientResponse
-    viewModel.isEditing = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-        "isEditing"
-    ) == true
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            patientResponse?.run {
+            viewModel.patient =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>("patient_details")
+            viewModel.isEditing = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                "isEditing"
+            ) == true
+            viewModel.patient?.run {
                 identifier.forEach { identity ->
 
                     when (identity.identifierType) {
                         IdentificationConstants.PASSPORT_TYPE -> {
                             viewModel.passportId = identity.identifierNumber
-                            viewModel.isPassportSelected = viewModel.passportId.isNotEmpty()
+                            viewModel.isPassportSelected = viewModel.passportId.isNotBlank()
                         }
 
                         IdentificationConstants.VOTER_ID_TYPE -> {
                             viewModel.voterId = identity.identifierNumber
-
+                            viewModel.isVoterSelected = viewModel.voterId.isNotBlank()
                         }
 
                         IdentificationConstants.PATIENT_ID_TYPE -> {
                             viewModel.patientId = identity.identifierNumber
+                            viewModel.isPatientSelected = viewModel.patientId.isNotBlank()
                         }
 
                         else -> {}
 
                     }
-
-                    if (viewModel.isEditing) {
-                        viewModel.isPassportSelected = viewModel.passportId.isNotEmpty()
-                        viewModel.isVoterSelected = viewModel.voterId.isNotEmpty()
-                        viewModel.isPatientSelected = viewModel.patientId.isNotEmpty()
-                    }
                 }
-
                 viewModel.isPassportSelectedTemp = viewModel.isPassportSelected
                 viewModel.isVoterSelectedTemp = viewModel.isVoterSelected
                 viewModel.isPatientSelectedTemp = viewModel.isPatientSelected
@@ -271,7 +264,8 @@ fun EditIdentification(
                         ) {
                             viewModel.patientId = it
                             if (viewModel.patientId.isNotEmpty())
-                                viewModel.isPatientValid = viewModel.patientId.length < viewModel.minPatientIdLength
+                                viewModel.isPatientValid =
+                                    viewModel.patientId.length < viewModel.minPatientIdLength
                             else
                                 viewModel.isPatientValid = false
                         }
@@ -319,7 +313,7 @@ fun EditIdentification(
                     }
 
 
-                    viewModel.updateBasicInfo(patientResponse!!.copy(identifier = viewModel.identifierList))
+                    viewModel.updateBasicInfo(viewModel.patient!!.copy(identifier = viewModel.identifierList))
                     navController.previousBackStackEntry?.savedStateHandle?.set(
                         "isProfileUpdated",
                         true
