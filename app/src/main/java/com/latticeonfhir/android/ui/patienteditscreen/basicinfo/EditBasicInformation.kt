@@ -62,6 +62,7 @@ import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
+import com.latticeonfhir.android.utils.regex.OnlyAlphabetRegex.onlyAlphabets
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -202,7 +203,7 @@ fun EditBasicInformation(
                         KeyboardType.Text,
                         KeyboardCapitalization.Words
                     ) {
-                        viewModel.firstName = it
+                        if (it.matches(onlyAlphabets)) viewModel.firstName = it
                         viewModel.isNameValid =
                             viewModel.firstName.length < 3 || viewModel.firstName.length > 100
                     }
@@ -217,7 +218,7 @@ fun EditBasicInformation(
                         KeyboardType.Text,
                         KeyboardCapitalization.Words
                     ) {
-                        viewModel.middleName = it
+                        if (it.matches(onlyAlphabets)) viewModel.middleName = it
                     }
                     ValueLength(viewModel.middleName)
                     CustomTextField(
@@ -230,7 +231,7 @@ fun EditBasicInformation(
                         KeyboardType.Text,
                         KeyboardCapitalization.Words
                     ) {
-                        viewModel.lastName = it
+                        if (it.matches(onlyAlphabets)) viewModel.lastName = it
                     }
                     ValueLength(viewModel.lastName)
                     Row(modifier = Modifier.fillMaxWidth()) {

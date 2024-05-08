@@ -49,6 +49,9 @@ import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewM
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.theme.Neutral40
 import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList.getMonthsList
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
+import com.latticeonfhir.android.utils.regex.OnlyAlphabetRegex.onlyAlphabets
+import java.util.Date
 import java.util.Locale
 
 @Composable
@@ -115,7 +118,7 @@ fun PatientRegistrationStepOne(
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                viewModel.firstName = it
+                if (it.matches(onlyAlphabets)) viewModel.firstName = it
                 viewModel.isNameValid =
                     viewModel.firstName.length < 3 || viewModel.firstName.length > 100
             }
@@ -130,7 +133,7 @@ fun PatientRegistrationStepOne(
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                viewModel.middleName = it
+                if (it.matches(onlyAlphabets)) viewModel.middleName = it
             }
             ValueLength(viewModel.middleName, "MIDDLE_NAME_LENGTH")
             CustomTextField(
@@ -143,7 +146,7 @@ fun PatientRegistrationStepOne(
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                viewModel.lastName = it
+                if (it.matches(onlyAlphabets)) viewModel.lastName = it
             }
             ValueLength(viewModel.lastName, "LAST_NAME_LENGTH")
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -267,7 +270,7 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
             KeyboardType.Number,
             KeyboardCapitalization.None
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.dobDay = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobDay = it
             if (viewModel.dobDay.isNotEmpty()) {
                 viewModel.isDobDayValid =
                     viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 31
@@ -340,14 +343,14 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
             weight = 1f,
             maxLength = 4,
             isError = viewModel.isDobYearValid,
-            error = stringResource(id = R.string.year_error_msg),
+            error = stringResource(id = R.string.year_error_msg, Date().toYear()),
             KeyboardType.Number,
             KeyboardCapitalization.None
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.dobYear = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobYear = it
             if (viewModel.dobYear.isNotEmpty()) {
                 viewModel.isDobYearValid =
-                    viewModel.dobYear.toInt() < 1900 || viewModel.dobYear.toInt() > 2023
+                    viewModel.dobYear.toInt() < 1900 || viewModel.dobYear.toInt() > Date().toYear().toInt()
             }
         }
     }
@@ -370,7 +373,7 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
             KeyboardType.Number,
             KeyboardCapitalization.None
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.years = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
             if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
                 viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
         }
@@ -387,7 +390,7 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
             KeyboardType.Number,
             KeyboardCapitalization.None
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.months = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.months = it
             if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =
                 viewModel.months.toInt() < 1 || viewModel.months.toInt() > 11
         }
@@ -404,7 +407,7 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
             KeyboardType.Number,
             KeyboardCapitalization.None
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.length == 0) viewModel.days = it
+            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
             if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
                 viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
         }
