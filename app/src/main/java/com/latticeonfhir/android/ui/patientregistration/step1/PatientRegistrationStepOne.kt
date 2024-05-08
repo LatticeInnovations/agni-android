@@ -51,6 +51,7 @@ import com.latticeonfhir.android.ui.theme.Neutral40
 import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList.getMonthsList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import com.latticeonfhir.android.utils.regex.NameRegex.nameRegex
+import com.latticeonfhir.android.utils.regex.PhoneNumberRegex.phoneNumberRegex
 import java.util.Date
 import java.util.Locale
 
@@ -435,9 +436,9 @@ fun ContactTextField(viewModel: PatientRegistrationStepOneViewModel) {
         OutlinedTextField(
             value = viewModel.phoneNumber,
             onValueChange = {
-                viewModel.isPhoneValid = it.length < 10
                 if (it.length <= 10 && (it.matches(viewModel.onlyNumbers) || it.isEmpty()))
                     viewModel.phoneNumber = it
+                viewModel.isPhoneValid = !viewModel.phoneNumber.matches(phoneNumberRegex)
             },
             modifier = Modifier
                 .fillMaxWidth(1f)
