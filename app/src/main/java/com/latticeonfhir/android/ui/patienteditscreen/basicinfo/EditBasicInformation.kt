@@ -62,7 +62,8 @@ import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
-import com.latticeonfhir.android.utils.regex.OnlyAlphabetRegex.onlyAlphabets
+import com.latticeonfhir.android.utils.regex.NameRegex.nameRegex
+import com.latticeonfhir.android.utils.regex.PhoneNumberRegex.phoneNumberRegex
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -203,7 +204,7 @@ fun EditBasicInformation(
                         KeyboardType.Text,
                         KeyboardCapitalization.Words
                     ) {
-                        if (it.matches(onlyAlphabets)) viewModel.firstName = it
+                        if (it.matches(nameRegex) || it.isEmpty()) viewModel.firstName = it
                         viewModel.isNameValid =
                             viewModel.firstName.length < 3 || viewModel.firstName.length > 100
                     }
@@ -218,7 +219,7 @@ fun EditBasicInformation(
                         KeyboardType.Text,
                         KeyboardCapitalization.Words
                     ) {
-                        if (it.matches(onlyAlphabets)) viewModel.middleName = it
+                        if (it.matches(nameRegex) || it.isEmpty()) viewModel.middleName = it
                     }
                     ValueLength(viewModel.middleName)
                     CustomTextField(
@@ -231,7 +232,7 @@ fun EditBasicInformation(
                         KeyboardType.Text,
                         KeyboardCapitalization.Words
                     ) {
-                        if (it.matches(onlyAlphabets)) viewModel.lastName = it
+                        if (it.matches(nameRegex) || it.isEmpty()) viewModel.lastName = it
                     }
                     ValueLength(viewModel.lastName)
                     Row(modifier = Modifier.fillMaxWidth()) {
@@ -543,9 +544,9 @@ fun ContactTextField(viewModel: EditBasicInformationViewModel) {
         OutlinedTextField(
             value = viewModel.phoneNumber,
             onValueChange = {
-                viewModel.isPhoneValid = it.length < 10
                 if (it.length <= 10 && (it.matches(viewModel.onlyNumbers) || it.isEmpty()))
                     viewModel.phoneNumber = it
+                viewModel.isPhoneValid = !viewModel.phoneNumber.matches(phoneNumberRegex)
             },
             modifier = Modifier
                 .fillMaxWidth(1f)
