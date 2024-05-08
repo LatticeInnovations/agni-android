@@ -50,7 +50,8 @@ import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.theme.Neutral40
 import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList.getMonthsList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
-import com.latticeonfhir.android.utils.regex.OnlyAlphabetRegex.onlyAlphabets
+import com.latticeonfhir.android.utils.regex.NameRegex.nameRegex
+import com.latticeonfhir.android.utils.regex.PhoneNumberRegex.phoneNumberRegex
 import java.util.Date
 import java.util.Locale
 
@@ -118,7 +119,7 @@ fun PatientRegistrationStepOne(
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                if (it.matches(onlyAlphabets)) viewModel.firstName = it
+                if (it.matches(nameRegex) || it.isEmpty()) viewModel.firstName = it
                 viewModel.isNameValid =
                     viewModel.firstName.length < 3 || viewModel.firstName.length > 100
             }
@@ -133,7 +134,7 @@ fun PatientRegistrationStepOne(
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                if (it.matches(onlyAlphabets)) viewModel.middleName = it
+                if (it.matches(nameRegex) || it.isEmpty()) viewModel.middleName = it
             }
             ValueLength(viewModel.middleName, "MIDDLE_NAME_LENGTH")
             CustomTextField(
@@ -146,7 +147,7 @@ fun PatientRegistrationStepOne(
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                if (it.matches(onlyAlphabets)) viewModel.lastName = it
+                if (it.matches(nameRegex) || it.isEmpty()) viewModel.lastName = it
             }
             ValueLength(viewModel.lastName, "LAST_NAME_LENGTH")
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -435,9 +436,9 @@ fun ContactTextField(viewModel: PatientRegistrationStepOneViewModel) {
         OutlinedTextField(
             value = viewModel.phoneNumber,
             onValueChange = {
-                viewModel.isPhoneValid = it.length < 10
                 if (it.length <= 10 && (it.matches(viewModel.onlyNumbers) || it.isEmpty()))
                     viewModel.phoneNumber = it
+                viewModel.isPhoneValid = !viewModel.phoneNumber.matches(phoneNumberRegex)
             },
             modifier = Modifier
                 .fillMaxWidth(1f)

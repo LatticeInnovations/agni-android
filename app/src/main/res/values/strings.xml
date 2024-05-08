@@ -124,7 +124,7 @@ include them in the household</string>
     <string name="middle_name">Middle Name</string>
     <string name="last_name">Last Name</string>
     <string name="first_name_error_msg">Name length should be between 3 and 100.</string>
-    <string name="email_error_msg">Enter valid userEmail (eg., abc123@gmail.com)</string>
+    <string name="email_error_msg">Enter valid email (eg., abc123@gmail.com)</string>
     <string name="day">Day</string>
     <string name="month">Month</string>
     <string name="year">Year</string>
