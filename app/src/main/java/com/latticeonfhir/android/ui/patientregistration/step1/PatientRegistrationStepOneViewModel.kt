@@ -7,6 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger
 
 class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObserver {
     internal var isLaunched by mutableStateOf(false)
@@ -41,7 +43,6 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
     internal var isEmailValid by mutableStateOf(false)
     internal var isPhoneValid by mutableStateOf(false)
     internal var isDobDayValid by mutableStateOf(false)
-    internal var isDobMonthValid by mutableStateOf(false)
     internal var isDobYearValid by mutableStateOf(false)
     internal var isAgeDaysValid by mutableStateOf(false)
     internal var isAgeMonthsValid by mutableStateOf(false)
@@ -52,7 +53,11 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
             return false
         if (middleName.length > 100 || lastName.length > 100)
             return false
-        if (dobAgeSelector == "dob" && ((dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()) || (isDobDayValid || isDobMonthValid || isDobYearValid)))
+        if (dobAgeSelector == "dob" && ((dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()) || (!TimeConverter.isDOBValid(
+                dobDay.toInt(),
+                dobMonth.toMonthInteger(),
+                dobYear.toInt()
+            ))))
             return false
         if (dobAgeSelector == "age" &&  ((years.isBlank() && months.isBlank() && days.isBlank()) || (isAgeYearsValid || isAgeDaysValid || isAgeMonthsValid)))
             return false
