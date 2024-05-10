@@ -1,26 +1,11 @@
 package com.latticeonfhir.android.ui.landingscreen
 
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.paging.LoadState
@@ -40,70 +25,10 @@ fun MyPatientScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp)
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            AssistChip(
-                onClick = { /*TODO*/ },
-                label = {
-                    Text(
-                        text = "Category 1",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                trailingIcon = {
-                    Icon(
-                        Icons.Default.ArrowDropDown,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            )
-            Spacer(modifier = Modifier.width(3.dp))
-            AssistChip(
-                onClick = { /*TODO*/ },
-                label = {
-                    Text(
-                        text = "Category 2",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                trailingIcon = {
-                    Icon(
-                        Icons.Default.ArrowDropDown, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            )
-            Spacer(modifier = Modifier.width(3.dp))
-            AssistChip(
-                onClick = { /*TODO*/ },
-                label = {
-                    Text(
-                        text = "Category 3",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                trailingIcon = {
-                    Icon(
-                        Icons.Default.ArrowDropDown, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            )
-        }
-        val patientsList: LazyPagingItems<PatientResponse>
-        if (viewModel.isSearchResult) {
-            patientsList = viewModel.searchResultList.collectAsLazyPagingItems()
+        val patientsList: LazyPagingItems<PatientResponse> = if (viewModel.isSearchResult) {
+            viewModel.searchResultList.collectAsLazyPagingItems()
         } else {
-            patientsList = viewModel.patientList.collectAsLazyPagingItems()
+            viewModel.patientList.collectAsLazyPagingItems()
         }
         LazyColumn(modifier = Modifier.testTag("patients list")) {
             items(
