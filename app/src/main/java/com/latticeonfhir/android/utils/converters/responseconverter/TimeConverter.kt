@@ -93,6 +93,7 @@ object TimeConverter {
     }
 
     internal fun isDOBValid(day: Int, month: Int, year: Int): Boolean {
+        if (year < 1900 || year > Date().toYear().toInt()) return false
         val maxDaysInMonth = when (month) {
             1, 3, 5, 7, 8, 10, 12 -> 31
             4, 6, 9, 11 -> 30
@@ -104,10 +105,14 @@ object TimeConverter {
         }
         // check for future
         val todayDate = Date()
-        return when(true) {
+        return when (true) {
             (year > todayDate.toYear().toInt()) -> false
-            (year == todayDate.toYear().toInt() && month > todayDate.toMonth().toMonthInteger()) -> false
-            (year == todayDate.toYear().toInt() && month == todayDate.toMonth().toMonthInteger() && day > todayDate.toDateInteger()) -> false
+            (year == todayDate.toYear().toInt() && month > todayDate.toMonth()
+                .toMonthInteger()) -> false
+
+            (year == todayDate.toYear().toInt() && month == todayDate.toMonth()
+                .toMonthInteger() && day > todayDate.toDateInteger()) -> false
+
             else -> true
         }
     }

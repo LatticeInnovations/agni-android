@@ -31,7 +31,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -52,7 +51,7 @@ import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.ButtonLoader
 import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.utils.network.CheckNetwork
-import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
+import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -72,7 +71,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
             viewModel.userInput =
                 navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput")
                     .toString()
-            if (viewModel.userInput.matches(OnlyNumberRegex.onlyNumbers)) {
+            if (viewModel.userInput.matches(onlyNumbers)) {
                 activity.registerBroadcastReceiver()
             }
             viewModel.focusRequesters[0].requestFocus()
@@ -145,6 +144,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                     ) {
                         repeat(6) { index ->
                             OtpTextField(
+                                index = index,
                                 value = viewModel.otpValues[index].value,
                                 modifier = Modifier
                                     .width(45.dp)
@@ -153,23 +153,16 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                                     .onKeyEvent { keyEvent ->
                                         setKeyEvent(keyEvent, viewModel, index)
                                     },
-                                errorCondition = viewModel.isOtpIncorrect,
-                                next = {
-                                    if (index < 5) {
-                                        viewModel.focusRequesters[index + 1].requestFocus()
-                                    }
-                                }
+                                errorCondition = viewModel.isOtpIncorrect
                             ) { value ->
                                 if (value.isNotBlank()) {
-                                    viewModel.apply {
-                                        otpValues[index].value = value.trim().filter { otp ->
-                                            otp.isDigit()
-                                        }
-                                        viewModel.updateOtp()
-                                        coroutineScope.launch {
-                                            requestFocus(value, index, focusManager)
-                                        }
+                                    if (index < 5) {
+                                        viewModel.focusRequesters[index + 1].requestFocus()
+                                    } else {
+                                        focusManager.clearFocus()
                                     }
+                                    viewModel.otpValues[index].value = value.trim()
+                                    viewModel.updateOtp()
                                 }
                             }
                             Spacer(modifier = Modifier.width(10.dp))
@@ -252,18 +245,6 @@ private fun setKeyEvent(keyEvent: KeyEvent, viewModel: OtpViewModel, index: Int)
         true
     } else {
         false
-    }
-}
-
-private fun requestFocus(
-    value: String,
-    index: Int,
-    focusManager: FocusManager,
-) {
-    when {
-        index == 5 && value.isNotEmpty() -> {
-            focusManager.clearFocus()
-        }
     }
 }
 
@@ -364,20 +345,17 @@ fun verifyClick(navController: NavController, viewModel: OtpViewModel) {
 
 @Composable
 fun OtpTextField(
+    index: Int,
     value: String,
     modifier: Modifier,
     errorCondition: Boolean,
-    next: (() -> Unit)? = null,
     updateValue: (String) -> Unit
 ) {
     TextField(
         value = value,
         onValueChange = {
-            if (it.length <= 1) {
+            if (it.length <= 1 && it.matches(onlyNumbers))
                 updateValue(it)
-                if (it.isNotEmpty()) next?.invoke()
-            } else
-                next?.invoke()
         },
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -387,7 +365,7 @@ fun OtpTextField(
         ),
         modifier = modifier,
         keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Next,
+            imeAction = if (index == 5) ImeAction.Done else ImeAction.Next,
             keyboardType = KeyboardType.Number
         ),
         isError = errorCondition,
