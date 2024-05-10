@@ -50,10 +50,8 @@ import com.latticeonfhir.android.ui.theme.Neutral40
 import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList.getMonthsList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isDOBValid
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
 import com.latticeonfhir.android.utils.regex.NameRegex.nameRegex
 import com.latticeonfhir.android.utils.regex.PhoneNumberRegex.phoneNumberRegex
-import java.util.Date
 import java.util.Locale
 
 @Composable
@@ -264,19 +262,13 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
                 label = stringResource(id = R.string.day),
                 weight = 0.23f,
                 maxLength = 2,
-                isError = viewModel.isDobDayValid,
+                isError = false,
                 error = "",
                 KeyboardType.Number,
                 KeyboardCapitalization.None
             ) {
                 if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobDay = it
                 if (viewModel.dobDay.isNotEmpty()) {
-                    viewModel.isDobDayValid =
-                        viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 31
-                    if (viewModel.dobMonth == "February") {
-                        viewModel.isDobDayValid =
-                            viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 29
-                    }
                     viewModel.monthsList = getMonthsList(viewModel.dobDay)
                 }
             }
@@ -339,17 +331,12 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
                 label = stringResource(id = R.string.year),
                 weight = 1f,
                 maxLength = 4,
-                isError = viewModel.isDobYearValid,
+                isError = false,
                 error = "",
                 KeyboardType.Number,
                 KeyboardCapitalization.None
             ) {
                 if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobYear = it
-                if (viewModel.dobYear.isNotEmpty()) {
-                    viewModel.isDobYearValid =
-                        viewModel.dobYear.toInt() < 1900 || viewModel.dobYear.toInt() > Date().toYear()
-                            .toInt()
-                }
             }
         }
         if (viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
