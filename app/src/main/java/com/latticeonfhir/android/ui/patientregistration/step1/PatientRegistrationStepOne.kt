@@ -119,7 +119,7 @@ fun PatientRegistrationStepOne(
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                if (it.matches(nameRegex) || it.isEmpty()) viewModel.firstName = it
+                if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.firstName = it.trim()
                 viewModel.isNameValid =
                     viewModel.firstName.length < 3 || viewModel.firstName.length > 100
             }
@@ -134,7 +134,7 @@ fun PatientRegistrationStepOne(
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                if (it.matches(nameRegex) || it.isEmpty()) viewModel.middleName = it
+                if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.middleName = it.trim()
             }
             ValueLength(viewModel.middleName, "MIDDLE_NAME_LENGTH")
             CustomTextField(
@@ -147,7 +147,7 @@ fun PatientRegistrationStepOne(
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                if (it.matches(nameRegex) || it.isEmpty()) viewModel.lastName = it
+                if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.lastName = it.trim()
             }
             ValueLength(viewModel.lastName, "LAST_NAME_LENGTH")
             Row(modifier = Modifier.fillMaxWidth()) {
