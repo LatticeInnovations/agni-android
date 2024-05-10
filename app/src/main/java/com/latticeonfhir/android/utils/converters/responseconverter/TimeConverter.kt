@@ -92,6 +92,30 @@ object TimeConverter {
         }
     }
 
+    internal fun isDOBValid(day: Int, month: Int, year: Int): Boolean {
+        val maxDaysInMonth = when (month) {
+            1, 3, 5, 7, 8, 10, 12 -> 31
+            4, 6, 9, 11 -> 30
+            2 -> if (isLeapYear(year)) 29 else 28
+            else -> return false
+        }
+        if (day < 1 || day > maxDaysInMonth) {
+            return false
+        }
+        // check for future
+        val todayDate = Date()
+        return when(true) {
+            (year > todayDate.toYear().toInt()) -> false
+            (year == todayDate.toYear().toInt() && month > todayDate.toMonth().toMonthInteger()) -> false
+            (year == todayDate.toYear().toInt() && month == todayDate.toMonth().toMonthInteger() && day > todayDate.toDateInteger()) -> false
+            else -> true
+        }
+    }
+
+    private fun isLeapYear(year: Int): Boolean {
+        return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
+    }
+
     internal fun Date.toPrescriptionDate(): String {
         val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         return formatter.format(this)
@@ -132,6 +156,18 @@ object TimeConverter {
     internal fun Date.toMonth(): String {
         val formatter = SimpleDateFormat("MMM", Locale.getDefault())
         return formatter.format(this)
+    }
+
+    internal fun String.toMonthInteger(): Int {
+        val inputFormatter = SimpleDateFormat("MMM", Locale.getDefault())
+        val currentMonth = inputFormatter.parse(this)
+        val outputFormatter = SimpleDateFormat("MM", Locale.getDefault())
+        return outputFormatter.format(currentMonth!!).toInt()
+    }
+
+    private fun Date.toDateInteger(): Int {
+        val formatter = SimpleDateFormat("dd", Locale.getDefault())
+        return formatter.format(this).toInt()
     }
 
     internal fun Date.toWeekDay(): String {
