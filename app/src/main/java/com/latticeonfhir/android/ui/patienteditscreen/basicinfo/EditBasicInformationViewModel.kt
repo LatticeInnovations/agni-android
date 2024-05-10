@@ -13,6 +13,8 @@ import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger
 import com.latticeonfhir.android.utils.regex.AgeRegex
 import com.latticeonfhir.android.utils.regex.DobRegex
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
@@ -78,9 +80,6 @@ class EditBasicInformationViewModel @Inject constructor(
     var isNameValid by mutableStateOf(false)
     var isEmailValid by mutableStateOf(false)
     var isPhoneValid by mutableStateOf(false)
-    var isDobDayValid by mutableStateOf(false)
-    var isDobMonthValid by mutableStateOf(false)
-    var isDobYearValid by mutableStateOf(false)
     var isAgeDaysValid by mutableStateOf(false)
     var isAgeMonthsValid by mutableStateOf(false)
     var isAgeYearsValid by mutableStateOf(false)
@@ -91,7 +90,11 @@ class EditBasicInformationViewModel @Inject constructor(
             return false
         if (middleName.length > 100 || lastName.length > 100)
             return false
-        if (dobAgeSelector == "dob" && (dobDay.isEmpty() || dobMonth.isEmpty() || dobYear.isEmpty()) || (isDobDayValid || isDobMonthValid || isDobYearValid))
+        if (dobAgeSelector == "dob" && ((dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()) || (!TimeConverter.isDOBValid(
+                dobDay.toInt(),
+                dobMonth.toMonthInteger(),
+                dobYear.toInt()
+            ))))
             return false
         if (dobAgeSelector == "age" && (days.isEmpty() && months.isEmpty() && years.isEmpty()) || (isAgeDaysValid || isAgeMonthsValid || isAgeYearsValid))
             return false
@@ -99,9 +102,7 @@ class EditBasicInformationViewModel @Inject constructor(
             return false
         if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return false
-        if (gender == "")
-            return false
-        return true
+        return gender != ""
     }
 
     fun splitDOB(dob: String): Triple<Int, String, Int> {
@@ -151,9 +152,6 @@ class EditBasicInformationViewModel @Inject constructor(
         isNameValid = false
         isEmailValid = false
         isPhoneValid = false
-        isDobDayValid = false
-        isDobMonthValid = false
-        isDobYearValid = false
         isAgeDaysValid = false
         isAgeMonthsValid = false
         isAgeYearsValid = false
