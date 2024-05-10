@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -55,12 +56,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.regex.NameRegex.nameRegex
 import com.latticeonfhir.android.utils.regex.PhoneNumberRegex.phoneNumberRegex
@@ -369,106 +373,110 @@ fun ValueLengthEmail(value: String) {
 
 @Composable
 fun DobTextField(viewModel: EditBasicInformationViewModel) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        var monthExpanded by remember { mutableStateOf(false) }
-        var errorMsg by remember {
-            mutableStateOf("")
-        }
-        CustomTextField(
-            value = viewModel.dobDay,
-            label = "Day",
-            weight = 0.23f,
-            maxLength = 2,
-            isError = viewModel.isDobDayValid,
-            error = errorMsg,
-            KeyboardType.Number,
-            KeyboardCapitalization.None
-        ) {
-            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobDay = it
-            if (viewModel.dobDay.isNotEmpty()) {
-                viewModel.isDobDayValid =
-                    viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 31
-                errorMsg = "Enter valid day between 1 and 31."
-                if (viewModel.dobMonth == "February") {
-                    viewModel.isDobDayValid =
-                        viewModel.dobDay.toInt() < 1 || viewModel.dobDay.toInt() > 29
-                    errorMsg = "Enter valid day between 1 and 29."
-                }
-                viewModel.monthsList = MonthsList.getMonthsList(viewModel.dobDay)
-            }
-        }
-        Spacer(modifier = Modifier.width(10.dp))
-        Column(
+    Column {
+        Row(
             modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .testTag("Month")
+                .fillMaxWidth()
         ) {
-            OutlinedTextField(
-                value = viewModel.dobMonth,
-                onValueChange = {
-                    viewModel.dobMonth = it
-                },
-                label = {
-                    Text(text = "Month")
-                },
-                trailingIcon = {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = "")
-                },
-                interactionSource = remember {
-                    MutableInteractionSource()
-                }.also { interactionSource ->
-                    LaunchedEffect(interactionSource) {
-                        interactionSource.interactions.collect {
-                            if (it is PressInteraction.Release) {
-                                monthExpanded = !monthExpanded
+            var monthExpanded by remember { mutableStateOf(false) }
+            CustomTextField(
+                value = viewModel.dobDay,
+                label = "Day",
+                weight = 0.23f,
+                maxLength = 2,
+                isError = false,
+                error = "",
+                KeyboardType.Number,
+                KeyboardCapitalization.None
+            ) {
+                if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobDay = it
+                if (viewModel.dobDay.isNotEmpty()) {
+                    viewModel.monthsList = MonthsList.getMonthsList(viewModel.dobDay)
+                }
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
+                    .testTag("Month")
+            ) {
+                OutlinedTextField(
+                    value = viewModel.dobMonth,
+                    onValueChange = {
+                        viewModel.dobMonth = it
+                    },
+                    label = {
+                        Text(text = "Month")
+                    },
+                    trailingIcon = {
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+                    },
+                    interactionSource = remember {
+                        MutableInteractionSource()
+                    }.also { interactionSource ->
+                        LaunchedEffect(interactionSource) {
+                            interactionSource.interactions.collect {
+                                if (it is PressInteraction.Release) {
+                                    monthExpanded = !monthExpanded
+                                }
                             }
                         }
+                    },
+                    readOnly = true,
+                    singleLine = true
+                )
+                DropdownMenu(
+                    modifier = Modifier.fillMaxHeight(0.5f),
+                    expanded = monthExpanded,
+                    onDismissRequest = { monthExpanded = false },
+                ) {
+                    viewModel.monthsList.forEach { label ->
+                        DropdownMenuItem(
+                            onClick = {
+                                monthExpanded = false
+                                viewModel.dobMonth = label
+                            },
+                            text = {
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        )
                     }
-                },
-                readOnly = true,
-                singleLine = true
-            )
-            DropdownMenu(
-                modifier = Modifier.fillMaxHeight(0.5f),
-                expanded = monthExpanded,
-                onDismissRequest = { monthExpanded = false },
-            ) {
-                viewModel.monthsList.forEach { label ->
-                    DropdownMenuItem(
-                        onClick = {
-                            monthExpanded = false
-                            viewModel.dobMonth = label
-                        },
-                        text = {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    )
                 }
             }
-        }
-        Spacer(modifier = Modifier.width(10.dp))
-        CustomTextField(
-            value = viewModel.dobYear,
-            label = "Year",
-            weight = 1f,
-            maxLength = 4,
-            isError = viewModel.isDobYearValid,
-            error = "Enter valid year between 1900 and 2023",
-            KeyboardType.Number,
-            KeyboardCapitalization.None
-        ) {
-            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobYear = it
-            if (viewModel.dobYear.isNotEmpty()) {
-                viewModel.isDobYearValid =
-                    viewModel.dobYear.toInt() < 1900 || viewModel.dobYear.toInt() > 2023
+            Spacer(modifier = Modifier.width(10.dp))
+            CustomTextField(
+                value = viewModel.dobYear,
+                label = "Year",
+                weight = 1f,
+                maxLength = 4,
+                isError = false,
+                error = "",
+                KeyboardType.Number,
+                KeyboardCapitalization.None
+            ) {
+                if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobYear = it
             }
+        }
+        if (viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
+            && !TimeConverter.isDOBValid(
+                viewModel.dobDay.toInt(),
+                viewModel.dobMonth.toMonthInteger(),
+                viewModel.dobYear.toInt()
+            )
+        ) {
+            Text(
+                text = stringResource(
+                    id = R.string.invalid_date,
+                    "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
     }
 }
