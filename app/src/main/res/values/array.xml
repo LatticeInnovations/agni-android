@@ -33,6 +33,8 @@
         <item>unknown</item>
     </string-array>
     <string-array name="morning_slot_timings">
+        <item>08:00 AM</item>
+        <item>08:30 AM</item>
         <item>09:00 AM</item>
         <item>09:30 AM</item>
         <item>10:00 AM</item>
@@ -53,5 +55,16 @@
     <string-array name="evening_slot_timings">
         <item>04:00 PM</item>
         <item>04:30 PM</item>
+        <item>05:00 PM</item>
+        <item>05:30 PM</item>
+        <item>06:00 PM</item>
+        <item>06:30 PM</item>
+        <item>07:00 PM</item>
+        <item>07:30 PM</item>
+        <item>08:00 PM</item>
+        <item>08:30 PM</item>
+        <item>09:00 PM</item>
+        <item>09:30 PM</item>
+        <item>10:00 PM</item>
     </string-array>
 </resources>
