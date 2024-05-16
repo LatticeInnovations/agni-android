@@ -2,6 +2,7 @@ package com.latticeonfhir.android.data.local.repository.appointment
 
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentResponseLocal
 import javax.inject.Inject
@@ -43,5 +44,11 @@ class AppointmentRepositoryImpl @Inject constructor(private val appointmentDao: 
             .map { appointmentEntity ->
                 appointmentEntity.toAppointmentResponseLocal()
             }
+    }
+
+    override suspend fun getLastCompletedAppointment(
+        patientId: String
+    ): AppointmentEntity? {
+        return appointmentDao.getLastCompletedAppointment(patientId)
     }
 }

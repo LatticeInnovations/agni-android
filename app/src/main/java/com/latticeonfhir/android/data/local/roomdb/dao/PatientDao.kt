@@ -23,7 +23,7 @@ interface PatientDao {
     suspend fun insertIdentifiers(vararg identifierEntity: IdentifierEntity): List<Long>
 
     @Transaction
-    @Query("SELECT * FROM PatientEntity")
+    @Query("SELECT * FROM PatientEntity INNER JOIN PatientLastUpdatedEntity ON PatientEntity.id = PatientLastUpdatedEntity.patientId ORDER BY PatientLastUpdatedEntity.lastUpdated DESC")
     fun getListPatientData(): PagingSource<Int, PatientAndIdentifierEntity>
 
     @Transaction

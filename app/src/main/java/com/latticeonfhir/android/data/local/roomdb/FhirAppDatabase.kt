@@ -12,6 +12,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
@@ -22,6 +23,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.medication.Medicatio
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientLastUpdatedEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
@@ -47,12 +49,15 @@ import java.util.UUID
         PrescriptionDirectionsEntity::class,
         MedicineTimingEntity::class,
         ScheduleEntity::class,
-        AppointmentEntity::class],
+        AppointmentEntity::class,
+        PatientLastUpdatedEntity::class
+    ],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
-    version = 3,
+    version = 4,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
-        AutoMigration(from = 2, to = 3)
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4)
     ],
     exportSchema = true
 )
@@ -68,6 +73,7 @@ abstract class FhirAppDatabase : RoomDatabase() {
     abstract fun getMedicationDao(): MedicationDao
     abstract fun getScheduleDao(): ScheduleDao
     abstract fun getAppointmentDao(): AppointmentDao
+    abstract fun getPatientLastUpdatedDao(): PatientLastUpdatedDao
 
     companion object {
         @Volatile

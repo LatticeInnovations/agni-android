@@ -17,6 +17,7 @@ import androidx.work.await
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
+import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
@@ -42,7 +43,8 @@ class LandingScreenViewModel @Inject constructor(
     application: Application,
     private val patientRepository: PatientRepository,
     private val searchRepository: SearchRepository,
-    private val preferenceRepository: PreferenceRepository
+    private val preferenceRepository: PreferenceRepository,
+    private val appointmentRepository: AppointmentRepository
 ) : BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
@@ -189,6 +191,16 @@ class LandingScreenViewModel @Inject constructor(
                 }
             }.cachedIn(viewModelScope)
             isLoading = false
+        }
+    }
+
+    internal fun getLastVisitedOfPatient(
+        patientId: String,
+        lastVisited: (Date?) -> Unit
+    ) {
+        viewModelScope.launch {
+            val appointment = appointmentRepository.getLastCompletedAppointment(patientId)
+            lastVisited(appointment?.startTime)
         }
     }
 

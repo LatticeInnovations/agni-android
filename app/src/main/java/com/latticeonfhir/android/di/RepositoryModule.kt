@@ -10,6 +10,8 @@ import com.latticeonfhir.android.data.local.repository.medication.MedicationRepo
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
+import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
@@ -81,4 +83,7 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideAppointmentRepository(appointmentRepositoryImpl: AppointmentRepositoryImpl): AppointmentRepository
+    @Binds
+    @ViewModelScoped
+    abstract fun providePatientLastUpdatedRepository(patientLastUpdatedRepositoryImpl: PatientLastUpdatedRepositoryImpl): PatientLastUpdatedRepository
 }
