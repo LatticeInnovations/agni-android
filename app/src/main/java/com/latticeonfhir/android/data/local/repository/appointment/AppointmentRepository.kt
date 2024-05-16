@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.repository.appointment
 
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
+import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
 
 interface AppointmentRepository {
     suspend fun getAppointmentListByDate(
@@ -20,4 +21,8 @@ interface AppointmentRepository {
         startOfDay: Long,
         endOfDay: Long
     ): AppointmentResponseLocal?
+
+    suspend fun getLastCompletedAppointment(
+        patientId: String
+    ): AppointmentEntity?
 }
