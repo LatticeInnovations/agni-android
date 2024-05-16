@@ -17,7 +17,9 @@ import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.service.workmanager.utils.Sync.getWorkerInfo
@@ -40,7 +42,8 @@ class QueueViewModel @Inject constructor(
     private val patientRepository: PatientRepository,
     private val appointmentRepository: AppointmentRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val genericRepository: GenericRepository
+    private val genericRepository: GenericRepository,
+    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
 ) : BaseAndroidViewModel(application) {
 
     // queue screen
@@ -171,6 +174,7 @@ class QueueViewModel @Inject constructor(
                             )
                         )
                     }
+                    updatePatientLastUpdated()
                 }
             )
         }
@@ -217,8 +221,18 @@ class QueueViewModel @Inject constructor(
                             )
                         )
                     }
+                    updatePatientLastUpdated()
                 }
             )
         }
+    }
+
+    private suspend fun updatePatientLastUpdated() {
+        val patientLastUpdatedResponse = PatientLastUpdatedResponse(
+            uuid = appointmentSelected!!.patientId,
+            timestamp = Date()
+        )
+        patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
+        genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
     }
 }
