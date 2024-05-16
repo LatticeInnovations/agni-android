@@ -6,10 +6,10 @@ enum class GenericTypeEnum(val number: Int, val value: String) {
     FHIR_IDS(3, "FHIR_IDS"),
     PRESCRIPTION(4, "Prescription"),
     APPOINTMENT(5, "Appointment"),
-    SCHEDULE(6, "Schedule");
+    SCHEDULE(6, "Schedule"),
+    LAST_UPDATED(7, "LAST_UPDATED");
 
     companion object {
-        fun fromInt(number: Int) = values().firstOrNull { it.number == number }
-        fun fromString(value: String) = values().firstOrNull { it.value == value }
+        fun fromString(value: String) = entries.firstOrNull { it.value == value }
     }
 }
