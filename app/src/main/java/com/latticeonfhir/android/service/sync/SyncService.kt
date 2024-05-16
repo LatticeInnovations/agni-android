@@ -236,7 +236,6 @@ class SyncService(
                 CoroutineScope(Dispatchers.IO).launch {
                     downloadRelation(logout)
                 }
-                downloadPatientLastUpdated(logout)
             }
         }
     }
@@ -253,7 +252,11 @@ class SyncService(
 
     /** Download Appointment*/
     private suspend fun downloadAppointment(logout: (Boolean, String) -> Unit) {
-        checkAuthenticationStatus(syncRepository.getAndInsertAppointment(0), logout)
+        checkAuthenticationStatus(syncRepository.getAndInsertAppointment(0), logout)?.apply {
+            if (this is ApiEndResponse) {
+                downloadPatientLastUpdated(logout)
+            }
+        }
     }
 
     /** Download Prescription*/
