@@ -11,5 +11,5 @@ interface PatientLastUpdatedDao {
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPatientLastUpdatedData(patientLastUpdatedEntity: PatientLastUpdatedEntity): Long
+    suspend fun insertPatientLastUpdatedData(vararg patientLastUpdatedEntity: PatientLastUpdatedEntity): List<Long>
 }

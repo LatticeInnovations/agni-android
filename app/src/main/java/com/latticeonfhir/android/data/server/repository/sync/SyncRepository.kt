@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.server.repository.sync
 
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
@@ -20,6 +21,7 @@ interface SyncRepository {
     suspend fun getMedicineTime(): ResponseMapper<List<MedicineTimeResponse>>
     suspend fun getAndInsertSchedule(offset: Int): ResponseMapper<List<ScheduleResponse>>
     suspend fun getAndInsertAppointment(offset: Int): ResponseMapper<List<AppointmentResponse>>
+    suspend fun getAndInsertPatientLastUpdatedData(): ResponseMapper<List<PatientLastUpdatedResponse>>
 
     //POST
     suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>>
@@ -27,6 +29,7 @@ interface SyncRepository {
     suspend fun sendPrescriptionPostData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendSchedulePostData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendAppointmentPostData(): ResponseMapper<List<CreateResponse>>
+    suspend fun sendPatientLastUpdatePostData(): ResponseMapper<List<CreateResponse>>
 
     //PATCH
     suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>>

@@ -7,6 +7,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
@@ -16,6 +17,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.Prescri
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
@@ -31,6 +33,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedi
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicineDirectionsEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionDirectionsEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toPatientLastUpdatedEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toScheduleEntity
@@ -47,7 +50,8 @@ open class SyncRepositoryDatabaseTransactions(
     private val medicationDao: MedicationDao,
     private val prescriptionDao: PrescriptionDao,
     private val scheduleDao: ScheduleDao,
-    private val appointmentDao: AppointmentDao
+    private val appointmentDao: AppointmentDao,
+    private val patientLastUpdatedDao: PatientLastUpdatedDao
 ) {
 
     protected suspend fun insertPatient(body: List<PatientResponse>) {
@@ -214,6 +218,13 @@ open class SyncRepositoryDatabaseTransactions(
             }
         }
         return deleteGenericEntityByListOfIds(idsToDelete.toList())
+    }
+
+
+    protected suspend fun insertPatientLastUpdated(body: List<PatientLastUpdatedResponse>) {
+        //Insert Patient Last Updated Data
+        patientLastUpdatedDao.insertPatientLastUpdatedData(*body.map { it.toPatientLastUpdatedEntity() }
+            .toTypedArray())
     }
 
     private suspend fun deleteGenericEntityByListOfIds(idsToDelete: List<String>): Int {
