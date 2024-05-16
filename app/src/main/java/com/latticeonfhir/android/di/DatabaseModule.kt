@@ -7,6 +7,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
@@ -84,5 +85,11 @@ object DatabaseModule {
     @Provides
     fun provideAppointmentDao(fhirAppDatabase: FhirAppDatabase): AppointmentDao {
         return fhirAppDatabase.getAppointmentDao()
+    }
+
+    @Singleton
+    @Provides
+    fun providePatientLastUpdatedDao(fhirAppDatabase: FhirAppDatabase): PatientLastUpdatedDao {
+        return fhirAppDatabase.getPatientLastUpdatedDao()
     }
 }
