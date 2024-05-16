@@ -2,6 +2,7 @@ package com.latticeonfhir.android.data.server.api
 
 import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import retrofit2.Response
@@ -45,4 +46,12 @@ interface PatientApiService {
         @Path("endPoint") endPoint: String,
         @QueryMap(encoded = true) map: Map<String, String>?
     ): Response<BaseResponse<List<RelatedPersonResponse>>>
+
+    @POST("timestamp")
+    suspend fun postPatientLastUpdates(
+        @Body patientLastUpdateData: List<Any>
+    ): Response<BaseResponse<List<CreateResponse>>>
+
+    @GET("timestamp")
+    suspend fun getPatientLastUpdatedData(): Response<BaseResponse<List<PatientLastUpdatedResponse>>>
 }

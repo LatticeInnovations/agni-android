@@ -9,7 +9,7 @@ class PatientLastUpdatedRepositoryImpl @Inject constructor(
     private val patientLastUpdatedDao: PatientLastUpdatedDao
 ): PatientLastUpdatedRepository {
     override suspend fun insertPatientLastUpdatedData(patientLastUpdatedResponse: PatientLastUpdatedResponse): Long {
-        return patientLastUpdatedDao.insertPatientLastUpdatedData(patientLastUpdatedResponse.toPatientLastUpdatedEntity())
+        return patientLastUpdatedDao.insertPatientLastUpdatedData(patientLastUpdatedResponse.toPatientLastUpdatedEntity())[0]
     }
 
 }

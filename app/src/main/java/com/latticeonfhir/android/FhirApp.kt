@@ -72,7 +72,8 @@ class FhirApp : Application() {
             fhirAppDatabase.getMedicationDao(),
             fhirAppDatabase.getPrescriptionDao(),
             fhirAppDatabase.getScheduleDao(),
-            fhirAppDatabase.getAppointmentDao()
+            fhirAppDatabase.getAppointmentDao(),
+            fhirAppDatabase.getPatientLastUpdatedDao()
         )
 
         _genericRepository = GenericRepositoryImpl(

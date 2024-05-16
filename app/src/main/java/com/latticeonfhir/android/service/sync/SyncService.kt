@@ -52,6 +52,9 @@ class SyncService(
                     },
                     async {
                         downloadMedicationTiming(logout)
+                    },
+                    async {
+                        uploadPatientLastUpdatedData(logout)
                     }
                 )
             }
@@ -187,6 +190,11 @@ class SyncService(
         return checkAuthenticationStatus(syncRepository.sendPrescriptionPostData(), logout)
     }
 
+    /** Upload Patient Last Updated Data */
+    private suspend fun uploadPatientLastUpdatedData(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendPatientLastUpdatePostData(), logout)
+    }
+
     /**
      *
      *
@@ -228,6 +236,7 @@ class SyncService(
                 CoroutineScope(Dispatchers.IO).launch {
                     downloadRelation(logout)
                 }
+                downloadPatientLastUpdated(logout)
             }
         }
     }
@@ -268,6 +277,11 @@ class SyncService(
         if (preferenceRepository.getLastMedicineDosageInstructionSyncDate() == 0L) {
             checkAuthenticationStatus(syncRepository.getMedicineTime(), logout)
         }
+    }
+
+    /** Download Patient Last Updated */
+    private suspend fun downloadPatientLastUpdated(logout: (Boolean, String) -> Unit) {
+        checkAuthenticationStatus(syncRepository.getAndInsertPatientLastUpdatedData(), logout)
     }
 
     /**
