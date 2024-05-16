@@ -12,6 +12,8 @@ import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientLastUpdatedEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger
@@ -21,12 +23,14 @@ import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class EditBasicInformationViewModel @Inject constructor(
     val patientRepository: PatientRepository,
-    val genericRepository: GenericRepository
+    val genericRepository: GenericRepository,
+    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
 ) :
     BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
@@ -165,6 +169,12 @@ class EditBasicInformationViewModel @Inject constructor(
 
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (response > 0) {
+                patientLastUpdatedRepository.insertPatientLastUpdatedData(
+                    PatientLastUpdatedEntity(
+                        patientId = patientResponse.id,
+                        lastUpdated = Date()
+                    )
+                )
                 if (patientResponse.fhirId != null) {
                     if (firstName != firstNameTemp) {
                         genericRepository.insertOrUpdatePatientPatchEntity(

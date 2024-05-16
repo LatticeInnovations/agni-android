@@ -11,6 +11,8 @@ import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientLastUpdatedEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
@@ -21,13 +23,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class EditIdentificationViewModel @Inject constructor(
     private val patientRepository: PatientRepository,
     private val genericRepository: GenericRepository,
-    private val identifierRepository: IdentifierRepository
+    private val identifierRepository: IdentifierRepository,
+    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
 ) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
@@ -132,6 +136,12 @@ class EditIdentificationViewModel @Inject constructor(
 
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (response > 0) {
+                patientLastUpdatedRepository.insertPatientLastUpdatedData(
+                    PatientLastUpdatedEntity(
+                        patientId = patientResponse.id,
+                        lastUpdated = Date()
+                    )
+                )
                 identifierRepository.insertIdentifierList(patientResponse = patientResponse)
 
 
