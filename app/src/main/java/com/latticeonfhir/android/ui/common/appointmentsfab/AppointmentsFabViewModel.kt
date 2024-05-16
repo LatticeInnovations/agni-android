@@ -11,8 +11,10 @@ import com.latticeonfhir.android.data.local.model.appointment.AppointmentRespons
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
@@ -37,7 +39,8 @@ class AppointmentsFabViewModel @Inject constructor(
     private val appointmentRepository: AppointmentRepository,
     private val scheduleRepository: ScheduleRepository,
     private val genericRepository: GenericRepository,
-    private val preferenceRepository: PreferenceRepository
+    private val preferenceRepository: PreferenceRepository,
+    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
 ) : BaseViewModel() {
 
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
@@ -172,6 +175,7 @@ class AppointmentsFabViewModel @Inject constructor(
                                 status = AppointmentStatusEnum.WALK_IN.value
                             )
                         )
+                        updatePatientLastUpdated(patient.id)
                     }
                 )
             }
@@ -217,9 +221,19 @@ class AppointmentsFabViewModel @Inject constructor(
                                 )
                             )
                         )
+                        updatePatientLastUpdated(patient.id)
                     }
                 }
             )
         }
+    }
+
+    private suspend fun updatePatientLastUpdated(patientId: String) {
+        val patientLastUpdatedResponse = PatientLastUpdatedResponse(
+            uuid = patientId,
+            timestamp = Date()
+        )
+        patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
+        genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
     }
 }

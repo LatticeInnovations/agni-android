@@ -8,6 +8,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
@@ -28,6 +29,7 @@ import com.latticeonfhir.android.data.server.constants.QueryParameters.ORG_ID
 import com.latticeonfhir.android.data.server.constants.QueryParameters.PATIENT_ID
 import com.latticeonfhir.android.data.server.constants.QueryParameters.SORT
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
@@ -59,7 +61,8 @@ class SyncRepositoryImpl @Inject constructor(
     medicationDao: MedicationDao,
     prescriptionDao: PrescriptionDao,
     scheduleDao: ScheduleDao,
-    appointmentDao: AppointmentDao
+    appointmentDao: AppointmentDao,
+    patientLastUpdatedDao: PatientLastUpdatedDao
 ) : SyncRepository, SyncRepositoryDatabaseTransactions(
     patientApiService,
     patientDao,
@@ -68,7 +71,8 @@ class SyncRepositoryImpl @Inject constructor(
     medicationDao,
     prescriptionDao,
     scheduleDao,
-    appointmentDao
+    appointmentDao,
+    patientLastUpdatedDao
 ) {
 
     override suspend fun getAndInsertListPatientData(
@@ -302,6 +306,22 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getAndInsertPatientLastUpdatedData(): ResponseMapper<List<PatientLastUpdatedResponse>> {
+        ApiResponseConverter.convert(
+            patientApiService.getPatientLastUpdatedData()
+        ).run {
+            return when (this) {
+                is ApiEndResponse -> {
+                    //Insert Patient Last Updated Data
+                    insertPatientLastUpdated(body)
+                    this
+                }
+
+                else -> this
+            }
+        }
+    }
+
     override suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
             genericTypeEnum = GenericTypeEnum.PATIENT,
@@ -379,6 +399,7 @@ class SyncRepositoryImpl @Inject constructor(
                                 if (deletedRows > 0) sendPrescriptionPostData() else this
                             }
                         }
+
                         else -> this
                     }
                 }
@@ -426,6 +447,32 @@ class SyncRepositoryImpl @Inject constructor(
                         insertAppointmentFhirId(listOfGenericEntity, body).let { deletedRows ->
                             if (deletedRows > 0) sendAppointmentPostData() else this
                         }
+                    }
+
+                    else -> this
+                }
+            }
+        }
+    }
+
+
+    override suspend fun sendPatientLastUpdatePostData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.LAST_UPDATED,
+            syncType = SyncType.POST
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else ApiResponseConverter.convert(
+                patientApiService.postPatientLastUpdates(
+                    listOfGenericEntity.map {
+                        it.payload.fromJson<LinkedTreeMap<*, *>>()
+                            .mapToObject(PatientLastUpdatedResponse::class.java)!!
+                    })
+            ).run {
+                when (this) {
+                    is ApiEndResponse -> {
+                        val deletedRows = deleteGenericEntityData(listOfGenericEntity)
+                        if (deletedRows > 0) sendPatientLastUpdatePostData() else this
                     }
 
                     else -> this

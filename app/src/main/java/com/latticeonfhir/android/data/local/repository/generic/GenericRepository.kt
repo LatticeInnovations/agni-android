@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
@@ -58,6 +59,11 @@ interface GenericRepository {
     suspend fun insertOrUpdateAppointmentPatch(
         appointmentFhirId: String,
         map: Map<String, Any>,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
+    suspend fun insertPatientLastUpdated(
+        patientLastUpdatedResponse: PatientLastUpdatedResponse,
         uuid: String = UUIDBuilder.generateUUID()
     ): Long
 }

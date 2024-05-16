@@ -9,6 +9,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
@@ -176,7 +177,7 @@ open class GenericRepositoryDatabaseTransactions(
             genericDao.insertGenericEntity(
                 appointmentGenericEntity.copy(
                     payload = existingMap.copy(
-                        patientFhirId = if (!existingMap.patientFhirId!!.isFhirId()) getPatientFhirIdById(
+                        patientFhirId = if (!existingMap.patientFhirId.isFhirId()) getPatientFhirIdById(
                             existingMap.patientFhirId
                         )!! else existingMap.patientFhirId,
                         scheduleId = if (!existingMap.scheduleId.isFhirId()) getScheduleFhirIdById(
@@ -309,5 +310,27 @@ open class GenericRepositoryDatabaseTransactions(
 
     private suspend fun getAppointmentFhirIdById(appointmentId: String): String? {
         return appointmentDao.getAppointmentById(appointmentId)[0].appointmentFhirId
+    }
+
+    protected suspend fun insertPatientLastUpdatedGenericEntity(
+        patientLastUpdatedResponse: PatientLastUpdatedResponse,
+        patientLastUpdatedGenericEntity: GenericEntity?,
+        uuid: String
+    ): Long {
+        return if (patientLastUpdatedGenericEntity != null) {
+            genericDao.insertGenericEntity(
+                patientLastUpdatedGenericEntity.copy(payload = patientLastUpdatedResponse.toJson())
+            )[0]
+        } else {
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid,
+                    patientId = patientLastUpdatedResponse.uuid,
+                    payload = patientLastUpdatedResponse.toJson(),
+                    type = GenericTypeEnum.LAST_UPDATED,
+                    syncType = SyncType.POST
+                )
+            )[0]
+        }
     }
 }

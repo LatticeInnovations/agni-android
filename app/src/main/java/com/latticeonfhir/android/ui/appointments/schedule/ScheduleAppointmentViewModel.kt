@@ -11,8 +11,10 @@ import com.latticeonfhir.android.data.local.model.appointment.AppointmentRespons
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
@@ -36,7 +38,8 @@ class ScheduleAppointmentViewModel @Inject constructor(
     private val scheduleRepository: ScheduleRepository,
     private val appointmentRepository: AppointmentRepository,
     private val preferenceRepository: PreferenceRepository,
-    private val genericRepository: GenericRepository
+    private val genericRepository: GenericRepository,
+    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var showDatePicker by mutableStateOf(false)
@@ -125,6 +128,12 @@ class ScheduleAppointmentViewModel @Inject constructor(
                                         status = AppointmentStatusEnum.SCHEDULED.value
                                     )
                                 )
+                                val patientLastUpdatedResponse = PatientLastUpdatedResponse(
+                                    uuid = patient!!.id,
+                                    timestamp = Date()
+                                )
+                                patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
+                                genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
                             }
                         )
                     }
@@ -260,6 +269,12 @@ class ScheduleAppointmentViewModel @Inject constructor(
                                 )
                             )
                         }
+                        val patientLastUpdatedResponse = PatientLastUpdatedResponse(
+                            uuid = patient!!.id,
+                            timestamp = Date()
+                        )
+                        patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
+                        genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
                     }
                 )
             }

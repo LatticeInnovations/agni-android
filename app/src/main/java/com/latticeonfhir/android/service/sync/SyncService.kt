@@ -52,6 +52,9 @@ class SyncService(
                     },
                     async {
                         downloadMedicationTiming(logout)
+                    },
+                    async {
+                        uploadPatientLastUpdatedData(logout)
                     }
                 )
             }
@@ -187,6 +190,11 @@ class SyncService(
         return checkAuthenticationStatus(syncRepository.sendPrescriptionPostData(), logout)
     }
 
+    /** Upload Patient Last Updated Data */
+    private suspend fun uploadPatientLastUpdatedData(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendPatientLastUpdatePostData(), logout)
+    }
+
     /**
      *
      *
@@ -244,7 +252,11 @@ class SyncService(
 
     /** Download Appointment*/
     private suspend fun downloadAppointment(logout: (Boolean, String) -> Unit) {
-        checkAuthenticationStatus(syncRepository.getAndInsertAppointment(0), logout)
+        checkAuthenticationStatus(syncRepository.getAndInsertAppointment(0), logout)?.apply {
+            if (this is ApiEndResponse) {
+                downloadPatientLastUpdated(logout)
+            }
+        }
     }
 
     /** Download Prescription*/
@@ -268,6 +280,11 @@ class SyncService(
         if (preferenceRepository.getLastMedicineDosageInstructionSyncDate() == 0L) {
             checkAuthenticationStatus(syncRepository.getMedicineTime(), logout)
         }
+    }
+
+    /** Download Patient Last Updated */
+    private suspend fun downloadPatientLastUpdated(logout: (Boolean, String) -> Unit) {
+        checkAuthenticationStatus(syncRepository.getAndInsertPatientLastUpdatedData(), logout)
     }
 
     /**

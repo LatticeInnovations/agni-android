@@ -14,6 +14,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineT
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientLastUpdatedEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PermanentAddressEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
@@ -26,6 +27,7 @@ import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.QueryParameters
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
@@ -416,5 +418,19 @@ internal fun PrescriptionDirectionAndMedicineView.toMedication(): Medication {
         qtyPerDose = prescriptionDirectionsEntity.qtyPerDose,
         qtyPrescribed = prescriptionDirectionsEntity.qtyPrescribed,
         timing = prescriptionDirectionsEntity.timing
+    )
+}
+
+internal fun PatientLastUpdatedEntity.toPatientLastUpdatedResponse() : PatientLastUpdatedResponse {
+    return PatientLastUpdatedResponse(
+        uuid = patientId,
+        timestamp = lastUpdated
+    )
+}
+
+internal fun PatientLastUpdatedResponse.toPatientLastUpdatedEntity() : PatientLastUpdatedEntity {
+    return PatientLastUpdatedEntity(
+        patientId = uuid,
+        lastUpdated = timestamp
     )
 }

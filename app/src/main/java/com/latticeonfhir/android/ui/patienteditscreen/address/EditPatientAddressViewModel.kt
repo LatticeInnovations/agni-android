@@ -10,17 +10,21 @@ import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class EditPatientAddressViewModel @Inject constructor(
     val patientRepository: PatientRepository,
-    val genericRepository: GenericRepository
+    val genericRepository: GenericRepository,
+    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
 ) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
@@ -71,6 +75,12 @@ class EditPatientAddressViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (checkIsEdit() && response > 0) {
+                val patientLastUpdatedResponse = PatientLastUpdatedResponse(
+                    uuid = patientResponse.id,
+                    timestamp = Date()
+                )
+                patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
+                genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
                 if (patientResponse.fhirId != null) {
                     checkIsValueChange(
                         patientResponse,
