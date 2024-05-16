@@ -11,7 +11,9 @@ import com.latticeonfhir.android.data.local.model.appointment.AppointmentRespons
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
@@ -25,7 +27,8 @@ import javax.inject.Inject
 class AppointmentsScreenViewModel @Inject constructor(
     private val appointmentRepository: AppointmentRepository,
     private val genericRepository: GenericRepository,
-    private val scheduleRepository: ScheduleRepository
+    private val scheduleRepository: ScheduleRepository,
+    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
@@ -113,6 +116,13 @@ class AppointmentsScreenViewModel @Inject constructor(
                             )
                         )
                     }
+
+                    val patientLastUpdatedResponse = PatientLastUpdatedResponse(
+                        uuid = patient!!.id,
+                        timestamp = Date()
+                    )
+                    patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
+                    genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
                 }
             )
         }
