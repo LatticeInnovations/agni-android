@@ -11,7 +11,7 @@ import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientLastUpdatedEntity
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -75,12 +75,12 @@ class EditPatientAddressViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (checkIsEdit() && response > 0) {
-                patientLastUpdatedRepository.insertPatientLastUpdatedData(
-                    PatientLastUpdatedEntity(
-                        patientId = patientResponse.id,
-                        lastUpdated = Date()
-                    )
+                val patientLastUpdatedResponse = PatientLastUpdatedResponse(
+                    uuid = patientResponse.id,
+                    timestamp = Date()
                 )
+                patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
+                genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
                 if (patientResponse.fhirId != null) {
                     checkIsValueChange(
                         patientResponse,

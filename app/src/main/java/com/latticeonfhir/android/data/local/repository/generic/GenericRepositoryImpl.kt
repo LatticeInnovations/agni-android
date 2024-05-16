@@ -7,6 +7,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
@@ -154,6 +155,19 @@ class GenericRepositoryImpl @Inject constructor(
                 appointmentFhirId,
                 uuid
             )
+        }
+    }
+
+    override suspend fun insertPatientLastUpdated(
+        patientLastUpdatedResponse: PatientLastUpdatedResponse,
+        uuid: String
+    ): Long {
+        return genericDao.getGenericEntityById(
+            patientId = patientLastUpdatedResponse.uuid,
+            genericTypeEnum = GenericTypeEnum.LAST_UPDATED,
+            syncType = SyncType.POST
+        ).let { patientLastUpdatedGenericEntity ->
+            insertPatientLastUpdatedGenericEntity(patientLastUpdatedResponse, patientLastUpdatedGenericEntity, uuid)
         }
     }
 }

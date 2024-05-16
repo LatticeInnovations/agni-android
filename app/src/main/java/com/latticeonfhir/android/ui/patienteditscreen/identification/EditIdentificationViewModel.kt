@@ -12,8 +12,8 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientLastUpdatedEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
@@ -136,12 +136,12 @@ class EditIdentificationViewModel @Inject constructor(
 
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (response > 0) {
-                patientLastUpdatedRepository.insertPatientLastUpdatedData(
-                    PatientLastUpdatedEntity(
-                        patientId = patientResponse.id,
-                        lastUpdated = Date()
-                    )
+                val patientLastUpdatedResponse = PatientLastUpdatedResponse(
+                    uuid = patientResponse.id,
+                    timestamp = Date()
                 )
+                patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
+                genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
                 identifierRepository.insertIdentifierList(patientResponse = patientResponse)
 
 

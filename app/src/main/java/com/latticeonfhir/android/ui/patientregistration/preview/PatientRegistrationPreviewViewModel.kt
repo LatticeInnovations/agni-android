@@ -11,8 +11,8 @@ import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepo
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientLastUpdatedEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
@@ -69,12 +69,13 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
                 patientResponse
             )
             identifierRepository.insertIdentifierList(patientResponse)
-            patientLastUpdatedRepository.insertPatientLastUpdatedData(
-                PatientLastUpdatedEntity(
-                    patientId = patientResponse.id,
-                    lastUpdated = Date()
-                )
+
+            val patientLastUpdatedResponse = PatientLastUpdatedResponse(
+                uuid = patientResponse.id,
+                timestamp = Date()
             )
+            patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
+            genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
         }
     }
 

@@ -1,8 +1,8 @@
 package com.latticeonfhir.android.data.local.repository.patient.lastupdated
 
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientLastUpdatedEntity
+import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 
 interface PatientLastUpdatedRepository {
 
-    suspend fun insertPatientLastUpdatedData(patientLastUpdatedEntity: PatientLastUpdatedEntity): Long
+    suspend fun insertPatientLastUpdatedData(patientLastUpdatedResponse: PatientLastUpdatedResponse): Long
 }
