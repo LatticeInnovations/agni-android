@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
@@ -52,6 +53,8 @@ class FhirApp : Application() {
     private lateinit var _syncService: SyncService
     internal val syncService get() = _syncService
     val sessionExpireFlow = MutableLiveData<Map<String, Any>>(emptyMap())
+
+    internal var syncWorkerStatus = MutableLiveData<WorkerStatus>()
 
     override fun onCreate() {
         super.onCreate()

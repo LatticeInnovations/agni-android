@@ -332,6 +332,7 @@ class SyncService(
             if (responseMapper.errorMessage == ErrorConstants.SESSION_EXPIRED || responseMapper.errorMessage == ErrorConstants.UNAUTHORIZED) {
                 logout(true, responseMapper.errorMessage)
             }
+            else logout(false, responseMapper.errorMessage)
             null
         } else {
             responseMapper
