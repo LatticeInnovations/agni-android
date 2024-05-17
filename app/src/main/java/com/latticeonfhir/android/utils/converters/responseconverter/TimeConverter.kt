@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
-import android.os.Build
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -315,17 +314,10 @@ object TimeConverter {
     }
 
     internal fun Long.toTimeStampDate(): String {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = this
-            formatter.format(calendar.time)
-        } else {
-            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sszzz", Locale.getDefault())
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = this
-            formatter.format(calendar.time).replace("GMT", "")
-        }
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = this
+        return formatter.format(calendar.time)
     }
 
     internal fun String.toTimeInMilli(): Long {
@@ -333,5 +325,10 @@ object TimeConverter {
         val sdf = SimpleDateFormat(YYYY_MM_DD, Locale.getDefault())
         val date = sdf.parse(myDate)
         return date?.time ?: 0L
+    }
+
+    fun Date.toLastSyncTime(): String {
+        val sdf = SimpleDateFormat("dd-MMM-yyyy, HH:mm", Locale.getDefault())
+        return sdf.format(this)
     }
 }

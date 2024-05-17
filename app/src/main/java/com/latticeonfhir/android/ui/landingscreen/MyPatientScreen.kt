@@ -120,21 +120,19 @@ private fun DisplaySyncStatus(viewModel: LandingScreenViewModel) {
                     WorkerStatus.IN_PROGRESS -> {
                         MaterialTheme.colorScheme.surfaceVariant
                     }
+
                     WorkerStatus.FAILED -> {
                         SyncFailedColor
                     }
-                    WorkerStatus.SUCCESS -> {
-                        when (viewModel.syncFlag) {
-                            1 -> MaterialTheme.colorScheme.surfaceVariant
-                            2 -> MaterialTheme.colorScheme.primaryContainer
-                            else -> MaterialTheme.colorScheme.surfaceVariant
-                        }
 
+                    WorkerStatus.SUCCESS -> {
+                        MaterialTheme.colorScheme.primaryContainer
                     }
+
                     WorkerStatus.OFFLINE -> {
                         MaterialTheme.colorScheme.outlineVariant
-
                     }
+
                     else -> {
                         MaterialTheme.colorScheme.surfaceVariant
                     }
@@ -187,6 +185,7 @@ private fun setTextAndIconColor(viewModel: LandingScreenViewModel): Color {
         WorkerStatus.FAILED -> {
             Primary10
         }
+
         else -> {
             MaterialTheme.colorScheme.onSurfaceVariant
         }

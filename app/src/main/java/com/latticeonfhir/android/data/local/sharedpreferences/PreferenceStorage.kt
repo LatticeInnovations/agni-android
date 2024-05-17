@@ -19,6 +19,8 @@ interface PreferenceStorage {
     var roomDBEncryptionKey: String
 
     /** Last Sync Time */
+    var syncStatus: String
+    var lastSyncTime: Long
     var lastPatientSyncTime: Long
     var lastRelationSyncTime: Long
     var lastPrescriptionSyncTime: Long
