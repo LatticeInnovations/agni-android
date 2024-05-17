@@ -100,28 +100,24 @@ class LandingScreenViewModel @Inject constructor(
                         syncStatus = WorkerStatus.IN_PROGRESS
                         syncIcon = R.drawable.sync_icon
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_IN_PROGRESS.message
-                        syncStatusDisplay = SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display
-                        syncIconDisplay = R.drawable.sync_icon
                         preferenceRepository.setSyncStatus(SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display)
+                        setSyncDisplayData()
                     }
                     WorkerStatus.SUCCESS -> {
                         syncStatus = WorkerStatus.SUCCESS
                         syncIcon = R.drawable.sync_completed_icon
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_COMPLETED.message
-                        syncStatusDisplay = SyncStatusMessageEnum.SYNCING_COMPLETED.display
-                        syncIconDisplay = R.drawable.sync_completed_icon
                         preferenceRepository.setSyncStatus(SyncStatusMessageEnum.SYNCING_COMPLETED.display)
                         preferenceRepository.setLastSyncTime(Date().time)
-                        lastSyncDate = Date(preferenceRepository.getLastSyncTime()).toLastSyncTime()
+                        setSyncDisplayData()
                     }
                     WorkerStatus.FAILED -> {
                         syncIcon = R.drawable.sync_problem
                         syncStatus = WorkerStatus.FAILED
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_FAILED.message
-                        syncStatusDisplay = SyncStatusMessageEnum.SYNCING_FAILED.display
-                        syncIconDisplay = R.drawable.sync_problem
                         preferenceRepository.setSyncStatus(SyncStatusMessageEnum.SYNCING_FAILED.display)
                         preferenceRepository.setLastSyncTime(Date().time)
+                        setSyncDisplayData()
                     }
                     else -> Timber.d("Worker Status $workerStatus")
                 }
@@ -181,6 +177,10 @@ class LandingScreenViewModel @Inject constructor(
         userPhoneNo = preferenceRepository.getUserMobile().toString()
         userEmail = preferenceRepository.getUserEmail()
 
+        setSyncDisplayData()
+    }
+
+    private fun setSyncDisplayData() {
         lastSyncDate = Date(preferenceRepository.getLastSyncTime()).toLastSyncTime()
         syncStatusDisplay = preferenceRepository.getSyncStatus()
         syncIconDisplay = when(syncStatusDisplay) {
