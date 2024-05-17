@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -58,7 +58,7 @@ fun AppointmentsScreen(
         initialPage = 0,
         initialPageOffsetFraction = 0f
     ) {
-        if (viewModel.completedAppointmentsList.isEmpty()) 1 else viewModel.tabs.size
+        if (viewModel.pastAppointmentsList.isEmpty()) 1 else viewModel.tabs.size
     }
     viewModel.rescheduled = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
         NavControllerConstants.RESCHEDULED
@@ -129,7 +129,7 @@ fun AppointmentsScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 }
             )
@@ -141,7 +141,7 @@ fun AppointmentsScreen(
                         viewModel.tabs,
                         pagerState
                     ) { index ->
-                        if (index == 1 && viewModel.completedAppointmentsList.isEmpty()) {
+                        if (index == 1 && viewModel.pastAppointmentsList.isEmpty()) {
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar(
                                     context.getString(R.string.no_completed_appointments)

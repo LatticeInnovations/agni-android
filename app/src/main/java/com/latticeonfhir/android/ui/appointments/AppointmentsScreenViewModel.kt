@@ -34,7 +34,7 @@ class AppointmentsScreenViewModel @Inject constructor(
 
     var patient by mutableStateOf<PatientResponse?>(null)
 
-    val tabs = listOf("Upcoming", "Completed")
+    val tabs = listOf("Upcoming", "Past")
 
     var isFabSelected by mutableStateOf(false)
     var showAllSlotsBookedDialog by mutableStateOf(false)
@@ -47,7 +47,7 @@ class AppointmentsScreenViewModel @Inject constructor(
         listOf<AppointmentResponseLocal>()
     )
 
-    var completedAppointmentsList by mutableStateOf(listOf<AppointmentResponseLocal>())
+    var pastAppointmentsList by mutableStateOf(listOf<AppointmentResponseLocal>())
 
     internal fun getAppointmentsList(patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -57,10 +57,10 @@ class AppointmentsScreenViewModel @Inject constructor(
             ).filter { appointmentResponseLocal ->
                 appointmentResponseLocal.slot.start.time > Date().toTodayStartDate()
             }
-            completedAppointmentsList = appointmentRepository.getAppointmentsOfPatientByStatus(
-                patientId,
-                AppointmentStatusEnum.COMPLETED.value
-            )
+            pastAppointmentsList = appointmentRepository.getAppointmentsOfPatient(patientId)
+                .filter { appointmentResponseLocal ->
+                    appointmentResponseLocal.slot.start.time < Date().toTodayStartDate()
+                }
         }
     }
 
