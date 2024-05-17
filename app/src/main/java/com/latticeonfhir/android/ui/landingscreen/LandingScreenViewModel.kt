@@ -29,16 +29,16 @@ import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toLastSyncTime
 import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -86,9 +86,11 @@ class LandingScreenViewModel @Inject constructor(
 
     // syncing
     var syncStatus by mutableStateOf(WorkerStatus.TODO)
-    var syncFlag by mutableIntStateOf(0)
     var syncIcon by mutableIntStateOf(R.drawable.sync_icon)
     var syncStatusMessage by mutableStateOf(SyncStatusMessageEnum.SYNCING_IN_PROGRESS.message)
+    var lastSyncDate by mutableStateOf("")
+    var syncStatusDisplay by mutableStateOf("")
+    var syncIconDisplay by mutableIntStateOf(0)
 
     init {
         viewModelScope.launch {
@@ -96,29 +98,32 @@ class LandingScreenViewModel @Inject constructor(
                 when (workerStatus) {
                     WorkerStatus.IN_PROGRESS -> {
                         syncStatus = WorkerStatus.IN_PROGRESS
-                        syncFlag = 1
                         syncIcon = R.drawable.sync_icon
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_IN_PROGRESS.message
+                        syncStatusDisplay = SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display
+                        syncIconDisplay = R.drawable.sync_icon
+                        preferenceRepository.setSyncStatus(SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display)
                     }
                     WorkerStatus.SUCCESS -> {
                         syncStatus = WorkerStatus.SUCCESS
-                        syncFlag = 2
                         syncIcon = R.drawable.sync_completed_icon
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_COMPLETED.message
-                        CoroutineScope(Dispatchers.IO).launch {
-                            delay(5000)
-                            syncStatus = WorkerStatus.TODO
-                        }
+                        syncStatusDisplay = SyncStatusMessageEnum.SYNCING_COMPLETED.display
+                        syncIconDisplay = R.drawable.sync_completed_icon
+                        preferenceRepository.setSyncStatus(SyncStatusMessageEnum.SYNCING_COMPLETED.display)
+                        preferenceRepository.setLastSyncTime(Date().time)
+                        lastSyncDate = Date(preferenceRepository.getLastSyncTime()).toLastSyncTime()
                     }
                     WorkerStatus.FAILED -> {
                         syncIcon = R.drawable.sync_problem
                         syncStatus = WorkerStatus.FAILED
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_FAILED.message
+                        syncStatusDisplay = SyncStatusMessageEnum.SYNCING_FAILED.display
+                        syncIconDisplay = R.drawable.sync_problem
+                        preferenceRepository.setSyncStatus(SyncStatusMessageEnum.SYNCING_FAILED.display)
+                        preferenceRepository.setLastSyncTime(Date().time)
                     }
-                    else -> {
-                        syncFlag = 0
-                        syncIcon = R.drawable.sync_icon
-                    }
+                    else -> Timber.d("Worker Status $workerStatus")
                 }
             }
         }
@@ -175,6 +180,17 @@ class LandingScreenViewModel @Inject constructor(
         userRole = preferenceRepository.getUserRole()
         userPhoneNo = preferenceRepository.getUserMobile().toString()
         userEmail = preferenceRepository.getUserEmail()
+
+        lastSyncDate = Date(preferenceRepository.getLastSyncTime()).toLastSyncTime()
+        syncStatusDisplay = preferenceRepository.getSyncStatus()
+        syncIconDisplay = when(syncStatusDisplay) {
+            SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display -> R.drawable.sync_icon
+            SyncStatusMessageEnum.SYNCING_COMPLETED.display -> {
+                R.drawable.sync_completed_icon
+            }
+            SyncStatusMessageEnum.SYNCING_FAILED.display -> R.drawable.sync_problem
+            else -> 0
+        }
     }
 
     private fun getPatientList() {
