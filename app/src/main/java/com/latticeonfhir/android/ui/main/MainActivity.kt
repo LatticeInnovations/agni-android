@@ -8,6 +8,8 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,6 +21,8 @@ import com.google.android.gms.common.api.Status
 import com.latticeonfhir.android.base.activity.BaseActivity
 import com.latticeonfhir.android.navigation.NavigationAppHost
 import com.latticeonfhir.android.ui.theme.FHIRAndroidTheme
+import com.latticeonfhir.android.utils.network.ConnectivityObserver
+import com.latticeonfhir.android.utils.network.NetworkConnectivityObserver
 import com.latticeonfhir.android.utils.regex.OtpRegex.otpPattern
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -29,12 +33,17 @@ class MainActivity : BaseActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
     var otp by mutableStateOf("")
+    private lateinit var connectivityObserver: ConnectivityObserver
+    lateinit var connectivityStatus: State<ConnectivityObserver.Status>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        connectivityObserver = NetworkConnectivityObserver(applicationContext)
         setContent {
             FHIRAndroidTheme {
+                connectivityStatus = connectivityObserver.observe()
+                    .collectAsState(initial = ConnectivityObserver.Status.Unavailable)
                 val navController = rememberNavController()
                 NavigationAppHost(
                     navController = navController,

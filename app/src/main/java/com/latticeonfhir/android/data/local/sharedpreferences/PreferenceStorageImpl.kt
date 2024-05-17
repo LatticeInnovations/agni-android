@@ -25,6 +25,16 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         PREF_ROOM_ENCRYPTION_KEY,
         ""
     )
+    override var syncStatus by StringPreference(
+        sharedPreferences,
+        PREF_SYNC_STATUS,
+        ""
+    )
+    override var lastSyncTime by LongPreference(
+        sharedPreferences,
+        PREF_LAST_SYNC_TIME,
+        0L
+    )
     override var lastPatientSyncTime by LongPreference(
         sharedPreferences,
         PREF_LAST_PATIENT_SYNC_TIME,
@@ -84,6 +94,8 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
 
         const val PREF_ROOM_ENCRYPTION_KEY = "pref_room_encryption_key"
 
+        const val PREF_SYNC_STATUS = "pref_sync_status"
+        const val PREF_LAST_SYNC_TIME = "pref_last_sync_time"
         const val PREF_LAST_PATIENT_SYNC_TIME = "pref_last_patient_sync_time"
         const val PREF_LAST_RELATION_SYNC_TIME = "pref_last_relation_sync_time"
         const val PREF_LAST_PRESCRIPTION_SYNC_TIME = "pref_last_prescription_sync_time"
