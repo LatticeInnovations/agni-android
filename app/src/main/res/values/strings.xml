@@ -199,7 +199,7 @@ include them in the household</string>
     <string name="status_to_in_progress">Status changed to \"In-progress\"</string>
     <string name="status_to_completed">Status changed to \"Completed\"</string>
     <string name="status_updated_to_arrived">Status updated to arrived</string>
-    <string name="added_to_queue">Patient added to queue</string>
+    <string name="added_to_queue">Patient being added to queue</string>
     <string name="all_slots_booked">All slots booked</string>
     <string name="all_slots_booked_desc">Sorry, all appointment slots for today are booked.</string>
     <string name="okay">Okay</string>
