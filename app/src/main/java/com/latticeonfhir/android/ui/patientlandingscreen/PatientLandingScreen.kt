@@ -235,7 +235,8 @@ fun CardComposable(
                     if (label == stringResource(id = R.string.appointments)) Text(
                         text = stringResource(
                             id = R.string.appointments_scheduled,
-                            viewModel.appointmentsCount
+                            viewModel.appointmentsCount,
+                            viewModel.pastAppointmentsCount
                         ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

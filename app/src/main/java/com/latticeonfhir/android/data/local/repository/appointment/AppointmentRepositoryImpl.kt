@@ -23,6 +23,14 @@ class AppointmentRepositoryImpl @Inject constructor(private val appointmentDao: 
         return appointmentDao.insertAppointmentEntity(appointmentResponseLocal.toAppointmentEntity())
     }
 
+    override suspend fun getAppointmentsOfPatient(
+        patientId: String
+    ): List<AppointmentResponseLocal> {
+        return appointmentDao.getAppointmentsOfPatient(patientId).map {
+            it.toAppointmentResponseLocal()
+        }
+    }
+
     override suspend fun getAppointmentsOfPatientByDate(
         patientId: String,
         startOfDay: Long,
