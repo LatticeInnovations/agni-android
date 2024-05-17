@@ -15,7 +15,10 @@ import androidx.paging.map
 import androidx.work.WorkManager
 import androidx.work.await
 import com.latticeonfhir.android.FhirApp
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
+import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
+import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
@@ -28,7 +31,9 @@ import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
@@ -79,7 +84,44 @@ class LandingScreenViewModel @Inject constructor(
     // queue screen
     var showStatusChangeLayout by mutableStateOf(false)
 
+    // syncing
+    var syncStatus by mutableStateOf(WorkerStatus.TODO)
+    var syncFlag by mutableIntStateOf(0)
+    var syncIcon by mutableIntStateOf(R.drawable.sync_icon)
+    var syncStatusMessage by mutableStateOf(SyncStatusMessageEnum.SYNCING_IN_PROGRESS.message)
+
     init {
+        viewModelScope.launch {
+            getApplication<FhirApp>().syncWorkerStatus.observeForever { workerStatus ->
+                when (workerStatus) {
+                    WorkerStatus.IN_PROGRESS -> {
+                        syncStatus = WorkerStatus.IN_PROGRESS
+                        syncFlag = 1
+                        syncIcon = R.drawable.sync_icon
+                        syncStatusMessage = SyncStatusMessageEnum.SYNCING_IN_PROGRESS.message
+                    }
+                    WorkerStatus.SUCCESS -> {
+                        syncStatus = WorkerStatus.SUCCESS
+                        syncFlag = 2
+                        syncIcon = R.drawable.sync_completed_icon
+                        syncStatusMessage = SyncStatusMessageEnum.SYNCING_COMPLETED.message
+                        CoroutineScope(Dispatchers.IO).launch {
+                            delay(5000)
+                            syncStatus = WorkerStatus.TODO
+                        }
+                    }
+                    WorkerStatus.FAILED -> {
+                        syncIcon = R.drawable.sync_problem
+                        syncStatus = WorkerStatus.FAILED
+                        syncStatusMessage = SyncStatusMessageEnum.SYNCING_FAILED.message
+                    }
+                    else -> {
+                        syncFlag = 0
+                        syncIcon = R.drawable.sync_icon
+                    }
+                }
+            }
+        }
 
         viewModelScope.launch {
             getApplication<FhirApp>().sessionExpireFlow.asFlow().collectLatest { sessionExpireMap ->
