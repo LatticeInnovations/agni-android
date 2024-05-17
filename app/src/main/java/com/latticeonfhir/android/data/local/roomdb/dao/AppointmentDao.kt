@@ -41,6 +41,11 @@ interface AppointmentDao {
         endOfDay: Long
     ): AppointmentEntity?
 
+    @Query("SELECT * FROM AppointmentEntity WHERE patientId=:patientId ORDER BY startTime DESC")
+    suspend fun getAppointmentsOfPatient(
+        patientId: String
+    ): List<AppointmentEntity>
+
     @Transaction
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateAppointmentEntity(appointmentEntity: AppointmentEntity): Int

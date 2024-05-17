@@ -2,6 +2,7 @@ package com.latticeonfhir.android.ui.patientlandingscreen
 
 import android.app.Application
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -35,7 +36,8 @@ class PatientLandingScreenViewModel @Inject constructor(
     private var logoutUser by mutableStateOf(false)
     private var logoutReason by mutableStateOf("")
 
-    var appointmentsCount by mutableStateOf(0)
+    var appointmentsCount by mutableIntStateOf(0)
+    var pastAppointmentsCount by mutableIntStateOf(0)
     var isFabSelected by mutableStateOf(false)
     var showAllSlotsBookedDialog by mutableStateOf(false)
 
@@ -82,6 +84,10 @@ class PatientLandingScreenViewModel @Inject constructor(
             ).filter { appointmentResponseLocal ->
                 appointmentResponseLocal.slot.start.time > Date().toTodayStartDate()
             }.size
+            pastAppointmentsCount = appointmentRepository.getAppointmentsOfPatient(patientId)
+                .filter { appointmentResponseLocal ->
+                    appointmentResponseLocal.slot.start.time < Date().toTodayStartDate()
+                }.size
         }
     }
 }

@@ -160,7 +160,7 @@ include them in the household</string>
     <string name="yes_proceed">Yes, proceed</string>
 
     <string name="appointments">Appointments</string>
-    <string name="appointments_scheduled">%d scheduled</string>
+    <string name="appointments_scheduled">%d upcoming, %d past</string>
     <string name="schedule_appointment">Schedule appointment</string>
     <string name="reschedule_appointment">Reschedule appointment</string>
     <string name="add_to_queue">Add to queue</string>
