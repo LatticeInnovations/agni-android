@@ -16,6 +16,10 @@ interface AppointmentRepository {
         status: String
     ): List<AppointmentResponseLocal>
 
+    suspend fun getAppointmentsOfPatient(
+        patientId: String
+    ): List<AppointmentResponseLocal>
+
     suspend fun getAppointmentsOfPatientByDate(
         patientId: String,
         startOfDay: Long,
