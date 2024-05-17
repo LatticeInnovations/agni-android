@@ -2,6 +2,14 @@ package com.latticeonfhir.android.data.local.repository.preference
 
 interface PreferenceRepository {
 
+    /** Last Sync Status */
+    fun setSyncStatus(status: String)
+    fun getSyncStatus(): String
+
+    /** Last Sync Time Overall */
+    fun setLastSyncTime(long: Long)
+    fun getLastSyncTime(): Long
+
     /** Last Sync Patient */
     fun setLastSyncPatient(long: Long)
     fun getLastSyncPatient(): Long

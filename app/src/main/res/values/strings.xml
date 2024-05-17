@@ -209,4 +209,6 @@ include them in the household</string>
     <string name="invalid_date">Invalid date: %s</string>
     <string name="registered">Registered</string>
     <string name="last_visited">Last visited: %s</string>
+    <string name="sync_status">Sync Status</string>
+    <string name="synced">Synced</string>
 </resources>
