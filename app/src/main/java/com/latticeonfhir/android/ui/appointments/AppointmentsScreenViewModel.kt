@@ -16,6 +16,7 @@ import com.latticeonfhir.android.data.local.repository.schedule.ScheduleReposito
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +60,7 @@ class AppointmentsScreenViewModel @Inject constructor(
             }
             pastAppointmentsList = appointmentRepository.getAppointmentsOfPatient(patientId)
                 .filter { appointmentResponseLocal ->
-                    appointmentResponseLocal.slot.start.time < Date().toTodayStartDate()
+                    appointmentResponseLocal.slot.start.time < Date().toEndOfDay() && appointmentResponseLocal.status != AppointmentStatusEnum.SCHEDULED.value
                 }
         }
     }
