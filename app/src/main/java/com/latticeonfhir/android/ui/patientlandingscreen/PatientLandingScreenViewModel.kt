@@ -42,6 +42,8 @@ class PatientLandingScreenViewModel @Inject constructor(
     var isFabSelected by mutableStateOf(false)
     var showAllSlotsBookedDialog by mutableStateOf(false)
 
+    var selectedIndex by mutableIntStateOf(0)
+
     private val syncService by lazy { getApplication<FhirApp>().syncService }
 
     init {

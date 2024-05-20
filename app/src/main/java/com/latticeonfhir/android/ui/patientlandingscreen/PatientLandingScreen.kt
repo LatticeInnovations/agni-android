@@ -42,6 +42,9 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
+import com.latticeonfhir.android.ui.common.BottomNavBar
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
@@ -56,8 +59,12 @@ fun PatientLandingScreen(
         if (!viewModel.isLaunched) {
             viewModel.patient =
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
+                    PATIENT
                 )
+            viewModel.selectedIndex =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
+                    SELECTED_INDEX
+                )!!
             viewModel.patient?.fhirId?.let { patientFhirId ->
                 viewModel.downloadPrescriptions(
                     patientFhirId
@@ -185,6 +192,18 @@ fun PatientLandingScreen(
                     } else viewModel.isFabSelected = !viewModel.isFabSelected
                 }
             }
+        },
+        bottomBar = {
+            BottomNavBar(
+                selectedIndex = viewModel.selectedIndex,
+                updateIndex = { index ->
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        SELECTED_INDEX,
+                        index
+                    )
+                    navController.navigate(Screen.LandingScreen.route)
+                }
+            )
         }
     )
 }

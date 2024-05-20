@@ -80,6 +80,8 @@ import com.latticeonfhir.android.ui.theme.TodayScheduledLabel
 import com.latticeonfhir.android.ui.theme.WalkInContainer
 import com.latticeonfhir.android.ui.theme.WalkInLabel
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
@@ -594,6 +596,10 @@ fun QueuePatientCard(
                     NavControllerConstants.PATIENT,
                     patient
                 )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    SELECTED_INDEX,
+                    landingViewModel.selectedIndex
+                )
                 navController.navigate(Screen.PatientLandingScreen.route)
             }
     ) {
@@ -791,8 +797,12 @@ fun CancelledQueueCard(
         ),
         modifier = Modifier.clickable {
             navController.currentBackStackEntry?.savedStateHandle?.set(
-                NavControllerConstants.PATIENT,
+                PATIENT,
                 patient
+            )
+            navController.currentBackStackEntry?.savedStateHandle?.set(
+                SELECTED_INDEX,
+                2
             )
             navController.navigate(Screen.PatientLandingScreen.route)
         }
