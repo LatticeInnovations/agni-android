@@ -167,7 +167,7 @@ include them in the household</string>
     <string name="patient_arrived">Patient arrived</string>
     <string name="cancel">Cancel</string>
     <string name="reschedule">Reschedule</string>
-    <string name="no_completed_appointments">No completed appointment</string>
+    <string name="no_past_appointments">No past appointments</string>
     <string name="no_upcoming_appointments">No upcoming appointments</string>
     <string name="cancel_appointment">Cancel appointment ?</string>
     <string name="yes_i_want_to_cancel">Yes, I want to cancel</string>
