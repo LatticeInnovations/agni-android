@@ -32,7 +32,9 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toLastSyncTime
 import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
@@ -110,6 +112,10 @@ class LandingScreenViewModel @Inject constructor(
                         preferenceRepository.setSyncStatus(SyncStatusMessageEnum.SYNCING_COMPLETED.display)
                         preferenceRepository.setLastSyncTime(Date().time)
                         setSyncDisplayData()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            delay(20000)
+                            hideSyncStatus()
+                        }
                     }
                     WorkerStatus.FAILED -> {
                         syncIcon = R.drawable.sync_problem
@@ -118,6 +124,10 @@ class LandingScreenViewModel @Inject constructor(
                         preferenceRepository.setSyncStatus(SyncStatusMessageEnum.SYNCING_FAILED.display)
                         preferenceRepository.setLastSyncTime(Date().time)
                         setSyncDisplayData()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            delay(20000)
+                            hideSyncStatus()
+                        }
                     }
                     else -> Timber.d("Worker Status $workerStatus")
                 }
@@ -178,6 +188,10 @@ class LandingScreenViewModel @Inject constructor(
         userEmail = preferenceRepository.getUserEmail()
 
         setSyncDisplayData()
+    }
+
+    internal fun hideSyncStatus() {
+        if (syncStatus != WorkerStatus.IN_PROGRESS) syncStatus = WorkerStatus.TODO
     }
 
     private fun setSyncDisplayData() {

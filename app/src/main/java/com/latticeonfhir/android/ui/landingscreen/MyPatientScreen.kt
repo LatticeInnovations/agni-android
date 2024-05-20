@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.landingscreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -33,14 +36,21 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.Loader
-import com.latticeonfhir.android.ui.common.PatientItemCard
 import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.theme.Primary10
 import com.latticeonfhir.android.ui.theme.SyncFailedColor
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
+import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.network.ConnectivityObserver
 import java.util.Date
 
@@ -75,7 +85,7 @@ fun MyPatientScreen(
                         lastVisited = it
                     }
                     PatientItemCard(
-                        navController, item, lastVisited, viewModel.selectedIndex
+                        navController, item, lastVisited, viewModel
                     )
                 }
             }
@@ -189,5 +199,68 @@ private fun setTextAndIconColor(viewModel: LandingScreenViewModel): Color {
         else -> {
             MaterialTheme.colorScheme.onSurfaceVariant
         }
+    }
+}
+
+@Composable
+private fun PatientItemCard(
+    navController: NavController,
+    patient: PatientResponse,
+    lastVisited: Date?,
+    viewModel: LandingScreenViewModel
+) {
+    val subtitle = "${patient.gender[0].uppercase()}/${
+        patient.birthDate.toTimeInMilli().toAge()
+    } · PID ${patient.fhirId}"
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(15.dp)
+            .testTag("PATIENT")
+            .clickable {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PATIENT,
+                    patient
+                )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    SELECTED_INDEX,
+                    viewModel.selectedIndex
+                )
+                navController.navigate(Screen.PatientLandingScreen.route)
+                viewModel.hideSyncStatus()
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(8f)) {
+            Text(
+                text = NameConverter.getFullName(
+                    patient.firstName,
+                    patient.middleName,
+                    patient.lastName
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = subtitle,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1
+            )
+        }
+        Spacer(modifier = Modifier.width(5.dp))
+        Text(
+            text = if (lastVisited != null) stringResource(
+                id = R.string.last_visited,
+                lastVisited.toSlotDate()
+            ) else stringResource(
+                id = R.string.registered
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1
+        )
     }
 }
