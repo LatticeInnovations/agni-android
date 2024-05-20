@@ -228,6 +228,12 @@ fun CardComposable(
                     "patient",
                     patient
                 )
+                if (route == Screen.HouseholdMembersScreen.route) {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        SELECTED_INDEX,
+                        viewModel.selectedIndex
+                    )
+                }
                 navController.navigate(route)
                 viewModel.isFabSelected = false
             }
