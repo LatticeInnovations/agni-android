@@ -75,7 +75,7 @@ fun MyPatientScreen(
                         lastVisited = it
                     }
                     PatientItemCard(
-                        navController, item, lastVisited
+                        navController, item, lastVisited, viewModel.selectedIndex
                     )
                 }
             }

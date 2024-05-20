@@ -35,6 +35,8 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.PreviewScreen
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
@@ -268,8 +270,12 @@ fun PatientRegistrationPreview(
                     } else {
                         navController.popBackStack(Screen.LandingScreen.route, false)
                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "patient",
+                            PATIENT,
                             viewModel.patientResponse!!
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            SELECTED_INDEX,
+                            0
                         )
                         navController.navigate(Screen.PatientLandingScreen.route)
                     }

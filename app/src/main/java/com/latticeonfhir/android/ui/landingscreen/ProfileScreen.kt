@@ -100,7 +100,7 @@ fun SyncStatusView(viewModel: LandingScreenViewModel) {
                     text = viewModel.lastSyncDate,
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
-                SyncStatusChip(viewModel = viewModel)
+                if (viewModel.syncIconDisplay != 0) SyncStatusChip(viewModel = viewModel)
             }
         }
     }
@@ -130,7 +130,7 @@ private fun SyncStatusChip(viewModel: LandingScreenViewModel) {
             modifier = Modifier.padding(start = 10.dp, end = 12.dp, bottom = 5.dp, top = 5.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (viewModel.syncIconDisplay != 0) Icon(
+            Icon(
                 painter = painterResource(id = viewModel.syncIconDisplay),
                 contentDescription = "",
                 tint = setTextAndIconColor(viewModel = viewModel)

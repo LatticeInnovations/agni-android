@@ -13,7 +13,6 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,6 +22,7 @@ class MembersScreenViewModel @Inject constructor(
 ) : BaseViewModel() {
     var loading by mutableStateOf(true)
     var relationsList by mutableStateOf(listOf<RelationEntity>())
+    private var relativesIdList = mutableSetOf<String>()
     var relationsListWithRelation by mutableStateOf(listOf<PatientResponseWithRelation>())
 
     internal fun getAllRelations(patientId: String) {
@@ -30,13 +30,11 @@ class MembersScreenViewModel @Inject constructor(
             relationsList = relationRepository.getAllRelationOfPatient(patientId)
             relationsList.forEach { relation ->
                 val patientResponseWithRelation = getPatientData(relation.toId)
-                if (!relationsListWithRelation.contains(
-                        PatientResponseWithRelation(
-                            patientResponseWithRelation,
-                            relation.relation
-                        )
+                if (!relativesIdList.contains(
+                        patientResponseWithRelation.id
                     )
                 ) {
+                    relativesIdList.add(patientResponseWithRelation.id)
                     relationsListWithRelation = relationsListWithRelation + listOf(
                         PatientResponseWithRelation(
                             patientResponseWithRelation,
@@ -47,11 +45,10 @@ class MembersScreenViewModel @Inject constructor(
 
             }
             loading = false
-            Timber.d("manseeyy ${relationsListWithRelation.size} $relationsListWithRelation")
         }
     }
 
-    internal suspend fun getPatientData(id: String): PatientResponse {
+    private suspend fun getPatientData(id: String): PatientResponse {
         return patientRepository.getPatientById(id)[0]
     }
 }

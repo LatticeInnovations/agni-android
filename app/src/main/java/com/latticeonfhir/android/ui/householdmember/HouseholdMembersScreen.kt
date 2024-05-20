@@ -15,8 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -51,6 +51,8 @@ import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.householdmember.members.MembersScreen
 import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreen
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
@@ -66,8 +68,12 @@ fun HouseholdMembersScreen(
         if (!viewModel.isLaunched) {
             viewModel.patient =
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
+                    PATIENT
                 )
+            viewModel.selectedIndex =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
+                    SELECTED_INDEX
+                )!!
         }
         viewModel.isLaunched = true
     }
@@ -93,7 +99,7 @@ fun HouseholdMembersScreen(
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 },
                 title = {
@@ -135,7 +141,7 @@ fun HouseholdMembersScreen(
                         state = pagerState
                     ) { index ->
                         when (index) {
-                            0 -> viewModel.patient?.let { it1 -> MembersScreen(it1) }
+                            0 -> viewModel.patient?.let { it1 -> MembersScreen(it1, navController, viewModel.selectedIndex) }
                             1 -> viewModel.patient?.let { it1 ->
                                 SuggestionsScreen(
                                     it1,

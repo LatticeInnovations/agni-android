@@ -20,6 +20,8 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
@@ -27,7 +29,12 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import java.util.Date
 
 @Composable
-fun PatientItemCard(navController: NavController, patient: PatientResponse, lastVisited: Date?) {
+fun PatientItemCard(
+    navController: NavController,
+    patient: PatientResponse,
+    lastVisited: Date?,
+    selectedIndex: Int
+) {
     val subtitle = "${patient.gender[0].uppercase()}/${
         patient.birthDate.toTimeInMilli().toAge()
     } · PID ${patient.fhirId}"
@@ -38,8 +45,12 @@ fun PatientItemCard(navController: NavController, patient: PatientResponse, last
             .testTag("PATIENT")
             .clickable {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "patient",
+                    PATIENT,
                     patient
+                )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    SELECTED_INDEX,
+                    selectedIndex
                 )
                 navController.navigate(Screen.PatientLandingScreen.route)
             },

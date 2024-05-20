@@ -38,8 +38,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -73,8 +71,10 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum.Companion.fromLabel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.BottomNavBar
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
@@ -148,6 +148,10 @@ fun LandingScreen(
     }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
+            viewModel.selectedIndex =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
+                    SELECTED_INDEX
+                ) ?: 0
             if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
                     "isSearchResult"
                 ) == true
@@ -338,38 +342,12 @@ fun LandingScreen(
                 }
             },
             bottomBar = {
-                NavigationBar(
-                    modifier = Modifier.testTag("BOTTOM_NAV_BAR")
-                ) {
-                    val icons =
-                        listOf(
-                            R.drawable.patient_list,
-                            R.drawable.list_alt,
-                            R.drawable.person_icon
-                        )
-                    viewModel.items.forEachIndexed { index, item ->
-                        NavigationBarItem(
-                            icon = {
-                                Icon(
-                                    painterResource(id = icons[index]),
-                                    contentDescription = item,
-                                    modifier = Modifier
-                                        .size(30.dp, 28.dp)
-                                        .padding(vertical = 3.dp)
-                                )
-                            },
-                            label = {
-                                Text(
-                                    item,
-                                    style = MaterialTheme.typography.labelMedium
-                                )
-                            },
-                            selected = viewModel.selectedIndex == index,
-                            onClick = { viewModel.selectedIndex = index },
-                            modifier = Modifier.testTag("$item tab")
-                        )
+                BottomNavBar(
+                    selectedIndex = viewModel.selectedIndex,
+                    updateIndex = { index ->
+                        viewModel.selectedIndex = index
                     }
-                }
+                )
             },
             content = {
                 Box(
