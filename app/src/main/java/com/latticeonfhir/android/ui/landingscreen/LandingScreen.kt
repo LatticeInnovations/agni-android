@@ -314,6 +314,7 @@ fun LandingScreen(
                 if (viewModel.selectedIndex == 0) {
                     FloatingActionButton(
                         onClick = {
+                            viewModel.hideSyncStatus()
                             navController.navigate(Screen.PatientRegistrationScreen.route)
                         },
                         content = {
@@ -345,6 +346,7 @@ fun LandingScreen(
                 BottomNavBar(
                     selectedIndex = viewModel.selectedIndex,
                     updateIndex = { index ->
+                        if (index != 0) viewModel.hideSyncStatus()
                         viewModel.selectedIndex = index
                     }
                 )
