@@ -158,7 +158,7 @@ fun AppointmentsScreen(
                     ) { index ->
                         when (index) {
                             0 -> UpcomingAppointments(navController, viewModel)
-                            1 -> CompletedAppointments(viewModel)
+                            1 -> PastAppointments(viewModel)
                         }
                     }
                 }
