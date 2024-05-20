@@ -181,7 +181,9 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     private fun setSyncDisplayData() {
-        lastSyncDate = Date(preferenceRepository.getLastSyncTime()).toLastSyncTime()
+        lastSyncDate = if (preferenceRepository.getLastSyncTime() != 0L)
+            Date(preferenceRepository.getLastSyncTime()).toLastSyncTime()
+        else "Unavailable"
         syncStatusDisplay = preferenceRepository.getSyncStatus()
         syncIconDisplay = when(syncStatusDisplay) {
             SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display -> R.drawable.sync_icon
