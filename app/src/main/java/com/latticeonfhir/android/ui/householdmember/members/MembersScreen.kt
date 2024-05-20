@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.householdmember.members
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,9 +20,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.Loader
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
@@ -29,7 +34,12 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import java.util.Locale
 
 @Composable
-fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = hiltViewModel()) {
+fun MembersScreen(
+    patient: PatientResponse,
+    navController: NavController,
+    selectedIndex: Int,
+    viewModel: MembersScreenViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     LaunchedEffect(true) {
         viewModel.getAllRelations(patientId = patient.id)
@@ -62,7 +72,9 @@ fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = 
                             relation.relation
                         )
                             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
-                        relation.patientResponse
+                        relation.patientResponse,
+                        navController,
+                        selectedIndex
                     )
                 }
             }
@@ -71,14 +83,30 @@ fun MembersScreen(patient: PatientResponse, viewModel: MembersScreenViewModel = 
 }
 
 @Composable
-fun MembersCard(relation: String, relative: PatientResponse) {
+fun MembersCard(
+    relation: String,
+    relative: PatientResponse,
+    navController: NavController,
+    selectedIndex: Int
+) {
     val name = NameConverter.getFullName(relative.firstName, relative.middleName, relative.lastName)
     val age = relative.birthDate.toTimeInMilli().toAge()
     val subtitle = "${relative.gender[0].uppercase()}/$age · PID ${relative.fhirId}"
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(5.dp),
+            .padding(5.dp)
+            .clickable {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PATIENT,
+                    relative
+                )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    SELECTED_INDEX,
+                    selectedIndex
+                )
+                navController.navigate(Screen.PatientLandingScreen.route)
+            },
         shape = RoundedCornerShape(1.dp),
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 4.dp
