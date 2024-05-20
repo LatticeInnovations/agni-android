@@ -802,7 +802,7 @@ fun CancelledQueueCard(
             )
             navController.currentBackStackEntry?.savedStateHandle?.set(
                 SELECTED_INDEX,
-                2
+                1
             )
             navController.navigate(Screen.PatientLandingScreen.route)
         }
