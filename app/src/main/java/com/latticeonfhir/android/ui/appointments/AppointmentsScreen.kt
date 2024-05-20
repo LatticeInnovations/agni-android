@@ -144,7 +144,7 @@ fun AppointmentsScreen(
                         if (index == 1 && viewModel.pastAppointmentsList.isEmpty()) {
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar(
-                                    context.getString(R.string.no_completed_appointments)
+                                    context.getString(R.string.no_past_appointments)
                                 )
                             }
                         } else coroutineScope.launch {
@@ -158,7 +158,7 @@ fun AppointmentsScreen(
                     ) { index ->
                         when (index) {
                             0 -> UpcomingAppointments(navController, viewModel)
-                            1 -> CompletedAppointments(viewModel)
+                            1 -> PastAppointments(viewModel)
                         }
                     }
                 }

@@ -15,6 +15,7 @@ import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.workmanager.utils.Sync
 import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -86,7 +87,7 @@ class PatientLandingScreenViewModel @Inject constructor(
             }.size
             pastAppointmentsCount = appointmentRepository.getAppointmentsOfPatient(patientId)
                 .filter { appointmentResponseLocal ->
-                    appointmentResponseLocal.slot.start.time < Date().toTodayStartDate()
+                    appointmentResponseLocal.slot.start.time < Date().toEndOfDay() && appointmentResponseLocal.status != AppointmentStatusEnum.SCHEDULED.value
                 }.size
         }
     }
