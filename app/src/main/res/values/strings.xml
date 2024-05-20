@@ -30,14 +30,18 @@
     <string name="notes_optional">Notes (optional)</string>
     <string name="match_found">%s matches found</string>
 
-    <string name="postal_code">Postal Code *</string>
+    <string name="postal_code">Postal Code</string>
+    <string name="postal_code_mandatory">Postal Code *</string>
     <string name="postal_code_error_msg">Enter valid 6 digit postal code</string>
-    <string name="state">State *</string>
+    <string name="state">State</string>
+    <string name="state_mandatory">State *</string>
     <string name="state_error_msg">Please select a state.</string>
-    <string name="address_line_1">Address Line 1 *</string>
+    <string name="address_line_1">Address Line 1</string>
+    <string name="address_line_1_mandatory">Address Line 1 *</string>
     <string name="address_line_1_error_msg">Please enter your address.</string>
     <string name="address_line_2">Address Line 2</string>
-    <string name="city">City *</string>
+    <string name="city">City</string>
+    <string name="city_mandatory">City *</string>
     <string name="city_error_msg">Please enter your city.</string>
     <string name="district">District</string>
     <string name="district_error_msg">Please enter your district.</string>

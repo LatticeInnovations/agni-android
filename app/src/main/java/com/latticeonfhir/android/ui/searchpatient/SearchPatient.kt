@@ -107,7 +107,8 @@ fun SearchPatient(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 30.dp)
+                    .padding(start = 30.dp),
+                enabled = !(viewModel.isNameValid || viewModel.isPatientIdValid || viewModel.address.isPostalCodeValid)
             ) {
                 Text(
                     text = stringResource(id = R.string.search),

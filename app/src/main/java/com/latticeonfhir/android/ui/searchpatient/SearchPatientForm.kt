@@ -74,9 +74,9 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
                 KeyboardType.Text,
                 KeyboardCapitalization.Words
             ) {
-                searchPatientViewModel.patientName = it
+                if (it.length <= 150) searchPatientViewModel.patientName = it
                 searchPatientViewModel.isNameValid =
-                    searchPatientViewModel.patientName.length < 3 || searchPatientViewModel.patientName.length > 150
+                    searchPatientViewModel.patientName.isNotEmpty() && searchPatientViewModel.patientName.length < 3
             }
             Spacer(modifier = Modifier.height(15.dp))
             CustomTextField(
@@ -90,7 +90,7 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             ) {
                 searchPatientViewModel.patientId = it
                 searchPatientViewModel.isPatientIdValid =
-                    searchPatientViewModel.patientId.length < 10
+                    searchPatientViewModel.patientId.isNotEmpty() && searchPatientViewModel.patientId.length < 2
             }
             Spacer(modifier = Modifier.height(20.dp))
             Text(
@@ -129,7 +129,11 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             Spacer(modifier = Modifier.height(10.dp))
             VisitDropdown(searchPatientViewModel)
             Spacer(modifier = Modifier.height(30.dp))
-            AddressComposable(label = "Address", address = searchPatientViewModel.address)
+            AddressComposable(
+                label = "Address",
+                address = searchPatientViewModel.address,
+                isSearching = true
+            )
             Spacer(
                 modifier = Modifier
                     .height(50.dp)
