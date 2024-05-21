@@ -201,7 +201,7 @@ fun LandingScreen(
             modifier = Modifier.fillMaxSize(),
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
-                if (viewModel.isSearchResult) {
+                if (viewModel.isSearchResult && viewModel.selectedIndex == 0) {
                     TopAppBar(
                         title = {
                             Text(
