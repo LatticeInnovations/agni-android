@@ -93,34 +93,6 @@ fun LandingScreen(
     val coroutineScope = rememberCoroutineScope()
     val activity = LocalContext.current as Activity
     val dateScrollState = rememberLazyListState()
-
-    viewModel.addedToQueue = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
-        ADD_TO_QUEUE
-    ) == true
-    viewModel.patientArrived = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
-        PATIENT_ARRIVED
-    ) == true
-    LaunchedEffect(true) {
-        if (viewModel.addedToQueue) {
-            viewModel.selectedIndex = 1
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(
-                    message = activity.getString(R.string.added_to_queue)
-                )
-            }
-            navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(ADD_TO_QUEUE)
-        }
-
-        if (viewModel.patientArrived) {
-            viewModel.selectedIndex = 1
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(
-                    message = activity.getString(R.string.status_updated_to_arrived)
-                )
-            }
-            navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(PATIENT_ARRIVED)
-        }
-    }
     BackHandler(enabled = true) {
         when (viewModel.selectedIndex) {
             2 -> viewModel.selectedIndex = 0
@@ -173,6 +145,33 @@ fun LandingScreen(
                 }
             }
             viewModel.populateList()
+
+            viewModel.addedToQueue = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                ADD_TO_QUEUE
+            ) == true
+            viewModel.patientArrived = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                PATIENT_ARRIVED
+            ) == true
+            if (viewModel.addedToQueue) {
+                viewModel.selectedIndex = 1
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = activity.getString(R.string.added_to_queue)
+                    )
+                }
+                navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(ADD_TO_QUEUE)
+            }
+
+            if (viewModel.patientArrived) {
+                viewModel.selectedIndex = 1
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = activity.getString(R.string.status_updated_to_arrived)
+                    )
+                }
+                navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(PATIENT_ARRIVED)
+            }
+            navController.clearBackStack(Screen.LandingScreen.route)
         }
         viewModel.isLaunched = true
     }
@@ -202,7 +201,7 @@ fun LandingScreen(
             modifier = Modifier.fillMaxSize(),
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
-                if (viewModel.isSearchResult) {
+                if (viewModel.isSearchResult && viewModel.selectedIndex == 0) {
                     TopAppBar(
                         title = {
                             Text(
