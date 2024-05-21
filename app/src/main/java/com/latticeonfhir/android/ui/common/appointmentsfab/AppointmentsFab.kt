@@ -110,15 +110,11 @@ fun AppointmentsFab(
                                     appointmentsFabViewModel.appointment!!
                                 ) {
                                     CoroutineScope(Dispatchers.Main).launch {
-                                        navController.popBackStack(
-                                            Screen.PatientLandingScreen.route,
-                                            false
-                                        )
-                                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
                                             PATIENT_ARRIVED,
                                             true
                                         )
-                                        navController.popBackStack()
+                                        navController.navigate(Screen.LandingScreen.route)
                                     }
                                 }
                             } else {
@@ -128,15 +124,11 @@ fun AppointmentsFab(
                                 } else {
                                     appointmentsFabViewModel.addPatientToQueue(patient) {
                                         CoroutineScope(Dispatchers.Main).launch {
-                                            navController.popBackStack(
-                                                Screen.PatientLandingScreen.route,
-                                                false
-                                            )
-                                            navController.previousBackStackEntry?.savedStateHandle?.set(
+                                            navController.currentBackStackEntry?.savedStateHandle?.set(
                                                 ADD_TO_QUEUE,
                                                 true
                                             )
-                                            navController.popBackStack()
+                                            navController.navigate(Screen.LandingScreen.route)
                                         }
                                     }
                                 }
