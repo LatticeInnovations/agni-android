@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.await
 import com.latticeonfhir.android.FhirApp
@@ -28,6 +29,8 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
+import com.latticeonfhir.android.service.workmanager.utils.Sync
+import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toLastSyncTime
 import com.latticeonfhir.android.utils.network.CheckNetwork
@@ -188,6 +191,17 @@ class LandingScreenViewModel @Inject constructor(
         userEmail = preferenceRepository.getUserEmail()
 
         setSyncDisplayData()
+    }
+
+    internal fun syncData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            Sync.getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext)
+                .collectLatest { workInfo ->
+                    if (workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
+                        getApplication<FhirApp>().launchSyncing()
+                    }
+                }
+        }
     }
 
     internal fun hideSyncStatus() {
