@@ -80,7 +80,10 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
     }
     LaunchedEffect(activity.otp) {
         if (activity.otp.isNotEmpty()) {
-            viewModel.otpEntered = activity.otp
+            activity.otp.trim().forEachIndexed { index, c ->
+                viewModel.otpValues[index].value = c.toString()
+            }
+            viewModel.updateOtp()
             verifyClick(navController, viewModel)
             activity.otp = ""
             activity.unregisterBroadcastReceiver()
