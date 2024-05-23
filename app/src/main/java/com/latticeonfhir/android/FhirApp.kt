@@ -21,6 +21,9 @@ import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.converters.gson.DateDeserializer
 import com.latticeonfhir.android.utils.converters.gson.DateSerializer
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
 import java.util.Date
@@ -94,6 +97,25 @@ class FhirApp : Application() {
             _syncService =
                 SyncService(this, syncRepository, genericRepository, preferenceRepository)
         }
+    }
+
+    internal suspend fun launchSyncing() {
+        val listOfErrors = mutableListOf<String>()
+        syncWorkerStatus.postValue(WorkerStatus.IN_PROGRESS)
+        syncService.syncLauncher { errorReceived, errorMessage ->
+                // as there will be multiple callbacks from different coroutines
+                // list of errors is maintained.
+                // if the list is empty, then all the api calls were successful.
+                listOfErrors.add(errorMessage)
+                CoroutineScope(Dispatchers.Main).launch {
+                    (applicationContext as FhirApp).sessionExpireFlow.postValue(
+                        mapOf(Pair("errorReceived", errorReceived), Pair("errorMsg", errorMessage))
+                    )
+                }
+            }.also {
+                if(listOfErrors.isEmpty()) syncWorkerStatus.postValue(WorkerStatus.SUCCESS)
+                else syncWorkerStatus.postValue(WorkerStatus.FAILED)
+            }
     }
 
     companion object {

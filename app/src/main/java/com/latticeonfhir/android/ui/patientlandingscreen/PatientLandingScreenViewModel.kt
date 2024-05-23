@@ -51,12 +51,7 @@ class PatientLandingScreenViewModel @Inject constructor(
             Sync.getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext)
                 .collectLatest { workInfo ->
                     if (workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
-                        syncService.syncLauncher { isErrorReceived, errorMsg ->
-                            if (isErrorReceived) {
-                                logoutUser = true
-                                logoutReason = errorMsg
-                            }
-                        }
+                        getApplication<FhirApp>().launchSyncing()
                     }
                 }
         }
