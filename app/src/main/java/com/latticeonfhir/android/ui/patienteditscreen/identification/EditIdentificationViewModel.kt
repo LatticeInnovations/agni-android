@@ -11,9 +11,7 @@ import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
-import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
@@ -23,15 +21,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class EditIdentificationViewModel @Inject constructor(
     private val patientRepository: PatientRepository,
     private val genericRepository: GenericRepository,
-    private val identifierRepository: IdentifierRepository,
-    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
+    private val identifierRepository: IdentifierRepository
 ) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
@@ -136,12 +132,6 @@ class EditIdentificationViewModel @Inject constructor(
 
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (response > 0) {
-                val patientLastUpdatedResponse = PatientLastUpdatedResponse(
-                    uuid = patientResponse.id,
-                    timestamp = Date()
-                )
-                patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
-                genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
                 identifierRepository.insertIdentifierList(patientResponse = patientResponse)
 
 
