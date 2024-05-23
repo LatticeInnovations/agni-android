@@ -216,6 +216,7 @@ fun ScheduleAppointments(
                             index,
                             stringArrayResource(id = R.array.morning_slot_timings),
                             slots,
+                            viewModel.maxNumberOfSlots,
                             viewModel.selectedSlot,
                             "MORNING_SLOT_CHIPS"
                         ) { slot ->
@@ -250,6 +251,7 @@ fun ScheduleAppointments(
                             index,
                             stringArrayResource(id = R.array.afternoon_slot_timings),
                             slots,
+                            viewModel.maxNumberOfSlots,
                             viewModel.selectedSlot,
                             "AFTERNOON_SLOT_CHIPS"
                         ) { slot ->
@@ -284,6 +286,7 @@ fun ScheduleAppointments(
                             index,
                             stringArrayResource(id = R.array.evening_slot_timings),
                             slots,
+                            viewModel.maxNumberOfSlots,
                             viewModel.selectedSlot,
                             "EVENING_SLOT_CHIPS"
                         ) { slot ->
@@ -441,7 +444,11 @@ fun SlotsHeading(icon: Int, heading: String, testTag: String) {
 
 @Composable
 fun SlotChips(
-    index: Int, slotTimings: Array<String>, slots: Int, selectedSlot: String,
+    index: Int,
+    slotTimings: Array<String>,
+    bookedSlots: Int,
+    maxNumberOfSlots: Int,
+    selectedSlot: String,
     testTag: String,
     updateSlot: (String) -> Unit
 ) {
@@ -461,9 +468,9 @@ fun SlotChips(
                     style = MaterialTheme.typography.labelLarge
                 )
                 Text(
-                    text = if (slots < 1) "1 slot" else "0 slot",
+                    text = if (bookedSlots < maxNumberOfSlots) "${maxNumberOfSlots - bookedSlots} slot" else "0 slot",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (slots > 0) MaterialTheme.colorScheme.outline
+                    color = if (maxNumberOfSlots - bookedSlots <= 0) MaterialTheme.colorScheme.outline
                     else Green
                 )
             }
@@ -475,14 +482,14 @@ fun SlotChips(
         colors = SuggestionChipDefaults.suggestionChipColors(
             containerColor = if (slotTimings[index] == selectedSlot) MaterialTheme.colorScheme.primaryContainer
             else MaterialTheme.colorScheme.surface,
-            labelColor = if (slots > 0) MaterialTheme.colorScheme.outline
+            labelColor = if (maxNumberOfSlots - bookedSlots <= 0) MaterialTheme.colorScheme.outline
             else MaterialTheme.colorScheme.primary
         ),
         border = SuggestionChipDefaults.suggestionChipBorder(
             enabled = true,
-            borderColor = if (slots > 0) MaterialTheme.colorScheme.outline
+            borderColor = if (maxNumberOfSlots - bookedSlots <= 0) MaterialTheme.colorScheme.outline
             else MaterialTheme.colorScheme.primary
         ),
-        enabled = slots < 1
+        enabled = bookedSlots < maxNumberOfSlots
     )
 }
