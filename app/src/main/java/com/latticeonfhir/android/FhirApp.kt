@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
@@ -20,6 +21,7 @@ import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.converters.gson.DateDeserializer
 import com.latticeonfhir.android.utils.converters.gson.DateSerializer
+import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -100,9 +102,11 @@ class FhirApp : Application() {
     }
 
     internal suspend fun launchSyncing() {
-        val listOfErrors = mutableListOf<String>()
-        syncWorkerStatus.postValue(WorkerStatus.IN_PROGRESS)
-        syncService.syncLauncher { errorReceived, errorMessage ->
+        if (CheckNetwork.isInternetAvailable(applicationContext)) {
+            val listOfErrors = mutableListOf<String>()
+            syncWorkerStatus.postValue(WorkerStatus.IN_PROGRESS)
+            preferenceStorage.syncStatus = SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display
+            syncService.syncLauncher { errorReceived, errorMessage ->
                 // as there will be multiple callbacks from different coroutines
                 // list of errors is maintained.
                 // if the list is empty, then all the api calls were successful.
@@ -113,9 +117,16 @@ class FhirApp : Application() {
                     )
                 }
             }.also {
-                if(listOfErrors.isEmpty()) syncWorkerStatus.postValue(WorkerStatus.SUCCESS)
-                else syncWorkerStatus.postValue(WorkerStatus.FAILED)
+                preferenceStorage.lastSyncTime = Date().time
+                if (listOfErrors.isEmpty()) {
+                    preferenceStorage.syncStatus = SyncStatusMessageEnum.SYNCING_COMPLETED.display
+                    syncWorkerStatus.postValue(WorkerStatus.SUCCESS)
+                } else {
+                    preferenceStorage.syncStatus = SyncStatusMessageEnum.SYNCING_FAILED.display
+                    syncWorkerStatus.postValue(WorkerStatus.FAILED)
+                }
             }
+        }
     }
 
     companion object {

@@ -105,15 +105,12 @@ class LandingScreenViewModel @Inject constructor(
                         syncStatus = WorkerStatus.IN_PROGRESS
                         syncIcon = R.drawable.sync_icon
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_IN_PROGRESS.message
-                        preferenceRepository.setSyncStatus(SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display)
                         setSyncDisplayData()
                     }
                     WorkerStatus.SUCCESS -> {
                         syncStatus = WorkerStatus.SUCCESS
                         syncIcon = R.drawable.sync_completed_icon
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_COMPLETED.message
-                        preferenceRepository.setSyncStatus(SyncStatusMessageEnum.SYNCING_COMPLETED.display)
-                        preferenceRepository.setLastSyncTime(Date().time)
                         setSyncDisplayData()
                         CoroutineScope(Dispatchers.IO).launch {
                             delay(20000)
@@ -124,8 +121,6 @@ class LandingScreenViewModel @Inject constructor(
                         syncIcon = R.drawable.sync_problem
                         syncStatus = WorkerStatus.FAILED
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_FAILED.message
-                        preferenceRepository.setSyncStatus(SyncStatusMessageEnum.SYNCING_FAILED.display)
-                        preferenceRepository.setLastSyncTime(Date().time)
                         setSyncDisplayData()
                         CoroutineScope(Dispatchers.IO).launch {
                             delay(20000)
