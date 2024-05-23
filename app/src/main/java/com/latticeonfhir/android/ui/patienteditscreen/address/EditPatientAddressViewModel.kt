@@ -10,41 +10,34 @@ import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class EditPatientAddressViewModel @Inject constructor(
     val patientRepository: PatientRepository,
-    val genericRepository: GenericRepository,
-    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
+    val genericRepository: GenericRepository
 ) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
 
     var homeAddress by mutableStateOf(Address())
     var homeAddressTemp by mutableStateOf(Address())
-    var workAddress by mutableStateOf(Address())
+    private var workAddress by mutableStateOf(Address())
 
-    var addWorkAddress by mutableStateOf(false)
+    private var addWorkAddress by mutableStateOf(false)
 
     fun addressInfoValidation(): Boolean {
         if (homeAddress.pincode.length < 6 || homeAddress.state.isBlank() || homeAddress.addressLine1.isBlank()
             || homeAddress.city.isBlank()
         )
             return false
-        if (addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state.isBlank() || workAddress.addressLine1.isBlank()
-                    || workAddress.city.isBlank())
-        )
-            return false
-        return true
+        return !(addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state.isBlank() || workAddress.addressLine1.isBlank()
+                || workAddress.city.isBlank()))
     }
 
     fun checkIsEdit(): Boolean {
@@ -75,12 +68,6 @@ class EditPatientAddressViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (checkIsEdit() && response > 0) {
-                val patientLastUpdatedResponse = PatientLastUpdatedResponse(
-                    uuid = patientResponse.id,
-                    timestamp = Date()
-                )
-                patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
-                genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
                 if (patientResponse.fhirId != null) {
                     checkIsValueChange(
                         patientResponse,
