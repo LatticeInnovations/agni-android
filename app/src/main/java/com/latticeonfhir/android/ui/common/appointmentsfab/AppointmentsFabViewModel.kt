@@ -46,6 +46,7 @@ class AppointmentsFabViewModel @Inject constructor(
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
     var ifAlreadyWaiting by mutableStateOf(false)
     var ifAllSlotsBooked by mutableStateOf(false)
+    private val maxNumberOfAppointmentsInADay = 250
 
     internal fun initialize(patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -62,7 +63,7 @@ class AppointmentsFabViewModel @Inject constructor(
                 Date().toEndOfDay()
             ).filter { appointmentResponseLocal ->
                 appointmentResponseLocal.status != AppointmentStatusEnum.CANCELLED.value
-            }.size >= 80
+            }.size >= maxNumberOfAppointmentsInADay
             appointment = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patientId,
                 AppointmentStatusEnum.SCHEDULED.value

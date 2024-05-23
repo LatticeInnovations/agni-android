@@ -50,6 +50,8 @@ class ScheduleAppointmentViewModel @Inject constructor(
     var ifRescheduling by mutableStateOf(false)
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
 
+    val maxNumberOfSlots = 6
+
     internal fun getBookedSlotsCount(time: Long, slotsCount: (Int) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             slotsCount(
