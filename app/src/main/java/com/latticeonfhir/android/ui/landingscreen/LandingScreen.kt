@@ -120,6 +120,7 @@ fun LandingScreen(
     }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
+            viewModel.syncData()
             viewModel.selectedIndex =
                 navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
                     SELECTED_INDEX
