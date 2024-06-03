@@ -38,6 +38,7 @@ class PatientLandingScreenViewModel @Inject constructor(
     private var logoutReason by mutableStateOf("")
 
     var appointmentsCount by mutableIntStateOf(0)
+    var uploadsCount by mutableIntStateOf(0)
     var pastAppointmentsCount by mutableIntStateOf(0)
     var isFabSelected by mutableStateOf(false)
     var showAllSlotsBookedDialog by mutableStateOf(false)
