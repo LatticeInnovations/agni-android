@@ -215,4 +215,5 @@ include them in the household</string>
     <string name="last_visited">Last visited: %s</string>
     <string name="sync_status">Sync Status</string>
     <string name="synced">Synced</string>
+    <string name="add_prescription">Add prescription</string>
 </resources>
