@@ -86,6 +86,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
             buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
             signingConfig signingConfigs.release
         }
