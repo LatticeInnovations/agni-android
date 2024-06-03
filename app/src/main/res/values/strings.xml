@@ -7,6 +7,7 @@
     <string name="relation_builder">%s is the %s of %s</string>
 
     <string name="prescription">Prescription</string>
+    <string name="prescriptions">Prescriptions</string>
     <string name="discard_medications_dialog_title">Discard medications ?</string>
     <string name="discard_medications_dialog_description">Are you sure you want to discard all medications ?</string>
     <string name="yes_discard">Yes, discard</string>
@@ -216,4 +217,5 @@ include them in the household</string>
     <string name="sync_status">Sync Status</string>
     <string name="synced">Synced</string>
     <string name="add_prescription">Add prescription</string>
+    <string name="uploads_count">%d uploads</string>
 </resources>
