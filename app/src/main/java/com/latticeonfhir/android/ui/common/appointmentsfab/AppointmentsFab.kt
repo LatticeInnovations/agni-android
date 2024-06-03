@@ -1,19 +1,22 @@
 package com.latticeonfhir.android.ui.common.appointmentsfab
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +42,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AppointmentsFab(
+    modifier: Modifier,
     navController: NavController,
     patient: PatientResponse,
     isFabSelected: Boolean,
@@ -48,129 +52,162 @@ fun AppointmentsFab(
     LaunchedEffect(true) {
         appointmentsFabViewModel.initialize(patient.id)
     }
-    AnimatedVisibility(visible = !isFabSelected) {
-        FloatingActionButton(
-            onClick = { showDialog(false) },
-            modifier = Modifier
-                .testTag("ADD_APPOINTMENT_FAB")
-                .padding(bottom = 20.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.add_icon),
-                contentDescription = null,
-                Modifier.size(22.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+    Box(
+        modifier =
+        if (!isFabSelected) Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
+        else Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+            .clickable {
+                showDialog(false)
+            },
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        AnimatedVisibility(visible = !isFabSelected) {
+            FloatingActionButton(
+                onClick = { showDialog(false) },
+                modifier = modifier
+                    .testTag("ADD_APPOINTMENT_FAB")
+                    .padding(bottom = 20.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.add_icon),
+                    contentDescription = null,
+                    Modifier.size(22.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
-    }
-    AnimatedVisibility(visible = isFabSelected) {
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-            Column {
-                FloatingActionButton(
-                    onClick = {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "patient",
-                            patient
-                        )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            NavControllerConstants.IF_RESCHEDULING,
-                            false
-                        )
-                        navController.navigate(Screen.ScheduleAppointments.route)
-                        showDialog(false)
-                    },
-                    modifier = Modifier.testTag("ADD_SCHEDULE_FAB")
-                ) {
-                    Row(
-                        modifier = Modifier.padding(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.schedule_appointment),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Icon(
-                            painter = painterResource(id = R.drawable.today_icon),
-                            contentDescription = null,
-                            Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(20.dp))
-                if (!appointmentsFabViewModel.ifAlreadyWaiting) {
-                    FloatingActionButton(
-                        onClick = {
-                            //showDialog(true)
-                            if (appointmentsFabViewModel.appointment != null) {
-                                // change status of patient to arrived and navigate to queue screen
-                                appointmentsFabViewModel.updateStatusToArrived(
-                                    patient,
-                                    appointmentsFabViewModel.appointment!!
-                                ) {
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            PATIENT_ARRIVED,
-                                            true
-                                        )
-                                        navController.navigate(Screen.LandingScreen.route)
-                                    }
-                                }
-                            } else {
-                                // add patient to queue and navigate to queue screen
-                                if (appointmentsFabViewModel.ifAllSlotsBooked) {
-                                    showDialog(true)
-                                } else {
-                                    appointmentsFabViewModel.addPatientToQueue(patient) {
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                ADD_TO_QUEUE,
-                                                true
-                                            )
-                                            navController.navigate(Screen.LandingScreen.route)
+        AnimatedVisibility(visible = isFabSelected) {
+            Column(
+                modifier = modifier
+            ) {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    Column {
+                        FloatingActionButton(
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    "patient",
+                                    patient
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    NavControllerConstants.IF_RESCHEDULING,
+                                    false
+                                )
+                                navController.navigate(Screen.ScheduleAppointments.route)
+                                showDialog(false)
+                            },
+                            modifier = Modifier.testTag("ADD_SCHEDULE_FAB"),
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(11.dp),
+                            contentColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.schedule_appointment),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Icon(
+                                    painter = painterResource(id = R.drawable.today_icon),
+                                    contentDescription = null,
+                                    Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                        if (!appointmentsFabViewModel.ifAlreadyWaiting) {
+                            FloatingActionButton(
+                                onClick = {
+                                    //showDialog(true)
+                                    if (appointmentsFabViewModel.appointment != null) {
+                                        // change status of patient to arrived and navigate to queue screen
+                                        appointmentsFabViewModel.updateStatusToArrived(
+                                            patient,
+                                            appointmentsFabViewModel.appointment!!
+                                        ) {
+                                            CoroutineScope(Dispatchers.Main).launch {
+                                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                    PATIENT_ARRIVED,
+                                                    true
+                                                )
+                                                navController.navigate(Screen.LandingScreen.route)
+                                            }
+                                        }
+                                    } else {
+                                        // add patient to queue and navigate to queue screen
+                                        if (appointmentsFabViewModel.ifAllSlotsBooked) {
+                                            showDialog(true)
+                                        } else {
+                                            appointmentsFabViewModel.addPatientToQueue(patient) {
+                                                CoroutineScope(Dispatchers.Main).launch {
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                        ADD_TO_QUEUE,
+                                                        true
+                                                    )
+                                                    navController.navigate(Screen.LandingScreen.route)
+                                                }
+                                            }
                                         }
                                     }
+
+                                },
+                                modifier = Modifier.testTag("QUEUE_FAB")
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = if (appointmentsFabViewModel.appointment != null) stringResource(
+                                            id = R.string.patient_arrived
+                                        )
+                                        else stringResource(id = R.string.add_to_queue),
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.playlist_add_circle_icon),
+                                        contentDescription = null,
+                                        Modifier.size(20.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
                                 }
                             }
-
-                        },
-                        modifier = Modifier.testTag("QUEUE_FAB")
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = if (appointmentsFabViewModel.appointment != null) stringResource(
-                                    id = R.string.patient_arrived
-                                )
-                                else stringResource(id = R.string.add_to_queue),
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Icon(
-                                painter = painterResource(id = R.drawable.playlist_add_circle_icon),
-                                contentDescription = null,
-                                Modifier.size(20.dp),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
+                            Spacer(modifier = Modifier.height(20.dp))
+                        }
+                        if (appointmentsFabViewModel.canAddPrescription) {
+                            FloatingActionButton(
+                                onClick = {
+                                    // navigate to prescription screen
+                                },
+                                modifier = Modifier.testTag("ADD_PRESCRIPTION_FAB")
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = stringResource(id = R.string.add_prescription),
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.prescriptions_icon),
+                                        contentDescription = null,
+                                        Modifier.size(20.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(20.dp))
                         }
                     }
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-                FloatingActionButton(
-                    onClick = { showDialog(false) },
-                    modifier = Modifier
-                        .testTag("CLEAR_FAB")
-                        .padding(bottom = 20.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Clear,
-                        contentDescription = null,
-                        Modifier.size(22.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
                 }
             }
         }

@@ -45,6 +45,7 @@ class AppointmentsFabViewModel @Inject constructor(
 
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
     var ifAlreadyWaiting by mutableStateOf(false)
+    var canAddPrescription by mutableStateOf(false)
     var ifAllSlotsBooked by mutableStateOf(false)
     private val maxNumberOfAppointmentsInADay = 250
 
@@ -57,6 +58,8 @@ class AppointmentsFabViewModel @Inject constructor(
             ).let { appointmentResponse ->
                 ifAlreadyWaiting = if (appointmentResponse == null) false
                 else appointmentResponse.status != AppointmentStatusEnum.SCHEDULED.value
+                canAddPrescription =
+                    appointmentResponse?.status == AppointmentStatusEnum.ARRIVED.value || appointmentResponse?.status == AppointmentStatusEnum.WALK_IN.value
             }
             ifAllSlotsBooked = appointmentRepository.getAppointmentListByDate(
                 Date().toTodayStartDate(),

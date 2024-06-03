@@ -41,8 +41,8 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.ui.common.BottomNavBar
+import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
@@ -95,7 +95,10 @@ fun PatientLandingScreen(
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "BACK_ICON"
+                        )
                     }
                 },
                 title = {
@@ -164,32 +167,19 @@ fun PatientLandingScreen(
                     )
                     /***** Feature Hidden *****/
                     /*CardComposable(
-                        navController,
-                        viewModel.patient,
-                        viewModel,
-                        "PRESCRIPTION",
-                        Screen.Prescription.route,
-                        stringResource(id = R.string.prescription),
-                        R.drawable.prescriptions_icon
-                    )*/
+                    navController,
+                    viewModel.patient,
+                    viewModel,
+                    "PRESCRIPTION",
+                    Screen.Prescription.route,
+                    stringResource(id = R.string.prescription),
+                    R.drawable.prescriptions_icon
+                )*/
                 }
                 if (viewModel.showAllSlotsBookedDialog) {
                     AllSlotsBookedDialog {
                         viewModel.showAllSlotsBookedDialog = false
                     }
-                }
-            }
-        },
-        floatingActionButton = {
-            viewModel.patient?.let { patient ->
-                AppointmentsFab(
-                    navController,
-                    patient,
-                    viewModel.isFabSelected
-                ) { showDialog ->
-                    if (showDialog) {
-                        viewModel.showAllSlotsBookedDialog = true
-                    } else viewModel.isFabSelected = !viewModel.isFabSelected
                 }
             }
         },
@@ -206,6 +196,18 @@ fun PatientLandingScreen(
             )
         }
     )
+    viewModel.patient?.let { patient ->
+        AppointmentsFab(
+            modifier = Modifier.padding(bottom = 80.dp, end = 16.dp),
+            navController,
+            patient,
+            viewModel.isFabSelected
+        ) { showDialog ->
+            if (showDialog) {
+                viewModel.showAllSlotsBookedDialog = true
+            } else viewModel.isFabSelected = !viewModel.isFabSelected
+        }
+    }
 }
 
 @Composable
