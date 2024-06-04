@@ -46,6 +46,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,11 +62,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.utils.constants.NavControllerConstants
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.util.Date
@@ -73,7 +82,7 @@ import java.util.Date
 @Composable
 fun PrescriptionPhotoUploadScreen(
     navController: NavController,
-    viewModel: PrescriptionPhotoUploadViewModel = viewModel()
+    viewModel: PrescriptionPhotoUploadViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     var hasFlashUnit by remember { mutableStateOf(false) }
@@ -85,10 +94,26 @@ fun PrescriptionPhotoUploadScreen(
     var enterTransition by remember { mutableStateOf(slideInVertically(initialOffsetY = { it })) }
     var exitTransition by remember { mutableStateOf(slideOutVertically(targetOffsetY = { it })) }
 
-    val pickImageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let {
-            viewModel.isImageCaptured = true
-            viewModel.selectedImageUri = it
+    val pickImageLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let {
+                viewModel.isImageCaptured = true
+                viewModel.selectedImageUri = it
+            }
+        }
+
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            viewModel.patient =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    PATIENT
+                )
+            viewModel.getPatientTodayAppointment(
+                Date(Date().toTodayStartDate()),
+                Date(Date().toEndOfDay()),
+                viewModel.patient!!.id
+            )
+            viewModel.isLaunched = true
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {
@@ -200,13 +225,17 @@ fun PrescriptionPhotoUploadScreen(
         enter = enterTransition,
         exit = exitTransition
     ) {
-        DisplayImage(viewModel)
+        DisplayImage(viewModel, navController)
     }
 }
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-private fun DisplayImage(viewModel: PrescriptionPhotoUploadViewModel) {
+private fun DisplayImage(
+    viewModel: PrescriptionPhotoUploadViewModel,
+    navController: NavController
+) {
+    val coroutineScope = rememberCoroutineScope()
     Box(modifier = Modifier.fillMaxSize()) {
         IconButton(
             onClick = {
@@ -230,6 +259,17 @@ private fun DisplayImage(viewModel: PrescriptionPhotoUploadViewModel) {
         Button(
             onClick = {
                 // save prescription
+                viewModel.insertPrescription {
+                    viewModel.isImageCaptured = false
+                    viewModel.selectedImageUri = null
+                    coroutineScope.launch {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            PATIENT,
+                            viewModel.patient!!
+                        )
+                        navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
+                    }
+                }
             },
             modifier = Modifier
                 .zIndex(2f)
