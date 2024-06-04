@@ -218,4 +218,5 @@ include them in the household</string>
     <string name="synced">Synced</string>
     <string name="add_prescription">Add prescription</string>
     <string name="uploads_count">%d uploads</string>
+    <string name="permissions_denied">Permissions denied.</string>
 </resources>
