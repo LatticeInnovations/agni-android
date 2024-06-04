@@ -189,21 +189,20 @@ fun AppointmentsScreen(
                     }
                 }
             }
-        },
-        floatingActionButton = {
-            if (pagerState.currentPage == 0) {
-                viewModel.patient?.let { patient ->
-                    AppointmentsFab(
-                        navController,
-                        patient,
-                        viewModel.isFabSelected
-                    ) { showDialog ->
-                        if (showDialog) {
-                            viewModel.showAllSlotsBookedDialog = true
-                        } else viewModel.isFabSelected = !viewModel.isFabSelected
-                    }
-                }
-            }
         }
     )
+    if (pagerState.currentPage == 0) {
+        viewModel.patient?.let { patient ->
+            AppointmentsFab(
+                Modifier.padding(16.dp),
+                navController,
+                patient,
+                viewModel.isFabSelected
+            ) { showDialog ->
+                if (showDialog) {
+                    viewModel.showAllSlotsBookedDialog = true
+                } else viewModel.isFabSelected = !viewModel.isFabSelected
+            }
+        }
+    }
 }

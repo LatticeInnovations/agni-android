@@ -2,27 +2,26 @@ package com.latticeonfhir.android.ui.patientlandingscreen
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -41,8 +40,8 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.ui.common.BottomNavBar
+import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
@@ -95,7 +94,10 @@ fun PatientLandingScreen(
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "BACK_ICON"
+                        )
                     }
                 },
                 title = {
@@ -151,7 +153,12 @@ fun PatientLandingScreen(
                         "APPOINTMENTS",
                         Screen.Appointments.route,
                         stringResource(id = R.string.appointments),
-                        R.drawable.event_note_icon
+                        R.drawable.event_note_icon,
+                        stringResource(
+                            id = R.string.appointments_scheduled,
+                            viewModel.appointmentsCount,
+                            viewModel.pastAppointmentsCount
+                        )
                     )
                     CardComposable(
                         navController,
@@ -160,36 +167,28 @@ fun PatientLandingScreen(
                         "HOUSEHOLD_MEMBER",
                         Screen.HouseholdMembersScreen.route,
                         stringResource(id = R.string.household_members),
-                        R.drawable.group_icon
+                        R.drawable.group_icon,
+                        null
                     )
                     /***** Feature Hidden *****/
-                    /*CardComposable(
+                    CardComposable(
                         navController,
                         viewModel.patient,
                         viewModel,
                         "PRESCRIPTION",
-                        Screen.Prescription.route,
-                        stringResource(id = R.string.prescription),
-                        R.drawable.prescriptions_icon
-                    )*/
+                        Screen.PrescriptionPhotoViewScreen.route,
+                        stringResource(id = R.string.prescriptions),
+                        R.drawable.prescriptions_icon,
+                        stringResource(
+                            id = R.string.uploads_count,
+                            viewModel.uploadsCount
+                        )
+                    )
                 }
                 if (viewModel.showAllSlotsBookedDialog) {
                     AllSlotsBookedDialog {
                         viewModel.showAllSlotsBookedDialog = false
                     }
-                }
-            }
-        },
-        floatingActionButton = {
-            viewModel.patient?.let { patient ->
-                AppointmentsFab(
-                    navController,
-                    patient,
-                    viewModel.isFabSelected
-                ) { showDialog ->
-                    if (showDialog) {
-                        viewModel.showAllSlotsBookedDialog = true
-                    } else viewModel.isFabSelected = !viewModel.isFabSelected
                 }
             }
         },
@@ -206,6 +205,18 @@ fun PatientLandingScreen(
             )
         }
     )
+    viewModel.patient?.let { patient ->
+        AppointmentsFab(
+            modifier = Modifier.padding(bottom = 80.dp, end = 16.dp),
+            navController,
+            patient,
+            viewModel.isFabSelected
+        ) { showDialog ->
+            if (showDialog) {
+                viewModel.showAllSlotsBookedDialog = true
+            } else viewModel.isFabSelected = !viewModel.isFabSelected
+        }
+    }
 }
 
 @Composable
@@ -216,12 +227,13 @@ fun CardComposable(
     tag: String,
     route: String,
     label: String,
-    icon: Int
+    icon: Int,
+    subText: String?
 ) {
-    Surface(
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(90.dp)
             .padding(bottom = 20.dp)
             .clickable {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
@@ -237,9 +249,7 @@ fun CardComposable(
                 navController.navigate(route)
                 viewModel.isFabSelected = false
             }
-            .testTag(tag),
-        shadowElevation = 5.dp,
-        shape = RoundedCornerShape(4.dp)
+            .testTag(tag)
     ) {
         Row(
             modifier = Modifier
@@ -247,31 +257,32 @@ fun CardComposable(
                 .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row {
-                Icon(
-                    painter = painterResource(id = icon),
-                    contentDescription = tag + "_ICON",
-                    tint = MaterialTheme.colorScheme.surfaceTint,
-                    modifier = Modifier.size(32.dp, 22.dp)
-                )
-                Spacer(modifier = Modifier.width(15.dp))
-                Column {
-                    Text(text = label, style = MaterialTheme.typography.bodyLarge)
-                    if (label == stringResource(id = R.string.appointments)) Text(
-                        text = stringResource(
-                            id = R.string.appointments_scheduled,
-                            viewModel.appointmentsCount,
-                            viewModel.pastAppointmentsCount
-                        ),
+            Icon(
+                painter = painterResource(id = icon),
+                contentDescription = tag + "_ICON",
+                tint = MaterialTheme.colorScheme.surfaceTint,
+                modifier = Modifier.size(32.dp, 22.dp)
+            )
+            Spacer(modifier = Modifier.width(15.dp))
+            Column(
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(text = label, style = MaterialTheme.typography.bodyLarge)
+                if (subText != null) {
+                    Text(
+                        text = subText,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.testTag("NUMBER_OF_APPOINTMENTS")
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "RIGHT_ARROW")
         }
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
     }
 }
 
