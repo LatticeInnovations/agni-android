@@ -33,6 +33,10 @@ class PrescriptionRepositoryImpl @Inject constructor(private val prescriptionDao
         return prescriptionDao.getPastPrescriptions(patientId)
     }
 
+    override suspend fun getLastPhotoPrescription(patientId: String): List<String> {
+        return prescriptionDao.getPastPhotoPrescriptions(patientId)
+    }
+
     override suspend fun getPrescriptionByAppointmentId(appointmentId: String): List<PrescriptionResponseLocal> {
         return prescriptionDao.getPrescriptionByAppointmentId(appointmentId)
             .map { prescriptionAndMedicineRelation ->

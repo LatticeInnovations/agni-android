@@ -33,6 +33,12 @@ interface PrescriptionDao {
     ): List<PrescriptionAndMedicineRelation>
 
     @Transaction
+    @Query("SELECT fileName FROM PrescriptionPhotoEntity INNER JOIN PrescriptionEntity ON PrescriptionPhotoEntity.prescriptionId = PrescriptionEntity.id WHERE PrescriptionEntity.patientId=:patientId ORDER BY PrescriptionEntity.prescriptionDate DESC")
+    suspend fun getPastPhotoPrescriptions(
+        patientId: String
+    ): List<String>
+
+    @Transaction
     @Query("UPDATE PrescriptionEntity SET prescriptionFhirId = :prescriptionFhirId WHERE id = :prescriptionId")
     suspend fun updatePrescriptionFhirId(prescriptionId: String, prescriptionFhirId: String)
 
