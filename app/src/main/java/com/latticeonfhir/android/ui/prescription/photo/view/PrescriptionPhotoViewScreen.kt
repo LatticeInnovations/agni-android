@@ -46,13 +46,16 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
+import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
@@ -66,6 +69,7 @@ import com.latticeonfhir.android.utils.file.FileManager
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Date
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,7 +91,7 @@ fun PrescriptionPhotoViewScreen(
     BackHandler(enabled = true) {
         if (viewModel.selectedImageUri != null) viewModel.selectedImageUri = null
         else if (viewModel.isFabSelected) viewModel.isFabSelected = false
-        else navController.popBackStack()
+        else navController.popBackStack(Screen.PatientLandingScreen.route, inclusive = false)
     }
 
     Scaffold(
@@ -106,7 +110,7 @@ fun PrescriptionPhotoViewScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { navController.popBackStack(Screen.PatientLandingScreen.route, inclusive = false) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 }
@@ -148,11 +152,15 @@ fun PrescriptionPhotoViewScreen(
 @Composable
 private fun DisplayImage(viewModel: PrescriptionPhotoViewViewModel) {
     val context = LocalContext.current
-    val shareLauncher = rememberLauncherForActivityResult(CreateDocument("image/*")) { uri ->
+    val shareLauncher = rememberLauncherForActivityResult(CreateDocument("image/jpeg")) { uri ->
         uri?.let {
+            val file = File(FileManager.createFolder(context), viewModel.selectedImageUri!!.toFile().name)
+            val contentUri =
+                FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+
             val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "image/*"
-                putExtra(Intent.EXTRA_STREAM, viewModel.selectedImageUri)
+                type = "image/jpeg"
+                putExtra(Intent.EXTRA_STREAM, contentUri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             context.startActivity(Intent.createChooser(intent, "Share Image"))
@@ -192,7 +200,8 @@ private fun DisplayImage(viewModel: PrescriptionPhotoViewViewModel) {
         content = {
             Box(modifier = Modifier.padding(it)) {
                 Image(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
                         .background(color = Color.Black),
                     painter = rememberImagePainter(viewModel.selectedImageUri),
                     contentDescription = null,
