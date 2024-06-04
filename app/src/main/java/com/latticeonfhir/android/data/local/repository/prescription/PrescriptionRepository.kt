@@ -9,5 +9,6 @@ interface PrescriptionRepository {
     suspend fun insertPrescription(prescriptionResponseLocal: PrescriptionResponseLocal): Long
     suspend fun insertPhotoPrescription(prescriptionPhotoResponseLocal: PrescriptionPhotoResponseLocal): Long
     suspend fun getLastPrescription(patientId: String): List<PrescriptionAndMedicineRelation>
+    suspend fun getLastPhotoPrescription(patientId: String): List<String>
     suspend fun getPrescriptionByAppointmentId(appointmentId: String): List<PrescriptionResponseLocal>
 }

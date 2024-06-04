@@ -39,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -46,7 +47,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toFile
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
@@ -69,7 +70,7 @@ import java.util.Date
 @Composable
 fun PrescriptionPhotoViewScreen(
     navController: NavController,
-    viewModel: PrescriptionPhotoViewViewModel = viewModel()
+    viewModel: PrescriptionPhotoViewViewModel = hiltViewModel()
 ) {
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
@@ -77,8 +78,9 @@ fun PrescriptionPhotoViewScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     NavControllerConstants.PATIENT
                 )
+            viewModel.getPastPrescription()
+            viewModel.isLaunched = true
         }
-        viewModel.isLaunched = true
     }
 
     BackHandler(enabled = true) {
@@ -189,10 +191,11 @@ private fun DisplayImage(viewModel: PrescriptionPhotoViewViewModel) {
         content = {
             Box(modifier = Modifier.padding(it)) {
                 Image(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
+                        .background(color = Color.Black),
                     painter = rememberImagePainter(viewModel.selectedImageUri),
                     contentDescription = null,
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.Fit
                 )
             }
         }
