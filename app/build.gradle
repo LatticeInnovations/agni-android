@@ -113,6 +113,7 @@ android {
         }
     }
     lint {
+        lintConfig = file("lint_ignore.xml")
         disable 'ParcelCreator'
     }
 }
