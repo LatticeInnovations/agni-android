@@ -176,7 +176,7 @@ fun PatientLandingScreen(
                         viewModel.patient,
                         viewModel,
                         "PRESCRIPTION",
-                        Screen.Prescription.route,
+                        Screen.PrescriptionPhotoViewScreen.route,
                         stringResource(id = R.string.prescriptions),
                         R.drawable.prescriptions_icon,
                         stringResource(
