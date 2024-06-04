@@ -11,15 +11,12 @@ import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
-import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.Document
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -40,6 +37,8 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
     var isLaunched by mutableStateOf(false)
     var isImageCaptured by mutableStateOf(false)
     var selectedImageUri: Uri? by mutableStateOf(null)
+    var isSelectedFromGallery by mutableStateOf(false)
+    var tempFileName by mutableStateOf("")
 
     var cameraSelector by mutableStateOf(CameraSelector.DEFAULT_BACK_CAMERA)
     var flashOn by mutableStateOf(false)

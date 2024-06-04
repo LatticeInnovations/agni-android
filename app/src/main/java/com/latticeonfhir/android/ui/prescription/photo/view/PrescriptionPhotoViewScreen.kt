@@ -62,6 +62,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionNavDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionTime
+import com.latticeonfhir.android.utils.file.FileManager
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Date
@@ -220,8 +221,9 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
         reverseLayout = true
     ) {
         itemsIndexed(viewModel.prescriptionPhotos) { index, photo ->
+            val uploadFolder = FileManager.createFolder(context)
             val photoFile = File(
-                context.filesDir,
+                uploadFolder,
                 photo
             )
             val uri = Uri.fromFile(photoFile)

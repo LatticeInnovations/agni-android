@@ -63,17 +63,16 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.android.utils.file.FileManager
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -99,6 +98,7 @@ fun PrescriptionPhotoUploadScreen(
             uri?.let {
                 viewModel.isImageCaptured = true
                 viewModel.selectedImageUri = it
+                viewModel.isSelectedFromGallery = true
             }
         }
 
@@ -178,6 +178,7 @@ fun PrescriptionPhotoUploadScreen(
                     camera?.cameraControl?.enableTorch(false)
                     viewModel.selectedImageUri = uri
                     viewModel.isImageCaptured = true
+                    viewModel.isSelectedFromGallery = true
                 }
                 BottomRow(
                     galleryIconClick = {
@@ -189,9 +190,11 @@ fun PrescriptionPhotoUploadScreen(
                             else CameraSelector.DEFAULT_FRONT_CAMERA
                     },
                     imageCaptured = {
+                        val uploadFolder = FileManager.createFolder(context)
+                        viewModel.tempFileName = "${Date().time}.jpg"
                         val photoFile = File(
-                            context.filesDir,
-                            "${Date().time}.jpg"
+                            uploadFolder,
+                            viewModel.tempFileName
                         )
 
                         val outputOptions =
@@ -236,11 +239,17 @@ private fun DisplayImage(
     navController: NavController
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     Box(modifier = Modifier.fillMaxSize()) {
         IconButton(
             onClick = {
+                if (!viewModel.isSelectedFromGallery) {
+                    FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
+                    viewModel.tempFileName = ""
+                }
                 viewModel.isImageCaptured = false
                 viewModel.selectedImageUri = null
+                viewModel.isSelectedFromGallery = false
             },
             modifier = Modifier
                 .zIndex(2f)
@@ -259,9 +268,25 @@ private fun DisplayImage(
         Button(
             onClick = {
                 // save prescription
+                if (viewModel.isSelectedFromGallery) {
+                    val fileName = "${Date().time}.jpg"
+                    val uploadFolder = FileManager.createFolder(context)
+                    FileManager.insertFileToInternalStorage(
+                        uploadFolder,
+                        fileName,
+                        viewModel.selectedImageUri!!.toString(),
+                        context
+                    )
+                    val photoFile = File(
+                        uploadFolder,
+                        fileName
+                    )
+                    viewModel.selectedImageUri = Uri.fromFile(photoFile)
+                }
                 viewModel.insertPrescription {
                     viewModel.isImageCaptured = false
                     viewModel.selectedImageUri = null
+                    viewModel.isSelectedFromGallery = false
                     coroutineScope.launch {
                         navController.currentBackStackEntry?.savedStateHandle?.set(
                             PATIENT,
