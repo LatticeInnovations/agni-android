@@ -40,6 +40,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toScheduleEn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.UUID
 
 open class SyncRepositoryDatabaseTransactions(
@@ -132,6 +133,25 @@ open class SyncRepositoryDatabaseTransactions(
         }
         prescriptionDao.insertPrescriptionPhotos(
             *prescriptionPhotos.toTypedArray()
+        )
+        val listOfGenericEntity = mutableListOf<GenericEntity>()
+
+        body.map { prescriptionPhotoResponse ->
+            listOfGenericEntity.add(
+                GenericEntity(
+                    id = UUID.randomUUID().toString(),
+                    patientId = prescriptionPhotoResponse.prescriptionId,
+                    payload = prescriptionPhotoResponse.prescription[0].filename,
+                    type = GenericTypeEnum.PRESCRIPTION_PHOTO,
+                    syncType = SyncType.POST
+                )
+            )
+        }
+
+
+        Timber.d("manseeyy prescription photo name $listOfGenericEntity")
+        genericDao.insertGenericEntity(
+            *listOfGenericEntity.toTypedArray()
         )
     }
 

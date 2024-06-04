@@ -8,6 +8,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.android.data.local.roomdb.dao.DownloadedFileDao
+import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
@@ -18,6 +20,8 @@ import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.file.DownloadedFileEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.file.FileUploadEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
@@ -52,7 +56,9 @@ import java.util.UUID
         ScheduleEntity::class,
         AppointmentEntity::class,
         PatientLastUpdatedEntity::class,
-        PrescriptionPhotoEntity::class
+        PrescriptionPhotoEntity::class,
+        FileUploadEntity::class,
+        DownloadedFileEntity::class
     ],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
     version = 5,
@@ -77,6 +83,8 @@ abstract class FhirAppDatabase : RoomDatabase() {
     abstract fun getScheduleDao(): ScheduleDao
     abstract fun getAppointmentDao(): AppointmentDao
     abstract fun getPatientLastUpdatedDao(): PatientLastUpdatedDao
+    abstract fun getFileUploadDao(): FileUploadDao
+    abstract fun getDownloadedFileDao(): DownloadedFileDao
 
     companion object {
         @Volatile

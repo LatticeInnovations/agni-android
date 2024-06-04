@@ -3,6 +3,8 @@ package com.latticeonfhir.android.di
 import android.content.Context
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.android.data.local.roomdb.dao.DownloadedFileDao
+import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
@@ -91,5 +93,17 @@ object DatabaseModule {
     @Provides
     fun providePatientLastUpdatedDao(fhirAppDatabase: FhirAppDatabase): PatientLastUpdatedDao {
         return fhirAppDatabase.getPatientLastUpdatedDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideFileUploadDao(appDatabase: FhirAppDatabase): FileUploadDao {
+        return appDatabase.getFileUploadDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideDownloadedFileDao(appDatabase: FhirAppDatabase): DownloadedFileDao {
+        return appDatabase.getDownloadedFileDao()
     }
 }

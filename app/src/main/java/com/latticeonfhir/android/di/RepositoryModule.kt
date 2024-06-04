@@ -2,6 +2,8 @@ package com.latticeonfhir.android.di
 
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.file.DownloadedFileRepository
+import com.latticeonfhir.android.data.local.repository.file.DownloadedFileRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
@@ -24,6 +26,8 @@ import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepositoryImpl
+import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
+import com.latticeonfhir.android.data.server.repository.file.FileSyncRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import dagger.Binds
@@ -86,4 +90,10 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun providePatientLastUpdatedRepository(patientLastUpdatedRepositoryImpl: PatientLastUpdatedRepositoryImpl): PatientLastUpdatedRepository
+    @Binds
+    @ViewModelScoped
+    abstract fun provideFileSyncRepository(fileUploadRepositoryImpl: FileSyncRepositoryImpl): FileSyncRepository
+    @Binds
+    @ViewModelScoped
+    abstract fun provideDownloadedFileRepository(downloadedFileRepositoryImpl: DownloadedFileRepositoryImpl): DownloadedFileRepository
 }
