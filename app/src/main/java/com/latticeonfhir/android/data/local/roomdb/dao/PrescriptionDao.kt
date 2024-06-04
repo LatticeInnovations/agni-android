@@ -8,6 +8,7 @@ import androidx.room.Transaction
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 
 @Dao
 interface PrescriptionDao {
@@ -19,6 +20,10 @@ interface PrescriptionDao {
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPrescriptionMedicines(vararg prescriptionDirectionsEntity: PrescriptionDirectionsEntity): List<Long>
+
+    @Transaction
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPrescriptionPhotos(vararg prescriptionPhotoEntity: PrescriptionPhotoEntity): List<Long>
 
     @Transaction
     @Query("SELECT * FROM PrescriptionEntity prescription WHERE patientId = :patientId ORDER BY prescription.prescriptionDate DESC LIMIT :limit")

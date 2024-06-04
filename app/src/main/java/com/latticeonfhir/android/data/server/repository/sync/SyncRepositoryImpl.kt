@@ -33,6 +33,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedRes
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
@@ -160,7 +161,7 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAndInsertPrescription(patientFhirId: String): ResponseMapper<List<PrescriptionResponse>> {
+    override suspend fun getAndInsertPrescription(patientFhirId: String): ResponseMapper<List<PrescriptionPhotoResponse>> {
         return if (patientFhirId.isBlank()) ApiEmptyResponse()
         else {
 
@@ -389,7 +390,7 @@ class SyncRepositoryImpl @Inject constructor(
                         MEDICATION_REQUEST,
                         listOfGenericEntity.map { prescriptionGenericEntity ->
                             prescriptionGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>()
-                                .mapToObject(PrescriptionResponse::class.java)!!
+                                .mapToObject(PrescriptionPhotoResponse::class.java)!!
                         }
                     )
                 ).run {

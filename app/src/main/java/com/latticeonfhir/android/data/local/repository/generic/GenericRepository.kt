@@ -2,6 +2,7 @@ package com.latticeonfhir.android.data.local.repository.generic
 
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
@@ -32,6 +33,11 @@ interface GenericRepository {
 
     suspend fun insertPrescription(
         prescriptionResponse: PrescriptionResponse,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
+    suspend fun insertPhotoPrescription(
+        prescriptionPhotoResponse: PrescriptionPhotoResponse,
         uuid: String = UUIDBuilder.generateUUID()
     ): Long
 

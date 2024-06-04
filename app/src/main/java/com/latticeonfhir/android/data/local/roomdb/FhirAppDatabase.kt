@@ -26,6 +26,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntit
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientLastUpdatedEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
@@ -50,14 +51,16 @@ import java.util.UUID
         MedicineTimingEntity::class,
         ScheduleEntity::class,
         AppointmentEntity::class,
-        PatientLastUpdatedEntity::class
+        PatientLastUpdatedEntity::class,
+        PrescriptionPhotoEntity::class
     ],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
-    version = 4,
+    version = 5,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
-        AutoMigration(from = 3, to = 4)
+        AutoMigration(from = 3, to = 4),
+        AutoMigration(from = 4, to = 5)
     ],
     exportSchema = true
 )

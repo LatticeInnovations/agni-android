@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 4,
-    "identityHash": "d5458cd2f04aa5b42e83ff2f7af1cc0b",
+    "version": 5,
+    "identityHash": "6812767368c4991d3b9ad500d3ccecb1",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -864,17 +864,7 @@
             "id"
           ]
         },
-        "indices": [
-          {
-            "name": "index_PrescriptionPhotoEntity_prescriptionId",
-            "unique": false,
-            "columnNames": [
-              "prescriptionId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_PrescriptionPhotoEntity_prescriptionId` ON `${TABLE_NAME}` (`prescriptionId`)"
-          }
-        ],
+        "indices": [],
         "foreignKeys": [
           {
             "table": "PrescriptionEntity",
@@ -902,7 +892,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd5458cd2f04aa5b42e83ff2f7af1cc0b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6812767368c4991d3b9ad500d3ccecb1')"
     ]
   }
 }
