@@ -282,8 +282,8 @@ internal suspend fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(m
 internal fun PrescriptionPhotoResponse.toListOfPrescriptionPhotoEntity(): List<PrescriptionPhotoEntity> {
     return prescription.map { prescriptionItem ->
         PrescriptionPhotoEntity(
-            id = prescriptionItem.document + prescriptionId,
-            fileName = prescriptionItem.document,
+            id = prescriptionItem.filename + prescriptionId,
+            fileName = prescriptionItem.filename,
             prescriptionId = prescriptionId
         )
     }
@@ -308,8 +308,8 @@ internal fun PrescriptionResponseLocal.toListOfPrescriptionDirectionsEntity(): L
 internal fun PrescriptionPhotoResponseLocal.toListOfPrescriptionPhotoEntity(): List<PrescriptionPhotoEntity> {
     return prescription.map { prescriptionItem ->
         PrescriptionPhotoEntity(
-            id = prescriptionItem.document + prescriptionId,
-            fileName = prescriptionItem.document,
+            id = prescriptionItem.filename + prescriptionId,
+            fileName = prescriptionItem.filename,
             prescriptionId = prescriptionId
         )
     }

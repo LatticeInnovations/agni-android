@@ -191,7 +191,7 @@ fun PrescriptionPhotoUploadScreen(
                     },
                     imageCaptured = {
                         val uploadFolder = FileManager.createFolder(context)
-                        viewModel.tempFileName = "${Date().time}.jpg"
+                        viewModel.tempFileName = "${Date().time}.jpeg"
                         val photoFile = File(
                             uploadFolder,
                             viewModel.tempFileName
@@ -269,7 +269,7 @@ private fun DisplayImage(
             onClick = {
                 // save prescription
                 if (viewModel.isSelectedFromGallery) {
-                    val fileName = "${Date().time}.jpg"
+                    val fileName = "${Date().time}.jpeg"
                     val uploadFolder = FileManager.createFolder(context)
                     FileManager.insertFileToInternalStorage(
                         uploadFolder,
@@ -283,7 +283,7 @@ private fun DisplayImage(
                     )
                     viewModel.selectedImageUri = Uri.fromFile(photoFile)
                 }
-                viewModel.insertPrescription {
+                viewModel.insertPrescription() {
                     viewModel.isImageCaptured = false
                     viewModel.selectedImageUri = null
                     viewModel.isSelectedFromGallery = false

@@ -3,6 +3,7 @@ package com.latticeonfhir.android.service.sync
 import android.content.Context
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
@@ -22,7 +23,8 @@ class SyncService(
     private val context: Context,
     private val syncRepository: SyncRepository,
     private val genericRepository: GenericRepository,
-    private val preferenceRepository: PreferenceRepository
+    private val preferenceRepository: PreferenceRepository,
+    private val fileSyncRepository: FileSyncRepository
 ) {
 
     private lateinit var patientDownloadJob: Deferred<ResponseMapper<Any>?>
@@ -55,6 +57,9 @@ class SyncService(
                     },
                     async {
                         uploadPatientLastUpdatedData(logout)
+                    },
+                    async {
+                        uploadPrescriptionPhoto(logout)
                     }
                 )
             }
@@ -195,6 +200,11 @@ class SyncService(
         return checkAuthenticationStatus(syncRepository.sendPatientLastUpdatePostData(), logout)
     }
 
+    /** Upload Patient Last Updated Data */
+    private suspend fun uploadPrescriptionPhoto(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(fileSyncRepository.uploadFile(), logout)
+    }
+
     /**
      *
      *
@@ -263,11 +273,17 @@ class SyncService(
     /** Download Prescription*/
     private suspend fun downloadPrescription(
         logout: (Boolean, String) -> Unit
-    ) {
-        checkAuthenticationStatus(
+    ): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(
             syncRepository.getAndInsertPrescription(),
             logout
-        )
+        )?.apply {
+            if (this is ApiEmptyResponse || this is ApiEndResponse) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    downloadPrescriptionPhoto()
+                }
+            }
+        }
     }
 
     /** Download Medication */
@@ -285,6 +301,11 @@ class SyncService(
     /** Download Patient Last Updated */
     private suspend fun downloadPatientLastUpdated(logout: (Boolean, String) -> Unit) {
         checkAuthenticationStatus(syncRepository.getAndInsertPatientLastUpdatedData(), logout)
+    }
+
+    /** Download Patient Last Updated */
+    private suspend fun downloadPrescriptionPhoto() {
+        fileSyncRepository.startDownload()
     }
 
     /**
