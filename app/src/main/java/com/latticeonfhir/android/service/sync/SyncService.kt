@@ -236,6 +236,7 @@ class SyncService(
                 CoroutineScope(Dispatchers.IO).launch {
                     downloadRelation(logout)
                 }
+                downloadPrescription(logout)
             }
         }
     }
@@ -260,12 +261,11 @@ class SyncService(
     }
 
     /** Download Prescription*/
-    internal suspend fun downloadPrescription(
-        patientFhirId: String,
+    private suspend fun downloadPrescription(
         logout: (Boolean, String) -> Unit
     ) {
         checkAuthenticationStatus(
-            syncRepository.getAndInsertPrescription(patientFhirId = patientFhirId),
+            syncRepository.getAndInsertPrescription(),
             logout
         )
     }

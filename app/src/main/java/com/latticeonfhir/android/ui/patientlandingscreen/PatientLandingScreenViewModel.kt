@@ -18,7 +18,6 @@ import com.latticeonfhir.android.service.workmanager.utils.Sync
 import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -36,9 +35,6 @@ class PatientLandingScreenViewModel @Inject constructor(
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
 
-    private var logoutUser by mutableStateOf(false)
-    private var logoutReason by mutableStateOf("")
-
     var appointmentsCount by mutableIntStateOf(0)
     var uploadsCount by mutableIntStateOf(0)
     var pastAppointmentsCount by mutableIntStateOf(0)
@@ -46,8 +42,6 @@ class PatientLandingScreenViewModel @Inject constructor(
     var showAllSlotsBookedDialog by mutableStateOf(false)
 
     var selectedIndex by mutableIntStateOf(0)
-
-    private val syncService by lazy { getApplication<FhirApp>().syncService }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -57,19 +51,6 @@ class PatientLandingScreenViewModel @Inject constructor(
                         getApplication<FhirApp>().launchSyncing()
                     }
                 }
-        }
-    }
-
-    internal fun downloadPrescriptions(patientFhirId: String) {
-        if (CheckNetwork.isInternetAvailable(getApplication<FhirApp>().applicationContext)) {
-            viewModelScope.launch(Dispatchers.IO) {
-                syncService.downloadPrescription(patientFhirId) { isErrorReceived, errorMsg ->
-                    if (isErrorReceived) {
-                        logoutUser = true
-                        logoutReason = errorMsg
-                    }
-                }
-            }
         }
     }
 

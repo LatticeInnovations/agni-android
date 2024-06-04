@@ -62,13 +62,22 @@ open class SyncRepositoryDatabaseTransactions(
         val identifierList = mutableListOf<IdentifierEntity>()
 
         body.map { patientResponse ->
-            listOfGenericEntity.add(
-                GenericEntity(
-                    id = UUID.randomUUID().toString(),
-                    patientId = patientResponse.id,
-                    payload = patientResponse.fhirId!!,
-                    type = GenericTypeEnum.FHIR_IDS,
-                    syncType = SyncType.POST
+            listOfGenericEntity.addAll(
+                listOf(
+                    GenericEntity(
+                        id = UUID.randomUUID().toString(),
+                        patientId = patientResponse.id,
+                        payload = patientResponse.fhirId!!,
+                        type = GenericTypeEnum.FHIR_IDS,
+                        syncType = SyncType.POST
+                    ),
+                    GenericEntity(
+                        id = UUID.randomUUID().toString(),
+                        patientId = patientResponse.id,
+                        payload = patientResponse.fhirId,
+                        type = GenericTypeEnum.FHIR_IDS_PRESCRIPTION,
+                        syncType = SyncType.POST
+                    )
                 )
             )
             patientResponse.toListOfIdentifierEntity().let { listOfIdentifiers ->
