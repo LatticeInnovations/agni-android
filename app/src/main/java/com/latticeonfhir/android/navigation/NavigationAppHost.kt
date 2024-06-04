@@ -23,6 +23,7 @@ import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreview
 import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationship
 import com.latticeonfhir.android.ui.prescription.PrescriptionScreen
+import com.latticeonfhir.android.ui.prescription.photo.upload.PrescriptionPhotoUploadScreen
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 
 @Composable
@@ -51,5 +52,6 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.EditAddress.route) { EditPatientAddress(navController = navController) }
         composable(Screen.Appointments.route) { AppointmentsScreen(navController = navController) }
         composable(Screen.ScheduleAppointments.route) { ScheduleAppointments(navController = navController) }
+        composable(Screen.PrescriptionPhotoUploadScreen.route) { PrescriptionPhotoUploadScreen(navController = navController) }
     }
 }
