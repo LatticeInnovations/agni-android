@@ -11,7 +11,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
@@ -109,7 +109,7 @@ open class GenericRepositoryDatabaseTransactions(
     protected suspend fun updatePrescriptionFhirIdInGenericEntity(prescriptionGenericEntity: GenericEntity) {
         val existingMap =
             prescriptionGenericEntity.payload.fromJson<MutableMap<String, Any>>()
-                .mapToObject(PrescriptionResponse::class.java)
+                .mapToObject(PrescriptionPhotoResponse::class.java)
         if (existingMap != null) {
             genericDao.insertGenericEntity(
                 prescriptionGenericEntity.copy(

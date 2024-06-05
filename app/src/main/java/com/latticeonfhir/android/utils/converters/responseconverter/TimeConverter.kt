@@ -334,7 +334,7 @@ object TimeConverter {
 
 
     internal fun Date.toPrescriptionNavDate(): String {
-        val formatter = SimpleDateFormat("dd MMM yyyy · hh:mm", Locale.getDefault())
+        val formatter = SimpleDateFormat("dd MMMM yyyy · HH:mm", Locale.getDefault())
         return formatter.format(this)
     }
 

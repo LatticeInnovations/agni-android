@@ -12,9 +12,12 @@ import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepo
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepositoryImpl
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
+import com.latticeonfhir.android.data.server.api.FileUploadApiService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
+import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
+import com.latticeonfhir.android.data.server.repository.file.FileSyncRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import com.latticeonfhir.android.service.sync.SyncService
@@ -49,7 +52,12 @@ class FhirApp : Application() {
     @Inject
     lateinit var scheduleAndAppointmentApiService: ScheduleAndAppointmentApiService
 
+    @Inject
+    lateinit var fileUploadApiService: FileUploadApiService
+
     private lateinit var _syncRepository: SyncRepository
+    internal val fileSyncRepository get() = _fileSyncRepository
+    private lateinit var _fileSyncRepository: FileSyncRepository
     internal val syncRepository get() = _syncRepository
     private lateinit var _genericRepository: GenericRepository
     internal val genericRepository get() = _genericRepository
@@ -84,6 +92,14 @@ class FhirApp : Application() {
             fhirAppDatabase.getPatientLastUpdatedDao()
         )
 
+        _fileSyncRepository = FileSyncRepositoryImpl(
+            applicationContext,
+            fileUploadApiService,
+            fhirAppDatabase.getFileUploadDao(),
+            fhirAppDatabase.getDownloadedFileDao(),
+            fhirAppDatabase.getGenericDao()
+        )
+
         _genericRepository = GenericRepositoryImpl(
             fhirAppDatabase.getGenericDao(),
             fhirAppDatabase.getPatientDao(),
@@ -97,7 +113,7 @@ class FhirApp : Application() {
 
         if (!this::_syncService.isInitialized) {
             _syncService =
-                SyncService(this, syncRepository, genericRepository, preferenceRepository)
+                SyncService(this, syncRepository, genericRepository, preferenceRepository, fileSyncRepository)
         }
     }
 

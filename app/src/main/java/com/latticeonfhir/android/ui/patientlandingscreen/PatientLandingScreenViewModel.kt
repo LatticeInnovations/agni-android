@@ -12,6 +12,7 @@ import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.workmanager.utils.Sync
 import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
@@ -29,7 +30,8 @@ import javax.inject.Inject
 class PatientLandingScreenViewModel @Inject constructor(
     application: Application,
     private val patientRepository: PatientRepository,
-    private val appointmentRepository: AppointmentRepository
+    private val appointmentRepository: AppointmentRepository,
+    private val prescriptionRepository: PrescriptionRepository
 ) : BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
@@ -67,6 +69,7 @@ class PatientLandingScreenViewModel @Inject constructor(
                         logoutReason = errorMsg
                     }
                 }
+                getUploadsCount(patient!!.id)
             }
         }
     }
@@ -76,7 +79,7 @@ class PatientLandingScreenViewModel @Inject constructor(
     }
 
     internal fun getScheduledAppointmentsCount(patientId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             appointmentsCount = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patientId,
                 AppointmentStatusEnum.SCHEDULED.value
@@ -87,6 +90,12 @@ class PatientLandingScreenViewModel @Inject constructor(
                 .filter { appointmentResponseLocal ->
                     appointmentResponseLocal.slot.start.time < Date().toEndOfDay() && appointmentResponseLocal.status != AppointmentStatusEnum.SCHEDULED.value
                 }.size
+        }
+    }
+
+    internal fun getUploadsCount(patientId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            uploadsCount = prescriptionRepository.getLastPhotoPrescription(patientId).size
         }
     }
 }

@@ -46,6 +46,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,11 +62,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.android.utils.file.FileManager
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.util.Date
@@ -73,7 +81,7 @@ import java.util.Date
 @Composable
 fun PrescriptionPhotoUploadScreen(
     navController: NavController,
-    viewModel: PrescriptionPhotoUploadViewModel = viewModel()
+    viewModel: PrescriptionPhotoUploadViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     var hasFlashUnit by remember { mutableStateOf(false) }
@@ -85,10 +93,27 @@ fun PrescriptionPhotoUploadScreen(
     var enterTransition by remember { mutableStateOf(slideInVertically(initialOffsetY = { it })) }
     var exitTransition by remember { mutableStateOf(slideOutVertically(targetOffsetY = { it })) }
 
-    val pickImageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let {
-            viewModel.isImageCaptured = true
-            viewModel.selectedImageUri = it
+    val pickImageLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let {
+                viewModel.isImageCaptured = true
+                viewModel.selectedImageUri = it
+                viewModel.isSelectedFromGallery = true
+            }
+        }
+
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            viewModel.patient =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    PATIENT
+                )
+            viewModel.getPatientTodayAppointment(
+                Date(Date().toTodayStartDate()),
+                Date(Date().toEndOfDay()),
+                viewModel.patient!!.id
+            )
+            viewModel.isLaunched = true
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {
@@ -153,6 +178,7 @@ fun PrescriptionPhotoUploadScreen(
                     camera?.cameraControl?.enableTorch(false)
                     viewModel.selectedImageUri = uri
                     viewModel.isImageCaptured = true
+                    viewModel.isSelectedFromGallery = true
                 }
                 BottomRow(
                     galleryIconClick = {
@@ -164,9 +190,11 @@ fun PrescriptionPhotoUploadScreen(
                             else CameraSelector.DEFAULT_FRONT_CAMERA
                     },
                     imageCaptured = {
+                        val uploadFolder = FileManager.createFolder(context)
+                        viewModel.tempFileName = "${Date().time}.jpeg"
                         val photoFile = File(
-                            context.filesDir,
-                            "${Date().time}.jpg"
+                            uploadFolder,
+                            viewModel.tempFileName
                         )
 
                         val outputOptions =
@@ -200,18 +228,28 @@ fun PrescriptionPhotoUploadScreen(
         enter = enterTransition,
         exit = exitTransition
     ) {
-        DisplayImage(viewModel)
+        DisplayImage(viewModel, navController)
     }
 }
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-private fun DisplayImage(viewModel: PrescriptionPhotoUploadViewModel) {
+private fun DisplayImage(
+    viewModel: PrescriptionPhotoUploadViewModel,
+    navController: NavController
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     Box(modifier = Modifier.fillMaxSize()) {
         IconButton(
             onClick = {
+                if (!viewModel.isSelectedFromGallery) {
+                    FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
+                    viewModel.tempFileName = ""
+                }
                 viewModel.isImageCaptured = false
                 viewModel.selectedImageUri = null
+                viewModel.isSelectedFromGallery = false
             },
             modifier = Modifier
                 .zIndex(2f)
@@ -230,6 +268,33 @@ private fun DisplayImage(viewModel: PrescriptionPhotoUploadViewModel) {
         Button(
             onClick = {
                 // save prescription
+                if (viewModel.isSelectedFromGallery) {
+                    val fileName = "${Date().time}.jpeg"
+                    val uploadFolder = FileManager.createFolder(context)
+                    FileManager.insertFileToInternalStorage(
+                        uploadFolder,
+                        fileName,
+                        viewModel.selectedImageUri!!.toString(),
+                        context
+                    )
+                    val photoFile = File(
+                        uploadFolder,
+                        fileName
+                    )
+                    viewModel.selectedImageUri = Uri.fromFile(photoFile)
+                }
+                viewModel.insertPrescription {
+                    viewModel.isImageCaptured = false
+                    viewModel.selectedImageUri = null
+                    viewModel.isSelectedFromGallery = false
+                    coroutineScope.launch {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            PATIENT,
+                            viewModel.patient!!
+                        )
+                        navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
+                    }
+                }
             },
             modifier = Modifier
                 .zIndex(2f)
@@ -316,7 +381,7 @@ private fun RecentImages(onImageClick: (Uri) -> Unit) {
                     .size(85.dp)
                     .background(color = Color.Transparent)
                     .clickable { onImageClick(uri) },
-                contentScale = ContentScale.FillBounds
+                contentScale = ContentScale.Crop
             )
         }
     }
