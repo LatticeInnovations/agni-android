@@ -246,7 +246,7 @@ class SyncService(
                 CoroutineScope(Dispatchers.IO).launch {
                     downloadRelation(logout)
                 }
-                downloadPrescription(logout)
+                downloadPrescription(null, logout)
             }
         }
     }
@@ -271,11 +271,12 @@ class SyncService(
     }
 
     /** Download Prescription*/
-    private suspend fun downloadPrescription(
+    suspend fun downloadPrescription(
+        patientId: String?,
         logout: (Boolean, String) -> Unit
     ): ResponseMapper<Any>? {
         return checkAuthenticationStatus(
-            syncRepository.getAndInsertPrescription(),
+            syncRepository.getAndInsertPrescription(patientId),
             logout
         )?.apply {
             if (this is ApiEmptyResponse || this is ApiEndResponse) {
