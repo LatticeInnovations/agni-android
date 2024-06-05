@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "d5458cd2f04aa5b42e83ff2f7af1cc0b",
+    "identityHash": "e5134e118d93e6a9bdfabe6505beb475",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -834,60 +834,6 @@
             ]
           }
         ]
-      },
-      {
-        "tableName": "PrescriptionPhotoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `prescriptionId` TEXT NOT NULL, `fileName` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`prescriptionId`) REFERENCES `PrescriptionEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "prescriptionId",
-            "columnName": "prescriptionId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "fileName",
-            "columnName": "fileName",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_PrescriptionPhotoEntity_prescriptionId",
-            "unique": false,
-            "columnNames": [
-              "prescriptionId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_PrescriptionPhotoEntity_prescriptionId` ON `${TABLE_NAME}` (`prescriptionId`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "PrescriptionEntity",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "prescriptionId"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
       }
     ],
     "views": [
@@ -902,7 +848,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd5458cd2f04aa5b42e83ff2f7af1cc0b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e5134e118d93e6a9bdfabe6505beb475')"
     ]
   }
 }
