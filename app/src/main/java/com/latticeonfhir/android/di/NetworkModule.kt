@@ -4,6 +4,7 @@ import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.FhirApp.Companion.gson
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import com.latticeonfhir.android.data.server.api.AuthenticationApiService
+import com.latticeonfhir.android.data.server.api.FileUploadApiService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
@@ -108,5 +109,11 @@ object NetworkModule {
     @Singleton
     fun provideScheduleApiService(retrofit: Retrofit): ScheduleAndAppointmentApiService {
         return retrofit.create(ScheduleAndAppointmentApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    internal fun provideFileUploadApiService(retrofit: Retrofit): FileUploadApiService {
+        return retrofit.create(FileUploadApiService::class.java)
     }
 }

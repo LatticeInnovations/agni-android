@@ -9,6 +9,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
@@ -75,6 +76,21 @@ class GenericRepositoryImpl @Inject constructor(
                 id = uuid,
                 patientId = prescriptionResponse.patientFhirId,
                 payload = prescriptionResponse.toJson(),
+                type = GenericTypeEnum.PRESCRIPTION,
+                syncType = SyncType.POST
+            )
+        )[0]
+    }
+
+    override suspend fun insertPhotoPrescription(
+        prescriptionPhotoResponse: PrescriptionPhotoResponse,
+        uuid: String
+    ): Long {
+        return genericDao.insertGenericEntity(
+            GenericEntity(
+                id = uuid,
+                patientId = prescriptionPhotoResponse.patientFhirId,
+                payload = prescriptionPhotoResponse.toJson(),
                 type = GenericTypeEnum.PRESCRIPTION,
                 syncType = SyncType.POST
             )

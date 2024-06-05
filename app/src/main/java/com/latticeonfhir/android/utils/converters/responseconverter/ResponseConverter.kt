@@ -2,6 +2,7 @@ package com.latticeonfhir.android.utils.converters.responseconverter
 
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
+import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
@@ -19,6 +20,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.patient.PermanentAdd
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
@@ -31,6 +33,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedRes
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
@@ -219,7 +222,32 @@ internal suspend fun PrescriptionResponse.toPrescriptionEntity(
 }
 
 
+internal suspend fun PrescriptionPhotoResponse.toPrescriptionEntity(
+    patientDao: PatientDao,
+): PrescriptionEntity {
+    return PrescriptionEntity(
+        id = prescriptionId,
+        prescriptionDate = generatedOn,
+        patientId = patientDao.getPatientIdByFhirId(patientFhirId)!!,
+        appointmentId = appointmentUuid,
+        patientFhirId = patientFhirId,
+        prescriptionFhirId = prescriptionFhirId
+    )
+}
+
+
 internal fun PrescriptionResponseLocal.toPrescriptionEntity(): PrescriptionEntity {
+    return PrescriptionEntity(
+        id = prescriptionId,
+        prescriptionDate = generatedOn,
+        patientId = patientId,
+        appointmentId = appointmentId,
+        patientFhirId = patientFhirId,
+        prescriptionFhirId = null
+    )
+}
+
+internal fun PrescriptionPhotoResponseLocal.toPrescriptionEntity(): PrescriptionEntity {
     return PrescriptionEntity(
         id = prescriptionId,
         prescriptionDate = generatedOn,
@@ -250,6 +278,17 @@ internal suspend fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(m
     }
 }
 
+
+internal fun PrescriptionPhotoResponse.toListOfPrescriptionPhotoEntity(): List<PrescriptionPhotoEntity> {
+    return prescription.map { prescriptionItem ->
+        PrescriptionPhotoEntity(
+            id = prescriptionItem.filename + prescriptionId,
+            fileName = prescriptionItem.filename,
+            prescriptionId = prescriptionId
+        )
+    }
+}
+
 internal fun PrescriptionResponseLocal.toListOfPrescriptionDirectionsEntity(): List<PrescriptionDirectionsEntity> {
     return prescription.map { medication ->
         PrescriptionDirectionsEntity(
@@ -266,6 +305,15 @@ internal fun PrescriptionResponseLocal.toListOfPrescriptionDirectionsEntity(): L
     }
 }
 
+internal fun PrescriptionPhotoResponseLocal.toListOfPrescriptionPhotoEntity(): List<PrescriptionPhotoEntity> {
+    return prescription.map { prescriptionItem ->
+        PrescriptionPhotoEntity(
+            id = prescriptionItem.filename + prescriptionId,
+            fileName = prescriptionItem.filename,
+            prescriptionId = prescriptionId
+        )
+    }
+}
 internal fun List<MedicationResponse>.toListOfMedicationEntity(): List<MedicationEntity> {
     return this.map { medication ->
         MedicationEntity(

@@ -33,7 +33,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedRes
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
@@ -47,6 +47,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmpty
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
@@ -160,14 +161,39 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAndInsertPrescription(patientFhirId: String): ResponseMapper<List<PrescriptionResponse>> {
-        return if (patientFhirId.isBlank()) ApiEmptyResponse()
-        else {
 
-            return ApiResponseConverter.convert(
+    override suspend fun getAndInsertPrescription(patientId: String?): ResponseMapper<List<PrescriptionPhotoResponse>> {
+        return if (patientId == null) {
+            genericDao.getSameTypeGenericEntityPayload(
+                GenericTypeEnum.FHIR_IDS_PRESCRIPTION, SyncType.POST, COUNT_VALUE
+            ).let { listOfGenericEntity ->
+                if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+                else {
+                    val map = mutableMapOf<String, String>()
+                    map[PATIENT_ID] =
+                        listOfGenericEntity.map { it.payload }.toNoBracketAndNoSpaceString()
+                    map[COUNT] = DEFAULT_MAX_COUNT_VALUE.toString()
+                    ApiResponseConverter.convert(prescriptionApiService.getPastPrescription(map))
+                        .run {
+                            when (this) {
+                                is ApiEndResponse -> {
+                                    insertPrescriptions(body)
+                                    genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId())
+                                    getAndInsertPrescription(null)
+                                }
+
+                                else -> {
+                                    this
+                                }
+                            }
+                        }
+                }
+            }
+        } else {
+            ApiResponseConverter.convert(
                 prescriptionApiService.getPastPrescription(
                     mapOf(
-                        Pair(PATIENT_ID, patientFhirId)
+                        Pair(PATIENT_ID, patientId)
                     )
                 )
             ).run {
@@ -384,12 +410,13 @@ class SyncRepositoryImpl @Inject constructor(
         ).let { listOfGenericEntity ->
             if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
             else {
+                Timber.d("manseeyy prescription post data $listOfGenericEntity")
                 ApiResponseConverter.convert(
                     prescriptionApiService.postPrescriptionRelatedData(
                         MEDICATION_REQUEST,
                         listOfGenericEntity.map { prescriptionGenericEntity ->
                             prescriptionGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>()
-                                .mapToObject(PrescriptionResponse::class.java)!!
+                                .mapToObject(PrescriptionPhotoResponse::class.java)!!
                         }
                     )
                 ).run {

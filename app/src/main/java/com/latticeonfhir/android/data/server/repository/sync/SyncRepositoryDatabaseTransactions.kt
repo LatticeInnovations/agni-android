@@ -13,7 +13,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
@@ -21,7 +21,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedRes
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
@@ -31,7 +31,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicineDirectionsEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionDirectionsEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionPhotoEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientLastUpdatedEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionEntity
@@ -40,6 +40,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toScheduleEn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.UUID
 
 open class SyncRepositoryDatabaseTransactions(
@@ -62,13 +63,22 @@ open class SyncRepositoryDatabaseTransactions(
         val identifierList = mutableListOf<IdentifierEntity>()
 
         body.map { patientResponse ->
-            listOfGenericEntity.add(
-                GenericEntity(
-                    id = UUID.randomUUID().toString(),
-                    patientId = patientResponse.id,
-                    payload = patientResponse.fhirId!!,
-                    type = GenericTypeEnum.FHIR_IDS,
-                    syncType = SyncType.POST
+            listOfGenericEntity.addAll(
+                listOf(
+                    GenericEntity(
+                        id = UUID.randomUUID().toString(),
+                        patientId = patientResponse.id,
+                        payload = patientResponse.fhirId!!,
+                        type = GenericTypeEnum.FHIR_IDS,
+                        syncType = SyncType.POST
+                    ),
+                    GenericEntity(
+                        id = UUID.randomUUID().toString(),
+                        patientId = patientResponse.id,
+                        payload = patientResponse.fhirId,
+                        type = GenericTypeEnum.FHIR_IDS_PRESCRIPTION,
+                        syncType = SyncType.POST
+                    )
                 )
             )
             patientResponse.toListOfIdentifierEntity().let { listOfIdentifiers ->
@@ -109,22 +119,39 @@ open class SyncRepositoryDatabaseTransactions(
         }
     }
 
-    protected suspend fun insertPrescriptions(body: List<PrescriptionResponse>) {
+    protected suspend fun insertPrescriptions(body: List<PrescriptionPhotoResponse>) {
         prescriptionDao.insertPrescription(*body.map { prescriptionResponse ->
             prescriptionResponse.toPrescriptionEntity(
                 patientDao
             )
         }.toTypedArray())
-        val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
+        val prescriptionPhotos = mutableListOf<PrescriptionPhotoEntity>()
         body.forEach { prescriptionResponse ->
-            medicineDirections.addAll(
-                prescriptionResponse.toListOfPrescriptionDirectionsEntity(
-                    medicationDao
+            prescriptionPhotos.addAll(
+                prescriptionResponse.toListOfPrescriptionPhotoEntity()
+            )
+        }
+        prescriptionDao.insertPrescriptionPhotos(
+            *prescriptionPhotos.toTypedArray()
+        )
+        val listOfGenericEntity = mutableListOf<GenericEntity>()
+
+        body.map { prescriptionPhotoResponse ->
+            listOfGenericEntity.add(
+                GenericEntity(
+                    id = UUID.randomUUID().toString(),
+                    patientId = prescriptionPhotoResponse.prescriptionId,
+                    payload = prescriptionPhotoResponse.prescription[0].filename,
+                    type = GenericTypeEnum.PRESCRIPTION_PHOTO,
+                    syncType = SyncType.POST
                 )
             )
         }
-        prescriptionDao.insertPrescriptionMedicines(
-            *medicineDirections.toTypedArray()
+
+
+        Timber.d("manseeyy prescription photo name $listOfGenericEntity")
+        genericDao.insertGenericEntity(
+            *listOfGenericEntity.toTypedArray()
         )
     }
 

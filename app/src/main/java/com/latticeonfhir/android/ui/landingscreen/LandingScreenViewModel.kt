@@ -141,18 +141,6 @@ class LandingScreenViewModel @Inject constructor(
             }
         }
 
-        //Medication Sync
-        if (CheckNetwork.isInternetAvailable(getApplication<Application>().applicationContext)) {
-            viewModelScope.launch(Dispatchers.IO) {
-                syncService.downloadMedication { isErrorReceived, errorMsg ->
-                    if (isErrorReceived) {
-                        logoutUser = true
-                        logoutReason = errorMsg
-                    }
-                }
-            }
-        }
-
         // Trigger Periodic Sync Worker
         viewModelScope.launch(Dispatchers.IO) {
             workRequestBuilders.setPeriodicTriggerWorker()

@@ -8,6 +8,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.android.data.local.roomdb.dao.DownloadedFileDao
+import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
@@ -18,6 +20,8 @@ import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.file.DownloadedFileEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.file.FileUploadEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
@@ -26,6 +30,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntit
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientLastUpdatedEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
@@ -50,14 +55,18 @@ import java.util.UUID
         MedicineTimingEntity::class,
         ScheduleEntity::class,
         AppointmentEntity::class,
-        PatientLastUpdatedEntity::class
+        PatientLastUpdatedEntity::class,
+        PrescriptionPhotoEntity::class,
+        FileUploadEntity::class,
+        DownloadedFileEntity::class
     ],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
-    version = 4,
+    version = 5,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
-        AutoMigration(from = 3, to = 4)
+        AutoMigration(from = 3, to = 4),
+        AutoMigration(from = 4, to = 5)
     ],
     exportSchema = true
 )
@@ -74,6 +83,8 @@ abstract class FhirAppDatabase : RoomDatabase() {
     abstract fun getScheduleDao(): ScheduleDao
     abstract fun getAppointmentDao(): AppointmentDao
     abstract fun getPatientLastUpdatedDao(): PatientLastUpdatedDao
+    abstract fun getFileUploadDao(): FileUploadDao
+    abstract fun getDownloadedFileDao(): DownloadedFileDao
 
     companion object {
         @Volatile
