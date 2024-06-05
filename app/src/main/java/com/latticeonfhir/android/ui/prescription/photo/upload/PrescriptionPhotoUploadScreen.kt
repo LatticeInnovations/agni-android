@@ -283,7 +283,7 @@ private fun DisplayImage(
                     )
                     viewModel.selectedImageUri = Uri.fromFile(photoFile)
                 }
-                viewModel.insertPrescription() {
+                viewModel.insertPrescription {
                     viewModel.isImageCaptured = false
                     viewModel.selectedImageUri = null
                     viewModel.isSelectedFromGallery = false
@@ -381,7 +381,7 @@ private fun RecentImages(onImageClick: (Uri) -> Unit) {
                     .size(85.dp)
                     .background(color = Color.Transparent)
                     .clickable { onImageClick(uri) },
-                contentScale = ContentScale.FillBounds
+                contentScale = ContentScale.Crop
             )
         }
     }
