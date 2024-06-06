@@ -1,10 +1,8 @@
 package com.latticeonfhir.android.ui.prescription.photo.view
 
-import android.content.Intent
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -69,13 +67,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
-import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
@@ -89,6 +85,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionNavDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionTime
 import com.latticeonfhir.android.utils.file.FileManager
+import com.latticeonfhir.android.utils.file.FileManager.shareImageToOtherApps
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Date
@@ -100,21 +97,6 @@ fun PrescriptionPhotoViewScreen(
     viewModel: PrescriptionPhotoViewViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val shareLauncher = rememberLauncherForActivityResult(CreateDocument("image/jpeg")) { uri ->
-        uri?.let {
-            val file =
-                File(FileManager.createFolder(context), viewModel.selectedImageUri!!.toFile().name)
-            val contentUri =
-                FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
-
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "image/jpeg"
-                putExtra(Intent.EXTRA_STREAM, contentUri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            context.startActivity(Intent.createChooser(intent, "Share Image"))
-        }
-    }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.patient =
@@ -173,7 +155,9 @@ fun PrescriptionPhotoViewScreen(
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
-                            IconButton(onClick = { shareLauncher.launch(viewModel.selectedImageUri!!.toFile().name) }) {
+                            IconButton(onClick = {
+                                shareImageToOtherApps(context, viewModel.selectedImageUri!!)
+                            }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.share),
                                     contentDescription = null
@@ -232,9 +216,7 @@ fun PrescriptionPhotoViewScreen(
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        DisplayImage(viewModel) {
-            shareLauncher.launch(viewModel.selectedImageUri!!.toFile().name)
-        }
+        DisplayImage(context, viewModel)
     }
     if (viewModel.showDeleteDialog) {
         DeletePhotoDialog(
@@ -264,8 +246,8 @@ fun PrescriptionPhotoViewScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
 @Composable
 private fun DisplayImage(
-    viewModel: PrescriptionPhotoViewViewModel,
-    clickShareLauncher: () -> Unit
+    context: Context,
+    viewModel: PrescriptionPhotoViewViewModel
 ) {
     Scaffold(
         topBar = {
@@ -305,7 +287,9 @@ private fun DisplayImage(
                             modifier = Modifier.size(24.dp)
                         )
                     }
-                    IconButton(onClick = { clickShareLauncher() }) {
+                    IconButton(onClick = {
+                        shareImageToOtherApps(context, viewModel.selectedImageUri!!)
+                    }) {
                         Icon(
                             painter = painterResource(id = R.drawable.share),
                             contentDescription = null
