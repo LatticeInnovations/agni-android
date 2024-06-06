@@ -330,7 +330,7 @@ private fun DisplayImage(
                 Image(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(color = Color.Black)
+                        .background(color = MaterialTheme.colorScheme.surface)
                         .clickable {
                             viewModel.displayNote = !viewModel.displayNote
                         },
