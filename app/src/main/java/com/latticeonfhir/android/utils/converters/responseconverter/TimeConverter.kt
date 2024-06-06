@@ -332,6 +332,10 @@ object TimeConverter {
         return sdf.format(this)
     }
 
+    internal fun Date.toDayFullMonthYear(): String {
+        val formatter = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+        return formatter.format(this)
+    }
 
     internal fun Date.toPrescriptionNavDate(): String {
         val formatter = SimpleDateFormat("dd MMMM yyyy · HH:mm", Locale.getDefault())

@@ -6,46 +6,69 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -62,7 +85,7 @@ import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isSameDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isToday
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isYesterday
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toDayFullMonthYear
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionNavDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionTime
 import com.latticeonfhir.android.utils.file.FileManager
@@ -70,13 +93,28 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Date
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrescriptionPhotoViewScreen(
     navController: NavController,
     viewModel: PrescriptionPhotoViewViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val shareLauncher = rememberLauncherForActivityResult(CreateDocument("image/jpeg")) { uri ->
+        uri?.let {
+            val file =
+                File(FileManager.createFolder(context), viewModel.selectedImageUri!!.toFile().name)
+            val contentUri =
+                FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "image/jpeg"
+                putExtra(Intent.EXTRA_STREAM, contentUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(Intent.createChooser(intent, "Share Image"))
+        }
+    }
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.patient =
@@ -89,9 +127,13 @@ fun PrescriptionPhotoViewScreen(
     }
 
     BackHandler(enabled = true) {
-        if (viewModel.selectedImageUri != null) viewModel.selectedImageUri = null
-        else if (viewModel.isFabSelected) viewModel.isFabSelected = false
-        else navController.popBackStack(Screen.PatientLandingScreen.route, inclusive = false)
+        if (viewModel.isFabSelected) viewModel.isFabSelected = false
+        else if (viewModel.selectedImageUri != null) {
+            viewModel.isTapped = false
+            viewModel.isLongPressed = false
+            viewModel.displayNote = false
+            viewModel.selectedImageUri = null
+        } else navController.popBackStack(Screen.PatientLandingScreen.route, inclusive = false)
     }
 
     Scaffold(
@@ -117,6 +159,35 @@ fun PrescriptionPhotoViewScreen(
                         )
                     }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
+                    }
+                },
+                actions = {
+                    AnimatedVisibility(viewModel.isLongPressed) {
+                        Row {
+                            IconButton(onClick = {
+                                viewModel.showDeleteDialog = true
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.delete_icon),
+                                    contentDescription = "DELETE_ICON",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                            IconButton(onClick = { shareLauncher.launch(viewModel.selectedImageUri!!.toFile().name) }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.share),
+                                    contentDescription = null
+                                )
+                            }
+                            IconButton(onClick = {
+                                viewModel.showNoteDialog = true
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.note_add),
+                                    contentDescription = "ADD_NOTE_ICON"
+                                )
+                            }
+                        }
                     }
                 }
             )
@@ -146,7 +217,7 @@ fun PrescriptionPhotoViewScreen(
     )
     viewModel.patient?.let { patient ->
         AppointmentsFab(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(end = 16.dp),
             navController = navController,
             patient = patient,
             viewModel.isFabSelected
@@ -157,36 +228,48 @@ fun PrescriptionPhotoViewScreen(
         }
     }
     AnimatedVisibility(
-        visible = viewModel.selectedImageUri != null,
+        visible = viewModel.isTapped,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        DisplayImage(viewModel)
+        DisplayImage(viewModel) {
+            shareLauncher.launch(viewModel.selectedImageUri!!.toFile().name)
+        }
+    }
+    if (viewModel.showDeleteDialog) {
+        DeletePhotoDialog(
+            dismiss = {
+                viewModel.showDeleteDialog = false
+            },
+            confirm = {
+                // delete prescription
+                viewModel.showDeleteDialog = false
+            }
+        )
+    }
+    if (viewModel.showNoteDialog) {
+        AddNoteDialog(
+            image = viewModel.selectedImageUri!!,
+            dismiss = {
+                viewModel.showNoteDialog = false
+            },
+            confirm = {
+                // add note to prescription
+                viewModel.showNoteDialog = false
+            }
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
 @Composable
-private fun DisplayImage(viewModel: PrescriptionPhotoViewViewModel) {
-    val context = LocalContext.current
-    val shareLauncher = rememberLauncherForActivityResult(CreateDocument("image/jpeg")) { uri ->
-        uri?.let {
-            val file =
-                File(FileManager.createFolder(context), viewModel.selectedImageUri!!.toFile().name)
-            val contentUri =
-                FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
-
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "image/jpeg"
-                putExtra(Intent.EXTRA_STREAM, contentUri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            context.startActivity(Intent.createChooser(intent, "Share Image"))
-        }
-    }
+private fun DisplayImage(
+    viewModel: PrescriptionPhotoViewViewModel,
+    clickShareLauncher: () -> Unit
+) {
     Scaffold(
         topBar = {
-            TopAppBar(
+            MediumTopAppBar(
                 modifier = Modifier.fillMaxWidth(),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
@@ -205,30 +288,71 @@ private fun DisplayImage(viewModel: PrescriptionPhotoViewViewModel) {
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { viewModel.selectedImageUri = null }) {
+                    IconButton(onClick = {
+                        viewModel.isTapped = false
+                        viewModel.selectedImageUri = null
+                    }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 },
                 actions = {
-                    IconButton(onClick = { shareLauncher.launch(viewModel.selectedImageUri!!.toFile().name) }) {
+                    IconButton(onClick = {
+                        viewModel.showDeleteDialog = true
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.delete_icon),
+                            contentDescription = "DELETE_ICON",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    IconButton(onClick = { clickShareLauncher() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.share),
                             contentDescription = null
+                        )
+                    }
+                    IconButton(onClick = {
+                        viewModel.showNoteDialog = true
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.note_add),
+                            contentDescription = "ADD_NOTE_ICON"
                         )
                     }
                 }
             )
         },
         content = {
-            Box(modifier = Modifier.padding(it)) {
+            Box(
+                modifier = Modifier.padding(it),
+                contentAlignment = Alignment.BottomCenter
+            ) {
                 Image(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(color = Color.Black),
+                        .background(color = MaterialTheme.colorScheme.surface)
+                        .clickable {
+                            viewModel.displayNote = !viewModel.displayNote
+                        },
                     painter = rememberImagePainter(viewModel.selectedImageUri),
                     contentDescription = null,
                     contentScale = ContentScale.Fit
                 )
+                AnimatedVisibility(
+                    visible = viewModel.displayNote,
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
+                ) {
+                    Text(
+                        text = viewModel.note,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier
+                            .alpha(0.5f)
+                            .background(color = Color.Black)
+                            .padding(16.dp)
+                    )
+                }
             }
         }
     )
@@ -243,64 +367,14 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
 
     LaunchedEffect(viewModel.prescriptionPhotos.size) {
         coroutineScope.launch {
-            listState.scrollToItem(0)
+            if (viewModel.prescriptionPhotos.isNotEmpty()) listState.scrollToItem(viewModel.prescriptionPhotos.size - 1)
         }
     }
 
     LazyColumn(
-        state = listState,
-        reverseLayout = true
+        state = listState
     ) {
         itemsIndexed(viewModel.prescriptionPhotos) { index, photo ->
-            val uploadFolder = FileManager.createFolder(context)
-            val photoFile = File(
-                uploadFolder,
-                photo
-            )
-            val uri = Uri.fromFile(photoFile)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .clickable {
-                        viewModel.selectedImageUri = uri
-                    },
-                contentAlignment = Alignment.BottomEnd
-            ) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(
-                                topStart = 48f,
-                                topEnd = 48f,
-                                bottomStart = 48f,
-                                bottomEnd = 0f
-                            )
-                        )
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        Image(
-                            painter = rememberImagePainter(uri),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(250.dp, 330.dp)
-                                .padding(4.dp)
-                                .clip(RoundedCornerShape(16.dp)),
-                            contentScale = ContentScale.Crop
-                        )
-                        Text(
-                            text = Date(
-                                photo.substringBefore(".").toLong()
-                            ).toPrescriptionTime(),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.padding(end = 10.dp, bottom = 6.dp)
-                        )
-                    }
-                }
-            }
             val currentDate = Date(photo.substringBefore(".").toLong())
             val previousDate =
                 viewModel.prescriptionPhotos.getOrNull(index - 1)?.substringBefore(".")?.toLong()
@@ -316,7 +390,7 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                 val headerText = when {
                     isToday(currentDate) -> "Today"
                     isYesterday(currentDate) -> "Yesterday"
-                    else -> currentDate.toPrescriptionDate()
+                    else -> currentDate.toDayFullMonthYear()
                 }
 
                 Box(
@@ -338,6 +412,196 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                     }
                 }
             }
+
+            val uploadFolder = FileManager.createFolder(context)
+            val photoFile = File(
+                uploadFolder,
+                photo
+            )
+            val uri = Uri.fromFile(photoFile)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Row(
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .shadow(
+                                elevation = if (viewModel.isLongPressed && viewModel.selectedImageUri == uri)
+                                    11.dp else 0.dp,
+                                shape = RoundedCornerShape(
+                                    topStart = 48f,
+                                    topEnd = 48f,
+                                    bottomStart = 48f,
+                                    bottomEnd = 0f
+                                )
+                            )
+                            .background(
+                                shape = RoundedCornerShape(
+                                    topStart = 48f,
+                                    topEnd = 48f,
+                                    bottomStart = 48f,
+                                    bottomEnd = 0f
+                                ),
+                                color = if (viewModel.isLongPressed && viewModel.selectedImageUri == uri)
+                                    MaterialTheme.colorScheme.primaryContainer
+                                else MaterialTheme.colorScheme.surface
+                            )
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        viewModel.isLongPressed = true
+                                        viewModel.selectedImageUri = uri
+                                    },
+                                    onTap = {
+                                        if (viewModel.isLongPressed) {
+                                            viewModel.isLongPressed = false
+                                            viewModel.selectedImageUri = null
+                                        } else {
+                                            viewModel.isTapped = true
+                                            viewModel.selectedImageUri = uri
+                                        }
+                                    }
+                                )
+                            }
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.End,
+                            modifier = Modifier.width(250.dp)
+                        ) {
+                            Image(
+                                painter = rememberImagePainter(uri),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(250.dp, 330.dp)
+                                    .padding(4.dp)
+                                    .clip(RoundedCornerShape(16.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                            Text(
+                                text = Date(
+                                    photo.substringBefore(".").toLong()
+                                ).toPrescriptionTime(),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.padding(end = 10.dp, bottom = 6.dp)
+                            )
+                        }
+                    }
+
+                    AnimatedVisibility(viewModel.isLongPressed && viewModel.selectedImageUri == uri) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.check_circle),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+            }
+        }
+        item {
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
+}
+
+@Composable
+private fun DeletePhotoDialog(
+    dismiss: () -> Unit,
+    confirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = { dismiss() },
+        confirmButton = {
+            TextButton(onClick = { confirm() }) {
+                Text(text = stringResource(id = R.string.yes_discard))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { dismiss() }) {
+                Text(text = stringResource(id = R.string.no_go_back))
+            }
+        },
+        title = {
+            Text(text = stringResource(id = R.string.discard_prescription))
+        },
+        text = {
+            Text(text = stringResource(id = R.string.discard_prescription_description))
+        }
+    )
+}
+
+@OptIn(ExperimentalCoilApi::class)
+@Composable
+private fun AddNoteDialog(
+    image: Uri,
+    dismiss: () -> Unit,
+    confirm: (String) -> Unit
+) {
+    var noteValue by remember {
+        mutableStateOf("")
+    }
+    Dialog(
+        onDismissRequest = { dismiss() },
+        content = {
+            Column(
+                modifier = Modifier.background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(8.dp)
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Image(
+                            painter = rememberImagePainter(image),
+                            contentDescription = null,
+                            modifier = Modifier.size(60.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                        OutlinedTextField(
+                            value = noteValue,
+                            onValueChange = {
+                                noteValue = it
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.15f),
+                            placeholder = {
+                                Text(
+                                    text = stringResource(id = R.string.add_notes_here),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                focusedBorderColor = MaterialTheme.colorScheme.surfaceVariant,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            textStyle = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    Button(
+                        onClick = { confirm(noteValue) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = noteValue.trim().isNotEmpty()
+                    ) {
+                        Text(text = stringResource(id = R.string.save))
+                    }
+                }
+            }
+        }
+    )
 }

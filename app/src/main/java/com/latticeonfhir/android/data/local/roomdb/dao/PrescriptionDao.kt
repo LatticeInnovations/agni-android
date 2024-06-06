@@ -33,7 +33,7 @@ interface PrescriptionDao {
     ): List<PrescriptionAndMedicineRelation>
 
     @Transaction
-    @Query("SELECT fileName FROM PrescriptionPhotoEntity INNER JOIN PrescriptionEntity ON PrescriptionPhotoEntity.prescriptionId = PrescriptionEntity.id WHERE PrescriptionEntity.patientId=:patientId ORDER BY PrescriptionEntity.prescriptionDate DESC")
+    @Query("SELECT fileName FROM PrescriptionPhotoEntity INNER JOIN PrescriptionEntity ON PrescriptionPhotoEntity.prescriptionId = PrescriptionEntity.id WHERE PrescriptionEntity.patientId=:patientId")
     suspend fun getPastPhotoPrescriptions(
         patientId: String
     ): List<String>
