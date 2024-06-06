@@ -20,6 +20,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.patient.PermanentAdd
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionAndFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
@@ -33,6 +34,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedRes
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
@@ -386,7 +388,7 @@ internal suspend fun AppointmentResponse.toAppointmentEntity(
         id = uuid,
         appointmentFhirId = appointmentId,
         createdOn = createdOn,
-        patientId = patientDao.getPatientIdByFhirId(patientFhirId!!)!!,
+        patientId = patientDao.getPatientIdByFhirId(patientFhirId)!!,
         scheduleId = scheduleDao.getScheduleStartTimeByFhirId(scheduleId)!!,
         orgId = orgId,
         status = status,
@@ -480,5 +482,19 @@ internal fun PatientLastUpdatedResponse.toPatientLastUpdatedEntity() : PatientLa
     return PatientLastUpdatedEntity(
         patientId = uuid,
         lastUpdated = timestamp
+    )
+}
+
+internal fun PrescriptionAndFileEntity.toPrescriptionPhotoResponse(): PrescriptionPhotoResponse {
+    return PrescriptionPhotoResponse(
+        patientFhirId = prescriptionEntity.patientFhirId?: prescriptionEntity.patientId,
+        appointmentId = prescriptionEntity.appointmentId,
+        generatedOn = prescriptionEntity.prescriptionDate,
+        prescriptionId = prescriptionEntity.id,
+        prescription = prescriptionPhotoEntity.map { prescriptionPhotoEntity ->
+            File(prescriptionPhotoEntity.fileName, null)
+        },
+        appointmentUuid = prescriptionEntity.appointmentId,
+        prescriptionFhirId = prescriptionEntity.prescriptionFhirId
     )
 }

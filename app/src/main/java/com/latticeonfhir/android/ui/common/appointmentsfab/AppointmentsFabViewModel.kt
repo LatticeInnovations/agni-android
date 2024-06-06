@@ -60,6 +60,7 @@ class AppointmentsFabViewModel @Inject constructor(
                 else appointmentResponse.status != AppointmentStatusEnum.SCHEDULED.value
                 canAddPrescription =
                     appointmentResponse?.status == AppointmentStatusEnum.ARRIVED.value || appointmentResponse?.status == AppointmentStatusEnum.WALK_IN.value
+                            || appointmentResponse?.status == AppointmentStatusEnum.IN_PROGRESS.value
             }
             ifAllSlotsBooked = appointmentRepository.getAppointmentListByDate(
                 Date().toTodayStartDate(),
