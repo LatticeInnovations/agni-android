@@ -60,12 +60,16 @@ class FileSyncRepositoryImpl @Inject constructor(
     }
 
     private suspend fun processDownload(listOfGenericEntity: List<GenericEntity>) {
-        val filesToBeDownloaded =
-            listOfGenericEntity.map {
-                it.payload
-            }.filter { !downloadedFileDao.getDownloadedFileNames().contains(it) }
-        for (chunk in filesToBeDownloaded.chunked(10)) {
-            downloadAndSaveFiles(listOfGenericEntity,chunk)
+        // delete payload if already downloaded
+        val entitiesToBeDeleted =
+            listOfGenericEntity.filter { downloadedFileDao.getDownloadedFileNames().contains(it.payload) }
+        genericDao.deleteSyncPayload(entitiesToBeDeleted.toListOfId())
+
+        // download rest of the files
+        val filesEntitiesToBeDownloaded =
+            listOfGenericEntity.filter { !downloadedFileDao.getDownloadedFileNames().contains(it.payload) }
+        for (chunk in filesEntitiesToBeDownloaded.map { it.payload }.chunked(10)) {
+            downloadAndSaveFiles(filesEntitiesToBeDownloaded, chunk)
         }
     }
 
