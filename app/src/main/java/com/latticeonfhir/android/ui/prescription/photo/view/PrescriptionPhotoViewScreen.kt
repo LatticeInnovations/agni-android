@@ -62,7 +62,7 @@ import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isSameDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isToday
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isYesterday
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toDayFullMonthYear
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionNavDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionTime
 import com.latticeonfhir.android.utils.file.FileManager
@@ -243,15 +243,52 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
 
     LaunchedEffect(viewModel.prescriptionPhotos.size) {
         coroutineScope.launch {
-            listState.scrollToItem(0)
+            if (viewModel.prescriptionPhotos.isNotEmpty()) listState.scrollToItem(viewModel.prescriptionPhotos.size - 1)
         }
     }
 
     LazyColumn(
-        state = listState,
-        reverseLayout = true
+        state = listState
     ) {
         itemsIndexed(viewModel.prescriptionPhotos) { index, photo ->
+            val currentDate = Date(photo.substringBefore(".").toLong())
+            val previousDate =
+                viewModel.prescriptionPhotos.getOrNull(index - 1)?.substringBefore(".")?.toLong()
+                    ?.let { Date(it) }
+
+            val showHeader = when {
+                previousDate == null -> true
+                !isSameDay(currentDate, previousDate) -> true
+                else -> false
+            }
+
+            if (showHeader) {
+                val headerText = when {
+                    isToday(currentDate) -> "Today"
+                    isYesterday(currentDate) -> "Yesterday"
+                    else -> currentDate.toDayFullMonthYear()
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = headerText,
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier
+                                .padding(8.dp)
+                        )
+                    }
+                }
+            }
+
             val uploadFolder = FileManager.createFolder(context)
             val photoFile = File(
                 uploadFolder,
@@ -261,15 +298,13 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
-                    .clickable {
-                        viewModel.selectedImageUri = uri
-                    },
+                    .padding(16.dp),
                 contentAlignment = Alignment.BottomEnd
             ) {
                 Box(
-                    modifier = Modifier
-                        .background(
+                    modifier = Modifier.clickable {
+                            viewModel.selectedImageUri = uri
+                        }.background(
                             MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(
                                 topStart = 48f,
                                 topEnd = 48f,
@@ -297,43 +332,6 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(end = 10.dp, bottom = 6.dp)
-                        )
-                    }
-                }
-            }
-            val currentDate = Date(photo.substringBefore(".").toLong())
-            val previousDate =
-                viewModel.prescriptionPhotos.getOrNull(index - 1)?.substringBefore(".")?.toLong()
-                    ?.let { Date(it) }
-
-            val showHeader = when {
-                previousDate == null -> true
-                !isSameDay(currentDate, previousDate) -> true
-                else -> false
-            }
-
-            if (showHeader) {
-                val headerText = when {
-                    isToday(currentDate) -> "Today"
-                    isYesterday(currentDate) -> "Yesterday"
-                    else -> currentDate.toPrescriptionDate()
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(
-                            text = headerText,
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier
-                                .padding(8.dp)
                         )
                     }
                 }
