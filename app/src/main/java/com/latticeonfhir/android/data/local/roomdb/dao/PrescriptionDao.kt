@@ -8,6 +8,7 @@ import androidx.room.Transaction
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionAndFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 
 @Dao
@@ -45,4 +46,8 @@ interface PrescriptionDao {
     @Transaction
     @Query("SELECT * FROM PrescriptionEntity WHERE appointmentId = :appointmentId")
     suspend fun getPrescriptionByAppointmentId(appointmentId: String): List<PrescriptionAndMedicineRelation>
+
+    @Transaction
+    @Query("SELECT * FROM PrescriptionEntity WHERE appointmentId = :appointmentId")
+    suspend fun getPrescriptionPhotoByAppointmentId(appointmentId: String): List<PrescriptionAndFileEntity>
 }
