@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Environment
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
+import androidx.core.net.toUri
 import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.R
 import timber.log.Timber
@@ -121,5 +122,9 @@ object FileManager {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         context.startActivity(Intent.createChooser(intent, "Share Image"))
+    }
+
+    fun String.getUriFromFileName(context: Context): Uri {
+        return File(createFolder(context), this).toUri()
     }
 }

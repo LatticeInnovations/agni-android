@@ -286,7 +286,8 @@ internal fun PrescriptionPhotoResponse.toListOfPrescriptionPhotoEntity(): List<P
         PrescriptionPhotoEntity(
             id = prescriptionItem.filename + prescriptionId,
             fileName = prescriptionItem.filename,
-            prescriptionId = prescriptionId
+            prescriptionId = prescriptionId,
+            note = prescriptionItem.note
         )
     }
 }
@@ -312,7 +313,8 @@ internal fun PrescriptionPhotoResponseLocal.toListOfPrescriptionPhotoEntity(): L
         PrescriptionPhotoEntity(
             id = prescriptionItem.filename + prescriptionId,
             fileName = prescriptionItem.filename,
-            prescriptionId = prescriptionId
+            prescriptionId = prescriptionId,
+            note = prescriptionItem.note
         )
     }
 }
@@ -492,9 +494,19 @@ internal fun PrescriptionAndFileEntity.toPrescriptionPhotoResponse(): Prescripti
         generatedOn = prescriptionEntity.prescriptionDate,
         prescriptionId = prescriptionEntity.id,
         prescription = prescriptionPhotoEntity.map { prescriptionPhotoEntity ->
-            File(prescriptionPhotoEntity.fileName, null)
+            File(prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note)
         },
         appointmentUuid = prescriptionEntity.appointmentId,
         prescriptionFhirId = prescriptionEntity.prescriptionFhirId
     )
+}
+
+
+internal fun PrescriptionAndFileEntity.toFilesList(): List<File> {
+    return prescriptionPhotoEntity.map {
+        File(
+            filename = it.fileName,
+            note = it.note
+        )
+    }
 }
