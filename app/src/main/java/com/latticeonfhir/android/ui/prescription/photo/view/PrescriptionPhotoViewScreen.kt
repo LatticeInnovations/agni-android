@@ -204,7 +204,13 @@ fun PrescriptionPhotoViewScreen(
             },
             confirm = {
                 // delete prescription
-                viewModel.showDeleteDialog = false
+                viewModel.deletePrescription {
+                    FileManager.removeFromInternalStorage(context, viewModel.selectedFile!!.filename)
+                    viewModel.isTapped = false
+                    viewModel.isLongPressed = false
+                    viewModel.selectedFile = null
+                    viewModel.showDeleteDialog = false
+                }
             }
         )
     }

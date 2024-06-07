@@ -76,4 +76,40 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             added()
         }
     }
+
+    internal fun deletePrescription(
+        deleted: () -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val dateOfFile = Date(selectedFile!!.filename.substringBefore(".").toLong())
+            val prescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
+                dateOfFile.toTodayStartDate(),
+                dateOfFile.toEndOfDay()
+            )
+            // delete from local db
+            prescriptionRepository.deletePrescriptionPhotos(
+                PrescriptionPhotoEntity(
+                    id = selectedFile!!.filename + prescriptionPhotoResponse.prescriptionId,
+                    prescriptionId = prescriptionPhotoResponse.prescriptionId,
+                    fileName = selectedFile!!.filename,
+                    note = selectedFile!!.note
+                )
+            )
+            // update in generic
+            if (prescriptionPhotoResponse.prescriptionFhirId == null) {
+                // insert generic post
+                val updatedPrescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
+                    dateOfFile.toTodayStartDate(),
+                    dateOfFile.toEndOfDay()
+                )
+                genericRepository.insertPhotoPrescription(
+                    updatedPrescriptionPhotoResponse
+                )
+            } else {
+                // insert generic patch
+            }
+            getPastPrescription()
+            deleted()
+        }
+    }
 }

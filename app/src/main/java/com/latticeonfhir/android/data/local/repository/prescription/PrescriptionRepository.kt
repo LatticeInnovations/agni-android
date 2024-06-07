@@ -17,4 +17,5 @@ interface PrescriptionRepository {
     suspend fun getPrescriptionPhotoByAppointmentId(appointmentId: String): List<PrescriptionPhotoResponse>
     suspend fun getPrescriptionPhotoByDate(startDate: Long, endDate: Long): PrescriptionPhotoResponse
     suspend fun insertPrescriptionPhotos(prescriptionPhotoEntity: PrescriptionPhotoEntity): Long
+    suspend fun deletePrescriptionPhotos(prescriptionPhotoEntity: PrescriptionPhotoEntity): Int
 }

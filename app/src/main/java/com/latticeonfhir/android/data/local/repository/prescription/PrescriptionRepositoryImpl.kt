@@ -75,4 +75,8 @@ class PrescriptionRepositoryImpl @Inject constructor(private val prescriptionDao
             prescriptionPhotoEntity
         )[0]
     }
+
+    override suspend fun deletePrescriptionPhotos(prescriptionPhotoEntity: PrescriptionPhotoEntity): Int {
+        return prescriptionDao.deletePrescriptionPhoto(prescriptionPhotoEntity)
+    }
 }
