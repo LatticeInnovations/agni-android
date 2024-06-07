@@ -2,6 +2,7 @@ package com.latticeonfhir.android.data.local.repository.prescription
 
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
+import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
@@ -15,7 +16,10 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toPrescripti
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionResponseLocal
 import javax.inject.Inject
 
-class PrescriptionRepositoryImpl @Inject constructor(private val prescriptionDao: PrescriptionDao) :
+class PrescriptionRepositoryImpl @Inject constructor(
+    private val prescriptionDao: PrescriptionDao,
+    private val fileUploadDao: FileUploadDao
+) :
     PrescriptionRepository {
 
     override suspend fun insertPrescription(prescriptionResponseLocal: PrescriptionResponseLocal): Long {
@@ -63,10 +67,11 @@ class PrescriptionRepositoryImpl @Inject constructor(private val prescriptionDao
     }
 
     override suspend fun getPrescriptionPhotoByDate(
+        patientId: String,
         startDate: Long,
         endDate: Long
     ): PrescriptionPhotoResponse {
-        return prescriptionDao.getPrescriptionPhotoByDate(startDate, endDate)
+        return prescriptionDao.getPrescriptionPhotoByDate(patientId, startDate, endDate)
             .map { it.toPrescriptionPhotoResponse() }[0]
     }
 
@@ -77,6 +82,7 @@ class PrescriptionRepositoryImpl @Inject constructor(private val prescriptionDao
     }
 
     override suspend fun deletePrescriptionPhotos(prescriptionPhotoEntity: PrescriptionPhotoEntity): Int {
+        fileUploadDao.deleteFile(prescriptionPhotoEntity.fileName)
         return prescriptionDao.deletePrescriptionPhoto(prescriptionPhotoEntity)
     }
 }
