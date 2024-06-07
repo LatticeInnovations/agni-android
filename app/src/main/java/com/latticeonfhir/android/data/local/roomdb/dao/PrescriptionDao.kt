@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.roomdb.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -54,4 +55,7 @@ interface PrescriptionDao {
     @Transaction
     @Query("SELECT * FROM PrescriptionEntity WHERE prescriptionDate BETWEEN :startDate AND :endDate")
     suspend fun getPrescriptionPhotoByDate(startDate: Long, endDate: Long): List<PrescriptionAndFileEntity>
+
+    @Delete
+    suspend fun deletePrescriptionPhoto(prescriptionPhotoEntity: PrescriptionPhotoEntity): Int
 }
