@@ -3,7 +3,6 @@ package com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo
 import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
 
@@ -21,5 +20,6 @@ data class PrescriptionPhotoEntity (
     @PrimaryKey
     val id: String,
     val prescriptionId: String,
-    val fileName: String
+    val fileName: String,
+    val note: String?
 )

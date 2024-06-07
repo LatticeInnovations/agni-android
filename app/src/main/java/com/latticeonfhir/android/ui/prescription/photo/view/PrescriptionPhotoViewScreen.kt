@@ -67,7 +67,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
@@ -85,6 +84,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionNavDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionTime
 import com.latticeonfhir.android.utils.file.FileManager
+import com.latticeonfhir.android.utils.file.FileManager.getUriFromFileName
 import com.latticeonfhir.android.utils.file.FileManager.shareImageToOtherApps
 import kotlinx.coroutines.launch
 import java.io.File
@@ -110,11 +110,11 @@ fun PrescriptionPhotoViewScreen(
 
     BackHandler(enabled = true) {
         if (viewModel.isFabSelected) viewModel.isFabSelected = false
-        else if (viewModel.selectedImageUri != null) {
+        else if (viewModel.selectedFile != null) {
             viewModel.isTapped = false
             viewModel.isLongPressed = false
             viewModel.displayNote = false
-            viewModel.selectedImageUri = null
+            viewModel.selectedFile = null
         } else navController.popBackStack(Screen.PatientLandingScreen.route, inclusive = false)
     }
 
@@ -156,7 +156,7 @@ fun PrescriptionPhotoViewScreen(
                                 )
                             }
                             IconButton(onClick = {
-                                shareImageToOtherApps(context, viewModel.selectedImageUri!!)
+                                shareImageToOtherApps(context, viewModel.selectedFile!!.filename.getUriFromFileName(context))
                             }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.share),
@@ -231,7 +231,7 @@ fun PrescriptionPhotoViewScreen(
     }
     if (viewModel.showNoteDialog) {
         AddNoteDialog(
-            image = viewModel.selectedImageUri!!,
+            image = viewModel.selectedFile!!.filename.getUriFromFileName(context),
             dismiss = {
                 viewModel.showNoteDialog = false
             },
@@ -258,7 +258,7 @@ private fun DisplayImage(
                 ),
                 title = {
                     Text(
-                        text = viewModel.selectedImageUri?.toFile()?.name?.substringBefore(".")
+                        text = viewModel.selectedFile?.filename?.substringBefore(".")
                             ?.toLong()
                             ?.let {
                                 Date(
@@ -272,7 +272,7 @@ private fun DisplayImage(
                 navigationIcon = {
                     IconButton(onClick = {
                         viewModel.isTapped = false
-                        viewModel.selectedImageUri = null
+                        viewModel.selectedFile = null
                     }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
@@ -288,7 +288,7 @@ private fun DisplayImage(
                         )
                     }
                     IconButton(onClick = {
-                        shareImageToOtherApps(context, viewModel.selectedImageUri!!)
+                        shareImageToOtherApps(context, viewModel.selectedFile!!.filename.getUriFromFileName(context))
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.share),
@@ -318,7 +318,7 @@ private fun DisplayImage(
                         .clickable {
                             viewModel.displayNote = !viewModel.displayNote
                         },
-                    painter = rememberImagePainter(viewModel.selectedImageUri),
+                    painter = rememberImagePainter(viewModel.selectedFile?.filename?.getUriFromFileName(context)),
                     contentDescription = null,
                     contentScale = ContentScale.Fit
                 )
@@ -358,10 +358,10 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
     LazyColumn(
         state = listState
     ) {
-        itemsIndexed(viewModel.prescriptionPhotos) { index, photo ->
-            val currentDate = Date(photo.substringBefore(".").toLong())
+        itemsIndexed(viewModel.prescriptionPhotos) { index, file ->
+            val currentDate = Date(file.filename.substringBefore(".").toLong())
             val previousDate =
-                viewModel.prescriptionPhotos.getOrNull(index - 1)?.substringBefore(".")?.toLong()
+                viewModel.prescriptionPhotos.getOrNull(index - 1)?.filename?.substringBefore(".")?.toLong()
                     ?.let { Date(it) }
 
             val showHeader = when {
@@ -400,7 +400,7 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
             val uploadFolder = FileManager.createFolder(context)
             val photoFile = File(
                 uploadFolder,
-                photo
+                file.filename
             )
             val uri = Uri.fromFile(photoFile)
             Box(
@@ -415,7 +415,7 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                     Box(
                         modifier = Modifier
                             .shadow(
-                                elevation = if (viewModel.isLongPressed && viewModel.selectedImageUri == uri)
+                                elevation = if (viewModel.isLongPressed && viewModel.selectedFile == file)
                                     11.dp else 0.dp,
                                 shape = RoundedCornerShape(
                                     topStart = 48f,
@@ -431,7 +431,7 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                                     bottomStart = 48f,
                                     bottomEnd = 0f
                                 ),
-                                color = if (viewModel.isLongPressed && viewModel.selectedImageUri == uri)
+                                color = if (viewModel.isLongPressed && viewModel.selectedFile == file)
                                     MaterialTheme.colorScheme.primaryContainer
                                 else MaterialTheme.colorScheme.surface
                             )
@@ -439,15 +439,15 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                                 detectTapGestures(
                                     onLongPress = {
                                         viewModel.isLongPressed = true
-                                        viewModel.selectedImageUri = uri
+                                        viewModel.selectedFile = file
                                     },
                                     onTap = {
                                         if (viewModel.isLongPressed) {
                                             viewModel.isLongPressed = false
-                                            viewModel.selectedImageUri = null
+                                            viewModel.selectedFile = null
                                         } else {
                                             viewModel.isTapped = true
-                                            viewModel.selectedImageUri = uri
+                                            viewModel.selectedFile = file
                                         }
                                     }
                                 )
@@ -468,7 +468,7 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                             )
                             Text(
                                 text = Date(
-                                    photo.substringBefore(".").toLong()
+                                    file.filename.substringBefore(".").toLong()
                                 ).toPrescriptionTime(),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.secondary,
@@ -477,7 +477,7 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                         }
                     }
 
-                    AnimatedVisibility(viewModel.isLongPressed && viewModel.selectedImageUri == uri) {
+                    AnimatedVisibility(viewModel.isLongPressed && viewModel.selectedFile == file) {
                         Icon(
                             painter = painterResource(id = R.drawable.check_circle),
                             contentDescription = null,

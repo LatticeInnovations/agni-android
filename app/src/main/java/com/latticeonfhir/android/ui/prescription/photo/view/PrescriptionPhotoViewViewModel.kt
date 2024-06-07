@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.prescription.photo.view
 
-import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,9 +28,9 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     var displayNote by mutableStateOf(false)
     var note = "Ask CDCR San Quintin State Prison 2008. We installed Purex dispensers throughout the prison to comba"
 
-    var prescriptionPhotos by mutableStateOf(listOf<String>())
+    var prescriptionPhotos by mutableStateOf(listOf<File>())
 
-    var selectedImageUri: Uri? by mutableStateOf(null)
+    var selectedFile: File? by mutableStateOf(null)
 
     internal fun getPastPrescription() {
         viewModelScope.launch(Dispatchers.IO) {
