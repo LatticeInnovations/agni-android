@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
@@ -49,6 +50,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -65,6 +67,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -145,33 +148,7 @@ fun PrescriptionPhotoViewScreen(
                 },
                 actions = {
                     AnimatedVisibility(viewModel.isLongPressed) {
-                        Row {
-                            IconButton(onClick = {
-                                viewModel.showDeleteDialog = true
-                            }) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.delete_icon),
-                                    contentDescription = "DELETE_ICON",
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                            IconButton(onClick = {
-                                shareImageToOtherApps(context, viewModel.selectedFile!!.filename.getUriFromFileName(context))
-                            }) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.share),
-                                    contentDescription = null
-                                )
-                            }
-                            IconButton(onClick = {
-                                viewModel.showNoteDialog = true
-                            }) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.note_add),
-                                    contentDescription = "ADD_NOTE_ICON"
-                                )
-                            }
-                        }
+                        NavBarActions(context, viewModel)
                     }
                 }
             )
@@ -190,7 +167,9 @@ fun PrescriptionPhotoViewScreen(
                         )
                     }
                 }
-                PhotoView(viewModel)
+                key (viewModel.prescriptionPhotos){
+                    PhotoView(viewModel)
+                }
                 if (viewModel.showAllSlotsBookedDialog) {
                     AllSlotsBookedDialog {
                         viewModel.showAllSlotsBookedDialog = false
@@ -232,14 +211,67 @@ fun PrescriptionPhotoViewScreen(
     if (viewModel.showNoteDialog) {
         AddNoteDialog(
             image = viewModel.selectedFile!!.filename.getUriFromFileName(context),
+            note = viewModel.selectedFile!!.note ?: "",
             dismiss = {
                 viewModel.showNoteDialog = false
             },
-            confirm = {
+            confirm = { note ->
                 // add note to prescription
-                viewModel.showNoteDialog = false
+                viewModel.addNoteToPrescription(note) {
+                    if (viewModel.isLongPressed){
+                        viewModel.isLongPressed = false
+                        viewModel.selectedFile = null
+                    }
+                    if (viewModel.isTapped) {
+                        viewModel.displayNote = true
+                        viewModel.selectedFile = viewModel.selectedFile?.copy(
+                            note = note
+                        )
+                    }
+                    viewModel.showNoteDialog = false
+                }
             }
         )
+    }
+}
+
+@Composable
+fun NavBarActions(
+    context: Context,
+    viewModel: PrescriptionPhotoViewViewModel
+) {
+    Row {
+        IconButton(onClick = {
+            viewModel.showDeleteDialog = true
+        }) {
+            Icon(
+                painter = painterResource(id = R.drawable.delete_icon),
+                contentDescription = "DELETE_ICON",
+                modifier = Modifier.size(24.dp)
+            )
+        }
+        IconButton(onClick = {
+            shareImageToOtherApps(
+                context,
+                viewModel.selectedFile!!.filename.getUriFromFileName(context)
+            )
+        }) {
+            Icon(
+                painter = painterResource(id = R.drawable.share),
+                contentDescription = null
+            )
+        }
+        IconButton(onClick = {
+            viewModel.showNoteDialog = true
+        }) {
+            Icon(
+                painter = if (viewModel.selectedFile?.note.isNullOrEmpty())
+                    painterResource(id = R.drawable.note_add)
+                else painterResource(id = R.drawable.edit_icon),
+                contentDescription = "NOTE_ICON",
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }
 
@@ -278,31 +310,7 @@ private fun DisplayImage(
                     }
                 },
                 actions = {
-                    IconButton(onClick = {
-                        viewModel.showDeleteDialog = true
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.delete_icon),
-                            contentDescription = "DELETE_ICON",
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    IconButton(onClick = {
-                        shareImageToOtherApps(context, viewModel.selectedFile!!.filename.getUriFromFileName(context))
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.share),
-                            contentDescription = null
-                        )
-                    }
-                    IconButton(onClick = {
-                        viewModel.showNoteDialog = true
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.note_add),
-                            contentDescription = "ADD_NOTE_ICON"
-                        )
-                    }
+                    NavBarActions(context, viewModel)
                 }
             )
         },
@@ -315,27 +323,36 @@ private fun DisplayImage(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(color = MaterialTheme.colorScheme.surface)
-                        .clickable {
+                        .clickable(
+                            enabled = !viewModel.selectedFile?.note.isNullOrEmpty()
+                        ) {
                             viewModel.displayNote = !viewModel.displayNote
                         },
-                    painter = rememberImagePainter(viewModel.selectedFile?.filename?.getUriFromFileName(context)),
+                    painter = rememberImagePainter(
+                        viewModel.selectedFile?.filename?.getUriFromFileName(
+                            context
+                        )
+                    ),
                     contentDescription = null,
                     contentScale = ContentScale.Fit
                 )
-                AnimatedVisibility(
-                    visible = viewModel.displayNote,
-                    enter = expandVertically(),
-                    exit = shrinkVertically()
-                ) {
-                    Text(
-                        text = viewModel.note,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier
-                            .alpha(0.5f)
-                            .background(color = Color.Black)
-                            .padding(16.dp)
-                    )
+                if (!viewModel.selectedFile?.note.isNullOrBlank()) {
+                    AnimatedVisibility(
+                        visible = viewModel.displayNote,
+                        enter = expandVertically(),
+                        exit = shrinkVertically()
+                    ) {
+                        Text(
+                            text = viewModel.selectedFile!!.note!!,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .alpha(0.5f)
+                                .background(color = Color.Black)
+                                .padding(16.dp)
+                        )
+                    }
                 }
             }
         }
@@ -361,7 +378,8 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
         itemsIndexed(viewModel.prescriptionPhotos) { index, file ->
             val currentDate = Date(file.filename.substringBefore(".").toLong())
             val previousDate =
-                viewModel.prescriptionPhotos.getOrNull(index - 1)?.filename?.substringBefore(".")?.toLong()
+                viewModel.prescriptionPhotos.getOrNull(index - 1)?.filename?.substringBefore(".")
+                    ?.toLong()
                     ?.let { Date(it) }
 
             val showHeader = when {
@@ -466,6 +484,16 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                                     .clip(RoundedCornerShape(16.dp)),
                                 contentScale = ContentScale.Crop
                             )
+                            if (!file.note.isNullOrEmpty()) {
+                                Text(
+                                    text = file.note,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 6.dp, start = 6.dp, end = 6.dp)
+                                )
+                            }
                             Text(
                                 text = Date(
                                     file.filename.substringBefore(".").toLong()
@@ -524,11 +552,12 @@ private fun DeletePhotoDialog(
 @Composable
 private fun AddNoteDialog(
     image: Uri,
+    note: String,
     dismiss: () -> Unit,
     confirm: (String) -> Unit
 ) {
     var noteValue by remember {
-        mutableStateOf("")
+        mutableStateOf(note)
     }
     Dialog(
         onDismissRequest = { dismiss() },
@@ -574,13 +603,16 @@ private fun AddNoteDialog(
                                 unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
                             ),
                             shape = RoundedCornerShape(8.dp),
-                            textStyle = MaterialTheme.typography.bodyMedium
+                            textStyle = MaterialTheme.typography.bodyMedium,
+                            keyboardOptions = KeyboardOptions(
+                                capitalization = KeyboardCapitalization.Sentences
+                            )
                         )
                     }
                     Button(
-                        onClick = { confirm(noteValue) },
+                        onClick = { confirm(noteValue.trim()) },
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = noteValue.trim().isNotEmpty()
+                        enabled = noteValue.trim() != note.trim()
                     ) {
                         Text(text = stringResource(id = R.string.save))
                     }
