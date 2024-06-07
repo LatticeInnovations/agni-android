@@ -15,7 +15,12 @@ interface PrescriptionRepository {
     suspend fun getLastPhotoPrescription(patientId: String): List<File>
     suspend fun getPrescriptionByAppointmentId(appointmentId: String): List<PrescriptionResponseLocal>
     suspend fun getPrescriptionPhotoByAppointmentId(appointmentId: String): List<PrescriptionPhotoResponse>
-    suspend fun getPrescriptionPhotoByDate(startDate: Long, endDate: Long): PrescriptionPhotoResponse
+    suspend fun getPrescriptionPhotoByDate(
+        patientId: String,
+        startDate: Long,
+        endDate: Long
+    ): PrescriptionPhotoResponse
+
     suspend fun insertPrescriptionPhotos(prescriptionPhotoEntity: PrescriptionPhotoEntity): Long
     suspend fun deletePrescriptionPhotos(prescriptionPhotoEntity: PrescriptionPhotoEntity): Int
 }

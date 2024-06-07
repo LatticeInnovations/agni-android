@@ -49,6 +49,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val dateOfFile = Date(selectedFile!!.filename.substringBefore(".").toLong())
             val prescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
+                patient!!.id,
                 dateOfFile.toTodayStartDate(),
                 dateOfFile.toEndOfDay()
             )
@@ -63,6 +64,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             if (prescriptionPhotoResponse.prescriptionFhirId == null) {
                 // insert generic post
                 val updatedPrescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
+                    patient!!.id,
                     dateOfFile.toTodayStartDate(),
                     dateOfFile.toEndOfDay()
                 )
@@ -83,6 +85,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val dateOfFile = Date(selectedFile!!.filename.substringBefore(".").toLong())
             val prescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
+                patient!!.id,
                 dateOfFile.toTodayStartDate(),
                 dateOfFile.toEndOfDay()
             )
@@ -99,6 +102,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             if (prescriptionPhotoResponse.prescriptionFhirId == null) {
                 // insert generic post
                 val updatedPrescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
+                    patient!!.id,
                     dateOfFile.toTodayStartDate(),
                     dateOfFile.toEndOfDay()
                 )
