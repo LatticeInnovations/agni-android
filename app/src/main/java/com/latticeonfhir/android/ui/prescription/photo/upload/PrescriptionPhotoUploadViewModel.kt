@@ -109,7 +109,7 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
         // insert in db
         val filename = selectedImageUri!!.toFile().name
         val listOfFiles = files.apply {
-            add(File(filename, null))
+            add(File(filename, ""))
         }
         prescriptionRepository.insertPhotoPrescription(
             PrescriptionPhotoResponseLocal(

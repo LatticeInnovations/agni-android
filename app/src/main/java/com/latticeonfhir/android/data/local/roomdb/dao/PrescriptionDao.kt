@@ -50,4 +50,8 @@ interface PrescriptionDao {
     @Transaction
     @Query("SELECT * FROM PrescriptionEntity WHERE appointmentId = :appointmentId")
     suspend fun getPrescriptionPhotoByAppointmentId(appointmentId: String): List<PrescriptionAndFileEntity>
+
+    @Transaction
+    @Query("SELECT * FROM PrescriptionEntity WHERE prescriptionDate BETWEEN :startDate AND :endDate")
+    suspend fun getPrescriptionPhotoByDate(startDate: Long, endDate: Long): List<PrescriptionAndFileEntity>
 }

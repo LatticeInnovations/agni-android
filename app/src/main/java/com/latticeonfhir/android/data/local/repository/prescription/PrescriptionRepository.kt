@@ -3,6 +3,7 @@ package com.latticeonfhir.android.data.local.repository.prescription
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 
@@ -14,4 +15,6 @@ interface PrescriptionRepository {
     suspend fun getLastPhotoPrescription(patientId: String): List<File>
     suspend fun getPrescriptionByAppointmentId(appointmentId: String): List<PrescriptionResponseLocal>
     suspend fun getPrescriptionPhotoByAppointmentId(appointmentId: String): List<PrescriptionPhotoResponse>
+    suspend fun getPrescriptionPhotoByDate(startDate: Long, endDate: Long): PrescriptionPhotoResponse
+    suspend fun insertPrescriptionPhotos(prescriptionPhotoEntity: PrescriptionPhotoEntity): Long
 }
