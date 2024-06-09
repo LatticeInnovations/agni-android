@@ -5,5 +5,5 @@ import androidx.annotation.Keep
 @Keep
 data class File (
     val filename: String,
-    val note: String?
+    val note: String
 )
