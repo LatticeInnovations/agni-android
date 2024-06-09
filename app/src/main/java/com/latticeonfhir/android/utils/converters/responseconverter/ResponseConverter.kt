@@ -318,6 +318,7 @@ internal fun PrescriptionPhotoResponseLocal.toListOfPrescriptionPhotoEntity(): L
         )
     }
 }
+
 internal fun List<MedicationResponse>.toListOfMedicationEntity(): List<MedicationEntity> {
     return this.map { medication ->
         MedicationEntity(
@@ -473,14 +474,14 @@ internal fun PrescriptionDirectionAndMedicineView.toMedication(): Medication {
     )
 }
 
-internal fun PatientLastUpdatedEntity.toPatientLastUpdatedResponse() : PatientLastUpdatedResponse {
+internal fun PatientLastUpdatedEntity.toPatientLastUpdatedResponse(): PatientLastUpdatedResponse {
     return PatientLastUpdatedResponse(
         uuid = patientId,
         timestamp = lastUpdated
     )
 }
 
-internal fun PatientLastUpdatedResponse.toPatientLastUpdatedEntity() : PatientLastUpdatedEntity {
+internal fun PatientLastUpdatedResponse.toPatientLastUpdatedEntity(): PatientLastUpdatedEntity {
     return PatientLastUpdatedEntity(
         patientId = uuid,
         lastUpdated = timestamp
@@ -489,12 +490,12 @@ internal fun PatientLastUpdatedResponse.toPatientLastUpdatedEntity() : PatientLa
 
 internal fun PrescriptionAndFileEntity.toPrescriptionPhotoResponse(): PrescriptionPhotoResponse {
     return PrescriptionPhotoResponse(
-        patientFhirId = prescriptionEntity.patientFhirId?: prescriptionEntity.patientId,
+        patientFhirId = prescriptionEntity.patientFhirId ?: prescriptionEntity.patientId,
         appointmentId = prescriptionEntity.appointmentId,
         generatedOn = prescriptionEntity.prescriptionDate,
         prescriptionId = prescriptionEntity.id,
         prescription = prescriptionPhotoEntity.map { prescriptionPhotoEntity ->
-            File(prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note)
+            File(prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note ?: "")
         },
         appointmentUuid = prescriptionEntity.appointmentId,
         prescriptionFhirId = prescriptionEntity.prescriptionFhirId
@@ -506,7 +507,7 @@ internal fun PrescriptionAndFileEntity.toFilesList(): List<File> {
     return prescriptionPhotoEntity.map {
         File(
             filename = it.fileName,
-            note = it.note
+            note = it.note ?: ""
         )
     }
 }
