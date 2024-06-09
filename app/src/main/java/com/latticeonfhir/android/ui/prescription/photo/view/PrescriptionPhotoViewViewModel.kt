@@ -33,6 +33,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     var showDeleteDialog by mutableStateOf(false)
     var displayNote by mutableStateOf(false)
     var prescriptionPhotos by mutableStateOf(listOf<File>())
+    var deletedPhotos = mutableListOf<File>()
 
     var selectedFile: File? by mutableStateOf(null)
 
@@ -112,7 +113,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             } else {
                 // insert generic patch
             }
-            getPastPrescription()
+            deletedPhotos.add(selectedFile!!)
             deleted()
         }
     }
