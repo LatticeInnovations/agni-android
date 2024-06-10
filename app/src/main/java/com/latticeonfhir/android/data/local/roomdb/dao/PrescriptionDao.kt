@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.roomdb.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -8,6 +9,7 @@ import androidx.room.Transaction
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionAndFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 
 @Dao
@@ -33,10 +35,10 @@ interface PrescriptionDao {
     ): List<PrescriptionAndMedicineRelation>
 
     @Transaction
-    @Query("SELECT fileName FROM PrescriptionPhotoEntity INNER JOIN PrescriptionEntity ON PrescriptionPhotoEntity.prescriptionId = PrescriptionEntity.id WHERE PrescriptionEntity.patientId=:patientId")
+    @Query("SELECT * FROM PrescriptionEntity WHERE patientId=:patientId")
     suspend fun getPastPhotoPrescriptions(
         patientId: String
-    ): List<String>
+    ): List<PrescriptionAndFileEntity>
 
     @Transaction
     @Query("UPDATE PrescriptionEntity SET prescriptionFhirId = :prescriptionFhirId WHERE id = :prescriptionId")
@@ -45,4 +47,15 @@ interface PrescriptionDao {
     @Transaction
     @Query("SELECT * FROM PrescriptionEntity WHERE appointmentId = :appointmentId")
     suspend fun getPrescriptionByAppointmentId(appointmentId: String): List<PrescriptionAndMedicineRelation>
+
+    @Transaction
+    @Query("SELECT * FROM PrescriptionEntity WHERE appointmentId = :appointmentId")
+    suspend fun getPrescriptionPhotoByAppointmentId(appointmentId: String): List<PrescriptionAndFileEntity>
+
+    @Transaction
+    @Query("SELECT * FROM PrescriptionEntity WHERE prescriptionDate BETWEEN :startDate AND :endDate AND patientId=:patientId")
+    suspend fun getPrescriptionPhotoByDate(patientId: String, startDate: Long, endDate: Long): List<PrescriptionAndFileEntity>
+
+    @Delete
+    suspend fun deletePrescriptionPhoto(prescriptionPhotoEntity: PrescriptionPhotoEntity): Int
 }

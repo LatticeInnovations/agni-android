@@ -1,9 +1,14 @@
 package com.latticeonfhir.android.utils.file
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import androidx.core.content.FileProvider
+import androidx.core.net.toFile
+import androidx.core.net.toUri
+import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.R
 import timber.log.Timber
 import java.io.File
@@ -107,5 +112,19 @@ object FileManager {
 
     fun removeFromInternalStorage(context: Context, fileName: String) {
         File(createFolder(context), fileName).delete()
+    }
+
+    fun shareImageToOtherApps(context: Context, uri: Uri) {
+        val contentUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", uri.toFile())
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "image/jpeg"
+            putExtra(Intent.EXTRA_STREAM, contentUri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(Intent.createChooser(intent, "Share Image"))
+    }
+
+    fun String.getUriFromFileName(context: Context): Uri {
+        return File(createFolder(context), this).toUri()
     }
 }

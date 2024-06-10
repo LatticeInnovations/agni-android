@@ -333,4 +333,27 @@ open class GenericRepositoryDatabaseTransactions(
             )[0]
         }
     }
+
+
+    protected suspend fun insertPrescriptionPhotoGenericEntity(
+        prescriptionPhotoResponse: PrescriptionPhotoResponse,
+        prescriptionPhotoGenericEntity: GenericEntity?,
+        uuid: String
+    ): Long {
+        return if (prescriptionPhotoGenericEntity != null) {
+            genericDao.insertGenericEntity(
+                prescriptionPhotoGenericEntity.copy(payload = prescriptionPhotoResponse.toJson())
+            )[0]
+        } else {
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid,
+                    patientId = prescriptionPhotoResponse.patientFhirId,
+                    payload = prescriptionPhotoResponse.toJson(),
+                    type = GenericTypeEnum.PRESCRIPTION,
+                    syncType = SyncType.POST
+                )
+            )[0]
+        }
+    }
 }
