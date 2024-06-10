@@ -1,8 +1,13 @@
 package com.latticeonfhir.android.ui.prescription.photo.view
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -39,6 +44,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -75,6 +81,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
@@ -82,7 +89,6 @@ import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isSameDay
@@ -105,6 +111,28 @@ fun PrescriptionPhotoViewScreen(
     viewModel: PrescriptionPhotoViewViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { map ->
+            val granted: Boolean =
+                map["android.permission.WRITE_EXTERNAL_STORAGE"] == true && map["android.permission.READ_EXTERNAL_STORAGE"] == true
+                        && map["android.permission.CAMERA"] == true
+
+            if (granted) {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    NavControllerConstants.PATIENT,
+                    viewModel.patient!!
+                )
+                navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
+            } else {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.permissions_denied),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.patient =
@@ -130,7 +158,7 @@ fun PrescriptionPhotoViewScreen(
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         topBar = {
             AnimatedContent(targetState = viewModel.isTapped, label = "") {
-                when(it) {
+                when (it) {
                     true -> {
                         MediumTopAppBar(
                             modifier = Modifier.fillMaxWidth(),
@@ -166,6 +194,7 @@ fun PrescriptionPhotoViewScreen(
                             }
                         )
                     }
+
                     false -> {
                         TopAppBar(
                             modifier = Modifier.fillMaxWidth(),
@@ -230,27 +259,51 @@ fun PrescriptionPhotoViewScreen(
                     }
                 }
             }
-        }
-    )
-    if (!viewModel.isTapped) {
-        viewModel.patient?.let { patient ->
-            AppointmentsFab(
-                modifier = Modifier.padding(end = 16.dp),
-                navController = navController,
-                patient = patient,
-                viewModel.isFabSelected
-            ) { showDialog ->
-                if (showDialog) {
-                    viewModel.showAllSlotsBookedDialog = true
-                } else viewModel.isFabSelected = !viewModel.isFabSelected
+        },
+        floatingActionButton = {
+            if (!viewModel.isTapped) {
+                FloatingActionButton(
+                    onClick = {
+                        if (viewModel.canAddPrescription) {
+                            checkPermissions(
+                                context = context,
+                                requestPermission = { permissionsToBeRequest ->
+                                    requestPermissionLauncher.launch(permissionsToBeRequest)
+                                },
+                                navigate = {
+                                    coroutineScope.launch {
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            NavControllerConstants.PATIENT,
+                                            viewModel.patient!!
+                                        )
+                                        navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
+                                    }
+                                }
+                            )
+                        } else if (viewModel.isAppointmentCompleted) {
+                            viewModel.showAppointmentCompletedDialog = true
+                        } else {
+                            viewModel.showAddToQueueDialog = true
+                        }
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.camera),
+                        contentDescription = null,
+                        Modifier.size(22.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
-    }
+    )
     if (viewModel.showDeleteDialog) {
-        DeletePhotoDialog(
-            dismiss = {
-                viewModel.showDeleteDialog = false
-            },
+        CustomDialog(
+            title = stringResource(id = R.string.discard_prescription),
+            text = stringResource(id = R.string.discard_prescription_description),
+            dismissBtnText = stringResource(id = R.string.no_go_back),
+            confirmBtnText = stringResource(id = R.string.yes_discard),
+            dismiss = { viewModel.showDeleteDialog = false },
             confirm = {
                 // delete prescription
                 viewModel.deletePrescription {
@@ -290,6 +343,96 @@ fun PrescriptionPhotoViewScreen(
                 }
             }
         )
+    }
+    if (viewModel.showAddToQueueDialog) {
+        CustomDialog(
+            title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
+                id = R.string.add_to_queue_question
+            ),
+            text = stringResource(id = R.string.add_to_queue_dialog_description),
+            dismissBtnText = stringResource(id = R.string.dismiss),
+            confirmBtnText = if (viewModel.appointment != null) stringResource(id = R.string.mark_arrived) else stringResource(
+                id = R.string.add_to_queue
+            ),
+            dismiss = { viewModel.showAddToQueueDialog = false },
+            confirm = {
+                if (viewModel.appointment != null) {
+                    viewModel.updateStatusToArrived(
+                        viewModel.patient!!,
+                        viewModel.appointment!!
+                    ) {
+                        viewModel.showAddToQueueDialog = false
+                        checkPermissions(
+                            context = context,
+                            requestPermission = { permissionsToBeRequest ->
+                                requestPermissionLauncher.launch(permissionsToBeRequest)
+                            },
+                            navigate = {
+                                coroutineScope.launch {
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        NavControllerConstants.PATIENT,
+                                        viewModel.patient!!
+                                    )
+                                    navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
+                                }
+                            }
+                        )
+                    }
+                } else {
+                    if (viewModel.ifAllSlotsBooked) {
+                         viewModel.showAllSlotsBookedDialog = true
+                    } else {
+                        viewModel.addPatientToQueue(viewModel.patient!!) {
+                            viewModel.showAddToQueueDialog = false
+                            checkPermissions(
+                                context = context,
+                                requestPermission = { permissionsToBeRequest ->
+                                    requestPermissionLauncher.launch(permissionsToBeRequest)
+                                },
+                                navigate = {
+                                    coroutineScope.launch {
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            NavControllerConstants.PATIENT,
+                                            viewModel.patient!!
+                                        )
+                                        navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        )
+    }
+    if (viewModel.showAppointmentCompletedDialog) {
+        AppointmentCompletedDialog {
+            viewModel.showAppointmentCompletedDialog = false
+        }
+    }
+}
+
+private fun checkPermissions(
+    context: Context,
+    requestPermission: (Array<String>) -> Unit,
+    navigate: () -> Unit
+) {
+    val permissionsToBeRequest = mutableListOf<String>()
+    listOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    ).forEach {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                it
+            ) != PackageManager.PERMISSION_GRANTED
+        ) permissionsToBeRequest.add(it)
+    }
+    if (permissionsToBeRequest.isNotEmpty()) {
+        requestPermission(permissionsToBeRequest.toTypedArray())
+    } else {
+        navigate()
     }
 }
 
@@ -350,7 +493,7 @@ private fun DisplayImage(
                 .background(color = MaterialTheme.colorScheme.surface)
                 .clickable(
                     enabled = !viewModel.selectedFile?.note.isNullOrBlank(),
-                    interactionSource = remember { MutableInteractionSource () },
+                    interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
                     viewModel.displayNote = !viewModel.displayNote
@@ -525,7 +668,9 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                         ).toPrescriptionTime(),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.width(250.dp).padding(end = 10.dp, bottom = 6.dp),
+                        modifier = Modifier
+                            .width(250.dp)
+                            .padding(end = 10.dp, bottom = 6.dp),
                         textAlign = TextAlign.End
                     )
                 }
@@ -544,32 +689,6 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
             Spacer(modifier = Modifier.height(80.dp))
         }
     }
-}
-
-@Composable
-private fun DeletePhotoDialog(
-    dismiss: () -> Unit,
-    confirm: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = { dismiss() },
-        confirmButton = {
-            TextButton(onClick = { confirm() }) {
-                Text(text = stringResource(id = R.string.yes_discard))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = { dismiss() }) {
-                Text(text = stringResource(id = R.string.no_go_back))
-            }
-        },
-        title = {
-            Text(text = stringResource(id = R.string.discard_prescription))
-        },
-        text = {
-            Text(text = stringResource(id = R.string.discard_prescription_description))
-        }
-    )
 }
 
 @OptIn(ExperimentalCoilApi::class)
@@ -642,6 +761,54 @@ private fun AddNoteDialog(
                     }
                 }
             }
+        }
+    )
+}
+
+
+@Composable
+private fun CustomDialog(
+    title: String,
+    text: String,
+    dismissBtnText: String,
+    confirmBtnText: String,
+    dismiss: () -> Unit,
+    confirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = { dismiss() },
+        confirmButton = {
+            TextButton(onClick = { confirm() }) {
+                Text(text = confirmBtnText)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { dismiss() }) {
+                Text(text = dismissBtnText)
+            }
+        },
+        title = {
+            Text(text = title)
+        },
+        text = {
+            Text(text = text)
+        }
+    )
+}
+
+@Composable
+private fun AppointmentCompletedDialog(
+    dismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = { dismiss() },
+        confirmButton = {
+            TextButton(onClick = { dismiss() }) {
+                Text(text = stringResource(id = R.string.dismiss))
+            }
+        },
+        text = {
+            Text(text = stringResource(id = R.string.appointment_completed))
         }
     )
 }

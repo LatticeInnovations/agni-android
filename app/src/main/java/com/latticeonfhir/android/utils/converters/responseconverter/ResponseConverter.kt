@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.local.model.appointment.AppointmentRespons
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
+import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
@@ -488,10 +489,12 @@ internal fun PatientLastUpdatedResponse.toPatientLastUpdatedEntity(): PatientLas
     )
 }
 
-internal fun PrescriptionAndFileEntity.toPrescriptionPhotoResponse(): PrescriptionPhotoResponse {
+internal suspend fun PrescriptionAndFileEntity.toPrescriptionPhotoResponse(
+    appointmentDao: AppointmentDao
+): PrescriptionPhotoResponse {
     return PrescriptionPhotoResponse(
         patientFhirId = prescriptionEntity.patientFhirId ?: prescriptionEntity.patientId,
-        appointmentId = prescriptionEntity.appointmentId,
+        appointmentId = appointmentDao.getFhirIdByAppointmentId(prescriptionEntity.appointmentId)?:prescriptionEntity.appointmentId,
         generatedOn = prescriptionEntity.prescriptionDate,
         prescriptionId = prescriptionEntity.id,
         prescription = prescriptionPhotoEntity.map { prescriptionPhotoEntity ->
