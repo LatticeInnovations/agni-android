@@ -277,9 +277,8 @@ fun NavBarActions(
             Icon(
                 painter = if (viewModel.selectedFile?.note.isNullOrEmpty())
                     painterResource(id = R.drawable.note_add)
-                else painterResource(id = R.drawable.edit_icon),
-                contentDescription = "NOTE_ICON",
-                modifier = Modifier.size(24.dp)
+                else painterResource(id = R.drawable.edit_note),
+                contentDescription = "NOTE_ICON"
             )
         }
     }
