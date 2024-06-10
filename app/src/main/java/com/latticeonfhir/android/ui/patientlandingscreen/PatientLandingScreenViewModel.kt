@@ -49,7 +49,7 @@ class PatientLandingScreenViewModel @Inject constructor(
 
     private val syncService by lazy { getApplication<FhirApp>().syncService }
 
-    init {
+    private fun syncData() {
         viewModelScope.launch(Dispatchers.IO) {
             Sync.getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext)
                 .collectLatest { workInfo ->
@@ -70,6 +70,7 @@ class PatientLandingScreenViewModel @Inject constructor(
                     }
                 }
                 getUploadsCount(patient!!.id)
+                syncData()
             }
         }
     }
