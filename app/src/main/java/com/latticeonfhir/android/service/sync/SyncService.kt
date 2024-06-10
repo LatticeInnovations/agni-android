@@ -265,13 +265,16 @@ class SyncService(
         checkAuthenticationStatus(syncRepository.getAndInsertAppointment(0), logout)?.apply {
             if (this is ApiEndResponse) {
                 downloadPatientLastUpdated(logout)
+                CoroutineScope(Dispatchers.IO).launch {
+                    downloadPrescription(null, logout)
+                }
             }
         }
     }
 
     /** Download Prescription*/
     internal suspend fun downloadPrescription(
-        patientId: String,
+        patientId: String?,
         logout: (Boolean, String) -> Unit
     ): ResponseMapper<Any>? {
         return checkAuthenticationStatus(
@@ -279,9 +282,7 @@ class SyncService(
             logout
         )?.apply {
             if (this is ApiEmptyResponse || this is ApiEndResponse) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    downloadPrescriptionPhoto()
-                }
+                downloadPrescriptionPhoto()
             }
         }
     }
@@ -352,8 +353,7 @@ class SyncService(
         return if (responseMapper is ApiErrorResponse) {
             if (responseMapper.errorMessage == ErrorConstants.SESSION_EXPIRED || responseMapper.errorMessage == ErrorConstants.UNAUTHORIZED) {
                 logout(true, responseMapper.errorMessage)
-            }
-            else logout(false, responseMapper.errorMessage)
+            } else logout(false, responseMapper.errorMessage)
             null
         } else {
             responseMapper
