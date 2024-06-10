@@ -2,15 +2,24 @@ package com.latticeonfhir.android.data.local.repository.prescription
 
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
+import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
+import com.latticeonfhir.android.data.server.model.prescription.photo.File
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
+import com.latticeonfhir.android.utils.converters.responseconverter.toFilesList
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionDirectionsEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionPhotoEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionPhotoResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionResponseLocal
 import javax.inject.Inject
 
-class PrescriptionRepositoryImpl @Inject constructor(private val prescriptionDao: PrescriptionDao) :
+class PrescriptionRepositoryImpl @Inject constructor(
+    private val prescriptionDao: PrescriptionDao,
+    private val fileUploadDao: FileUploadDao
+) :
     PrescriptionRepository {
 
     override suspend fun insertPrescription(prescriptionResponseLocal: PrescriptionResponseLocal): Long {
@@ -33,8 +42,14 @@ class PrescriptionRepositoryImpl @Inject constructor(private val prescriptionDao
         return prescriptionDao.getPastPrescriptions(patientId)
     }
 
-    override suspend fun getLastPhotoPrescription(patientId: String): List<String> {
-        return prescriptionDao.getPastPhotoPrescriptions(patientId)
+    override suspend fun getLastPhotoPrescription(patientId: String): List<File> {
+        val listOfFiles = mutableListOf<File>()
+        prescriptionDao.getPastPhotoPrescriptions(patientId).map {
+            listOfFiles.addAll(it.toFilesList())
+        }
+        return listOfFiles.sortedBy {
+            it.filename.substringBefore(".").toLong()
+        }
     }
 
     override suspend fun getPrescriptionByAppointmentId(appointmentId: String): List<PrescriptionResponseLocal> {
@@ -42,5 +57,32 @@ class PrescriptionRepositoryImpl @Inject constructor(private val prescriptionDao
             .map { prescriptionAndMedicineRelation ->
                 prescriptionAndMedicineRelation.toPrescriptionResponseLocal()
             }
+    }
+
+    override suspend fun getPrescriptionPhotoByAppointmentId(appointmentId: String): List<PrescriptionPhotoResponse> {
+        return prescriptionDao.getPrescriptionPhotoByAppointmentId(appointmentId)
+            .map {
+                it.toPrescriptionPhotoResponse()
+            }
+    }
+
+    override suspend fun getPrescriptionPhotoByDate(
+        patientId: String,
+        startDate: Long,
+        endDate: Long
+    ): PrescriptionPhotoResponse {
+        return prescriptionDao.getPrescriptionPhotoByDate(patientId, startDate, endDate)
+            .map { it.toPrescriptionPhotoResponse() }[0]
+    }
+
+    override suspend fun insertPrescriptionPhotos(prescriptionPhotoEntity: PrescriptionPhotoEntity): Long {
+        return prescriptionDao.insertPrescriptionPhotos(
+            prescriptionPhotoEntity
+        )[0]
+    }
+
+    override suspend fun deletePrescriptionPhotos(prescriptionPhotoEntity: PrescriptionPhotoEntity): Int {
+        fileUploadDao.deleteFile(prescriptionPhotoEntity.fileName)
+        return prescriptionDao.deletePrescriptionPhoto(prescriptionPhotoEntity)
     }
 }
