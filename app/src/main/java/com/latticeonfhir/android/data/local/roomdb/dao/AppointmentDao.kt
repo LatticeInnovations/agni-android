@@ -19,6 +19,10 @@ interface AppointmentDao {
     suspend fun getAppointmentIdByFhirId(appointmentFhirId: String): String
 
     @Transaction
+    @Query("SELECT appointmentFhirId FROM AppointmentEntity WHERE id = :appointmentId")
+    suspend fun getFhirIdByAppointmentId(appointmentId: String): String?
+
+    @Transaction
     @Query("UPDATE AppointmentEntity SET appointmentFhirId=:fhirId WHERE id=:id")
     suspend fun updateAppointmentFhirId(id: String, fhirId: String): Int
 

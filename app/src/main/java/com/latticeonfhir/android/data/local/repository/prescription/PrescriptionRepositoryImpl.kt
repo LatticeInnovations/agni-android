@@ -2,6 +2,7 @@ package com.latticeonfhir.android.data.local.repository.prescription
 
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
+import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 class PrescriptionRepositoryImpl @Inject constructor(
     private val prescriptionDao: PrescriptionDao,
-    private val fileUploadDao: FileUploadDao
+    private val fileUploadDao: FileUploadDao,
+    private val appointmentDao: AppointmentDao
 ) :
     PrescriptionRepository {
 
@@ -62,7 +64,7 @@ class PrescriptionRepositoryImpl @Inject constructor(
     override suspend fun getPrescriptionPhotoByAppointmentId(appointmentId: String): List<PrescriptionPhotoResponse> {
         return prescriptionDao.getPrescriptionPhotoByAppointmentId(appointmentId)
             .map {
-                it.toPrescriptionPhotoResponse()
+                it.toPrescriptionPhotoResponse(appointmentDao)
             }
     }
 
@@ -72,7 +74,7 @@ class PrescriptionRepositoryImpl @Inject constructor(
         endDate: Long
     ): PrescriptionPhotoResponse {
         return prescriptionDao.getPrescriptionPhotoByDate(patientId, startDate, endDate)
-            .map { it.toPrescriptionPhotoResponse() }[0]
+            .map { it.toPrescriptionPhotoResponse(appointmentDao) }[0]
     }
 
     override suspend fun insertPrescriptionPhotos(prescriptionPhotoEntity: PrescriptionPhotoEntity): Long {
