@@ -3,18 +3,20 @@ package com.latticeonfhir.android.ui.prescription.photo.view
 import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,7 +61,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -73,6 +74,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
@@ -127,34 +129,78 @@ fun PrescriptionPhotoViewScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         topBar = {
-            TopAppBar(
-                modifier = Modifier.fillMaxWidth(),
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
-                ),
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.prescriptions),
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.testTag("HEADING_TAG")
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.popBackStack(
-                            Screen.PatientLandingScreen.route,
-                            inclusive = false
+            AnimatedContent(targetState = viewModel.isTapped, label = "") {
+                when(it) {
+                    true -> {
+                        MediumTopAppBar(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                            ),
+                            title = {
+                                Text(
+                                    text = viewModel.selectedFile?.filename?.substringBefore(".")
+                                        ?.toLong()
+                                        ?.let { long ->
+                                            Date(
+                                                long
+                                            ).toPrescriptionNavDate()
+                                        } ?: "",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.testTag("HEADING_TAG")
+                                )
+                            },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    viewModel.isTapped = false
+                                    viewModel.selectedFile = null
+                                }) {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "BACK_ICON"
+                                    )
+                                }
+                            },
+                            actions = {
+                                NavBarActions(context, viewModel)
+                            }
                         )
-                    }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
-                },
-                actions = {
-                    AnimatedVisibility(viewModel.isLongPressed) {
-                        NavBarActions(context, viewModel)
+                    false -> {
+                        TopAppBar(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                            ),
+                            title = {
+                                Text(
+                                    text = stringResource(id = R.string.prescriptions),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.testTag("HEADING_TAG")
+                                )
+                            },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    navController.popBackStack(
+                                        Screen.PatientLandingScreen.route,
+                                        inclusive = false
+                                    )
+                                }) {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "BACK_ICON"
+                                    )
+                                }
+                            },
+                            actions = {
+                                AnimatedVisibility(viewModel.isLongPressed) {
+                                    NavBarActions(context, viewModel)
+                                }
+                            }
+                        )
                     }
                 }
-            )
+            }
         },
         content = {
             Box(modifier = Modifier.padding(it)) {
@@ -171,6 +217,13 @@ fun PrescriptionPhotoViewScreen(
                     }
                 }
                 PhotoView(viewModel)
+                AnimatedVisibility(
+                    visible = viewModel.isTapped,
+                    enter = slideInHorizontally(initialOffsetX = { offset -> offset }),
+                    exit = slideOutHorizontally(targetOffsetX = { offset -> offset })
+                ) {
+                    DisplayImage(context, viewModel)
+                }
                 if (viewModel.showAllSlotsBookedDialog) {
                     AllSlotsBookedDialog {
                         viewModel.showAllSlotsBookedDialog = false
@@ -179,24 +232,19 @@ fun PrescriptionPhotoViewScreen(
             }
         }
     )
-    viewModel.patient?.let { patient ->
-        AppointmentsFab(
-            modifier = Modifier.padding(end = 16.dp),
-            navController = navController,
-            patient = patient,
-            viewModel.isFabSelected
-        ) { showDialog ->
-            if (showDialog) {
-                viewModel.showAllSlotsBookedDialog = true
-            } else viewModel.isFabSelected = !viewModel.isFabSelected
+    if (!viewModel.isTapped) {
+        viewModel.patient?.let { patient ->
+            AppointmentsFab(
+                modifier = Modifier.padding(end = 16.dp),
+                navController = navController,
+                patient = patient,
+                viewModel.isFabSelected
+            ) { showDialog ->
+                if (showDialog) {
+                    viewModel.showAllSlotsBookedDialog = true
+                } else viewModel.isFabSelected = !viewModel.isFabSelected
+            }
         }
-    }
-    AnimatedVisibility(
-        visible = viewModel.isTapped,
-        enter = fadeIn(),
-        exit = fadeOut()
-    ) {
-        DisplayImage(context, viewModel)
     }
     if (viewModel.showDeleteDialog) {
         DeletePhotoDialog(
@@ -284,88 +332,58 @@ fun NavBarActions(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 private fun DisplayImage(
     context: Context,
     viewModel: PrescriptionPhotoViewViewModel
 ) {
-    Scaffold(
-        topBar = {
-            MediumTopAppBar(
-                modifier = Modifier.fillMaxWidth(),
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
-                ),
-                title = {
-                    Text(
-                        text = viewModel.selectedFile?.filename?.substringBefore(".")
-                            ?.toLong()
-                            ?.let {
-                                Date(
-                                    it
-                                ).toPrescriptionNavDate()
-                            } ?: "",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.testTag("HEADING_TAG")
-                    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .zIndex(2f),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Image(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.surface)
+                .clickable(
+                    enabled = !viewModel.selectedFile?.note.isNullOrBlank(),
+                    interactionSource = remember { MutableInteractionSource () },
+                    indication = null
+                ) {
+                    viewModel.displayNote = !viewModel.displayNote
                 },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        viewModel.isTapped = false
-                        viewModel.selectedFile = null
-                    }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
-                    }
-                },
-                actions = {
-                    NavBarActions(context, viewModel)
-                }
-            )
-        },
-        content = {
-            Box(
-                modifier = Modifier.padding(it),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                Image(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = MaterialTheme.colorScheme.surface)
-                        .clickable(
-                            enabled = !viewModel.selectedFile?.note.isNullOrEmpty()
-                        ) {
-                            viewModel.displayNote = !viewModel.displayNote
-                        },
-                    painter = rememberImagePainter(
-                        viewModel.selectedFile?.filename?.getUriFromFileName(
-                            context
-                        )
-                    ),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit
+            painter = rememberImagePainter(
+                viewModel.selectedFile?.filename?.getUriFromFileName(
+                    context
                 )
-                if (!viewModel.selectedFile?.note.isNullOrBlank()) {
-                    AnimatedVisibility(
-                        visible = viewModel.displayNote,
-                        enter = expandVertically(),
-                        exit = shrinkVertically()
-                    ) {
-                        Text(
-                            text = viewModel.selectedFile!!.note,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .alpha(0.5f)
-                                .background(color = Color.Black)
-                                .padding(16.dp)
-                        )
-                    }
+            ),
+            contentDescription = null,
+            contentScale = ContentScale.Fit
+        )
+        if (!viewModel.selectedFile?.note.isNullOrBlank()) {
+            AnimatedVisibility(
+                visible = viewModel.displayNote,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color.Black.copy(alpha = 0.5f)
+                ) {
+                    Text(
+                        text = viewModel.selectedFile!!.note,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier
+                            .padding(16.dp)
+                    )
                 }
             }
         }
-    )
+    }
 }
 
 @OptIn(ExperimentalCoilApi::class, ExperimentalFoundationApi::class)
