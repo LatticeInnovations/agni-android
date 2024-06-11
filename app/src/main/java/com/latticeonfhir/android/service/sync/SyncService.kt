@@ -30,6 +30,7 @@ class SyncService(
     private lateinit var patientDownloadJob: Deferred<ResponseMapper<Any>?>
     private lateinit var scheduleDownloadJob: Deferred<ResponseMapper<Any>?>
     private lateinit var appointmentPatchJob: Deferred<ResponseMapper<Any>?>
+    private lateinit var prescriptionPatchJob: Deferred<ResponseMapper<Any>?>
 
     /**
      *
@@ -51,6 +52,9 @@ class SyncService(
                     },
                     async {
                         patchRelation(logout)
+                    },
+                    async {
+                        patchPrescription(logout)
                     },
                     async {
                         downloadMedicationTiming(logout)
@@ -228,6 +232,15 @@ class SyncService(
         return checkAuthenticationStatus(syncRepository.sendAppointmentPatchData(), logout)
     }
 
+    /** Patch Prescription */
+    private suspend fun patchPrescription(logout: (Boolean, String) -> Unit){
+        coroutineScope {
+            prescriptionPatchJob = async {
+                checkAuthenticationStatus(syncRepository.sendPrescriptionPhotoPatchData(), logout)
+            }
+        }
+    }
+
     /**
      *
      *
@@ -262,11 +275,20 @@ class SyncService(
 
     /** Download Appointment*/
     private suspend fun downloadAppointment(logout: (Boolean, String) -> Unit) {
-        checkAuthenticationStatus(syncRepository.getAndInsertAppointment(0), logout)?.apply {
-            if (this is ApiEndResponse) {
-                downloadPatientLastUpdated(logout)
-                CoroutineScope(Dispatchers.IO).launch {
-                    downloadPrescription(null, logout)
+        coroutineScope {
+            awaitAll(
+                async {
+                    checkAuthenticationStatus(syncRepository.getAndInsertAppointment(0), logout)
+                },
+                prescriptionPatchJob
+            ).all { responseMapper ->
+                responseMapper is ApiEmptyResponse || responseMapper is ApiEndResponse
+            }.apply {
+                if (this) {
+                    downloadPatientLastUpdated(logout)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        downloadPrescription(null, logout)
+                    }
                 }
             }
         }
