@@ -66,7 +66,7 @@ class FileSyncRepositoryImpl @Inject constructor(
         // download rest of the files
         val filesEntitiesToBeDownloaded =
             listOfGenericEntity.filter { !downloadedFileDao.getDownloadedFileNames().contains(it.payload) }
-        for (chunk in filesEntitiesToBeDownloaded.map { it.payload }.chunked(10)) {
+        for (chunk in filesEntitiesToBeDownloaded.map { it.payload }.toSet().chunked(10)) {
             downloadAndSaveFiles(filesEntitiesToBeDownloaded, chunk)
         }
     }
