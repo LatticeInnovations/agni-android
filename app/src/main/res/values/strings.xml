@@ -232,4 +232,6 @@ include them in the household</string>
     <string name="appointment_completed">Appointment for today is completed.</string>
     <string name="network_not_available">Network not available</string>
     <string name="data_outdated_info">Data might be out dated as there is no internet connection.</string>
+    <string name="app_version">App Version</string>
+    <string name="agni_app_version">Agni %s</string>
 </resources>
