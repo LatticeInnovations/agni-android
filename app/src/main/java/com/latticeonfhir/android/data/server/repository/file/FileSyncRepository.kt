@@ -9,7 +9,7 @@ import retrofit2.Response
 
 interface FileSyncRepository {
     suspend fun getMultipleFiles(filesRequest: FilesRequest): Response<ResponseBody>
-    suspend fun startDownload()
+    suspend fun startDownload(logout: (Boolean, String) -> Unit)
     suspend fun uploadFile(): ResponseMapper<FilesResponse>
     suspend fun insertFile(fileUploadEntity: FileUploadEntity): List<Long>
 }

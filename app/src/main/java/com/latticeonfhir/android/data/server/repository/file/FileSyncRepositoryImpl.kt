@@ -44,20 +44,21 @@ class FileSyncRepositoryImpl @Inject constructor(
         return fileUploadApiService.getMultipleFiles(filesRequest)
     }
 
-    override suspend fun startDownload() {
+    override suspend fun startDownload(logout: (Boolean, String) -> Unit) {
         genericDao.getSameTypeGenericEntityPayload(
             GenericTypeEnum.PRESCRIPTION_PHOTO,
             SyncType.POST
         ).let { listOfGenericEntity ->
             if (listOfGenericEntity.isNotEmpty()) {
                 processDownload(
-                    listOfGenericEntity
+                    listOfGenericEntity,
+                    logout
                 )
             }
         }
     }
 
-    private suspend fun processDownload(listOfGenericEntity: List<GenericEntity>) {
+    private suspend fun processDownload(listOfGenericEntity: List<GenericEntity>, logout: (Boolean, String) -> Unit) {
         // delete payload if already downloaded
         val entitiesToBeDeleted =
             listOfGenericEntity.filter { downloadedFileDao.getDownloadedFileNames().contains(it.payload) }
@@ -67,11 +68,11 @@ class FileSyncRepositoryImpl @Inject constructor(
         val filesEntitiesToBeDownloaded =
             listOfGenericEntity.filter { !downloadedFileDao.getDownloadedFileNames().contains(it.payload) }
         for (chunk in filesEntitiesToBeDownloaded.map { it.payload }.toSet().chunked(10)) {
-            downloadAndSaveFiles(filesEntitiesToBeDownloaded, chunk)
+            downloadAndSaveFiles(filesEntitiesToBeDownloaded, chunk, logout)
         }
     }
 
-    private suspend fun downloadAndSaveFiles(listOfGenericEntity: List<GenericEntity>, filesToBeDownloaded: List<String>) {
+    private suspend fun downloadAndSaveFiles(listOfGenericEntity: List<GenericEntity>, filesToBeDownloaded: List<String>, logout: (Boolean, String) -> Unit) {
         getMultipleFiles(FilesRequest(filesToBeDownloaded)).let {
             it.body()?.let { body ->
                 saveAndUnzipFile(context, body)
@@ -79,7 +80,10 @@ class FileSyncRepositoryImpl @Inject constructor(
                 downloadedFileDao.insertFile(*filesToBeDownloaded.map { uniqueFileName ->
                     DownloadedFileEntity(name = uniqueFileName)
                 }.toTypedArray())
-                startDownload()
+                startDownload(logout)
+            }
+            it.errorBody()?.let { errorBody ->
+                logout(false, errorBody.string())
             }
         }
     }
