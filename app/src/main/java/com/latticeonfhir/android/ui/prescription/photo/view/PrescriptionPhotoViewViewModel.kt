@@ -1,11 +1,16 @@
 package com.latticeonfhir.android.ui.prescription.photo.view
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.latticeonfhir.android.FhirApp
+import com.latticeonfhir.android.R
+import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
+import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -27,13 +32,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PrescriptionPhotoViewViewModel @Inject constructor(
+    application: Application,
     private val prescriptionRepository: PrescriptionRepository,
     private val genericRepository: GenericRepository,
     private val appointmentRepository: AppointmentRepository,
     private val scheduleRepository: ScheduleRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository,
     private val preferenceRepository: PreferenceRepository
-) : ViewModel() {
+) : BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
     var isFabSelected by mutableStateOf(false)
@@ -55,9 +61,46 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
 
     var selectedFile: File? by mutableStateOf(null)
 
-    internal fun getPastPrescription() {
+    // syncing
+    var syncStatus by mutableStateOf(WorkerStatus.TODO)
+    var showOutdatedDataDialog by mutableStateOf(false)
+
+    internal fun getCurrentSyncStatus() {
+        viewModelScope.launch {
+            getApplication<FhirApp>().syncWorkerStatus.observeForever { workerStatus ->
+                syncStatus = when (workerStatus) {
+                    WorkerStatus.IN_PROGRESS -> WorkerStatus.IN_PROGRESS
+                    WorkerStatus.SUCCESS -> WorkerStatus.SUCCESS
+                    WorkerStatus.FAILED -> WorkerStatus.FAILED
+                    else -> {
+                        getLastSyncStatus()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getLastSyncStatus(): WorkerStatus {
+        return when(preferenceRepository.getSyncStatus()) {
+            SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display -> WorkerStatus.IN_PROGRESS
+            SyncStatusMessageEnum.SYNCING_COMPLETED.display -> WorkerStatus.SUCCESS
+            SyncStatusMessageEnum.SYNCING_FAILED.display -> WorkerStatus.FAILED
+            else -> WorkerStatus.TODO
+        }
+    }
+
+    internal fun getSyncIcon(): Int {
+        return when(syncStatus) {
+            WorkerStatus.IN_PROGRESS -> R.drawable.sync_icon
+            WorkerStatus.SUCCESS -> R.drawable.published_with_changes
+            WorkerStatus.FAILED -> R.drawable.sync_problem
+            WorkerStatus.OFFLINE -> R.drawable.info
+            else -> 0
+        }
+    }
+
+    internal fun getAppointmentInfo() {
         viewModelScope.launch(Dispatchers.IO) {
-            prescriptionPhotos = prescriptionRepository.getLastPhotoPrescription(patient!!.id)
             appointment = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patient!!.id,
                 AppointmentStatusEnum.SCHEDULED.value
@@ -72,7 +115,8 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                 canAddPrescription =
                     appointmentResponse?.status == AppointmentStatusEnum.ARRIVED.value || appointmentResponse?.status == AppointmentStatusEnum.WALK_IN.value
                             || appointmentResponse?.status == AppointmentStatusEnum.IN_PROGRESS.value
-                isAppointmentCompleted = appointmentResponse?.status == AppointmentStatusEnum.COMPLETED.value
+                isAppointmentCompleted =
+                    appointmentResponse?.status == AppointmentStatusEnum.COMPLETED.value
             }
             ifAllSlotsBooked = appointmentRepository.getAppointmentListByDate(
                 Date().toTodayStartDate(),
@@ -80,6 +124,12 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             ).filter { appointmentResponseLocal ->
                 appointmentResponseLocal.status != AppointmentStatusEnum.CANCELLED.value
             }.size >= maxNumberOfAppointmentsInADay
+        }
+    }
+
+    internal fun getPastPrescription() {
+        viewModelScope.launch(Dispatchers.IO) {
+            prescriptionPhotos = prescriptionRepository.getLastPhotoPrescription(patient!!.id)
         }
     }
 
@@ -104,11 +154,12 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             )
             if (prescriptionPhotoResponse.prescriptionFhirId == null) {
                 // insert generic post
-                val updatedPrescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
-                    patient!!.id,
-                    dateOfFile.toTodayStartDate(),
-                    dateOfFile.toEndOfDay()
-                )
+                val updatedPrescriptionPhotoResponse =
+                    prescriptionRepository.getPrescriptionPhotoByDate(
+                        patient!!.id,
+                        dateOfFile.toTodayStartDate(),
+                        dateOfFile.toEndOfDay()
+                    )
                 genericRepository.insertPhotoPrescription(
                     updatedPrescriptionPhotoResponse
                 )
@@ -142,11 +193,12 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             // update in generic
             if (prescriptionPhotoResponse.prescriptionFhirId == null) {
                 // insert generic post
-                val updatedPrescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
-                    patient!!.id,
-                    dateOfFile.toTodayStartDate(),
-                    dateOfFile.toEndOfDay()
-                )
+                val updatedPrescriptionPhotoResponse =
+                    prescriptionRepository.getPrescriptionPhotoByDate(
+                        patient!!.id,
+                        dateOfFile.toTodayStartDate(),
+                        dateOfFile.toEndOfDay()
+                    )
                 genericRepository.insertPhotoPrescription(
                     updatedPrescriptionPhotoResponse
                 )
@@ -178,7 +230,16 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
         updated: (Int) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            Queries.updateStatusToArrived(patient, appointment, appointmentRepository, genericRepository, preferenceRepository, scheduleRepository, patientLastUpdatedRepository, updated)
+            Queries.updateStatusToArrived(
+                patient,
+                appointment,
+                appointmentRepository,
+                genericRepository,
+                preferenceRepository,
+                scheduleRepository,
+                patientLastUpdatedRepository,
+                updated
+            )
         }
     }
 }
