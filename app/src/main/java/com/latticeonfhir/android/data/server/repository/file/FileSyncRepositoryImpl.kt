@@ -28,7 +28,6 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
-import timber.log.Timber
 import java.io.File
 import java.util.UUID
 import javax.inject.Inject
@@ -51,7 +50,6 @@ class FileSyncRepositoryImpl @Inject constructor(
             SyncType.POST
         ).let { listOfGenericEntity ->
             if (listOfGenericEntity.isNotEmpty()) {
-                Timber.d("manseeyy download file api called")
                 processDownload(
                     listOfGenericEntity
                 )
@@ -81,6 +79,7 @@ class FileSyncRepositoryImpl @Inject constructor(
                 downloadedFileDao.insertFile(*filesToBeDownloaded.map { uniqueFileName ->
                     DownloadedFileEntity(name = uniqueFileName)
                 }.toTypedArray())
+                startDownload()
             }
         }
     }
