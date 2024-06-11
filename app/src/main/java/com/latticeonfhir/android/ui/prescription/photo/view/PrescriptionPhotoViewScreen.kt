@@ -188,6 +188,7 @@ fun PrescriptionPhotoViewScreen(
                             navigationIcon = {
                                 IconButton(onClick = {
                                     viewModel.isTapped = false
+                                    viewModel.displayNote = false
                                     viewModel.selectedFile = null
                                 }) {
                                     Icon(
