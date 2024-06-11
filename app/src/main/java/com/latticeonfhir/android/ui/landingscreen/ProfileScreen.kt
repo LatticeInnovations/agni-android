@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
@@ -63,6 +64,7 @@ fun ProfileScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
         }
 
         SyncStatusView(viewModel)
+        AppVersionInfoCard()
     }
 }
 
@@ -159,3 +161,33 @@ private fun setTextAndIconColor(viewModel: LandingScreenViewModel): Color {
 
 }
 
+@Composable
+private fun AppVersionInfoCard() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 14.dp),
+        border = BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outlineVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(vertical = 24.dp, horizontal = 16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.app_version),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = stringResource(R.string.agni_app_version, BuildConfig.VERSION_NAME),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
