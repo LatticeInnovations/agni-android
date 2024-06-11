@@ -35,4 +35,5 @@ interface SyncRepository {
     suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendRelatedPersonPatchData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendAppointmentPatchData(): ResponseMapper<List<CreateResponse>>
+    suspend fun sendPrescriptionPhotoPatchData(): ResponseMapper<List<CreateResponse>>
 }

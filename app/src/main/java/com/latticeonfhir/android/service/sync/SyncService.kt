@@ -192,7 +192,11 @@ class SyncService(
 
     /** Upload Prescription */
     private suspend fun uploadPrescription(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
-        return checkAuthenticationStatus(syncRepository.sendPrescriptionPostData(), logout)
+        return checkAuthenticationStatus(syncRepository.sendPrescriptionPostData(), logout)?.apply {
+            if (this is ApiEmptyResponse) {
+                patchPrescription(logout)
+            }
+        }
     }
 
     /** Upload Patient Last Updated Data */
@@ -226,6 +230,11 @@ class SyncService(
     /** Patch Appointment */
     private suspend fun patchAppointment(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(syncRepository.sendAppointmentPatchData(), logout)
+    }
+
+    /** Patch Prescription */
+    private suspend fun patchPrescription(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendPrescriptionPhotoPatchData(), logout)
     }
 
     /**
