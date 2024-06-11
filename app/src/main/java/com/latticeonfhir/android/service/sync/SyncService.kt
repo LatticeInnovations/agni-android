@@ -233,7 +233,7 @@ class SyncService(
     }
 
     /** Patch Prescription */
-    private suspend fun patchPrescription(logout: (Boolean, String) -> Unit){
+    internal suspend fun patchPrescription(logout: (Boolean, String) -> Unit){
         coroutineScope {
             prescriptionPatchJob = async {
                 checkAuthenticationStatus(syncRepository.sendPrescriptionPhotoPatchData(), logout)
@@ -304,7 +304,7 @@ class SyncService(
             logout
         )?.apply {
             if (this is ApiEmptyResponse || this is ApiEndResponse) {
-                downloadPrescriptionPhoto()
+                downloadPrescriptionPhoto(logout)
             }
         }
     }
@@ -327,8 +327,8 @@ class SyncService(
     }
 
     /** Download Patient Last Updated */
-    private suspend fun downloadPrescriptionPhoto() {
-        fileSyncRepository.startDownload()
+    private suspend fun downloadPrescriptionPhoto(logout: (Boolean, String) -> Unit) {
+        fileSyncRepository.startDownload(logout)
     }
 
     /**

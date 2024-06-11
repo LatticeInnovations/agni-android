@@ -23,7 +23,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
@@ -51,7 +50,6 @@ class PatientLandingScreenViewModel @Inject constructor(
     private val syncService by lazy { getApplication<FhirApp>().syncService }
 
     private suspend fun syncData() {
-        Timber.d("manseeyy sync data called")
         Sync.getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext)
             .collectLatest { workInfo ->
                 if (workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
@@ -63,7 +61,12 @@ class PatientLandingScreenViewModel @Inject constructor(
     internal fun downloadPrescriptions(patientFhirId: String) {
         if (CheckNetwork.isInternetAvailable(getApplication<FhirApp>().applicationContext)) {
             viewModelScope.launch(Dispatchers.IO) {
-                Timber.d(("manseeyy download prescription called"))
+                syncService.patchPrescription { isErrorReceived, errorMsg ->
+                    if (isErrorReceived) {
+                        logoutUser = true
+                        logoutReason = errorMsg
+                    }
+                }
                 syncService.downloadPrescription(patientFhirId) { isErrorReceived, errorMsg ->
                     if (isErrorReceived) {
                         logoutUser = true
