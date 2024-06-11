@@ -87,9 +87,12 @@ import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
+import com.latticeonfhir.android.ui.theme.Green
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isSameDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isToday
@@ -100,6 +103,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.file.FileManager
 import com.latticeonfhir.android.utils.file.FileManager.getUriFromFileName
 import com.latticeonfhir.android.utils.file.FileManager.shareImageToOtherApps
+import com.latticeonfhir.android.utils.network.ConnectivityObserver
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Date
@@ -111,6 +115,7 @@ fun PrescriptionPhotoViewScreen(
     viewModel: PrescriptionPhotoViewViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val activity = LocalContext.current as MainActivity
     val coroutineScope = rememberCoroutineScope()
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
@@ -139,9 +144,11 @@ fun PrescriptionPhotoViewScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     NavControllerConstants.PATIENT
                 )
+            viewModel.getCurrentSyncStatus()
             viewModel.getPastPrescription()
             viewModel.isLaunched = true
         }
+        viewModel.getAppointmentInfo()
     }
 
     BackHandler(enabled = true) {
@@ -181,6 +188,7 @@ fun PrescriptionPhotoViewScreen(
                             navigationIcon = {
                                 IconButton(onClick = {
                                     viewModel.isTapped = false
+                                    viewModel.displayNote = false
                                     viewModel.selectedFile = null
                                 }) {
                                     Icon(
@@ -222,8 +230,35 @@ fun PrescriptionPhotoViewScreen(
                                 }
                             },
                             actions = {
-                                AnimatedVisibility(viewModel.isLongPressed) {
-                                    NavBarActions(context, viewModel)
+                                if (activity.connectivityStatus.value == ConnectivityObserver.Status.Available) {
+                                    if (viewModel.syncStatus == WorkerStatus.OFFLINE) viewModel.getCurrentSyncStatus()
+                                } else {
+                                    viewModel.syncStatus = WorkerStatus.OFFLINE
+                                }
+                                AnimatedContent(
+                                    targetState = viewModel.isLongPressed,
+                                    label = ""
+                                ) { targetState ->
+                                    when (targetState) {
+                                        true -> NavBarActions(context, viewModel)
+                                        false -> {
+                                            if (viewModel.syncStatus != WorkerStatus.TODO) {
+                                                IconButton(
+                                                    onClick = {
+                                                        viewModel.showOutdatedDataDialog = true
+                                                    },
+                                                    enabled = viewModel.syncStatus == WorkerStatus.OFFLINE
+                                                ) {
+                                                    Icon(
+                                                        painter = painterResource(id = viewModel.getSyncIcon()),
+                                                        contentDescription = null,
+                                                        modifier = Modifier.size(24.dp),
+                                                        tint = getSyncIconColor(viewModel.syncStatus)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         )
@@ -380,7 +415,7 @@ fun PrescriptionPhotoViewScreen(
                     }
                 } else {
                     if (viewModel.ifAllSlotsBooked) {
-                         viewModel.showAllSlotsBookedDialog = true
+                        viewModel.showAllSlotsBookedDialog = true
                     } else {
                         viewModel.addPatientToQueue(viewModel.patient!!) {
                             viewModel.showAddToQueueDialog = false
@@ -409,6 +444,25 @@ fun PrescriptionPhotoViewScreen(
         AppointmentCompletedDialog {
             viewModel.showAppointmentCompletedDialog = false
         }
+    }
+    if (viewModel.showOutdatedDataDialog) {
+        CustomDialog(
+            title = stringResource(id = R.string.network_not_available),
+            text = stringResource(id = R.string.data_outdated_info),
+            dismissBtnText = null,
+            confirmBtnText = stringResource(id = R.string.discard),
+            dismiss = { viewModel.showOutdatedDataDialog = false },
+            confirm = { viewModel.showOutdatedDataDialog = false }
+        )
+    }
+}
+
+@Composable
+fun getSyncIconColor(syncStatus: WorkerStatus): Color {
+    return when (syncStatus) {
+        WorkerStatus.SUCCESS -> Green
+        WorkerStatus.FAILED -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 }
 
@@ -770,7 +824,7 @@ private fun AddNoteDialog(
 private fun CustomDialog(
     title: String,
     text: String,
-    dismissBtnText: String,
+    dismissBtnText: String?,
     confirmBtnText: String,
     dismiss: () -> Unit,
     confirm: () -> Unit
@@ -783,8 +837,10 @@ private fun CustomDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = { dismiss() }) {
-                Text(text = dismissBtnText)
+            dismissBtnText?.let{ dismissBtnText ->
+                TextButton(onClick = { dismiss() }) {
+                    Text(text = dismissBtnText)
+                }
             }
         },
         title = {

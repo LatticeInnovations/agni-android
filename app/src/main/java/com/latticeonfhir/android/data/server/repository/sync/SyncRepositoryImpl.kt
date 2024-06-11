@@ -162,8 +162,35 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun getAndInsertPrescription(patientId: String): ResponseMapper<List<PrescriptionPhotoResponse>> {
-        return ApiResponseConverter.convert(
+    override suspend fun getAndInsertPrescription(patientId: String?): ResponseMapper<List<PrescriptionPhotoResponse>> {
+        return if (patientId == null) {
+            genericDao.getSameTypeGenericEntityPayload(
+                GenericTypeEnum.FHIR_IDS_PRESCRIPTION, SyncType.POST, COUNT_VALUE
+            ).let { listOfGenericEntity ->
+                if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+                else {
+                    val map = mutableMapOf<String, String>()
+                    map[PATIENT_ID] =
+                        listOfGenericEntity.map { it.payload }.toNoBracketAndNoSpaceString()
+                    map[COUNT] = DEFAULT_MAX_COUNT_VALUE.toString()
+                    ApiResponseConverter.convert(prescriptionApiService.getPastPrescription(map))
+                        .run {
+                            when (this) {
+                                is ApiEndResponse -> {
+                                    insertPrescriptions(body)
+                                    genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId())
+                                    getAndInsertPrescription(null)
+                                }
+
+                                else -> {
+                                    this
+                                }
+                            }
+                        }
+                }
+            }
+        } else {
+            ApiResponseConverter.convert(
                 prescriptionApiService.getPastPrescription(
                     mapOf(
                         Pair(PATIENT_ID, patientId)
@@ -178,6 +205,7 @@ class SyncRepositoryImpl @Inject constructor(
 
                     else -> this
                 }
+            }
         }
     }
 
