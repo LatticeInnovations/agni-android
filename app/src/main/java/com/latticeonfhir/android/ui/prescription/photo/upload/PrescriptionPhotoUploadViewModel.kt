@@ -17,6 +17,7 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.roomdb.entities.file.DownloadedFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.file.FileUploadEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
@@ -87,6 +88,24 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
                     updateOrInsertNewPrescription(files, prescriptionUuid, generatedOn)
                 } else {
                     // insert generic patch
+                    val filename = selectedImageUri!!.toFile().name
+                    prescriptionRepository.insertPrescriptionPhotos(
+                        PrescriptionPhotoEntity(
+                            id = filename + prescriptionPhotoResponse.prescriptionId,
+                            prescriptionId = prescriptionPhotoResponse.prescriptionId,
+                            fileName = filename ,
+                            note = ""
+                        )
+                    ).also {
+                        insertInFileRepositories(filename)
+                        val updatedPrescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByAppointmentId(
+                            appointmentResponseLocal!!.uuid
+                        )[0]
+                        genericRepository.insertOrUpdatePhotoPrescriptionPatch(
+                            prescriptionFhirId = updatedPrescriptionPhotoResponse.prescriptionFhirId!!,
+                            prescriptionPhotoResponse = updatedPrescriptionPhotoResponse
+                        )
+                    }
                 }
             } else {
                 appointmentRepository.updateAppointment(
@@ -121,16 +140,7 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
                 appointmentId = appointmentResponseLocal!!.uuid
             )
         ).also {
-            fileSyncRepository.insertFile(
-                FileUploadEntity(
-                    name = filename
-                )
-            )
-            downloadedFileRepository.insertEntity(
-                DownloadedFileEntity(
-                    name = filename
-                )
-            )
+            insertInFileRepositories(filename)
             genericRepository.insertPhotoPrescription(
                 PrescriptionPhotoResponse(
                     patientFhirId = patient!!.fhirId ?: patient!!.id,
@@ -144,5 +154,18 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    private suspend fun insertInFileRepositories(filename: String) {
+        fileSyncRepository.insertFile(
+            FileUploadEntity(
+                name = filename
+            )
+        )
+        downloadedFileRepository.insertEntity(
+            DownloadedFileEntity(
+                name = filename
+            )
+        )
     }
 }

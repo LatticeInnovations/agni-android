@@ -241,6 +241,29 @@ open class GenericRepositoryDatabaseTransactions(
         }
     }
 
+    protected suspend fun insertOrUpdatePhotoPrescriptionGenericEntityPatch(
+        prescriptionGenericEntity: GenericEntity?,
+        prescriptionPhotoResponse: PrescriptionPhotoResponse,
+        prescriptionFhirId: String,
+        uuid: String
+    ): Long {
+        return if (prescriptionGenericEntity != null) {
+            genericDao.insertGenericEntity(
+                prescriptionGenericEntity.copy(payload = prescriptionPhotoResponse.toJson())
+            )[0]
+        } else {
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid,
+                    patientId = prescriptionFhirId,
+                    payload = prescriptionPhotoResponse.toJson(),
+                    type = GenericTypeEnum.PRESCRIPTION,
+                    syncType = SyncType.PATCH
+                )
+            )[0]
+        }
+    }
+
     private fun processPatientPatch(
         mapEntry: Map.Entry<String, Any>,
         existingMap: MutableMap<String, Any>

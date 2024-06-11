@@ -68,6 +68,12 @@ interface GenericRepository {
         uuid: String = UUIDBuilder.generateUUID()
     ): Long
 
+    suspend fun insertOrUpdatePhotoPrescriptionPatch(
+        prescriptionFhirId: String,
+        prescriptionPhotoResponse: PrescriptionPhotoResponse,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
     suspend fun insertPatientLastUpdated(
         patientLastUpdatedResponse: PatientLastUpdatedResponse,
         uuid: String = UUIDBuilder.generateUUID()
