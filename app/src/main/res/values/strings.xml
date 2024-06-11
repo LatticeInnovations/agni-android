@@ -228,5 +228,8 @@ include them in the household</string>
     <string name="add_notes_here">Add your notes here</string>
     <string name="add_to_queue_dialog_description">To upload a prescription, the patient has to be in today’s queue.</string>
     <string name="dismiss">Dismiss</string>
+    <string name="discard">Discard</string>
     <string name="appointment_completed">Appointment for today is completed.</string>
+    <string name="network_not_available">Network not available</string>
+    <string name="data_outdated_info">Data might be out dated as there is no internet connection.</string>
 </resources>
