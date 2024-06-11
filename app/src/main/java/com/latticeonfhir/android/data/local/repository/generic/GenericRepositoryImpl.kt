@@ -172,6 +172,25 @@ class GenericRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun insertOrUpdatePhotoPrescriptionPatch(
+        prescriptionFhirId: String,
+        prescriptionPhotoResponse: PrescriptionPhotoResponse,
+        uuid: String
+    ): Long {
+        return genericDao.getGenericEntityById(
+            prescriptionFhirId,
+            GenericTypeEnum.PRESCRIPTION,
+            SyncType.PATCH
+        ).let { prescriptionGenericEntity ->
+            insertOrUpdatePhotoPrescriptionGenericEntityPatch(
+                prescriptionFhirId = prescriptionFhirId,
+                prescriptionGenericEntity = prescriptionGenericEntity,
+                prescriptionPhotoResponse = prescriptionPhotoResponse,
+                uuid = uuid
+            )
+        }
+    }
+
     override suspend fun insertPatientLastUpdated(
         patientLastUpdatedResponse: PatientLastUpdatedResponse,
         uuid: String

@@ -152,20 +152,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                     note = note
                 )
             )
-            if (prescriptionPhotoResponse.prescriptionFhirId == null) {
-                // insert generic post
-                val updatedPrescriptionPhotoResponse =
-                    prescriptionRepository.getPrescriptionPhotoByDate(
-                        patient!!.id,
-                        dateOfFile.toTodayStartDate(),
-                        dateOfFile.toEndOfDay()
-                    )
-                genericRepository.insertPhotoPrescription(
-                    updatedPrescriptionPhotoResponse
-                )
-            } else {
-                // insert generic patch
-            }
+            updateInGeneric(dateOfFile)
             getPastPrescription()
             added()
         }
@@ -190,23 +177,30 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                     note = selectedFile!!.note
                 )
             )
-            // update in generic
-            if (prescriptionPhotoResponse.prescriptionFhirId == null) {
-                // insert generic post
-                val updatedPrescriptionPhotoResponse =
-                    prescriptionRepository.getPrescriptionPhotoByDate(
-                        patient!!.id,
-                        dateOfFile.toTodayStartDate(),
-                        dateOfFile.toEndOfDay()
-                    )
-                genericRepository.insertPhotoPrescription(
-                    updatedPrescriptionPhotoResponse
-                )
-            } else {
-                // insert generic patch
-            }
+            updateInGeneric(dateOfFile)
             deletedPhotos.add(selectedFile!!)
             deleted()
+        }
+    }
+
+    private suspend fun updateInGeneric(dateOfFile: Date) {
+        val updatedPrescriptionPhotoResponse =
+            prescriptionRepository.getPrescriptionPhotoByDate(
+                patient!!.id,
+                dateOfFile.toTodayStartDate(),
+                dateOfFile.toEndOfDay()
+            )
+        if (updatedPrescriptionPhotoResponse.prescriptionFhirId == null) {
+            // insert generic post
+            genericRepository.insertPhotoPrescription(
+                updatedPrescriptionPhotoResponse
+            )
+        } else {
+            // insert generic patch
+            genericRepository.insertOrUpdatePhotoPrescriptionPatch(
+                prescriptionFhirId = updatedPrescriptionPhotoResponse.prescriptionFhirId,
+                prescriptionPhotoResponse = updatedPrescriptionPhotoResponse
+            )
         }
     }
 

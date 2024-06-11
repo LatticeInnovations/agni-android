@@ -581,4 +581,28 @@ class SyncRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun sendPrescriptionPhotoPatchData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.PRESCRIPTION, syncType = SyncType.PATCH
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    prescriptionApiService.patchListOfChanges(
+                        listOfGenericEntity.map { it.payload.fromJson() })
+                ).run {
+                    when (this) {
+                        is ApiEndResponse -> {
+                            deleteGenericEntityData(listOfGenericEntity).let {
+                                if (it > 0) sendPrescriptionPhotoPatchData() else this
+                            }
+                        }
+
+                        else -> this
+                    }
+                }
+            }
+        }
+    }
 }
