@@ -25,7 +25,9 @@ import com.latticeonfhir.android.utils.common.Queries
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -70,32 +72,47 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             getApplication<FhirApp>().syncWorkerStatus.observeForever { workerStatus ->
                 syncStatus = when (workerStatus) {
                     WorkerStatus.IN_PROGRESS -> WorkerStatus.IN_PROGRESS
-                    WorkerStatus.SUCCESS -> WorkerStatus.SUCCESS
-                    WorkerStatus.FAILED -> WorkerStatus.FAILED
-                    else -> {
-                        getLastSyncStatus()
+                    WorkerStatus.SUCCESS -> {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            delay(20000)
+                            hideSyncStatus()
+                        }
+                        WorkerStatus.SUCCESS
                     }
+                    WorkerStatus.FAILED -> {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            delay(20000)
+                            hideSyncStatus()
+                        }
+                        WorkerStatus.FAILED
+                    }
+                    else -> WorkerStatus.TODO
                 }
             }
         }
     }
 
-    private fun getLastSyncStatus(): WorkerStatus {
-        return when(preferenceRepository.getSyncStatus()) {
-            SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display -> WorkerStatus.IN_PROGRESS
-            SyncStatusMessageEnum.SYNCING_COMPLETED.display -> WorkerStatus.SUCCESS
-            SyncStatusMessageEnum.SYNCING_FAILED.display -> WorkerStatus.FAILED
-            else -> WorkerStatus.TODO
-        }
+    internal fun hideSyncStatus() {
+        if (syncStatus != WorkerStatus.IN_PROGRESS) syncStatus = WorkerStatus.TODO
     }
 
     internal fun getSyncIcon(): Int {
         return when(syncStatus) {
             WorkerStatus.IN_PROGRESS -> R.drawable.sync_icon
-            WorkerStatus.SUCCESS -> R.drawable.published_with_changes
+            WorkerStatus.SUCCESS -> R.drawable.sync_completed_icon
             WorkerStatus.FAILED -> R.drawable.sync_problem
             WorkerStatus.OFFLINE -> R.drawable.info
             else -> 0
+        }
+    }
+
+    internal fun getSyncStatusMessage(): String {
+        return when(syncStatus) {
+            WorkerStatus.IN_PROGRESS -> SyncStatusMessageEnum.SYNCING_IN_PROGRESS.message
+            WorkerStatus.SUCCESS -> SyncStatusMessageEnum.SYNCING_COMPLETED.message
+            WorkerStatus.FAILED -> SyncStatusMessageEnum.SYNCING_FAILED.message
+            WorkerStatus.OFFLINE -> SyncStatusMessageEnum.NO_INTERNET.message
+            else -> ""
         }
     }
 
