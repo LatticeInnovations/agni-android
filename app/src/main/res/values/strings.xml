@@ -221,7 +221,7 @@ include them in the household</string>
     <string name="synced">Synced</string>
     <string name="add_prescription">Add prescription</string>
     <string name="uploads_count">%d uploads</string>
-    <string name="permissions_denied">Permissions denied.</string>
+    <string name="please_grant_permission">Please grant permission.</string>
     <string name="no_prescription_added">No prescription added</string>
     <string name="discard_prescription">Discard prescription ?</string>
     <string name="discard_prescription_description">Are you sure you want to discard the prescription ?</string>
