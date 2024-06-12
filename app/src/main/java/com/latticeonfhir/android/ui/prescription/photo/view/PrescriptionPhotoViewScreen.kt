@@ -92,9 +92,9 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.DisplaySyncStatus
 import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
-import com.latticeonfhir.android.ui.theme.Green
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isSameDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isToday
@@ -153,7 +153,7 @@ fun PrescriptionPhotoViewScreen(
         else if (viewModel.selectedFile != null) {
             viewModel.isTapped = false
             viewModel.isLongPressed = false
-            viewModel.displayNote = false
+            viewModel.displayNote = true
             viewModel.selectedFile = null
         } else navController.popBackStack(Screen.PatientLandingScreen.route, inclusive = false)
     }
@@ -186,7 +186,7 @@ fun PrescriptionPhotoViewScreen(
                             navigationIcon = {
                                 IconButton(onClick = {
                                     viewModel.isTapped = false
-                                    viewModel.displayNote = false
+                                    viewModel.displayNote = true
                                     viewModel.selectedFile = null
                                 }) {
                                     Icon(
@@ -228,35 +228,8 @@ fun PrescriptionPhotoViewScreen(
                                 }
                             },
                             actions = {
-                                if (activity.connectivityStatus.value == ConnectivityObserver.Status.Available) {
-                                    if (viewModel.syncStatus == WorkerStatus.OFFLINE) viewModel.getCurrentSyncStatus()
-                                } else {
-                                    viewModel.syncStatus = WorkerStatus.OFFLINE
-                                }
-                                AnimatedContent(
-                                    targetState = viewModel.isLongPressed,
-                                    label = ""
-                                ) { targetState ->
-                                    when (targetState) {
-                                        true -> NavBarActions(context, viewModel)
-                                        false -> {
-                                            if (viewModel.syncStatus != WorkerStatus.TODO) {
-                                                IconButton(
-                                                    onClick = {
-                                                        viewModel.showOutdatedDataDialog = true
-                                                    },
-                                                    enabled = viewModel.syncStatus == WorkerStatus.OFFLINE
-                                                ) {
-                                                    Icon(
-                                                        painter = painterResource(id = viewModel.getSyncIcon()),
-                                                        contentDescription = null,
-                                                        modifier = Modifier.size(24.dp),
-                                                        tint = getSyncIconColor(viewModel.syncStatus)
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
+                                AnimatedVisibility(visible = viewModel.isLongPressed) {
+                                    NavBarActions(context, viewModel)
                                 }
                             }
                         )
@@ -266,19 +239,22 @@ fun PrescriptionPhotoViewScreen(
         },
         content = {
             Box(modifier = Modifier.padding(it)) {
-                if (viewModel.prescriptionPhotos.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.no_prescription_added),
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                Column {
+                    CheckNetwork(viewModel, activity)
+                    if (viewModel.prescriptionPhotos.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.no_prescription_added),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
+                    PhotoView(viewModel)
                 }
-                PhotoView(viewModel)
                 AnimatedVisibility(
                     visible = viewModel.isTapped,
                     enter = slideInHorizontally(initialOffsetX = { offset -> offset }),
@@ -304,6 +280,7 @@ fun PrescriptionPhotoViewScreen(
                                     requestPermissionLauncher.launch(permissionsToBeRequest)
                                 },
                                 navigate = {
+                                    viewModel.hideSyncStatus()
                                     coroutineScope.launch {
                                         navController.currentBackStackEntry?.savedStateHandle?.set(
                                             NavControllerConstants.PATIENT,
@@ -452,15 +429,6 @@ fun PrescriptionPhotoViewScreen(
             dismiss = { viewModel.showOutdatedDataDialog = false },
             confirm = { viewModel.showOutdatedDataDialog = false }
         )
-    }
-}
-
-@Composable
-fun getSyncIconColor(syncStatus: WorkerStatus): Color {
-    return when (syncStatus) {
-        WorkerStatus.SUCCESS -> Green
-        WorkerStatus.FAILED -> MaterialTheme.colorScheme.error
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 }
 
@@ -873,4 +841,25 @@ private fun AppointmentCompletedDialog(
             Text(text = stringResource(id = R.string.appointment_completed))
         }
     )
+}
+
+@Composable
+private fun CheckNetwork(viewModel: PrescriptionPhotoViewViewModel, context: MainActivity) {
+    if (context.connectivityStatus.value == ConnectivityObserver.Status.Available) {
+        if (viewModel.syncStatus == WorkerStatus.OFFLINE) viewModel.syncStatus =
+            WorkerStatus.TODO
+    } else {
+        viewModel.syncStatus = WorkerStatus.OFFLINE
+    }
+    AnimatedVisibility (
+        visible = viewModel.syncStatus != WorkerStatus.TODO,
+        enter = expandVertically(),
+        exit = shrinkVertically()
+    ) {
+        DisplaySyncStatus(
+            viewModel.syncStatus,
+            viewModel.getSyncIcon(),
+            viewModel.getSyncStatusMessage()
+        )
+    }
 }
