@@ -757,6 +757,7 @@ private fun AddNoteDialog(
     dismiss: () -> Unit,
     confirm: (String) -> Unit
 ) {
+    val maxNoteChar = 200
     var noteValue by remember {
         mutableStateOf(note)
     }
@@ -785,7 +786,7 @@ private fun AddNoteDialog(
                         OutlinedTextField(
                             value = noteValue,
                             onValueChange = {
-                                noteValue = it
+                                if (it.length <= maxNoteChar) noteValue = it
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
