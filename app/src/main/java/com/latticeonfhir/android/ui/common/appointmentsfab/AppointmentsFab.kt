@@ -3,29 +3,35 @@ package com.latticeonfhir.android.ui.common.appointmentsfab
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,16 +65,13 @@ fun AppointmentsFab(
     appointmentsFabViewModel: AppointmentsFabViewModel = hiltViewModel(),
     showDialog: (Boolean) -> Unit
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = {map ->
-            val granted: Boolean =
-                map["android.permission.WRITE_EXTERNAL_STORAGE"] == true && map["android.permission.READ_EXTERNAL_STORAGE"] == true
-                        && map["android.permission.CAMERA"] == true
-
-            if (granted) {
+            if (!map.values.contains(false)) {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
                     PATIENT,
                     patient
@@ -76,7 +79,10 @@ fun AppointmentsFab(
                 navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
                 showDialog(false)
             } else {
-                Toast.makeText(context, context.getString(R.string.permissions_denied), Toast.LENGTH_SHORT).show()
+                showDialog(false)
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
+                }
             }
         })
     LaunchedEffect(true) {
@@ -90,13 +96,38 @@ fun AppointmentsFab(
         else Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
-            .clickable {
+            .clickable(
+                interactionSource = remember {
+                    MutableInteractionSource()
+                },
+                indication = null
+            ) {
                 showDialog(false)
             },
         contentAlignment = Alignment.BottomEnd
     ) {
         AnimatedVisibility(visible = !isFabSelected) {
-            AddFAB(modifier, showDialog)
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    snackbar = {
+                        Snackbar(
+                            content = {
+                                Text(
+                                    text = it.visuals.message
+                                )
+                            }
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .wrapContentHeight(Alignment.Bottom)
+                )
+                AddFAB(modifier, showDialog)
+            }
         }
         AnimatedVisibility(visible = isFabSelected) {
             Column(
