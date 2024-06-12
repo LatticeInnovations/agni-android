@@ -50,7 +50,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     var isTapped by mutableStateOf(false)
     var showNoteDialog by mutableStateOf(false)
     var showDeleteDialog by mutableStateOf(false)
-    var displayNote by mutableStateOf(false)
+    var displayNote by mutableStateOf(true)
     var prescriptionPhotos by mutableStateOf(listOf<File>())
     var deletedPhotos = mutableListOf<File>()
     var canAddPrescription by mutableStateOf(false)

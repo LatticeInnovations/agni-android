@@ -153,7 +153,7 @@ fun PrescriptionPhotoViewScreen(
         else if (viewModel.selectedFile != null) {
             viewModel.isTapped = false
             viewModel.isLongPressed = false
-            viewModel.displayNote = false
+            viewModel.displayNote = true
             viewModel.selectedFile = null
         } else navController.popBackStack(Screen.PatientLandingScreen.route, inclusive = false)
     }
@@ -186,7 +186,7 @@ fun PrescriptionPhotoViewScreen(
                             navigationIcon = {
                                 IconButton(onClick = {
                                     viewModel.isTapped = false
-                                    viewModel.displayNote = false
+                                    viewModel.displayNote = true
                                     viewModel.selectedFile = null
                                 }) {
                                     Icon(
