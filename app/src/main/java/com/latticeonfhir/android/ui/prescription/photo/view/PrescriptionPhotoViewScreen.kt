@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -120,11 +121,7 @@ fun PrescriptionPhotoViewScreen(
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { map ->
-            val granted: Boolean =
-                map["android.permission.WRITE_EXTERNAL_STORAGE"] == true && map["android.permission.READ_EXTERNAL_STORAGE"] == true
-                        && map["android.permission.CAMERA"] == true
-
-            if (granted) {
+            if (!map.values.contains(false)) {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
                     NavControllerConstants.PATIENT,
                     viewModel.patient!!
@@ -472,11 +469,18 @@ private fun checkPermissions(
     navigate: () -> Unit
 ) {
     val permissionsToBeRequest = mutableListOf<String>()
-    listOf(
-        Manifest.permission.CAMERA,
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
-    ).forEach {
+    val permissions = mutableListOf(Manifest.permission.CAMERA)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
+    } else {
+        permissions.addAll(
+            listOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        )
+    }
+    permissions.forEach {
         if (ContextCompat.checkSelfPermission(
                 context,
                 it
@@ -837,7 +841,7 @@ private fun CustomDialog(
             }
         },
         dismissButton = {
-            dismissBtnText?.let{ dismissBtnText ->
+            dismissBtnText?.let { dismissBtnText ->
                 TextButton(onClick = { dismiss() }) {
                     Text(text = dismissBtnText)
                 }

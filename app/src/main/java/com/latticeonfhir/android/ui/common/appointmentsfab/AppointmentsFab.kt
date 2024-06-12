@@ -2,6 +2,7 @@ package com.latticeonfhir.android.ui.common.appointmentsfab
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -112,7 +113,18 @@ fun AppointmentsFab(
                         if (appointmentsFabViewModel.canAddPrescription) {
                             AddPrescriptionFAB {
                                 val permissionsToBeRequest = mutableListOf<String>()
-                                listOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE).forEach {
+                                val permissions = mutableListOf(Manifest.permission.CAMERA)
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
+                                } else {
+                                    permissions.addAll(
+                                        listOf(
+                                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                        )
+                                    )
+                                }
+                                permissions.forEach {
                                     if (ContextCompat.checkSelfPermission(
                                             context,
                                             it
