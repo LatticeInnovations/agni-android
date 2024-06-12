@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -53,6 +52,8 @@ import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -118,6 +119,7 @@ fun PrescriptionPhotoViewScreen(
     val context = LocalContext.current
     val activity = LocalContext.current as MainActivity
     val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { map ->
@@ -128,11 +130,9 @@ fun PrescriptionPhotoViewScreen(
                 )
                 navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
             } else {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.permissions_denied),
-                    Toast.LENGTH_SHORT
-                ).show()
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
+                }
             }
         })
     LaunchedEffect(viewModel.isLaunched) {
@@ -159,6 +159,7 @@ fun PrescriptionPhotoViewScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         topBar = {
             AnimatedContent(targetState = viewModel.isTapped, label = "") {
@@ -757,6 +758,7 @@ private fun AddNoteDialog(
     dismiss: () -> Unit,
     confirm: (String) -> Unit
 ) {
+    val maxNoteChar = 200
     var noteValue by remember {
         mutableStateOf(note)
     }
@@ -785,7 +787,7 @@ private fun AddNoteDialog(
                         OutlinedTextField(
                             value = noteValue,
                             onValueChange = {
-                                noteValue = it
+                                if (it.length <= maxNoteChar) noteValue = it
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
