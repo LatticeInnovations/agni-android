@@ -2,9 +2,11 @@ package com.latticeonfhir.android.ui.prescription.photo.view
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -84,6 +86,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -93,6 +96,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.ui.common.DisplaySyncStatus
 import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
@@ -131,8 +135,15 @@ fun PrescriptionPhotoViewScreen(
                 )
                 navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
             } else {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
+                val shouldShowDialog = map.map { (permission, _) ->
+                    ActivityCompat.shouldShowRequestPermissionRationale(activity, permission).not()
+                }
+                if (shouldShowDialog.contains(true)) {
+                    viewModel.showOpenSettingsDialog = true
+                } else {
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
+                    }
                 }
             }
         })
@@ -273,7 +284,7 @@ fun PrescriptionPhotoViewScreen(
             if (!viewModel.isTapped) {
                 FloatingActionButton(
                     onClick = {
-                        viewModel.getAppointmentInfo{
+                        viewModel.getAppointmentInfo {
                             if (viewModel.canAddPrescription) {
                                 checkPermissions(
                                     context = context,
@@ -422,14 +433,28 @@ fun PrescriptionPhotoViewScreen(
             viewModel.showAppointmentCompletedDialog = false
         }
     }
-    if (viewModel.showOutdatedDataDialog) {
+    if (viewModel.showOpenSettingsDialog) {
         CustomDialog(
-            title = stringResource(id = R.string.network_not_available),
-            text = stringResource(id = R.string.data_outdated_info),
-            dismissBtnText = null,
-            confirmBtnText = stringResource(id = R.string.discard),
-            dismiss = { viewModel.showOutdatedDataDialog = false },
-            confirm = { viewModel.showOutdatedDataDialog = false }
+            canBeDismissed = false,
+            title = stringResource(id = R.string.permissions_required),
+            text = stringResource(id = R.string.permissions_required_description),
+            dismissBtnText = stringResource(id = R.string.cancel),
+            confirmBtnText = stringResource(id = R.string.go_to_settings),
+            dismiss = {
+                viewModel.showOpenSettingsDialog = false
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
+                }
+            },
+            confirm = {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    addCategory(Intent.CATEGORY_DEFAULT)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    data = Uri.fromParts("package", context.packageName, null)
+                }
+                context.startActivity(intent)
+                viewModel.showOpenSettingsDialog = false
+            }
         )
     }
 }
@@ -622,7 +647,7 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                 file.filename
             )
             val uri = Uri.fromFile(photoFile)
-            key (viewModel.recompose){
+            key(viewModel.recompose) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -799,38 +824,6 @@ private fun AddNoteDialog(
 
 
 @Composable
-private fun CustomDialog(
-    title: String,
-    text: String,
-    dismissBtnText: String?,
-    confirmBtnText: String,
-    dismiss: () -> Unit,
-    confirm: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = { dismiss() },
-        confirmButton = {
-            TextButton(onClick = { confirm() }) {
-                Text(text = confirmBtnText)
-            }
-        },
-        dismissButton = {
-            dismissBtnText?.let { dismissBtnText ->
-                TextButton(onClick = { dismiss() }) {
-                    Text(text = dismissBtnText)
-                }
-            }
-        },
-        title = {
-            Text(text = title)
-        },
-        text = {
-            Text(text = text)
-        }
-    )
-}
-
-@Composable
 private fun AppointmentCompletedDialog(
     dismiss: () -> Unit
 ) {
@@ -855,7 +848,7 @@ private fun CheckNetwork(viewModel: PrescriptionPhotoViewViewModel, context: Mai
     } else {
         viewModel.syncStatus = WorkerStatus.OFFLINE
     }
-    AnimatedVisibility (
+    AnimatedVisibility(
         visible = viewModel.syncStatus != WorkerStatus.TODO,
         enter = expandVertically(),
         exit = shrinkVertically()

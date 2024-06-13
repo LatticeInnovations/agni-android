@@ -35,6 +35,7 @@ class AppointmentsFabViewModel @Inject constructor(
     var ifAlreadyWaiting by mutableStateOf(false)
     var canAddPrescription by mutableStateOf(false)
     var ifAllSlotsBooked by mutableStateOf(false)
+    var showOpenSettingsDialog by mutableStateOf(false)
     private val maxNumberOfAppointmentsInADay = 250
 
     internal fun initialize(patientId: String) {
