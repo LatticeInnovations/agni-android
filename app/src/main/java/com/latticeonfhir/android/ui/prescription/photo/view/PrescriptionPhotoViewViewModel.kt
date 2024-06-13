@@ -58,6 +58,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     var ifAllSlotsBooked by mutableStateOf(false)
     var isAppointmentCompleted by mutableStateOf(false)
     var showAppointmentCompletedDialog by mutableStateOf(false)
+    var recompose by mutableStateOf(false)
     private val maxNumberOfAppointmentsInADay = 250
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
 
@@ -77,6 +78,8 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                             delay(20000)
                             hideSyncStatus()
                         }
+                        recompose = true
+                        getPastPrescription()
                         WorkerStatus.SUCCESS
                     }
                     WorkerStatus.FAILED -> {
