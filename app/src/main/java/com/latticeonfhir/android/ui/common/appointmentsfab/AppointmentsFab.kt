@@ -1,8 +1,12 @@
 package com.latticeonfhir.android.ui.common.appointmentsfab
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -42,12 +46,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
@@ -67,6 +73,7 @@ fun AppointmentsFab(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val activity = LocalContext.current as Activity
     val coroutineScope = rememberCoroutineScope()
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
@@ -79,9 +86,16 @@ fun AppointmentsFab(
                 navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
                 showDialog(false)
             } else {
-                showDialog(false)
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
+                val shouldShowDialog = map.map { (permission, _) ->
+                    ActivityCompat.shouldShowRequestPermissionRationale(activity, permission).not()
+                }
+                if (shouldShowDialog.contains(true)) {
+                    appointmentsFabViewModel.showOpenSettingsDialog = true
+                } else {
+                    showDialog(false)
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
+                    }
                 }
             }
         })
@@ -180,6 +194,31 @@ fun AppointmentsFab(
                     }
                 }
             }
+        }
+        if (appointmentsFabViewModel.showOpenSettingsDialog) {
+            CustomDialog(
+                canBeDismissed = false,
+                title = stringResource(id = R.string.permissions_required),
+                text = stringResource(id = R.string.permissions_required_description),
+                dismissBtnText = stringResource(id = R.string.cancel),
+                confirmBtnText = stringResource(id = R.string.go_to_settings),
+                dismiss = {
+                    appointmentsFabViewModel.showOpenSettingsDialog = false
+                    showDialog(false)
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
+                    }
+                },
+                confirm = {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        addCategory(Intent.CATEGORY_DEFAULT)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                    context.startActivity(intent)
+                    appointmentsFabViewModel.showOpenSettingsDialog = false
+                }
+            )
         }
     }
 }
