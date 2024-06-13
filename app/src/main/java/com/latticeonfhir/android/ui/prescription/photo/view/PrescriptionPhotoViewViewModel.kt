@@ -119,7 +119,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
         }
     }
 
-    internal fun getAppointmentInfo() {
+    internal fun getAppointmentInfo(callback: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             appointment = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patient!!.id,
@@ -144,6 +144,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             ).filter { appointmentResponseLocal ->
                 appointmentResponseLocal.status != AppointmentStatusEnum.CANCELLED.value
             }.size >= maxNumberOfAppointmentsInADay
+            callback()
         }
     }
 
