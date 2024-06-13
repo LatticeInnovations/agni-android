@@ -146,7 +146,6 @@ fun PrescriptionPhotoViewScreen(
             viewModel.getPastPrescription()
             viewModel.isLaunched = true
         }
-        viewModel.getAppointmentInfo()
     }
 
     BackHandler(enabled = true) {
@@ -274,27 +273,29 @@ fun PrescriptionPhotoViewScreen(
             if (!viewModel.isTapped) {
                 FloatingActionButton(
                     onClick = {
-                        if (viewModel.canAddPrescription) {
-                            checkPermissions(
-                                context = context,
-                                requestPermission = { permissionsToBeRequest ->
-                                    requestPermissionLauncher.launch(permissionsToBeRequest)
-                                },
-                                navigate = {
-                                    viewModel.hideSyncStatus()
-                                    coroutineScope.launch {
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            NavControllerConstants.PATIENT,
-                                            viewModel.patient!!
-                                        )
-                                        navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
+                        viewModel.getAppointmentInfo{
+                            if (viewModel.canAddPrescription) {
+                                checkPermissions(
+                                    context = context,
+                                    requestPermission = { permissionsToBeRequest ->
+                                        requestPermissionLauncher.launch(permissionsToBeRequest)
+                                    },
+                                    navigate = {
+                                        viewModel.hideSyncStatus()
+                                        coroutineScope.launch {
+                                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                NavControllerConstants.PATIENT,
+                                                viewModel.patient!!
+                                            )
+                                            navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
+                                        }
                                     }
-                                }
-                            )
-                        } else if (viewModel.isAppointmentCompleted) {
-                            viewModel.showAppointmentCompletedDialog = true
-                        } else {
-                            viewModel.showAddToQueueDialog = true
+                                )
+                            } else if (viewModel.isAppointmentCompleted) {
+                                viewModel.showAppointmentCompletedDialog = true
+                            } else {
+                                viewModel.showAddToQueueDialog = true
+                            }
                         }
                     }
                 ) {
