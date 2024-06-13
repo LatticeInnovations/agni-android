@@ -1,8 +1,10 @@
 package com.latticeonfhir.android.data.server.repository.file
 
 import android.content.Context
+import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
+import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.local.roomdb.dao.DownloadedFileDao
 import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
@@ -45,6 +47,7 @@ class FileSyncRepositoryImpl @Inject constructor(
     }
 
     override suspend fun startDownload(logout: (Boolean, String) -> Unit) {
+        (context as FhirApp).photosWorkerStatus.postValue(WorkerStatus.IN_PROGRESS)
         genericDao.getSameTypeGenericEntityPayload(
             GenericTypeEnum.PRESCRIPTION_PHOTO,
             SyncType.POST
@@ -54,6 +57,8 @@ class FileSyncRepositoryImpl @Inject constructor(
                     listOfGenericEntity,
                     logout
                 )
+            } else {
+                context.photosWorkerStatus.postValue(WorkerStatus.SUCCESS)
             }
         }
     }
@@ -83,6 +88,7 @@ class FileSyncRepositoryImpl @Inject constructor(
                 startDownload(logout)
             }
             it.errorBody()?.let { errorBody ->
+                (context as FhirApp).photosWorkerStatus.postValue(WorkerStatus.FAILED)
                 logout(false, errorBody.string())
             }
         }
