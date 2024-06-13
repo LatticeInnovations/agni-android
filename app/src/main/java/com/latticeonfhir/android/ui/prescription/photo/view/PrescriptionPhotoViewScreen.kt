@@ -63,6 +63,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -145,7 +146,6 @@ fun PrescriptionPhotoViewScreen(
             viewModel.getPastPrescription()
             viewModel.isLaunched = true
         }
-        viewModel.getAppointmentInfo()
     }
 
     BackHandler(enabled = true) {
@@ -273,27 +273,29 @@ fun PrescriptionPhotoViewScreen(
             if (!viewModel.isTapped) {
                 FloatingActionButton(
                     onClick = {
-                        if (viewModel.canAddPrescription) {
-                            checkPermissions(
-                                context = context,
-                                requestPermission = { permissionsToBeRequest ->
-                                    requestPermissionLauncher.launch(permissionsToBeRequest)
-                                },
-                                navigate = {
-                                    viewModel.hideSyncStatus()
-                                    coroutineScope.launch {
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            NavControllerConstants.PATIENT,
-                                            viewModel.patient!!
-                                        )
-                                        navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
+                        viewModel.getAppointmentInfo{
+                            if (viewModel.canAddPrescription) {
+                                checkPermissions(
+                                    context = context,
+                                    requestPermission = { permissionsToBeRequest ->
+                                        requestPermissionLauncher.launch(permissionsToBeRequest)
+                                    },
+                                    navigate = {
+                                        viewModel.hideSyncStatus()
+                                        coroutineScope.launch {
+                                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                NavControllerConstants.PATIENT,
+                                                viewModel.patient!!
+                                            )
+                                            navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
+                                        }
                                     }
-                                }
-                            )
-                        } else if (viewModel.isAppointmentCompleted) {
-                            viewModel.showAppointmentCompletedDialog = true
-                        } else {
-                            viewModel.showAddToQueueDialog = true
+                                )
+                            } else if (viewModel.isAppointmentCompleted) {
+                                viewModel.showAppointmentCompletedDialog = true
+                            } else {
+                                viewModel.showAddToQueueDialog = true
+                            }
                         }
                     }
                 ) {
@@ -620,95 +622,97 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                 file.filename
             )
             val uri = Uri.fromFile(photoFile)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .animateItemPlacement(tween(300, easing = LinearEasing))
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.End
-            ) {
-                Column(
+            key (viewModel.recompose){
+                Row(
                     modifier = Modifier
-                        .shadow(
-                            elevation = if (viewModel.isLongPressed && viewModel.selectedFile == file)
-                                11.dp else 0.dp,
-                            shape = RoundedCornerShape(
-                                topStart = 48f,
-                                topEnd = 48f,
-                                bottomStart = 48f,
-                                bottomEnd = 0f
-                            )
-                        )
-                        .background(
-                            shape = RoundedCornerShape(
-                                topStart = 48f,
-                                topEnd = 48f,
-                                bottomStart = 48f,
-                                bottomEnd = 0f
-                            ),
-                            color = if (viewModel.isLongPressed && viewModel.selectedFile == file)
-                                MaterialTheme.colorScheme.primaryContainer
-                            else MaterialTheme.colorScheme.surface
-                        )
-                        .pointerInput(viewModel.selectedFile) {
-                            detectTapGestures(
-                                onLongPress = {
-                                    viewModel.isLongPressed = true
-                                    viewModel.selectedFile = file
-                                },
-                                onTap = {
-                                    if (viewModel.isLongPressed) {
-                                        viewModel.isLongPressed = false
-                                        viewModel.selectedFile = null
-                                    } else {
-                                        viewModel.isTapped = true
-                                        viewModel.selectedFile = file
-                                    }
-                                }
-                            )
-                        },
-                    horizontalAlignment = Alignment.End
+                        .fillMaxWidth()
+                        .animateItemPlacement(tween(300, easing = LinearEasing))
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Image(
-                        painter = rememberImagePainter(uri),
-                        contentDescription = null,
+                    Column(
                         modifier = Modifier
-                            .size(250.dp, 330.dp)
-                            .padding(4.dp)
-                            .clip(RoundedCornerShape(16.dp)),
-                        contentScale = ContentScale.Crop
-                    )
-                    if (file.note.isNotBlank()) {
+                            .shadow(
+                                elevation = if (viewModel.isLongPressed && viewModel.selectedFile == file)
+                                    11.dp else 0.dp,
+                                shape = RoundedCornerShape(
+                                    topStart = 48f,
+                                    topEnd = 48f,
+                                    bottomStart = 48f,
+                                    bottomEnd = 0f
+                                )
+                            )
+                            .background(
+                                shape = RoundedCornerShape(
+                                    topStart = 48f,
+                                    topEnd = 48f,
+                                    bottomStart = 48f,
+                                    bottomEnd = 0f
+                                ),
+                                color = if (viewModel.isLongPressed && viewModel.selectedFile == file)
+                                    MaterialTheme.colorScheme.primaryContainer
+                                else MaterialTheme.colorScheme.surface
+                            )
+                            .pointerInput(viewModel.selectedFile) {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        viewModel.isLongPressed = true
+                                        viewModel.selectedFile = file
+                                    },
+                                    onTap = {
+                                        if (viewModel.isLongPressed) {
+                                            viewModel.isLongPressed = false
+                                            viewModel.selectedFile = null
+                                        } else {
+                                            viewModel.isTapped = true
+                                            viewModel.selectedFile = file
+                                        }
+                                    }
+                                )
+                            },
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Image(
+                            painter = rememberImagePainter(uri),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(250.dp, 330.dp)
+                                .padding(4.dp)
+                                .clip(RoundedCornerShape(16.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                        if (file.note.isNotBlank()) {
+                            Text(
+                                text = file.note,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier
+                                    .width(250.dp)
+                                    .padding(top = 6.dp, start = 6.dp, end = 6.dp)
+                            )
+                        }
                         Text(
-                            text = file.note,
+                            text = Date(
+                                file.filename.substringBefore(".").toLong()
+                            ).toPrescriptionTime(),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier
                                 .width(250.dp)
-                                .padding(top = 6.dp, start = 6.dp, end = 6.dp)
+                                .padding(end = 10.dp, bottom = 6.dp),
+                            textAlign = TextAlign.End
                         )
                     }
-                    Text(
-                        text = Date(
-                            file.filename.substringBefore(".").toLong()
-                        ).toPrescriptionTime(),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier
-                            .width(250.dp)
-                            .padding(end = 10.dp, bottom = 6.dp),
-                        textAlign = TextAlign.End
-                    )
-                }
 
-                AnimatedVisibility(viewModel.isLongPressed && viewModel.selectedFile == file) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.check_circle),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
+                    AnimatedVisibility(viewModel.isLongPressed && viewModel.selectedFile == file) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.check_circle),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
                 }
             }
         }
