@@ -58,6 +58,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     var ifAllSlotsBooked by mutableStateOf(false)
     var isAppointmentCompleted by mutableStateOf(false)
     var showAppointmentCompletedDialog by mutableStateOf(false)
+    var showOpenSettingsDialog by mutableStateOf(false)
     var recompose by mutableStateOf(false)
     private val maxNumberOfAppointmentsInADay = 250
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
@@ -66,7 +67,6 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
 
     // syncing
     var syncStatus by mutableStateOf(WorkerStatus.TODO)
-    var showOutdatedDataDialog by mutableStateOf(false)
 
     internal fun getCurrentSyncStatus() {
         viewModelScope.launch {
