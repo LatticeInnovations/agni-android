@@ -29,6 +29,7 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
 import java.util.Date
@@ -56,7 +57,7 @@ class FhirApp : Application() {
     lateinit var fileUploadApiService: FileUploadApiService
 
     private lateinit var _syncRepository: SyncRepository
-    internal val fileSyncRepository get() = _fileSyncRepository
+    private val fileSyncRepository get() = _fileSyncRepository
     private lateinit var _fileSyncRepository: FileSyncRepository
     internal val syncRepository get() = _syncRepository
     private lateinit var _genericRepository: GenericRepository
@@ -68,6 +69,7 @@ class FhirApp : Application() {
     val sessionExpireFlow = MutableLiveData<Map<String, Any>>(emptyMap())
 
     internal var syncWorkerStatus = MutableLiveData<WorkerStatus>()
+    internal var photosWorkerStatus = MutableLiveData<WorkerStatus>()
 
     override fun onCreate() {
         super.onCreate()
@@ -113,7 +115,13 @@ class FhirApp : Application() {
 
         if (!this::_syncService.isInitialized) {
             _syncService =
-                SyncService(this, syncRepository, genericRepository, preferenceRepository, fileSyncRepository)
+                SyncService(
+                    this,
+                    syncRepository,
+                    genericRepository,
+                    preferenceRepository,
+                    fileSyncRepository
+                )
         }
     }
 
@@ -133,13 +141,34 @@ class FhirApp : Application() {
                     )
                 }
             }.also {
-                preferenceStorage.lastSyncTime = Date().time
-                if (listOfErrors.isEmpty()) {
-                    preferenceStorage.syncStatus = SyncStatusMessageEnum.SYNCING_COMPLETED.display
-                    syncWorkerStatus.postValue(WorkerStatus.SUCCESS)
-                } else {
-                    preferenceStorage.syncStatus = SyncStatusMessageEnum.SYNCING_FAILED.display
-                    syncWorkerStatus.postValue(WorkerStatus.FAILED)
+                withContext(Dispatchers.Main) {
+                    photosWorkerStatus.observeForever { photosSyncStatus ->
+                        when (photosSyncStatus) {
+                            WorkerStatus.SUCCESS -> {
+                                preferenceStorage.lastSyncTime = Date().time
+                                if (listOfErrors.isEmpty()) {
+                                    preferenceStorage.syncStatus =
+                                        SyncStatusMessageEnum.SYNCING_COMPLETED.display
+                                    syncWorkerStatus.postValue(WorkerStatus.SUCCESS)
+                                } else {
+                                    preferenceStorage.syncStatus =
+                                        SyncStatusMessageEnum.SYNCING_FAILED.display
+                                    syncWorkerStatus.postValue(WorkerStatus.FAILED)
+                                }
+                            }
+
+                            WorkerStatus.FAILED -> {
+                                preferenceStorage.lastSyncTime = Date().time
+                                preferenceStorage.syncStatus =
+                                    SyncStatusMessageEnum.SYNCING_FAILED.display
+                                syncWorkerStatus.postValue(WorkerStatus.FAILED)
+                            }
+
+                            else -> {
+                                Timber.d("manseeyy photos sync status $photosWorkerStatus")
+                            }
+                        }
+                    }
                 }
             }
         }
