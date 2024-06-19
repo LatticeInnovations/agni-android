@@ -32,3 +32,4 @@ jobs:
             -Dsonar.host.url=https://sonarcube.thelattice.in/
             -Dsonar.scm.provider=git 
             -Dsonar.projectVersion=${{github.run_id}}
+            -Dsonar.exclusions=**/*.java
