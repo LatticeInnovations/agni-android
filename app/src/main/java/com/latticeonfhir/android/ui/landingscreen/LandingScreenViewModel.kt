@@ -26,14 +26,12 @@ import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.service.workmanager.utils.Sync
 import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toLastSyncTime
-import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +56,6 @@ class LandingScreenViewModel @Inject constructor(
 ) : BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
-    private val syncService: SyncService by lazy { (application as FhirApp).syncService }
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)
@@ -137,6 +134,7 @@ class LandingScreenViewModel @Inject constructor(
                 if (sessionExpireMap["errorReceived"] == true) {
                     logoutUser = true
                     logoutReason = sessionExpireMap["errorMsg"]?.toString() ?: "SERVER ERROR"
+                    getApplication<FhirApp>().sessionExpireFlow.postValue(emptyMap())
                 }
             }
         }
