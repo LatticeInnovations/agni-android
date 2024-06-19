@@ -3,7 +3,7 @@ name: Patch Non Fhir Build
 on:
   pull_request:
     branches:
-      - patch-nonclinical-nonfhirsdk
+      - development-nonfhirsdk
 
 jobs:
   build:
