@@ -49,8 +49,8 @@ android {
         applicationId "com.latticeonfhir.android"
         minSdk 24
         targetSdk 34
-        versionCode 53
-        versionName "1.5.3"
+        versionCode 54
+        versionName "1.5.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -80,14 +80,15 @@ android {
             shrinkResources false
             testCoverageEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
+            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL" // test
+//            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL" // dev
         }
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-//            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
             buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
+//            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
             signingConfig signingConfigs.release
         }
     }
