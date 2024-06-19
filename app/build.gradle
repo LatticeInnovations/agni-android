@@ -261,5 +261,7 @@ allprojects {
 sonar {
     properties {
         property "sonar.projectKey", "LatticeInnovations_FHIR-Android_AZAvReGoi3XM6MLXDS_L"
+        property "sonar.projectName", "FHIR-Android"
+        property "sonar.scm.provider", "git"
     }
 }
