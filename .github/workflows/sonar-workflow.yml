@@ -24,8 +24,8 @@ jobs:
           SONAR_HOST_URL: '${{ secrets.SONAR_HOST_URL }}'
         with:
           args: >
-            -Dsonar.projectKey=<PROJECT_KEY>
-            -Dsonar.projectName=<PROJECT_NAME>
-            -Dsonar.host.url=<SONAR_HOST_URL>
+            -Dsonar.projectKey=LatticeInnovations_FHIR-Android_AZAvReGoi3XM6MLXDS_L
+            -Dsonar.projectName=FHIR-Android
+            -Dsonar.host.url=https://sonarcube.thelattice.in/
             -Dsonar.scm.provider=git 
             -Dsonar.projectVersion=${{github.run_id}}
