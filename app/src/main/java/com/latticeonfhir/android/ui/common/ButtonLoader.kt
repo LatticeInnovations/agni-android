@@ -10,10 +10,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ButtonLoader() {
+fun ButtonLoader(
+    height: Dp = 20.dp,
+    width: Dp = 20.dp
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -22,8 +26,8 @@ fun ButtonLoader() {
     ) {
         CircularProgressIndicator(
             modifier = Modifier
-                .width(20.dp)
-                .height(20.dp),
+                .width(width)
+                .height(height),
             strokeWidth = 3.dp,
             color = MaterialTheme.colorScheme.primaryContainer
         )

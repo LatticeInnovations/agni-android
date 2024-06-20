@@ -237,4 +237,5 @@ include them in the household</string>
     <string name="permissions_required">Permission required</string>
     <string name="permissions_required_description">To continue, this app needs access to your camera and storage. Please allow these permissions from the settings app.</string>
     <string name="go_to_settings">Go to settings</string>
+    <string name="saving">Saving…</string>
 </resources>
