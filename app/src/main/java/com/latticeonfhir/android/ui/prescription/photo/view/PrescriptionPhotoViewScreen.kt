@@ -23,6 +23,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -66,6 +67,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -75,14 +77,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
@@ -535,6 +540,10 @@ private fun DisplayImage(
     context: Context,
     viewModel: PrescriptionPhotoViewViewModel
 ) {
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
+    val imageSize = remember { mutableStateOf(IntSize.Zero) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -551,6 +560,31 @@ private fun DisplayImage(
                     indication = null
                 ) {
                     viewModel.displayNote = !viewModel.displayNote
+                }
+                .graphicsLayer(
+                    scaleX = scale,
+                    scaleY = scale,
+                    translationX = offsetX,
+                    translationY = offsetY
+                )
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        val newScale = scale * zoom
+                        if (newScale in 1f..8f) {
+                            scale = newScale
+
+                            // calculate maximum allowable translations
+                            val maxOffsetX = (imageSize.value.width * (scale - 1)) / 2
+                            val maxOffsetY = (imageSize.value.height * (scale - 1)) / 2
+
+                            // update offsets within bounds
+                            offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
+                            offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                        }
+                    }
+                }
+                .onSizeChanged {
+                    imageSize.value = it
                 },
             painter = rememberImagePainter(
                 viewModel.selectedFile?.filename?.getUriFromFileName(
