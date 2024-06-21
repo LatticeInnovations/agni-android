@@ -71,13 +71,14 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
     }
 
     internal fun insertPrescription(
+        imageUri: Uri,
         ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
         inserted: (Boolean) -> Unit
     ) {
         viewModelScope.launch(ioDispatcher) {
             // if appointment is in-progress, fetch prescription entity
             // compress and save the image
-            if (compressImage(application, selectedImageUri!!)) {
+            if (compressImage(application, imageUri)) {
                 var files = mutableListOf<File>()
                 var prescriptionUuid = UUIDBuilder.generateUUID()
                 var generatedOn = Date()
@@ -91,10 +92,10 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
                         prescriptionUuid = prescriptionPhotoResponse.prescriptionId
                         generatedOn = prescriptionPhotoResponse.generatedOn
                         files = prescriptionPhotoResponse.prescription.toMutableList()
-                        updateOrInsertNewPrescription(files, prescriptionUuid, generatedOn)
+                        updateOrInsertNewPrescription(imageUri, files, prescriptionUuid, generatedOn)
                     } else {
                         // insert generic patch
-                        val filename = selectedImageUri!!.toFile().name
+                        val filename = imageUri.toFile().name
                         prescriptionRepository.insertPrescriptionPhotos(
                             PrescriptionPhotoEntity(
                                 id = filename + prescriptionPhotoResponse.prescriptionId,
@@ -121,7 +122,7 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
                                 appointmentResponseLocal = updatedAppointmentResponse
                             }
                     )
-                    updateOrInsertNewPrescription(files, prescriptionUuid, generatedOn)
+                    updateOrInsertNewPrescription(imageUri, files, prescriptionUuid, generatedOn)
                 }
                 inserted(true)
             } else inserted(false)
@@ -129,12 +130,13 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
     }
 
     private suspend fun updateOrInsertNewPrescription(
+        imageUri: Uri,
         files: MutableList<File>,
         prescriptionUuid: String,
         generatedOn: Date
     ) {
         // insert in db
-        val filename = selectedImageUri!!.toFile().name
+        val filename = imageUri.toFile().name
         val listOfFiles = files.apply {
             add(File(filename, ""))
         }

@@ -291,6 +291,7 @@ private fun DisplayImage(
             onClick = {
                 viewModel.isSaving = true
                 // save prescription
+                var uri = viewModel.selectedImageUri
                 if (viewModel.isSelectedFromGallery) {
                     val fileName = "${Date().time}.jpeg"
                     val uploadFolder = FileManager.createFolder(context)
@@ -304,9 +305,9 @@ private fun DisplayImage(
                         uploadFolder,
                         fileName
                     )
-                    viewModel.selectedImageUri = Uri.fromFile(photoFile)
+                    uri = Uri.fromFile(photoFile)
                 }
-                viewModel.insertPrescription { inserted ->
+                viewModel.insertPrescription(uri!!) { inserted ->
                     viewModel.isSaving = false
                     if (inserted) {
                         viewModel.isImageCaptured = false
