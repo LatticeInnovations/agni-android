@@ -11,9 +11,11 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
+import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.utils.common.Queries.getSearchListWithLastVisited
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +27,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchResultViewModel @Inject constructor(
     private val searchRepository: SearchRepository,
-    private val relationRepository: RelationRepository
+    private val relationRepository: RelationRepository,
+    private val appointmentRepository: AppointmentRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
@@ -37,11 +40,19 @@ class SearchResultViewModel @Inject constructor(
 
     internal fun searchPatient(searchParameters: SearchParameters) {
         viewModelScope.launch(Dispatchers.IO) {
+            var finalSearchList = searchRepository.getSearchList()
+            if (!searchParameters.lastFacilityVisit.isNullOrBlank()) {
+                finalSearchList = getSearchListWithLastVisited(
+                    searchParameters.lastFacilityVisit,
+                    finalSearchList,
+                    appointmentRepository
+                )
+            }
             searchResultList =
                 searchRepository.filteredSearchPatients(
                     patientFrom?.id!!,
                     searchParameters,
-                    searchRepository.getSearchList(),
+                    finalSearchList,
                     relationRepository.getAllRelationOfPatient(patientFrom?.id!!).map { it.toId }
                         .toMutableSet()
                         .apply { add(patientFrom?.id!!) }

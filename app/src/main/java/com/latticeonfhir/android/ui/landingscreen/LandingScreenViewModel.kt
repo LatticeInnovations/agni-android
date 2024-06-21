@@ -30,6 +30,7 @@ import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.service.workmanager.utils.Sync
 import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
+import com.latticeonfhir.android.utils.common.Queries.getSearchListWithLastVisited
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toLastSyncTime
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -236,8 +237,16 @@ class LandingScreenViewModel @Inject constructor(
 
     private fun searchPatient(searchParameters: SearchParameters) {
         viewModelScope.launch(Dispatchers.IO) {
+            var finalSearchList = searchRepository.getSearchList()
+            if (!searchParameters.lastFacilityVisit.isNullOrBlank()) {
+                finalSearchList = getSearchListWithLastVisited(
+                    searchParameters.lastFacilityVisit,
+                    finalSearchList,
+                    appointmentRepository
+                )
+            }
             searchResultList =
-                searchRepository.searchPatients(searchParameters, searchRepository.getSearchList())
+                searchRepository.searchPatients(searchParameters, finalSearchList)
                     .map { data ->
                         data.map { paginationResponse ->
                             size = paginationResponse.size
