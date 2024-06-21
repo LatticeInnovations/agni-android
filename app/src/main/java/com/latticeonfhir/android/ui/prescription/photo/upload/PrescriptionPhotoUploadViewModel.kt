@@ -1,13 +1,14 @@
 package com.latticeonfhir.android.ui.prescription.photo.upload
 
+import android.app.Application
 import android.net.Uri
 import androidx.camera.core.CameraSelector
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toFile
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
@@ -23,6 +24,7 @@ import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.file.BitmapUtils.compressImage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -32,15 +34,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PrescriptionPhotoUploadViewModel @Inject constructor(
+    private val application: Application,
     private val appointmentRepository: AppointmentRepository,
     private val prescriptionRepository: PrescriptionRepository,
     private val genericRepository: GenericRepository,
     private val fileSyncRepository: FileSyncRepository,
     private val downloadedFileRepository: DownloadedFileRepository
-) : ViewModel() {
+) : BaseAndroidViewModel(application) {
 
     var patient: PatientResponse? by mutableStateOf(null)
     var isLaunched by mutableStateOf(false)
+    var isSaving by mutableStateOf(false)
     var isImageCaptured by mutableStateOf(false)
     var selectedImageUri: Uri? by mutableStateOf(null)
     var isSelectedFromGallery by mutableStateOf(false)
@@ -67,66 +71,72 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
     }
 
     internal fun insertPrescription(
+        imageUri: Uri,
         ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-        inserted: () -> Unit
+        inserted: (Boolean) -> Unit
     ) {
         viewModelScope.launch(ioDispatcher) {
             // if appointment is in-progress, fetch prescription entity
-            var files = mutableListOf<File>()
-            var prescriptionUuid = UUIDBuilder.generateUUID()
-            var generatedOn = Date()
-            if (appointmentResponseLocal!!.status == AppointmentStatusEnum.IN_PROGRESS.value) {
-                val prescriptionPhotoResponse =
-                    prescriptionRepository.getPrescriptionPhotoByAppointmentId(
-                        appointmentResponseLocal!!.uuid
-                    )[0]
-                if (prescriptionPhotoResponse.prescriptionFhirId == null) {
-                    // insert in generic post
-                    prescriptionUuid = prescriptionPhotoResponse.prescriptionId
-                    generatedOn = prescriptionPhotoResponse.generatedOn
-                    files = prescriptionPhotoResponse.prescription.toMutableList()
-                    updateOrInsertNewPrescription(files, prescriptionUuid, generatedOn)
-                } else {
-                    // insert generic patch
-                    val filename = selectedImageUri!!.toFile().name
-                    prescriptionRepository.insertPrescriptionPhotos(
-                        PrescriptionPhotoEntity(
-                            id = filename + prescriptionPhotoResponse.prescriptionId,
-                            prescriptionId = prescriptionPhotoResponse.prescriptionId,
-                            fileName = filename ,
-                            note = ""
-                        )
-                    ).also {
-                        insertInFileRepositories(filename)
-                        val updatedPrescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByAppointmentId(
+            // compress and save the image
+            if (compressImage(application, imageUri)) {
+                var files = mutableListOf<File>()
+                var prescriptionUuid = UUIDBuilder.generateUUID()
+                var generatedOn = Date()
+                if (appointmentResponseLocal!!.status == AppointmentStatusEnum.IN_PROGRESS.value) {
+                    val prescriptionPhotoResponse =
+                        prescriptionRepository.getPrescriptionPhotoByAppointmentId(
                             appointmentResponseLocal!!.uuid
                         )[0]
-                        genericRepository.insertOrUpdatePhotoPrescriptionPatch(
-                            prescriptionFhirId = updatedPrescriptionPhotoResponse.prescriptionFhirId!!,
-                            prescriptionPhotoResponse = updatedPrescriptionPhotoResponse
-                        )
-                    }
-                }
-            } else {
-                appointmentRepository.updateAppointment(
-                    appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
-                        .also { updatedAppointmentResponse ->
-                            appointmentResponseLocal = updatedAppointmentResponse
+                    if (prescriptionPhotoResponse.prescriptionFhirId == null) {
+                        // insert in generic post
+                        prescriptionUuid = prescriptionPhotoResponse.prescriptionId
+                        generatedOn = prescriptionPhotoResponse.generatedOn
+                        files = prescriptionPhotoResponse.prescription.toMutableList()
+                        updateOrInsertNewPrescription(imageUri, files, prescriptionUuid, generatedOn)
+                    } else {
+                        // insert generic patch
+                        val filename = imageUri.toFile().name
+                        prescriptionRepository.insertPrescriptionPhotos(
+                            PrescriptionPhotoEntity(
+                                id = filename + prescriptionPhotoResponse.prescriptionId,
+                                prescriptionId = prescriptionPhotoResponse.prescriptionId,
+                                fileName = filename,
+                                note = ""
+                            )
+                        ).also {
+                            insertInFileRepositories(filename)
+                            val updatedPrescriptionPhotoResponse =
+                                prescriptionRepository.getPrescriptionPhotoByAppointmentId(
+                                    appointmentResponseLocal!!.uuid
+                                )[0]
+                            genericRepository.insertOrUpdatePhotoPrescriptionPatch(
+                                prescriptionFhirId = updatedPrescriptionPhotoResponse.prescriptionFhirId!!,
+                                prescriptionPhotoResponse = updatedPrescriptionPhotoResponse
+                            )
                         }
-                )
-                updateOrInsertNewPrescription(files, prescriptionUuid, generatedOn)
-            }
-            inserted()
+                    }
+                } else {
+                    appointmentRepository.updateAppointment(
+                        appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
+                            .also { updatedAppointmentResponse ->
+                                appointmentResponseLocal = updatedAppointmentResponse
+                            }
+                    )
+                    updateOrInsertNewPrescription(imageUri, files, prescriptionUuid, generatedOn)
+                }
+                inserted(true)
+            } else inserted(false)
         }
     }
 
     private suspend fun updateOrInsertNewPrescription(
+        imageUri: Uri,
         files: MutableList<File>,
         prescriptionUuid: String,
         generatedOn: Date
     ) {
         // insert in db
-        val filename = selectedImageUri!!.toFile().name
+        val filename = imageUri.toFile().name
         val listOfFiles = files.apply {
             add(File(filename, ""))
         }
