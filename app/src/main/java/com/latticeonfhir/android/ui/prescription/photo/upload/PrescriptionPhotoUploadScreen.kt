@@ -3,6 +3,7 @@ package com.latticeonfhir.android.ui.prescription.photo.upload
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Camera
@@ -38,6 +39,9 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -69,6 +74,7 @@ import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.ScreenLoader
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
@@ -115,6 +121,17 @@ fun PrescriptionPhotoUploadScreen(
             )
             viewModel.isLaunched = true
         }
+    }
+    BackHandler(enabled = true) {
+        if (viewModel.isImageCaptured) {
+            if (!viewModel.isSelectedFromGallery) {
+                FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
+                viewModel.tempFileName = ""
+            }
+            viewModel.isImageCaptured = false
+            viewModel.selectedImageUri = null
+            viewModel.isSelectedFromGallery = false
+        } else navController.popBackStack()
     }
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
@@ -265,9 +282,29 @@ private fun DisplayImage(
                 .background(color = Color.Black),
             contentScale = ContentScale.Fit
         )
+        val snackbarHostState = remember { SnackbarHostState() }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            snackbar = {
+                Snackbar(
+                    content = {
+                        Text(
+                            text = it.visuals.message
+                        )
+                    }
+                )
+            },
+            modifier = Modifier
+                .zIndex(2f)
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(vertical = 68.dp, horizontal = 12.dp)
+        )
         Button(
             onClick = {
+                viewModel.isSaving = true
                 // save prescription
+                var uri = viewModel.selectedImageUri
                 if (viewModel.isSelectedFromGallery) {
                     val fileName = "${Date().time}.jpeg"
                     val uploadFolder = FileManager.createFolder(context)
@@ -281,18 +318,25 @@ private fun DisplayImage(
                         uploadFolder,
                         fileName
                     )
-                    viewModel.selectedImageUri = Uri.fromFile(photoFile)
+                    uri = Uri.fromFile(photoFile)
                 }
-                viewModel.insertPrescription {
-                    viewModel.isImageCaptured = false
-                    viewModel.selectedImageUri = null
-                    viewModel.isSelectedFromGallery = false
-                    coroutineScope.launch {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            PATIENT,
-                            viewModel.patient!!
-                        )
-                        navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
+                viewModel.insertPrescription(uri!!) { inserted ->
+                    viewModel.isSaving = false
+                    if (inserted) {
+                        viewModel.isImageCaptured = false
+                        viewModel.selectedImageUri = null
+                        viewModel.isSelectedFromGallery = false
+                        coroutineScope.launch {
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                PATIENT,
+                                viewModel.patient!!
+                            )
+                            navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
+                        }
+                    } else {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("Image size too big.")
+                        }
                     }
                 }
             },
@@ -304,6 +348,9 @@ private fun DisplayImage(
         ) {
             Text(text = stringResource(id = R.string.save))
         }
+    }
+    if (viewModel.isSaving) {
+        ScreenLoader()
     }
 }
 
@@ -407,6 +454,7 @@ private fun BottomRow(
 
         Box(
             modifier = Modifier
+                .clip(CircleShape)
                 .clickable {
                     imageCaptured()
                 },
