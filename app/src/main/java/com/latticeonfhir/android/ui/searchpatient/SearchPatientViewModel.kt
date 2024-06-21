@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.enums.LastVisit.Companion.getLastVisitList
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,8 +21,7 @@ class SearchPatientViewModel @Inject constructor() : BaseViewModel() {
     var gender by mutableStateOf("")
     var minAge by mutableStateOf("0")
     var maxAge by mutableStateOf("100")
-    val visitIntervals = listOf("Last week", "Last month", "Last 3 months", "Last year")
-    var visitSelected by mutableStateOf(visitIntervals[0])
+    var visitSelected by mutableStateOf(getLastVisitList()[0])
 
     var range by mutableStateOf(minAge.toFloat()..maxAge.toFloat())
 
@@ -31,10 +31,8 @@ class SearchPatientViewModel @Inject constructor() : BaseViewModel() {
     var address = Address()
 
     fun updateRange(minAge: String, maxAge: String) {
-        val min: String
-        val max: String
-        if (minAge.isEmpty()) min = "0" else min = minAge
-        if (maxAge.isEmpty()) max = "0" else max = maxAge
+        val min: String = minAge.ifEmpty { "0" }
+        val max: String = maxAge.ifEmpty { "0" }
         range = min.toFloat()..max.toFloat()
     }
 }
