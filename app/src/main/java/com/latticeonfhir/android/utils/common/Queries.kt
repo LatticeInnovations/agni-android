@@ -2,19 +2,26 @@ package com.latticeonfhir.android.utils.common
 
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
+import com.latticeonfhir.android.data.local.enums.LastVisit
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierAndAppointmentEntity
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.lastMonth
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.lastThreeMonth
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.lastWeek
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.lastYear
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to30MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to5MinutesAfter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentTime
@@ -204,5 +211,36 @@ object Queries {
         )
         patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
         genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
+    }
+
+    internal suspend fun getSearchListWithLastVisited(
+        lastVisited: String,
+        searchList: List<PatientAndIdentifierEntity>,
+        appointmentRepository: AppointmentRepository
+    ): List<PatientAndIdentifierEntity> {
+        val listWithCompletedAppointment = mutableListOf<PatientAndIdentifierAndAppointmentEntity>()
+        val fromTime = when(lastVisited) {
+            LastVisit.LAST_WEEK.label -> lastWeek()
+            LastVisit.LAST_MONTH.label -> lastMonth()
+            LastVisit.LAST_THREE_MONTHS.label -> lastThreeMonth()
+            LastVisit.LAST_YEAR.label -> lastYear()
+            else -> Date(0L)
+        }
+        searchList.forEach { patientAndIdentifierEntity ->
+            val lastCompletedAppointment = appointmentRepository.getLastCompletedAppointment(patientAndIdentifierEntity.patientEntity.id)
+            if (lastCompletedAppointment != null && lastCompletedAppointment.startTime > fromTime) {
+                listWithCompletedAppointment.add(
+                    PatientAndIdentifierAndAppointmentEntity(
+                        patientAndIdentifierEntity = patientAndIdentifierEntity,
+                        appointmentEntity = lastCompletedAppointment
+                    )
+                )
+            }
+        }
+        return listWithCompletedAppointment.sortedByDescending {
+            it.appointmentEntity.startTime
+        }.map {
+            it.patientAndIdentifierEntity
+        }
     }
 }

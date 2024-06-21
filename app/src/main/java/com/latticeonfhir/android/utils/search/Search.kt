@@ -17,7 +17,7 @@ object Search {
             if (!gender.isNullOrBlank()) {
                 finalList = finalList.filter {
                     gender == it.patientEntity.gender
-                } as MutableList<PatientAndIdentifierEntity>
+                }.toMutableList()
             }
             if (!name.isNullOrBlank()) {
                 finalList = finalList.filter {
@@ -27,7 +27,7 @@ object Search {
                         name.replace(" ", "").trim(),
                         fullName
                     ) > matchingRatio
-                } as MutableList<PatientAndIdentifierEntity>
+                }.toMutableList()
             }
             if (!patientId.isNullOrBlank()) {
                 finalList = finalList.filter {
@@ -35,17 +35,12 @@ object Search {
                         patientId,
                         it.patientEntity.fhirId ?: ""
                     ) > matchingRatio
-                } as MutableList<PatientAndIdentifierEntity>
+                }.toMutableList()
             }
             if (minAge != null && maxAge != null) {
                 finalList = finalList.filter {
                     (minAge <= it.patientEntity.birthDate.toAge()) && (it.patientEntity.birthDate.toAge() <= maxAge)
-                } as MutableList<PatientAndIdentifierEntity>
-            }
-            if (!lastFacilityVisit.isNullOrBlank()) {
-                finalList = finalList.filter {
-                    true
-                } as MutableList<PatientAndIdentifierEntity>
+                }.toMutableList()
             }
             if (!addressLine1.isNullOrBlank()) {
                 finalList = finalList.filter {
@@ -53,7 +48,7 @@ object Search {
                         addressLine1,
                         it.patientEntity.permanentAddress.addressLine1
                     ) > matchingRatio
-                } as MutableList<PatientAndIdentifierEntity>
+                }.toMutableList()
             }
             if (!city.isNullOrBlank()) {
                 finalList = finalList.filter {
@@ -61,7 +56,7 @@ object Search {
                         city,
                         it.patientEntity.permanentAddress.city
                     ) > matchingRatio
-                } as MutableList<PatientAndIdentifierEntity>
+                }.toMutableList()
             }
             if (!district.isNullOrBlank()) {
                 finalList = finalList.filter {
@@ -69,7 +64,7 @@ object Search {
                         district,
                         it.patientEntity.permanentAddress.district ?: ""
                     ) > matchingRatio
-                } as MutableList<PatientAndIdentifierEntity>
+                }.toMutableList()
             }
             if (!state.isNullOrBlank()) {
                 finalList = finalList.filter {
@@ -77,7 +72,7 @@ object Search {
                         state,
                         it.patientEntity.permanentAddress.state
                     ) > matchingRatio
-                } as MutableList<PatientAndIdentifierEntity>
+                }.toMutableList()
             }
             if (!postalCode.isNullOrBlank()) {
                 finalList = finalList.filter {
@@ -85,7 +80,7 @@ object Search {
                         postalCode,
                         it.patientEntity.permanentAddress.postalCode
                     ) > matchingRatio
-                } as MutableList<PatientAndIdentifierEntity>
+                }.toMutableList()
             }
             if (!addressLine2.isNullOrBlank()) {
                 finalList = finalList.filter {
@@ -93,7 +88,7 @@ object Search {
                         addressLine2,
                         it.patientEntity.permanentAddress.addressLine2 ?: ""
                     ) > matchingRatio
-                } as MutableList<PatientAndIdentifierEntity>
+                }.toMutableList()
             }
         }
         return finalList
