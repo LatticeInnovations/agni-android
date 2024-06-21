@@ -3,6 +3,7 @@ package com.latticeonfhir.android.ui.prescription.photo.upload
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Camera
@@ -119,6 +120,17 @@ fun PrescriptionPhotoUploadScreen(
             )
             viewModel.isLaunched = true
         }
+    }
+    BackHandler(enabled = true) {
+        if (viewModel.isImageCaptured) {
+            if (!viewModel.isSelectedFromGallery) {
+                FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
+                viewModel.tempFileName = ""
+            }
+            viewModel.isImageCaptured = false
+            viewModel.selectedImageUri = null
+            viewModel.isSelectedFromGallery = false
+        } else navController.popBackStack()
     }
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
