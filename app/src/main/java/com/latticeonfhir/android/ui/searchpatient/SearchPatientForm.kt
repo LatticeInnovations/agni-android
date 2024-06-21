@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.GenderEnum
+import com.latticeonfhir.android.data.local.enums.LastVisit.Companion.getLastVisitList
 import com.latticeonfhir.android.ui.common.AddressComposable
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
@@ -260,7 +261,7 @@ fun VisitDropdown(viewModel: SearchPatientViewModel) {
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            viewModel.visitIntervals.forEach { label ->
+            getLastVisitList().forEach { label ->
                 DropdownMenuItem(
                     onClick = {
                         expanded = false

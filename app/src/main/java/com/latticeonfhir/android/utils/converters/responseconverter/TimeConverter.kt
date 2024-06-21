@@ -365,4 +365,44 @@ object TimeConverter {
     fun isToday(date: Date): Boolean {
         return isSameDay(date, Date())
     }
+
+    fun lastWeek(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.WEEK_OF_YEAR, -1)
+        calendar[Calendar.HOUR_OF_DAY] = 0
+        calendar[Calendar.MINUTE] = 0
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
+        return calendar.time
+    }
+
+    fun lastMonth(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.MONTH, -1)
+        calendar[Calendar.HOUR_OF_DAY] = 0
+        calendar[Calendar.MINUTE] = 0
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
+        return calendar.time
+    }
+
+    fun lastThreeMonth(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.MONTH, -3)
+        calendar[Calendar.HOUR_OF_DAY] = 0
+        calendar[Calendar.MINUTE] = 0
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
+        return calendar.time
+    }
+
+    fun lastYear(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.YEAR, -1)
+        calendar[Calendar.HOUR_OF_DAY] = 0
+        calendar[Calendar.MINUTE] = 0
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
+        return calendar.time
+    }
 }
