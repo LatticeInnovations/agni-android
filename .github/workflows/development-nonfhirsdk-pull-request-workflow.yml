@@ -27,16 +27,13 @@ jobs:
         with:
           gradle-version: 8.1
 
-      - name: Grant rights to decrypt secret
+      - name: Grant rights to decrypt secret file
         run: chmod +x decrypt_secret.sh
 
-      - name: Decrypt large secret
+      - name: Decrypt google services
         run: ./decrypt_secret.sh
         env:
           GOOGLE_SERVICES_PASSPHRASE: ${{ secrets.GOOGLE_SERVICES_PASSPHRASE }}
-
-      - name: Test printing your secret (Remove this step in production)
-        run: cat $HOME/secrets/google-services.json
 
       - name: Grant rights
         run: chmod +x build.gradle
