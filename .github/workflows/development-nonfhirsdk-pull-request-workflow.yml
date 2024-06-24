@@ -29,9 +29,8 @@ jobs:
 
       - name: Decode and save google-services.json
         env:
-            GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: |
-            echo $GOOGLE_SERVICES_JSON | base64 -d > /home/runner/work/FHIR-Android/FHIR-Android/app/google-services.json
+          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo $DATA | base64 -di > app/google-services.json
 
       - name: Grant rights
         run: chmod +x build.gradle
