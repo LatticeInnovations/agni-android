@@ -84,3 +84,6 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+
+# google services key
+google-services.json
