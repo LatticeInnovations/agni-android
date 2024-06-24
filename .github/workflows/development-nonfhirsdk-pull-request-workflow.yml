@@ -28,10 +28,10 @@ jobs:
           gradle-version: 8.1
 
       - name: Grant rights to decrypt secret
-        run: chmod +x app/decrypt_secret.sh
+        run: chmod +x decrypt_secret.sh
 
       - name: Decrypt large secret
-        run: ./app/decrypt_secret.sh
+        run: ./decrypt_secret.sh
         env:
           GOOGLE_SERVICES_PASSPHRASE: ${{ secrets.GOOGLE_SERVICES_PASSPHRASE }}
 
