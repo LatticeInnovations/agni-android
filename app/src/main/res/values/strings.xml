@@ -92,6 +92,7 @@ include them in the household</string>
     <string name="verify">Verify</string>
 
     <string name="login_helper_text">Login with phone number or email address</string>
+    <string name="signup_helper_text">Please provide username and clinic name</string>
     <string name="send_me_otp">Send me OTP</string>
     <string name="advanced_search">Advanced Search</string>
     <string name="search">Search</string>
@@ -136,6 +137,8 @@ include them in the household</string>
     <string name="error_msg_1_to_31_days">Enter valid day between 1 and 31.</string>
     <string name="error_msg_1_to_29_days">Enter valid day between 1 and 29.</string>
     <string name="year_error_msg">Enter valid year between 1900 and %s</string>
+    <string name="enter_your_name">Enter your name</string>
+    <string name="enter_your_clinic_name">Enter your clinic name</string>
 
     <string name="age_days">Days</string>
     <string name="age_months">Months</string>
@@ -151,6 +154,7 @@ include them in the household</string>
     <string name="voter_id_error_msg">Enter valid Voter Id (eg., XYZ9876543)</string>
 
     <string name="submit_and_preview">Submit &amp; Preview</string>
+    <string name="submit">Submit</string>
     <string name="confirm_relationship">Confirm Relationship</string>
     <string name="patient_registration">Patient Registration</string>
     <string name="establish_relation">Establish relation</string>
@@ -238,4 +242,6 @@ include them in the household</string>
     <string name="permissions_required_description">To continue, this app needs access to your camera and storage. Please allow these permissions from the settings app.</string>
     <string name="go_to_settings">Go to settings</string>
     <string name="saving">Saving…</string>
+    <string name="delete_account">Delete account</string>
+    <string name="delete_account_dialog_description">Are you sure you want to delete your account. Deleting your account will remove all of your information from our database.</string>
 </resources>

@@ -1,5 +1,7 @@
 package com.latticeonfhir.android.ui.landingscreen
 
+import android.app.Activity
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,19 +13,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
@@ -32,6 +39,9 @@ import com.latticeonfhir.android.ui.common.Detail
 import com.latticeonfhir.android.ui.common.Label
 import com.latticeonfhir.android.ui.theme.Primary10
 import com.latticeonfhir.android.ui.theme.SyncFailedColor
+import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
@@ -65,6 +75,51 @@ fun ProfileScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
 
         SyncStatusView(viewModel)
         AppVersionInfoCard()
+        DeleteAccountCard()
+        AnimatedVisibility(viewModel.showConfirmDeleteAccountDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    viewModel.showConfirmDeleteAccountDialog = false
+                },
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.delete_account),
+                        modifier = Modifier.testTag("DIALOG_TITLE")
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(id = R.string.delete_account_dialog_description),
+                        modifier = Modifier.testTag("DIALOG_DESCRIPTION")
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.showConfirmDeleteAccountDialog = false
+
+                        },
+                        modifier = Modifier.testTag("POSITIVE_BTN")
+                    ) {
+                        Text(
+                            stringResource(id = R.string.delete_account)
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.showConfirmDeleteAccountDialog = false
+                        },
+                        modifier = Modifier.testTag("NEGATIVE_BTN")
+                    ) {
+                        Text(
+                            stringResource(id = R.string.cancel)
+                        )
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -190,4 +245,68 @@ private fun AppVersionInfoCard() {
             )
         }
     }
+}
+
+@Composable
+fun DeleteAccountCard() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 14.dp),
+        border = BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outlineVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(vertical = 24.dp, horizontal = 16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.delete_account),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+fun checkNetwork(
+    viewModel: LandingScreenViewModel,
+    navController: NavController,
+    activity: Activity,
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
+    when (isInternetAvailable(activity)) {
+        true -> {
+            viewModel.deleteAccount()
+            navigate(viewModel, navController)
+        }
+
+        false -> {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = activity.getString(R.string.no_internet_error_msg)
+                )
+            }
+        }
+    }
+}
+
+fun navigate(viewModel: LandingScreenViewModel, navController: NavController) {
+//    viewModel.isAuthenticating = true
+//    viewModel.login {
+//        if (it) {
+//            CoroutineScope(Dispatchers.Main).launch {
+//                navController.currentBackStackEntry?.savedStateHandle?.set(
+//                    "userInput",
+//                    viewModel.inputValue
+//                )
+//                navController.navigate(Screen.OtpScreen.route)
+//            }
+//        }
+//    }
 }

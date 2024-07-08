@@ -3,6 +3,7 @@ package com.latticeonfhir.android.data.server.api
 import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.android.data.server.model.authentication.Login
 import com.latticeonfhir.android.data.server.model.authentication.Otp
+import com.latticeonfhir.android.data.server.model.authentication.Register
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.data.server.model.user.UserResponse
 import retrofit2.Response
@@ -17,6 +18,9 @@ interface AuthenticationApiService {
 
     @POST("auth/otp")
     suspend fun validateOtp(@Body otp: Otp): Response<BaseResponse<TokenResponse>>
+
+    @POST("/register")
+    suspend fun register(@Body register: Register): Response<BaseResponse<TokenResponse>>
 
     @GET("user")
     suspend fun getUserDetails(): Response<BaseResponse<UserResponse>>
