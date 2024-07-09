@@ -8,6 +8,7 @@ import com.latticeonfhir.android.data.server.api.FileUploadApiService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
+import com.latticeonfhir.android.data.server.api.SignUpApiService
 import com.latticeonfhir.android.utils.constants.AuthenticationConstants.X_ACCESS_TOKEN
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import dagger.Module
@@ -115,5 +116,11 @@ object NetworkModule {
     @Singleton
     internal fun provideFileUploadApiService(retrofit: Retrofit): FileUploadApiService {
         return retrofit.create(FileUploadApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    internal fun provideSignUpApiService(retrofit: Retrofit): SignUpApiService {
+        return retrofit.create(SignUpApiService::class.java)
     }
 }

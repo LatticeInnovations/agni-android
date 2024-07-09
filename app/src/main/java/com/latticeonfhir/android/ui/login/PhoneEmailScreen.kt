@@ -106,12 +106,18 @@ fun PhoneEmailScreen(
                         if (!viewModel.isAuthenticating) Text(text = stringResource(id = R.string.send_me_otp))
                         else ButtonLoader()
                     }
-                    Text(
-                        text = "Sign-up",
-                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 30.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
+                    if (viewModel.signUpButtonIsVisible) {
+                        TextButton(onClick = { navController.navigate(Screen.SignUpPhoneEmailScreen.route) },
+                            modifier =  Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(top = 30.dp)) {
+                            Text(
+                                text = "Sign-up",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                 }
                 AnimatedVisibility (viewModel.showDifferentUserLoginDialog) {
                     AlertDialog(

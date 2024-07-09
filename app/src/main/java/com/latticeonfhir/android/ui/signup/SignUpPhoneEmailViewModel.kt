@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.login
+package com.latticeonfhir.android.ui.signup
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,6 +8,7 @@ import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
+import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import com.latticeonfhir.android.utils.regex.EmailRegex
@@ -18,10 +19,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PhoneEmailViewModel @Inject constructor(
-    private val authenticationRepository: AuthenticationRepository,
-    private val preferenceRepository: PreferenceRepository,
-    private val fhirAppDatabase: FhirAppDatabase
+class SignUpPhoneEmailViewModel @Inject constructor(
+    private val signUpRepository: SignUpRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var inputValue by mutableStateOf("")
@@ -30,8 +29,6 @@ class PhoneEmailViewModel @Inject constructor(
     var isPhoneNumber by mutableStateOf(false)
     var isError by mutableStateOf(false)
     var errorMsg by mutableStateOf("")
-    var showDifferentUserLoginDialog by mutableStateOf(false)
-    internal var signUpButtonIsVisible by mutableStateOf(false)
 
     fun updateError() {
         errorMsg = "Enter valid phone number or Email address"
@@ -42,37 +39,19 @@ class PhoneEmailViewModel @Inject constructor(
         isError = isInputInvalid
     }
 
-    internal fun login(navigate: (Boolean) -> Unit) {
+    internal fun signUp(navigate: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            authenticationRepository.login(inputValue).apply {
+            signUpRepository.verification(inputValue).apply {
                 if (this is ApiEmptyResponse) {
-                    signUpButtonIsVisible = false
                     isAuthenticating = false
                     navigate(true)
                 } else if (this is ApiErrorResponse) {
-                    signUpButtonIsVisible = true
                     errorMsg = errorMessage
                     isError = true
                     isAuthenticating = false
                     navigate(false)
                 }
             }
-        }
-    }
-
-    fun isDifferentUserLogin(): Boolean {
-        return if (preferenceRepository.getUserMobile() == 0L && preferenceRepository.getUserEmail()
-                .isBlank()
-        ) {
-            false
-        } else !(preferenceRepository.getUserEmail() == inputValue || preferenceRepository.getUserMobile()
-            .toString() == inputValue)
-    }
-
-    internal fun clearAllAppData() {
-        viewModelScope.launch(Dispatchers.IO) {
-            fhirAppDatabase.clearAllTables()
-            preferenceRepository.clearPreferences()
         }
     }
 

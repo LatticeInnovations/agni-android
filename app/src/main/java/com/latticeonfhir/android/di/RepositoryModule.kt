@@ -28,6 +28,8 @@ import com.latticeonfhir.android.data.server.repository.authentication.Authentic
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepositoryImpl
+import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
+import com.latticeonfhir.android.data.server.repository.signup.SignUpRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import dagger.Binds
@@ -96,4 +98,8 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideDownloadedFileRepository(downloadedFileRepositoryImpl: DownloadedFileRepositoryImpl): DownloadedFileRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideSignUpRepository(signUpRepositoryImpl: SignUpRepositoryImpl): SignUpRepository
 }
