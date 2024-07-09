@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.server.model.authentication.Register
+import com.latticeonfhir.android.data.server.model.register.Register
 import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
@@ -40,8 +40,7 @@ class SignUpViewModel @Inject constructor(private val signUpRepository: SignUpRe
         viewModelScope.launch(Dispatchers.IO) {
             signUpRepository.register(
                 register = Register(
-                    firstName = inputName.split(" ")[0],
-                    lastName = inputName.split(" ").getOrNull(1) ?: "",
+                    firstName = inputName,
                     mobile = if (userInput.matches(OnlyNumberRegex.onlyNumbers) && userInput.length == 10) userInput else null,
                     email = if (userInput.matches(EmailRegex.emailPattern)) userInput else null,
                     clinicName = inputClinicName

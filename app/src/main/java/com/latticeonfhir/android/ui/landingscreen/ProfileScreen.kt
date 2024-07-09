@@ -22,9 +22,12 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,6 +38,7 @@ import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
+import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.Detail
 import com.latticeonfhir.android.ui.common.Label
 import com.latticeonfhir.android.ui.theme.Primary10
@@ -44,7 +48,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
+fun ProfileScreen(navController: NavController, viewModel: LandingScreenViewModel = hiltViewModel()) {
+
+    val activity = LocalContext.current as Activity
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -97,7 +106,13 @@ fun ProfileScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
                     TextButton(
                         onClick = {
                             viewModel.showConfirmDeleteAccountDialog = false
-
+                            checkNetwork(
+                                viewModel,
+                                navController,
+                                activity,
+                                coroutineScope,
+                                snackbarHostState
+                            )
                         },
                         modifier = Modifier.testTag("POSITIVE_BTN")
                     ) {
@@ -297,16 +312,9 @@ fun checkNetwork(
 }
 
 fun navigate(viewModel: LandingScreenViewModel, navController: NavController) {
-//    viewModel.isAuthenticating = true
-//    viewModel.login {
-//        if (it) {
-//            CoroutineScope(Dispatchers.Main).launch {
-//                navController.currentBackStackEntry?.savedStateHandle?.set(
-//                    "userInput",
-//                    viewModel.inputValue
-//                )
-//                navController.navigate(Screen.OtpScreen.route)
-//            }
-//        }
-//    }
+    navController.currentBackStackEntry?.savedStateHandle?.set(
+        "userInput",
+        viewModel.userPhoneNo
+    )
+    navController.navigate(Screen.OtpScreen.route)
 }

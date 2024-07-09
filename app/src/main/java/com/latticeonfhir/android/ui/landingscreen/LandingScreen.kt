@@ -384,7 +384,7 @@ fun LandingScreen(
                             snackbarHostState
                         )
 
-                        2 -> ProfileScreen()
+                        2 -> ProfileScreen(navController)
                     }
                 }
                 if (viewModel.isLoggingOut) {

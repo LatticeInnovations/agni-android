@@ -72,6 +72,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                 navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput")
                     .toString()
             viewModel.isSignUp = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isSignUp") != null
+            viewModel.isDeleteAccount = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isDeleteAccount") != null
             if (viewModel.userInput.matches(onlyNumbers)) {
                 activity.registerBroadcastReceiver()
             }
@@ -227,7 +228,9 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             .testTag("BUTTON")
                     ) {
                         if (viewModel.isVerifying) ButtonLoader()
-                        else Text(text = stringResource(id = R.string.verify))
+                        else {
+                            if(viewModel.isDeleteAccount) Text(text = stringResource(id = R.string.delete_account)) else Text(text = stringResource(id = R.string.verify))
+                        }
                     }
                 }
             }
@@ -343,6 +346,8 @@ fun verifyClick(navController: NavController, viewModel: OtpViewModel) {
                         viewModel.userInput
                     )
                     navController.navigate(Screen.SignUpScreen.route)
+                } else if(viewModel.isDeleteAccount) {
+                    navController.navigate(Screen.PhoneEmailScreen.route)
                 } else {
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         "loggedIn",

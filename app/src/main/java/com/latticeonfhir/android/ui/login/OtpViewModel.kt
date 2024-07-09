@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
@@ -23,7 +25,9 @@ import javax.inject.Inject
 @HiltViewModel
 class OtpViewModel @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
-    private val signUpRepository: SignUpRepository
+    private val signUpRepository: SignUpRepository,
+    private val fhirAppDatabase: FhirAppDatabase,
+    private val preferenceRepository: PreferenceRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     val otpValues = List(6) { mutableStateOf("") }
@@ -38,7 +42,7 @@ class OtpViewModel @Inject constructor(
     var errorMsg by mutableStateOf("")
     var otpAttemptsExpired by mutableStateOf(false)
     internal var isSignUp by mutableStateOf(false)
-    internal var tempAuthToken: String? = null
+    internal var isDeleteAccount by mutableStateOf(false)
 
     fun updateOtp() {
         otpEntered = otpValues.joinToString(separator = "") { it.value }
@@ -59,12 +63,37 @@ class OtpViewModel @Inject constructor(
             if(isSignUp) {
                 signUpRepository.otpVerification(userInput, otpEntered.toInt()).apply {
                     if(this is ApiEndResponse) {
-                        tempAuthToken = body.token
+                        preferenceRepository.setAuthenticationToken(body.token)
+                    }
+                }.loginApplyExtension(navigate)
+            } else if(isDeleteAccount) {
+                signUpRepository.otpVerification(userInput, otpEntered.toInt()).apply {
+                    if(this is ApiEndResponse) {
+                        deleteAccount(body.token, navigate)
                     }
                 }.loginApplyExtension(navigate)
             } else {
                 authenticationRepository.validateOtp(userInput, otpEntered.toInt()).loginApplyExtension(navigate)
             }
+        }
+    }
+
+    private suspend fun deleteAccount(tempAuthToken: String, navigate: (Boolean) -> Unit) {
+        authenticationRepository.deleteAccount(tempAuthToken).apply {
+            if(this is ApiErrorResponse) {
+                errorMsg = errorMessage
+                navigate(false)
+            } else if (this is ApiEndResponse) {
+                clearAllAppData()
+                navigate(true)
+            }
+        }
+    }
+
+    private fun clearAllAppData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            fhirAppDatabase.clearAllTables()
+            preferenceRepository.clearPreferences()
         }
     }
 
