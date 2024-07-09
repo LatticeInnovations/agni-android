@@ -92,6 +92,7 @@ include them in the household</string>
     <string name="verify">Verify</string>
 
     <string name="login_helper_text">Login with phone number or email address</string>
+    <string name="signup_helper_text_title">Sign up with phone number or email address</string>
     <string name="signup_helper_text">Please provide username and clinic name</string>
     <string name="send_me_otp">Send me OTP</string>
     <string name="advanced_search">Advanced Search</string>

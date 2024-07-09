@@ -2,6 +2,7 @@ package com.latticeonfhir.android.navigation
 
 sealed class Screen(val route: String) {
     data object PhoneEmailScreen : Screen("phone_email_screen")
+    data object SignUpPhoneEmailScreen : Screen("sign_up_phone_email_screen")
     data object OtpScreen : Screen("otp_screen")
     data object SignUpScreen: Screen("sign_up_screen")
     data object LandingScreen : Screen("landing_screen")

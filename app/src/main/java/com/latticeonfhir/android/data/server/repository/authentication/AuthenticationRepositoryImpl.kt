@@ -42,7 +42,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun getUserDetails(): ResponseMapper<UserResponse> {
+    override suspend fun getUserDetails(): ResponseMapper<UserResponse> {
         return ApiResponseConverter.convert(
             authenticationApiService.getUserDetails()
         ).apply {
