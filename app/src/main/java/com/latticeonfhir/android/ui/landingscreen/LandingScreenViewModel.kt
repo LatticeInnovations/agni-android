@@ -84,6 +84,9 @@ class LandingScreenViewModel @Inject constructor(
     var logoutUser by mutableStateOf(false)
     var logoutReason by mutableStateOf("")
 
+    var showConfirmDeleteAccountDialog by mutableStateOf(false)
+    var deleteAccount by mutableStateOf(false)
+
     // queue screen
     var showStatusChangeLayout by mutableStateOf(false)
 
@@ -290,5 +293,9 @@ class LandingScreenViewModel @Inject constructor(
                     preferenceRepository.resetAuthenticationToken()
                 }
         }
+    }
+
+    internal fun deleteAccount() {
+
     }
 }

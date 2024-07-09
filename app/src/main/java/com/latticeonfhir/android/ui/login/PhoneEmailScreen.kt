@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -73,7 +74,6 @@ fun PhoneEmailScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(15.dp),
-
                     ) {
                     Spacer(modifier = Modifier.height(60.dp))
                     Text(
@@ -106,6 +106,12 @@ fun PhoneEmailScreen(
                         if (!viewModel.isAuthenticating) Text(text = stringResource(id = R.string.send_me_otp))
                         else ButtonLoader()
                     }
+                    Text(
+                        text = "Sign-up",
+                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 30.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
                 }
                 AnimatedVisibility (viewModel.showDifferentUserLoginDialog) {
                     AlertDialog(
@@ -128,7 +134,13 @@ fun PhoneEmailScreen(
                             TextButton(
                                 onClick = {
                                     viewModel.showDifferentUserLoginDialog = false
-                                    checkNetwork(viewModel, navController, activity, coroutineScope, snackbarHostState)
+                                    checkNetwork(
+                                        viewModel,
+                                        navController,
+                                        activity,
+                                        coroutineScope,
+                                        snackbarHostState
+                                    )
                                 },
                                 modifier = Modifier.testTag("POSITIVE_BTN")
                             ) {
