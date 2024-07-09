@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.data.server.repository.signup
 
-import com.latticeonfhir.android.data.server.model.authentication.Register
+import com.latticeonfhir.android.data.server.model.register.Register
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 

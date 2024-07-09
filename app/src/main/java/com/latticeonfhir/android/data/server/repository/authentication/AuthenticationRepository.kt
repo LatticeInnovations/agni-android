@@ -9,4 +9,5 @@ interface AuthenticationRepository {
     suspend fun login(userContact: String): ResponseMapper<String?>
     suspend fun validateOtp(userContact: String, otp: Int): ResponseMapper<TokenResponse>
     suspend fun getUserDetails(): ResponseMapper<UserResponse>
+    suspend fun deleteAccount(tempToken: String): ResponseMapper<String?>
 }

@@ -4,7 +4,7 @@ import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepo
 import com.latticeonfhir.android.data.server.api.SignUpApiService
 import com.latticeonfhir.android.data.server.model.authentication.Login
 import com.latticeonfhir.android.data.server.model.authentication.Otp
-import com.latticeonfhir.android.data.server.model.authentication.Register
+import com.latticeonfhir.android.data.server.model.register.Register
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
@@ -34,11 +34,7 @@ class SignUpRepositoryImpl @Inject constructor(private val signUpApiService: Sig
                     otp = otp
                 )
             )
-        ).apply {
-            if(this is ApiEndResponse) {
-                preferenceRepository.setAuthenticationToken(body.token)
-            }
-        }
+        )
     }
 
     override suspend fun register(register: Register): ResponseMapper<TokenResponse> {

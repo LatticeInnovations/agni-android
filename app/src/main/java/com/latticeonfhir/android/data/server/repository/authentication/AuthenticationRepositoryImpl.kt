@@ -64,4 +64,10 @@ class AuthenticationRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun deleteAccount(tempToken: String): ResponseMapper<String?> {
+        return ApiResponseConverter.convert(
+            authenticationApiService.deleteUserDetails(tempToken)
+        )
+    }
 }
