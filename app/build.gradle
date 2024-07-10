@@ -50,8 +50,8 @@ android {
         applicationId "com.latticeonfhir.android"
         minSdk 24
         targetSdk 34
-        versionCode 56
-        versionName "1.5.5"
+        versionCode 57
+        versionName "1.6.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -81,13 +81,15 @@ android {
             shrinkResources false
             testCoverageEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "\"https://fhir.api.thelattice.org/facadeDev/api/v1/\"" // dev
+            buildConfigField "String", "BASE_URL", "\"https://fhir.api.thelattice.org/facadeDev/api/v1/\""
+            // dev
         }
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "\"https://fhir.api.thelattice.org/fhir/api/v1/\"" // test
+            buildConfigField "String", "BASE_URL", "\"https://fhir.api.thelattice.org/fhir/api/v1/\""
+            // test
             signingConfig signingConfigs.release
         }
     }

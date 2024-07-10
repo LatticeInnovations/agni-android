@@ -148,12 +148,14 @@ fun LandingScreen(
             }
             viewModel.populateList()
 
-            viewModel.addedToQueue = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-                ADD_TO_QUEUE
-            ) == true
-            viewModel.patientArrived = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-                PATIENT_ARRIVED
-            ) == true
+            viewModel.addedToQueue =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                    ADD_TO_QUEUE
+                ) == true
+            viewModel.patientArrived =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                    PATIENT_ARRIVED
+                ) == true
             if (viewModel.addedToQueue) {
                 viewModel.selectedIndex = 1
                 coroutineScope.launch {
@@ -171,7 +173,9 @@ fun LandingScreen(
                         message = activity.getString(R.string.status_updated_to_arrived)
                     )
                 }
-                navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(PATIENT_ARRIVED)
+                navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(
+                    PATIENT_ARRIVED
+                )
             }
             navController.clearBackStack(Screen.LandingScreen.route)
         }
@@ -194,19 +198,13 @@ fun LandingScreen(
         }
     }
 
-    LaunchedEffect(viewModel.deleteAccount) {
-        if (viewModel.deleteAccount) {
-            viewModel.deleteAccount()
-            navController.currentBackStackEntry?.savedStateHandle?.set(
-                "logoutUser",
-                viewModel.logoutUser
-            )
-            navController.currentBackStackEntry?.savedStateHandle?.set(
-                "logoutReason",
-                viewModel.logoutReason
-            )
-            navController.navigate(Screen.PhoneEmailScreen.route)
-            viewModel.deleteAccount = false
+    LaunchedEffect(viewModel.deleteAccountError) {
+        if (viewModel.deleteAccountError.isNotBlank()) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = viewModel.deleteAccountError
+                )
+            }
         }
     }
 
@@ -384,7 +382,7 @@ fun LandingScreen(
                             snackbarHostState
                         )
 
-                        2 -> ProfileScreen()
+                        2 -> ProfileScreen(navController, snackbarHostState)
                     }
                 }
                 if (viewModel.isLoggingOut) {
@@ -471,7 +469,10 @@ fun LandingScreen(
                                 viewModel.searchQuery = ""
                                 viewModel.isSearching = false
                             }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "BACK_ICON"
+                                )
                             }
                         },
                         trailingIcon = {
@@ -560,7 +561,10 @@ fun LandingScreen(
                                 queueViewModel.isSearchingInQueue = false
                                 queueViewModel.getAppointmentListByDate()
                             }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "BACK_ICON"
+                                )
                             }
                         },
                         trailingIcon = {

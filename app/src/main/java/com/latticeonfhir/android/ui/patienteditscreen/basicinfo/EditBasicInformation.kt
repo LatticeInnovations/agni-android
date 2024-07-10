@@ -208,7 +208,8 @@ fun EditBasicInformation(
                         KeyboardType.Text,
                         KeyboardCapitalization.Words
                     ) {
-                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.firstName = it.trim()
+                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.firstName =
+                            it.trim()
                         viewModel.isNameValid =
                             viewModel.firstName.length < 3 || viewModel.firstName.length > 100
                     }
@@ -223,7 +224,8 @@ fun EditBasicInformation(
                         KeyboardType.Text,
                         KeyboardCapitalization.Words
                     ) {
-                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.middleName = it.trim()
+                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.middleName =
+                            it.trim()
                     }
                     ValueLength(viewModel.middleName)
                     CustomTextField(
@@ -236,7 +238,8 @@ fun EditBasicInformation(
                         KeyboardType.Text,
                         KeyboardCapitalization.Words
                     ) {
-                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.lastName = it.trim()
+                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.lastName =
+                            it.trim()
                     }
                     ValueLength(viewModel.lastName)
                     Row(modifier = Modifier.fillMaxWidth()) {

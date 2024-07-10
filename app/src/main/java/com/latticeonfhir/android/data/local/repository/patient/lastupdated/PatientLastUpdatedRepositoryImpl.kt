@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class PatientLastUpdatedRepositoryImpl @Inject constructor(
     private val patientLastUpdatedDao: PatientLastUpdatedDao
-): PatientLastUpdatedRepository {
+) : PatientLastUpdatedRepository {
     override suspend fun insertPatientLastUpdatedData(patientLastUpdatedResponse: PatientLastUpdatedResponse): Long {
         return patientLastUpdatedDao.insertPatientLastUpdatedData(patientLastUpdatedResponse.toPatientLastUpdatedEntity())[0]
     }

@@ -122,7 +122,9 @@ class AppointmentsScreenViewModel @Inject constructor(
                         uuid = patient!!.id,
                         timestamp = Date()
                     )
-                    patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
+                    patientLastUpdatedRepository.insertPatientLastUpdatedData(
+                        patientLastUpdatedResponse
+                    )
                     genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
                 }
             )

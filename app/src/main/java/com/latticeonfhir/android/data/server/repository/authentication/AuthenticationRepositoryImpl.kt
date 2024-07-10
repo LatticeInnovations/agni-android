@@ -6,6 +6,7 @@ import com.latticeonfhir.android.data.server.model.authentication.Login
 import com.latticeonfhir.android.data.server.model.authentication.Otp
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.data.server.model.user.UserResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
@@ -42,7 +43,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun getUserDetails(): ResponseMapper<UserResponse> {
+    override suspend fun getUserDetails(): ResponseMapper<UserResponse> {
         return ApiResponseConverter.convert(
             authenticationApiService.getUserDetails()
         ).apply {
@@ -61,6 +62,19 @@ class AuthenticationRepositoryImpl @Inject constructor(
                         )
                     }
                 }
+            }
+        }
+    }
+
+    override suspend fun deleteAccount(tempToken: String): ResponseMapper<String?> {
+        val deleteUserResponse = authenticationApiService.deleteUserDetails(tempToken)
+        return ApiResponseConverter.convert(
+            deleteUserResponse
+        ).run {
+            if (this is ApiEmptyResponse) {
+                return ApiEndResponse(body = deleteUserResponse.body()?.message!!)
+            } else {
+                this
             }
         }
     }

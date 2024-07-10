@@ -86,7 +86,16 @@ class AppointmentsFabViewModel @Inject constructor(
         updated: (Int) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            Queries.updateStatusToArrived(patient, appointment, appointmentRepository, genericRepository, preferenceRepository, scheduleRepository, patientLastUpdatedRepository, updated)
+            Queries.updateStatusToArrived(
+                patient,
+                appointment,
+                appointmentRepository,
+                genericRepository,
+                preferenceRepository,
+                scheduleRepository,
+                patientLastUpdatedRepository,
+                updated
+            )
         }
     }
 }

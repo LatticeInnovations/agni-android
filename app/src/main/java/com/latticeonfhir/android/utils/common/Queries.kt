@@ -5,12 +5,12 @@ import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.LastVisit
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierAndAppointmentEntity
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
+import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierAndAppointmentEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -194,7 +194,11 @@ object Queries {
                             )
                         )
                     )
-                    updatePatientLastUpdated(patient.id, patientLastUpdatedRepository, genericRepository)
+                    updatePatientLastUpdated(
+                        patient.id,
+                        patientLastUpdatedRepository,
+                        genericRepository
+                    )
                 }
             }
         )
@@ -219,7 +223,7 @@ object Queries {
         appointmentRepository: AppointmentRepository
     ): List<PatientAndIdentifierEntity> {
         val listWithCompletedAppointment = mutableListOf<PatientAndIdentifierAndAppointmentEntity>()
-        val fromTime = when(lastVisited) {
+        val fromTime = when (lastVisited) {
             LastVisit.LAST_WEEK.label -> lastWeek()
             LastVisit.LAST_MONTH.label -> lastMonth()
             LastVisit.LAST_THREE_MONTHS.label -> lastThreeMonth()
@@ -227,7 +231,8 @@ object Queries {
             else -> Date(0L)
         }
         searchList.forEach { patientAndIdentifierEntity ->
-            val lastCompletedAppointment = appointmentRepository.getLastCompletedAppointment(patientAndIdentifierEntity.patientEntity.id)
+            val lastCompletedAppointment =
+                appointmentRepository.getLastCompletedAppointment(patientAndIdentifierEntity.patientEntity.id)
             if (lastCompletedAppointment != null && lastCompletedAppointment.startTime > fromTime) {
                 listWithCompletedAppointment.add(
                     PatientAndIdentifierAndAppointmentEntity(

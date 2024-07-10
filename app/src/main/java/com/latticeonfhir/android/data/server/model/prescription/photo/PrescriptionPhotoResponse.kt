@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 import java.util.Date
 
 @Keep
-data class PrescriptionPhotoResponse (
+data class PrescriptionPhotoResponse(
     val appointmentUuid: String,
     val prescriptionId: String,
     val prescriptionFhirId: String?,

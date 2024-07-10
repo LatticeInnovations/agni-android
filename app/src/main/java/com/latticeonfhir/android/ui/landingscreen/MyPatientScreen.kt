@@ -116,14 +116,22 @@ private fun CheckNetwork(viewModel: LandingScreenViewModel, context: MainActivit
     if (context.connectivityStatus.value == ConnectivityObserver.Status.Available) {
         if (viewModel.syncStatus == WorkerStatus.OFFLINE) viewModel.syncStatus =
             WorkerStatus.TODO
-        if (viewModel.syncStatus != WorkerStatus.TODO) DisplaySyncStatus(viewModel.syncStatus, viewModel.syncIcon, viewModel.syncStatusMessage)
+        if (viewModel.syncStatus != WorkerStatus.TODO) DisplaySyncStatus(
+            viewModel.syncStatus,
+            viewModel.syncIcon,
+            viewModel.syncStatusMessage
+        )
     } else {
         viewModel.apply {
             syncStatusMessage = SyncStatusMessageEnum.OFFLINE.message
             syncStatus = WorkerStatus.OFFLINE
             syncIcon = 0
         }
-        if (viewModel.syncStatus != WorkerStatus.TODO) DisplaySyncStatus(viewModel.syncStatus, viewModel.syncIcon, viewModel.syncStatusMessage)
+        if (viewModel.syncStatus != WorkerStatus.TODO) DisplaySyncStatus(
+            viewModel.syncStatus,
+            viewModel.syncIcon,
+            viewModel.syncStatusMessage
+        )
     }
 }
 
