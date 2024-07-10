@@ -45,6 +45,7 @@ class OtpViewModel @Inject constructor(
     internal var isSignUp by mutableStateOf(false)
     internal var isDeleteAccount by mutableStateOf(false)
     internal var logoutReason by mutableStateOf("")
+    internal lateinit var tempAuthToken: String
 
     fun updateOtp() {
         otpEntered = otpValues.joinToString(separator = "") { it.value }
@@ -52,10 +53,12 @@ class OtpViewModel @Inject constructor(
 
     internal fun resendOTP(resent: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            if(isSignUp) {
-                signUpRepository.verification(userInput, RegisterTypeEnum.REGISTER).resentOtpApplyExtension(resent)
-            } else if(isDeleteAccount) {
-                signUpRepository.verification(userInput, RegisterTypeEnum.DELETE).resentOtpApplyExtension(resent)
+            if (isSignUp) {
+                signUpRepository.verification(userInput, RegisterTypeEnum.REGISTER)
+                    .resentOtpApplyExtension(resent)
+            } else if (isDeleteAccount) {
+                signUpRepository.verification(userInput, RegisterTypeEnum.DELETE)
+                    .resentOtpApplyExtension(resent)
             } else {
                 authenticationRepository.login(userInput).resentOtpApplyExtension(resent)
             }
@@ -64,14 +67,22 @@ class OtpViewModel @Inject constructor(
 
     internal fun validateOtp(navigate: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            if(isSignUp) {
-                signUpRepository.otpVerification(userInput, otpEntered.toInt(), RegisterTypeEnum.REGISTER).apply {
-                    if(this is ApiEndResponse) {
-                        preferenceRepository.setAuthenticationToken(body.token)
+            if (isSignUp) {
+                signUpRepository.otpVerification(
+                    userInput,
+                    otpEntered.toInt(),
+                    RegisterTypeEnum.REGISTER
+                ).apply {
+                    if (this is ApiEndResponse) {
+                        tempAuthToken = body.token
                     }
                 }.loginApplyExtension(navigate)
-            } else if(isDeleteAccount) {
-                val otpVerifyResponse = signUpRepository.otpVerification(userInput, otpEntered.toInt(), RegisterTypeEnum.DELETE)
+            } else if (isDeleteAccount) {
+                val otpVerifyResponse = signUpRepository.otpVerification(
+                    userInput,
+                    otpEntered.toInt(),
+                    RegisterTypeEnum.DELETE
+                )
                 if (otpVerifyResponse is ApiEndResponse) {
                     isVerifying = false
                     deleteAccount(otpVerifyResponse.body.token, navigate)
@@ -79,14 +90,15 @@ class OtpViewModel @Inject constructor(
                     otpVerifyResponse.loginApplyExtension(navigate)
                 }
             } else {
-                authenticationRepository.validateOtp(userInput, otpEntered.toInt()).loginApplyExtension(navigate)
+                authenticationRepository.validateOtp(userInput, otpEntered.toInt())
+                    .loginApplyExtension(navigate)
             }
         }
     }
 
     private suspend fun deleteAccount(tempAuthToken: String, navigate: (Boolean) -> Unit) {
         authenticationRepository.deleteAccount(tempAuthToken).apply {
-            if(this is ApiErrorResponse) {
+            if (this is ApiErrorResponse) {
                 errorMsg = errorMessage
                 navigate(false)
             } else if (this is ApiEndResponse) {
