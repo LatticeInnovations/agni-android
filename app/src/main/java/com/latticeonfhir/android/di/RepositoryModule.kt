@@ -89,12 +89,15 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideAppointmentRepository(appointmentRepositoryImpl: AppointmentRepositoryImpl): AppointmentRepository
+
     @Binds
     @ViewModelScoped
     abstract fun providePatientLastUpdatedRepository(patientLastUpdatedRepositoryImpl: PatientLastUpdatedRepositoryImpl): PatientLastUpdatedRepository
+
     @Binds
     @ViewModelScoped
     abstract fun provideFileSyncRepository(fileUploadRepositoryImpl: FileSyncRepositoryImpl): FileSyncRepository
+
     @Binds
     @ViewModelScoped
     abstract fun provideDownloadedFileRepository(downloadedFileRepositoryImpl: DownloadedFileRepositoryImpl): DownloadedFileRepository

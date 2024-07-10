@@ -57,7 +57,15 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.EditAddress.route) { EditPatientAddress(navController = navController) }
         composable(Screen.Appointments.route) { AppointmentsScreen(navController = navController) }
         composable(Screen.ScheduleAppointments.route) { ScheduleAppointments(navController = navController) }
-        composable(Screen.PrescriptionPhotoUploadScreen.route) { PrescriptionPhotoUploadScreen(navController = navController) }
-        composable(Screen.PrescriptionPhotoViewScreen.route) { PrescriptionPhotoViewScreen(navController = navController) }
+        composable(Screen.PrescriptionPhotoUploadScreen.route) {
+            PrescriptionPhotoUploadScreen(
+                navController = navController
+            )
+        }
+        composable(Screen.PrescriptionPhotoViewScreen.route) {
+            PrescriptionPhotoViewScreen(
+                navController = navController
+            )
+        }
     }
 }

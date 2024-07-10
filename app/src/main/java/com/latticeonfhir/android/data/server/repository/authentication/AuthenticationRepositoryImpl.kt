@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.data.server.repository.authentication
 
-import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.api.AuthenticationApiService
 import com.latticeonfhir.android.data.server.model.authentication.Login
@@ -11,7 +10,6 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmpty
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
-import retrofit2.Response
 import javax.inject.Inject
 
 class AuthenticationRepositoryImpl @Inject constructor(
@@ -73,7 +71,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
         return ApiResponseConverter.convert(
             deleteUserResponse
         ).run {
-            if(this is ApiEmptyResponse) {
+            if (this is ApiEmptyResponse) {
                 return ApiEndResponse(body = deleteUserResponse.body()?.message!!)
             } else {
                 this

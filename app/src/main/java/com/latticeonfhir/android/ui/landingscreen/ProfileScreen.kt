@@ -23,8 +23,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,11 +46,14 @@ import com.latticeonfhir.android.ui.theme.SyncFailedColor
 import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileScreen(navController: NavController, snackbarHostState: SnackbarHostState, viewModel: LandingScreenViewModel = hiltViewModel()) {
+fun ProfileScreen(
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    viewModel: LandingScreenViewModel = hiltViewModel()
+) {
 
     val activity = LocalContext.current as Activity
     val coroutineScope = rememberCoroutineScope()
@@ -157,7 +158,10 @@ fun SyncStatusView(viewModel: LandingScreenViewModel) {
                 .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                 .fillMaxWidth()
         ) {
-            Text(text = stringResource(R.string.sync_status), style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = stringResource(R.string.sync_status),
+                style = MaterialTheme.typography.titleLarge
+            )
             Text(
                 modifier = Modifier.padding(top = 20.dp),
                 text = stringResource(R.string.synced),
@@ -189,9 +193,11 @@ private fun SyncStatusChip(viewModel: LandingScreenViewModel) {
                 SyncStatusMessageEnum.SYNCING_FAILED.display -> {
                     SyncFailedColor
                 }
+
                 SyncStatusMessageEnum.SYNCING_COMPLETED.display -> {
                     MaterialTheme.colorScheme.primaryContainer
                 }
+
                 else -> {
                     MaterialTheme.colorScheme.surfaceVariant
                 }
@@ -227,6 +233,7 @@ private fun setTextAndIconColor(viewModel: LandingScreenViewModel): Color {
         WorkerStatus.FAILED -> {
             Primary10
         }
+
         else -> {
             MaterialTheme.colorScheme.onSurfaceVariant
         }
@@ -266,7 +273,12 @@ private fun AppVersionInfoCard() {
 }
 
 @Composable
-fun DeleteAccountCard(activity: Activity, viewModel: LandingScreenViewModel, snackbarHostState: SnackbarHostState, coroutineScope: CoroutineScope,) {
+fun DeleteAccountCard(
+    activity: Activity,
+    viewModel: LandingScreenViewModel,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -312,7 +324,7 @@ fun checkNetwork(
     when (isInternetAvailable(activity)) {
         true -> {
             viewModel.sendDeleteAccountOtp {
-                if(it) {
+                if (it) {
                     CoroutineScope(Dispatchers.Main).launch {
                         navigate(viewModel, navController)
                     }

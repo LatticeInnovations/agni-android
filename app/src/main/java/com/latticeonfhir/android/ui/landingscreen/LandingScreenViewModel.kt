@@ -36,7 +36,6 @@ import com.latticeonfhir.android.utils.common.Queries.getSearchListWithLastVisit
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toLastSyncTime
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -114,6 +113,7 @@ class LandingScreenViewModel @Inject constructor(
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_IN_PROGRESS.message
                         setSyncDisplayData()
                     }
+
                     WorkerStatus.SUCCESS -> {
                         syncStatus = WorkerStatus.SUCCESS
                         syncIcon = R.drawable.sync_completed_icon
@@ -124,6 +124,7 @@ class LandingScreenViewModel @Inject constructor(
                             hideSyncStatus()
                         }
                     }
+
                     WorkerStatus.FAILED -> {
                         syncIcon = R.drawable.sync_problem
                         syncStatus = WorkerStatus.FAILED
@@ -134,6 +135,7 @@ class LandingScreenViewModel @Inject constructor(
                             hideSyncStatus()
                         }
                     }
+
                     else -> Timber.d("Worker Status $workerStatus")
                 }
             }
@@ -204,11 +206,12 @@ class LandingScreenViewModel @Inject constructor(
             Date(preferenceRepository.getLastSyncTime()).toLastSyncTime()
         else "Unavailable"
         syncStatusDisplay = preferenceRepository.getSyncStatus()
-        syncIconDisplay = when(syncStatusDisplay) {
+        syncIconDisplay = when (syncStatusDisplay) {
             SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display -> R.drawable.sync_icon
             SyncStatusMessageEnum.SYNCING_COMPLETED.display -> {
                 R.drawable.sync_completed_icon
             }
+
             SyncStatusMessageEnum.SYNCING_FAILED.display -> R.drawable.sync_problem
             else -> 0
         }
@@ -303,10 +306,13 @@ class LandingScreenViewModel @Inject constructor(
 
     internal fun sendDeleteAccountOtp(navigate: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            signUpRepository.verification(userPhoneNo.ifBlank { userEmail }, RegisterTypeEnum.DELETE).apply {
-                if(this is ApiEmptyResponse) {
+            signUpRepository.verification(
+                userPhoneNo.ifBlank { userEmail },
+                RegisterTypeEnum.DELETE
+            ).apply {
+                if (this is ApiEmptyResponse) {
                     navigate(true)
-                } else if(this is ApiErrorResponse) {
+                } else if (this is ApiErrorResponse) {
                     deleteAccountError = errorMessage
                     navigate(false)
                 }

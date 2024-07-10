@@ -66,7 +66,8 @@ fun AddressComposable(label: String, address: Address, isSearching: Boolean = fa
             KeyboardCapitalization.None
         ) {
             if (it.matches(onlyNumbers) || it.isEmpty()) address.pincode = it
-            if (isSearching) address.isPostalCodeValid = address.pincode.isNotEmpty() && address.pincode.length < 6
+            if (isSearching) address.isPostalCodeValid =
+                address.pincode.isNotEmpty() && address.pincode.length < 6
             else address.isPostalCodeValid = address.pincode.length < 6
         }
         Spacer(modifier = Modifier.width(15.dp))

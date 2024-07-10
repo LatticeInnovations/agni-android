@@ -92,7 +92,12 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
                         prescriptionUuid = prescriptionPhotoResponse.prescriptionId
                         generatedOn = prescriptionPhotoResponse.generatedOn
                         files = prescriptionPhotoResponse.prescription.toMutableList()
-                        updateOrInsertNewPrescription(imageUri, files, prescriptionUuid, generatedOn)
+                        updateOrInsertNewPrescription(
+                            imageUri,
+                            files,
+                            prescriptionUuid,
+                            generatedOn
+                        )
                     } else {
                         // insert generic patch
                         val filename = imageUri.toFile().name

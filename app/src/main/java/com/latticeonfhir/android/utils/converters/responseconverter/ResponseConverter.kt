@@ -494,7 +494,8 @@ internal suspend fun PrescriptionAndFileEntity.toPrescriptionPhotoResponse(
 ): PrescriptionPhotoResponse {
     return PrescriptionPhotoResponse(
         patientFhirId = prescriptionEntity.patientFhirId ?: prescriptionEntity.patientId,
-        appointmentId = appointmentDao.getFhirIdByAppointmentId(prescriptionEntity.appointmentId)?:prescriptionEntity.appointmentId,
+        appointmentId = appointmentDao.getFhirIdByAppointmentId(prescriptionEntity.appointmentId)
+            ?: prescriptionEntity.appointmentId,
         generatedOn = prescriptionEntity.prescriptionDate,
         prescriptionId = prescriptionEntity.id,
         prescription = prescriptionPhotoEntity.map { prescriptionPhotoEntity ->

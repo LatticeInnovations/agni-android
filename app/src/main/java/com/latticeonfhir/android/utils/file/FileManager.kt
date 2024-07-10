@@ -26,7 +26,12 @@ object FileManager {
         return parentFolder
     }
 
-    fun insertFileToInternalStorage(folder: File, title: String, url: String, context: Context): String {
+    fun insertFileToInternalStorage(
+        folder: File,
+        title: String,
+        url: String,
+        context: Context
+    ): String {
         val cr = context.contentResolver
         val sourceUri = Uri.parse(url)
         val inputStream = cr.openInputStream(sourceUri)
@@ -36,11 +41,15 @@ object FileManager {
         return title
     }
 
-    fun String.removeTimeStamp(): String{
+    fun String.removeTimeStamp(): String {
         return this.substringAfter("_")
     }
 
-    fun insertFileToExternalStorage(context: Context, fileName: String, destinationFileName: String): Boolean {
+    fun insertFileToExternalStorage(
+        context: Context,
+        fileName: String,
+        destinationFileName: String
+    ): Boolean {
         val sourceFile = File(createFolder(context), fileName)
         if (sourceFile.exists()) {
             val externalStorageDir = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -115,7 +124,11 @@ object FileManager {
     }
 
     fun shareImageToOtherApps(context: Context, uri: Uri) {
-        val contentUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", uri.toFile())
+        val contentUri = FileProvider.getUriForFile(
+            context,
+            BuildConfig.APPLICATION_ID + ".provider",
+            uri.toFile()
+        )
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "image/jpeg"
             putExtra(Intent.EXTRA_STREAM, contentUri)

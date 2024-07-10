@@ -53,7 +53,7 @@ fun WeekDaysComposable(
                 modifier = Modifier
                     .testTag("DATE_DROPDOWN")
                     .clickable(
-                        interactionSource = remember { MutableInteractionSource () },
+                        interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
                         callBack(true, null)

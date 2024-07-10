@@ -154,7 +154,8 @@ fun PatientRegistrationStepTwo(
                     KeyboardCapitalization.Characters
                 ) {
                     viewModel.patientId = it
-                    viewModel.isPatientValid = viewModel.patientId.length < viewModel.minPatientIdLength
+                    viewModel.isPatientValid =
+                        viewModel.patientId.length < viewModel.minPatientIdLength
                 }
                 IdLength(viewModel.patientId, viewModel.maxPatientIdLength, "PATIENT_ID_LENGTH")
             } else {
