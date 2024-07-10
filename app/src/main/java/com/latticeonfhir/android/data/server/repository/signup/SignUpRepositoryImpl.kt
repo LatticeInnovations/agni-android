@@ -49,7 +49,10 @@ class SignUpRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun register(register: Register, tempAuthToken: String): ResponseMapper<TokenResponse> {
+    override suspend fun register(
+        register: Register,
+        tempAuthToken: String
+    ): ResponseMapper<TokenResponse> {
         return ApiResponseConverter.convert(
             signUpApiService.register(tempAuthToken, register)
         ).apply {
