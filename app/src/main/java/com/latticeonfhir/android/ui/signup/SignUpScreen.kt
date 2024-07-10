@@ -121,12 +121,12 @@ fun InputNameField(activity: Activity, viewModel: SignUpViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .testTag("INPUT_FIELD"),
-        supportingText = if (viewModel.isError) {
+        supportingText = if (viewModel.isErrorName) {
             {
-                Text(text = viewModel.errorMsg)
+                Text(text = viewModel.errorMessageName)
             }
         } else null,
-        isError = viewModel.isError,
+        isError = viewModel.isErrorName,
         singleLine = true,
         placeholder = { Text(activity.getString(R.string.enter_your_name)) }
     )
@@ -145,12 +145,12 @@ fun InputClinicNameField(activity: Activity, viewModel: SignUpViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .testTag("INPUT_FIELD"),
-        supportingText = if (viewModel.isError) {
+        supportingText = if (viewModel.isErrorClinicName) {
             {
-                Text(text = viewModel.errorMsg)
+                Text(text = viewModel.errorMessageClinic)
             }
         } else null,
-        isError = viewModel.isError,
+        isError = viewModel.isErrorClinicName,
         singleLine = true,
         placeholder = { Text(activity.getString(R.string.enter_your_clinic_name)) }
     )

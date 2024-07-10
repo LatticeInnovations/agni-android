@@ -3,6 +3,7 @@ package com.latticeonfhir.android.ui.landingscreen
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -46,19 +48,19 @@ import com.latticeonfhir.android.ui.theme.SyncFailedColor
 import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileScreen(navController: NavController, viewModel: LandingScreenViewModel = hiltViewModel()) {
+fun ProfileScreen(navController: NavController, snackbarHostState: SnackbarHostState, viewModel: LandingScreenViewModel = hiltViewModel()) {
 
     val activity = LocalContext.current as Activity
-    val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp)
+            .padding(20.dp),
     ) {
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -85,7 +87,7 @@ fun ProfileScreen(navController: NavController, viewModel: LandingScreenViewMode
 
         SyncStatusView(viewModel)
         AppVersionInfoCard()
-        DeleteAccountCard()
+        DeleteAccountCard(activity, viewModel, snackbarHostState, coroutineScope)
         AnimatedVisibility(viewModel.showConfirmDeleteAccountDialog) {
             AlertDialog(
                 onDismissRequest = {
@@ -264,11 +266,22 @@ private fun AppVersionInfoCard() {
 }
 
 @Composable
-fun DeleteAccountCard() {
+fun DeleteAccountCard(activity: Activity, viewModel: LandingScreenViewModel, snackbarHostState: SnackbarHostState, coroutineScope: CoroutineScope,) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 14.dp),
+            .padding(top = 14.dp)
+            .clickable {
+                if (isInternetAvailable(activity)) {
+                    viewModel.showConfirmDeleteAccountDialog = true
+                } else {
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = activity.getString(R.string.no_internet_error_msg)
+                        )
+                    }
+                }
+            },
         border = BorderStroke(
             1.dp,
             MaterialTheme.colorScheme.outlineVariant
@@ -298,7 +311,13 @@ fun checkNetwork(
 ) {
     when (isInternetAvailable(activity)) {
         true -> {
-            navigate(viewModel, navController)
+            viewModel.sendDeleteAccountOtp {
+                if(it) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        navigate(viewModel, navController)
+                    }
+                }
+            }
         }
 
         false -> {
@@ -315,6 +334,10 @@ fun navigate(viewModel: LandingScreenViewModel, navController: NavController) {
     navController.currentBackStackEntry?.savedStateHandle?.set(
         "userInput",
         viewModel.userPhoneNo.ifBlank { viewModel.userEmail }
+    )
+    navController.currentBackStackEntry?.savedStateHandle?.set(
+        "isDeleteAccount",
+        true
     )
     navController.navigate(Screen.OtpScreen.route)
 }

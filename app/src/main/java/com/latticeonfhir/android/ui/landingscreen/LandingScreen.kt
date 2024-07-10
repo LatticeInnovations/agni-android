@@ -194,6 +194,16 @@ fun LandingScreen(
         }
     }
 
+    LaunchedEffect(viewModel.deleteAccountError) {
+        if (viewModel.deleteAccountError.isNotBlank()) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = viewModel.deleteAccountError
+                )
+            }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth(),
@@ -368,7 +378,7 @@ fun LandingScreen(
                             snackbarHostState
                         )
 
-                        2 -> ProfileScreen(navController)
+                        2 -> ProfileScreen(navController, snackbarHostState)
                     }
                 }
                 if (viewModel.isLoggingOut) {

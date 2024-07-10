@@ -35,7 +35,9 @@ import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWork
 import com.latticeonfhir.android.utils.common.Queries.getSearchListWithLastVisited
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toLastSyncTime
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -87,6 +89,7 @@ class LandingScreenViewModel @Inject constructor(
 
     var logoutUser by mutableStateOf(false)
     var logoutReason by mutableStateOf("")
+    internal var deleteAccountError by mutableStateOf("")
 
     var showConfirmDeleteAccountDialog by mutableStateOf(false)
 
@@ -301,8 +304,11 @@ class LandingScreenViewModel @Inject constructor(
     internal fun sendDeleteAccountOtp(navigate: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             signUpRepository.verification(userPhoneNo.ifBlank { userEmail }, RegisterTypeEnum.DELETE).apply {
-                if(this is ApiEndResponse) {
+                if(this is ApiEmptyResponse) {
                     navigate(true)
+                } else if(this is ApiErrorResponse) {
+                    deleteAccountError = errorMessage
+                    navigate(false)
                 }
             }
         }

@@ -17,7 +17,6 @@ interface SignUpApiService {
     @POST("auth/verification/otp")
     suspend fun verificationOtp(@Body otp: Otp): Response<BaseResponse<TokenResponse>>
 
-    @POST("/register")
+    @POST("user")
     suspend fun register(@Body register: Register): Response<BaseResponse<TokenResponse>>
-
 }
