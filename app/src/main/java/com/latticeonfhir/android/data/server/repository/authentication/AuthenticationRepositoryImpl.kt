@@ -1,14 +1,17 @@
 package com.latticeonfhir.android.data.server.repository.authentication
 
+import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.api.AuthenticationApiService
 import com.latticeonfhir.android.data.server.model.authentication.Login
 import com.latticeonfhir.android.data.server.model.authentication.Otp
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.data.server.model.user.UserResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import retrofit2.Response
 import javax.inject.Inject
 
 class AuthenticationRepositoryImpl @Inject constructor(
@@ -66,8 +69,15 @@ class AuthenticationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteAccount(tempToken: String): ResponseMapper<String?> {
+        val deleteUserResponse = authenticationApiService.deleteUserDetails(tempToken)
         return ApiResponseConverter.convert(
-            authenticationApiService.deleteUserDetails(tempToken)
-        )
+            deleteUserResponse
+        ).run {
+            if(this is ApiEmptyResponse) {
+                return ApiEndResponse(body = deleteUserResponse.body()?.message!!)
+            } else {
+                this
+            }
+        }
     }
 }

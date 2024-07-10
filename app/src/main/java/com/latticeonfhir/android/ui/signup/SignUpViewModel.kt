@@ -24,12 +24,18 @@ class SignUpViewModel @Inject constructor(private val signUpRepository: SignUpRe
     var userInput by mutableStateOf("")
     var isInputInvalid by mutableStateOf(true)
     var isError by mutableStateOf(false)
+    internal var isErrorName by mutableStateOf(false)
+    internal var isErrorClinicName by mutableStateOf(false)
     var errorMsg by mutableStateOf("")
+    var errorMessageName by mutableStateOf("")
+    var errorMessageClinic by mutableStateOf("")
 
     fun updateError() {
-        errorMsg = "Enter valid phone number or Email address"
+        errorMessageName = "Enter valid name"
+        errorMessageClinic = "Enter valid clinic name"
         isInputInvalid = userNameInputValidate() || clinicNameInputValidate()
-        isError = isInputInvalid
+        isErrorName = userNameInputValidate()
+        isErrorClinicName = clinicNameInputValidate()
     }
 
     fun isEnabled(): Boolean {

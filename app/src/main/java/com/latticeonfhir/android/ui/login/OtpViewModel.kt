@@ -44,6 +44,7 @@ class OtpViewModel @Inject constructor(
     var otpAttemptsExpired by mutableStateOf(false)
     internal var isSignUp by mutableStateOf(false)
     internal var isDeleteAccount by mutableStateOf(false)
+    internal var logoutReason by mutableStateOf("")
 
     fun updateOtp() {
         otpEntered = otpValues.joinToString(separator = "") { it.value }
@@ -70,11 +71,13 @@ class OtpViewModel @Inject constructor(
                     }
                 }.loginApplyExtension(navigate)
             } else if(isDeleteAccount) {
-                signUpRepository.otpVerification(userInput, otpEntered.toInt(), RegisterTypeEnum.DELETE).apply {
-                    if(this is ApiEndResponse) {
-                        deleteAccount(body.token, navigate)
-                    }
-                }.loginApplyExtension(navigate)
+                val otpVerifyResponse = signUpRepository.otpVerification(userInput, otpEntered.toInt(), RegisterTypeEnum.DELETE)
+                if (otpVerifyResponse is ApiEndResponse) {
+                    isVerifying = false
+                    deleteAccount(otpVerifyResponse.body.token, navigate)
+                } else {
+                    otpVerifyResponse.loginApplyExtension(navigate)
+                }
             } else {
                 authenticationRepository.validateOtp(userInput, otpEntered.toInt()).loginApplyExtension(navigate)
             }
@@ -87,6 +90,7 @@ class OtpViewModel @Inject constructor(
                 errorMsg = errorMessage
                 navigate(false)
             } else if (this is ApiEndResponse) {
+                logoutReason = body ?: "INTERNAL_SERVER_ERROR"
                 clearAllAppData()
                 navigate(true)
             }
@@ -94,10 +98,8 @@ class OtpViewModel @Inject constructor(
     }
 
     private fun clearAllAppData() {
-        viewModelScope.launch(Dispatchers.IO) {
-            fhirAppDatabase.clearAllTables()
-            preferenceRepository.clearPreferences()
-        }
+        fhirAppDatabase.clearAllTables()
+        preferenceRepository.clearPreferences()
     }
 
     private fun ResponseMapper<TokenResponse>.loginApplyExtension(navigate: (Boolean) -> Unit) {
