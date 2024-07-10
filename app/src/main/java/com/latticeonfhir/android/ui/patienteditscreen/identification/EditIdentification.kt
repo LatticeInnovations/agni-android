@@ -61,9 +61,10 @@ fun EditIdentification(
         if (!viewModel.isLaunched) {
             viewModel.patient =
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>("patient_details")
-            viewModel.isEditing = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-                "isEditing"
-            ) == true
+            viewModel.isEditing =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                    "isEditing"
+                ) == true
             viewModel.patient?.run {
                 identifier.forEach { identity ->
 

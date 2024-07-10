@@ -55,9 +55,10 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
                 dobDay.toInt(),
                 dobMonth.toMonthInteger(),
                 dobYear.toInt()
-            ))))
+            )))
+        )
             return false
-        if (dobAgeSelector == "age" &&  ((years.isBlank() && months.isBlank() && days.isBlank()) || (isAgeYearsValid || isAgeDaysValid || isAgeMonthsValid)))
+        if (dobAgeSelector == "age" && ((years.isBlank() && months.isBlank() && days.isBlank()) || (isAgeYearsValid || isAgeDaysValid || isAgeMonthsValid)))
             return false
         if (isPhoneValid || phoneNumber.isBlank())
             return false

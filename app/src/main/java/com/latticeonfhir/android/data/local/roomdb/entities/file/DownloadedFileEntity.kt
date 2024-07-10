@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Keep
 @Entity(tableName = "downloaded_file")
-data class DownloadedFileEntity (
+data class DownloadedFileEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String

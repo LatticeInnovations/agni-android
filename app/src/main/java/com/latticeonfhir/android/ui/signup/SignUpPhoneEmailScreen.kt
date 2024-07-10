@@ -17,7 +17,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -29,35 +28,25 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.ButtonLoader
 import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun SignUpScreen(
+fun SignUpPhoneEmailScreen(
     navController: NavController,
-    viewModel: SignUpViewModel = hiltViewModel()
+    viewModel: SignUpPhoneEmailViewModel = hiltViewModel()
 ) {
     val activity = LocalContext.current as Activity
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(viewModel.isLaunched) {
-        if (!viewModel.isLaunched) {
-            viewModel.userInput =
-                navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput")
-                    .toString()
-            viewModel.tempAuthToken =
-                navController.previousBackStackEntry?.savedStateHandle?.get<String>("tempAuthToken")
-                    .toString()
-            viewModel.isLaunched = true
-        }
-    }
-
     BackHandler(enabled = true) {
         activity.finishAffinity()
     }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -67,19 +56,16 @@ fun SignUpScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(15.dp),
-
-                    ) {
+                ) {
                     Spacer(modifier = Modifier.height(60.dp))
                     Text(
-                        text = stringResource(id = R.string.signup_helper_text),
+                        text = stringResource(id = R.string.signup_helper_text_title),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.testTag("HEADING_TAG")
                     )
                     Spacer(modifier = Modifier.height(50.dp))
-                    InputNameField(activity, viewModel)
-                    Spacer(modifier = Modifier.height(30.dp))
-                    InputClinicNameField(activity, viewModel)
+                    InputField(activity, viewModel)
                     Spacer(modifier = Modifier.height(45.dp))
                     Button(
                         onClick = {
@@ -99,75 +85,87 @@ fun SignUpScreen(
                             .fillMaxWidth()
                             .testTag("BUTTON")
                     ) {
-                        Text(text = stringResource(id = R.string.submit))
+                        if (!viewModel.isAuthenticating) Text(text = stringResource(id = R.string.submit))
+                        else ButtonLoader()
                     }
                 }
             }
         }
     )
+
 }
 
-fun proceed(viewModel: SignUpViewModel, navController: NavController) {
+fun checkNetwork(
+    viewModel: SignUpPhoneEmailViewModel,
+    navController: NavController,
+    activity: Activity,
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
+    when (isInternetAvailable(activity)) {
+        true -> {
+            navigate(viewModel, navController)
+        }
+
+        false -> {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = activity.getString(R.string.no_internet_error_msg)
+                )
+            }
+        }
+    }
+}
+
+fun proceed(viewModel: SignUpPhoneEmailViewModel, navController: NavController) {
     navigate(viewModel, navController)
 }
 
 @Composable
-fun InputNameField(activity: Activity, viewModel: SignUpViewModel) {
+fun InputField(activity: Activity, viewModel: SignUpPhoneEmailViewModel) {
     OutlinedTextField(
-        value = viewModel.inputName,
+        value = viewModel.inputValue,
         onValueChange = {
             if (it.length <= 50) {
-                viewModel.inputName = it
+                viewModel.inputValue = it.trim()
                 viewModel.updateError()
             }
         },
         modifier = Modifier
             .fillMaxWidth()
             .testTag("INPUT_FIELD"),
-        supportingText = if (viewModel.isErrorName) {
+        supportingText = if (viewModel.isError) {
             {
-                Text(text = viewModel.errorMessageName)
+                Text(text = viewModel.errorMsg)
             }
         } else null,
-        isError = viewModel.isErrorName,
+        isError = viewModel.isError,
         singleLine = true,
-        placeholder = { Text(activity.getString(R.string.enter_your_name)) }
+        leadingIcon = if (viewModel.isPhoneNumber) {
+            {
+                Text(text = " +91", color = MaterialTheme.colorScheme.outline)
+            }
+        } else null,
+        placeholder = {
+            Text(activity.getString(R.string.enter_phone_number_or_email))
+        }
     )
 }
 
-@Composable
-fun InputClinicNameField(activity: Activity, viewModel: SignUpViewModel) {
-    OutlinedTextField(
-        value = viewModel.inputClinicName,
-        onValueChange = {
-            if (it.length <= 50) {
-                viewModel.inputClinicName = it
-                viewModel.updateError()
-            }
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag("INPUT_FIELD"),
-        supportingText = if (viewModel.isErrorClinicName) {
-            {
-                Text(text = viewModel.errorMessageClinic)
-            }
-        } else null,
-        isError = viewModel.isErrorClinicName,
-        singleLine = true,
-        placeholder = { Text(activity.getString(R.string.enter_your_clinic_name)) }
-    )
-}
-
-fun navigate(viewModel: SignUpViewModel, navController: NavController) {
-    viewModel.register {
+fun navigate(viewModel: SignUpPhoneEmailViewModel, navController: NavController) {
+    viewModel.isAuthenticating = true
+    viewModel.signUp {
         if (it) {
             CoroutineScope(Dispatchers.Main).launch {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "loggedIn",
+                    "userInput",
+                    viewModel.inputValue
+                )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "isSignUp",
                     true
                 )
-                navController.navigate(Screen.LandingScreen.route)
+                navController.navigate(Screen.OtpScreen.route)
             }
         }
     }

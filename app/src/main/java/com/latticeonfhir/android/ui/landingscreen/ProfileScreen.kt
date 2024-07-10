@@ -3,6 +3,7 @@ package com.latticeonfhir.android.ui.landingscreen
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,9 +23,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,20 +38,30 @@ import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
+import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.Detail
 import com.latticeonfhir.android.ui.common.Label
 import com.latticeonfhir.android.ui.theme.Primary10
 import com.latticeonfhir.android.ui.theme.SyncFailedColor
 import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
+fun ProfileScreen(
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    viewModel: LandingScreenViewModel = hiltViewModel()
+) {
+
+    val activity = LocalContext.current as Activity
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp)
+            .padding(20.dp),
     ) {
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -75,7 +88,7 @@ fun ProfileScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
 
         SyncStatusView(viewModel)
         AppVersionInfoCard()
-        DeleteAccountCard()
+        DeleteAccountCard(activity, viewModel, snackbarHostState, coroutineScope)
         AnimatedVisibility(viewModel.showConfirmDeleteAccountDialog) {
             AlertDialog(
                 onDismissRequest = {
@@ -97,7 +110,13 @@ fun ProfileScreen(viewModel: LandingScreenViewModel = hiltViewModel()) {
                     TextButton(
                         onClick = {
                             viewModel.showConfirmDeleteAccountDialog = false
-
+                            checkNetwork(
+                                viewModel,
+                                navController,
+                                activity,
+                                coroutineScope,
+                                snackbarHostState
+                            )
                         },
                         modifier = Modifier.testTag("POSITIVE_BTN")
                     ) {
@@ -139,7 +158,10 @@ fun SyncStatusView(viewModel: LandingScreenViewModel) {
                 .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                 .fillMaxWidth()
         ) {
-            Text(text = stringResource(R.string.sync_status), style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = stringResource(R.string.sync_status),
+                style = MaterialTheme.typography.titleLarge
+            )
             Text(
                 modifier = Modifier.padding(top = 20.dp),
                 text = stringResource(R.string.synced),
@@ -171,9 +193,11 @@ private fun SyncStatusChip(viewModel: LandingScreenViewModel) {
                 SyncStatusMessageEnum.SYNCING_FAILED.display -> {
                     SyncFailedColor
                 }
+
                 SyncStatusMessageEnum.SYNCING_COMPLETED.display -> {
                     MaterialTheme.colorScheme.primaryContainer
                 }
+
                 else -> {
                     MaterialTheme.colorScheme.surfaceVariant
                 }
@@ -209,6 +233,7 @@ private fun setTextAndIconColor(viewModel: LandingScreenViewModel): Color {
         WorkerStatus.FAILED -> {
             Primary10
         }
+
         else -> {
             MaterialTheme.colorScheme.onSurfaceVariant
         }
@@ -248,11 +273,27 @@ private fun AppVersionInfoCard() {
 }
 
 @Composable
-fun DeleteAccountCard() {
+fun DeleteAccountCard(
+    activity: Activity,
+    viewModel: LandingScreenViewModel,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 14.dp),
+            .padding(top = 14.dp)
+            .clickable {
+                if (isInternetAvailable(activity)) {
+                    viewModel.showConfirmDeleteAccountDialog = true
+                } else {
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = activity.getString(R.string.no_internet_error_msg)
+                        )
+                    }
+                }
+            },
         border = BorderStroke(
             1.dp,
             MaterialTheme.colorScheme.outlineVariant
@@ -282,8 +323,13 @@ fun checkNetwork(
 ) {
     when (isInternetAvailable(activity)) {
         true -> {
-            viewModel.deleteAccount()
-            navigate(viewModel, navController)
+            viewModel.sendDeleteAccountOtp {
+                if (it) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        navigate(viewModel, navController)
+                    }
+                }
+            }
         }
 
         false -> {
@@ -297,16 +343,13 @@ fun checkNetwork(
 }
 
 fun navigate(viewModel: LandingScreenViewModel, navController: NavController) {
-//    viewModel.isAuthenticating = true
-//    viewModel.login {
-//        if (it) {
-//            CoroutineScope(Dispatchers.Main).launch {
-//                navController.currentBackStackEntry?.savedStateHandle?.set(
-//                    "userInput",
-//                    viewModel.inputValue
-//                )
-//                navController.navigate(Screen.OtpScreen.route)
-//            }
-//        }
-//    }
+    navController.currentBackStackEntry?.savedStateHandle?.set(
+        "userInput",
+        viewModel.userEmail.ifBlank { viewModel.userPhoneNo }
+    )
+    navController.currentBackStackEntry?.savedStateHandle?.set(
+        "isDeleteAccount",
+        true
+    )
+    navController.navigate(Screen.OtpScreen.route)
 }

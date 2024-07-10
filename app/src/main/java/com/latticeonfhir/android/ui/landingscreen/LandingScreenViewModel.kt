@@ -25,7 +25,9 @@ import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRe
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
+import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.service.workmanager.utils.Sync
@@ -33,6 +35,8 @@ import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWork
 import com.latticeonfhir.android.utils.common.Queries.getSearchListWithLastVisited
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toLastSyncTime
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +57,8 @@ class LandingScreenViewModel @Inject constructor(
     private val patientRepository: PatientRepository,
     private val searchRepository: SearchRepository,
     private val preferenceRepository: PreferenceRepository,
-    private val appointmentRepository: AppointmentRepository
+    private val appointmentRepository: AppointmentRepository,
+    private val signUpRepository: SignUpRepository
 ) : BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
@@ -83,9 +88,9 @@ class LandingScreenViewModel @Inject constructor(
 
     var logoutUser by mutableStateOf(false)
     var logoutReason by mutableStateOf("")
+    internal var deleteAccountError by mutableStateOf("")
 
     var showConfirmDeleteAccountDialog by mutableStateOf(false)
-    var deleteAccount by mutableStateOf(false)
 
     // queue screen
     var showStatusChangeLayout by mutableStateOf(false)
@@ -108,6 +113,7 @@ class LandingScreenViewModel @Inject constructor(
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_IN_PROGRESS.message
                         setSyncDisplayData()
                     }
+
                     WorkerStatus.SUCCESS -> {
                         syncStatus = WorkerStatus.SUCCESS
                         syncIcon = R.drawable.sync_completed_icon
@@ -118,6 +124,7 @@ class LandingScreenViewModel @Inject constructor(
                             hideSyncStatus()
                         }
                     }
+
                     WorkerStatus.FAILED -> {
                         syncIcon = R.drawable.sync_problem
                         syncStatus = WorkerStatus.FAILED
@@ -128,6 +135,7 @@ class LandingScreenViewModel @Inject constructor(
                             hideSyncStatus()
                         }
                     }
+
                     else -> Timber.d("Worker Status $workerStatus")
                 }
             }
@@ -198,11 +206,12 @@ class LandingScreenViewModel @Inject constructor(
             Date(preferenceRepository.getLastSyncTime()).toLastSyncTime()
         else "Unavailable"
         syncStatusDisplay = preferenceRepository.getSyncStatus()
-        syncIconDisplay = when(syncStatusDisplay) {
+        syncIconDisplay = when (syncStatusDisplay) {
             SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display -> R.drawable.sync_icon
             SyncStatusMessageEnum.SYNCING_COMPLETED.display -> {
                 R.drawable.sync_completed_icon
             }
+
             SyncStatusMessageEnum.SYNCING_FAILED.display -> R.drawable.sync_problem
             else -> 0
         }
@@ -295,7 +304,19 @@ class LandingScreenViewModel @Inject constructor(
         }
     }
 
-    internal fun deleteAccount() {
-
+    internal fun sendDeleteAccountOtp(navigate: (Boolean) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            signUpRepository.verification(
+                userEmail.ifBlank { userPhoneNo },
+                RegisterTypeEnum.DELETE
+            ).apply {
+                if (this is ApiEmptyResponse) {
+                    navigate(true)
+                } else if (this is ApiErrorResponse) {
+                    deleteAccountError = errorMessage
+                    navigate(false)
+                }
+            }
+        }
     }
 }

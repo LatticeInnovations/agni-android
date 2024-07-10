@@ -63,21 +63,32 @@ class FileSyncRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun processDownload(listOfGenericEntity: List<GenericEntity>, logout: (Boolean, String) -> Unit) {
+    private suspend fun processDownload(
+        listOfGenericEntity: List<GenericEntity>,
+        logout: (Boolean, String) -> Unit
+    ) {
         // delete payload if already downloaded
         val entitiesToBeDeleted =
-            listOfGenericEntity.filter { downloadedFileDao.getDownloadedFileNames().contains(it.payload) }
+            listOfGenericEntity.filter {
+                downloadedFileDao.getDownloadedFileNames().contains(it.payload)
+            }
         genericDao.deleteSyncPayload(entitiesToBeDeleted.toListOfId())
 
         // download rest of the files
         val filesEntitiesToBeDownloaded =
-            listOfGenericEntity.filter { !downloadedFileDao.getDownloadedFileNames().contains(it.payload) }
+            listOfGenericEntity.filter {
+                !downloadedFileDao.getDownloadedFileNames().contains(it.payload)
+            }
         for (chunk in filesEntitiesToBeDownloaded.map { it.payload }.toSet().chunked(10)) {
             downloadAndSaveFiles(filesEntitiesToBeDownloaded, chunk, logout)
         }
     }
 
-    private suspend fun downloadAndSaveFiles(listOfGenericEntity: List<GenericEntity>, filesToBeDownloaded: List<String>, logout: (Boolean, String) -> Unit) {
+    private suspend fun downloadAndSaveFiles(
+        listOfGenericEntity: List<GenericEntity>,
+        filesToBeDownloaded: List<String>,
+        logout: (Boolean, String) -> Unit
+    ) {
         getMultipleFiles(FilesRequest(filesToBeDownloaded)).let {
             it.body()?.let { body ->
                 saveAndUnzipFile(context, body)

@@ -16,7 +16,7 @@ import java.util.Date
         childColumns = arrayOf("patientId")
     )]
 )
-data class PatientLastUpdatedEntity (
+data class PatientLastUpdatedEntity(
     @PrimaryKey
     val patientId: String,
     val lastUpdated: Date

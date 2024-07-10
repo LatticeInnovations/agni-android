@@ -71,6 +71,10 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
             viewModel.userInput =
                 navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput")
                     .toString()
+            viewModel.isSignUp =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isSignUp") != null
+            viewModel.isDeleteAccount =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isDeleteAccount") != null
             if (viewModel.userInput.matches(onlyNumbers)) {
                 activity.registerBroadcastReceiver()
             }
@@ -226,7 +230,11 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                             .testTag("BUTTON")
                     ) {
                         if (viewModel.isVerifying) ButtonLoader()
-                        else Text(text = stringResource(id = R.string.verify))
+                        else {
+                            if (viewModel.isDeleteAccount) Text(text = stringResource(id = R.string.delete_account)) else Text(
+                                text = stringResource(id = R.string.verify)
+                            )
+                        }
                     }
                 }
             }
@@ -336,11 +344,33 @@ fun verifyClick(navController: NavController, viewModel: OtpViewModel) {
     viewModel.validateOtp {
         if (it) {
             CoroutineScope(Dispatchers.Main).launch {
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "loggedIn",
-                    true
-                )
-                navController.navigate(Screen.LandingScreen.route)
+                if (viewModel.isSignUp) {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "userInput",
+                        viewModel.userInput
+                    )
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "tempAuthToken",
+                        viewModel.tempAuthToken
+                    )
+                    navController.navigate(Screen.SignUpScreen.route)
+                } else if (viewModel.isDeleteAccount) {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "logoutUser",
+                        viewModel.isDeleteAccount
+                    )
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "logoutReason",
+                        viewModel.logoutReason
+                    )
+                    navController.navigate(Screen.PhoneEmailScreen.route)
+                } else {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "loggedIn",
+                        true
+                    )
+                    navController.navigate(Screen.LandingScreen.route)
+                }
             }
         }
     }

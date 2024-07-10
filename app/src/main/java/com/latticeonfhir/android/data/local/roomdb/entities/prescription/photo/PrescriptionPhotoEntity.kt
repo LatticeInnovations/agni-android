@@ -16,7 +16,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.Prescri
         )
     ]
 )
-data class PrescriptionPhotoEntity (
+data class PrescriptionPhotoEntity(
     @PrimaryKey
     val id: String,
     val prescriptionId: String,

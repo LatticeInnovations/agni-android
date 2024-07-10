@@ -74,4 +74,4 @@ val FutureScheduledLabel = Color(0xFFD86F0E)
 val NoShowContainer = Color(0xFFE6E1E5)
 val NoShowLabel = Color(0xFF79747E)
 
-val SyncFailedColor= Color(0xFFFFEBD2)
+val SyncFailedColor = Color(0xFFFFEBD2)

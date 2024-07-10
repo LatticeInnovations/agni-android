@@ -82,6 +82,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                         getPastPrescription()
                         WorkerStatus.SUCCESS
                     }
+
                     WorkerStatus.FAILED -> {
                         CoroutineScope(Dispatchers.IO).launch {
                             delay(20000)
@@ -89,6 +90,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                         }
                         WorkerStatus.FAILED
                     }
+
                     else -> WorkerStatus.TODO
                 }
             }
@@ -100,7 +102,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     }
 
     internal fun getSyncIcon(): Int {
-        return when(syncStatus) {
+        return when (syncStatus) {
             WorkerStatus.IN_PROGRESS -> R.drawable.sync_icon
             WorkerStatus.SUCCESS -> R.drawable.sync_completed_icon
             WorkerStatus.FAILED -> R.drawable.sync_problem
@@ -110,7 +112,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     }
 
     internal fun getSyncStatusMessage(): String {
-        return when(syncStatus) {
+        return when (syncStatus) {
             WorkerStatus.IN_PROGRESS -> SyncStatusMessageEnum.SYNCING_IN_PROGRESS.message
             WorkerStatus.SUCCESS -> SyncStatusMessageEnum.SYNCING_COMPLETED.message
             WorkerStatus.FAILED -> SyncStatusMessageEnum.SYNCING_FAILED.message

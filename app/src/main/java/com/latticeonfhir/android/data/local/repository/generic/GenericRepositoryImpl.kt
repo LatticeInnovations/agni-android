@@ -91,7 +91,11 @@ class GenericRepositoryImpl @Inject constructor(
             genericTypeEnum = GenericTypeEnum.PRESCRIPTION,
             syncType = SyncType.POST
         ).let { prescriptionGenericEntity ->
-            insertPrescriptionPhotoGenericEntity(prescriptionPhotoResponse, prescriptionGenericEntity, uuid)
+            insertPrescriptionPhotoGenericEntity(
+                prescriptionPhotoResponse,
+                prescriptionGenericEntity,
+                uuid
+            )
         }
     }
 
@@ -200,7 +204,11 @@ class GenericRepositoryImpl @Inject constructor(
             genericTypeEnum = GenericTypeEnum.LAST_UPDATED,
             syncType = SyncType.POST
         ).let { patientLastUpdatedGenericEntity ->
-            insertPatientLastUpdatedGenericEntity(patientLastUpdatedResponse, patientLastUpdatedGenericEntity, uuid)
+            insertPatientLastUpdatedGenericEntity(
+                patientLastUpdatedResponse,
+                patientLastUpdatedGenericEntity,
+                uuid
+            )
         }
     }
 }

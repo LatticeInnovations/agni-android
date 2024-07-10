@@ -92,6 +92,7 @@ include them in the household</string>
     <string name="verify">Verify</string>
 
     <string name="login_helper_text">Login with phone number or email address</string>
+    <string name="signup_helper_text_title">Sign up with phone number or email address</string>
     <string name="signup_helper_text">Please provide username and clinic name</string>
     <string name="send_me_otp">Send me OTP</string>
     <string name="advanced_search">Advanced Search</string>
@@ -148,6 +149,7 @@ include them in the household</string>
     <string name="age_days_error_msg">Enter valid input between 1 and 30.</string>
 
     <string name="enter_phone_number">Enter Phone Number</string>
+    <string name="enter_phone_number_or_email">Enter phone number or email</string>
     <string name="phone_number_error_msg">Enter Valid Input</string>
 
     <string name="passport_id_error_msg">Enter valid Passport ID (eg., A1098765)</string>

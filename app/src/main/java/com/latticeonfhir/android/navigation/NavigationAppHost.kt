@@ -26,12 +26,14 @@ import com.latticeonfhir.android.ui.prescription.PrescriptionScreen
 import com.latticeonfhir.android.ui.prescription.photo.upload.PrescriptionPhotoUploadScreen
 import com.latticeonfhir.android.ui.prescription.photo.view.PrescriptionPhotoViewScreen
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
+import com.latticeonfhir.android.ui.signup.SignUpPhoneEmailScreen
 import com.latticeonfhir.android.ui.signup.SignUpScreen
 
 @Composable
 fun NavigationAppHost(navController: NavController, startDest: String) {
     NavHost(navController = navController as NavHostController, startDestination = startDest) {
         composable(Screen.PhoneEmailScreen.route) { PhoneEmailScreen(navController) }
+        composable(Screen.SignUpPhoneEmailScreen.route) { SignUpPhoneEmailScreen(navController) }
         composable(Screen.SignUpScreen.route) { SignUpScreen(navController = navController) }
         composable(Screen.OtpScreen.route) { OtpScreen(navController) }
         composable(Screen.LandingScreen.route) { LandingScreen(navController = navController) }
@@ -55,7 +57,15 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.EditAddress.route) { EditPatientAddress(navController = navController) }
         composable(Screen.Appointments.route) { AppointmentsScreen(navController = navController) }
         composable(Screen.ScheduleAppointments.route) { ScheduleAppointments(navController = navController) }
-        composable(Screen.PrescriptionPhotoUploadScreen.route) { PrescriptionPhotoUploadScreen(navController = navController) }
-        composable(Screen.PrescriptionPhotoViewScreen.route) { PrescriptionPhotoViewScreen(navController = navController) }
+        composable(Screen.PrescriptionPhotoUploadScreen.route) {
+            PrescriptionPhotoUploadScreen(
+                navController = navController
+            )
+        }
+        composable(Screen.PrescriptionPhotoViewScreen.route) {
+            PrescriptionPhotoViewScreen(
+                navController = navController
+            )
+        }
     }
 }
