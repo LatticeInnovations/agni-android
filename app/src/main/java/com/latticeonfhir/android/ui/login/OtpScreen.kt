@@ -71,8 +71,10 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
             viewModel.userInput =
                 navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput")
                     .toString()
-            viewModel.isSignUp = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isSignUp") != null
-            viewModel.isDeleteAccount = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isDeleteAccount") != null
+            viewModel.isSignUp =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isSignUp") != null
+            viewModel.isDeleteAccount =
+                navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isDeleteAccount") != null
             if (viewModel.userInput.matches(onlyNumbers)) {
                 activity.registerBroadcastReceiver()
             }
@@ -229,7 +231,9 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                     ) {
                         if (viewModel.isVerifying) ButtonLoader()
                         else {
-                            if(viewModel.isDeleteAccount) Text(text = stringResource(id = R.string.delete_account)) else Text(text = stringResource(id = R.string.verify))
+                            if (viewModel.isDeleteAccount) Text(text = stringResource(id = R.string.delete_account)) else Text(
+                                text = stringResource(id = R.string.verify)
+                            )
                         }
                     }
                 }
@@ -340,13 +344,17 @@ fun verifyClick(navController: NavController, viewModel: OtpViewModel) {
     viewModel.validateOtp {
         if (it) {
             CoroutineScope(Dispatchers.Main).launch {
-                if(viewModel.isSignUp) {
+                if (viewModel.isSignUp) {
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         "userInput",
                         viewModel.userInput
                     )
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "tempAuthToken",
+                        viewModel.tempAuthToken
+                    )
                     navController.navigate(Screen.SignUpScreen.route)
-                } else if(viewModel.isDeleteAccount) {
+                } else if (viewModel.isDeleteAccount) {
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         "logoutUser",
                         viewModel.isDeleteAccount

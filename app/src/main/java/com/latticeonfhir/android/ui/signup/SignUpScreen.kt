@@ -48,6 +48,8 @@ fun SignUpScreen(
             viewModel.userInput =
                 navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput")
                     .toString()
+            viewModel.tempAuthToken =
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>("tempAuthToken").toString()
             viewModel.isLaunched = true
         }
     }
@@ -74,9 +76,9 @@ fun SignUpScreen(
                         modifier = Modifier.testTag("HEADING_TAG")
                     )
                     Spacer(modifier = Modifier.height(50.dp))
-                    InputNameField(activity,viewModel)
+                    InputNameField(activity, viewModel)
                     Spacer(modifier = Modifier.height(30.dp))
-                    InputClinicNameField(activity,viewModel)
+                    InputClinicNameField(activity, viewModel)
                     Spacer(modifier = Modifier.height(45.dp))
                     Button(
                         onClick = {
@@ -114,7 +116,7 @@ fun InputNameField(activity: Activity, viewModel: SignUpViewModel) {
         value = viewModel.inputName,
         onValueChange = {
             if (it.length <= 50) {
-                viewModel.inputName = it.trim()
+                viewModel.inputName = it
                 viewModel.updateError()
             }
         },
@@ -138,7 +140,7 @@ fun InputClinicNameField(activity: Activity, viewModel: SignUpViewModel) {
         value = viewModel.inputClinicName,
         onValueChange = {
             if (it.length <= 50) {
-                viewModel.inputClinicName = it.trim()
+                viewModel.inputClinicName = it
                 viewModel.updateError()
             }
         },

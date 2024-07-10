@@ -17,7 +17,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignUpViewModel @Inject constructor(private val signUpRepository: SignUpRepository): BaseViewModel() {
+class SignUpViewModel @Inject constructor(private val signUpRepository: SignUpRepository) :
+    BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var inputName by mutableStateOf("")
     var inputClinicName by mutableStateOf("")
@@ -29,6 +30,7 @@ class SignUpViewModel @Inject constructor(private val signUpRepository: SignUpRe
     var errorMsg by mutableStateOf("")
     var errorMessageName by mutableStateOf("")
     var errorMessageClinic by mutableStateOf("")
+    internal lateinit var tempAuthToken: String
 
     fun updateError() {
         errorMessageName = "Enter valid name"
@@ -50,12 +52,13 @@ class SignUpViewModel @Inject constructor(private val signUpRepository: SignUpRe
                     mobile = if (userInput.matches(OnlyNumberRegex.onlyNumbers) && userInput.length == 10) userInput else null,
                     email = if (userInput.matches(EmailRegex.emailPattern)) userInput else null,
                     clinicName = inputClinicName
-                )
+                ),
+                tempAuthToken = tempAuthToken
             ).apply {
-                if(this is ApiErrorResponse) {
+                if (this is ApiErrorResponse) {
                     isError = true
                     navigate(false)
-                } else if(this is ApiEndResponse) {
+                } else if (this is ApiEndResponse) {
                     isError = false
                     navigate(true)
                 }
@@ -64,7 +67,7 @@ class SignUpViewModel @Inject constructor(private val signUpRepository: SignUpRe
     }
 
     private fun userNameInputValidate(): Boolean {
-       return inputName.isEmpty() || inputName.length < 3 || inputName.length > 100
+        return inputName.isEmpty() || inputName.length < 3 || inputName.length > 100
     }
 
     private fun clinicNameInputValidate(): Boolean {
