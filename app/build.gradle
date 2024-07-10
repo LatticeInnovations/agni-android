@@ -81,13 +81,15 @@ android {
             shrinkResources false
             testCoverageEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL" // dev
+            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
+            // dev
         }
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL" // test
+            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
+            // test
             signingConfig signingConfigs.release
         }
     }

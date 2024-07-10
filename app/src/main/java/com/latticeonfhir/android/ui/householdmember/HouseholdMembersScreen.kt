@@ -141,7 +141,14 @@ fun HouseholdMembersScreen(
                         state = pagerState
                     ) { index ->
                         when (index) {
-                            0 -> viewModel.patient?.let { it1 -> MembersScreen(it1, navController, viewModel.selectedIndex) }
+                            0 -> viewModel.patient?.let { it1 ->
+                                MembersScreen(
+                                    it1,
+                                    navController,
+                                    viewModel.selectedIndex
+                                )
+                            }
+
                             1 -> viewModel.patient?.let { it1 ->
                                 SuggestionsScreen(
                                     it1,

@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Keep
 @Entity(tableName = "fileUpload")
-data class FileUploadEntity (
+data class FileUploadEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String

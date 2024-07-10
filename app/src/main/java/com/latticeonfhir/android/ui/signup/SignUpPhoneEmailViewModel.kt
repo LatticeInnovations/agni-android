@@ -5,10 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
-import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse

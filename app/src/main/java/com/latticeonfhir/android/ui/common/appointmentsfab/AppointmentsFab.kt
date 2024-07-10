@@ -77,7 +77,7 @@ fun AppointmentsFab(
     val coroutineScope = rememberCoroutineScope()
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
-        onResult = {map ->
+        onResult = { map ->
             if (!map.values.contains(false)) {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
                     PATIENT,
@@ -152,7 +152,12 @@ fun AppointmentsFab(
                         ScheduleAppointmentFAB(navController, patient, showDialog)
                         Spacer(modifier = Modifier.height(20.dp))
                         if (!appointmentsFabViewModel.ifAlreadyWaiting) {
-                            AddToQueueFAB(navController, patient, appointmentsFabViewModel, showDialog)
+                            AddToQueueFAB(
+                                navController,
+                                patient,
+                                appointmentsFabViewModel,
+                                showDialog
+                            )
                             Spacer(modifier = Modifier.height(20.dp))
                         }
                         if (appointmentsFabViewModel.canAddPrescription) {

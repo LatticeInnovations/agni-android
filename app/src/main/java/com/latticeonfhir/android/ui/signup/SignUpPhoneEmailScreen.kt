@@ -56,7 +56,7 @@ fun SignUpPhoneEmailScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(15.dp),
-                    ) {
+                ) {
                     Spacer(modifier = Modifier.height(60.dp))
                     Text(
                         text = stringResource(id = R.string.signup_helper_text_title),
@@ -95,11 +95,18 @@ fun SignUpPhoneEmailScreen(
 
 }
 
-fun checkNetwork(viewModel: SignUpPhoneEmailViewModel, navController: NavController, activity: Activity, coroutineScope: CoroutineScope, snackbarHostState: SnackbarHostState) {
+fun checkNetwork(
+    viewModel: SignUpPhoneEmailViewModel,
+    navController: NavController,
+    activity: Activity,
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
     when (isInternetAvailable(activity)) {
         true -> {
             navigate(viewModel, navController)
         }
+
         false -> {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(

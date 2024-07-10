@@ -74,7 +74,7 @@ fun PhoneEmailScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(15.dp),
-                    ) {
+                ) {
                     Spacer(modifier = Modifier.height(60.dp))
                     Text(
                         text = stringResource(id = R.string.login_helper_text),
@@ -107,10 +107,12 @@ fun PhoneEmailScreen(
                         else ButtonLoader()
                     }
                     if (viewModel.signUpButtonIsVisible) {
-                        TextButton(onClick = { navController.navigate(Screen.SignUpPhoneEmailScreen.route) },
-                            modifier =  Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(top = 30.dp)) {
+                        TextButton(
+                            onClick = { navController.navigate(Screen.SignUpPhoneEmailScreen.route) },
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(top = 30.dp)
+                        ) {
                             Text(
                                 text = "Sign-up",
                                 style = MaterialTheme.typography.bodyMedium,
@@ -119,7 +121,7 @@ fun PhoneEmailScreen(
                         }
                     }
                 }
-                AnimatedVisibility (viewModel.showDifferentUserLoginDialog) {
+                AnimatedVisibility(viewModel.showDifferentUserLoginDialog) {
                     AlertDialog(
                         onDismissRequest = {
                             viewModel.showDifferentUserLoginDialog = false
@@ -175,12 +177,19 @@ fun PhoneEmailScreen(
 
 }
 
-fun checkNetwork(viewModel: PhoneEmailViewModel, navController: NavController, activity: Activity, coroutineScope: CoroutineScope, snackbarHostState: SnackbarHostState) {
+fun checkNetwork(
+    viewModel: PhoneEmailViewModel,
+    navController: NavController,
+    activity: Activity,
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
     when (isInternetAvailable(activity)) {
         true -> {
             viewModel.clearAllAppData()
             navigate(viewModel, navController)
         }
+
         false -> {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(

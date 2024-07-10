@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class DownloadedFileRepositoryImpl @Inject constructor(
     private val downloadedFileDao: DownloadedFileDao
-): DownloadedFileRepository {
+) : DownloadedFileRepository {
     override suspend fun insertEntity(downloadedFileEntity: DownloadedFileEntity): List<Long> {
         return downloadedFileDao.insertFile(downloadedFileEntity)
     }

@@ -625,8 +625,15 @@ fun QueuePatientCard(
                             && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
                         ) {
                             viewModel.statusList = when (appointmentResponseLocal.status) {
-                                AppointmentStatusEnum.SCHEDULED.value -> listOf("Arrived", "Completed")
-                                AppointmentStatusEnum.IN_PROGRESS.value, AppointmentStatusEnum.WALK_IN.value, AppointmentStatusEnum.ARRIVED.value -> listOf("Completed")
+                                AppointmentStatusEnum.SCHEDULED.value -> listOf(
+                                    "Arrived",
+                                    "Completed"
+                                )
+
+                                AppointmentStatusEnum.IN_PROGRESS.value, AppointmentStatusEnum.WALK_IN.value, AppointmentStatusEnum.ARRIVED.value -> listOf(
+                                    "Completed"
+                                )
+
                                 else -> listOf()
                             }
                             viewModel.appointmentSelected = appointmentResponseLocal

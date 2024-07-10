@@ -94,7 +94,8 @@ class EditBasicInformationViewModel @Inject constructor(
                 dobDay.toInt(),
                 dobMonth.toMonthInteger(),
                 dobYear.toInt()
-            ))))
+            )))
+        )
             return false
         if (dobAgeSelector == "age" && (days.isEmpty() && months.isEmpty() && years.isEmpty()) || (isAgeDaysValid || isAgeMonthsValid || isAgeYearsValid))
             return false

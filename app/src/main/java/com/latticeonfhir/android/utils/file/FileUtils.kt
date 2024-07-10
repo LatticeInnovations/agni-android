@@ -27,7 +27,7 @@ object FileUtils {
     }
 
     internal fun deleteZipFile(file: File): Boolean {
-        if(file.exists()) {
+        if (file.exists()) {
             return file.delete()
         }
         return false;

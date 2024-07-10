@@ -233,7 +233,7 @@ class SyncService(
     }
 
     /** Patch Prescription */
-    internal suspend fun patchPrescription(logout: (Boolean, String) -> Unit){
+    internal suspend fun patchPrescription(logout: (Boolean, String) -> Unit) {
         coroutineScope {
             prescriptionPatchJob = async {
                 checkAuthenticationStatus(syncRepository.sendPrescriptionPhotoPatchData(), logout)

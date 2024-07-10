@@ -7,6 +7,6 @@ enum class LastVisit(val label: String) {
     LAST_YEAR("Last year");
 
     companion object {
-        fun getLastVisitList() : List<String> = entries.map { it.label }
+        fun getLastVisitList(): List<String> = entries.map { it.label }
     }
 }
