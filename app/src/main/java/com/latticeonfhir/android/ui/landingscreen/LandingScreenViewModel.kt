@@ -307,7 +307,7 @@ class LandingScreenViewModel @Inject constructor(
     internal fun sendDeleteAccountOtp(navigate: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             signUpRepository.verification(
-                userPhoneNo.ifBlank { userEmail },
+                userEmail.ifBlank { userPhoneNo },
                 RegisterTypeEnum.DELETE
             ).apply {
                 if (this is ApiEmptyResponse) {

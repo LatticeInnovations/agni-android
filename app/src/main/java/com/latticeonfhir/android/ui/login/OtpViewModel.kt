@@ -1,11 +1,18 @@
 package com.latticeonfhir.android.ui.login
 
+import android.app.Application
+import android.app.job.JobScheduler
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
+import androidx.work.await
+import com.latticeonfhir.android.FhirApp
+import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
@@ -25,11 +32,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OtpViewModel @Inject constructor(
+    application: Application,
     private val authenticationRepository: AuthenticationRepository,
     private val signUpRepository: SignUpRepository,
     private val fhirAppDatabase: FhirAppDatabase,
     private val preferenceRepository: PreferenceRepository
-) : BaseViewModel() {
+) : BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     val otpValues = List(6) { mutableStateOf("") }
     val focusRequesters = List(6) { FocusRequester() }
@@ -103,6 +111,7 @@ class OtpViewModel @Inject constructor(
                 navigate(false)
             } else if (this is ApiEndResponse) {
                 logoutReason = body ?: "INTERNAL_SERVER_ERROR"
+                stopWorkers()
                 clearAllAppData()
                 navigate(true)
             }
@@ -112,6 +121,13 @@ class OtpViewModel @Inject constructor(
     private fun clearAllAppData() {
         fhirAppDatabase.clearAllTables()
         preferenceRepository.clearPreferences()
+    }
+
+    private suspend fun stopWorkers() {
+        WorkManager.getInstance(getApplication<Application>().applicationContext)
+            .cancelAllWork().await().also {
+                (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
+            }
     }
 
     private fun ResponseMapper<TokenResponse>.loginApplyExtension(navigate: (Boolean) -> Unit) {

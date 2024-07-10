@@ -345,7 +345,7 @@ fun checkNetwork(
 fun navigate(viewModel: LandingScreenViewModel, navController: NavController) {
     navController.currentBackStackEntry?.savedStateHandle?.set(
         "userInput",
-        viewModel.userPhoneNo.ifBlank { viewModel.userEmail }
+        viewModel.userEmail.ifBlank { viewModel.userPhoneNo }
     )
     navController.currentBackStackEntry?.savedStateHandle?.set(
         "isDeleteAccount",

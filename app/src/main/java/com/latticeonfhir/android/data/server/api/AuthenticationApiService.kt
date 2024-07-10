@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.server.model.authentication.Login
 import com.latticeonfhir.android.data.server.model.authentication.Otp
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.data.server.model.user.UserResponse
+import com.latticeonfhir.android.utils.constants.AuthenticationConstants.TEMP_TOKEN
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -24,5 +25,5 @@ interface AuthenticationApiService {
     suspend fun getUserDetails(): Response<BaseResponse<UserResponse>>
 
     @DELETE("user")
-    suspend fun deleteUserDetails(@Header("temptoken") tempToken: String): Response<BaseResponse<String?>>
+    suspend fun deleteUserDetails(@Header(TEMP_TOKEN) tempToken: String): Response<BaseResponse<String?>>
 }
