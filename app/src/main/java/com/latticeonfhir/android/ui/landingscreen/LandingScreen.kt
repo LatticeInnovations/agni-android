@@ -194,22 +194,6 @@ fun LandingScreen(
         }
     }
 
-    LaunchedEffect(viewModel.deleteAccount) {
-        if (viewModel.deleteAccount) {
-            viewModel.deleteAccount()
-            navController.currentBackStackEntry?.savedStateHandle?.set(
-                "logoutUser",
-                viewModel.logoutUser
-            )
-            navController.currentBackStackEntry?.savedStateHandle?.set(
-                "logoutReason",
-                viewModel.logoutReason
-            )
-            navController.navigate(Screen.PhoneEmailScreen.route)
-            viewModel.deleteAccount = false
-        }
-    }
-
     Box(
         modifier = Modifier
             .fillMaxWidth(),

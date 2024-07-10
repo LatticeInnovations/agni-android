@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
+import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
@@ -51,7 +52,9 @@ class OtpViewModel @Inject constructor(
     internal fun resendOTP(resent: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             if(isSignUp) {
-                signUpRepository.verification(userInput).resentOtpApplyExtension(resent)
+                signUpRepository.verification(userInput, RegisterTypeEnum.REGISTER).resentOtpApplyExtension(resent)
+            } else if(isDeleteAccount) {
+                signUpRepository.verification(userInput, RegisterTypeEnum.DELETE).resentOtpApplyExtension(resent)
             } else {
                 authenticationRepository.login(userInput).resentOtpApplyExtension(resent)
             }
@@ -61,13 +64,13 @@ class OtpViewModel @Inject constructor(
     internal fun validateOtp(navigate: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             if(isSignUp) {
-                signUpRepository.otpVerification(userInput, otpEntered.toInt()).apply {
+                signUpRepository.otpVerification(userInput, otpEntered.toInt(), RegisterTypeEnum.REGISTER).apply {
                     if(this is ApiEndResponse) {
                         preferenceRepository.setAuthenticationToken(body.token)
                     }
                 }.loginApplyExtension(navigate)
             } else if(isDeleteAccount) {
-                signUpRepository.otpVerification(userInput, otpEntered.toInt()).apply {
+                signUpRepository.otpVerification(userInput, otpEntered.toInt(), RegisterTypeEnum.DELETE).apply {
                     if(this is ApiEndResponse) {
                         deleteAccount(body.token, navigate)
                     }

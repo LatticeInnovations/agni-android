@@ -25,7 +25,9 @@ import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRe
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
+import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.service.workmanager.utils.Sync
@@ -33,6 +35,7 @@ import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWork
 import com.latticeonfhir.android.utils.common.Queries.getSearchListWithLastVisited
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toLastSyncTime
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +56,8 @@ class LandingScreenViewModel @Inject constructor(
     private val patientRepository: PatientRepository,
     private val searchRepository: SearchRepository,
     private val preferenceRepository: PreferenceRepository,
-    private val appointmentRepository: AppointmentRepository
+    private val appointmentRepository: AppointmentRepository,
+    private val signUpRepository: SignUpRepository
 ) : BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
@@ -85,7 +89,6 @@ class LandingScreenViewModel @Inject constructor(
     var logoutReason by mutableStateOf("")
 
     var showConfirmDeleteAccountDialog by mutableStateOf(false)
-    var deleteAccount by mutableStateOf(false)
 
     // queue screen
     var showStatusChangeLayout by mutableStateOf(false)
@@ -295,7 +298,13 @@ class LandingScreenViewModel @Inject constructor(
         }
     }
 
-    internal fun deleteAccount() {
-
+    internal fun sendDeleteAccountOtp(navigate: (Boolean) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            signUpRepository.verification(userPhoneNo.ifBlank { userEmail }, RegisterTypeEnum.DELETE).apply {
+                if(this is ApiEndResponse) {
+                    navigate(true)
+                }
+            }
+        }
     }
 }

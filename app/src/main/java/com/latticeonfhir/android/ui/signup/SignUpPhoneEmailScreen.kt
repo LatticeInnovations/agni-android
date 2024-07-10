@@ -2,7 +2,6 @@ package com.latticeonfhir.android.ui.signup
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -18,12 +16,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -70,7 +65,7 @@ fun SignUpPhoneEmailScreen(
                         modifier = Modifier.testTag("HEADING_TAG")
                     )
                     Spacer(modifier = Modifier.height(50.dp))
-                    InputField(viewModel)
+                    InputField(activity, viewModel)
                     Spacer(modifier = Modifier.height(45.dp))
                     Button(
                         onClick = {
@@ -120,7 +115,7 @@ fun proceed(viewModel: SignUpPhoneEmailViewModel, navController: NavController) 
 }
 
 @Composable
-fun InputField(viewModel: SignUpPhoneEmailViewModel) {
+fun InputField(activity: Activity, viewModel: SignUpPhoneEmailViewModel) {
     OutlinedTextField(
         value = viewModel.inputValue,
         onValueChange = {
@@ -143,7 +138,10 @@ fun InputField(viewModel: SignUpPhoneEmailViewModel) {
             {
                 Text(text = " +91", color = MaterialTheme.colorScheme.outline)
             }
-        } else null
+        } else null,
+        placeholder = {
+            Text(activity.getString(R.string.enter_phone_number_or_email))
+        }
     )
 }
 

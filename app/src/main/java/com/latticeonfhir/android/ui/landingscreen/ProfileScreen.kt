@@ -45,6 +45,7 @@ import com.latticeonfhir.android.ui.theme.Primary10
 import com.latticeonfhir.android.ui.theme.SyncFailedColor
 import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
@@ -297,7 +298,6 @@ fun checkNetwork(
 ) {
     when (isInternetAvailable(activity)) {
         true -> {
-            viewModel.deleteAccount()
             navigate(viewModel, navController)
         }
 
@@ -314,7 +314,7 @@ fun checkNetwork(
 fun navigate(viewModel: LandingScreenViewModel, navController: NavController) {
     navController.currentBackStackEntry?.savedStateHandle?.set(
         "userInput",
-        viewModel.userPhoneNo
+        viewModel.userPhoneNo.ifBlank { viewModel.userEmail }
     )
     navController.navigate(Screen.OtpScreen.route)
 }
