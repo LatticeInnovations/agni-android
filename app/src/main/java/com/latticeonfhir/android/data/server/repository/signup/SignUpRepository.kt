@@ -14,5 +14,5 @@ interface SignUpRepository {
         type: RegisterTypeEnum
     ): ResponseMapper<TokenResponse>
 
-    suspend fun register(register: Register,tempAuthToken: String): ResponseMapper<TokenResponse>
+    suspend fun register(register: Register, tempAuthToken: String): ResponseMapper<TokenResponse>
 }

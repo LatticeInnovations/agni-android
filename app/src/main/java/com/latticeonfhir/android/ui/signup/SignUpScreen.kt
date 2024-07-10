@@ -49,7 +49,8 @@ fun SignUpScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<String>("userInput")
                     .toString()
             viewModel.tempAuthToken =
-                navController.previousBackStackEntry?.savedStateHandle?.get<String>("tempAuthToken").toString()
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>("tempAuthToken")
+                    .toString()
             viewModel.isLaunched = true
         }
     }
