@@ -347,6 +347,14 @@ fun verifyClick(navController: NavController, viewModel: OtpViewModel) {
                     )
                     navController.navigate(Screen.SignUpScreen.route)
                 } else if(viewModel.isDeleteAccount) {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "logoutUser",
+                        true
+                    )
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "logoutReason",
+                        "Thank You, your account will be deleted and confirmation will be given within 48 hours."
+                    )
                     navController.navigate(Screen.PhoneEmailScreen.route)
                 } else {
                     navController.currentBackStackEntry?.savedStateHandle?.set(

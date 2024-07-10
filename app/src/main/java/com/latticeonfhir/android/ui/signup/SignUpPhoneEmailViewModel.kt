@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
+import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
@@ -41,7 +42,7 @@ class SignUpPhoneEmailViewModel @Inject constructor(
 
     internal fun signUp(navigate: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            signUpRepository.verification(inputValue).apply {
+            signUpRepository.verification(inputValue, RegisterTypeEnum.REGISTER).apply {
                 if (this is ApiEmptyResponse) {
                     isAuthenticating = false
                     navigate(true)

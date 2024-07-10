@@ -24,5 +24,5 @@ interface AuthenticationApiService {
     suspend fun getUserDetails(): Response<BaseResponse<UserResponse>>
 
     @DELETE("user")
-    suspend fun deleteUserDetails(@Header("tempToken") tempToken: String): Response<BaseResponse<String?>>
+    suspend fun deleteUserDetails(@Header("temptoken") tempToken: String): Response<BaseResponse<String?>>
 }

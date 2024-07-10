@@ -149,6 +149,7 @@ include them in the household</string>
     <string name="age_days_error_msg">Enter valid input between 1 and 30.</string>
 
     <string name="enter_phone_number">Enter Phone Number</string>
+    <string name="enter_phone_number_or_email">Enter phone number or email</string>
     <string name="phone_number_error_msg">Enter Valid Input</string>
 
     <string name="passport_id_error_msg">Enter valid Passport ID (eg., A1098765)</string>
