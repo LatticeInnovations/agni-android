@@ -10,6 +10,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.enums.LastVisit
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
@@ -41,7 +42,7 @@ class SearchResultViewModel @Inject constructor(
     internal fun searchPatient(searchParameters: SearchParameters) {
         viewModelScope.launch(Dispatchers.IO) {
             var finalSearchList = searchRepository.getSearchList()
-            if (!searchParameters.lastFacilityVisit.isNullOrBlank()) {
+            if (!searchParameters.lastFacilityVisit.isNullOrBlank() && searchParameters.lastFacilityVisit != LastVisit.NOT_APPLICABLE.label) {
                 finalSearchList = getSearchListWithLastVisited(
                     searchParameters.lastFacilityVisit,
                     finalSearchList,
