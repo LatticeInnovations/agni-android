@@ -18,6 +18,7 @@ import androidx.work.await
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
+import com.latticeonfhir.android.data.local.enums.LastVisit
 import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
@@ -250,7 +251,7 @@ class LandingScreenViewModel @Inject constructor(
     private fun searchPatient(searchParameters: SearchParameters) {
         viewModelScope.launch(Dispatchers.IO) {
             var finalSearchList = searchRepository.getSearchList()
-            if (!searchParameters.lastFacilityVisit.isNullOrBlank()) {
+            if (!searchParameters.lastFacilityVisit.isNullOrBlank() && searchParameters.lastFacilityVisit != LastVisit.NOT_APPLICABLE.label) {
                 finalSearchList = getSearchListWithLastVisited(
                     searchParameters.lastFacilityVisit,
                     finalSearchList,
