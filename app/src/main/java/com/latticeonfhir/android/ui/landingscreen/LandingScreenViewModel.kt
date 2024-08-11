@@ -26,17 +26,21 @@ import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRe
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
+import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.service.workmanager.utils.Sync
 import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.android.utils.common.Queries.getSearchListWithLastVisited
+import com.latticeonfhir.android.utils.constants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toLastSyncTime
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
+import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -59,7 +63,9 @@ class LandingScreenViewModel @Inject constructor(
     private val searchRepository: SearchRepository,
     private val preferenceRepository: PreferenceRepository,
     private val appointmentRepository: AppointmentRepository,
-    private val signUpRepository: SignUpRepository
+    private val signUpRepository: SignUpRepository,
+    private val authenticationRepository: AuthenticationRepository,
+    private val fhirAppDatabase: FhirAppDatabase
 ) : BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
@@ -103,6 +109,16 @@ class LandingScreenViewModel @Inject constructor(
     var lastSyncDate by mutableStateOf("")
     var syncStatusDisplay by mutableStateOf("")
     var syncIconDisplay by mutableIntStateOf(0)
+
+    var twoMinuteTimer by mutableIntStateOf(120)
+    var showOtpFields by mutableStateOf(false)
+    var otpEntered by mutableStateOf("")
+    var isOtpIncorrect by mutableStateOf(false)
+    var errorMsg by mutableStateOf("")
+    var otpAttemptsExpired by mutableStateOf(false)
+    var fiveMinuteTimer by mutableIntStateOf(0)
+    var isVerifying by mutableStateOf(false)
+    var isResending by mutableStateOf(false)
 
     init {
         viewModelScope.launch {
@@ -319,5 +335,86 @@ class LandingScreenViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    internal fun validateOtp(navigate: (Boolean) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            signUpRepository.otpVerification(
+                userEmail.ifBlank { userPhoneNo },
+                otpEntered.toInt(),
+                RegisterTypeEnum.DELETE
+            ).apply {
+                if (this is ApiEndResponse) {
+                    isVerifying = false
+                    deleteAccount(body.token, navigate)
+                } else if (this is ApiErrorResponse) {
+                    when (errorMessage) {
+                        TOO_MANY_ATTEMPTS_ERROR -> {
+                            isOtpIncorrect = false
+                            otpAttemptsExpired = true
+                            if (fiveMinuteTimer == 0) fiveMinuteTimer = 300
+                        }
+
+                        else -> isOtpIncorrect = true
+                    }
+                    isVerifying = false
+                    errorMsg = errorMessage
+                    navigate(false)
+                }
+            }
+        }
+    }
+
+    private suspend fun deleteAccount(tempAuthToken: String, navigate: (Boolean) -> Unit) {
+        authenticationRepository.deleteAccount(tempAuthToken).apply {
+            if (this is ApiErrorResponse) {
+                errorMsg = errorMessage
+                navigate(false)
+            } else if (this is ApiEndResponse) {
+                logoutReason = body ?: "INTERNAL_SERVER_ERROR"
+                stopWorkers()
+                clearAllAppData()
+                navigate(true)
+            }
+        }
+    }
+
+    internal fun resendOTP(resent: (Boolean) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            signUpRepository.verification(
+                userEmail.ifBlank { userPhoneNo },
+                RegisterTypeEnum.DELETE
+            ).apply {
+                if (this is ApiEmptyResponse) {
+                    isResending = false
+                    resent(true)
+                } else if (this is ApiErrorResponse) {
+                    when (errorMessage) {
+                        TOO_MANY_ATTEMPTS_ERROR -> {
+                            isOtpIncorrect = false
+                            otpAttemptsExpired = true
+                            fiveMinuteTimer = 300
+                        }
+
+                        else -> isOtpIncorrect = true
+                    }
+                    errorMsg = errorMessage
+                    isResending = false
+                    resent(false)
+                }
+            }
+        }
+    }
+
+    private fun clearAllAppData() {
+        fhirAppDatabase.clearAllTables()
+        preferenceRepository.clearPreferences()
+    }
+
+    private suspend fun stopWorkers() {
+        WorkManager.getInstance(getApplication<Application>().applicationContext)
+            .cancelAllWork().await().also {
+                (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
+            }
     }
 }
