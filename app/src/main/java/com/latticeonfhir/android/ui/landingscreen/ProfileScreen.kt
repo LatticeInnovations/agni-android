@@ -54,6 +54,7 @@ import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.ButtonLoader
 import com.latticeonfhir.android.ui.common.Detail
 import com.latticeonfhir.android.ui.common.Label
+import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.theme.Primary10
 import com.latticeonfhir.android.ui.theme.SyncFailedColor
 import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
@@ -71,8 +72,17 @@ fun ProfileScreen(
     viewModel: LandingScreenViewModel = hiltViewModel()
 ) {
 
-    val activity = LocalContext.current as Activity
+    val activity = LocalContext.current as MainActivity
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(activity.otp) {
+        if (activity.otp.isNotEmpty()) {
+            viewModel.otpEntered = activity.otp.trim()
+            verifyClick(navController, viewModel)
+            activity.otp = ""
+            activity.unregisterBroadcastReceiver()
+        }
+    }
 
     LaunchedEffect(viewModel.twoMinuteTimer > 0, viewModel.showOtpFields) {
         if (viewModel.showOtpFields) {
@@ -521,7 +531,7 @@ private fun DeleteAccountCard(
 private fun checkNetwork(
     viewModel: LandingScreenViewModel,
     navController: NavController,
-    activity: Activity,
+    activity: MainActivity,
     coroutineScope: CoroutineScope,
     snackbarHostState: SnackbarHostState
 ) {
@@ -535,6 +545,9 @@ private fun checkNetwork(
                 )
             } else {
                 viewModel.otpEntered = ""
+                if (viewModel.userPhoneNo.isNotBlank()) {
+                    activity.registerBroadcastReceiver()
+                }
                 viewModel.sendDeleteAccountOtp {
                     viewModel.showOtpFields = it
                 }
