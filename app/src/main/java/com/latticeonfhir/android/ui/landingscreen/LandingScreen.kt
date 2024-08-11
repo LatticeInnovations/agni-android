@@ -198,16 +198,6 @@ fun LandingScreen(
         }
     }
 
-    LaunchedEffect(viewModel.deleteAccountError) {
-        if (viewModel.deleteAccountError.isNotBlank()) {
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(
-                    message = viewModel.deleteAccountError
-                )
-            }
-        }
-    }
-
     Box(
         modifier = Modifier
             .fillMaxWidth(),
