@@ -56,6 +56,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,8 +74,6 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                     .toString()
             viewModel.isSignUp =
                 navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isSignUp") != null
-            viewModel.isDeleteAccount =
-                navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isDeleteAccount") != null
             if (viewModel.userInput.matches(onlyNumbers)) {
                 activity.registerBroadcastReceiver()
             }
@@ -231,7 +230,7 @@ fun OtpScreen(navController: NavController, viewModel: OtpViewModel = hiltViewMo
                     ) {
                         if (viewModel.isVerifying) ButtonLoader()
                         else {
-                            if (viewModel.isDeleteAccount) Text(text = stringResource(id = R.string.delete_account)) else Text(
+                            Text(
                                 text = stringResource(id = R.string.verify)
                             )
                         }
@@ -270,10 +269,12 @@ fun TwoMinuteTimer(
         Text(
             text = "${
                 String.format(
+                    Locale.ROOT,
                     "%02d", viewModel.twoMinuteTimer / 60
                 )
             }:${
                 String.format(
+                    Locale.ROOT,
                     "%02d",
                     viewModel.twoMinuteTimer % 60
                 )
@@ -354,16 +355,6 @@ fun verifyClick(navController: NavController, viewModel: OtpViewModel) {
                         viewModel.tempAuthToken
                     )
                     navController.navigate(Screen.SignUpScreen.route)
-                } else if (viewModel.isDeleteAccount) {
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        "logoutUser",
-                        viewModel.isDeleteAccount
-                    )
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        "logoutReason",
-                        viewModel.logoutReason
-                    )
-                    navController.navigate(Screen.PhoneEmailScreen.route)
                 } else {
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         "loggedIn",
