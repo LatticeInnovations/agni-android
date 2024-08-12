@@ -3,16 +3,19 @@ package com.latticeonfhir.android.ui.landingscreen
 import android.app.Activity
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +43,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -51,8 +56,6 @@ import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.ButtonLoader
-import com.latticeonfhir.android.ui.common.Detail
-import com.latticeonfhir.android.ui.common.Label
 import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.theme.Primary10
 import com.latticeonfhir.android.ui.theme.SyncFailedColor
@@ -95,62 +98,123 @@ fun ProfileScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp),
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        Row(
+            modifier = Modifier.padding(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
+            Box(
+                modifier = Modifier.size(55.dp)
+                    .background(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                    )
+                    .border(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        width = 1.5.dp,
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                Label(stringResource(id = R.string.name_label))
-                Detail(detail = viewModel.userName, tag = "NAME")
-                Spacer(modifier = Modifier.height(20.dp))
-                Label(stringResource(id = R.string.role_label))
-                Detail(detail = viewModel.userRole, tag = "ROLE")
-                Spacer(modifier = Modifier.height(20.dp))
-                Label(stringResource(id = R.string.phone_number_label))
-                Detail(detail = "+91 ${viewModel.userPhoneNo}", tag = "PHONE_NO")
-                Spacer(modifier = Modifier.height(20.dp))
-                Label(stringResource(id = R.string.email))
-                Detail(detail = viewModel.userEmail, tag = "EMAIL")
+                Text(
+                    text = viewModel.userName[0].uppercase(),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+            Column(
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = viewModel.userName.replaceFirstChar {
+                        it.titlecase(Locale.ROOT)
+                    },
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = viewModel.userRole,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
-
-        SyncStatusView(viewModel)
-        AppVersionInfoCard()
-        DeleteAccountCard(activity, viewModel, snackbarHostState, coroutineScope)
-        if (viewModel.showConfirmDeleteAccountDialog) {
-            DeleteAccountDialog(
-                viewModel = viewModel,
-                deleteAccountBtnClick = {
-                    checkNetwork(
-                        viewModel,
-                        navController,
-                        activity
-                    )
-                },
-                resendOtpClicked = {
-                    if (isInternetAvailable(activity)) {
-                        viewModel.deleteAccountError = ""
-                        viewModel.isResending = true
-                        viewModel.otpEntered = ""
-                        viewModel.isOtpIncorrect = false
-                        viewModel.resendOTP { resent ->
-                            if (resent) {
-                                viewModel.twoMinuteTimer = 120
-                            }
-                        }
-                    } else {
-                        viewModel.deleteAccountError =
-                            activity.getString(R.string.no_internet_error_msg)
-                    }
-                }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.call),
+                contentDescription = "CALL_ICON",
+                tint = MaterialTheme.colorScheme.outline,
+                modifier = Modifier
+                    .padding(12.dp)
+                    .size(26.dp)
+            )
+            Text(
+                text = if (viewModel.userPhoneNo == "0") "--" else "+91 ${viewModel.userPhoneNo}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.mail),
+                contentDescription = "MAIL_ICON",
+                tint = MaterialTheme.colorScheme.outline,
+                modifier = Modifier
+                    .padding(12.dp)
+                    .size(26.dp)
+            )
+            Text(
+                text = viewModel.userEmail.ifBlank { "--" },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        SyncStatusView(viewModel)
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
+        DeleteAccountButton(activity, viewModel, snackbarHostState, coroutineScope)
+        Spacer(modifier = Modifier.weight(1f))
+        AppVersionInfoCard()
+    }
+    if (viewModel.showConfirmDeleteAccountDialog) {
+        DeleteAccountDialog(
+            viewModel = viewModel,
+            deleteAccountBtnClick = {
+                checkNetwork(
+                    viewModel,
+                    navController,
+                    activity
+                )
+            },
+            resendOtpClicked = {
+                if (isInternetAvailable(activity)) {
+                    viewModel.deleteAccountError = ""
+                    viewModel.isResending = true
+                    viewModel.otpEntered = ""
+                    viewModel.isOtpIncorrect = false
+                    viewModel.resendOTP { resent ->
+                        if (resent) {
+                            viewModel.twoMinuteTimer = 120
+                        }
+                    }
+                } else {
+                    viewModel.deleteAccountError =
+                        activity.getString(R.string.no_internet_error_msg)
+                }
+            }
+        )
     }
 }
 
@@ -339,18 +403,16 @@ fun DeleteAccountDialog(
 
 @Composable
 fun SyncStatusView(viewModel: LandingScreenViewModel) {
-    Card(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 14.dp),
-        border = BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outlineVariant
-        )
+            .padding(20.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Column(
             modifier = Modifier
-                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                .padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
                 .fillMaxWidth()
         ) {
             Text(
@@ -437,72 +499,51 @@ private fun setTextAndIconColor(viewModel: LandingScreenViewModel): Color {
 
 @Composable
 private fun AppVersionInfoCard() {
-    Card(
+    Text(
+        text = stringResource(R.string.agni_app_version, BuildConfig.VERSION_NAME),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 14.dp),
-        border = BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outlineVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(vertical = 24.dp, horizontal = 16.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.app_version),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = stringResource(R.string.agni_app_version, BuildConfig.VERSION_NAME),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
+            .padding(16.dp),
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
 }
 
 @Composable
-private fun DeleteAccountCard(
+private fun DeleteAccountButton(
     activity: Activity,
     viewModel: LandingScreenViewModel,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
 ) {
-    Card(
+    FilledTonalButton(
+        onClick = {
+            if (isInternetAvailable(activity)) {
+                viewModel.showConfirmDeleteAccountDialog = true
+            } else {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = activity.getString(R.string.no_internet_error_msg)
+                    )
+                }
+            }
+        },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 14.dp)
-            .clickable {
-                if (isInternetAvailable(activity)) {
-                    viewModel.showConfirmDeleteAccountDialog = true
-                } else {
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = activity.getString(R.string.no_internet_error_msg)
-                        )
-                    }
-                }
-            },
-        border = BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outlineVariant
-        )
+            .padding(16.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(vertical = 24.dp, horizontal = 16.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            Icon(
+                painter = painterResource(id = R.drawable.delete_icon),
+                contentDescription = "DELETE_ICON",
+                modifier = Modifier.size(15.dp)
+            )
             Text(
-                text = stringResource(R.string.delete_account),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = stringResource(R.string.delete_account)
             )
         }
     }
@@ -526,7 +567,9 @@ private fun checkNetwork(
                 if (viewModel.userPhoneNo.isNotBlank()) {
                     activity.registerBroadcastReceiver()
                 }
+                viewModel.isVerifying = true
                 viewModel.sendDeleteAccountOtp {
+                    viewModel.isVerifying = false
                     viewModel.showOtpFields = it
                 }
             }
