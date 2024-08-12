@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.ui.landingscreen
 
 import android.app.Activity
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -93,17 +92,6 @@ fun ProfileScreen(
         }
     }
 
-    LaunchedEffect(viewModel.fiveMinuteTimer > 0) {
-        while (viewModel.fiveMinuteTimer > 0) {
-            if (viewModel.fiveMinuteTimer - 1 == 0) {
-                viewModel.otpAttemptsExpired = false
-                viewModel.errorMsg = ""
-            }
-            delay(1000)
-            viewModel.fiveMinuteTimer -= 1
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -142,13 +130,12 @@ fun ProfileScreen(
                     checkNetwork(
                         viewModel,
                         navController,
-                        activity,
-                        coroutineScope,
-                        snackbarHostState
+                        activity
                     )
                 },
                 resendOtpClicked = {
                     if (isInternetAvailable(activity)) {
+                        viewModel.deleteAccountError = ""
                         viewModel.isResending = true
                         viewModel.otpEntered = ""
                         viewModel.isOtpIncorrect = false
@@ -158,11 +145,8 @@ fun ProfileScreen(
                             }
                         }
                     } else {
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = activity.getString(R.string.no_internet_error_msg)
-                            )
-                        }
+                        viewModel.deleteAccountError =
+                            activity.getString(R.string.no_internet_error_msg)
                     }
                 }
             )
@@ -208,9 +192,7 @@ fun DeleteAccountDialog(
                             color = MaterialTheme.colorScheme.error
                         )
                     }
-                    AnimatedVisibility(
-                        visible = viewModel.showOtpFields
-                    ) {
+                    if (viewModel.showOtpFields) {
                         Column(
                             modifier = Modifier.padding(top = 16.dp)
                         ) {
@@ -257,17 +239,15 @@ fun DeleteAccountDialog(
                                     else MaterialTheme.colorScheme.outlineVariant
                                 )
                             }
-                            if (viewModel.errorMsg.isNotBlank()) {
-                                Text(
-                                    text = viewModel.errorMsg,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
-                            }
-                            if (viewModel.twoMinuteTimer > 0 && !viewModel.otpAttemptsExpired) {
-                                Text(
-                                    text = "${
+                            Text(
+                                text = viewModel.errorMsg,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                            Text(
+                                text = if (viewModel.twoMinuteTimer > 0 && !viewModel.otpAttemptsExpired) {
+                                    "${
                                         String.format(
                                             Locale.ROOT,
                                             "%02d", viewModel.twoMinuteTimer / 60
@@ -278,13 +258,13 @@ fun DeleteAccountDialog(
                                             "%02d",
                                             viewModel.twoMinuteTimer % 60
                                         )
-                                    }",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    modifier = Modifier
-                                        .padding(bottom = 16.dp, top = 24.dp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                                    }"
+                                } else "",
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier = Modifier
+                                    .padding(bottom = 16.dp, top = 24.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
 
@@ -294,7 +274,7 @@ fun DeleteAccountDialog(
                     ) {
                         if (viewModel.isResending || viewModel.isVerifying) {
                             Button(
-                                onClick = {  },
+                                onClick = { },
                                 enabled = false,
                                 colors = ButtonDefaults.buttonColors(
                                     disabledContainerColor = Color.Transparent
@@ -303,7 +283,7 @@ fun DeleteAccountDialog(
                                 ButtonLoader(color = MaterialTheme.colorScheme.primary)
                             }
                         } else {
-                            if (viewModel.showOtpFields && viewModel.fiveMinuteTimer == 0) {
+                            if (viewModel.showOtpFields) {
                                 TextButton(
                                     onClick = {
                                         // resend otp
@@ -326,9 +306,9 @@ fun DeleteAccountDialog(
                                     viewModel.showOtpFields = false
                                     viewModel.twoMinuteTimer = 120
                                     viewModel.isOtpIncorrect = false
-                                    if (!viewModel.otpAttemptsExpired) {
-                                        viewModel.errorMsg = ""
-                                    }
+                                    viewModel.errorMsg = ""
+                                    viewModel.otpAttemptsExpired = false
+                                    viewModel.deleteAccountError = ""
                                 },
                                 modifier = Modifier.testTag("NEGATIVE_BTN")
                             ) {
@@ -531,9 +511,7 @@ private fun DeleteAccountCard(
 private fun checkNetwork(
     viewModel: LandingScreenViewModel,
     navController: NavController,
-    activity: MainActivity,
-    coroutineScope: CoroutineScope,
-    snackbarHostState: SnackbarHostState
+    activity: MainActivity
 ) {
     when (isInternetAvailable(activity)) {
         true -> {
@@ -555,11 +533,7 @@ private fun checkNetwork(
         }
 
         false -> {
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(
-                    message = activity.getString(R.string.no_internet_error_msg)
-                )
-            }
+            viewModel.deleteAccountError = activity.getString(R.string.no_internet_error_msg)
         }
     }
 }
@@ -568,6 +542,7 @@ private fun verifyClick(navController: NavController, viewModel: LandingScreenVi
     viewModel.isVerifying = true
     viewModel.validateOtp {
         if (it) {
+            viewModel.showConfirmDeleteAccountDialog = false
             CoroutineScope(Dispatchers.Main).launch {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
                     "logoutUser",
