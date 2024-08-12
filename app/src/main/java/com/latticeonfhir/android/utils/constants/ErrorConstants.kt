@@ -11,4 +11,5 @@ object ErrorConstants {
     const val ERROR_MESSAGE = "Error Message"
     const val SCHEDULE_EXISTS = "Schedule already exists"
     const val SERVER_ERROR = "Server error"
+    const val USER_DOES_NOT_EXIST = "User does not exist"
 }

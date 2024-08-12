@@ -214,6 +214,7 @@ fun InputField(viewModel: PhoneEmailViewModel) {
         value = viewModel.inputValue,
         onValueChange = {
             if (it.length <= 50) {
+                viewModel.signUpButtonIsVisible = false
                 viewModel.inputValue = it.trim()
                 viewModel.updateError()
             }
