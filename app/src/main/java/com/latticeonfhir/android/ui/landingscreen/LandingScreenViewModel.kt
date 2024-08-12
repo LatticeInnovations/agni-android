@@ -116,7 +116,6 @@ class LandingScreenViewModel @Inject constructor(
     var isOtpIncorrect by mutableStateOf(false)
     var errorMsg by mutableStateOf("")
     var otpAttemptsExpired by mutableStateOf(false)
-    var fiveMinuteTimer by mutableIntStateOf(0)
     var isVerifying by mutableStateOf(false)
     var isResending by mutableStateOf(false)
 
@@ -345,14 +344,12 @@ class LandingScreenViewModel @Inject constructor(
                 RegisterTypeEnum.DELETE
             ).apply {
                 if (this is ApiEndResponse) {
-                    isVerifying = false
                     deleteAccount(body.token, navigate)
                 } else if (this is ApiErrorResponse) {
                     when (errorMessage) {
                         TOO_MANY_ATTEMPTS_ERROR -> {
                             isOtpIncorrect = false
                             otpAttemptsExpired = true
-                            if (fiveMinuteTimer == 0) fiveMinuteTimer = 300
                         }
 
                         else -> isOtpIncorrect = true
@@ -392,8 +389,8 @@ class LandingScreenViewModel @Inject constructor(
                     when (errorMessage) {
                         TOO_MANY_ATTEMPTS_ERROR -> {
                             isOtpIncorrect = false
+                            otpEntered = ""
                             otpAttemptsExpired = true
-                            fiveMinuteTimer = 300
                         }
 
                         else -> isOtpIncorrect = true
