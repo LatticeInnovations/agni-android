@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.ui.signup
 
 import android.app.Activity
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -42,10 +41,6 @@ fun SignUpPhoneEmailScreen(
     val activity = LocalContext.current as Activity
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-
-    BackHandler(enabled = true) {
-        activity.finishAffinity()
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -93,28 +88,6 @@ fun SignUpPhoneEmailScreen(
         }
     )
 
-}
-
-fun checkNetwork(
-    viewModel: SignUpPhoneEmailViewModel,
-    navController: NavController,
-    activity: Activity,
-    coroutineScope: CoroutineScope,
-    snackbarHostState: SnackbarHostState
-) {
-    when (isInternetAvailable(activity)) {
-        true -> {
-            navigate(viewModel, navController)
-        }
-
-        false -> {
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(
-                    message = activity.getString(R.string.no_internet_error_msg)
-                )
-            }
-        }
-    }
 }
 
 fun proceed(viewModel: SignUpPhoneEmailViewModel, navController: NavController) {

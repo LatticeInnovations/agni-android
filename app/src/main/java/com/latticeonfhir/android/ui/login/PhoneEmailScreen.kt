@@ -3,8 +3,10 @@ package com.latticeonfhir.android.ui.login
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -84,7 +86,7 @@ fun PhoneEmailScreen(
                     )
                     Spacer(modifier = Modifier.height(50.dp))
                     InputField(viewModel)
-                    Spacer(modifier = Modifier.height(45.dp))
+                    Spacer(modifier = Modifier.height(40.dp))
                     Button(
                         onClick = {
                             when (isInternetAvailable(activity)) {
@@ -107,17 +109,27 @@ fun PhoneEmailScreen(
                         else ButtonLoader()
                     }
                     if (viewModel.signUpButtonIsVisible) {
-                        TextButton(
-                            onClick = { navController.navigate(Screen.SignUpPhoneEmailScreen.route) },
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
                             modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(top = 30.dp)
+                                .padding(top = 16.dp)
+                                .fillMaxWidth()
                         ) {
                             Text(
-                                text = "Sign-up",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary
+                                text = stringResource(id = R.string.do_not_have_an_account),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                            TextButton(
+                                onClick = { navController.navigate(Screen.SignUpPhoneEmailScreen.route) }
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.sign_up),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                     }
                 }
@@ -214,6 +226,7 @@ fun InputField(viewModel: PhoneEmailViewModel) {
         value = viewModel.inputValue,
         onValueChange = {
             if (it.length <= 50) {
+                viewModel.signUpButtonIsVisible = false
                 viewModel.inputValue = it.trim()
                 viewModel.updateError()
             }
@@ -221,11 +234,7 @@ fun InputField(viewModel: PhoneEmailViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .testTag("INPUT_FIELD"),
-        supportingText = if (viewModel.isError) {
-            {
-                Text(text = viewModel.errorMsg)
-            }
-        } else null,
+        supportingText = { Text(text = if (viewModel.isError) viewModel.errorMsg else "") },
         isError = viewModel.isError,
         singleLine = true,
         leadingIcon = if (viewModel.isPhoneNumber) {

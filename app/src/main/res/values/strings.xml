@@ -245,5 +245,8 @@ include them in the household</string>
     <string name="go_to_settings">Go to settings</string>
     <string name="saving">Saving…</string>
     <string name="delete_account">Delete account</string>
+    <string name="delete">Delete</string>
     <string name="delete_account_dialog_description">Are you sure you want to delete your account. Deleting your account will remove all of your information from our database.</string>
+    <string name="do_not_have_an_account">Don’t have an account?</string>
+    <string name="sign_up">Sign-up</string>
 </resources>
