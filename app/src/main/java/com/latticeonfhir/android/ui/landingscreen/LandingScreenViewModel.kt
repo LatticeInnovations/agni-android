@@ -31,6 +31,7 @@ import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
+import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
 import com.latticeonfhir.android.service.workmanager.utils.Sync
@@ -42,6 +43,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
+import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -69,6 +71,7 @@ class LandingScreenViewModel @Inject constructor(
 ) : BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
+    private val syncService: SyncService by lazy { (application as FhirApp).syncService }
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)
@@ -163,6 +166,18 @@ class LandingScreenViewModel @Inject constructor(
                     logoutUser = true
                     logoutReason = sessionExpireMap["errorMsg"]?.toString() ?: "SERVER ERROR"
                     getApplication<FhirApp>().sessionExpireFlow.postValue(emptyMap())
+                }
+            }
+        }
+
+        //Medication Sync
+        if (isInternetAvailable(getApplication<Application>().applicationContext)) {
+            viewModelScope.launch(Dispatchers.IO) {
+                syncService.downloadMedication { isErrorReceived, errorMsg ->
+                    if (isErrorReceived) {
+                        logoutUser = true
+                        logoutReason = errorMsg
+                    }
                 }
             }
         }
