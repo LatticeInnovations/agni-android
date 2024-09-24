@@ -171,19 +171,15 @@ fun PatientLandingScreen(
                         R.drawable.group_icon,
                         null
                     )
-                    /***** Feature Hidden *****/
                     CardComposable(
                         navController,
                         viewModel.patient,
                         viewModel,
                         "PRESCRIPTION",
-                        Screen.PrescriptionPhotoViewScreen.route,
+                        Screen.Prescription.route,
                         stringResource(id = R.string.prescriptions),
                         R.drawable.prescriptions_icon,
-                        stringResource(
-                            id = R.string.uploads_count,
-                            viewModel.uploadsCount
-                        )
+                        null
                     )
                 }
                 if (viewModel.showAllSlotsBookedDialog) {
