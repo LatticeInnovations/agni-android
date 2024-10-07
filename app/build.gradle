@@ -81,7 +81,7 @@ android {
             shrinkResources false
             testCoverageEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "\"https://fhir.api.thelattice.org/facadeDev/api/v1/\""
+            buildConfigField "String", "BASE_URL", "\"https://fhir.api.thelattice.org/facadeDevv2/api/v1/\""
             // dev
         }
         release {

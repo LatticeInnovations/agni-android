@@ -33,7 +33,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedRes
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
-import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
@@ -161,8 +161,7 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-
-    override suspend fun getAndInsertPrescription(patientId: String?): ResponseMapper<List<PrescriptionPhotoResponse>> {
+    override suspend fun getAndInsertPrescription(patientId: String?): ResponseMapper<List<PrescriptionResponse>> {
         return if (patientId == null) {
             genericDao.getSameTypeGenericEntityPayload(
                 GenericTypeEnum.FHIR_IDS_PRESCRIPTION, SyncType.POST, COUNT_VALUE
@@ -416,7 +415,7 @@ class SyncRepositoryImpl @Inject constructor(
                         MEDICATION_REQUEST,
                         listOfGenericEntity.map { prescriptionGenericEntity ->
                             prescriptionGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>()
-                                .mapToObject(PrescriptionPhotoResponse::class.java)!!
+                                .mapToObject(PrescriptionResponse::class.java)!!
                         }
                     )
                 ).run {
