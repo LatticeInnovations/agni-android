@@ -185,6 +185,16 @@ fun PatientLandingScreen(
                             viewModel.uploadsCount
                         )
                     )
+                    CardComposable(
+                        navController,
+                        viewModel.patient,
+                        viewModel,
+                        "CVD",
+                        Screen.CVDRiskAssessmentScreen.route,
+                        stringResource(id = R.string.cvd_risk_assessment),
+                        R.drawable.cardiology,
+                        null
+                    )
                 }
                 if (viewModel.showAllSlotsBookedDialog) {
                     AllSlotsBookedDialog {
