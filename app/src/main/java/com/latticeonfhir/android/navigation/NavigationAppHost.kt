@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.latticeonfhir.android.ui.appointments.AppointmentsScreen
 import com.latticeonfhir.android.ui.appointments.schedule.ScheduleAppointments
+import com.latticeonfhir.android.ui.cvd.CVDRiskAssessmentScreen
 import com.latticeonfhir.android.ui.householdmember.HouseholdMembersScreen
 import com.latticeonfhir.android.ui.householdmember.addhouseholdmember.AddHouseholdMember
 import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatient
@@ -67,5 +68,6 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
                 navController = navController
             )
         }
+        composable(Screen.CVDRiskAssessmentScreen.route) { CVDRiskAssessmentScreen(navController) }
     }
 }
