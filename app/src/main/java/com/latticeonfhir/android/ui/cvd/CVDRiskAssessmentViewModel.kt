@@ -32,4 +32,5 @@ class CVDRiskAssessmentViewModel@Inject constructor(
     var weight by mutableStateOf("")
     var weightUnit = "kg"
     var bmi by mutableStateOf("")
+    var riskPercentage by mutableStateOf("")
 }
