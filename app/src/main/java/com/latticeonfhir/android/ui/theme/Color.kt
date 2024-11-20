@@ -75,3 +75,19 @@ val NoShowContainer = Color(0xFFE6E1E5)
 val NoShowLabel = Color(0xFF79747E)
 
 val SyncFailedColor = Color(0xFFFFEBD2)
+
+val LowRiskLightContainer = Color(0xFFF6FFD9)
+val ModerateRiskLightContainer = Color(0xFFFFFFD9)
+val HighRiskLightContainer = Color(0xFFFFEDDC)
+val VeryHighRiskLightContainer = Color(0xFFFFDDDD)
+
+val LowRiskDarkContainer = Color(0xFF5F6749)
+val ModerateRiskDarkContainer = Color(0xFF65654A)
+val HighRiskDarkContainer = Color(0xFF5D4D3E)
+val VeryHighRiskDarkContainer = Color(0xFF492D2D)
+
+val LowRiskCircle = Color(0xFF81AB04)
+val ModerateRiskCircle = Color(0xFFC7BA06)
+val HighRiskCircle = Color(0xFFD97818)
+val VeryHighRiskCircle = Color(0xFFCC0000)
+val VeryVeryHighRiskCircle = Color(0xFF990033)
