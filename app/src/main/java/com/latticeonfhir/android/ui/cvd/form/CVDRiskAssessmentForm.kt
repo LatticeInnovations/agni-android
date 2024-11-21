@@ -87,7 +87,7 @@ fun CVDRiskAssessmentForm(
 }
 
 @Composable
-private fun DisplayField(label: String, value: String) {
+fun DisplayField(label: String, value: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
