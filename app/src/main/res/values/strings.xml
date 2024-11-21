@@ -268,4 +268,9 @@ include them in the household</string>
     <string name="cvd_heading">Please provide below details to find out cardiovascular risk</string>
     <string name="percentage">%s\%%</string>
     <string name="risk_info">10-year risk of heart attack or stroke</string>
+    <string name="graph_info">At least two data points required to view graph</string>
+    <string name="no_record_available">No record available</string>
+    <string name="total_records">Total records</string>
+    <string name="percentage_and_risk">%d\%% · %s</string>
+    <string name="assessment_record_saved">Assessment record saved</string>
 </resources>

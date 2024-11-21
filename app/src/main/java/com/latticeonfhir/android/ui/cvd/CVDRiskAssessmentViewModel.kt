@@ -33,4 +33,7 @@ class CVDRiskAssessmentViewModel@Inject constructor(
     var weightUnit = "kg"
     var bmi by mutableStateOf("")
     var riskPercentage by mutableStateOf("")
+
+    var previousRecords by mutableStateOf(listOf<String>(""))
+    var showBottomSheet by mutableStateOf(false)
 }

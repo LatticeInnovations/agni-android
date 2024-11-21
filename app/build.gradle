@@ -250,6 +250,9 @@ dependencies {
 
     // accompanist
     implementation("com.google.accompanist:accompanist-coil:0.15.0")
+
+    //mp chart
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }
 
 allprojects {

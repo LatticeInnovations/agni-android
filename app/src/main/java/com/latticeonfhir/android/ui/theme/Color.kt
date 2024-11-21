@@ -91,3 +91,6 @@ val ModerateRiskCircle = Color(0xFFC7BA06)
 val HighRiskCircle = Color(0xFFD97818)
 val VeryHighRiskCircle = Color(0xFFCC0000)
 val VeryVeryHighRiskCircle = Color(0xFF990033)
+
+val White = Color(0xFFFFFFFF)
+val Black = Color(0xFF000000)
