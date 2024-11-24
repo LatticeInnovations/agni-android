@@ -405,4 +405,9 @@ object TimeConverter {
         calendar[Calendar.MILLISECOND] = 0
         return calendar.time
     }
+
+    fun Date.toddMMMyyyy(): String {
+        val sdf = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
+        return sdf.format(this)
+    }
 }

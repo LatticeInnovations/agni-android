@@ -9,6 +9,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
+import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
@@ -164,6 +165,28 @@ open class GenericRepositoryDatabaseTransactions(
                     patientId = appointmentResponse.uuid,
                     payload = appointmentResponse.toJson(),
                     type = GenericTypeEnum.APPOINTMENT,
+                    syncType = SyncType.POST
+                )
+            )[0]
+        }
+    }
+
+    protected suspend fun insertCVDGenericEntity(
+        cvdGenericEntity: GenericEntity?,
+        cvdResponse: CVDResponse,
+        uuid: String
+    ): Long {
+        return if (cvdGenericEntity != null) {
+            genericDao.insertGenericEntity(
+                cvdGenericEntity.copy(payload = cvdResponse.toJson())
+            )[0]
+        } else {
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid,
+                    patientId = cvdResponse.cvdUuid,
+                    payload = cvdResponse.toJson(),
+                    type = GenericTypeEnum.CVD,
                     syncType = SyncType.POST
                 )
             )[0]

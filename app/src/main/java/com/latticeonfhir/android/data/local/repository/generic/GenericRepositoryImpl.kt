@@ -7,6 +7,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
+import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
@@ -140,6 +141,19 @@ class GenericRepositoryImpl @Inject constructor(
             syncType = SyncType.POST
         ).let { appointmentGenericEntity ->
             insertAppointmentGenericEntity(appointmentGenericEntity, appointmentResponse, uuid)
+        }
+    }
+
+    override suspend fun insertCVDRecord(
+        cvdResponse: CVDResponse,
+        uuid: String
+    ): Long {
+        return genericDao.getGenericEntityById(
+            patientId = cvdResponse.cvdUuid,
+            genericTypeEnum = GenericTypeEnum.CVD,
+            syncType = SyncType.POST
+        ).let { cvdGenericEntity ->
+            insertCVDGenericEntity(cvdGenericEntity, cvdResponse, uuid)
         }
     }
 

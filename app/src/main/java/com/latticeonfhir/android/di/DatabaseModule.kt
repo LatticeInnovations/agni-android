@@ -3,6 +3,7 @@ package com.latticeonfhir.android.di
 import android.content.Context
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
 import com.latticeonfhir.android.data.local.roomdb.dao.DownloadedFileDao
 import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
@@ -112,5 +113,11 @@ object DatabaseModule {
     @Provides
     fun provideRiskPredictionDao(appDatabase: FhirAppDatabase): RiskPredictionDao {
         return appDatabase.getRiskPredictionDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideCVDDao(appDatabase: FhirAppDatabase): CVDDao {
+        return appDatabase.getCVDDao()
     }
 }
