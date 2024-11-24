@@ -211,7 +211,7 @@ fun CVDRiskAssessmentScreen(
                     ) {
                         Button(
                             onClick = {
-                                viewModel.riskPercentage = "4"
+                                viewModel.getRisk()
                             },
                             modifier = Modifier
                                 .weight(1f)
