@@ -352,14 +352,18 @@ private fun RecordsFullDetailsComposable(
             Spacer(modifier = Modifier.weight(1f))
             Surface(
                 shape = RoundedCornerShape(40.dp),
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = if (record.bmi == null) MaterialTheme.colorScheme.surfaceVariant
+                else MaterialTheme.colorScheme.primaryContainer
             ) {
                 Text(
                     text = stringResource(
                         R.string.bmi,
-                        record.bmi.toString().ifBlank { stringResource(R.string.dash) }),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        record.bmi?.toString() ?: stringResource(R.string.dash)
+                    ),
+                    style = if (record.bmi == null) MaterialTheme.typography.bodyMedium
+                    else MaterialTheme.typography.labelLarge,
+                    color = if (record.bmi == null) MaterialTheme.colorScheme.onSurfaceVariant
+                    else MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp)
                 )
             }
