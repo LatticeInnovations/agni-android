@@ -94,6 +94,7 @@ fun CVDRiskAssessmentScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     PATIENT
                 )
+            viewModel.getTodayCVDAssessment()
             viewModel.isLaunched = true
         }
     }
@@ -230,12 +231,23 @@ fun CVDRiskAssessmentScreen(
                         if (viewModel.riskPercentage.isNotBlank()) {
                             Button(
                                 onClick = {
-                                    viewModel.saveCVDRecord {
-                                        scope.launch {
-                                            pagerState.animateScrollToPage(1)
-                                            snackbarHostState.showSnackbar(
-                                                message = context.getString(R.string.assessment_record_saved)
-                                            )
+                                    if (viewModel.todayAssessment == null) {
+                                        viewModel.saveCVDRecord {
+                                            scope.launch {
+                                                pagerState.animateScrollToPage(1)
+                                                snackbarHostState.showSnackbar(
+                                                    message = context.getString(R.string.assessment_record_saved)
+                                                )
+                                            }
+                                        }
+                                    } else {
+                                        viewModel.updateCVDRecord {
+                                            scope.launch {
+                                                pagerState.animateScrollToPage(1)
+                                                snackbarHostState.showSnackbar(
+                                                    message = context.getString(R.string.assessment_record_updated)
+                                                )
+                                            }
                                         }
                                     }
                                 },

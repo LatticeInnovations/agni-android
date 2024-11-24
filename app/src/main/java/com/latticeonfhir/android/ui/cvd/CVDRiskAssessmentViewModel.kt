@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.YesNoEnum
+import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.cvd.chart.RiskPredictionChartRepository
 import com.latticeonfhir.android.data.local.repository.cvd.records.CVDAssessmentRepository
@@ -38,6 +39,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
     var isLaunched by mutableStateOf(false)
     val tabs = listOf("Assess risk", "Records")
     var patient by mutableStateOf<PatientResponse?>(null)
+    var appointmentResponseLocal by mutableStateOf<AppointmentResponseLocal?>(null)
     var isDiabetic by mutableStateOf("")
     var isSmoker by mutableStateOf("")
     var systolic by mutableStateOf("")
@@ -67,6 +69,9 @@ class CVDRiskAssessmentViewModel @Inject constructor(
     var previousRecords by mutableStateOf(listOf<CVDResponse>())
     var selectedRecord by mutableStateOf<CVDResponse?>(null)
 
+    var todayAssessment by mutableStateOf<CVDResponse?>(null)
+    var map = mapOf<String, Any>()
+
     @SuppressLint("DefaultLocale")
     internal fun getBmi() {
         if ((heightInCM.isNotBlank() || (heightInFeet.isNotBlank() && heightInInch.isNotBlank()))
@@ -95,6 +100,37 @@ class CVDRiskAssessmentViewModel @Inject constructor(
                 && !weightError))
     }
 
+    internal fun getTodayCVDAssessment() {
+        viewModelScope.launch(Dispatchers.IO) {
+            todayAssessment = cvdAssessmentRepository.getTodayCVDRecord(
+                patient!!.id,
+                Date().toTodayStartDate(),
+                Date().toEndOfDay()
+            )
+            todayAssessment?.let { assessment -> setData(assessment) }
+        }
+    }
+
+    private fun setData(todayAssessment: CVDResponse) {
+        isDiabetic = YesNoEnum.displayFromCode(todayAssessment.diabetic)
+        isSmoker = YesNoEnum.displayFromCode(todayAssessment.smoker)
+        systolic = todayAssessment.bpSystolic.toString()
+        diastolic = todayAssessment.bpDiastolic.toString()
+        cholesterol = todayAssessment.cholesterol?.toString() ?: ""
+        selectedCholesterolIndex = if (todayAssessment.cholesterolUnit != null)
+            cholesterolUnits.indexOf(todayAssessment.cholesterolUnit)
+        else 0
+        heightInCM = todayAssessment.heightCm?.toString() ?: ""
+        heightInFeet = todayAssessment.heightFt?.toString() ?: ""
+        heightInInch = todayAssessment.heightInch?.toString() ?: ""
+        selectedHeightUnitIndex =
+            if (heightInFeet.isNotBlank() || heightInInch.isNotBlank()) 1
+            else 0
+        weight = todayAssessment.weight?.toString() ?: ""
+        riskPercentage = todayAssessment.risk.toString()
+        getBmi()
+    }
+
     internal fun getRisk() {
         viewModelScope.launch(Dispatchers.IO) {
             var cholesterolInMMHG: Double? = null
@@ -121,45 +157,204 @@ class CVDRiskAssessmentViewModel @Inject constructor(
         }
     }
 
+
+    private fun getCVDRecord(
+        cvdUUid: String = UUIDBuilder.generateUUID(),
+        cvdFhirId: String? = null,
+        practitionerName: String,
+        createdOn: Date = Date()
+    ): CVDResponse {
+        return CVDResponse(
+            cvdUuid = cvdUUid,
+            cvdFhirId = cvdFhirId,
+            appointmentId = appointmentResponseLocal!!.appointmentId
+                ?: appointmentResponseLocal!!.uuid,
+            patientId = patient!!.fhirId ?: patient!!.id,
+            createdOn = createdOn,
+            diabetic = YesNoEnum.codeFromDisplay(isDiabetic),
+            smoker = YesNoEnum.codeFromDisplay(isSmoker),
+            bpDiastolic = diastolic.toInt(),
+            bpSystolic = systolic.toInt(),
+            cholesterol = if (cholesterol.isNotBlank()) cholesterol.toDouble() else null,
+            cholesterolUnit = if (cholesterol.isNotBlank()) cholesterolUnits[selectedCholesterolIndex] else null,
+            heightCm = if (selectedHeightUnitIndex == 0 && heightInCM.isNotBlank()) heightInCM.toDouble() else null,
+            heightInch = if (selectedHeightUnitIndex == 1 && heightInInch.isNotBlank()) heightInInch.toDouble() else null,
+            heightFt = if (selectedHeightUnitIndex == 1 && heightInFeet.isNotBlank()) heightInFeet.toInt() else null,
+            weight = if (weight.isNotBlank()) weight.toDouble() else null,
+            risk = riskPercentage.toInt(),
+            practitionerName = practitionerName,
+            bmi = if (bmi.isNotBlank()) bmi.toDouble() else null
+        )
+    }
+
     internal fun saveCVDRecord(saved: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            val appointmentResponseLocal =
-                appointmentRepository.getAppointmentListByDate(
-                    Date().toTodayStartDate(),
-                    Date().toEndOfDay()
-                ).firstOrNull { appointmentEntity ->
-                    appointmentEntity.patientId == patient!!.id && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
-                }
-            val cvdResponse = CVDResponse(
-                cvdUuid = UUIDBuilder.generateUUID(),
-                cvdFhirId = null,
-                appointmentId = appointmentResponseLocal!!.appointmentId
-                    ?: appointmentResponseLocal.uuid,
-                patientId = patient!!.fhirId ?: patient!!.id,
-                createdOn = Date(),
-                diabetic = YesNoEnum.codeFromDisplay(isDiabetic),
-                smoker = YesNoEnum.codeFromDisplay(isSmoker),
-                bpDiastolic = diastolic.toInt(),
-                bpSystolic = systolic.toInt(),
-                cholesterol = if (cholesterol.isNotBlank()) cholesterol.toDouble() else null,
-                cholesterolUnit = if (cholesterol.isNotBlank()) cholesterolUnits[selectedCholesterolIndex] else null,
-                heightCm = if (selectedHeightUnitIndex == 0) heightInCM.toDouble() else null,
-                heightInch = if (selectedHeightUnitIndex == 1) heightInInch.toDouble() else null,
-                heightFt = if (selectedHeightUnitIndex == 1) heightInFeet.toInt() else null,
-                weight = if (weight.isNotBlank()) weight.toDouble() else null,
-                risk = riskPercentage.toInt(),
-                practitionerName = preferenceRepository.getUserName(),
-                bmi = if (bmi.isNotBlank()) bmi.toDouble() else null
-            )
+            getAppointment()
+            val cvdResponse = getCVDRecord(practitionerName = preferenceRepository.getUserName())
             cvdAssessmentRepository.insertCVDRecord(
                 cvdResponse.copy(
-                    appointmentId = appointmentResponseLocal.uuid,
+                    appointmentId = appointmentResponseLocal!!.uuid,
                     patientId = patient!!.id
                 )
             )
             genericRepository.insertCVDRecord(cvdResponse)
             clearForm()
+            getTodayCVDAssessment()
             saved()
+        }
+    }
+
+    private suspend fun getAppointment() {
+        appointmentResponseLocal =
+            appointmentRepository.getAppointmentListByDate(
+                Date().toTodayStartDate(),
+                Date().toEndOfDay()
+            ).firstOrNull { appointmentEntity ->
+                appointmentEntity.patientId == patient!!.id && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
+            }
+    }
+
+    internal fun updateCVDRecord(updated: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            getAppointment()
+            val cvdResponse = getCVDRecord(
+                cvdUUid = todayAssessment!!.cvdUuid,
+                cvdFhirId = todayAssessment!!.cvdFhirId,
+                practitionerName = preferenceRepository.getUserName(),
+                createdOn = todayAssessment!!.createdOn
+            )
+            cvdAssessmentRepository.updateCVDRecord(
+                cvdResponse.copy(
+                    appointmentId = appointmentResponseLocal!!.uuid,
+                    patientId = patient!!.id
+                )
+            ).also {
+                if (todayAssessment!!.cvdFhirId != null) {
+                    checkAndUpdateVitals(cvdResponse)
+                } else {
+                    genericRepository.insertCVDRecord(cvdResponse)
+                }
+                clearForm()
+                getTodayCVDAssessment()
+                updated()
+            }
+        }
+    }
+
+    private suspend fun checkAndUpdateVitals(
+        cvdResponse: CVDResponse
+    ) {
+        // diabetic status
+        if (isDiabetic != YesNoEnum.displayFromCode(cvdResponse.diabetic)) {
+            addPatch(
+                key = DIABETIC_KEY, component = mapOf(
+                    OPERATION to REPLACE,
+                    DIABETIC to YesNoEnum.codeFromDisplay(isDiabetic)
+                )
+            )
+        }
+
+        // smoking status
+        if (isSmoker != YesNoEnum.displayFromCode(cvdResponse.smoker)) {
+            addPatch(
+                key = SMOKING_KEY, component = mapOf(
+                    OPERATION to REPLACE,
+                    SMOKER to YesNoEnum.codeFromDisplay(isSmoker)
+                )
+            )
+        }
+
+        // Blood Pressure
+        if (diastolic != cvdResponse.bpDiastolic.toString() || systolic != cvdResponse.bpSystolic.toString()
+        ) {
+            addPatch(
+                key = BP_KEY, component = mapOf(
+                    OPERATION to REPLACE,
+                    BP_DIASTOLIC to diastolic,
+                    BP_SYSTOLIC to systolic
+                )
+            )
+        }
+
+        // cholesterol
+        if (cholesterol != (cvdResponse.cholesterol?.toString() ?: "") ||
+            (cholesterol.isNotBlank() && (cholesterolUnits[selectedCholesterolIndex] != cvdResponse.cholesterolUnit))
+        ) {
+            addPatch(
+                key = CHOLESTEROL_KEY,
+                component = mapOf(
+                    OPERATION to if (cvdResponse.cholesterol != null) REPLACE else ADD,
+                    CHOLESTEROL to cholesterol.ifBlank { "" },
+                    CHOLESTEROL_UNIT to if (cholesterol.isNotBlank()) cholesterolUnits[selectedCholesterolIndex] else ""
+                )
+            )
+        }
+
+        // height (Feet, Inch, Cm)
+        if (heightInFeet != (cvdResponse.heightFt?.toString()
+                ?: "") || heightInInch != (cvdResponse.heightInch?.toString()
+                ?: "") || heightInCM != (cvdResponse.heightCm?.toString() ?: "")
+        ) {
+            addPatch(
+                key = HEIGHT_KEY, component = mapOf(
+                    OPERATION to if (cvdResponse.heightCm != null || cvdResponse.heightFt != null || cvdResponse.heightInch != null) REPLACE else ADD,
+                    HEIGHT_FT to heightInFeet.addZeroAfterDot().ifBlank { "" },
+                    HEIGHT_INCH to heightInInch.addZeroAfterDot().ifBlank { "" },
+                    HEIGHT_CM to heightInCM.addZeroAfterDot().ifBlank { "" })
+            )
+        }
+
+        // weight
+        if (weight != (cvdResponse.weight?.toString() ?: "")) {
+            addPatch(
+                key = WEIGHT_KEY,
+                component = mapOf(
+                    OPERATION to if (cvdResponse.weight != null) REPLACE else ADD,
+                    WEIGHT to weight.addZeroAfterDot().ifBlank { "" })
+            )
+        }
+
+        // bmi
+        if (bmi != (cvdResponse.bmi?.toString() ?: "")) {
+            addPatch(
+                key = BMI_KEY,
+                component = mapOf(
+                    OPERATION to if (cvdResponse.bmi != null) REPLACE else ADD,
+                    BMI to bmi.ifBlank { "" }
+                )
+            )
+        }
+
+        // risk
+        if (riskPercentage != cvdResponse.risk.toString()) {
+            addPatch(
+                key = RISK_KEY,
+                component = mapOf(
+                    OPERATION to REPLACE,
+                    RISK to riskPercentage.toInt()
+                )
+            )
+        }
+    }
+
+    private suspend fun addPatch(key: String, component: Map<String, Any>) {
+        val cvdFhirId = todayAssessment!!.cvdFhirId
+
+        map = mapOf(
+            CVD_FHIR_ID to cvdFhirId!!, KEY to key, COMPONENT to component
+
+        )
+        genericRepository.insertOrUpdateCVDPatch(
+            cvdFhirId = cvdFhirId, map = map
+        )
+
+    }
+
+    private fun String.addZeroAfterDot(): String {
+        return if (this.isNotBlank() && this.endsWith(".")) {
+            "${this}0"
+        } else {
+            this
         }
     }
 
@@ -177,5 +372,44 @@ class CVDRiskAssessmentViewModel @Inject constructor(
         weight = ""
         riskPercentage = ""
         bmi = ""
+    }
+
+    companion object {
+        const val KEY = "key"
+        const val COMPONENT = "component"
+        const val OPERATION = "operation"
+
+        const val REPLACE = "replace"
+        const val ADD = "add"
+
+        const val CVD_FHIR_ID = "cvdFhirId"
+
+        const val HEIGHT_KEY = "Height"
+        const val HEIGHT_FT = "heightFt"
+        const val HEIGHT_INCH = "heightInch"
+        const val HEIGHT_CM = "heightCm"
+
+        const val WEIGHT_KEY = "Weight"
+        const val WEIGHT = "weight"
+
+        const val DIABETIC_KEY = "Diabetic status"
+        const val DIABETIC = "diabetic"
+
+        const val SMOKING_KEY = "Smoking Status"
+        const val SMOKER = "smoker"
+
+        const val BP_KEY = "Blood Pressure"
+        const val BP_SYSTOLIC = "bpSystolic"
+        const val BP_DIASTOLIC = "bpDiastolic"
+
+        const val CHOLESTEROL_KEY = "Cholesterol"
+        const val CHOLESTEROL = "cholesterol"
+        const val CHOLESTEROL_UNIT = "cholesterolUnit"
+
+        const val BMI_KEY = "BMI"
+        const val BMI = "bmi"
+
+        const val RISK_KEY = "CVD Risk Percentage"
+        const val RISK = "risk"
     }
 }

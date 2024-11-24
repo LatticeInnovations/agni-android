@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.CVDEntity
 
 @Dao
@@ -13,4 +14,10 @@ interface CVDDao {
 
     @Query("SELECT * FROM CVDEntity WHERE patientId=:patientId ORDER BY createdOn DESC")
     fun getCVDRecords(patientId: String): List<CVDEntity>
+
+    @Query("SELECT * FROM CVDEntity WHERE patientId=:patientId AND createdOn BETWEEN :startTime AND :endTime")
+    fun getTodayCVDRecords(patientId: String, startTime: Long, endTime: Long): CVDEntity?
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    fun updateCVDRecord(cvdEntity: CVDEntity): Int
 }
