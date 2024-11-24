@@ -250,7 +250,7 @@ fun PatientLandingScreen(
                             title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
                                 id = R.string.add_to_queue_question
                             ),
-                            text = stringResource(id = R.string.add_to_queue_dialog_description),
+                            text = stringResource(id = R.string.add_to_queue_assessment_dialog_description),
                             dismissBtnText = stringResource(id = R.string.dismiss),
                             confirmBtnText = if (viewModel.appointment != null) stringResource(id = R.string.mark_arrived) else stringResource(
                                 id = R.string.add_to_queue
