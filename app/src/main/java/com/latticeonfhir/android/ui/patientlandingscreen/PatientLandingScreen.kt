@@ -90,6 +90,7 @@ fun PatientLandingScreen(
         viewModel.patient?.id?.let { id ->
             viewModel.getScheduledAppointmentsCount(id)
             viewModel.getUploadsCount(id)
+            viewModel.getLastCVDRisk(id)
         }
     }
     BackHandler(enabled = true) {
@@ -215,7 +216,8 @@ fun PatientLandingScreen(
                             viewModel,
                             stringResource(id = R.string.cvd_risk_assessment),
                             R.drawable.cardiology,
-                            null,
+                            if (viewModel.cvdRisk.isBlank()) null
+                            else stringResource(R.string.percentage, viewModel.cvdRisk),
                             isCardDisabled = viewModel.patient!!.gender == "other" ||
                                     viewModel.patient!!.birthDate.toTimeInMilli().toAge() !in 40..74,
                             onClick = {
