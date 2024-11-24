@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.latticeonfhir.android.data.local.enums.YesNoEnum
 import com.latticeonfhir.android.data.local.repository.cvd.chart.RiskPredictionChartRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
@@ -69,16 +70,32 @@ class CVDRiskAssessmentViewModel @Inject constructor(
         } else bmi = ""
     }
 
+    internal fun ifFormValid() : Boolean {
+        return isDiabetic.isNotBlank() && isSmoker.isNotBlank()
+                && diastolic.isNotBlank() && !diastolicError
+                && systolic.isNotBlank() && !systolicError
+                && ((cholesterol.isNotBlank() && !cholesterolError)
+                || ((heightInCM.isNotBlank() || (heightInFeet.isNotBlank() && heightInInch.isNotBlank()))
+                && weight.isNotBlank()
+                && !heightInCMError && !heightInFeetError && !heightInInchError
+                && !weightError))
+    }
+
     internal fun getRisk() {
         viewModelScope.launch(Dispatchers.IO) {
+            var cholesterolInMMHG: Double? = null
+            if (cholesterol.isNotBlank()) {
+                if (selectedCholesterolIndex == 1) cholesterolInMMHG = cholesterol.toDouble() * 0.0259
+                else cholesterolInMMHG = cholesterol.toDouble()
+            }
             riskPercentage = riskPredictionChartRepository.getRiskLevels(
                 age = patient!!.birthDate.toTimeInMilli().toAge(),
-                cholesterol = if (cholesterol.isNotBlank()) cholesterol.toDouble() else null,
-                diabetes = if (isDiabetic == "Yes") 1 else 0,
-                tobaccoStatus = if (isSmoker == "Yes") 1 else 0,
+                cholesterol = cholesterolInMMHG,
+                diabetes = YesNoEnum.codeFromDisplay(isDiabetic),
+                tobaccoStatus = YesNoEnum.codeFromDisplay(isSmoker),
                 sex = patient!!.gender[0].uppercaseChar().toString(),
                 sys = systolic.toInt(),
-                bmi = bmi.toDouble()
+                bmi = if (bmi.isNotBlank()) bmi.toDouble() else null
             )
         }
     }

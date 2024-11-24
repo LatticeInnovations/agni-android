@@ -168,37 +168,39 @@ fun CVDRiskAssessmentScreen(
                         enter = slideInVertically(initialOffsetY = { it }),
                         exit = slideOutVertically(targetOffsetY = { it })
                     ) {
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = getContainerColor(viewModel.riskPercentage.toInt()),
-                            shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                        if (viewModel.riskPercentage.isNotBlank()) {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = getContainerColor(viewModel.riskPercentage.toInt()),
+                                shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp)
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    modifier = Modifier.padding(start = 6.dp)
+                                Column(
+                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    Canvas(modifier = Modifier.size(12.dp), onDraw = {
-                                        drawCircle(color = getCircleColor(viewModel.riskPercentage.toInt()))
-                                    })
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                        modifier = Modifier.padding(start = 6.dp)
+                                    ) {
+                                        Canvas(modifier = Modifier.size(12.dp), onDraw = {
+                                            drawCircle(color = getCircleColor(viewModel.riskPercentage.toInt()))
+                                        })
+                                        Text(
+                                            text = stringResource(
+                                                R.string.percentage,
+                                                viewModel.riskPercentage
+                                            ),
+                                            style = MaterialTheme.typography.headlineSmall,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
                                     Text(
-                                        text = stringResource(
-                                            R.string.percentage,
-                                            viewModel.riskPercentage
-                                        ),
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        color = MaterialTheme.colorScheme.onSurface
+                                        text = stringResource(R.string.risk_info),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                Text(
-                                    text = stringResource(R.string.risk_info),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
                             }
                         }
                     }
@@ -214,7 +216,8 @@ fun CVDRiskAssessmentScreen(
                                 viewModel.getRisk()
                             },
                             modifier = Modifier
-                                .weight(1f)
+                                .weight(1f),
+                            enabled = viewModel.ifFormValid() && viewModel.riskPercentage.isBlank()
                         ) {
                             Text(text = stringResource(R.string.predict))
                         }

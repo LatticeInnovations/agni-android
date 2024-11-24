@@ -70,6 +70,7 @@ fun CVDRiskAssessmentForm(
                 selectedValue = viewModel.isDiabetic,
                 updateValue = { value ->
                     viewModel.isDiabetic = value
+                    viewModel.riskPercentage = ""
                 }
             )
             SegmentedButtonField(
@@ -77,6 +78,7 @@ fun CVDRiskAssessmentForm(
                 selectedValue = viewModel.isSmoker,
                 updateValue = { value ->
                     viewModel.isSmoker = value
+                    viewModel.riskPercentage = ""
                 }
             )
             BloodPressureTextField(viewModel)
@@ -171,6 +173,7 @@ private fun BloodPressureTextField(viewModel: CVDRiskAssessmentViewModel) {
                             }
                             viewModel.bpError =
                                 viewModel.systolic.isBlank() || viewModel.diastolic.isBlank() || viewModel.systolicError || viewModel.diastolicError
+                            viewModel.riskPercentage = ""
                         }
                     },
                     label = {
@@ -196,6 +199,7 @@ private fun BloodPressureTextField(viewModel: CVDRiskAssessmentViewModel) {
                             }
                             viewModel.bpError =
                                 viewModel.systolic.isBlank() || viewModel.diastolic.isBlank() || viewModel.systolicError || viewModel.diastolicError
+                            viewModel.riskPercentage = ""
                         }
                     },
                     label = {
@@ -265,12 +269,14 @@ private fun CholesterolTextField(viewModel: CVDRiskAssessmentViewModel) {
                             viewModel.cholesterol = value
                             viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
                                     viewModel.cholesterol.toDouble() !in 1.0..13.0
+                            viewModel.riskPercentage = ""
                         }
                     } else {
                         if (value.isBlank() || (value.matches(onlyNumbers) && value.length < 4)) {
                             viewModel.cholesterol = value
                             viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
                                     viewModel.cholesterol.toInt() !in 1..500
+                            viewModel.riskPercentage = ""
                         }
                     }
                 },
@@ -326,6 +332,7 @@ private fun CholesterolTextField(viewModel: CVDRiskAssessmentViewModel) {
                     else viewModel.selectedCholesterolIndex = 0
                     viewModel.cholesterolError = false
                     viewModel.cholesterol = ""
+                    viewModel.riskPercentage = ""
                 }
             )
         }
@@ -352,6 +359,7 @@ private fun HeightTextField(viewModel: CVDRiskAssessmentViewModel) {
                                 viewModel.heightInCMError =
                                     viewModel.heightInCM.isNotBlank() && viewModel.heightInCM.toDouble() !in 30.0..250.0
                                 viewModel.getBmi()
+                                viewModel.riskPercentage = ""
                             }
                         },
                         label = {
@@ -378,6 +386,7 @@ private fun HeightTextField(viewModel: CVDRiskAssessmentViewModel) {
                                                 viewModel.heightInInch.toDouble() !in 0.0..11.9)
                                 }
                                 viewModel.getBmi()
+                                viewModel.riskPercentage = ""
                             }
                         },
                         label = {
@@ -403,6 +412,7 @@ private fun HeightTextField(viewModel: CVDRiskAssessmentViewModel) {
                                                 viewModel.heightInFeet.toInt() !in 1..8)
                                 }
                                 viewModel.getBmi()
+                                viewModel.riskPercentage = ""
                             }
                         },
                         label = {
@@ -447,6 +457,8 @@ private fun HeightTextField(viewModel: CVDRiskAssessmentViewModel) {
                         viewModel.heightInCMError = false
                         viewModel.heightInFeetError = false
                         viewModel.heightInInchError = false
+                        viewModel.getBmi()
+                        viewModel.riskPercentage = ""
                     }
                 )
             }
@@ -503,6 +515,7 @@ private fun WeightTextField(viewModel: CVDRiskAssessmentViewModel) {
                         viewModel.weightError = viewModel.weight.isNotBlank() &&
                                 viewModel.weight.toDouble() !in 1.0..200.0
                         viewModel.getBmi()
+                        viewModel.riskPercentage = ""
                     }
                 },
                 label = {

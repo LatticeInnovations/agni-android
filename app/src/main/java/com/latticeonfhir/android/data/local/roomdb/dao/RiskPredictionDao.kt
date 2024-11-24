@@ -32,7 +32,7 @@ interface RiskPredictionDao {
         age: Int,
         sys: Int,
         cholesterol: Double?,
-        bmi: Double,
+        bmi: Double?,
         region: String,
         diabetes: Int
     ): String
