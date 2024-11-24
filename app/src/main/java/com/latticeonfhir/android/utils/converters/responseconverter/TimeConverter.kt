@@ -410,4 +410,11 @@ object TimeConverter {
         val sdf = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
         return sdf.format(this)
     }
+
+
+    fun Date.formatDateToDayMonth(): String {
+        // Create a formatter to get the day and short month (e.g., "04 Mar")
+        val formatter = SimpleDateFormat("dd MMM", Locale.getDefault())
+        return formatter.format(this)
+    }
 }
