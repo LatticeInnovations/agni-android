@@ -13,19 +13,25 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.ui.cvd.CVDRiskAssessmentViewModel
 import com.latticeonfhir.android.ui.theme.Black
 import com.latticeonfhir.android.ui.theme.White
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toddMMMyyyy
 
 @Composable
 fun CVDRiskAssessmentRecords(
     viewModel: CVDRiskAssessmentViewModel
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.getRecords()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -67,22 +73,21 @@ fun CVDRiskAssessmentRecords(
                 color = MaterialTheme.colorScheme.outline,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
             )
-            RecordDetailsComposable(
-                onClick = {
-                    viewModel.showBottomSheet = true
-                }
-            )
-            RecordDetailsComposable(
-                onClick = {
-                    viewModel.showBottomSheet = true
-                }
-            )
+            viewModel.previousRecords.forEach { record ->
+                RecordDetailsComposable(
+                    record = record,
+                    onClick = {
+                        viewModel.selectedRecord = record
+                    }
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun RecordDetailsComposable(
+    record: CVDResponse,
     onClick: () -> Unit
 ) {
     Column(
@@ -94,12 +99,12 @@ private fun RecordDetailsComposable(
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Text(
-            text = stringResource(R.string.percentage_and_risk, 12, "High risk"),
+            text = stringResource(R.string.percentage, record.risk.toString()),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = "18-Sep-2024",
+            text = record.createdOn.toddMMMyyyy(),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

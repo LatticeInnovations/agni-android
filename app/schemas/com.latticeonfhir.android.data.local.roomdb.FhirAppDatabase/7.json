@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "379db8df2327643079700b92cdb1822f",
+    "identityHash": "51e87001f3e7efb7d3ec651faf7e3eaa",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -1043,7 +1043,7 @@
       },
       {
         "tableName": "CVDEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`cvdFhirId` TEXT, `cvdUuid` TEXT NOT NULL, `appointmentId` TEXT NOT NULL, `patientId` TEXT NOT NULL, `bmi` INTEGER, `bpDiastolic` INTEGER NOT NULL, `bpSystolic` INTEGER NOT NULL, `cholesterol` INTEGER, `cholesterolUnit` TEXT, `diabetic` INTEGER NOT NULL, `heightCm` INTEGER, `heightFt` INTEGER, `heightInch` INTEGER, `practitionerName` TEXT, `risk` INTEGER NOT NULL, `smoker` INTEGER NOT NULL, `weight` INTEGER, `createdOn` INTEGER NOT NULL, PRIMARY KEY(`cvdUuid`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`appointmentId`) REFERENCES `AppointmentEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`cvdFhirId` TEXT, `cvdUuid` TEXT NOT NULL, `appointmentId` TEXT NOT NULL, `patientId` TEXT NOT NULL, `bmi` REAL, `bpDiastolic` INTEGER NOT NULL, `bpSystolic` INTEGER NOT NULL, `cholesterol` REAL, `cholesterolUnit` TEXT, `diabetic` INTEGER NOT NULL, `heightCm` REAL, `heightFt` INTEGER, `heightInch` REAL, `practitionerName` TEXT, `risk` INTEGER NOT NULL, `smoker` INTEGER NOT NULL, `weight` REAL, `createdOn` INTEGER NOT NULL, PRIMARY KEY(`cvdUuid`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`appointmentId`) REFERENCES `AppointmentEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "cvdFhirId",
@@ -1072,7 +1072,7 @@
           {
             "fieldPath": "bmi",
             "columnName": "bmi",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": false
           },
           {
@@ -1090,7 +1090,7 @@
           {
             "fieldPath": "cholesterol",
             "columnName": "cholesterol",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": false
           },
           {
@@ -1108,7 +1108,7 @@
           {
             "fieldPath": "heightCm",
             "columnName": "heightCm",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": false
           },
           {
@@ -1120,7 +1120,7 @@
           {
             "fieldPath": "heightInch",
             "columnName": "heightInch",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": false
           },
           {
@@ -1144,7 +1144,7 @@
           {
             "fieldPath": "weight",
             "columnName": "weight",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": false
           },
           {
@@ -1199,7 +1199,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '379db8df2327643079700b92cdb1822f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '51e87001f3e7efb7d3ec651faf7e3eaa')"
     ]
   }
 }

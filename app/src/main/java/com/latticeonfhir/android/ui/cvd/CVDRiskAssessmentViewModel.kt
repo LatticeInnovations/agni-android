@@ -7,19 +7,33 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.YesNoEnum
+import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.cvd.chart.RiskPredictionChartRepository
+import com.latticeonfhir.android.data.local.repository.cvd.records.CVDAssessmentRepository
+import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class CVDRiskAssessmentViewModel @Inject constructor(
-    private val riskPredictionChartRepository: RiskPredictionChartRepository
+    private val riskPredictionChartRepository: RiskPredictionChartRepository,
+    private val cvdAssessmentRepository: CVDAssessmentRepository,
+    private val appointmentRepository: AppointmentRepository,
+    private val preferenceRepository: PreferenceRepository,
+    private val genericRepository: GenericRepository
 ) : ViewModel() {
     var isLaunched by mutableStateOf(false)
     val tabs = listOf("Assess risk", "Records")
@@ -50,8 +64,8 @@ class CVDRiskAssessmentViewModel @Inject constructor(
     var bmi by mutableStateOf("")
     var riskPercentage by mutableStateOf("")
 
-    var previousRecords by mutableStateOf(listOf<String>(""))
-    var showBottomSheet by mutableStateOf(false)
+    var previousRecords by mutableStateOf(listOf<CVDResponse>())
+    var selectedRecord by mutableStateOf<CVDResponse?>(null)
 
     @SuppressLint("DefaultLocale")
     internal fun getBmi() {
@@ -70,7 +84,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
         } else bmi = ""
     }
 
-    internal fun ifFormValid() : Boolean {
+    internal fun ifFormValid(): Boolean {
         return isDiabetic.isNotBlank() && isSmoker.isNotBlank()
                 && diastolic.isNotBlank() && !diastolicError
                 && systolic.isNotBlank() && !systolicError
@@ -85,7 +99,8 @@ class CVDRiskAssessmentViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             var cholesterolInMMHG: Double? = null
             if (cholesterol.isNotBlank()) {
-                if (selectedCholesterolIndex == 1) cholesterolInMMHG = cholesterol.toDouble() * 0.0259
+                if (selectedCholesterolIndex == 1) cholesterolInMMHG =
+                    cholesterol.toDouble() * 0.0259
                 else cholesterolInMMHG = cholesterol.toDouble()
             }
             riskPercentage = riskPredictionChartRepository.getRiskLevels(
@@ -98,5 +113,69 @@ class CVDRiskAssessmentViewModel @Inject constructor(
                 bmi = if (bmi.isNotBlank()) bmi.toDouble() else null
             )
         }
+    }
+
+    internal fun getRecords() {
+        viewModelScope.launch(Dispatchers.IO) {
+            previousRecords = cvdAssessmentRepository.getCVDRecord(patient!!.id)
+        }
+    }
+
+    internal fun saveCVDRecord(saved: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val appointmentResponseLocal =
+                appointmentRepository.getAppointmentListByDate(
+                    Date().toTodayStartDate(),
+                    Date().toEndOfDay()
+                ).firstOrNull { appointmentEntity ->
+                    appointmentEntity.patientId == patient!!.id && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
+                }
+            val cvdResponse = CVDResponse(
+                cvdUuid = UUIDBuilder.generateUUID(),
+                cvdFhirId = null,
+                appointmentId = appointmentResponseLocal!!.appointmentId
+                    ?: appointmentResponseLocal.uuid,
+                patientId = patient!!.fhirId ?: patient!!.id,
+                createdOn = Date(),
+                diabetic = YesNoEnum.codeFromDisplay(isDiabetic),
+                smoker = YesNoEnum.codeFromDisplay(isSmoker),
+                bpDiastolic = diastolic.toInt(),
+                bpSystolic = systolic.toInt(),
+                cholesterol = if (cholesterol.isNotBlank()) cholesterol.toDouble() else null,
+                cholesterolUnit = if (cholesterol.isNotBlank()) cholesterolUnits[selectedCholesterolIndex] else null,
+                heightCm = if (selectedHeightUnitIndex == 0) heightInCM.toDouble() else null,
+                heightInch = if (selectedHeightUnitIndex == 1) heightInInch.toDouble() else null,
+                heightFt = if (selectedHeightUnitIndex == 1) heightInFeet.toInt() else null,
+                weight = if (weight.isNotBlank()) weight.toDouble() else null,
+                risk = riskPercentage.toInt(),
+                practitionerName = preferenceRepository.getUserName(),
+                bmi = if (bmi.isNotBlank()) bmi.toDouble() else null
+            )
+            cvdAssessmentRepository.insertCVDRecord(
+                cvdResponse.copy(
+                    appointmentId = appointmentResponseLocal.uuid,
+                    patientId = patient!!.id
+                )
+            )
+            genericRepository.insertCVDRecord(cvdResponse)
+            clearForm()
+            saved()
+        }
+    }
+
+    private fun clearForm() {
+        isDiabetic = ""
+        isSmoker = ""
+        systolic = ""
+        diastolic = ""
+        cholesterol = ""
+        selectedCholesterolIndex = 0
+        heightInCM = ""
+        heightInFeet = ""
+        heightInInch = ""
+        selectedHeightUnitIndex = 0
+        weight = ""
+        riskPercentage = ""
+        bmi = ""
     }
 }

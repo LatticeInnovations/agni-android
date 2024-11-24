@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
 import com.latticeonfhir.android.data.local.roomdb.dao.DownloadedFileDao
 import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
@@ -93,6 +94,7 @@ abstract class FhirAppDatabase : RoomDatabase() {
     abstract fun getFileUploadDao(): FileUploadDao
     abstract fun getDownloadedFileDao(): DownloadedFileDao
     abstract fun getRiskPredictionDao(): RiskPredictionDao
+    abstract fun getCVDDao(): CVDDao
 
     companion object {
         @Volatile

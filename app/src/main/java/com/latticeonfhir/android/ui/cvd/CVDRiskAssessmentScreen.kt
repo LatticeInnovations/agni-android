@@ -57,6 +57,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.YesNoEnum
+import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.cvd.form.CVDRiskAssessmentForm
@@ -76,6 +78,7 @@ import com.latticeonfhir.android.ui.theme.VeryHighRiskDarkContainer
 import com.latticeonfhir.android.ui.theme.VeryHighRiskLightContainer
 import com.latticeonfhir.android.ui.theme.VeryVeryHighRiskCircle
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toddMMMyyyy
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -105,7 +108,7 @@ fun CVDRiskAssessmentScreen(
     }
 
     BackHandler {
-        if (viewModel.showBottomSheet) viewModel.showBottomSheet = false
+        if (viewModel.selectedRecord != null) viewModel.selectedRecord = null
         else if (pagerState.currentPage == 1) {
             scope.launch {
                 pagerState.animateScrollToPage(0)
@@ -175,7 +178,10 @@ fun CVDRiskAssessmentScreen(
                                 shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp)
                             ) {
                                 Column(
-                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp),
+                                    modifier = Modifier.padding(
+                                        horizontal = 20.dp,
+                                        vertical = 24.dp
+                                    ),
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Row(
@@ -224,13 +230,13 @@ fun CVDRiskAssessmentScreen(
                         if (viewModel.riskPercentage.isNotBlank()) {
                             Button(
                                 onClick = {
-                                    // save form
-                                    // reset form values
-                                    scope.launch {
-                                        pagerState.animateScrollToPage(1)
-                                        snackbarHostState.showSnackbar(
-                                            message = context.getString(R.string.assessment_record_saved)
-                                        )
+                                    viewModel.saveCVDRecord {
+                                        scope.launch {
+                                            pagerState.animateScrollToPage(1)
+                                            snackbarHostState.showSnackbar(
+                                                message = context.getString(R.string.assessment_record_saved)
+                                            )
+                                        }
                                     }
                                 },
                                 modifier = Modifier
@@ -246,7 +252,7 @@ fun CVDRiskAssessmentScreen(
     )
     Box(
         modifier =
-        if (!viewModel.showBottomSheet) Modifier
+        if (viewModel.selectedRecord == null) Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
         else Modifier
@@ -257,15 +263,18 @@ fun CVDRiskAssessmentScreen(
         contentAlignment = Alignment.BottomCenter
     ) {
         AnimatedVisibility(
-            visible = viewModel.showBottomSheet,
+            visible = viewModel.selectedRecord != null,
             enter = expandVertically(),
             exit = shrinkVertically()
         ) {
-            RecordsFullDetailsComposable(
-                onClick = {
-                    viewModel.showBottomSheet = false
-                }
-            )
+            viewModel.selectedRecord?.let {
+                RecordsFullDetailsComposable(
+                    record = it,
+                    onClick = {
+                        viewModel.selectedRecord = null
+                    }
+                )
+            }
         }
     }
 }
@@ -299,6 +308,7 @@ private fun getContainerColor(riskPercentage: Int): Color {
 
 @Composable
 private fun RecordsFullDetailsComposable(
+    record: CVDResponse,
     onClick: () -> Unit
 ) {
     Column(
@@ -317,12 +327,12 @@ private fun RecordsFullDetailsComposable(
         ) {
             Column {
                 Text(
-                    text = stringResource(R.string.percentage_and_risk, 12, "High risk"),
+                    text = stringResource(R.string.percentage, record.risk.toString()),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "18-Sep-2024",
+                    text = record.createdOn.toddMMMyyyy(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -333,7 +343,9 @@ private fun RecordsFullDetailsComposable(
                 color = MaterialTheme.colorScheme.primaryContainer
             ) {
                 Text(
-                    text = stringResource(R.string.bmi, "23"),
+                    text = stringResource(
+                        R.string.bmi,
+                        record.bmi.toString().ifBlank { stringResource(R.string.dash) }),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp)
@@ -355,12 +367,34 @@ private fun RecordsFullDetailsComposable(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            DisplayField(stringResource(R.string.diabetic_colon), "Yes")
-            DisplayField(stringResource(R.string.current_smoker), "No")
-            DisplayField(stringResource(R.string.blood_pressure_colon), "180/110 mmhg")
-            DisplayField(stringResource(R.string.total_cholestrol), "4 mmol/L")
-            DisplayField(stringResource(R.string.weight), "67 kg")
-            DisplayField(stringResource(R.string.height), "170 cm")
+            DisplayField(
+                stringResource(R.string.diabetic_colon),
+                YesNoEnum.displayFromCode(record.diabetic)
+            )
+            DisplayField(
+                stringResource(R.string.current_smoker),
+                YesNoEnum.displayFromCode(record.smoker)
+            )
+            DisplayField(
+                stringResource(R.string.blood_pressure_colon),
+                "${record.bpSystolic}/${record.bpDiastolic} mmhg"
+            )
+            DisplayField(
+                stringResource(R.string.total_cholestrol),
+                if (record.cholesterol == null) stringResource(R.string.dash)
+                else "${record.cholesterol} ${record.cholesterolUnit}"
+            )
+            DisplayField(
+                stringResource(R.string.weight),
+                if (record.weight == null) stringResource(R.string.dash)
+                else "${record.weight} kg"
+            )
+            DisplayField(
+                stringResource(R.string.height),
+                if (record.heightCm != null) "${record.heightCm} cm"
+                else if (record.heightFt != null || record.heightInch != null) "${record.heightFt} ft ${record.heightInch} in"
+                else stringResource(R.string.dash)
+            )
         }
     }
 }
