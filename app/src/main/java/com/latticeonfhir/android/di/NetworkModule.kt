@@ -4,6 +4,7 @@ import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.FhirApp.Companion.gson
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import com.latticeonfhir.android.data.server.api.AuthenticationApiService
+import com.latticeonfhir.android.data.server.api.CVDApiService
 import com.latticeonfhir.android.data.server.api.FileUploadApiService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
@@ -122,5 +123,11 @@ object NetworkModule {
     @Singleton
     internal fun provideSignUpApiService(retrofit: Retrofit): SignUpApiService {
         return retrofit.create(SignUpApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    internal fun provideCVDApiService(retrofit: Retrofit): CVDApiService {
+        return retrofit.create(CVDApiService::class.java)
     }
 }

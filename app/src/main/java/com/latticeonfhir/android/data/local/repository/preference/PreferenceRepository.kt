@@ -38,6 +38,10 @@ interface PreferenceRepository {
     fun setLastSyncAppointment(long: Long)
     fun getLastSyncAppointment(): Long
 
+    /** Last Sync CVD */
+    fun setLastSyncCVD(long: Long)
+    fun getLastSyncCVD(): Long
+
     /** User Data */
     fun setUserFhirId(userFhirId: String)
     fun getUserFhirId(): String

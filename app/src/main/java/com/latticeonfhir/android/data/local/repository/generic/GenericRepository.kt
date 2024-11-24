@@ -62,6 +62,8 @@ interface GenericRepository {
     suspend fun updateAppointmentFhirIds()
     suspend fun updateAppointmentFhirIdInPatch()
 
+    suspend fun updateCVDFhirIds()
+
     suspend fun insertOrUpdatePatientPatchEntity(
         patientFhirId: String,
         map: Map<String, Any>,

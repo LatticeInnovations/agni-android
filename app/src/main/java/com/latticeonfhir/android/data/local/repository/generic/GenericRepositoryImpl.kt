@@ -131,6 +131,13 @@ class GenericRepositoryImpl @Inject constructor(
             }
     }
 
+    override suspend fun updateCVDFhirIds() {
+        genericDao.getNotSyncedData(GenericTypeEnum.CVD)
+            .forEach { cvdGenericEntity ->
+                updateCVDFhirIdInGenericEntity(cvdGenericEntity)
+            }
+    }
+
     override suspend fun insertAppointment(
         appointmentResponse: AppointmentResponse,
         uuid: String

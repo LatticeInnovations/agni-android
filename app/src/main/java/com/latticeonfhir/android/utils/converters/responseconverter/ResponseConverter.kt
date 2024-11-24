@@ -541,6 +541,33 @@ internal fun CVDResponse.toCVDEntity(): CVDEntity {
     )
 }
 
+
+internal suspend fun CVDResponse.toCVDEntity(
+    patientDao: PatientDao,
+    appointmentDao: AppointmentDao
+): CVDEntity {
+    return CVDEntity(
+        cvdFhirId = cvdFhirId,
+        cvdUuid = cvdUuid,
+        appointmentId = appointmentDao.getAppointmentIdByFhirId(appointmentId),
+        patientId = patientDao.getPatientIdByFhirId(patientId)!!,
+        bmi = bmi,
+        bpDiastolic = bpDiastolic,
+        bpSystolic = bpSystolic,
+        cholesterol = cholesterol,
+        cholesterolUnit = cholesterolUnit,
+        diabetic = diabetic,
+        heightCm = heightCm,
+        createdOn = createdOn,
+        heightInch = heightInch,
+        heightFt = heightFt,
+        risk = risk,
+        practitionerName = practitionerName,
+        smoker = smoker,
+        weight = weight
+    )
+}
+
 internal fun CVDEntity.toCVDResponse(): CVDResponse {
     return CVDResponse(
         cvdFhirId = cvdFhirId,

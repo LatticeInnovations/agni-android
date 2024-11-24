@@ -228,6 +228,25 @@ open class GenericRepositoryDatabaseTransactions(
         }
     }
 
+    protected suspend fun updateCVDFhirIdInGenericEntity(cvdGenericEntity: GenericEntity) {
+        val existingMap = cvdGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+            .mapToObject(CVDResponse::class.java)
+        if (existingMap != null) {
+            genericDao.insertGenericEntity(
+                cvdGenericEntity.copy(
+                    payload = existingMap.copy(
+                        patientId = if (!existingMap.patientId.isFhirId()) getPatientFhirIdById(
+                            existingMap.patientId
+                        )!! else existingMap.patientId,
+                        appointmentId = if (!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(
+                            existingMap.appointmentId
+                        )!! else existingMap.appointmentId
+                    ).toJson()
+                )
+            )
+        }
+    }
+
     protected suspend fun insertOrUpdateAppointmentGenericEntityPatch(
         appointmentGenericEntity: GenericEntity?,
         map: Map<String, Any>,
