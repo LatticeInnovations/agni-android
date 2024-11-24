@@ -209,6 +209,19 @@ class GenericRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun insertOrUpdateCVDPatch(
+        cvdFhirId: String,
+        map: Map<String, Any>,
+        uuid: String
+    ): Long {
+        return genericDao.getSameTypeGenericEntityPayload(
+            GenericTypeEnum.CVD,
+            SyncType.PATCH
+        ).let { genericEntities ->
+            insertOrUpdateCVDGenericEntityPatch(genericEntities, cvdFhirId, map, uuid)
+        }
+    }
+
     override suspend fun insertPatientLastUpdated(
         patientLastUpdatedResponse: PatientLastUpdatedResponse,
         uuid: String
