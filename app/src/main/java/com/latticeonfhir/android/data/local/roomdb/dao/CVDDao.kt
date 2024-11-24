@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.CVDEntity
 
@@ -20,4 +21,9 @@ interface CVDDao {
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun updateCVDRecord(cvdEntity: CVDEntity): Int
+
+    @Transaction
+    @Query("UPDATE CVDEntity SET cvdFhirId=:fhirId WHERE cvdUuid=:id")
+    suspend fun updateCVDFhirId(id: String, fhirId: String): Int
+
 }

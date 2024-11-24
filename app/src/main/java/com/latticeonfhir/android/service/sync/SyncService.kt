@@ -64,6 +64,9 @@ class SyncService(
                     },
                     async {
                         uploadPrescriptionPhoto(logout)
+                    },
+                    async {
+                        patchCVD(logout)
                     }
                 )
             }
@@ -190,6 +193,7 @@ class SyncService(
                 CoroutineScope(Dispatchers.IO).launch {
                     updateFhirIdInPrescription(logout)
                 }
+                updateFhirIdInCVD(logout)
             }
         }
     }
@@ -207,6 +211,11 @@ class SyncService(
     /** Upload Patient Last Updated Data */
     private suspend fun uploadPrescriptionPhoto(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(fileSyncRepository.uploadFile(), logout)
+    }
+
+    /** Upload CVD */
+    private suspend fun uploadCVD(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendCVDPostData(), logout)
     }
 
     /**
@@ -239,6 +248,11 @@ class SyncService(
                 checkAuthenticationStatus(syncRepository.sendPrescriptionPhotoPatchData(), logout)
             }
         }
+    }
+
+    /** Patch CVD */
+    private suspend fun patchCVD(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendCVDPatchData(), logout)
     }
 
     /**
@@ -289,6 +303,9 @@ class SyncService(
                     CoroutineScope(Dispatchers.IO).launch {
                         downloadPrescription(null, logout)
                     }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        downloadCVD(logout)
+                    }
                 }
             }
         }
@@ -331,6 +348,11 @@ class SyncService(
         fileSyncRepository.startDownload(logout)
     }
 
+    /** Download CVD*/
+    private suspend fun downloadCVD(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.getAndInsertCVD(0), logout)
+    }
+
     /**
      *
      *
@@ -365,6 +387,13 @@ class SyncService(
         genericRepository.updatePrescriptionFhirId()
         /** Upload Prescription */
         return uploadPrescription(logout)
+    }
+
+    /** Update Appointment FHIR ID in CVD */
+    private suspend fun updateFhirIdInCVD(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        genericRepository.updateCVDFhirIds()
+        /** Upload Prescription */
+        return uploadCVD(logout)
     }
 
     /** Check Session Expiry and Authorization */
