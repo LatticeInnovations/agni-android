@@ -12,6 +12,7 @@ import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
+import com.latticeonfhir.android.data.local.repository.cvd.records.CVDAssessmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
@@ -41,7 +42,8 @@ class PatientLandingScreenViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val preferenceRepository: PreferenceRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
+    private val patientLastUpdatedRepository: PatientLastUpdatedRepository,
+    private val cvdAssessmentRepository: CVDAssessmentRepository
 ) : BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
@@ -60,6 +62,8 @@ class PatientLandingScreenViewModel @Inject constructor(
     var showAddToQueueDialog by mutableStateOf(false)
     var ifAllSlotsBooked by mutableStateOf(false)
     private val maxNumberOfAppointmentsInADay = 250
+
+    var cvdRisk by mutableStateOf("")
 
     var selectedIndex by mutableIntStateOf(0)
 
@@ -144,6 +148,12 @@ class PatientLandingScreenViewModel @Inject constructor(
     internal fun getUploadsCount(patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             uploadsCount = prescriptionRepository.getLastPhotoPrescription(patientId).size
+        }
+    }
+
+    internal fun getLastCVDRisk(patientId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            cvdRisk = (cvdAssessmentRepository.getCVDRecord(patientId).firstOrNull()?.risk ?: "").toString()
         }
     }
 
