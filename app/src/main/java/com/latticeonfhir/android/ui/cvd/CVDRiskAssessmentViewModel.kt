@@ -107,7 +107,12 @@ class CVDRiskAssessmentViewModel @Inject constructor(
                 Date().toTodayStartDate(),
                 Date().toEndOfDay()
             )
-            todayAssessment?.let { assessment -> setData(assessment) }
+            if (todayAssessment == null) {
+                cvdAssessmentRepository.getCVDRecord(patient!!.id).firstOrNull()?.let { record ->
+                    isDiabetic = YesNoEnum.displayFromCode(record.diabetic)
+                    isSmoker = YesNoEnum.displayFromCode(record.smoker)
+                }
+            } else setData(todayAssessment!!)
         }
     }
 
