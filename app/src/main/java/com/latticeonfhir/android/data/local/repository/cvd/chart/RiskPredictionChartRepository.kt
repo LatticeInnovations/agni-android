@@ -4,5 +4,5 @@ import com.latticeonfhir.android.data.local.roomdb.entities.cvd.RiskPredictionCh
 
 interface RiskPredictionChartRepository {
     suspend fun insertRecords(vararg riskPredictionCharts: RiskPredictionCharts): List<Long>
-    suspend fun getRiskLevels(sex:String , tobaccoStatus : Int,age :Int, sys:Int , cholesterol:Double?, bmi:Double,diabetes : Int): String
+    suspend fun getRiskLevels(sex:String , tobaccoStatus : Int,age :Int, sys:Int , cholesterol:Double?, bmi:Double?,diabetes : Int): String
 }
