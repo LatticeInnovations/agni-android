@@ -12,6 +12,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.RiskPredictionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
@@ -105,5 +106,11 @@ object DatabaseModule {
     @Provides
     fun provideDownloadedFileDao(appDatabase: FhirAppDatabase): DownloadedFileDao {
         return appDatabase.getDownloadedFileDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideRiskPredictionDao(appDatabase: FhirAppDatabase): RiskPredictionDao {
+        return appDatabase.getRiskPredictionDao()
     }
 }

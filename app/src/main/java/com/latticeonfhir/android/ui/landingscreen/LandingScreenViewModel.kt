@@ -23,10 +23,12 @@ import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
+import com.latticeonfhir.android.data.local.repository.cvd.chart.RiskPredictionChartRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
+import com.latticeonfhir.android.data.local.roomdb.entities.cvd.RiskPredictionCharts
 import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
@@ -52,6 +54,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -65,7 +69,8 @@ class LandingScreenViewModel @Inject constructor(
     private val appointmentRepository: AppointmentRepository,
     private val signUpRepository: SignUpRepository,
     private val authenticationRepository: AuthenticationRepository,
-    private val fhirAppDatabase: FhirAppDatabase
+    private val fhirAppDatabase: FhirAppDatabase,
+    private val riskPredictionChartRepository: RiskPredictionChartRepository
 ) : BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
@@ -120,6 +125,41 @@ class LandingScreenViewModel @Inject constructor(
     var isResending by mutableStateOf(false)
 
     init {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val data = mutableListOf<RiskPredictionCharts>()
+            val inputStream = application.assets.open("RiskPredictionChartSouthAsia.csv") // Assuming the file is in the assets folder
+            val reader = BufferedReader(InputStreamReader(inputStream))
+
+            reader.useLines { lines ->
+                lines.drop(1).forEach { line -> // Skip header if present
+                    val tokens = line.split(",")
+                    if (tokens.size >= 2) {
+                        data.add(
+                            RiskPredictionCharts(
+                                id = tokens[0].toInt(),
+                                regionCode = tokens[1],
+                                riskLevel = tokens[2],
+                                diabetes = tokens[3],
+                                gender = tokens[4],
+                                smoker = tokens[5],
+                                age = tokens[6].toInt(),
+                                systolic = tokens[7],
+                                cholesterol = tokens[8],
+                                cholesterolUnit = tokens[9],
+                                bmi = tokens[10],
+                                bmiUnit = tokens[11],
+                                hs = tokens[12],
+                                hsValue = tokens[13],
+                                riskLevelId = tokens[14].toInt()
+                            )
+                        )
+                    }
+                }
+            }
+            riskPredictionChartRepository.insertRecords(*data.toTypedArray())
+        }
+
         viewModelScope.launch {
             getApplication<FhirApp>().syncWorkerStatus.observeForever { workerStatus ->
                 when (workerStatus) {
