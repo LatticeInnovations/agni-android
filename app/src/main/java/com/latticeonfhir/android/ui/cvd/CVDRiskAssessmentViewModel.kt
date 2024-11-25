@@ -128,8 +128,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
             else {
                 ((heightInFeet.toDouble() * 12) + heightInInch.ifBlank { "0" }.toDouble()) * 0.0254
             }
-            bmi =
-                String.format("%.2f", (weight.toDouble() / (heightInM * heightInM)))
+            bmi = (weight.toDouble() / (heightInM * heightInM)).toInt().toString()
         } else bmi = ""
     }
 
@@ -184,8 +183,9 @@ class CVDRiskAssessmentViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             var cholesterolInMMHG: Double? = null
             if (cholesterol.isNotBlank()) {
-                cholesterolInMMHG = if (selectedCholesterolIndex == 1) cholesterol.toDouble() * 0.0259
-                else cholesterol.toDouble()
+                cholesterolInMMHG =
+                    if (selectedCholesterolIndex == 1) cholesterol.toDouble() * 0.0259
+                    else cholesterol.toDouble()
             }
             riskPercentage = riskPredictionChartRepository.getRiskLevels(
                 age = patient!!.birthDate.toTimeInMilli().toAge(),
