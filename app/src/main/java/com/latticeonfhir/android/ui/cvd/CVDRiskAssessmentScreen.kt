@@ -421,7 +421,7 @@ private fun RecordsFullDetailsComposable(
                 Text(
                     text = stringResource(
                         R.string.bmi,
-                        record.bmi?.toString() ?: stringResource(R.string.dash)
+                        record.bmi?.toInt()?.toString() ?: stringResource(R.string.dash)
                     ),
                     style = if (record.bmi == null) MaterialTheme.typography.bodyMedium
                     else MaterialTheme.typography.labelLarge,
