@@ -380,11 +380,6 @@ private fun HeightTextField(viewModel: CVDRiskAssessmentViewModel) {
                                 viewModel.heightInFeet = value
                                 viewModel.heightInFeetError = viewModel.heightInFeet.isNotBlank() &&
                                         viewModel.heightInFeet.toInt() !in 1..8
-                                if (!viewModel.heightInFeetError) {
-                                    viewModel.heightInInchError =
-                                        viewModel.heightInFeet.isNotBlank() && (viewModel.heightInInch.isBlank() ||
-                                                viewModel.heightInInch.toDouble() !in 0.0..11.9)
-                                }
                                 viewModel.getBmi()
                                 viewModel.riskPercentage = ""
                             }

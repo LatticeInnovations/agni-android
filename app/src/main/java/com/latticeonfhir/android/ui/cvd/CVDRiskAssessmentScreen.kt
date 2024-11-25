@@ -467,7 +467,7 @@ private fun RecordsFullDetailsComposable(
             DisplayField(
                 stringResource(R.string.height),
                 if (record.heightCm != null) "${record.heightCm} cm"
-                else if (record.heightFt != null || record.heightInch != null) "${record.heightFt} ft ${record.heightInch} in"
+                else if (record.heightFt != null || record.heightInch != null) "${record.heightFt} ft ${record.heightInch ?: 0} in"
                 else stringResource(R.string.dash)
             )
         }

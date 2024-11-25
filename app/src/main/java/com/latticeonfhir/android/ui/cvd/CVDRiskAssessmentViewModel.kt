@@ -118,7 +118,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
 
     @SuppressLint("DefaultLocale")
     internal fun getBmi() {
-        if ((heightInCM.isNotBlank() || (heightInFeet.isNotBlank() && heightInInch.isNotBlank()))
+        if ((heightInCM.isNotBlank() || (heightInFeet.isNotBlank()))
             && weight.isNotBlank()
             && !heightInCMError && !heightInFeetError && !heightInInchError
             && !weightError
@@ -126,7 +126,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
             val heightInM: Double
             heightInM = if (selectedHeightUnitIndex == 0) heightInCM.toDouble() * 0.01
             else {
-                ((heightInFeet.toDouble() * 12) + heightInInch.toDouble()) * 0.0254
+                ((heightInFeet.toDouble() * 12) + heightInInch.ifBlank { "0" }.toDouble()) * 0.0254
             }
             bmi =
                 String.format("%.2f", (weight.toDouble() / (heightInM * heightInM)))
@@ -138,7 +138,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
                 && diastolic.isNotBlank() && !diastolicError
                 && systolic.isNotBlank() && !systolicError
                 && ((cholesterol.isNotBlank() && !cholesterolError)
-                || ((heightInCM.isNotBlank() || (heightInFeet.isNotBlank() && heightInInch.isNotBlank()))
+                || ((heightInCM.isNotBlank() || heightInFeet.isNotBlank())
                 && weight.isNotBlank()
                 && !heightInCMError && !heightInFeetError && !heightInInchError
                 && !weightError))
