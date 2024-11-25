@@ -160,7 +160,7 @@ fun PatientLandingScreen(
             },
             content = {
                 Box(modifier = Modifier.padding(it)) {
-                    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 30.dp)) {
+                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
                         CardComposable(
                             viewModel,
                             stringResource(id = R.string.appointments),
@@ -349,7 +349,6 @@ fun CardComposable(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 20.dp)
             .background(
                 color = if (isCardDisabled) MaterialTheme.colorScheme.surfaceColorAtElevation(5.dp)
                 else MaterialTheme.colorScheme.surface
@@ -362,7 +361,7 @@ fun CardComposable(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
+                .padding(top = 20.dp, start = 14.dp, end = 14.dp, bottom = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
