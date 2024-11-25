@@ -17,9 +17,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -58,8 +61,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -424,106 +429,11 @@ fun LandingScreen(
                 }
             }
         )
-        Box(
-            modifier =
-            if (!viewModel.isSearching) Modifier
-                .matchParentSize()
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
-            else Modifier
-                .matchParentSize()
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
-                .clickable(enabled = false) { }
-
-        ) {
-            AnimatedVisibility(
-                visible = viewModel.isSearching,
-                enter = slideInVertically(initialOffsetY = { -it }),
-                exit = slideOutVertically(targetOffsetY = { -it })
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
-                        .clickable { }
-                        .testTag("SEARCH_LAYOUT"),
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
-                    TextField(
-                        value = viewModel.searchQuery,
-                        onValueChange = {
-                            viewModel.searchQuery = it
-                        },
-                        leadingIcon = {
-                            IconButton(onClick = {
-                                viewModel.searchQuery = ""
-                                viewModel.isSearching = false
-                            }) {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "BACK_ICON"
-                                )
-                            }
-                        },
-                        trailingIcon = {
-                            if (viewModel.searchQuery.isNotBlank()) {
-                                IconButton(onClick = {
-                                    viewModel.searchQuery = ""
-                                }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
-                                }
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester)
-                            .onGloballyPositioned {
-                                focusRequester.requestFocus()
-                            }
-                            .testTag("SEARCH_TEXT_FIELD"),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = containerColor,
-                            unfocusedContainerColor = containerColor,
-                            disabledContainerColor = containerColor,
-                        ),
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Search
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onSearch = {
-                                viewModel.isSearchResult = true
-                                viewModel.isSearching = false
-                                viewModel.isSearchingByQuery = true
-                                viewModel.insertRecentSearch()
-                                viewModel.populateList()
-                            }
-                        ),
-                        singleLine = true
-                    )
-                    LazyColumn(modifier = Modifier.testTag("PREVIOUS_SEARCHES")) {
-                        items(viewModel.previousSearchList) { listItem ->
-                            PreviousSearches(
-                                listItem, viewModel
-                            )
-                        }
-                    }
-                    if (viewModel.previousSearchList.isEmpty()) Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedButton(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 0.dp, bottom = 14.dp, start = 14.dp, end = 14.dp),
-                        onClick = {
-                            viewModel.isSearching = false
-                            navController.navigate(Screen.SearchPatientScreen.route)
-                        }
-                    ) {
-                        Text(text = "Advanced search")
-                    }
-                }
-            }
-        }
+        SearchView(viewModel, focusRequester, navController)
+        val keyboardController = LocalSoftwareKeyboardController.current
         Box(
             modifier = Modifier.matchParentSize()
+                .statusBarsPadding()
         ) {
             AnimatedVisibility(
                 visible = queueViewModel.isSearchingInQueue && viewModel.selectedIndex == 1,
@@ -558,7 +468,7 @@ fun LandingScreen(
                             }
                         },
                         trailingIcon = {
-                            if (queueViewModel.searchQueueQuery.isNotBlank()) {
+                            if (queueViewModel.searchQueueQuery.isNotEmpty()) {
                                 IconButton(onClick = {
                                     queueViewModel.searchQueueQuery = ""
                                     queueViewModel.getAppointmentListByDate()
@@ -585,7 +495,7 @@ fun LandingScreen(
                         ),
                         keyboardActions = KeyboardActions(
                             onSearch = {
-                                queueViewModel.isSearchingInQueue = false
+                                keyboardController?.hide()
                             }
                         ),
                         singleLine = true
@@ -698,5 +608,144 @@ fun PreviousSearches(listItem: String, viewModel: LandingScreenViewModel) {
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchView(
+    viewModel: LandingScreenViewModel,
+    focusRequester: FocusRequester,
+    navController: NavController
+) {
+    Box(
+        modifier = if (!viewModel.isSearching) Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
+        else Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+            .clickable(enabled = false) { }
+
+    ) {
+        AnimatedVisibility(
+            visible = viewModel.isSearching,
+            enter = slideInVertically(initialOffsetY = { -it }),
+            exit = slideOutVertically(targetOffsetY = { -it })
+        ) {
+            Scaffold(
+                modifier = Modifier.wrapContentHeight(),
+                containerColor = Color.Transparent,
+                topBar = {
+                    TopAppBar(
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                        ),
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                viewModel.searchQuery = ""
+                                viewModel.isSearching = false
+                            }) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "BACK_ICON"
+                                )
+                            }
+                        },
+                        title = {
+                            Row(
+                                modifier = Modifier
+                                    .offset(x = (-16).dp)
+                                    .clickable(
+                                        enabled = true
+                                    ) { }
+                            ) {
+                                TextField(
+                                    value = viewModel.searchQuery,
+                                    onValueChange = {
+                                        viewModel.searchQuery = it
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .focusRequester(focusRequester)
+                                        .onGloballyPositioned {
+                                            focusRequester.requestFocus()
+                                        }
+                                        .testTag("SEARCH_TEXT_FIELD"),
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent,
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent
+                                    ),
+                                    keyboardOptions = KeyboardOptions(
+                                        imeAction = ImeAction.Search
+                                    ),
+                                    keyboardActions = KeyboardActions(
+                                        onSearch = {
+                                            if (viewModel.searchQuery.trim().isNotBlank()) {
+                                                viewModel.isSearchResult = true
+                                                viewModel.isSearchingByQuery = true
+                                                viewModel.insertRecentSearch()
+                                                viewModel.populateList()
+                                            }
+                                            viewModel.isSearching = false
+                                        }
+                                    ),
+                                    singleLine = true,
+                                    textStyle = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        },
+                        actions = {
+                            if (viewModel.searchQuery.isNotBlank()) {
+                                IconButton(onClick = {
+                                    viewModel.searchQuery = ""
+                                }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
+                                }
+                            }
+                        }
+                    )
+                }
+            ) { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(paddingValues)
+                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
+                        .clickable { }
+                        .testTag("SEARCH_LAYOUT"),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    LazyColumn(modifier = Modifier.testTag("PREVIOUS_SEARCHES")) {
+                        items(viewModel.previousSearchList) { listItem ->
+                            PreviousSearches(
+                                listItem,
+                                viewModel
+                            )
+                        }
+                    }
+                    if (viewModel.previousSearchList.isEmpty()) Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 0.dp, bottom = 14.dp, start = 14.dp, end = 14.dp),
+                        onClick = {
+                            viewModel.isSearching = false
+                            navController.navigate(Screen.SearchPatientScreen.route)
+                        }
+                    ) {
+                        Text(text = "Advanced search")
+                    }
+                }
+            }
+        }
     }
 }
