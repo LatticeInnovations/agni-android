@@ -7,6 +7,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
+import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
@@ -130,6 +131,13 @@ class GenericRepositoryImpl @Inject constructor(
             }
     }
 
+    override suspend fun updateCVDFhirIds() {
+        genericDao.getNotSyncedData(GenericTypeEnum.CVD)
+            .forEach { cvdGenericEntity ->
+                updateCVDFhirIdInGenericEntity(cvdGenericEntity)
+            }
+    }
+
     override suspend fun insertAppointment(
         appointmentResponse: AppointmentResponse,
         uuid: String
@@ -140,6 +148,19 @@ class GenericRepositoryImpl @Inject constructor(
             syncType = SyncType.POST
         ).let { appointmentGenericEntity ->
             insertAppointmentGenericEntity(appointmentGenericEntity, appointmentResponse, uuid)
+        }
+    }
+
+    override suspend fun insertCVDRecord(
+        cvdResponse: CVDResponse,
+        uuid: String
+    ): Long {
+        return genericDao.getGenericEntityById(
+            patientId = cvdResponse.cvdUuid,
+            genericTypeEnum = GenericTypeEnum.CVD,
+            syncType = SyncType.POST
+        ).let { cvdGenericEntity ->
+            insertCVDGenericEntity(cvdGenericEntity, cvdResponse, uuid)
         }
     }
 
@@ -192,6 +213,19 @@ class GenericRepositoryImpl @Inject constructor(
                 prescriptionPhotoResponse = prescriptionPhotoResponse,
                 uuid = uuid
             )
+        }
+    }
+
+    override suspend fun insertOrUpdateCVDPatch(
+        cvdFhirId: String,
+        map: Map<String, Any>,
+        uuid: String
+    ): Long {
+        return genericDao.getSameTypeGenericEntityPayload(
+            GenericTypeEnum.CVD,
+            SyncType.PATCH
+        ).let { genericEntities ->
+            insertOrUpdateCVDGenericEntityPatch(genericEntities, cvdFhirId, map, uuid)
         }
     }
 

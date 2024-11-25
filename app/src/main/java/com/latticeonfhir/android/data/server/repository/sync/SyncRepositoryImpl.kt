@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -12,6 +13,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
+import com.latticeonfhir.android.data.server.api.CVDApiService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
@@ -29,6 +31,7 @@ import com.latticeonfhir.android.data.server.constants.QueryParameters.ORG_ID
 import com.latticeonfhir.android.data.server.constants.QueryParameters.PATIENT_ID
 import com.latticeonfhir.android.data.server.constants.QueryParameters.SORT
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
+import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
@@ -55,6 +58,7 @@ class SyncRepositoryImpl @Inject constructor(
     private val patientApiService: PatientApiService,
     private val prescriptionApiService: PrescriptionApiService,
     private val scheduleAndAppointmentApiService: ScheduleAndAppointmentApiService,
+    private val cvdApiService: CVDApiService,
     patientDao: PatientDao,
     private val genericDao: GenericDao,
     private val preferenceRepository: PreferenceRepository,
@@ -63,7 +67,8 @@ class SyncRepositoryImpl @Inject constructor(
     prescriptionDao: PrescriptionDao,
     scheduleDao: ScheduleDao,
     appointmentDao: AppointmentDao,
-    patientLastUpdatedDao: PatientLastUpdatedDao
+    patientLastUpdatedDao: PatientLastUpdatedDao,
+    cvdDao: CVDDao
 ) : SyncRepository, SyncRepositoryDatabaseTransactions(
     patientApiService,
     patientDao,
@@ -73,7 +78,8 @@ class SyncRepositoryImpl @Inject constructor(
     prescriptionDao,
     scheduleDao,
     appointmentDao,
-    patientLastUpdatedDao
+    patientLastUpdatedDao,
+    cvdDao
 ) {
 
     override suspend fun getAndInsertListPatientData(
@@ -348,6 +354,39 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getAndInsertCVD(offset: Int): ResponseMapper<List<CVDResponse>> {
+        val map = mutableMapOf<String, String>()
+        map[COUNT] = COUNT_VALUE.toString()
+        map[OFFSET] = offset.toString()
+        map[SORT] = "-$ID"
+        if (preferenceRepository.getLastSyncCVD() != 0L) map[LAST_UPDATED] = String.format(
+            GREATER_THAN_BUILDER, preferenceRepository.getLastSyncCVD().toTimeStampDate()
+        )
+
+        ApiResponseConverter.convert(
+            cvdApiService.getCVD(
+                map
+            ), true
+        ).run {
+            return when (this) {
+                is ApiContinueResponse -> {
+                    //Insert CVD Data
+                    insertCVD(body)
+                    //Call for next batch data
+                    getAndInsertCVD(offset + COUNT_VALUE)
+                }
+
+                is ApiEndResponse -> {
+                    preferenceRepository.setLastSyncCVD(Date().time)
+                    insertCVD(body)
+                    this
+                }
+
+                else -> this
+            }
+        }
+    }
+
     override suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
             genericTypeEnum = GenericTypeEnum.PATIENT,
@@ -508,6 +547,30 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun sendCVDPostData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.CVD, syncType = SyncType.POST
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else ApiResponseConverter.convert(
+                cvdApiService.createCVD(listOfGenericEntity.map {
+                    it.payload.fromJson<LinkedTreeMap<*, *>>()
+                        .mapToObject(CVDResponse::class.java)!!
+                })
+            ).run {
+                when (this) {
+                    is ApiEndResponse -> {
+                        insertCVDFhirId(listOfGenericEntity, body).let { deletedRows ->
+                            if (deletedRows > 0) sendCVDPostData() else this
+                        }
+                    }
+
+                    else -> this
+                }
+            }
+        }
+    }
+
     override suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
             genericTypeEnum = GenericTypeEnum.PATIENT, syncType = SyncType.PATCH
@@ -596,6 +659,30 @@ class SyncRepositoryImpl @Inject constructor(
                         is ApiEndResponse -> {
                             deleteGenericEntityData(listOfGenericEntity).let {
                                 if (it > 0) sendPrescriptionPhotoPatchData() else this
+                            }
+                        }
+
+                        else -> this
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun sendCVDPatchData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.CVD, syncType = SyncType.PATCH
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    cvdApiService.patchListOfChanges(
+                        listOfGenericEntity.map { it.payload.fromJson() })
+                ).run {
+                    when (this) {
+                        is ApiEndResponse -> {
+                            deleteGenericEntityData(listOfGenericEntity).let {
+                                if (it > 0) sendCVDPatchData() else this
                             }
                         }
 

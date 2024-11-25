@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
+import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
@@ -53,8 +54,15 @@ interface GenericRepository {
         uuid: String = UUIDBuilder.generateUUID()
     ): Long
 
+    suspend fun insertCVDRecord(
+        cvdResponse: CVDResponse,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
     suspend fun updateAppointmentFhirIds()
     suspend fun updateAppointmentFhirIdInPatch()
+
+    suspend fun updateCVDFhirIds()
 
     suspend fun insertOrUpdatePatientPatchEntity(
         patientFhirId: String,
@@ -71,6 +79,12 @@ interface GenericRepository {
     suspend fun insertOrUpdatePhotoPrescriptionPatch(
         prescriptionFhirId: String,
         prescriptionPhotoResponse: PrescriptionPhotoResponse,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
+    suspend fun insertOrUpdateCVDPatch(
+        cvdFhirId: String,
+        map: Map<String, Any>,
         uuid: String = UUIDBuilder.generateUUID()
     ): Long
 
