@@ -164,10 +164,12 @@ class CVDRiskAssessmentViewModel @Inject constructor(
         isSmoker = YesNoEnum.displayFromCode(todayAssessment.smoker)
         systolic = todayAssessment.bpSystolic.toString()
         diastolic = todayAssessment.bpDiastolic.toString()
-        cholesterol = todayAssessment.cholesterol?.toString() ?: ""
         selectedCholesterolIndex = if (todayAssessment.cholesterolUnit != null)
             cholesterolUnits.indexOf(todayAssessment.cholesterolUnit)
         else 0
+        cholesterol = if (selectedCholesterolIndex == 0)
+            todayAssessment.cholesterol?.toString() ?: ""
+        else todayAssessment.cholesterol?.toInt()?.toString() ?: ""
         heightInCM = todayAssessment.heightCm?.toString() ?: ""
         heightInFeet = todayAssessment.heightFt?.toString() ?: ""
         heightInInch = todayAssessment.heightInch?.toString() ?: ""

@@ -179,7 +179,7 @@ fun LineChartView(
                     position = XAxis.XAxisPosition.BOTTOM
                     setDrawGridLines(true)
                     setDrawAxisLine(false)
-                    textSize = 12f
+                    textSize = 10f
                     labelCount = labels.size
                     textColor = Color.GRAY
                     granularity = 1f
@@ -193,7 +193,7 @@ fun LineChartView(
                 axisLeft.apply {
                     setDrawGridLines(true)
                     setDrawAxisLine(false)
-                    textSize = 12f
+                    textSize = 10f
                     textColor = Color.GRAY
                     axisMinimum = axisMin
                     axisMaximum = roundedMaxY
