@@ -16,7 +16,7 @@ interface CVDApiService {
     @POST("sync/CVD")
     suspend fun createCVD(@Body cvdResponse: List<CVDResponse>): Response<BaseResponse<List<CreateResponse>>>
 
-    @GET("sync/CVD")
+    @GET("CVD")
     suspend fun getCVD(
         @QueryMap(encoded = true) map: Map<String, String>?
     ): Response<BaseResponse<List<CVDResponse>>>
