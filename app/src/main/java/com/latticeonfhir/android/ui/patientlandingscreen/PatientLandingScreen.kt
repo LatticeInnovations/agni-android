@@ -94,7 +94,7 @@ fun PatientLandingScreen(
     }
     BackHandler(enabled = true) {
         if (viewModel.isFabSelected) viewModel.isFabSelected = false
-        else navController.popBackStack()
+        else navController.navigateUp()
     }
     viewModel.patient?.let {
         Scaffold(
@@ -106,7 +106,7 @@ fun PatientLandingScreen(
                     ),
                     navigationIcon = {
                         IconButton(onClick = {
-                            navController.popBackStack()
+                            navController.navigateUp()
                         }) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,

@@ -64,7 +64,7 @@ fun SearchPatient(
                 ),
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.popBackStack()
+                        navController.navigateUp()
                     }) {
                         Icon(
                             Icons.Default.Clear,
