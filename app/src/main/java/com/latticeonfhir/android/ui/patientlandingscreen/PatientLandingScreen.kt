@@ -48,7 +48,6 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.BottomNavBar
-import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
@@ -219,7 +218,8 @@ fun PatientLandingScreen(
                             if (viewModel.cvdRisk.isBlank()) null
                             else stringResource(R.string.percentage, viewModel.cvdRisk),
                             isCardDisabled = viewModel.patient!!.gender == "other" ||
-                                    viewModel.patient!!.birthDate.toTimeInMilli().toAge() !in 40..74,
+                                    viewModel.patient!!.birthDate.toTimeInMilli()
+                                        .toAge() !in 40..74,
                             onClick = {
                                 if (viewModel.patient!!.gender == "other" ||
                                     viewModel.patient!!.birthDate.toTimeInMilli().toAge() !in 40..74
@@ -230,65 +230,15 @@ fun PatientLandingScreen(
                                         )
                                     }
                                 } else {
-                                    viewModel.getAppointmentInfo {
-                                        if (viewModel.canAddAssessment) {
-                                            scope.launch {
-                                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                    "patient",
-                                                    viewModel.patient
-                                                )
-                                                navController.navigate(Screen.CVDRiskAssessmentScreen.route)
-                                            }
-                                        } else {
-                                            viewModel.showAddToQueueDialog = true
-                                        }
+                                    scope.launch {
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            "patient",
+                                            viewModel.patient
+                                        )
+                                        navController.navigate(Screen.CVDRiskAssessmentScreen.route)
                                     }
                                 }
-                            }
-                        )
-                    }
-                    if (viewModel.showAddToQueueDialog) {
-                        CustomDialog(
-                            title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
-                                id = R.string.add_to_queue_question
-                            ),
-                            text = stringResource(id = R.string.add_to_queue_assessment_dialog_description),
-                            dismissBtnText = stringResource(id = R.string.dismiss),
-                            confirmBtnText = if (viewModel.appointment != null) stringResource(id = R.string.mark_arrived) else stringResource(
-                                id = R.string.add_to_queue
-                            ),
-                            dismiss = { viewModel.showAddToQueueDialog = false },
-                            confirm = {
-                                if (viewModel.appointment != null) {
-                                    viewModel.updateStatusToArrived(
-                                        viewModel.patient!!,
-                                        viewModel.appointment!!
-                                    ) {
-                                        viewModel.showAddToQueueDialog = false
-                                        scope.launch {
-                                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                "patient",
-                                                viewModel.patient
-                                            )
-                                            navController.navigate(Screen.CVDRiskAssessmentScreen.route)
-                                        }
-                                    }
-                                } else {
-                                    if (viewModel.ifAllSlotsBooked) {
-                                        viewModel.showAllSlotsBookedDialog = true
-                                    } else {
-                                        viewModel.addPatientToQueue(viewModel.patient!!) {
-                                            viewModel.showAddToQueueDialog = false
-                                            scope.launch {
-                                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                    "patient",
-                                                    viewModel.patient
-                                                )
-                                                navController.navigate(Screen.CVDRiskAssessmentScreen.route)
-                                            }
-                                        }
-                                    }
-                                }
+
                             }
                         )
                     }

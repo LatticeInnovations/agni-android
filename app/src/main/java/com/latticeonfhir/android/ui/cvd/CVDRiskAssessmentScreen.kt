@@ -60,10 +60,13 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.YesNoEnum
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.cvd.form.CVDRiskAssessmentForm
 import com.latticeonfhir.android.ui.cvd.form.DisplayField
 import com.latticeonfhir.android.ui.cvd.records.CVDRiskAssessmentRecords
+import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
+import com.latticeonfhir.android.ui.prescription.photo.view.AppointmentCompletedDialog
 import com.latticeonfhir.android.ui.theme.HighRiskCircle
 import com.latticeonfhir.android.ui.theme.HighRiskDarkContainer
 import com.latticeonfhir.android.ui.theme.HighRiskLightContainer
@@ -95,6 +98,7 @@ fun CVDRiskAssessmentScreen(
                     PATIENT
                 )
             viewModel.getTodayCVDAssessment()
+            viewModel.getAppointmentInfo {}
             viewModel.isLaunched = true
         }
     }
@@ -105,7 +109,9 @@ fun CVDRiskAssessmentScreen(
         initialPage = 0,
         initialPageOffsetFraction = 0f
     ) {
-        viewModel.tabs.size
+        if (viewModel.canAddAssessment) {
+            viewModel.tabs.size
+        } else 1
     }
 
     BackHandler {
@@ -151,21 +157,31 @@ fun CVDRiskAssessmentScreen(
                         viewModel.tabs,
                         pagerState
                     ) { index ->
-                        scope.launch { pagerState.animateScrollToPage(index) }
+                        if (index == 1) {
+                            viewModel.getAppointmentInfo {
+                                if (viewModel.canAddAssessment) {
+                                    scope.launch { pagerState.animateScrollToPage(index) }
+                                } else if (viewModel.isAppointmentCompleted) {
+                                    viewModel.showAppointmentCompletedDialog = true
+                                } else {
+                                    viewModel.showAddToQueueDialog = true
+                                }
+                            }
+                        } else scope.launch { pagerState.animateScrollToPage(index) }
                     }
                     HorizontalPager(
                         state = pagerState
                     ) { index ->
                         when (index) {
-                            0 -> CVDRiskAssessmentForm(viewModel)
-                            1 -> CVDRiskAssessmentRecords(viewModel)
+                            0 -> CVDRiskAssessmentRecords(viewModel)
+                            1 -> CVDRiskAssessmentForm(viewModel)
                         }
                     }
                 }
             }
         },
         bottomBar = {
-            if (pagerState.currentPage == 0) {
+            if (pagerState.currentPage == 1) {
                 Column {
                     AnimatedVisibility(
                         viewModel.riskPercentage.isNotBlank(),
@@ -287,6 +303,50 @@ fun CVDRiskAssessmentScreen(
                     }
                 )
             }
+        }
+    }
+
+    if (viewModel.showAddToQueueDialog) {
+        CustomDialog(
+            title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
+                id = R.string.add_to_queue_question
+            ),
+            text = stringResource(id = R.string.add_to_queue_assessment_dialog_description),
+            dismissBtnText = stringResource(id = R.string.dismiss),
+            confirmBtnText = if (viewModel.appointment != null) stringResource(id = R.string.mark_arrived) else stringResource(
+                id = R.string.add_to_queue
+            ),
+            dismiss = { viewModel.showAddToQueueDialog = false },
+            confirm = {
+                if (viewModel.appointment != null) {
+                    viewModel.updateStatusToArrived(
+                        viewModel.patient!!,
+                        viewModel.appointment!!
+                    ) {
+                        viewModel.showAddToQueueDialog = false
+                        scope.launch { pagerState.animateScrollToPage(1) }
+                    }
+                } else {
+                    if (viewModel.ifAllSlotsBooked) {
+                        viewModel.showAllSlotsBookedDialog = true
+                    } else {
+                        viewModel.addPatientToQueue(viewModel.patient!!) {
+                            viewModel.showAddToQueueDialog = false
+                            scope.launch { pagerState.animateScrollToPage(1) }
+                        }
+                    }
+                }
+            }
+        )
+    }
+    if (viewModel.ifAllSlotsBooked) {
+        AllSlotsBookedDialog {
+            viewModel.showAllSlotsBookedDialog = false
+        }
+    }
+    if (viewModel.showAppointmentCompletedDialog) {
+        AppointmentCompletedDialog {
+            viewModel.showAppointmentCompletedDialog = false
         }
     }
 }

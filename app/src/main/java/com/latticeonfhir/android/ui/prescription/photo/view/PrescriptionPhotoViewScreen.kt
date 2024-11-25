@@ -858,7 +858,7 @@ private fun AddNoteDialog(
 
 
 @Composable
-private fun AppointmentCompletedDialog(
+fun AppointmentCompletedDialog(
     dismiss: () -> Unit
 ) {
     AlertDialog(

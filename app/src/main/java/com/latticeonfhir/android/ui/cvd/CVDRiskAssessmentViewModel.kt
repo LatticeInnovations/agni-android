@@ -14,10 +14,13 @@ import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRe
 import com.latticeonfhir.android.data.local.repository.cvd.chart.RiskPredictionChartRepository
 import com.latticeonfhir.android.data.local.repository.cvd.records.CVDAssessmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.common.Queries
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
@@ -35,10 +38,12 @@ class CVDRiskAssessmentViewModel @Inject constructor(
     private val cvdAssessmentRepository: CVDAssessmentRepository,
     private val appointmentRepository: AppointmentRepository,
     private val preferenceRepository: PreferenceRepository,
-    private val genericRepository: GenericRepository
+    private val genericRepository: GenericRepository,
+    private val scheduleRepository: ScheduleRepository,
+    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
 ) : ViewModel() {
     var isLaunched by mutableStateOf(false)
-    val tabs = listOf("Assess risk", "Records")
+    val tabs = listOf("Records", "Assess risk")
     var patient by mutableStateOf<PatientResponse?>(null)
     var appointmentResponseLocal by mutableStateOf<AppointmentResponseLocal?>(null)
     var isDiabetic by mutableStateOf("")
@@ -73,6 +78,44 @@ class CVDRiskAssessmentViewModel @Inject constructor(
     var todayAssessment by mutableStateOf<CVDResponse?>(null)
     var map = mapOf<String, Any>()
 
+    var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
+    var canAddAssessment by mutableStateOf(false)
+    var showAddToQueueDialog by mutableStateOf(false)
+    var ifAllSlotsBooked by mutableStateOf(false)
+    var showAllSlotsBookedDialog by mutableStateOf(false)
+    private val maxNumberOfAppointmentsInADay = 250
+    var showAppointmentCompletedDialog by mutableStateOf(false)
+    var isAppointmentCompleted by mutableStateOf(false)
+
+    internal fun getAppointmentInfo(callback: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            appointment = appointmentRepository.getAppointmentsOfPatientByStatus(
+                patient!!.id,
+                AppointmentStatusEnum.SCHEDULED.value
+            ).firstOrNull { appointmentResponse ->
+                appointmentResponse.slot.start.time < Date().toEndOfDay() && appointmentResponse.slot.start.time > Date().toTodayStartDate()
+            }
+            appointmentRepository.getAppointmentsOfPatientByDate(
+                patient!!.id,
+                Date().toTodayStartDate(),
+                Date().toEndOfDay()
+            ).let { appointmentResponse ->
+                canAddAssessment =
+                    appointmentResponse?.status == AppointmentStatusEnum.ARRIVED.value || appointmentResponse?.status == AppointmentStatusEnum.WALK_IN.value
+                            || appointmentResponse?.status == AppointmentStatusEnum.IN_PROGRESS.value
+                isAppointmentCompleted =
+                    appointmentResponse?.status == AppointmentStatusEnum.COMPLETED.value
+            }
+            ifAllSlotsBooked = appointmentRepository.getAppointmentListByDate(
+                Date().toTodayStartDate(),
+                Date().toEndOfDay()
+            ).filter { appointmentResponseLocal ->
+                appointmentResponseLocal.status != AppointmentStatusEnum.CANCELLED.value
+            }.size >= maxNumberOfAppointmentsInADay
+            callback()
+        }
+    }
+
     @SuppressLint("DefaultLocale")
     internal fun getBmi() {
         if ((heightInCM.isNotBlank() || (heightInFeet.isNotBlank() && heightInInch.isNotBlank()))
@@ -81,9 +124,9 @@ class CVDRiskAssessmentViewModel @Inject constructor(
             && !weightError
         ) {
             val heightInM: Double
-            if (selectedHeightUnitIndex == 0) heightInM = heightInCM.toDouble() * 0.01
+            heightInM = if (selectedHeightUnitIndex == 0) heightInCM.toDouble() * 0.01
             else {
-                heightInM = ((heightInFeet.toDouble() * 12) + heightInInch.toDouble()) * 0.0254
+                ((heightInFeet.toDouble() * 12) + heightInInch.toDouble()) * 0.0254
             }
             bmi =
                 String.format("%.2f", (weight.toDouble() / (heightInM * heightInM)))
@@ -141,9 +184,8 @@ class CVDRiskAssessmentViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             var cholesterolInMMHG: Double? = null
             if (cholesterol.isNotBlank()) {
-                if (selectedCholesterolIndex == 1) cholesterolInMMHG =
-                    cholesterol.toDouble() * 0.0259
-                else cholesterolInMMHG = cholesterol.toDouble()
+                cholesterolInMMHG = if (selectedCholesterolIndex == 1) cholesterol.toDouble() * 0.0259
+                else cholesterol.toDouble()
             }
             riskPercentage = riskPredictionChartRepository.getRiskLevels(
                 age = patient!!.birthDate.toTimeInMilli().toAge(),
@@ -386,6 +428,40 @@ class CVDRiskAssessmentViewModel @Inject constructor(
         weight = ""
         riskPercentage = ""
         bmi = ""
+    }
+
+
+    internal fun addPatientToQueue(patient: PatientResponse, addedToQueue: (List<Long>) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            Queries.addPatientToQueue(
+                patient,
+                scheduleRepository,
+                genericRepository,
+                preferenceRepository,
+                appointmentRepository,
+                patientLastUpdatedRepository,
+                addedToQueue
+            )
+        }
+    }
+
+    internal fun updateStatusToArrived(
+        patient: PatientResponse,
+        appointment: AppointmentResponseLocal,
+        updated: (Int) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            Queries.updateStatusToArrived(
+                patient,
+                appointment,
+                appointmentRepository,
+                genericRepository,
+                preferenceRepository,
+                scheduleRepository,
+                patientLastUpdatedRepository,
+                updated
+            )
+        }
     }
 
     companion object {
