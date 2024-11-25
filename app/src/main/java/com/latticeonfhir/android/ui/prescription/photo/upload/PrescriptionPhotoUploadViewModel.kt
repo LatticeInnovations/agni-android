@@ -24,6 +24,8 @@ import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.file.BitmapUtils.compressImage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -82,11 +84,13 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
                 var files = mutableListOf<File>()
                 var prescriptionUuid = UUIDBuilder.generateUUID()
                 var generatedOn = Date()
-                if (appointmentResponseLocal!!.status == AppointmentStatusEnum.IN_PROGRESS.value) {
-                    val prescriptionPhotoResponse =
-                        prescriptionRepository.getPrescriptionPhotoByAppointmentId(
-                            appointmentResponseLocal!!.uuid
-                        )[0]
+                val prescriptionPhotoResponse =
+                    prescriptionRepository.getPrescriptionPhotoByAppointmentId(
+                        appointmentResponseLocal!!.uuid
+                    ).firstOrNull {
+                        it.generatedOn.time in Date().toTodayStartDate().. Date().toEndOfDay()
+                    }
+                if (prescriptionPhotoResponse != null) {
                     if (prescriptionPhotoResponse.prescriptionFhirId == null) {
                         // insert in generic post
                         prescriptionUuid = prescriptionPhotoResponse.prescriptionId

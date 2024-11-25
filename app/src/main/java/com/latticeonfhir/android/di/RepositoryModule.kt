@@ -2,6 +2,10 @@ package com.latticeonfhir.android.di
 
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.cvd.chart.RiskPredictionChartRepository
+import com.latticeonfhir.android.data.local.repository.cvd.chart.RiskPredictionChartRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.cvd.records.CVDAssessmentRepository
+import com.latticeonfhir.android.data.local.repository.cvd.records.CVDAssessmentRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.file.DownloadedFileRepository
 import com.latticeonfhir.android.data.local.repository.file.DownloadedFileRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -105,4 +109,12 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideSignUpRepository(signUpRepositoryImpl: SignUpRepositoryImpl): SignUpRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideRiskPredictionRepository(riskPredictionChartRepositoryImpl: RiskPredictionChartRepositoryImpl): RiskPredictionChartRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideCVDAssessmentRepository(cvdAssessmentRepositoryImpl: CVDAssessmentRepositoryImpl): CVDAssessmentRepository
 }

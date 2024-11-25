@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.server.repository.sync
 
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
+import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
@@ -22,6 +23,7 @@ interface SyncRepository {
     suspend fun getAndInsertSchedule(offset: Int): ResponseMapper<List<ScheduleResponse>>
     suspend fun getAndInsertAppointment(offset: Int): ResponseMapper<List<AppointmentResponse>>
     suspend fun getAndInsertPatientLastUpdatedData(): ResponseMapper<List<PatientLastUpdatedResponse>>
+    suspend fun getAndInsertCVD(offset: Int): ResponseMapper<List<CVDResponse>>
 
     //POST
     suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>>
@@ -30,10 +32,12 @@ interface SyncRepository {
     suspend fun sendSchedulePostData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendAppointmentPostData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendPatientLastUpdatePostData(): ResponseMapper<List<CreateResponse>>
+    suspend fun sendCVDPostData(): ResponseMapper<List<CreateResponse>>
 
     //PATCH
     suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendRelatedPersonPatchData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendAppointmentPatchData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendPrescriptionPhotoPatchData(): ResponseMapper<List<CreateResponse>>
+    suspend fun sendCVDPatchData(): ResponseMapper<List<CreateResponse>>
 }

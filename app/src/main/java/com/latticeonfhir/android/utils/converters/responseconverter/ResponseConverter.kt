@@ -10,6 +10,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.cvd.CVDEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
@@ -29,6 +30,7 @@ import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAn
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.QueryParameters
+import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
@@ -514,4 +516,77 @@ internal fun PrescriptionAndFileEntity.toFilesList(): List<File> {
             note = it.note ?: ""
         )
     }
+}
+
+internal fun CVDResponse.toCVDEntity(): CVDEntity {
+    return CVDEntity(
+        cvdFhirId = cvdFhirId,
+        cvdUuid = cvdUuid,
+        appointmentId = appointmentId,
+        patientId = patientId,
+        bmi = bmi,
+        bpDiastolic = bpDiastolic,
+        bpSystolic = bpSystolic,
+        cholesterol = cholesterol,
+        cholesterolUnit = cholesterolUnit,
+        diabetic = diabetic,
+        heightCm = heightCm,
+        createdOn = createdOn,
+        heightInch = heightInch,
+        heightFt = heightFt,
+        risk = risk,
+        practitionerName = practitionerName,
+        smoker = smoker,
+        weight = weight
+    )
+}
+
+
+internal suspend fun CVDResponse.toCVDEntity(
+    patientDao: PatientDao,
+    appointmentDao: AppointmentDao
+): CVDEntity {
+    return CVDEntity(
+        cvdFhirId = cvdFhirId,
+        cvdUuid = cvdUuid,
+        appointmentId = appointmentDao.getAppointmentIdByFhirId(appointmentId),
+        patientId = patientDao.getPatientIdByFhirId(patientId)!!,
+        bmi = bmi,
+        bpDiastolic = bpDiastolic,
+        bpSystolic = bpSystolic,
+        cholesterol = cholesterol,
+        cholesterolUnit = cholesterolUnit,
+        diabetic = diabetic,
+        heightCm = heightCm,
+        createdOn = createdOn,
+        heightInch = heightInch,
+        heightFt = heightFt,
+        risk = risk,
+        practitionerName = practitionerName,
+        smoker = smoker,
+        weight = weight
+    )
+}
+
+internal fun CVDEntity.toCVDResponse(): CVDResponse {
+    return CVDResponse(
+        cvdFhirId = cvdFhirId,
+        cvdUuid = cvdUuid,
+        appointmentId = appointmentId,
+        patientId = patientId,
+        bmi = bmi,
+        bpDiastolic = bpDiastolic,
+        bpSystolic = bpSystolic,
+        cholesterol = cholesterol,
+        cholesterolUnit = cholesterolUnit,
+        diabetic = diabetic,
+        heightCm = heightCm,
+        createdOn = createdOn,
+        heightInch = heightInch,
+        heightFt = heightFt,
+        risk = risk,
+        practitionerName = practitionerName,
+        smoker = smoker,
+        weight = weight
+    )
 }
