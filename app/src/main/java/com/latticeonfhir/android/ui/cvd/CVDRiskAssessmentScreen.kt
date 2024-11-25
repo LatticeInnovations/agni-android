@@ -109,9 +109,7 @@ fun CVDRiskAssessmentScreen(
         initialPage = 0,
         initialPageOffsetFraction = 0f
     ) {
-        if (viewModel.canAddAssessment) {
-            viewModel.tabs.size
-        } else 1
+        viewModel.tabs.size
     }
 
     BackHandler {
@@ -170,7 +168,8 @@ fun CVDRiskAssessmentScreen(
                         } else scope.launch { pagerState.animateScrollToPage(index) }
                     }
                     HorizontalPager(
-                        state = pagerState
+                        state = pagerState,
+                        userScrollEnabled = viewModel.canAddAssessment
                     ) { index ->
                         when (index) {
                             0 -> CVDRiskAssessmentRecords(viewModel)
