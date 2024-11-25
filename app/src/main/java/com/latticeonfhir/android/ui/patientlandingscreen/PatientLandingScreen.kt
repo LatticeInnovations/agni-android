@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -94,7 +95,7 @@ fun PatientLandingScreen(
     }
     BackHandler(enabled = true) {
         if (viewModel.isFabSelected) viewModel.isFabSelected = false
-        else navController.popBackStack()
+        else navController.navigateUp()
     }
     viewModel.patient?.let {
         Scaffold(
@@ -106,7 +107,7 @@ fun PatientLandingScreen(
                     ),
                     navigationIcon = {
                         IconButton(onClick = {
-                            navController.popBackStack()
+                            navController.navigateUp()
                         }) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
@@ -270,6 +271,7 @@ fun PatientLandingScreen(
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.padding(bottom = 160.dp)
+                .navigationBarsPadding()
         )
     }
     viewModel.patient?.let { patient ->

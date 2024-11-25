@@ -148,8 +148,6 @@ private fun PatientItemCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(15.dp)
-            .testTag("PATIENT")
             .clickable {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
                     PATIENT,
@@ -161,7 +159,9 @@ private fun PatientItemCard(
                 )
                 navController.navigate(Screen.PatientLandingScreen.route)
                 viewModel.hideSyncStatus()
-            },
+            }
+            .padding(15.dp)
+            .testTag("PATIENT"),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(8f)) {
