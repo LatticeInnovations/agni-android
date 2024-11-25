@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.patientregistration
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -81,6 +82,10 @@ fun PatientRegistration(
         }
         viewModel.isLaunched = true
     }
+    BackHandler {
+        if (viewModel.currentStep == 1) navController.navigateUp()
+        else viewModel.openDialog = true
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize()
             .imePadding(),
@@ -109,7 +114,7 @@ fun PatientRegistration(
                 ),
                 actions = {
                     IconButton(onClick = {
-                        if (viewModel.currentStep == 1) navController.popBackStack()
+                        if (viewModel.currentStep == 1) navController.navigateUp()
                         else viewModel.openDialog = true
                     }) {
                         Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
@@ -195,7 +200,7 @@ fun PatientRegistration(
                         TextButton(
                             onClick = {
                                 viewModel.showRelationDialogue = false
-                                navController.popBackStack()
+                                navController.navigateUp()
                             },
                             modifier = Modifier.testTag("NEGATIVE_BTN")
                         ) {
