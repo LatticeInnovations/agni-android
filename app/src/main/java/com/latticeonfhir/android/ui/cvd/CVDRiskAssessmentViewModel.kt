@@ -25,6 +25,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
@@ -234,8 +235,8 @@ class CVDRiskAssessmentViewModel @Inject constructor(
                     patientId = patient!!.id
                 )
             ).also {
-                if (todayAssessment!!.cvdFhirId != null) {
-                    checkAndUpdateVitals(cvdResponse)
+                if (cvdResponse.cvdFhirId != null) {
+                    checkAndUpdateVitals(todayAssessment!!)
                 } else {
                     genericRepository.insertCVDRecord(cvdResponse)
                 }
@@ -251,9 +252,10 @@ class CVDRiskAssessmentViewModel @Inject constructor(
     ) {
         // diabetic status
         if (isDiabetic != YesNoEnum.displayFromCode(cvdResponse.diabetic)) {
+            Timber.d("manseeyy chnge diabetic")
             addPatch(
                 key = DIABETIC_KEY, component = mapOf(
-                    OPERATION to REPLACE,
+                    OPERATION to ADD,
                     DIABETIC to YesNoEnum.codeFromDisplay(isDiabetic)
                 )
             )
@@ -261,9 +263,10 @@ class CVDRiskAssessmentViewModel @Inject constructor(
 
         // smoking status
         if (isSmoker != YesNoEnum.displayFromCode(cvdResponse.smoker)) {
+            Timber.d("manseeyy chnge smoker")
             addPatch(
                 key = SMOKING_KEY, component = mapOf(
-                    OPERATION to REPLACE,
+                    OPERATION to ADD,
                     SMOKER to YesNoEnum.codeFromDisplay(isSmoker)
                 )
             )
@@ -272,6 +275,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
         // Blood Pressure
         if (diastolic != cvdResponse.bpDiastolic.toString() || systolic != cvdResponse.bpSystolic.toString()
         ) {
+            Timber.d("manseeyy chnge bp")
             addPatch(
                 key = BP_KEY, component = mapOf(
                     OPERATION to REPLACE,
@@ -285,6 +289,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
         if (cholesterol != (cvdResponse.cholesterol?.toString() ?: "") ||
             (cholesterol.isNotBlank() && (cholesterolUnits[selectedCholesterolIndex] != cvdResponse.cholesterolUnit))
         ) {
+            Timber.d("manseeyy chnge cholesterol")
             addPatch(
                 key = CHOLESTEROL_KEY,
                 component = mapOf(
@@ -300,6 +305,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
                 ?: "") || heightInInch != (cvdResponse.heightInch?.toString()
                 ?: "") || heightInCM != (cvdResponse.heightCm?.toString() ?: "")
         ) {
+            Timber.d("manseeyy chnge height")
             addPatch(
                 key = HEIGHT_KEY, component = mapOf(
                     OPERATION to if (cvdResponse.heightCm != null || cvdResponse.heightFt != null || cvdResponse.heightInch != null) REPLACE else ADD,
@@ -311,6 +317,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
 
         // weight
         if (weight != (cvdResponse.weight?.toString() ?: "")) {
+            Timber.d("manseeyy chnge weight")
             addPatch(
                 key = WEIGHT_KEY,
                 component = mapOf(
@@ -321,6 +328,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
 
         // bmi
         if (bmi != (cvdResponse.bmi?.toString() ?: "")) {
+            Timber.d("manseeyy chnge bmi")
             addPatch(
                 key = BMI_KEY,
                 component = mapOf(
@@ -332,6 +340,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
 
         // risk
         if (riskPercentage != cvdResponse.risk.toString()) {
+            Timber.d("manseeyy chnge risk")
             addPatch(
                 key = RISK_KEY,
                 component = mapOf(
