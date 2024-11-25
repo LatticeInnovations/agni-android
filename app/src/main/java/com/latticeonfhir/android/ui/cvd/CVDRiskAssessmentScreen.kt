@@ -250,7 +250,7 @@ fun CVDRiskAssessmentScreen(
                                     if (viewModel.todayAssessment == null) {
                                         viewModel.saveCVDRecord {
                                             scope.launch {
-                                                pagerState.animateScrollToPage(1)
+                                                pagerState.animateScrollToPage(0)
                                                 snackbarHostState.showSnackbar(
                                                     message = context.getString(R.string.assessment_record_saved)
                                                 )
@@ -259,7 +259,7 @@ fun CVDRiskAssessmentScreen(
                                     } else {
                                         viewModel.updateCVDRecord {
                                             scope.launch {
-                                                pagerState.animateScrollToPage(1)
+                                                pagerState.animateScrollToPage(0)
                                                 snackbarHostState.showSnackbar(
                                                     message = context.getString(R.string.assessment_record_updated)
                                                 )

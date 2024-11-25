@@ -245,6 +245,12 @@ class CVDRiskAssessmentViewModel @Inject constructor(
                     patientId = patient!!.id
                 )
             )
+            appointmentRepository.updateAppointment(
+                appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
+                    .also { updatedAppointmentResponse ->
+                        appointmentResponseLocal = updatedAppointmentResponse
+                    }
+            )
             genericRepository.insertCVDRecord(cvdResponse)
             clearForm()
             getTodayCVDAssessment()
