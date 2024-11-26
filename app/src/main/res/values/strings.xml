@@ -265,7 +265,7 @@ include them in the household</string>
     <string name="inch">inch</string>
     <string name="weight">Weight</string>
     <string name="bmi">BMI: %s</string>
-    <string name="bmi_note"><![CDATA[Enter weight & height to get BMI]]></string>
+    <string name="bmi_note"><![CDATA[Enter height & weight to get BMI]]></string>
     <string name="cvd_heading">Please provide below details to find out cardiovascular risk</string>
     <string name="percentage">%s\%%</string>
     <string name="risk_info">10-year risk of heart attack or stroke</string>
@@ -276,7 +276,7 @@ include them in the household</string>
     <string name="assessment_record_saved">Assessment record saved</string>
     <string name="value_cannot_exceed">Value cannot exceed %s to %s %s</string>
     <string name="blood_pressure_required">Blood pressure required</string>
-    <string name="cvd_error_message">Not applicable for gender type “Other” or age below 40</string>
+    <string name="cvd_error_message">Not applicable for gender type “Other”, age below 40 or above 74</string>
     <string name="dash">--</string>
     <string name="assessment_record_updated">Assessment record updated</string>
 </resources>
