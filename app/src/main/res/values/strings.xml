@@ -265,7 +265,7 @@ include them in the household</string>
     <string name="inch">inch</string>
     <string name="weight">Weight</string>
     <string name="bmi">BMI: %s</string>
-    <string name="bmi_note"><![CDATA[Enter weight & height to get BMI]]></string>
+    <string name="bmi_note"><![CDATA[Enter height & weight to get BMI]]></string>
     <string name="cvd_heading">Please provide below details to find out cardiovascular risk</string>
     <string name="percentage">%s\%%</string>
     <string name="risk_info">10-year risk of heart attack or stroke</string>
