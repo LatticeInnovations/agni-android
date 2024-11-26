@@ -34,6 +34,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
 import java.util.Date
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -74,6 +75,7 @@ class FhirApp : Application() {
 
     internal var syncWorkerStatus = MutableLiveData<WorkerStatus>()
     internal var photosWorkerStatus = MutableLiveData<WorkerStatus>()
+    private val isSyncing = AtomicBoolean(false)
 
     override fun onCreate() {
         super.onCreate()
@@ -132,50 +134,59 @@ class FhirApp : Application() {
     }
 
     internal suspend fun launchSyncing() {
-        if (CheckNetwork.isInternetAvailable(applicationContext)) {
-            val listOfErrors = mutableListOf<String>()
-            syncWorkerStatus.postValue(WorkerStatus.IN_PROGRESS)
-            preferenceStorage.syncStatus = SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display
-            syncService.syncLauncher { errorReceived, errorMessage ->
-                // as there will be multiple callbacks from different coroutines
-                // list of errors is maintained.
-                // if the list is empty, then all the api calls were successful.
-                listOfErrors.add(errorMessage)
-                CoroutineScope(Dispatchers.Main).launch {
-                    (applicationContext as FhirApp).sessionExpireFlow.postValue(
-                        mapOf(Pair("errorReceived", errorReceived), Pair("errorMsg", errorMessage))
-                    )
-                }
-            }.also {
-                withContext(Dispatchers.Main) {
-                    photosWorkerStatus.observeForever { photosSyncStatus ->
-                        when (photosSyncStatus) {
-                            WorkerStatus.SUCCESS -> {
-                                preferenceStorage.lastSyncTime = Date().time
-                                if (listOfErrors.isEmpty()) {
-                                    preferenceStorage.syncStatus =
-                                        SyncStatusMessageEnum.SYNCING_COMPLETED.display
-                                    syncWorkerStatus.postValue(WorkerStatus.SUCCESS)
-                                } else {
-                                    preferenceStorage.syncStatus =
-                                        SyncStatusMessageEnum.SYNCING_FAILED.display
-                                    syncWorkerStatus.postValue(WorkerStatus.FAILED)
+        if (isSyncing.compareAndSet(false, true)) {
+            try {
+                if (CheckNetwork.isInternetAvailable(applicationContext)) {
+                    val listOfErrors = mutableListOf<String>()
+                    syncWorkerStatus.postValue(WorkerStatus.IN_PROGRESS)
+                    preferenceStorage.syncStatus = SyncStatusMessageEnum.SYNCING_IN_PROGRESS.display
+                    syncService.syncLauncher { errorReceived, errorMessage ->
+                        // as there will be multiple callbacks from different coroutines
+                        // list of errors is maintained.
+                        // if the list is empty, then all the api calls were successful.
+                        listOfErrors.add(errorMessage)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            (applicationContext as FhirApp).sessionExpireFlow.postValue(
+                                mapOf(
+                                    Pair("errorReceived", errorReceived),
+                                    Pair("errorMsg", errorMessage)
+                                )
+                            )
+                        }
+                    }.also {
+                        withContext(Dispatchers.Main) {
+                            photosWorkerStatus.observeForever { photosSyncStatus ->
+                                when (photosSyncStatus) {
+                                    WorkerStatus.SUCCESS -> {
+                                        preferenceStorage.lastSyncTime = Date().time
+                                        if (listOfErrors.isEmpty()) {
+                                            preferenceStorage.syncStatus =
+                                                SyncStatusMessageEnum.SYNCING_COMPLETED.display
+                                            syncWorkerStatus.postValue(WorkerStatus.SUCCESS)
+                                        } else {
+                                            preferenceStorage.syncStatus =
+                                                SyncStatusMessageEnum.SYNCING_FAILED.display
+                                            syncWorkerStatus.postValue(WorkerStatus.FAILED)
+                                        }
+                                    }
+
+                                    WorkerStatus.FAILED -> {
+                                        preferenceStorage.lastSyncTime = Date().time
+                                        preferenceStorage.syncStatus =
+                                            SyncStatusMessageEnum.SYNCING_FAILED.display
+                                        syncWorkerStatus.postValue(WorkerStatus.FAILED)
+                                    }
+
+                                    else -> {
+                                        Timber.d("manseeyy photos sync status $photosWorkerStatus")
+                                    }
                                 }
-                            }
-
-                            WorkerStatus.FAILED -> {
-                                preferenceStorage.lastSyncTime = Date().time
-                                preferenceStorage.syncStatus =
-                                    SyncStatusMessageEnum.SYNCING_FAILED.display
-                                syncWorkerStatus.postValue(WorkerStatus.FAILED)
-                            }
-
-                            else -> {
-                                Timber.d("manseeyy photos sync status $photosWorkerStatus")
                             }
                         }
                     }
                 }
+            } finally {
+                isSyncing.set(false)
             }
         }
     }
