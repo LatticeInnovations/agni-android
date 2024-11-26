@@ -136,11 +136,11 @@ class CVDRiskAssessmentViewModel @Inject constructor(
         return isDiabetic.isNotBlank() && isSmoker.isNotBlank()
                 && diastolic.isNotBlank() && !diastolicError
                 && systolic.isNotBlank() && !systolicError
-                && ((cholesterol.isNotBlank() && !cholesterolError)
+                && (cholesterol.isNotBlank()
                 || ((heightInCM.isNotBlank() || heightInFeet.isNotBlank())
-                && weight.isNotBlank()
+                && weight.isNotBlank()))
                 && !heightInCMError && !heightInFeetError && !heightInInchError
-                && !weightError))
+                && !weightError  && !cholesterolError
     }
 
     internal fun getTodayCVDAssessment() {
