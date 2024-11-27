@@ -15,6 +15,7 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import javax.inject.Inject
 
@@ -245,4 +246,45 @@ class GenericRepositoryImpl @Inject constructor(
             )
         }
     }
+    override suspend fun insertPhotoLabTestAndMedRecord(
+        map: Map<String, Any>,
+        patientId: String,
+        uuid: String,
+        typeEnum: GenericTypeEnum
+    ): Long {
+        return genericDao.getGenericEntityById(
+            patientId = map[LabTestAndMedConstants.PATIENT_ID].toString(),
+            genericTypeEnum = typeEnum,
+            syncType = SyncType.POST
+        ).let { genericEntity ->
+            insertLabTestPhotoGenericEntity(
+                map = map,
+                patientId = patientId,
+                photoGenericEntity = genericEntity,
+                uuid = uuid, typeEnum = typeEnum
+            )
+        }
+    }
+    override suspend fun insertOrUpdatePhotoLabTestAndMedPatch(
+        fhirId: String,
+        map: Map<String, Any>,
+        uuid: String,
+        typeEnum: GenericTypeEnum
+    ): Long {
+        return genericDao.getGenericEntityById(
+            fhirId,
+            typeEnum,
+            SyncType.PATCH
+        ).let { prescriptionGenericEntity ->
+            insertOrUpdatePhotoLabTestGenericEntityPatch(
+                prescriptionFhirId = fhirId,
+                prescriptionGenericEntity = prescriptionGenericEntity,
+                map = map,
+                uuid = uuid,
+                typeEnum = typeEnum
+            )
+        }
+
+    }
+
 }

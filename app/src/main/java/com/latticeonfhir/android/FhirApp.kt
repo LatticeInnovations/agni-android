@@ -14,6 +14,7 @@ import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import com.latticeonfhir.android.data.server.api.CVDApiService
 import com.latticeonfhir.android.data.server.api.FileUploadApiService
+import com.latticeonfhir.android.data.server.api.LabTestAndMedRecordService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
@@ -57,6 +58,8 @@ class FhirApp : Application() {
 
     @Inject
     lateinit var cvdApiService: CVDApiService
+    @Inject
+    lateinit var labTestAndMedRecordService: LabTestAndMedRecordService
 
     @Inject
     lateinit var fileUploadApiService: FileUploadApiService
@@ -90,6 +93,7 @@ class FhirApp : Application() {
             prescriptionApiService,
             scheduleAndAppointmentApiService,
             cvdApiService,
+            labTestAndMedRecordService,
             fhirAppDatabase.getPatientDao(),
             fhirAppDatabase.getGenericDao(),
             preferenceRepository,
@@ -99,7 +103,8 @@ class FhirApp : Application() {
             fhirAppDatabase.getScheduleDao(),
             fhirAppDatabase.getAppointmentDao(),
             fhirAppDatabase.getPatientLastUpdatedDao(),
-            fhirAppDatabase.getCVDDao()
+            fhirAppDatabase.getCVDDao(),
+            fhirAppDatabase.getLabTestAndMedDao()
         )
 
         _fileSyncRepository = FileSyncRepositoryImpl(

@@ -46,12 +46,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.PhotoUploadTypeEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.BottomNavBar
 import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
+import com.latticeonfhir.android.utils.constants.PhotoUploadViewType.PHOTO_VIEW_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
@@ -214,6 +216,32 @@ fun PatientLandingScreen(
                         )
                         CardComposable(
                             viewModel,
+                            stringResource(id = R.string.lab_test),
+                            R.drawable.lab_research,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PHOTO_VIEW_TYPE,
+                                    PhotoUploadTypeEnum.LAB_TEST.value
+                                )
+                                navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
+                            }
+                        )
+                        CardComposable(
+                            viewModel,
+                            stringResource(id = R.string.medical_record),
+                            R.drawable.contract,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PHOTO_VIEW_TYPE,
+                                    PhotoUploadTypeEnum.MEDICAL_RECORD.value
+                                )
+                                navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
+                            }
+                        )
+                        CardComposable(
+                            viewModel,
                             stringResource(id = R.string.cvd_risk_assessment),
                             R.drawable.cardiology,
                             if (viewModel.cvdRisk.isBlank()) null
@@ -242,6 +270,7 @@ fun PatientLandingScreen(
 
                             }
                         )
+
                     }
                     if (viewModel.showAllSlotsBookedDialog) {
                         AllSlotsBookedDialog {
@@ -270,7 +299,8 @@ fun PatientLandingScreen(
     ) {
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.padding(bottom = 160.dp)
+            modifier = Modifier
+                .padding(bottom = 160.dp)
                 .navigationBarsPadding()
         )
     }

@@ -67,6 +67,12 @@ class SyncService(
                     },
                     async {
                         patchCVD(logout)
+                    },async {
+                        patchLabTest(logout)
+                    }, async {
+                        patchMedRecord(logout)
+                    }, async {
+                        uploadLabAndMedPhoto(logout)
                     }
                 )
             }
@@ -217,7 +223,10 @@ class SyncService(
     private suspend fun uploadCVD(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(syncRepository.sendCVDPostData(), logout)
     }
-
+    /** Upload Photos Data */
+    private suspend fun uploadLabAndMedPhoto(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(fileSyncRepository.uploadFile(), logout)
+    }
     /**
      *
      *
@@ -253,6 +262,17 @@ class SyncService(
     /** Patch CVD */
     private suspend fun patchCVD(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(syncRepository.sendCVDPatchData(), logout)
+    }
+    /** Patch LabTest */
+    private suspend fun patchLabTest(logout: (Boolean, String) -> Unit) {
+        checkAuthenticationStatus(syncRepository.sendLabTestPatchData(), logout)
+    }
+
+    /** Patch Medical Record */
+    private suspend fun patchMedRecord(logout: (Boolean, String) -> Unit) {
+        checkAuthenticationStatus(
+            syncRepository.sendMedRecordPatchData(), logout
+        )
     }
 
     /**
@@ -306,6 +326,9 @@ class SyncService(
                     CoroutineScope(Dispatchers.IO).launch {
                         downloadCVD(logout)
                     }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        downloadLabAndMedicalRecordPhoto(logout)
+                    }
                 }
             }
         }
@@ -352,7 +375,38 @@ class SyncService(
     private suspend fun downloadCVD(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(syncRepository.getAndInsertCVD(0), logout)
     }
+    /** Download Lab And Medical Record Photo */
+    private suspend fun downloadLabAndMedicalRecordPhoto(logout: (Boolean, String) -> Unit) {
+        coroutineScope {
 
+            awaitAll(async {
+                downloadLabTest(logout)
+            }, async {
+                downloadMedicalRecord(logout)
+            }).all { responseMapper ->
+                responseMapper is ApiEndResponse
+            }.apply {
+                if (this) {
+                    fileSyncRepository.startDownload(logout)
+                }
+            }
+        }
+    }
+    /** Download LabTest*/
+    private suspend fun downloadLabTest(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(
+            syncRepository.getAndInsertListLabTestData(0),
+            logout
+        )
+    }
+
+    /** Download MedicalRecord*/
+    private suspend fun downloadMedicalRecord(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(
+            syncRepository.getAndInsertListMedicalRecordData(0),
+            logout
+        )
+    }
     /**
      *
      *

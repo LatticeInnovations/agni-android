@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
+import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -91,5 +92,19 @@ interface GenericRepository {
     suspend fun insertPatientLastUpdated(
         patientLastUpdatedResponse: PatientLastUpdatedResponse,
         uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
+    suspend fun insertPhotoLabTestAndMedRecord(
+        map: Map<String, Any>,
+        patientId: String,
+        uuid: String = UUIDBuilder.generateUUID(),
+        typeEnum: GenericTypeEnum
+    ): Long
+
+    suspend fun insertOrUpdatePhotoLabTestAndMedPatch(
+        fhirId: String,
+        map: Map<String, Any>,
+        uuid: String = UUIDBuilder.generateUUID(),
+        typeEnum: GenericTypeEnum
     ): Long
 }

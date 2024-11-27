@@ -482,4 +482,54 @@ open class GenericRepositoryDatabaseTransactions(
             )[0]
         }
     }
+
+    protected suspend fun insertLabTestPhotoGenericEntity(
+        map: Map<String, Any>,
+        patientId: String,
+        photoGenericEntity: GenericEntity?,
+        uuid: String,
+        typeEnum: GenericTypeEnum
+    ): Long {
+        return if (photoGenericEntity != null) {
+            genericDao.insertGenericEntity(
+                photoGenericEntity.copy(payload = map.toJson())
+            )[0]
+        } else {
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid,
+                    patientId = patientId,
+                    payload = map.toJson(),
+                    type = typeEnum,
+                    syncType = SyncType.POST
+                )
+            )[0]
+        }
+    }
+
+    protected suspend fun insertOrUpdatePhotoLabTestGenericEntityPatch(
+        prescriptionGenericEntity: GenericEntity?,
+        map: Map<String, Any>,
+        prescriptionFhirId: String,
+        uuid: String,
+        typeEnum: GenericTypeEnum
+    ): Long {
+        return if (prescriptionGenericEntity != null) {
+            genericDao.insertGenericEntity(
+                prescriptionGenericEntity.copy(payload = map.toJson())
+            )[0]
+        } else {
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid,
+                    patientId = prescriptionFhirId,
+                    payload = map.toJson(),
+                    type = typeEnum,
+                    syncType = SyncType.PATCH
+                )
+            )[0]
+        }
+    }
+
+
 }

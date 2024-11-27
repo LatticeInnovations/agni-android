@@ -62,6 +62,19 @@ class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage
 
     override fun getLastSyncCVD() = preferenceStorage.lastCVDSyncTime
 
+    override fun setLastSyncLabTest(long: Long) {
+        preferenceStorage.lastLabTestSyncTime = long
+    }
+
+    override fun getLastSyncLabTest() = preferenceStorage.lastLabTestSyncTime
+
+
+    override fun setLastSyncMedicalRecord(long: Long) {
+        preferenceStorage.lastMedicalRecordSyncTime = long
+    }
+
+    override fun getLastSyncMedicalRecord() = preferenceStorage.lastMedicalRecordSyncTime
+
     override fun getLastMedicineDosageInstructionSyncDate() =
         preferenceStorage.lastMedicineDosageInstructionSyncTime
 
