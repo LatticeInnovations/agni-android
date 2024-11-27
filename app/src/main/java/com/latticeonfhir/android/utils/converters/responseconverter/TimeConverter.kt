@@ -417,4 +417,13 @@ object TimeConverter {
         val formatter = SimpleDateFormat("dd MMM", Locale.getDefault())
         return formatter.format(this)
     }
+
+    fun Date.convertedDate(): String {
+        val sdf = SimpleDateFormat(YYYY_MM_DD, Locale.getDefault())
+        return sdf.format(this)
+    }
+    fun String.convertStringToDate(): Date {
+        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return formatter.parse(this)?:Date()
+    }
 }

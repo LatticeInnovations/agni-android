@@ -8,6 +8,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.DownloadedFileDao
 import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
+import com.latticeonfhir.android.data.local.roomdb.dao.LabTestAndMedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
@@ -119,5 +120,10 @@ object DatabaseModule {
     @Provides
     fun provideCVDDao(appDatabase: FhirAppDatabase): CVDDao {
         return appDatabase.getCVDDao()
+    }
+    @Singleton
+    @Provides
+    fun provideLabTestAndMedDao(fhirAppDatabase: FhirAppDatabase): LabTestAndMedDao {
+        return fhirAppDatabase.getLabTestAndMedDao()
     }
 }

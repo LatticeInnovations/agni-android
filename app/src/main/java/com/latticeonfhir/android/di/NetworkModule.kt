@@ -6,6 +6,7 @@ import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import com.latticeonfhir.android.data.server.api.AuthenticationApiService
 import com.latticeonfhir.android.data.server.api.CVDApiService
 import com.latticeonfhir.android.data.server.api.FileUploadApiService
+import com.latticeonfhir.android.data.server.api.LabTestAndMedRecordService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
@@ -129,5 +130,11 @@ object NetworkModule {
     @Singleton
     internal fun provideCVDApiService(retrofit: Retrofit): CVDApiService {
         return retrofit.create(CVDApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    internal fun provideLabAndMedAPiService(retrofit: Retrofit): LabTestAndMedRecordService {
+        return retrofit.create(LabTestAndMedRecordService::class.java)
     }
 }
