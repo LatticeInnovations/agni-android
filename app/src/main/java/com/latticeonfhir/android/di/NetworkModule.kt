@@ -10,6 +10,7 @@ import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
 import com.latticeonfhir.android.data.server.api.SignUpApiService
+import com.latticeonfhir.android.data.server.api.VitalApiService
 import com.latticeonfhir.android.utils.constants.AuthenticationConstants.X_ACCESS_TOKEN
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import dagger.Module
@@ -129,5 +130,11 @@ object NetworkModule {
     @Singleton
     internal fun provideCVDApiService(retrofit: Retrofit): CVDApiService {
         return retrofit.create(CVDApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    internal fun provideVitalAPiService(retrofit: Retrofit): VitalApiService {
+        return retrofit.create(VitalApiService::class.java)
     }
 }

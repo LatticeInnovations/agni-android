@@ -10,7 +10,8 @@ enum class GenericTypeEnum(val number: Int, val value: String) {
     LAST_UPDATED(7, "LAST_UPDATED"),
     FHIR_IDS_PRESCRIPTION(8, "FHIR_IDS_PRESCRIPTION"),
     PRESCRIPTION_PHOTO(9, "prescription_photo"),
-    CVD(10, "cvd_record");
+    CVD(10, "cvd_record"),
+    VITAL(11, "VitalPatch");
 
     companion object {
         fun fromString(value: String) = entries.firstOrNull { it.value == value }
