@@ -3,6 +3,7 @@ package com.latticeonfhir.android.data.server.repository.sync
 import com.google.gson.internal.LinkedTreeMap
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
+import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
@@ -13,12 +14,15 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
+import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.server.api.CVDApiService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
+import com.latticeonfhir.android.data.server.api.SymptomsAndDiagnosisService
 import com.latticeonfhir.android.data.server.constants.ConstantValues.COUNT_VALUE
 import com.latticeonfhir.android.data.server.constants.ConstantValues.DEFAULT_MAX_COUNT_VALUE
+import com.latticeonfhir.android.data.server.constants.EndPoints
 import com.latticeonfhir.android.data.server.constants.EndPoints.MEDICATION_REQUEST
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.EndPoints.RELATED_PERSON
@@ -40,6 +44,7 @@ import com.latticeonfhir.android.data.server.model.prescription.photo.Prescripti
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
@@ -59,6 +64,8 @@ class SyncRepositoryImpl @Inject constructor(
     private val prescriptionApiService: PrescriptionApiService,
     private val scheduleAndAppointmentApiService: ScheduleAndAppointmentApiService,
     private val cvdApiService: CVDApiService,
+    private val symptomsAndDiagnosisService: SymptomsAndDiagnosisService,
+
     patientDao: PatientDao,
     private val genericDao: GenericDao,
     private val preferenceRepository: PreferenceRepository,
@@ -68,7 +75,8 @@ class SyncRepositoryImpl @Inject constructor(
     scheduleDao: ScheduleDao,
     appointmentDao: AppointmentDao,
     patientLastUpdatedDao: PatientLastUpdatedDao,
-    cvdDao: CVDDao
+    cvdDao: CVDDao,
+    symptomsAndDiagnosisDao: SymptomsAndDiagnosisDao,
 ) : SyncRepository, SyncRepositoryDatabaseTransactions(
     patientApiService,
     patientDao,
@@ -79,7 +87,8 @@ class SyncRepositoryImpl @Inject constructor(
     scheduleDao,
     appointmentDao,
     patientLastUpdatedDao,
-    cvdDao
+    cvdDao,
+    symptomsAndDiagnosisDao
 ) {
 
     override suspend fun getAndInsertListPatientData(
@@ -386,6 +395,41 @@ class SyncRepositoryImpl @Inject constructor(
             }
         }
     }
+    override suspend fun getAndInsertListSymptomsAndDiagnosisData(offset: Int): ResponseMapper<List<SymptomsAndDiagnosisResponse>> {
+        val map = mutableMapOf<String, String>()
+        map[COUNT] = COUNT_VALUE.toString()
+        map[OFFSET] = offset.toString()
+        map[SORT] = "-$ID"
+        if (preferenceRepository.getLastSyncSymDiag() != 0L) map[LAST_UPDATED] = String.format(
+            GREATER_THAN_BUILDER, preferenceRepository.getLastSyncSymDiag().toTimeStampDate()
+        )
+
+        ApiResponseConverter.convert(
+            symptomsAndDiagnosisService.getListData(
+                EndPoints.SYMPTOMS_DIAGNOSIS, map
+            ), true
+        ).run {
+            return when (this) {
+                is ApiContinueResponse -> {
+                    //Insert Patient
+                    insertSymDiag(body)
+                    //Call for next batch data
+                    getAndInsertListSymptomsAndDiagnosisData(offset + COUNT_VALUE)
+                }
+
+                is ApiEndResponse -> {
+                    //Set Last Update Time
+                    preferenceRepository.setLastSyncSymDiag(Date().time)
+                    //Insert Patient
+                    insertSymDiag(body)
+                    this
+                }
+
+                else -> this
+            }
+        }
+    }
+
 
     override suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
@@ -570,6 +614,33 @@ class SyncRepositoryImpl @Inject constructor(
             }
         }
     }
+    override suspend fun sendSymptomsAndDiagnosisPostData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.SYMPTOMS_DIAGNOSIS, syncType = SyncType.POST
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else ApiResponseConverter.convert(
+                symptomsAndDiagnosisService.createData(
+                    EndPoints.SYMPTOMS_DIAGNOSIS,
+                    listOfGenericEntity.map {
+                        it.payload.fromJson<LinkedTreeMap<*, *>>()
+                            .mapToObject(SymptomsAndDiagnosisData::class.java)!!
+                    })
+            ).run {
+                when (this) {
+                    is ApiEndResponse -> {
+                        insertSymDiagFhirId(
+                            listOfGenericEntity, body
+                        ).let { deletedRows -> if (deletedRows > 0) sendSymptomsAndDiagnosisPostData() else this }
+                    }
+
+                    else -> this
+                }
+            }
+        }
+
+    }
+
 
     override suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
@@ -692,4 +763,30 @@ class SyncRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun sendSymptomsAndDiagnosisPatchData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.SYMPTOMS_DIAGNOSIS, syncType = SyncType.PATCH
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    symptomsAndDiagnosisService.patchListOfChanges(EndPoints.SYMPTOMS_DIAGNOSIS,
+                        listOfGenericEntity.map { it.payload.fromJson() })
+                ).run {
+                    when (this) {
+                        is ApiEndResponse -> {
+                            deleteGenericEntityData(listOfGenericEntity).let {
+                                if (it > 0) sendSymptomsAndDiagnosisPatchData() else this
+                            }
+                        }
+
+                        else -> this
+                    }
+                }
+            }
+        }
+
+    }
+
 }
