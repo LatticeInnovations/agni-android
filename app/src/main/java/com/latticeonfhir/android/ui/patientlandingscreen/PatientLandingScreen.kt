@@ -224,6 +224,10 @@ fun PatientLandingScreen(
                                     PHOTO_VIEW_TYPE,
                                     PhotoUploadTypeEnum.LAB_TEST.value
                                 )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
                                 navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
                             }
                         )
@@ -236,6 +240,10 @@ fun PatientLandingScreen(
                                 navController.currentBackStackEntry?.savedStateHandle?.set(
                                     PHOTO_VIEW_TYPE,
                                     PhotoUploadTypeEnum.MEDICAL_RECORD.value
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
                                 )
                                 navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
                             }
