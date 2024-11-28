@@ -33,6 +33,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
@@ -140,6 +141,7 @@ class PhotoViewViewModel @Inject constructor(
     internal fun getPastLabAndMedTest() {
         viewModelScope.launch(Dispatchers.IO) {
             labTestPhotos = labTestRepository.getLastPhotoLabAndMedTest(patient!!.id, photoviewType)
+            Timber.d("LabTest: $labTestPhotos")
         }
     }
 

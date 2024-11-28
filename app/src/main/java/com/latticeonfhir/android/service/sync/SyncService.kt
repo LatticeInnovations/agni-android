@@ -67,13 +67,14 @@ class SyncService(
                     },
                     async {
                         patchCVD(logout)
-                    },async {
-                        patchLabTest(logout)
-                    }, async {
-                        patchMedRecord(logout)
-                    }, async {
-                        uploadLabAndMedPhoto(logout)
                     }
+//                    ,async {
+//                        patchLabTest(logout)
+//                    }, async {
+//                        patchMedRecord(logout)
+//                    }, async {
+//                        uploadLabAndMedPhoto(logout)
+//                    }
                 )
             }
         }
@@ -326,9 +327,9 @@ class SyncService(
                     CoroutineScope(Dispatchers.IO).launch {
                         downloadCVD(logout)
                     }
-                    CoroutineScope(Dispatchers.IO).launch {
-                        downloadLabAndMedicalRecordPhoto(logout)
-                    }
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        downloadLabAndMedicalRecordPhoto(logout)
+//                    }
                 }
             }
         }
