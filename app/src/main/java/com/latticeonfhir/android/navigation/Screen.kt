@@ -25,4 +25,8 @@ sealed class Screen(val route: String) {
     data object PrescriptionPhotoUploadScreen : Screen("prescription_photo")
     data object PrescriptionPhotoViewScreen : Screen("prescription_photo_view")
     data object CVDRiskAssessmentScreen : Screen("cvd_risk_assessment")
+    data object SymptomsAndDiagnosisScreen : Screen("symptoms_and_diagnosis")
+    data object AddSymptomsScreen : Screen("add_symptoms")
+
+
 }

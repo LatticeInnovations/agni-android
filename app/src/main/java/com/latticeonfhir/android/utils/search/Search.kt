@@ -103,4 +103,24 @@ object Search {
             FuzzySearch.partialRatio(queryActiveIngredient, activeIngredient) > matchingRatio
         }
     }
+
+    internal fun getFuzzySearchDiagnosisList(
+        searchQuery: String,
+        diagnosisList: List<String>,
+        matchingRatio: Int
+    ): List<String> {
+        return diagnosisList.filter { diagnosis ->
+            FuzzySearch.partialRatio(searchQuery, diagnosis) > matchingRatio
+        }
+    }
+
+    internal fun getFuzzySearchSymptomsList(
+        searchQuery: String,
+        symptomsList: List<String>,
+        matchingRatio: Int
+    ): List<String> {
+        return symptomsList.filter { symptoms ->
+            FuzzySearch.partialRatio(searchQuery, symptoms) > matchingRatio
+        }
+    }
 }

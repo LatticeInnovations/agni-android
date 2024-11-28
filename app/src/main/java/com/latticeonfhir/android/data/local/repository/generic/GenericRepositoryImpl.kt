@@ -2,6 +2,7 @@ package com.latticeonfhir.android.data.local.repository.generic
 
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
+import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -137,6 +138,12 @@ class GenericRepositoryImpl @Inject constructor(
                 updateCVDFhirIdInGenericEntity(cvdGenericEntity)
             }
     }
+    override suspend fun updateSymDiagFhirId() {
+        genericDao.getNotSyncedData(GenericTypeEnum.SYMPTOMS_DIAGNOSIS)
+            .forEach { symDiagGenericEntity ->
+                updateSymDiagFhirIdInGenericEntity(symDiagGenericEntity)
+            }
+    }
 
     override suspend fun insertAppointment(
         appointmentResponse: AppointmentResponse,
@@ -161,6 +168,15 @@ class GenericRepositoryImpl @Inject constructor(
             syncType = SyncType.POST
         ).let { cvdGenericEntity ->
             insertCVDGenericEntity(cvdGenericEntity, cvdResponse, uuid)
+        }
+    }
+    override suspend fun insertSymDiag(local: SymptomsAndDiagnosisData, uuid: String): Long {
+        return genericDao.getGenericEntityById(
+            patientId = local.symDiagUuid,
+            genericTypeEnum = GenericTypeEnum.SYMPTOMS_DIAGNOSIS,
+            syncType = SyncType.POST
+        ).let {
+            insertSymDiagGenericEntity(local, it, uuid)
         }
     }
 
@@ -226,6 +242,19 @@ class GenericRepositoryImpl @Inject constructor(
             SyncType.PATCH
         ).let { genericEntities ->
             insertOrUpdateCVDGenericEntityPatch(genericEntities, cvdFhirId, map, uuid)
+        }
+    }
+    override suspend fun insertOrUpdateSymDiagPatchEntity(
+        fhirId: String,
+        map: Map<String, Any>,
+        uuid: String
+    ): Long {
+        return genericDao.getGenericEntityById(
+            patientId = fhirId,
+            genericTypeEnum = GenericTypeEnum.SYMPTOMS_DIAGNOSIS,
+            syncType = SyncType.PATCH
+        ).let { genericEntity ->
+            insertSymDiagGenericEntityPatch(genericEntity, fhirId, map, uuid)
         }
     }
 

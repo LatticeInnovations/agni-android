@@ -21,6 +21,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RiskPredictionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
+import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.CVDEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.RiskPredictionCharts
@@ -38,6 +39,11 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.P
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.search.SymDiagSearchEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsEntity
+import com.latticeonfhir.android.data.local.roomdb.typeconverters.SymptomDiagnosisTypeConverter
 import com.latticeonfhir.android.data.local.roomdb.typeconverters.TypeConverter
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
@@ -64,21 +70,27 @@ import java.util.UUID
         FileUploadEntity::class,
         DownloadedFileEntity::class,
         RiskPredictionCharts::class,
-        CVDEntity::class
+        CVDEntity::class,
+        SymptomsEntity::class,
+        DiagnosisEntity::class,
+        SymptomAndDiagnosisEntity::class,
+        SymDiagSearchEntity::class
+
     ],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
-    version = 7,
+    version = 8,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
         AutoMigration(from = 3, to = 4),
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6),
-        AutoMigration(from = 6, to = 7)
+        AutoMigration(from = 6, to = 7),
+        AutoMigration(from = 7, to = 8),
     ],
     exportSchema = true
 )
-@TypeConverters(TypeConverter::class)
+@TypeConverters(TypeConverter::class, SymptomDiagnosisTypeConverter::class)
 abstract class FhirAppDatabase : RoomDatabase() {
 
     abstract fun getPatientDao(): PatientDao
@@ -95,6 +107,8 @@ abstract class FhirAppDatabase : RoomDatabase() {
     abstract fun getDownloadedFileDao(): DownloadedFileDao
     abstract fun getRiskPredictionDao(): RiskPredictionDao
     abstract fun getCVDDao(): CVDDao
+    abstract fun getSymptomsAndDiagnosisDao(): SymptomsAndDiagnosisDao
+
 
     companion object {
         @Volatile
