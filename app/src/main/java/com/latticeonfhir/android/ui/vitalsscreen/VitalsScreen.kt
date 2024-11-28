@@ -1,0 +1,812 @@
+package com.latticeonfhir.android.ui.vitalsscreen
+
+import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.model.vital.VitalLocal
+import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.theme.VitalLabel
+import com.latticeonfhir.android.ui.vitalsscreen.components.CustomChip
+import com.latticeonfhir.android.ui.vitalsscreen.components.LineChartView
+import com.latticeonfhir.android.ui.vitalsscreen.components.LineChartViewGlucose
+import com.latticeonfhir.android.ui.vitalsscreen.enums.BGEnum
+import com.latticeonfhir.android.ui.vitalsscreen.enums.TemperatureEnum
+import com.latticeonfhir.android.ui.vitalsscreen.enums.VitalsEyeEnum
+import com.latticeonfhir.android.ui.vitalsscreen.enums.VitalsTrendEnum
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.VitalConstants.VITAL
+import com.latticeonfhir.android.utils.constants.VitalConstants.VITAL_UPDATE_OR_ADD
+import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertDateFormat
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertedDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.formatDateToDayMonth
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.github.mikephil.charting.data.Entry
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import timber.log.Timber
+import java.util.Date
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel = hiltViewModel()) {
+
+    LaunchedEffect(key1 = vitalsViewModel.isLaunched) {
+        vitalsViewModel.apply {
+            if (isLaunched) {
+                patient =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                        PATIENT
+                    )
+                patient?.let {
+                    getStudentTodayAppointment(
+                        Date(Date().toTodayStartDate()), Date(Date().toEndOfDay()), patient!!.id
+                    )
+                    msg = navController.currentBackStackEntry?.savedStateHandle?.get<String>(
+                        VITAL_UPDATE_OR_ADD
+                    ) ?: ""
+                    getVitals()
+                    Timber.d("Student:  ${_vitals.toJson()} : ${patient.toJson()} $appointmentResponseLocal")
+                } ?: run {
+                    Timber.d("Student: null")
+
+                }
+
+            }
+            isLaunched = true
+
+        }
+
+    }
+
+    val context = LocalContext.current
+    val snackBarHostState = remember { SnackbarHostState() }
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackBarHostState) },
+        topBar = {
+        TopAppBar(modifier = Modifier.fillMaxWidth(),
+            colors = TopAppBarDefaults.largeTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            navigationIcon = {
+                IconButton(onClick = {
+                    navController.popBackStack()
+                }) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON"
+                    )
+                }
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.vitals),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.testTag("VITAL_TITLE_TEXT")
+                )
+            })
+    }, content = { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.inverseOnSurface)
+                .padding(paddingValues = paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            if (vitalsViewModel.isVitalExist) {
+                val vitals by vitalsViewModel._vitals.collectAsState()
+                LazyColumn(userScrollEnabled = true) {
+                    item {
+                        VitalsTrendGraph(vitalsViewModel)
+                    }
+                    items(vitals) { vital ->
+                        VitalsCardLayout(vital = vital, context = context)
+
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.no_record_found),
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
+
+                }
+            }
+        }
+
+    }, bottomBar = {
+        Box(
+            modifier = Modifier
+                .padding()
+                .navigationBarsPadding(),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface),
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .fillMaxWidth(), onClick = {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            key = VITAL, vitalsViewModel.vital
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            key = PATIENT, vitalsViewModel.patient
+                        )
+                        navController.navigate(Screen.AddVitalsScreen.route)
+
+                    },
+                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+                ) {
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = stringResource(R.string.add_icon),
+                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    Text(
+                        if (vitalsViewModel.isAppointmentExist && vitalsViewModel.vital != null) stringResource(
+                            id = R.string.update_vital
+                        ) else stringResource(
+                            id = R.string.add_vitals
+                        )
+                    )
+                }
+            }
+
+
+        }
+
+    })
+
+    LaunchedEffect(key1 = vitalsViewModel.msg) {
+        if (vitalsViewModel.msg.isNotBlank()) {
+            snackBarHostState.showSnackbar(vitalsViewModel.msg)
+            vitalsViewModel.msg = ""
+        }
+
+    }
+}
+
+
+@Composable
+fun VitalsTrendGraph(vitalsViewModel: VitalsViewModel, modifier: Modifier = Modifier) {
+    val list by vitalsViewModel._vitals.collectAsState()
+
+    if (list.filter { it.heartRate != null }.size > 1 || list.filter { it.respRate != null }.size > 1 || list.filter { it.spo2 != null }.size > 1 || list.filter { it.bloodGlucose != null }.size > 1 || list.filter { it.bpSystolic != null }.size > 1 || list.filter { it.bpDiastolic != null }.size > 1) {
+        ShowTrendGraphCard(modifier, vitalsViewModel, list.reversed())
+    } else {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .background(
+                    MaterialTheme.colorScheme.surfaceBright
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                modifier = Modifier
+                    .testTag("VITAL_TITLE_TEXT")
+                    .padding(20.dp),
+                text = stringResource(R.string.graph_empty_error_msg),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun ShowTrendGraphCard(
+    modifier: Modifier,
+    vitalsViewModel: VitalsViewModel,
+    list: List<VitalLocal>
+) {
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .background(
+                MaterialTheme.colorScheme.surfaceBright
+            )
+    ) {
+        Text(
+            modifier = Modifier
+                .testTag("VITAL_TITLE_TEXT")
+                .padding(start = 16.dp, top = 16.dp),
+            text = stringResource(R.string.vitals_trend),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        HorizontalDivider(
+            modifier = Modifier.padding(
+                start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp
+            )
+        )
+        LaunchedEffect(key1 = vitalsViewModel.isFistLaunch) {
+            if (!vitalsViewModel.isFistLaunch) {
+                showChipSelection(vitalsViewModel, list)
+                vitalsViewModel.isFistLaunch = true
+            }
+
+        }
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            AnimatedVisibility(visible = list.filter { it.weight != null }.size > 1) {
+                CustomChip(
+                    idSelected = vitalsViewModel.isWeightSelected,
+                    label = VitalsTrendEnum.Weight.name
+                ) {
+                    vitalsViewModel.apply {
+                        isWeightSelected = true
+                        isHRSelected = false
+                        isRRSelected = false
+                        isSpO2Selected = false
+                        isGlucoseSelected = false
+                        isBPSelected = false
+                    }
+                }
+            }
+            AnimatedVisibility(visible = list.filter { it.heartRate != null }.size > 1) {
+                CustomChip(
+                    idSelected = vitalsViewModel.isHRSelected, label = VitalsTrendEnum.HR.name
+                ) {
+                    vitalsViewModel.apply {
+                        isWeightSelected = false
+                        isHRSelected = true
+                        isRRSelected = false
+                        isSpO2Selected = false
+                        isGlucoseSelected = false
+                        isBPSelected = false
+                    }
+                }
+            }
+
+            AnimatedVisibility(visible = list.filter { it.respRate != null }.size > 1) {
+                CustomChip(
+                    idSelected = vitalsViewModel.isRRSelected, label = VitalsTrendEnum.RR.name
+                ) {
+                    vitalsViewModel.apply {
+                        isWeightSelected = false
+                        isHRSelected = false
+                        isRRSelected = true
+                        isSpO2Selected = false
+                        isGlucoseSelected = false
+                        isBPSelected = false
+                    }
+                }
+            }
+            AnimatedVisibility(visible = list.filter { it.spo2 != null }.size > 1) {
+
+                CustomChip(
+                    idSelected = vitalsViewModel.isSpO2Selected, label = VitalsTrendEnum.spO2.name
+                ) {
+                    vitalsViewModel.apply {
+                        isWeightSelected = false
+                        isHRSelected = false
+                        isRRSelected = false
+                        isSpO2Selected = true
+                        isGlucoseSelected = false
+                        isBPSelected = false
+                    }
+                }
+
+            }
+            AnimatedVisibility(visible = list.filter { it.bloodGlucose != null && it.bloodGlucoseType == BGEnum.RANDOM.value || it.bloodGlucoseType == BGEnum.FASTING.value }.size > 1) {
+
+                CustomChip(
+                    idSelected = vitalsViewModel.isGlucoseSelected,
+                    label = VitalsTrendEnum.Glucose.name
+                ) {
+                    vitalsViewModel.apply {
+                        isWeightSelected = false
+                        isHRSelected = false
+                        isRRSelected = false
+                        isSpO2Selected = false
+                        isGlucoseSelected = true
+                        isBPSelected = false
+                    }
+                }
+            }
+            AnimatedVisibility(visible = list.filter { it.bpSystolic != null }.size > 1) {
+                CustomChip(
+                    idSelected = vitalsViewModel.isBPSelected, label = VitalsTrendEnum.BP.name
+                ) {
+                    vitalsViewModel.apply {
+                        isWeightSelected = false
+                        isHRSelected = false
+                        isRRSelected = false
+                        isSpO2Selected = false
+                        isGlucoseSelected = false
+                        isBPSelected = true
+                    }
+
+                }
+            }
+
+        }
+
+
+        AnimatedVisibility(vitalsViewModel.isGlucoseSelected) {
+            GraphLegendGroup(
+                legendList = listOf(
+                    Pair(BGEnum.RANDOM.value.capitalizeFirstLetter(), VitalLabel),
+                    Pair(
+                        BGEnum.FASTING.value.capitalizeFirstLetter(),
+                        MaterialTheme.colorScheme.primary
+                    )
+
+                )
+            )
+
+        }
+        AnimatedVisibility(vitalsViewModel.isBPSelected) {
+            GraphLegendGroup(
+                legendList = listOf(
+                    Pair(stringResource(id = R.string.systolic), VitalLabel),
+                    Pair(stringResource(id = R.string.diastolic), MaterialTheme.colorScheme.primary)
+
+                )
+            )
+        }
+        if (!vitalsViewModel.isGlucoseSelected && (vitalsViewModel.isWeightSelected || vitalsViewModel.isHRSelected || vitalsViewModel.isRRSelected || vitalsViewModel.isSpO2Selected || vitalsViewModel.isBPSelected)) {
+            LineChartView(modifier = modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp)
+                .height(200.dp),
+                entries1 = getChartEntries(list, vitalsViewModel),
+                entries2 = getChartEntries2(list, vitalsViewModel),
+                labels = list.map { it.createdOn.formatDateToDayMonth() },
+                isBp = vitalsViewModel.isBPSelected
+            )
+            Timber.d("List : ${list.map { it.createdOn.formatDateToDayMonth() }}")
+        } else if (vitalsViewModel.isGlucoseSelected) {
+            LineChartViewGlucose(modifier = modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp)
+                .height(200.dp),
+                entriesRandom = getChartEntries2(list, vitalsViewModel),
+                entriesFasting = getChartEntries(list, vitalsViewModel),
+                labels = list.map { it.createdOn.formatDateToDayMonth() })
+        }
+    }
+
+
+}
+
+@Composable
+fun GraphLegendGroup(legendList: List<Pair<String, Color>>) {
+    Column(modifier = Modifier.padding(start = 16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Iterate through each legend item (text and color pair)
+            legendList.forEach { (label, color) ->
+                IndicatorWithText(color = color, text = label)
+
+                Spacer(modifier = Modifier.width(8.dp)) // Spacer between legend items
+            }
+        }
+    }
+}
+
+@Composable
+fun IndicatorWithText(color: Color, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        // Circle indicator
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .clip(CircleShape)
+                .background(color)
+        )
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        // Text next to the circle
+        Text(
+            text = text, color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.labelLarge
+        )
+    }
+}
+
+
+private fun String.capitalizeFirstLetter(): String {
+    return this.lowercase().replaceFirstChar { it.uppercaseChar() }
+}
+
+fun getChartEntries(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): List<Entry>? {
+
+    return when {
+        vitalsViewModel.isWeightSelected -> {
+            getEntryListGlucose(list,list.map { it.createdOn.formatDateToDayMonth() }) { it.weight?.toFloat() }
+        }
+        vitalsViewModel.isHRSelected -> {
+            getEntryListGlucose(list,list.map { it.createdOn.formatDateToDayMonth() }) { it.heartRate?.toFloat() }
+        }
+
+        vitalsViewModel.isRRSelected -> {
+            getEntryListGlucose(list,list.map { it.createdOn.formatDateToDayMonth() }) { it.respRate?.toFloat() }
+        }
+
+        vitalsViewModel.isSpO2Selected -> {
+            getEntryListGlucose(list,list.map { it.createdOn.formatDateToDayMonth() }) { it.spo2?.toFloat() }
+
+        }
+
+        vitalsViewModel.isGlucoseSelected -> {
+            getEntryListGlucose(list.filter { it.bloodGlucoseType == BGEnum.FASTING.value },
+                list.map { it.createdOn.formatDateToDayMonth() }) {
+                if (it.bloodGlucoseUnit?.equals(BGEnum.BG_MMO.value) == true) it.bloodGlucose?.toFloat()
+                    ?.times(18.018f)
+                else it.bloodGlucose?.toFloat()
+            }
+        }
+
+        vitalsViewModel.isBPSelected -> {
+            getEntryListGlucose(list,list.map { it.createdOn.formatDateToDayMonth() }) { it.bpSystolic?.toFloat() }
+        }
+
+        else -> {
+            null
+        }
+    }
+
+}
+
+
+
+fun getChartEntries2(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): List<Entry>? {
+
+    return if (vitalsViewModel.isGlucoseSelected) {
+        getEntryListGlucose(list.filter { it.bloodGlucoseType == BGEnum.RANDOM.value },
+            list.map { it.createdOn.formatDateToDayMonth() }) {
+            if (it.bloodGlucoseUnit?.equals(BGEnum.BG_MMO.value) == true) it.bloodGlucose?.toFloat()
+                ?.times(18.018f)
+            else it.bloodGlucose?.toFloat()
+        }
+    } else if (vitalsViewModel.isBPSelected) {
+        getEntryListGlucose(list,list.map { it.createdOn.formatDateToDayMonth() }) { it.bpDiastolic?.toFloat() }
+    } else {
+        null
+    }
+
+}
+
+private fun getEntryList(
+    list: List<VitalLocal>, valueSelector: (VitalLocal) -> Float?
+): MutableList<Entry> {
+    val mutableList: MutableList<Entry> = mutableListOf()
+
+    for (index in list.indices) { // Updated to use indices for better bounds
+        valueSelector(list[index])?.let { value ->
+            mutableList.add(Entry(index.toFloat(), value))
+        }
+    }
+
+    return mutableList
+}
+
+private fun getEntryListGlucose(
+    list: List<VitalLocal>, labels: List<String>, valueSelector: (VitalLocal) -> Float?
+): MutableList<Entry> {
+    val mutableList: MutableList<Entry> = mutableListOf()
+
+    // Iterate over the VitalLocal list
+    for (item in list) {
+        // Get the formatted date for the current item
+        val formattedDate = item.createdOn.formatDateToDayMonth()
+
+        // Find the index of the formatted date in the labels list
+        val labelIndex = labels.indexOf(formattedDate)
+        Timber.d("LabelINDEX: $labels \n$labelIndex")
+
+        // If the date is found in the labels, get the value and add the entry
+        if (labelIndex != -1) {
+            valueSelector(item)?.let { value ->
+                mutableList.add(Entry(labelIndex.toFloat(), value))
+            }
+        }
+    }
+
+    return mutableList
+}
+
+
+
+
+@Composable
+fun VitalsCardLayout(
+    modifier: Modifier = Modifier, vital: VitalLocal, context: Context
+) {
+    var isViewMore by remember {
+        mutableStateOf(false)
+    }
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
+    ) {
+        Column(modifier = modifier.fillMaxWidth()) {
+            Text(
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+                text = vital.createdOn.convertedDate().convertDateFormat(),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                modifier = Modifier.padding(start = 16.dp, top = 8.dp),
+                text = vital.practitionerName ?: stringResource(id = R.string.dash),
+                style = MaterialTheme.typography.bodySmall
+            )
+            HorizontalDivider(
+                modifier = Modifier.padding(
+                    start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp
+                )
+            )
+            VitalCardItem(
+                title = stringResource(id = R.string.height),
+                value = if (vital.heightCm != null) "${vital.heightCm} ${stringResource(id = R.string.cm)}"
+                else if (vital.heightFt != null || vital.heightInch != null) "${vital.heightFt ?: ""}.${vital.heightInch ?: "0"} ${
+                    stringResource(
+                        id = R.string.ft_in
+                    )
+                }" else stringResource(
+                    id = R.string.dashes
+                )
+            )
+            VitalCardItem(
+                title = stringResource(id = R.string.weight),
+                value = if (vital.weight != null) "${vital.weight} ${
+                    stringResource(
+                        id = R.string.kg
+                    ).lowercase()
+                }" else stringResource(id = R.string.dashes)
+            )
+            VitalCardItem(
+                title = stringResource(R.string.hear_rate_min),
+                value = vital.heartRate ?: stringResource(id = R.string.dashes)
+            )
+            VitalCardItem(
+                title = stringResource(R.string.respiratory_rate_min),
+                value = vital.respRate ?: stringResource(id = R.string.dashes)
+            )
+            VitalCardItem(
+                title = stringResource(id = R.string.temperature),
+                value = if (vital.temp != null) "${vital.temp} ${if (vital.tempUnit == TemperatureEnum.CELSIUS.value) "°C" else "F"}" else stringResource(
+                    id = R.string.dashes
+                )
+            )
+            AnimatedVisibility(visible = isViewMore) {
+                Column {
+                    VitalCardItem(
+                        title = stringResource(R.string.eye_test_result_left),
+                        value = if (vital.leftEye != null) vital.leftEye.toInt()
+                            .getEyeTypeName(context) else stringResource(
+                            id = R.string.dashes
+                        )
+                    )
+                    VitalCardItem(
+                        title = stringResource(R.string.eye_test_result_right),
+                        value = if (vital.rightEye != null) vital.rightEye.toInt()
+                            .getEyeTypeName(context) else stringResource(
+                            id = R.string.dashes
+                        )
+                    )
+                    VitalCardItem(
+                        title = stringResource(R.string.spo2_title),
+                        value = vital.spo2 ?: stringResource(
+                            id = R.string.dashes
+                        )
+                    )
+                    VitalCardItem(
+                        title = stringResource(id = R.string.blood_pressure),
+                        value = if (vital.bpDiastolic != null && vital.bpSystolic != null) "${vital.bpSystolic}/${vital.bpDiastolic} ${
+                            stringResource(
+                                id = R.string.mmhg
+                            )
+                        }" else stringResource(id = R.string.dashes)
+                    )
+                    VitalCardItem(
+                        title = "${
+                            stringResource(
+                                id = if (vital.bloodGlucoseType == stringResource(
+                                        id = R.string.fasting
+                                    ).lowercase()
+                                ) R.string.fasting else R.string.random
+                            )
+                        } ${
+                            stringResource(
+                                id = R.string.blood_glucose
+                            ).lowercase()
+                        }",
+                        value = if (vital.bloodGlucose != null) "${vital.bloodGlucose} ${vital.bloodGlucoseUnit}"
+                        else stringResource(R.string.dashes)
+                    )
+
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            Text(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clickable {
+                        isViewMore = !isViewMore
+                    },
+                text = if (isViewMore) stringResource(R.string.view_less) else stringResource(R.string.view_more),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+
+    }
+}
+
+@Composable
+fun VitalCardItem(modifier: Modifier = Modifier, title: String, value: String) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(end = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            modifier = modifier
+                .testTag("VITAL_TITLE_TEXT")
+                .padding(start = 16.dp, top = 8.dp),
+            text = title,
+            style = MaterialTheme.typography.titleSmall
+        )
+        Text(
+            modifier = modifier
+                .testTag("VITAL_TITLE_TEXT")
+                .padding(start = 16.dp, top = 8.dp),
+            text = value,
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}
+private fun Int.getEyeTypeName(context: Context): String {
+    return when (this) {
+        VitalsEyeEnum.NORMAL_VISION.number -> VitalsEyeEnum.NORMAL_VISION.value.extractStringInBrackets()
+        VitalsEyeEnum.MILD_IMPAIRMENT.number -> VitalsEyeEnum.MILD_IMPAIRMENT.value.extractStringInBrackets()
+        VitalsEyeEnum.MODERATE_IMPAIRMENT.number -> VitalsEyeEnum.MODERATE_IMPAIRMENT.value.extractStringInBrackets()
+        VitalsEyeEnum.SIGNIFICANT_IMPAIRMENT.number -> VitalsEyeEnum.SIGNIFICANT_IMPAIRMENT.value.extractStringInBrackets()
+        VitalsEyeEnum.SEVERE_IMPAIRMENT.number -> VitalsEyeEnum.SEVERE_IMPAIRMENT.value.extractStringInBrackets()
+        VitalsEyeEnum.VERY_SEVERE_IMPAIRMENT.number -> VitalsEyeEnum.VERY_SEVERE_IMPAIRMENT.value.extractStringInBrackets()
+        VitalsEyeEnum.LEGAL_BLINDNESS.number -> VitalsEyeEnum.LEGAL_BLINDNESS.value.extractStringInBrackets()
+        else -> {
+            context.getString(R.string.dashes)
+        }
+    }
+}
+
+fun String.extractStringInBrackets(): String {
+    val regex = "\\(([^)]+)\\)".toRegex()
+    val matchResult = regex.find(this)
+    return matchResult?.groups?.get(1)?.value ?: ""
+}
+
+private fun showChipSelection(vitalsViewModel: VitalsViewModel, list: List<VitalLocal>) {
+    when {
+        list.filter { it.weight != null }.size > 1 -> {
+            vitalsViewModel.isWeightSelected = true
+        }
+
+        list.filter { it.heartRate != null }.size > 1 -> {
+            vitalsViewModel.isHRSelected = true
+            vitalsViewModel.isWeightSelected = false
+        }
+
+        list.filter { it.respRate != null }.size > 1 -> {
+            vitalsViewModel.isRRSelected = true
+            vitalsViewModel.isWeightSelected = false
+        }
+
+        list.filter { it.spo2 != null }.size > 1 -> {
+            vitalsViewModel.isSpO2Selected = true
+            vitalsViewModel.isWeightSelected = false
+        }
+
+        list.filter { it.bloodGlucose != null && it.bloodGlucoseType == BGEnum.RANDOM.value || it.bloodGlucoseType == BGEnum.FASTING.value }.size > 1 -> {
+            vitalsViewModel.isGlucoseSelected = true
+            vitalsViewModel.isWeightSelected = false
+        }
+
+        list.filter { it.bpSystolic != null }.size > 1 -> {
+            vitalsViewModel.isBPSelected = true
+            vitalsViewModel.isWeightSelected = false
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun VitalScreenPreview() {
+    VitalsScreen(rememberNavController())
+
+}

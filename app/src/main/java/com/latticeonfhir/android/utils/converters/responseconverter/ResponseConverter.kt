@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.local.model.appointment.AppointmentRespons
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
+import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -26,6 +27,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.P
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vitals.VitalEntity
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
@@ -45,8 +47,10 @@ import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getInverseRelation
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
@@ -588,5 +592,92 @@ internal fun CVDEntity.toCVDResponse(): CVDResponse {
         practitionerName = practitionerName,
         smoker = smoker,
         weight = weight
+    )
+}
+
+internal fun VitalEntity.toVitalLocal(): VitalLocal {
+    return VitalLocal(
+        vitalUuid = vitalUuid,
+        fhirId = fhirId,
+        patientId = patientId,
+        appointmentId = appointmentId,
+        bloodGlucose = bloodGlucose,
+        bloodGlucoseType = bloodGlucoseType,
+        bloodGlucoseUnit = bloodGlucoseUnit,
+        bpDiastolic = bpDiastolic,
+        bpSystolic = bpSystolic,
+        createdOn = createdOn,
+        eyeTestType = eyeTestType,
+        heartRate = heartRate,
+        heightCm = heightCm,
+        heightFt = heightFt,
+        heightInch = heightInch,
+        leftEye = leftEye,
+        respRate = respRate,
+        rightEye = rightEye,
+        spo2 = spo2,
+        temp = temp,
+        tempUnit = tempUnit,
+        weight = weight,
+        practitionerName = practitionerName
+    )
+}
+
+internal fun VitalLocal.toVitalEntity(): VitalEntity {
+    return VitalEntity(
+        vitalUuid = vitalUuid,
+        fhirId = fhirId,
+        patientId = patientId,
+        appointmentId = appointmentId,
+        bloodGlucose = bloodGlucose,
+        bloodGlucoseType = bloodGlucoseType,
+        bloodGlucoseUnit = bloodGlucoseUnit,
+        bpDiastolic = bpDiastolic,
+        bpSystolic = bpSystolic,
+        createdOn = createdOn,
+        eyeTestType = eyeTestType,
+        heartRate = heartRate,
+        heightCm = heightCm,
+        heightFt = heightFt,
+        heightInch = heightInch,
+        leftEye = leftEye,
+        respRate = respRate,
+        rightEye = rightEye,
+        spo2 = spo2,
+        temp = temp,
+        tempUnit = tempUnit,
+        weight = weight,
+        practitionerName = practitionerName
+    )
+}
+
+internal suspend fun VitalResponse.toVitalEntity(
+    patientDao: PatientDao,
+    appointmentDao: AppointmentDao
+): VitalEntity {
+    return VitalEntity(
+        vitalUuid = vitalUuid,
+        fhirId = vitalFhirId,
+        patientId = patientDao.getPatientIdByFhirId(patientId!!),
+        appointmentId = appointmentDao.getAppointmentIdByFhirId(appointmentId),
+        bloodGlucose = bloodGlucose,
+        bloodGlucoseType = bloodGlucoseType,
+        bloodGlucoseUnit = bloodGlucoseUnit,
+        bpDiastolic = bpDiastolic,
+        bpSystolic = bpSystolic,
+        createdOn = createdOn.convertStringToDate(),
+        eyeTestType = eyeTestType,
+        heartRate = heartRate,
+        heightCm = heightCm,
+        heightFt = heightFt,
+        heightInch = heightInch,
+        leftEye = leftEye?.trim()?.toInt(),
+        respRate = respRate,
+        rightEye = rightEye?.trim()?.toInt(),
+        spo2 = spo2,
+        temp = temp,
+        tempUnit = tempUnit,
+        weight = weight,
+        practitionerName = practitionerName
     )
 }

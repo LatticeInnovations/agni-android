@@ -68,6 +68,9 @@ class SyncService(
                     async {
                         patchCVD(logout)
                     }
+//                    ,async {
+//                        patchVital(logout)
+//                    }
                 )
             }
         }
@@ -194,6 +197,9 @@ class SyncService(
                     updateFhirIdInPrescription(logout)
                 }
                 updateFhirIdInCVD(logout)
+                CoroutineScope(Dispatchers.IO).launch {
+                    updateFhirIdInVital(logout)
+                }
             }
         }
     }
@@ -218,6 +224,10 @@ class SyncService(
         return checkAuthenticationStatus(syncRepository.sendCVDPostData(), logout)
     }
 
+    /** Upload Vital */
+    private suspend fun uploadVital(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendVitalPostData(), logout)
+    }
     /**
      *
      *
@@ -253,6 +263,12 @@ class SyncService(
     /** Patch CVD */
     private suspend fun patchCVD(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(syncRepository.sendCVDPatchData(), logout)
+    }
+
+    /** Patch Vital */
+    private suspend fun patchVital(logout: (Boolean, String) -> Unit) {
+
+        checkAuthenticationStatus(syncRepository.sendVitalPatchData(), logout)
     }
 
     /**
@@ -306,6 +322,9 @@ class SyncService(
                     CoroutineScope(Dispatchers.IO).launch {
                         downloadCVD(logout)
                     }
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        downloadVitals(logout)
+//                    }
                 }
             }
         }
@@ -353,6 +372,10 @@ class SyncService(
         return checkAuthenticationStatus(syncRepository.getAndInsertCVD(0), logout)
     }
 
+    /** Download Vitals*/
+    private suspend fun downloadVitals(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.getAndInsertListVitalData(0), logout)
+    }
     /**
      *
      *
@@ -394,6 +417,11 @@ class SyncService(
         genericRepository.updateCVDFhirIds()
         /** Upload Prescription */
         return uploadCVD(logout)
+    }
+
+    private suspend fun updateFhirIdInVital(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        genericRepository.updateVitalFhirId()
+        return uploadVital(logout)
     }
 
     /** Check Session Expiry and Authorization */
