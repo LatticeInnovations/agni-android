@@ -99,7 +99,7 @@ fun CVDRiskAssessmentScreen(
                     PATIENT
                 )
             viewModel.getTodayCVDAssessment()
-            viewModel.getAppointmentInfo {}
+            viewModel.getAppointmentInfo(callback = {})
             viewModel.isLaunched = true
         }
     }
@@ -158,15 +158,17 @@ fun CVDRiskAssessmentScreen(
                         pagerState
                     ) { index ->
                         if (index == 1) {
-                            viewModel.getAppointmentInfo {
-                                if (viewModel.canAddAssessment) {
-                                    scope.launch { pagerState.animateScrollToPage(index) }
-                                } else if (viewModel.isAppointmentCompleted) {
-                                    viewModel.showAppointmentCompletedDialog = true
-                                } else {
-                                    viewModel.showAddToQueueDialog = true
+                            viewModel.getAppointmentInfo(
+                                callback = {
+                                    if (viewModel.canAddAssessment) {
+                                        scope.launch { pagerState.animateScrollToPage(index) }
+                                    } else if (viewModel.isAppointmentCompleted) {
+                                        viewModel.showAppointmentCompletedDialog = true
+                                    } else {
+                                        viewModel.showAddToQueueDialog = true
+                                    }
                                 }
-                            }
+                            )
                         } else scope.launch { pagerState.animateScrollToPage(index) }
                     }
                     HorizontalPager(
@@ -208,7 +210,11 @@ fun CVDRiskAssessmentScreen(
                                         modifier = Modifier.padding(start = 6.dp)
                                     ) {
                                         Canvas(modifier = Modifier.size(12.dp), onDraw = {
-                                            drawCircle(color = getCircleColor(viewModel.riskPercentage.toInt()))
+                                            drawCircle(
+                                                color = getCircleColor(
+                                                    viewModel.riskPercentage.toIntOrNull() ?: 0
+                                                )
+                                            )
                                         })
                                         Text(
                                             text = stringResource(
@@ -248,8 +254,8 @@ fun CVDRiskAssessmentScreen(
                         if (viewModel.riskPercentage.isNotBlank()) {
                             Button(
                                 onClick = {
-                                    if (viewModel.todayAssessment == null) {
-                                        viewModel.saveCVDRecord {
+                                    viewModel.saveCVDRecord(
+                                        saved = {
                                             focusManager.clearFocus()
                                             scope.launch {
                                                 pagerState.animateScrollToPage(0)
@@ -258,17 +264,7 @@ fun CVDRiskAssessmentScreen(
                                                 )
                                             }
                                         }
-                                    } else {
-                                        viewModel.updateCVDRecord {
-                                            focusManager.clearFocus()
-                                            scope.launch {
-                                                pagerState.animateScrollToPage(0)
-                                                snackbarHostState.showSnackbar(
-                                                    message = context.getString(R.string.assessment_record_updated)
-                                                )
-                                            }
-                                        }
-                                    }
+                                    )
                                 },
                                 modifier = Modifier
                                     .weight(1f)
@@ -290,7 +286,7 @@ fun CVDRiskAssessmentScreen(
             .fillMaxSize()
             .navigationBarsPadding()
             .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
-            .clickable(enabled = false) { },
+            .clickable(enabled = false) {},
         contentAlignment = Alignment.BottomCenter
     ) {
         AnimatedVisibility(
@@ -324,19 +320,23 @@ fun CVDRiskAssessmentScreen(
                 if (viewModel.appointment != null) {
                     viewModel.updateStatusToArrived(
                         viewModel.patient!!,
-                        viewModel.appointment!!
-                    ) {
-                        viewModel.showAddToQueueDialog = false
-                        scope.launch { pagerState.animateScrollToPage(1) }
-                    }
+                        viewModel.appointment!!,
+                        updated = {
+                            viewModel.showAddToQueueDialog = false
+                            scope.launch { pagerState.animateScrollToPage(1) }
+                        }
+                    )
                 } else {
                     if (viewModel.ifAllSlotsBooked) {
                         viewModel.showAllSlotsBookedDialog = true
                     } else {
-                        viewModel.addPatientToQueue(viewModel.patient!!) {
-                            viewModel.showAddToQueueDialog = false
-                            scope.launch { pagerState.animateScrollToPage(1) }
-                        }
+                        viewModel.addPatientToQueue(
+                            viewModel.patient!!,
+                            addedToQueue = {
+                                viewModel.showAddToQueueDialog = false
+                                scope.launch { pagerState.animateScrollToPage(1) }
+                            }
+                        )
                     }
                 }
             }
@@ -355,28 +355,30 @@ fun CVDRiskAssessmentScreen(
 }
 
 private fun getCircleColor(riskPercentage: Int): Color {
-    return if (riskPercentage < 5) LowRiskCircle
-    else if (riskPercentage in 5..9) ModerateRiskCircle
-    else if (riskPercentage in 10..19) HighRiskCircle
-    else if (riskPercentage in 20..29) VeryHighRiskCircle
-    else VeryVeryHighRiskCircle
+    return when {
+        riskPercentage < 5 -> LowRiskCircle
+        riskPercentage in 5..9 -> ModerateRiskCircle
+        riskPercentage in 10..19 -> HighRiskCircle
+        riskPercentage in 20..29 -> VeryHighRiskCircle
+        else -> VeryVeryHighRiskCircle
+    }
 }
 
 @Composable
 private fun getContainerColor(riskPercentage: Int): Color {
     return when (isSystemInDarkTheme()) {
-        true -> {
-            if (riskPercentage < 5) LowRiskDarkContainer
-            else if (riskPercentage in 5..9) ModerateRiskDarkContainer
-            else if (riskPercentage in 10..19) HighRiskDarkContainer
-            else VeryHighRiskDarkContainer
+        true -> when {
+            riskPercentage < 5 -> LowRiskDarkContainer
+            riskPercentage in 5..9 -> ModerateRiskDarkContainer
+            riskPercentage in 10..19 -> HighRiskDarkContainer
+            else -> VeryHighRiskDarkContainer
         }
 
-        false -> {
-            if (riskPercentage < 5) LowRiskLightContainer
-            else if (riskPercentage in 5..9) ModerateRiskLightContainer
-            else if (riskPercentage in 10..19) HighRiskLightContainer
-            else VeryHighRiskLightContainer
+        false -> when {
+            riskPercentage < 5 -> LowRiskLightContainer
+            riskPercentage in 5..9 -> ModerateRiskLightContainer
+            riskPercentage in 10..19 -> HighRiskLightContainer
+            else -> VeryHighRiskLightContainer
         }
     }
 }
