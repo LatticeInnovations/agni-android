@@ -6,6 +6,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -297,12 +298,11 @@ private fun BottomButtonLayout(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        enabled = viewModel.checkIsEdit(),
                         modifier = Modifier
                             .padding(
-                                start = 16.dp, bottom = 12.dp, top = 12.dp, end = 16.dp
+                                start = 8.dp, bottom = 12.dp, top = 12.dp
                             )
-                            .fillMaxWidth(),
+                            .weight(.5f),
                         onClick = {
                             handleNavigate(
                                 viewModel,
@@ -314,6 +314,11 @@ private fun BottomButtonLayout(
                                 it.popBackStack()
                             }
                         },
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        ),
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding
                     ) {
                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
@@ -322,6 +327,35 @@ private fun BottomButtonLayout(
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
+                    Button(
+                        modifier = Modifier
+                            .padding(
+                                end = 12.dp, bottom = 12.dp, top = 12.dp
+                            )
+                            .weight(.6f), onClick = {
+                            viewModel.isSearchForDiagnosis = true
+                            viewModel.searchQuery = ""
+                            viewModel.isSearchResult = false
+                            viewModel.isSearching = false
+                            viewModel.isSearchingInProgress = false
+                            viewModel.getPreviousSearches()
+                            handleNavigate(
+                                viewModel,
+                                coroutineScope,
+                                navController,
+                                context
+                            ) {}
+                        }, contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+                    ) {
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        Text(
+                            stringResource(id = R.string.save_add_diagnosis),
+                            style = MaterialTheme.typography.labelMedium
+
+                        )
+                    }
+
+
                 }
             }
 

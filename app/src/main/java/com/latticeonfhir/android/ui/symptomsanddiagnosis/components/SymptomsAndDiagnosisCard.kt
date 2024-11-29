@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -115,6 +116,29 @@ fun SymptomsAndDiagnosisCard(item: SymptomsAndDiagnosisLocal) {
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = stringResource(R.string.diagnosis),
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    if (item.diagnosis.isNotEmpty()) {
+                        item.diagnosis.forEach { diagnosis ->
+                            Text(
+                                text = "\u2022 ${diagnosis.code}, ${diagnosis.display}",
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                        }
+                    } else {
+                        Text(
+                            modifier = Modifier.padding(start = 16.dp, top = 8.dp),
+                            text = stringResource(id = R.string.dash),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+
 
                 }
             }

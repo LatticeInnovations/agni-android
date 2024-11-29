@@ -324,6 +324,9 @@ class SyncService(
 //                        getAndInsertSymptoms()
 //                    }
 //                    CoroutineScope(Dispatchers.IO).launch {
+//                        getAndInsertDiagnosis()
+//                    }
+//                    CoroutineScope(Dispatchers.IO).launch {
 //                        downloadSymDiag(logout)
 //                    }
                 }
@@ -442,5 +445,10 @@ class SyncService(
             symptomsAndDiagnosisRepository.insertSymptoms()
         }
 
+    }
+    private suspend fun getAndInsertDiagnosis() {
+        if (symptomsAndDiagnosisRepository.getDiagnosis().isEmpty()) {
+            symptomsAndDiagnosisRepository.insertDiagnosis()
+        }
     }
 }

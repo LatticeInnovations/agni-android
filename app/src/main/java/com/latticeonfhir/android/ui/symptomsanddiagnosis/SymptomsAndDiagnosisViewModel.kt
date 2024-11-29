@@ -68,11 +68,22 @@ class SymptomsAndDiagnosisViewModel @Inject constructor(
     }
 
 
+    private fun getAndInsertDiagnosis(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
+            repository.insertDiagnosis()
+
+
+        }
+    }
+
+
     internal fun getSymptomsAndDiagnosis(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
         viewModelScope.launch(ioDispatcher) {
-            if (dao.getSymptomsEntity().isEmpty()) {
+            if (dao.getSymptomsEntity().isEmpty() || dao.getDiagnosisEntity().isEmpty()) {
                 getAndInsertSymptoms()
+                getAndInsertDiagnosis()
             }
+
         }
     }
 
