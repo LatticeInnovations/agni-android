@@ -279,4 +279,7 @@ include them in the household</string>
     <string name="cvd_error_message">Not applicable for gender type “Other”, age below 40 or above 74</string>
     <string name="dash">--</string>
     <string name="assessment_record_updated">Assessment record updated</string>
+    <string name="add_a_new_prescription">Add a new prescription</string>
+    <string name="upload_a_prescription">Upload a prescription</string>
+    <string name="fill_prescription">Fill prescription</string>
 </resources>

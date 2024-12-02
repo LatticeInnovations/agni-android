@@ -62,6 +62,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     var recompose by mutableStateOf(false)
     private val maxNumberOfAppointmentsInADay = 250
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
+    var showAddPrescriptionBottomSheet by mutableStateOf(false)
 
     var selectedFile: File? by mutableStateOf(null)
 
