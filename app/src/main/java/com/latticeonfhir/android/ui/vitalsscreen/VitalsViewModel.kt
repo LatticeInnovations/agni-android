@@ -72,8 +72,11 @@ class VitalsViewModel @Inject constructor(
 
     var previousRecords by mutableStateOf(listOf<CVDResponse>())
 
-    internal fun getAppointmentInfo(callback: () -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal fun getAppointmentInfo(
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+        callback: () -> Unit
+    ) {
+        viewModelScope.launch(ioDispatcher) {
             appointment = appointmentRepository.getAppointmentsOfPatientByStatus(
                 patient!!.id,
                 AppointmentStatusEnum.SCHEDULED.value
@@ -138,8 +141,12 @@ class VitalsViewModel @Inject constructor(
         }
     }
 
-    internal fun addPatientToQueue(patient: PatientResponse, addedToQueue: (List<Long>) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal fun addPatientToQueue(
+        patient: PatientResponse,
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+        addedToQueue: (List<Long>) -> Unit
+    ) {
+        viewModelScope.launch(ioDispatcher) {
             Queries.addPatientToQueue(
                 patient,
                 scheduleRepository,
@@ -155,9 +162,10 @@ class VitalsViewModel @Inject constructor(
     internal fun updateStatusToArrived(
         patient: PatientResponse,
         appointment: AppointmentResponseLocal,
+        ioDispatcher: CoroutineDispatcher=Dispatchers.IO,
         updated: (Int) -> Unit
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             Queries.updateStatusToArrived(
                 patient,
                 appointment,
@@ -171,8 +179,8 @@ class VitalsViewModel @Inject constructor(
         }
     }
 
-    internal fun getRecords() {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal fun getRecords(ioDispatcher: CoroutineDispatcher=Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             previousRecords = cvdAssessmentRepository.getCVDRecord(patient!!.id)
         }
     }

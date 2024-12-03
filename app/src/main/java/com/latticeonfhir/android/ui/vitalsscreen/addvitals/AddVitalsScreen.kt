@@ -155,7 +155,7 @@ fun AddVitals(navController: NavController, viewModel: AddVitalsViewModel) {
                 .padding(paddingValues = paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            HeightCard(viewModel = viewModel, context)
+            HeightCard(viewModel = viewModel)
             WeightCard(viewModel = viewModel)
             EyeTestCard(viewModel = viewModel)
             HeartRateCard(viewModel = viewModel)
@@ -278,7 +278,7 @@ fun SetBottomSheets(viewModel: AddVitalsViewModel) {
 
 
 @Composable
-fun HeightCard(viewModel: AddVitalsViewModel, context: Context, modifier: Modifier = Modifier) {
+fun HeightCard(viewModel: AddVitalsViewModel, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()

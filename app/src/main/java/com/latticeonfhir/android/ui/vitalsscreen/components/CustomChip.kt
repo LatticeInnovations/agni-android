@@ -8,6 +8,7 @@ import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,6 +20,7 @@ fun CustomChip(
     idSelected: Boolean,
     label: String,
     shape: Shape = ShapeDefaults.Large,
+    color: Color = MaterialTheme.colorScheme.outline,
     updateSelection: () -> Unit
 ) {
     FilterChip(
@@ -28,7 +30,7 @@ fun CustomChip(
         },
         label = { Text(text = label, modifier = Modifier.padding(4.dp)) },
         colors = FilterChipDefaults.filterChipColors(
-            labelColor = MaterialTheme.colorScheme.outline,
+            labelColor = color,
             selectedLabelColor = MaterialTheme.colorScheme.primary
         ),
         border = FilterChipDefaults.filterChipBorder(

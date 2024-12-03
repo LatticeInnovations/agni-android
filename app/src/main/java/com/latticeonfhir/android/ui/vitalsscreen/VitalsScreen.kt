@@ -892,7 +892,7 @@ fun CVDRecordCardLayout(
                         .height(16.dp)
                         .width(8.dp)
                 )
-                CustomChip(idSelected = false, label = "CVD record") {
+                CustomChip(idSelected = false, label = "CVD record", color = MaterialTheme.colorScheme.onSurfaceVariant) {
 
                 }
             }
