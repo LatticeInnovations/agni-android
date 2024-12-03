@@ -1129,8 +1129,7 @@ private fun showChipSelection(vitalsViewModel: VitalsViewModel, list: List<Vital
             vitalsViewModel.isWeightSelected = false
         }
 
-        list.filter { it.bpSystolic != null }
-            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 -> {
+        getBPListSize(list, vitalsViewModel) > 1 -> {
             vitalsViewModel.isBPSelected = true
             vitalsViewModel.isWeightSelected = false
         }
