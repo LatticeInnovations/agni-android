@@ -38,4 +38,9 @@ object VitalConstants {
     const val EYE_TEST_TYPE = "eyeTestType"
     const val KEY = "key"
     const val COMPONENT = "component"
+
+    const val LIST_TYPE_VITAL="Vitals"
+    const val LIST_TYPE_CVD="CVD"
+    const val CVD_RECORD="CVD record"
+    const val ALL="All"
 }

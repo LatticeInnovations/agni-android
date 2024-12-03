@@ -342,6 +342,8 @@ include them in the household</string>
     <string name="vitals_update_successfully">Vitals updated successfully!</string>
     <string name="graph_empty_error_msg">At least two data points with different dates are required to view the graph.</string>
     <string name="edit_vital">Edit vitals</string>
+    <string name="bmi_label">BMI</string>
+    <string name="add_to_queue_vital_dialog_description">To perform this action, the patient has to be in today\'s queue</string>
 
 
 </resources>

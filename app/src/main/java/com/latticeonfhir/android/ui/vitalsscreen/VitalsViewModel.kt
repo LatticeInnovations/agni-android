@@ -18,6 +18,7 @@ import com.latticeonfhir.android.data.local.repository.vital.VitalRepository
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.common.Queries
+import com.latticeonfhir.android.utils.constants.VitalConstants.ALL
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertedDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
@@ -67,7 +68,7 @@ class VitalsViewModel @Inject constructor(
     private val maxNumberOfAppointmentsInADay = 250
     var showAppointmentCompletedDialog by mutableStateOf(false)
     var isAppointmentCompleted by mutableStateOf(false)
-    var selectedOption by mutableStateOf("All")
+    var selectedOption by mutableStateOf(ALL)
 
     var previousRecords by mutableStateOf(listOf<CVDResponse>())
 

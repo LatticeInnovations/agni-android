@@ -140,7 +140,7 @@ fun AddVitals(navController: NavController, viewModel: AddVitalsViewModel) {
                         VITAL_UPDATE_OR_ADD,
                         ""
                     )
-                    navController.popBackStack()
+                    navController.navigateUp()
                 }) {
                     Icon(
                         Icons.Filled.Close, contentDescription = stringResource(R.string.back_icon)
@@ -170,7 +170,7 @@ fun AddVitals(navController: NavController, viewModel: AddVitalsViewModel) {
         }
 
     }, bottomBar = {
-        AnimatedVisibility(visible = viewModel.validateVitalsDetails()) {
+        AnimatedVisibility(visible = (viewModel.cholesterol.isNotBlank() && !viewModel.cholesterolError) || viewModel.validateVitalsDetails()) {
             Box(
                 modifier = Modifier
                     .padding()
@@ -227,7 +227,7 @@ private fun handleNavigate(
                     VITAL_UPDATE_OR_ADD,
                     context.getString(R.string.vitals_update_successfully)
                 )
-                navController.popBackStack()
+                navController.navigateUp()
             }
         }
     } else {
@@ -237,7 +237,7 @@ private fun handleNavigate(
                     VITAL_UPDATE_OR_ADD,
                     context.getString(R.string.vitals_added_successfully)
                 )
-                navController.popBackStack()
+                navController.navigateUp()
             }
         }
     }

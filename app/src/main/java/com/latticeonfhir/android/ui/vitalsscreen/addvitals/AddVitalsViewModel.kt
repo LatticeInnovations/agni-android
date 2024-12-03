@@ -127,7 +127,6 @@ class AddVitalsViewModel @Inject constructor(
         if (temperature.isNotBlank() && isTempNotValid) return false
         if ((bpSystolic.isNotBlank() || bpDiastolic.isNotBlank()) && (bpSystolic.isBlank() || bpDiastolic.isBlank() || isSystolicNotValid || isDiastolicNotValid)) return false
         if (bloodGlucose.isNotBlank() && isBgNotValid) return false
-        if (cholesterol.isNotBlank() && cholesterolError) return false
         if ((leftEye.isNotBlank() || rightEye.isNotBlank()) && (isFeetNotValid || isWeightNotValid || isHeartNotValid || isRespNotValid || isSpo2NotValid || isTempNotValid || isSystolicNotValid || isDiastolicNotValid || isBgNotValid)) return false
         if (feet.isBlank() && inch.isBlank() && centimeter.isBlank() && weight.isBlank() && heartRate.isBlank() && respiratoryRate.isBlank() && spo2.isBlank() && temperature.isBlank() && bpSystolic.isBlank() && bpDiastolic.isBlank() && bloodGlucose.isBlank() && leftEye.isBlank() && rightEye.isBlank()) return false
         return true
@@ -345,7 +344,8 @@ class AddVitalsViewModel @Inject constructor(
             tempUnit = if (temperature.isNotBlank() && temperatureType.lowercase() == TemperatureEnum.FAHRENHEIT.name.lowercase()) TemperatureEnum.FAHRENHEIT.value else if (temperature.isNotBlank()) TemperatureEnum.CELSIUS.value else null,
             weight = weight.addZeroAfterDot().ifBlank { null },
             practitionerName = practitionerName,
-            cholesterol = if (cholesterol.isNotBlank()) cholesterol.toDouble() else null,
+            cholesterol = if (cholesterol.isNotBlank()) cholesterol.addZeroAfterDot()
+                .toDouble() else null,
             cholesterolUnit = if (cholesterol.isNotBlank()) cholesterolUnits[selectedCholesterolIndex] else null,
         )
     }
