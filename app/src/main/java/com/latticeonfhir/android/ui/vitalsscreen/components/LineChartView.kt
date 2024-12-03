@@ -35,7 +35,7 @@ fun LineChartView(
     isBp: Boolean = false
 ) {
 
-    Timber.d("Entries: $entries1")
+    Timber.d("Entries: $entries1 \nLabels: $labels")
     val chartWidth = (labels.size * 50).dp
 
     // Calculate Y-axis minimum and maximum values dynamically
@@ -103,6 +103,12 @@ fun LineChartView(
                 // In case there's no data
                 setNoDataTextColor(Color.RED)
             }
+            val customValueFormatter = object : ValueFormatter() {
+                override fun getPointLabel(entry: Entry?): String {
+                    return entry?.y?.toInt()
+                        .toString() // Convert float to integer for clean display
+                }
+            }
             // First line data set (e.g., Line 1)
             val lineDataSet1 = entries1?.let {
                 LineDataSet(entries1, "Line 1").apply {
@@ -113,7 +119,10 @@ fun LineChartView(
                     setDrawCircles(true) // Hide data point circles
                     setCircleColor(if (isBp) randomColor else fastingColor)
                     setDrawCircleHole(false)    // Remove the hole from the circles
-                    setDrawValues(false)  // Hide values
+                    setDrawValues(true)  // Hide values
+                    valueTextColor = if (isBp) randomColor else fastingColor  // Color of the value text
+                    valueTextSize = 10f         // Size of the value text
+                    valueFormatter = customValueFormatter // Display value next to dots
                 }
             }
 
@@ -127,7 +136,10 @@ fun LineChartView(
                     setCircleColor(if (isBp) fastingColor else randomColor)   // Circle color for random data points
                     setDrawCircleHole(false)    // Remove the hole from the circles
                     setDrawCircles(true) // Hide data point circles
-                    setDrawValues(false)  // Hide values
+                    setDrawValues(true)  // Hide values
+                    valueTextColor = if (isBp) fastingColor else randomColor  // Color of the value text
+                    valueTextSize = 10f         // Size of the value text
+                    valueFormatter = customValueFormatter // Display value next to dots
                 }
             }
             val lineData = if (lineDataSet1 != null && lineDataSet2 != null) {

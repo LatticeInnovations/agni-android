@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -80,6 +81,10 @@ import com.latticeonfhir.android.ui.vitalsscreen.enums.TemperatureEnum
 import com.latticeonfhir.android.ui.vitalsscreen.enums.VitalsEyeEnum
 import com.latticeonfhir.android.ui.vitalsscreen.enums.VitalsTrendEnum
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.VitalConstants.ALL
+import com.latticeonfhir.android.utils.constants.VitalConstants.CVD_RECORD
+import com.latticeonfhir.android.utils.constants.VitalConstants.LIST_TYPE_CVD
+import com.latticeonfhir.android.utils.constants.VitalConstants.LIST_TYPE_VITAL
 import com.latticeonfhir.android.utils.constants.VitalConstants.VITAL_UPDATE_OR_ADD
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertDateFormat
@@ -93,7 +98,7 @@ import timber.log.Timber
 import java.util.Date
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel = hiltViewModel()) {
 
@@ -112,7 +117,7 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
             ),
             navigationIcon = {
                 IconButton(onClick = {
-                    navController.popBackStack()
+                    navController.navigateUp()
                 }) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON"
@@ -127,64 +132,7 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
                 )
             })
     }, content = { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.inverseOnSurface)
-                .padding(paddingValues = paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            if (vitalsViewModel.isVitalExist) {
-                val vitals by vitalsViewModel._vitals.collectAsState()
-                val combinedList = (vitals.map { vital ->
-                    CombineVitalAndCVDRecord(
-                        "Vitals", vital.createdOn, vital
-                    )
-                } + vitalsViewModel.previousRecords.map {
-                    CombineVitalAndCVDRecord(
-                        "CVD", it.createdOn, it
-                    )
-                }).sortedBy { it.date }.reversed()
-                LazyColumn(userScrollEnabled = true) {
-                    item {
-                        VitalsTrendGraph(vitalsViewModel)
-                    }
-                    item {
-                        SegmentedButtonForVital(options = listOf("All", "CVD record"),
-                            isCVDListEmpty = vitalsViewModel.previousRecords.isEmpty(),
-                            selectedOption = vitalsViewModel.selectedOption,
-                            onOptionSelected = { vitalsViewModel.selectedOption = it })
-                    }
-                    items(if (vitalsViewModel.selectedOption == "CVD record") combinedList.filter { it.type == "CVD" } else combinedList) { item ->
-                        when (item.type) {
-                            "Vitals" -> VitalsCardLayout(
-                                vital = item.content as VitalLocal, context = context
-                            )
-
-                            "CVD" -> CVDRecordCardLayout(
-                                cvdResponse = item.content as CVDResponse, context = context
-                            )
-                        }
-
-                    }
-                }
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.no_record_found),
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(16.dp),
-                        textAlign = TextAlign.Center
-                    )
-
-                }
-            }
-        }
-
+            ShowGraphAndList(vitalsViewModel, paddingValues, context)
     }, bottomBar = {
         Box(
             modifier = Modifier
@@ -254,6 +202,76 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
 }
 
 @Composable
+fun ShowGraphAndList(
+    vitalsViewModel: VitalsViewModel, paddingValues: PaddingValues, context: Context
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.inverseOnSurface)
+            .padding(paddingValues = paddingValues),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (vitalsViewModel.isVitalExist || vitalsViewModel.previousRecords.isNotEmpty()) {
+            val vitals by vitalsViewModel._vitals.collectAsState()
+            val combinedList = getCombinedList(vitalsViewModel, vitals)
+            LazyColumn(userScrollEnabled = true) {
+                item {
+                    VitalsTrendGraph(vitalsViewModel)
+                }
+                item {
+                    SegmentedButtonForVital(options = listOf(ALL, CVD_RECORD),
+                        isCVDListEmpty = vitalsViewModel.previousRecords.isEmpty(),
+                        selectedOption = vitalsViewModel.selectedOption,
+                        onOptionSelected = { vitalsViewModel.selectedOption = it })
+                }
+                items(if (vitalsViewModel.selectedOption == CVD_RECORD) combinedList.filter { it.type == LIST_TYPE_CVD } else combinedList) { item ->
+                    when (item.type) {
+                        LIST_TYPE_VITAL -> VitalsCardLayout(
+                            vital = item.content as VitalLocal, context = context
+                        )
+
+                        LIST_TYPE_CVD -> CVDRecordCardLayout(
+                            cvdResponse = item.content as CVDResponse
+                        )
+                    }
+
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.no_record_found),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(16.dp),
+                    textAlign = TextAlign.Center
+                )
+
+            }
+        }
+    }
+
+}
+
+fun getCombinedList(
+    vitalsViewModel: VitalsViewModel, vitals: List<VitalLocal>
+): List<CombineVitalAndCVDRecord> {
+    return (vitals.map { vital ->
+        CombineVitalAndCVDRecord(
+            LIST_TYPE_VITAL, vital.createdOn, vital
+        )
+    } + vitalsViewModel.previousRecords.map {
+        CombineVitalAndCVDRecord(
+            LIST_TYPE_CVD, it.createdOn, it
+        )
+    }).sortedBy { it.date }.reversed()
+}
+
+@Composable
 fun HandleLaunchedEffect(vitalsViewModel: VitalsViewModel, navController: NavController) {
     LaunchedEffect(key1 = vitalsViewModel.isLaunched) {
         vitalsViewModel.apply {
@@ -295,7 +313,7 @@ fun ShowDialogs(
         CustomDialog(title = if (vitalsViewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
             id = R.string.add_to_queue_question
         ),
-            text = stringResource(id = R.string.add_to_queue_assessment_dialog_description),
+            text = stringResource(id = R.string.add_to_queue_vital_dialog_description),
             dismissBtnText = stringResource(id = R.string.dismiss),
             confirmBtnText = if (vitalsViewModel.appointment != null) stringResource(id = R.string.mark_arrived) else stringResource(
                 id = R.string.add_to_queue
@@ -541,6 +559,7 @@ fun ShowTrendGraphCard(
                 )
             )
         }
+
         if (!vitalsViewModel.isGlucoseSelected && (vitalsViewModel.isWeightSelected || vitalsViewModel.isHRSelected || vitalsViewModel.isRRSelected || vitalsViewModel.isSpO2Selected || vitalsViewModel.isBPSelected)) {
             LineChartView(modifier = modifier
                 .fillMaxWidth()
@@ -548,7 +567,7 @@ fun ShowTrendGraphCard(
                 .height(200.dp),
                 entries1 = getChartEntries(list, vitalsViewModel),
                 entries2 = getChartEntries2(list, vitalsViewModel),
-                labels = list.map { it.createdOn.formatDateToDayMonth() }.toSet().toList(),
+                labels = getLabels(vitalsViewModel, list),
                 isBp = vitalsViewModel.isBPSelected
             )
             Timber.d("List : ${list.map { it.createdOn.formatDateToDayMonth() }}")
@@ -565,6 +584,20 @@ fun ShowTrendGraphCard(
     }
 
 
+}
+
+fun getLabels(vitalsViewModel: VitalsViewModel, list: List<VitalLocal>): List<String> {
+    return if (!vitalsViewModel.isBPSelected)
+        list.map { it.createdOn.formatDateToDayMonth() }.toSet().toList()
+    else {
+        val vitalGroupedByDate = list.groupBy { it.createdOn.formatDateToDayMonth() }
+        val cvdGroupedByDate =
+            vitalsViewModel.previousRecords.groupBy { it.createdOn.formatDateToDayMonth() }
+
+        // Get a union of all dates from both lists
+        (vitalGroupedByDate.keys + cvdGroupedByDate.keys).distinct().sortedBy { it }
+
+    }
 }
 
 @Composable
@@ -611,23 +644,28 @@ fun getChartEntries(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): L
 
     return when {
         vitalsViewModel.isWeightSelected -> {
-            getEntryListGlucose(list,list.map { it.createdOn.formatDateToDayMonth() }) { it.weight?.toFloat() }
+            getEntries(list,
+                list.map { it.createdOn.formatDateToDayMonth() }) { it.weight?.toFloat() }
         }
         vitalsViewModel.isHRSelected -> {
-            getEntryListGlucose(list,list.map { it.createdOn.formatDateToDayMonth() }) { it.heartRate?.toFloat() }
+            getEntries(list,
+                list.map { it.createdOn.formatDateToDayMonth() }) { it.heartRate?.toFloat() }
         }
 
         vitalsViewModel.isRRSelected -> {
-            getEntryListGlucose(list,list.map { it.createdOn.formatDateToDayMonth() }) { it.respRate?.toFloat() }
+            getEntries(list,
+                list.map { it.createdOn.formatDateToDayMonth() }) { it.respRate?.toFloat() }
         }
 
         vitalsViewModel.isSpO2Selected -> {
-            getEntryListGlucose(list,list.map { it.createdOn.formatDateToDayMonth() }) { it.spo2?.toFloat() }
+            getEntries(list,
+                list.map { it.createdOn.formatDateToDayMonth() }) { it.spo2?.toFloat() }
 
         }
 
         vitalsViewModel.isGlucoseSelected -> {
-            getEntryListGlucose(list.filter { it.bloodGlucoseType == BGEnum.FASTING.value },
+            getEntries(
+                list.filter { it.bloodGlucoseType == BGEnum.FASTING.value },
                 list.map { it.createdOn.formatDateToDayMonth() }) {
                 if (it.bloodGlucoseUnit?.equals(BGEnum.BG_MMO.value) == true) it.bloodGlucose?.toFloat()
                     ?.times(18.018f)
@@ -636,7 +674,10 @@ fun getChartEntries(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): L
         }
 
         vitalsViewModel.isBPSelected -> {
-            getEntryListGlucose(list,list.map { it.createdOn.formatDateToDayMonth() }) { it.bpSystolic?.toFloat() }
+            getCombinedEntries(vitalList = list,
+                cvdList = vitalsViewModel.previousRecords,
+                vitalValueSelector = { it.bpSystolic?.toFloat() },
+                cvdValueSelector = { it.bpSystolic.toFloat() })
         }
 
         else -> {
@@ -651,14 +692,19 @@ fun getChartEntries(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): L
 fun getChartEntries2(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): List<Entry>? {
 
     return if (vitalsViewModel.isGlucoseSelected) {
-        getEntryListGlucose(list.filter { it.bloodGlucoseType == BGEnum.RANDOM.value },
+        getEntries(
+            list.filter { it.bloodGlucoseType == BGEnum.RANDOM.value },
             list.map { it.createdOn.formatDateToDayMonth() }) {
             if (it.bloodGlucoseUnit?.equals(BGEnum.BG_MMO.value) == true) it.bloodGlucose?.toFloat()
                 ?.times(18.018f)
             else it.bloodGlucose?.toFloat()
         }
     } else if (vitalsViewModel.isBPSelected) {
-        getEntryListGlucose(list,list.map { it.createdOn.formatDateToDayMonth() }) { it.bpDiastolic?.toFloat() }
+        getCombinedEntries(vitalList = list,
+            cvdList = vitalsViewModel.previousRecords,
+            vitalValueSelector = { it.bpDiastolic?.toFloat() },
+            cvdValueSelector = { it.bpDiastolic.toFloat() })
+
     } else {
         null
     }
@@ -666,8 +712,7 @@ fun getChartEntries2(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): 
 }
 
 
-
-private fun getEntryListGlucose(
+private fun getEntries(
     list: List<VitalLocal>, labels: List<String>, valueSelector: (VitalLocal) -> Float?
 ): MutableList<Entry> {
     val mutableList: MutableList<Entry> = mutableListOf()
@@ -691,6 +736,44 @@ private fun getEntryListGlucose(
 
     return mutableList
 }
+
+private fun getCombinedEntries(
+    vitalList: List<VitalLocal>,
+    cvdList: List<CVDResponse>,
+    vitalValueSelector: (VitalLocal) -> Float?,
+    cvdValueSelector: (CVDResponse) -> Float?
+): MutableList<Entry> {
+    val mutableList: MutableList<Entry> = mutableListOf()
+
+    // Group both lists by formatted dates
+    val vitalGroupedByDate = vitalList.groupBy { it.createdOn.formatDateToDayMonth() }
+    val cvdGroupedByDate = cvdList.groupBy { it.createdOn.formatDateToDayMonth() }
+
+    // Get a union of all dates from both lists
+    val allDates = (vitalGroupedByDate.keys + cvdGroupedByDate.keys).distinct().sortedBy { it }
+
+
+    for (date in allDates) {
+        val labelIndex = allDates.indexOf(date)
+        if (labelIndex != -1) {
+            // Collect all values from both VitalLocal and CVDResponse for this date
+            val vitalValues = vitalGroupedByDate[date]?.mapNotNull(vitalValueSelector).orEmpty()
+            val cvdValues = cvdGroupedByDate[date]?.mapNotNull(cvdValueSelector).orEmpty()
+
+            // Combine all values into a single list
+            val combinedValues = vitalValues + cvdValues
+
+            // Calculate the average of the combined values
+            if (combinedValues.isNotEmpty()) {
+                val finalAverage = combinedValues.average().toFloat()
+                mutableList.add(Entry(labelIndex.toFloat(), finalAverage))
+            }
+        }
+    }
+
+    return mutableList
+}
+
 
 
 
@@ -773,7 +856,7 @@ fun VitalsCardLayout(
 
 @Composable
 fun CVDRecordCardLayout(
-    modifier: Modifier = Modifier, cvdResponse: CVDResponse, context: Context
+    modifier: Modifier = Modifier, cvdResponse: CVDResponse
 ) {
 
     Card(
@@ -786,7 +869,9 @@ fun CVDRecordCardLayout(
         Column(modifier = modifier.fillMaxWidth()) {
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -802,7 +887,11 @@ fun CVDRecordCardLayout(
                     )
 
                 }
-                Spacer(modifier = Modifier.height(16.dp).width(8.dp))
+                Spacer(
+                    modifier = Modifier
+                        .height(16.dp)
+                        .width(8.dp)
+                )
                 CustomChip(idSelected = false, label = "CVD record") {
 
                 }
@@ -840,7 +929,7 @@ fun CVDRecordCardLayout(
             )
 
             VitalCardItem(
-                title = stringResource(R.string.bmi),
+                title = stringResource(R.string.bmi_label),
                 value = cvdResponse.bmi?.toInt()?.toString() ?: stringResource(id = R.string.dashes)
             )
             Spacer(modifier = Modifier.height(16.dp))

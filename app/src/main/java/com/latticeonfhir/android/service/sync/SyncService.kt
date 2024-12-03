@@ -68,9 +68,6 @@ class SyncService(
                     async {
                         patchCVD(logout)
                     }
-//                    ,async {
-//                        patchVital(logout)
-//                    }
                 )
             }
         }
@@ -322,9 +319,9 @@ class SyncService(
                     CoroutineScope(Dispatchers.IO).launch {
                         downloadCVD(logout)
                     }
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        downloadVitals(logout)
-//                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        downloadVitals(logout)
+                    }
                 }
             }
         }
