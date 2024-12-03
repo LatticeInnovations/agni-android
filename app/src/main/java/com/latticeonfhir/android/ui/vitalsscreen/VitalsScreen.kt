@@ -95,7 +95,9 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -368,9 +370,11 @@ fun VitalsTrendGraph(vitalsViewModel: VitalsViewModel, modifier: Modifier = Modi
             .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 || list.filter { it.respRate != null }
             .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 || list.filter { it.spo2 != null }
             .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 || list.filter { it.bloodGlucose != null }
-            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 || list.filter { it.bpSystolic != null }
-            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 || list.filter { it.bpDiastolic != null }
-            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1) {
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 || getBPListSize(
+            list,
+            vitalsViewModel
+        ) > 1
+    ) {
         ShowTrendGraphCard(modifier, vitalsViewModel, list.reversed())
     } else {
         Column(
@@ -517,8 +521,8 @@ fun ShowTrendGraphCard(
                     }
                 }
             }
-            AnimatedVisibility(visible = list.filter { it.bpSystolic != null }
-                .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1) {
+            Timber.d("SIZE: ${getBPListSize(list, vitalsViewModel)}")
+            AnimatedVisibility(visible = getBPListSize(list, vitalsViewModel) > 1) {
                 CustomChip(
                     idSelected = vitalsViewModel.isBPSelected, label = VitalsTrendEnum.BP.name
                 ) {
@@ -587,17 +591,20 @@ fun ShowTrendGraphCard(
 }
 
 fun getLabels(vitalsViewModel: VitalsViewModel, list: List<VitalLocal>): List<String> {
-    return if (!vitalsViewModel.isBPSelected)
+    return if (!vitalsViewModel.isBPSelected) {
         list.map { it.createdOn.formatDateToDayMonth() }.toSet().toList()
-    else {
-        val vitalGroupedByDate = list.groupBy { it.createdOn.formatDateToDayMonth() }
-        val cvdGroupedByDate =
-            vitalsViewModel.previousRecords.groupBy { it.createdOn.formatDateToDayMonth() }
+    } else {
+        val vitalDates = list.map { it.createdOn }
+        val cvdDates = vitalsViewModel.previousRecords.map { it.createdOn }
 
-        // Get a union of all dates from both lists
-        (vitalGroupedByDate.keys + cvdGroupedByDate.keys).distinct().sortedBy { it }
-
+        // Combine and sort the dates
+        (vitalDates + cvdDates).distinct().sorted().map { it.formatDateToDayMonth() }.distinct()
     }
+}
+
+fun getBPListSize(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): Int {
+    return list.filter { it.bpSystolic != null }
+        .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size + vitalsViewModel.previousRecords.groupBy { it.createdOn.formatDateToDayMonth() }.keys.size
 }
 
 @Composable
@@ -750,7 +757,8 @@ private fun getCombinedEntries(
     val cvdGroupedByDate = cvdList.groupBy { it.createdOn.formatDateToDayMonth() }
 
     // Get a union of all dates from both lists
-    val allDates = (vitalGroupedByDate.keys + cvdGroupedByDate.keys).distinct().sortedBy { it }
+    val allDates = (vitalGroupedByDate.keys + cvdGroupedByDate.keys).distinct()
+        .sortedBy { SimpleDateFormat("dd MMM", Locale.getDefault()).parse(it) }
 
 
     for (date in allDates) {
