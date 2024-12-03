@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.vitalsscreen.addvitals
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -75,11 +76,8 @@ class AddVitalsViewModel @Inject constructor(
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
     var vitalLocal by mutableStateOf<VitalLocal?>(null)
-    var isShowHeightSheet by mutableStateOf(false)
     var isShowLeftEyeSheet by mutableStateOf(false)
     var isShowRightEyeSheet by mutableStateOf(false)
-    var isShowTemperatureSheet by mutableStateOf(false)
-    var isShowBGSheet by mutableStateOf(false)
     var heightType by mutableStateOf("ft/in")
     var feet by mutableStateOf("")
     var isFeetNotValid by mutableStateOf(false)
@@ -115,6 +113,11 @@ class AddVitalsViewModel @Inject constructor(
     var map = mapOf<String, Any>()
     var isButtonClicked by mutableStateOf(false)
 
+    var cholesterol by mutableStateOf("")
+    var cholesterolError by mutableStateOf(false)
+    var selectedCholesterolIndex by mutableIntStateOf(0)
+    var cholesterolUnits = listOf("mmol/L", "mg/dl")
+
     fun validateVitalsDetails(): Boolean {
         if ((feet.isNotBlank() && isFeetNotValid) || (inch.isNotBlank() && isInchNotValid) || (centimeter.isNotBlank() && isCmNotValid)) return false
         if (weight.isNotBlank() && isWeightNotValid) return false
@@ -124,6 +127,7 @@ class AddVitalsViewModel @Inject constructor(
         if (temperature.isNotBlank() && isTempNotValid) return false
         if ((bpSystolic.isNotBlank() || bpDiastolic.isNotBlank()) && (bpSystolic.isBlank() || bpDiastolic.isBlank() || isSystolicNotValid || isDiastolicNotValid)) return false
         if (bloodGlucose.isNotBlank() && isBgNotValid) return false
+        if (cholesterol.isNotBlank() && cholesterolError) return false
         if ((leftEye.isNotBlank() || rightEye.isNotBlank()) && (isFeetNotValid || isWeightNotValid || isHeartNotValid || isRespNotValid || isSpo2NotValid || isTempNotValid || isSystolicNotValid || isDiastolicNotValid || isBgNotValid)) return false
         if (feet.isBlank() && inch.isBlank() && centimeter.isBlank() && weight.isBlank() && heartRate.isBlank() && respiratoryRate.isBlank() && spo2.isBlank() && temperature.isBlank() && bpSystolic.isBlank() && bpDiastolic.isBlank() && bloodGlucose.isBlank() && leftEye.isBlank() && rightEye.isBlank()) return false
         return true
@@ -340,7 +344,9 @@ class AddVitalsViewModel @Inject constructor(
             temp = temperature.addZeroAfterDot().ifBlank { null },
             tempUnit = if (temperature.isNotBlank() && temperatureType.lowercase() == TemperatureEnum.FAHRENHEIT.name.lowercase()) TemperatureEnum.FAHRENHEIT.value else if (temperature.isNotBlank()) TemperatureEnum.CELSIUS.value else null,
             weight = weight.addZeroAfterDot().ifBlank { null },
-            practitionerName = practitionerName
+            practitionerName = practitionerName,
+            cholesterol = if (cholesterol.isNotBlank()) cholesterol.toDouble() else null,
+            cholesterolUnit = if (cholesterol.isNotBlank()) cholesterolUnits[selectedCholesterolIndex] else null,
         )
     }
 
@@ -382,6 +388,12 @@ class AddVitalsViewModel @Inject constructor(
             } else bgRandomChipSelected = true
             bgType =
                 if (it.bloodGlucoseUnit == BGEnum.BG_MMO.value) BGEnum.BG_MMO.value else BGEnum.BG_MG.value
+            selectedCholesterolIndex = if (it.cholesterolUnit != null)
+                cholesterolUnits.indexOf(it.cholesterolUnit)
+            else 0
+            cholesterol = if (selectedCholesterolIndex == 0)
+                it.cholesterol?.toString() ?: ""
+            else it.cholesterol?.toInt()?.toString() ?: ""
         }
     }
 

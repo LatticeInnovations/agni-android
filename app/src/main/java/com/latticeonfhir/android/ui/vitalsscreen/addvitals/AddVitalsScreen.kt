@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -46,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -65,6 +67,8 @@ import com.latticeonfhir.android.utils.constants.VitalConstants.VITAL_UPDATE_OR_
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
+import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbersWithDecimal
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -151,7 +155,7 @@ fun AddVitals(navController: NavController, viewModel: AddVitalsViewModel) {
                 .padding(paddingValues = paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            HeightCard(viewModel = viewModel)
+            HeightCard(viewModel = viewModel, context)
             WeightCard(viewModel = viewModel)
             EyeTestCard(viewModel = viewModel)
             HeartRateCard(viewModel = viewModel)
@@ -159,6 +163,7 @@ fun AddVitals(navController: NavController, viewModel: AddVitalsViewModel) {
             SpO2Card(viewModel = viewModel)
             TemperatureCard(viewModel = viewModel)
             BloodPressureCard(viewModel = viewModel)
+            CholesterolTextField(viewModel = viewModel)
             BloodGlucoseCard(viewModel = viewModel)
             Spacer(modifier = Modifier.height(16.dp))
             SetBottomSheets(viewModel)
@@ -242,19 +247,6 @@ private fun handleNavigate(
 
 @Composable
 fun SetBottomSheets(viewModel: AddVitalsViewModel) {
-    if (viewModel.isShowHeightSheet) {
-        OptionFilterBottomSheet(
-            label = stringResource(R.string.height_unit),
-            showSheet = { isShowSheet ->
-                viewModel.isShowHeightSheet = isShowSheet
-            },
-            selectedOption = viewModel.heightType,
-            saveSelectedOption = { type ->
-                viewModel.heightType = type
-            },
-            list = stringArrayResource(R.array.height_option_list)
-        )
-    }
     if (viewModel.isShowLeftEyeSheet) {
         OptionFilterBottomSheet(
             label = stringResource(id = R.string.left_eye),
@@ -281,45 +273,12 @@ fun SetBottomSheets(viewModel: AddVitalsViewModel) {
             list = stringArrayResource(R.array.eye_test_option_list)
         )
     }
-    if (viewModel.isShowTemperatureSheet) {
-        OptionFilterBottomSheet(
-            label = stringResource(id = R.string.temperature_unit),
-            showSheet = { isShowSheet ->
-                viewModel.isShowTemperatureSheet = isShowSheet
-            },
-            selectedOption = viewModel.temperatureType,
-            saveSelectedOption = { type ->
-                val tempType = viewModel.temperatureType
-                viewModel.temperatureType = type
-                if (tempType != viewModel.temperatureType) {
-                    viewModel.temperature = ""
-                }
-            },
-            list = stringArrayResource(R.array.temperature_option_list)
-        )
-    }
-    if (viewModel.isShowBGSheet) {
-        OptionFilterBottomSheet(
-            label = stringResource(id = R.string.blood_glucose_unit),
-            showSheet = { isShowSheet ->
-                viewModel.isShowBGSheet = isShowSheet
-            },
-            selectedOption = viewModel.bgType,
-            saveSelectedOption = { type ->
-                val tempType = viewModel.bgType
-                viewModel.bgType = type
-                if (tempType != viewModel.bgType) {
-                    viewModel.bloodGlucose = ""
-                }
-            },
-            list = stringArrayResource(R.array.bg_option_list)
-        )
-    }
+
 }
 
 
 @Composable
-fun HeightCard(viewModel: AddVitalsViewModel, modifier: Modifier = Modifier) {
+fun HeightCard(viewModel: AddVitalsViewModel, context: Context, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -344,7 +303,7 @@ fun HeightCard(viewModel: AddVitalsViewModel, modifier: Modifier = Modifier) {
                 CustomTextField(
                     value = viewModel.feet,
                     label = stringResource(R.string.feet),
-                    weight = .4f, maxLength = 5,
+                    weight = .4f, maxLength = 3,
                     isError = viewModel.isFeetNotValid, error = "",
                     keyboardType = KeyboardType.Decimal,
                     keyboardCapitalization = KeyboardCapitalization.None
@@ -354,7 +313,7 @@ fun HeightCard(viewModel: AddVitalsViewModel, modifier: Modifier = Modifier) {
                 CustomTextField(
                     value = viewModel.inch,
                     label = stringResource(R.string.In),
-                    weight = .6f, maxLength = 6,
+                    weight = .6f, maxLength = 4,
                     isError = viewModel.isInchNotValid, error = "",
                     keyboardType = KeyboardType.Number,
                     keyboardCapitalization = KeyboardCapitalization.None
@@ -378,11 +337,17 @@ fun HeightCard(viewModel: AddVitalsViewModel, modifier: Modifier = Modifier) {
                 viewModel.feet = ""
                 viewModel.inch = ""
             }
-
-            DropDownView(5f, setValue = {
-                viewModel.heightType
-            }, onClick = { isClicked ->
-                viewModel.isShowHeightSheet = isClicked
+            val heightTypeList = stringArrayResource(id = R.array.height_option_list)
+            DropDownView(viewModel.heightType, setValue = {
+                val selectedTypeIndex = heightTypeList.indexOf(viewModel.heightType)
+                if (selectedTypeIndex == 0)
+                    viewModel.heightType = heightTypeList[1]
+                else {
+                    viewModel.heightType = heightTypeList[0]
+                }
+                viewModel.isFeetNotValid=false
+                viewModel.isInchNotValid=false
+                viewModel.isCmNotValid=false
             })
 
         }
@@ -513,14 +478,9 @@ fun HeartRateCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) 
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
-        Text(
-            text = stringResource(R.string.heart_rate_per_minute),
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-        )
         CustomTextField(
             value = viewModel.heartRate,
-            label = stringResource(R.string.heart_rate),
+            label = stringResource(R.string.heart_rate_per_minute),
             weight = 1f,
             maxLength = 4,
             isError = viewModel.isHeartNotValid,
@@ -546,14 +506,10 @@ fun RespiratoryCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
-        Text(
-            text = stringResource(R.string.respiratory_rate_per_minute),
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-        )
+
         CustomTextField(
             value = viewModel.respiratoryRate,
-            label = stringResource(R.string.respiratory_rate),
+            label = stringResource(R.string.respiratory_rate_per_minute),
             weight = 1f,
             maxLength = 4,
             isError = viewModel.isRespNotValid,
@@ -579,11 +535,7 @@ fun SpO2Card(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
-        Text(
-            text = stringResource(R.string.spo2),
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-        )
+
         CustomTextField(
             value = viewModel.spo2,
             label = stringResource(R.string.spo2_lable),
@@ -613,11 +565,6 @@ fun TemperatureCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
-        Text(
-            text = stringResource(R.string.temperature),
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-        )
         Row(
             modifier = modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -627,7 +574,7 @@ fun TemperatureCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel
                 value = viewModel.temperature,
                 label = stringResource(id = R.string.temperature),
                 weight = .6f,
-                maxLength = 6,
+                maxLength = if (viewModel.temperatureType == stringArrayResource(id = R.array.temperature_option_list)[0])5 else 4,
                 isError = viewModel.isTempNotValid,
                 error = if (viewModel.temperatureType == stringArrayResource(id = R.array.temperature_option_list)[0]) stringResource(
                     R.string.fahrenheit_error_msg
@@ -639,11 +586,18 @@ fun TemperatureCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel
             ) { temperature ->
                 checkTempValid(viewModel, temperature, context)
             }
-            DropDownView(5f, setValue = {
-                viewModel.temperatureType
-            }, onClick = { isClicked ->
 
-                viewModel.isShowTemperatureSheet = isClicked
+            val typeList = stringArrayResource(id = R.array.temperature_option_list)
+            DropDownView(viewModel.temperatureType, setValue = {
+                val selectedTypeIndex = typeList.indexOf(viewModel.temperatureType)
+                if (selectedTypeIndex == 0)
+                    viewModel.temperatureType = typeList[1]
+                else {
+                    viewModel.temperatureType = typeList[0]
+                }
+                viewModel.temperature = ""
+                viewModel.isTempNotValid = false
+
             })
 
         }
@@ -714,6 +668,98 @@ fun BloodPressureCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewMod
 }
 
 @Composable
+private fun CholesterolTextField(viewModel: AddVitalsViewModel, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .padding(top = 4.dp)
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .background(
+                MaterialTheme.colorScheme.surfaceBright
+            )
+            .padding(start = 16.dp, end = 16.dp)
+
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp, top = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier.weight(7f),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OutlinedTextField(
+                    value = viewModel.cholesterol,
+                    onValueChange = { value ->
+                        checkCholesterolValid(viewModel, value)
+                    },
+                    label = {
+                        Text(stringResource(R.string.total_cholestrol))
+                    },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    ),
+                    isError = viewModel.cholesterolError,
+                    supportingText = if (viewModel.cholesterolError) {
+                        {
+                            Text(
+                                if (viewModel.selectedCholesterolIndex == 0)
+                                    stringResource(
+                                        R.string.value_cannot_exceed,
+                                        "1.0",
+                                        "13.0",
+                                        "mmol/L"
+                                    )
+                                else
+                                    stringResource(
+                                        R.string.value_cannot_exceed,
+                                        "1",
+                                        "500",
+                                        "mg/dL"
+                                    )
+                            )
+                        }
+                    } else null,
+                    singleLine = true
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .weight(3f)
+                    .padding(start = 12.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = viewModel.cholesterolUnits[viewModel.selectedCholesterolIndex],
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.width(8.dp))
+                Icon(
+                    painter = painterResource(R.drawable.swap),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        if (viewModel.selectedCholesterolIndex == 0) viewModel.selectedCholesterolIndex =
+                            1
+                        else viewModel.selectedCholesterolIndex = 0
+                        viewModel.cholesterolError = false
+                        viewModel.cholesterol = ""
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun BloodGlucoseCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
     val context = LocalContext.current
     Column(
@@ -779,10 +825,17 @@ fun BloodGlucoseCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewMode
             ) { bloodGlucose ->
                 checkBgValid(viewModel, bloodGlucose, context)
             }
-            Spacer(modifier = Modifier.width(16.dp))
-
-            DropDownView(5f, setValue = { viewModel.bgType }, onClick = { isClicked ->
-                viewModel.isShowBGSheet = isClicked
+            Spacer(modifier = Modifier.width(8.dp))
+            val typeList = stringArrayResource(id = R.array.bg_option_list)
+            DropDownView(viewModel.bgType, setValue = {
+                val selectedTypeIndex = typeList.indexOf(viewModel.bgType)
+                if (selectedTypeIndex == 0)
+                    viewModel.bgType = typeList[1]
+                else {
+                    viewModel.bgType = typeList[0]
+                }
+                viewModel.bloodGlucose = ""
+                viewModel.isBgNotValid = false
             })
         }
 
@@ -790,32 +843,34 @@ fun BloodGlucoseCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewMode
 }
 
 @Composable
-fun DropDownView(weight: Float, setValue: () -> String, onClick: ((Boolean) -> Unit)? = null) {
-
-    Column(
-        modifier = Modifier.fillMaxWidth(weight),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+fun DropDownView(value: String, setValue: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .padding(start = 12.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.width(8.dp))
+        Icon(
+            painter = painterResource(R.drawable.swap),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                setValue()
 
-        Box {
-            Row(horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable {
-                    onClick?.invoke(true)
-                }) {
-                Text(
-                    text = setValue(),
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = stringResource(R.string.dropdown_icon)
-                )
             }
-        }
-
+        )
     }
+
+
 }
 
 @Composable
@@ -946,6 +1001,24 @@ fun checkTempValid(viewModel: AddVitalsViewModel, temp: String, context: Context
         } else false
     }
 
+}
+fun checkCholesterolValid(viewModel: AddVitalsViewModel, value: String) {
+    viewModel.apply {
+        if (viewModel.selectedCholesterolIndex == 0) {
+            if (value.isBlank() || (value.matches(onlyNumbersWithDecimal) && value.length < 5)) {
+                viewModel.cholesterol = value
+                viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
+                        viewModel.cholesterol.toDouble() !in 1.0..13.0
+            }
+        } else {
+            if (value.isBlank() || (value.matches(onlyNumbers) && value.length < 4)) {
+                viewModel.cholesterol = value
+                viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
+                        viewModel.cholesterol.toInt() !in 1..500
+            }
+        }
+
+    }
 }
 
 fun checkBpSystolicValid(viewModel: AddVitalsViewModel, systolic: String) {

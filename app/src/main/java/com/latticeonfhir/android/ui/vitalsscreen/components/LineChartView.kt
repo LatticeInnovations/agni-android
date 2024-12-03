@@ -23,6 +23,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
+import timber.log.Timber
 
 
 @Composable
@@ -34,6 +35,7 @@ fun LineChartView(
     isBp: Boolean = false
 ) {
 
+    Timber.d("Entries: $entries1")
     val chartWidth = (labels.size * 50).dp
 
     // Calculate Y-axis minimum and maximum values dynamically
@@ -159,6 +161,7 @@ fun LineChartViewGlucose(
 ) {
 
     val chartWidth = (labels.size * 50).dp
+    Timber.d("Entries: $entriesRandom")
 
     // Calculate Y-axis minimum and maximum values dynamically
     val allEntries = (entriesRandom.orEmpty() + entriesFasting.orEmpty())

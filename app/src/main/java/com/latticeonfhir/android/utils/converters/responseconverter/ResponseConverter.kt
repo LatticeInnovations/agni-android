@@ -619,7 +619,9 @@ internal fun VitalEntity.toVitalLocal(): VitalLocal {
         temp = temp,
         tempUnit = tempUnit,
         weight = weight,
-        practitionerName = practitionerName
+        practitionerName = practitionerName,
+        cholesterol = cholesterol,
+        cholesterolUnit = cholesterolUnit
     )
 }
 
@@ -647,7 +649,9 @@ internal fun VitalLocal.toVitalEntity(): VitalEntity {
         temp = temp,
         tempUnit = tempUnit,
         weight = weight,
-        practitionerName = practitionerName
+        practitionerName = practitionerName,
+        cholesterol = cholesterol,
+        cholesterolUnit = cholesterolUnit
     )
 }
 
@@ -678,6 +682,8 @@ internal suspend fun VitalResponse.toVitalEntity(
         temp = temp,
         tempUnit = tempUnit,
         weight = weight,
-        practitionerName = practitionerName
+        practitionerName = practitionerName,
+        cholesterol = cholesterol,
+        cholesterolUnit = cholesterolUnit
     )
 }

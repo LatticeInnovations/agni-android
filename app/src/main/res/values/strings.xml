@@ -340,7 +340,7 @@ include them in the household</string>
     <string name="update_vital">Update vitals</string>
     <string name="cm">cm</string>
     <string name="vitals_update_successfully">Vitals updated successfully!</string>
-    <string name="graph_empty_error_msg">At least two data points required to view graph</string>
+    <string name="graph_empty_error_msg">At least two data points with different dates are required to view the graph.</string>
     <string name="edit_vital">Edit vitals</string>
 
 
