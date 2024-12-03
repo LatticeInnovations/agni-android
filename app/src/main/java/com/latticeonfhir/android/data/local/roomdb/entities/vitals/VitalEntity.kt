@@ -41,5 +41,7 @@ data class VitalEntity(
     val temp: String?,
     val tempUnit: String?,
     val weight: String?,
-    val practitionerName: String?
+    val practitionerName: String?,
+    val cholesterol: Double?,
+    val cholesterolUnit: String?,
 )

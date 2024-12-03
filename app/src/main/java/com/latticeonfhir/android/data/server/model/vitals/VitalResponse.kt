@@ -26,5 +26,7 @@ data class VitalResponse(
     val tempUnit: String?,
     val weight: String?,
     val practitionerName: String?,
-    val vitalFhirId: String?
+    val vitalFhirId: String?,
+    val cholesterol: Double?,
+    val cholesterolUnit: String?
 )

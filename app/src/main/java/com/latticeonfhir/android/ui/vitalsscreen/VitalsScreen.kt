@@ -47,6 +47,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,19 +62,24 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.github.mikephil.charting.data.Entry
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
+import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.CustomDialog
+import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.ui.theme.VitalLabel
 import com.latticeonfhir.android.ui.vitalsscreen.components.CustomChip
 import com.latticeonfhir.android.ui.vitalsscreen.components.LineChartView
 import com.latticeonfhir.android.ui.vitalsscreen.components.LineChartViewGlucose
+import com.latticeonfhir.android.ui.vitalsscreen.components.SegmentedButtonForVital
 import com.latticeonfhir.android.ui.vitalsscreen.enums.BGEnum
 import com.latticeonfhir.android.ui.vitalsscreen.enums.TemperatureEnum
 import com.latticeonfhir.android.ui.vitalsscreen.enums.VitalsEyeEnum
 import com.latticeonfhir.android.ui.vitalsscreen.enums.VitalsTrendEnum
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.android.utils.constants.VitalConstants.VITAL
 import com.latticeonfhir.android.utils.constants.VitalConstants.VITAL_UPDATE_OR_ADD
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertDateFormat
@@ -81,44 +87,20 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.formatDateToDayMonth
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.github.mikephil.charting.data.Entry
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Date
+import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel = hiltViewModel()) {
 
-    LaunchedEffect(key1 = vitalsViewModel.isLaunched) {
-        vitalsViewModel.apply {
-            if (isLaunched) {
-                patient =
-                    navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                        PATIENT
-                    )
-                patient?.let {
-                    getStudentTodayAppointment(
-                        Date(Date().toTodayStartDate()), Date(Date().toEndOfDay()), patient!!.id
-                    )
-                    msg = navController.currentBackStackEntry?.savedStateHandle?.get<String>(
-                        VITAL_UPDATE_OR_ADD
-                    ) ?: ""
-                    getVitals()
-                    Timber.d("Student:  ${_vitals.toJson()} : ${patient.toJson()} $appointmentResponseLocal")
-                } ?: run {
-                    Timber.d("Student: null")
-
-                }
-
-            }
-            isLaunched = true
-
-        }
-
-    }
+    HandleLaunchedEffect(vitalsViewModel, navController)
 
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -154,12 +136,35 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
         ) {
             if (vitalsViewModel.isVitalExist) {
                 val vitals by vitalsViewModel._vitals.collectAsState()
+                val combinedList = (vitals.map { vital ->
+                    CombineVitalAndCVDRecord(
+                        "Vitals", vital.createdOn, vital
+                    )
+                } + vitalsViewModel.previousRecords.map {
+                    CombineVitalAndCVDRecord(
+                        "CVD", it.createdOn, it
+                    )
+                }).sortedBy { it.date }.reversed()
                 LazyColumn(userScrollEnabled = true) {
                     item {
                         VitalsTrendGraph(vitalsViewModel)
                     }
-                    items(vitals) { vital ->
-                        VitalsCardLayout(vital = vital, context = context)
+                    item {
+                        SegmentedButtonForVital(options = listOf("All", "CVD record"),
+                            isCVDListEmpty = vitalsViewModel.previousRecords.isEmpty(),
+                            selectedOption = vitalsViewModel.selectedOption,
+                            onOptionSelected = { vitalsViewModel.selectedOption = it })
+                    }
+                    items(if (vitalsViewModel.selectedOption == "CVD record") combinedList.filter { it.type == "CVD" } else combinedList) { item ->
+                        when (item.type) {
+                            "Vitals" -> VitalsCardLayout(
+                                vital = item.content as VitalLocal, context = context
+                            )
+
+                            "CVD" -> CVDRecordCardLayout(
+                                cvdResponse = item.content as CVDResponse, context = context
+                            )
+                        }
 
                     }
                 }
@@ -202,13 +207,21 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
                     modifier = Modifier
                         .padding(12.dp)
                         .fillMaxWidth(), onClick = {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            key = VITAL, vitalsViewModel.vital
-                        )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            key = PATIENT, vitalsViewModel.patient
-                        )
-                        navController.navigate(Screen.AddVitalsScreen.route)
+                        vitalsViewModel.getAppointmentInfo {
+                            if (vitalsViewModel.canAddAssessment) {
+                                scope.launch {
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        key = PATIENT, vitalsViewModel.patient
+                                    )
+                                    navController.navigate(Screen.AddVitalsScreen.route)
+                                }
+
+                            } else if (vitalsViewModel.isAppointmentCompleted) {
+                                vitalsViewModel.showAppointmentCompletedDialog = true
+                            } else {
+                                vitalsViewModel.showAddToQueueDialog = true
+                            }
+                        }
 
                     },
                     contentPadding = ButtonDefaults.ButtonWithIconContentPadding
@@ -220,11 +233,7 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
                     )
                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                     Text(
-                        if (vitalsViewModel.isAppointmentExist && vitalsViewModel.vital != null) stringResource(
-                            id = R.string.update_vital
-                        ) else stringResource(
-                            id = R.string.add_vitals
-                        )
+                        stringResource(id = R.string.add_vitals)
                     )
                 }
             }
@@ -241,6 +250,94 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
         }
 
     }
+    ShowDialogs(vitalsViewModel, navController, scope)
+}
+
+@Composable
+fun HandleLaunchedEffect(vitalsViewModel: VitalsViewModel, navController: NavController) {
+    LaunchedEffect(key1 = vitalsViewModel.isLaunched) {
+        vitalsViewModel.apply {
+            if (isLaunched) {
+                patient =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                        PATIENT
+                    )
+                patient?.let {
+                    getStudentTodayAppointment(
+                        Date(Date().toTodayStartDate()), Date(Date().toEndOfDay()), patient!!.id
+                    )
+                    msg = navController.currentBackStackEntry?.savedStateHandle?.get<String>(
+                        VITAL_UPDATE_OR_ADD
+                    ) ?: ""
+                    getVitals()
+                    getRecords()
+
+                    Timber.d("Student:  ${_vitals.toJson()} : ${patient.toJson()} $appointmentResponseLocal")
+                } ?: run {
+                    Timber.d("Student: null")
+
+                }
+
+            }
+            isLaunched = true
+
+        }
+
+    }
+
+}
+
+@Composable
+fun ShowDialogs(
+    vitalsViewModel: VitalsViewModel, navController: NavController, scope: CoroutineScope
+) {
+    if (vitalsViewModel.showAddToQueueDialog) {
+        CustomDialog(title = if (vitalsViewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
+            id = R.string.add_to_queue_question
+        ),
+            text = stringResource(id = R.string.add_to_queue_assessment_dialog_description),
+            dismissBtnText = stringResource(id = R.string.dismiss),
+            confirmBtnText = if (vitalsViewModel.appointment != null) stringResource(id = R.string.mark_arrived) else stringResource(
+                id = R.string.add_to_queue
+            ),
+            dismiss = { vitalsViewModel.showAddToQueueDialog = false },
+            confirm = {
+                if (vitalsViewModel.appointment != null) {
+                    vitalsViewModel.updateStatusToArrived(
+                        vitalsViewModel.patient!!, vitalsViewModel.appointment!!
+                    ) {
+                        vitalsViewModel.showAddToQueueDialog = false
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            key = PATIENT, vitalsViewModel.patient
+                        )
+                        navController.navigate(Screen.AddVitalsScreen.route)
+
+                    }
+                } else {
+                    if (vitalsViewModel.ifAllSlotsBooked) {
+                        vitalsViewModel.showAllSlotsBookedDialog = true
+                    } else {
+                        vitalsViewModel.addPatientToQueue(vitalsViewModel.patient!!) {
+                            vitalsViewModel.showAddToQueueDialog = false
+
+                            scope.launch {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    key = PATIENT, vitalsViewModel.patient
+                                )
+                                navController.navigate(Screen.AddVitalsScreen.route)
+                            }
+                        }
+
+
+                    }
+                }
+            })
+    }
+    if (vitalsViewModel.ifAllSlotsBooked) {
+        AllSlotsBookedDialog {
+            vitalsViewModel.showAllSlotsBookedDialog = false
+        }
+    }
 }
 
 
@@ -248,7 +345,14 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
 fun VitalsTrendGraph(vitalsViewModel: VitalsViewModel, modifier: Modifier = Modifier) {
     val list by vitalsViewModel._vitals.collectAsState()
 
-    if (list.filter { it.heartRate != null }.size > 1 || list.filter { it.respRate != null }.size > 1 || list.filter { it.spo2 != null }.size > 1 || list.filter { it.bloodGlucose != null }.size > 1 || list.filter { it.bpSystolic != null }.size > 1 || list.filter { it.bpDiastolic != null }.size > 1) {
+    if (list.filter { it.weight != null }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 || list.filter { it.heartRate != null }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 || list.filter { it.respRate != null }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 || list.filter { it.spo2 != null }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 || list.filter { it.bloodGlucose != null }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 || list.filter { it.bpSystolic != null }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 || list.filter { it.bpDiastolic != null }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1) {
         ShowTrendGraphCard(modifier, vitalsViewModel, list.reversed())
     } else {
         Column(
@@ -314,7 +418,8 @@ fun ShowTrendGraphCard(
                 .padding(start = 16.dp, end = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            AnimatedVisibility(visible = list.filter { it.weight != null }.size > 1) {
+            AnimatedVisibility(visible = list.filter { it.weight != null }
+                .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1) {
                 CustomChip(
                     idSelected = vitalsViewModel.isWeightSelected,
                     label = VitalsTrendEnum.Weight.name
@@ -329,7 +434,8 @@ fun ShowTrendGraphCard(
                     }
                 }
             }
-            AnimatedVisibility(visible = list.filter { it.heartRate != null }.size > 1) {
+            AnimatedVisibility(visible = list.filter { it.heartRate != null }
+                .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1) {
                 CustomChip(
                     idSelected = vitalsViewModel.isHRSelected, label = VitalsTrendEnum.HR.name
                 ) {
@@ -344,7 +450,8 @@ fun ShowTrendGraphCard(
                 }
             }
 
-            AnimatedVisibility(visible = list.filter { it.respRate != null }.size > 1) {
+            AnimatedVisibility(visible = list.filter { it.respRate != null }
+                .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1) {
                 CustomChip(
                     idSelected = vitalsViewModel.isRRSelected, label = VitalsTrendEnum.RR.name
                 ) {
@@ -358,7 +465,8 @@ fun ShowTrendGraphCard(
                     }
                 }
             }
-            AnimatedVisibility(visible = list.filter { it.spo2 != null }.size > 1) {
+            AnimatedVisibility(visible = list.filter { it.spo2 != null }
+                .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1) {
 
                 CustomChip(
                     idSelected = vitalsViewModel.isSpO2Selected, label = VitalsTrendEnum.spO2.name
@@ -374,7 +482,8 @@ fun ShowTrendGraphCard(
                 }
 
             }
-            AnimatedVisibility(visible = list.filter { it.bloodGlucose != null && it.bloodGlucoseType == BGEnum.RANDOM.value || it.bloodGlucoseType == BGEnum.FASTING.value }.size > 1) {
+            AnimatedVisibility(visible = list.filter { it.bloodGlucose != null && it.bloodGlucoseType == BGEnum.RANDOM.value || it.bloodGlucoseType == BGEnum.FASTING.value }
+                .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1) {
 
                 CustomChip(
                     idSelected = vitalsViewModel.isGlucoseSelected,
@@ -390,7 +499,8 @@ fun ShowTrendGraphCard(
                     }
                 }
             }
-            AnimatedVisibility(visible = list.filter { it.bpSystolic != null }.size > 1) {
+            AnimatedVisibility(visible = list.filter { it.bpSystolic != null }
+                .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1) {
                 CustomChip(
                     idSelected = vitalsViewModel.isBPSelected, label = VitalsTrendEnum.BP.name
                 ) {
@@ -438,7 +548,7 @@ fun ShowTrendGraphCard(
                 .height(200.dp),
                 entries1 = getChartEntries(list, vitalsViewModel),
                 entries2 = getChartEntries2(list, vitalsViewModel),
-                labels = list.map { it.createdOn.formatDateToDayMonth() },
+                labels = list.map { it.createdOn.formatDateToDayMonth() }.toSet().toList(),
                 isBp = vitalsViewModel.isBPSelected
             )
             Timber.d("List : ${list.map { it.createdOn.formatDateToDayMonth() }}")
@@ -449,7 +559,8 @@ fun ShowTrendGraphCard(
                 .height(200.dp),
                 entriesRandom = getChartEntries2(list, vitalsViewModel),
                 entriesFasting = getChartEntries(list, vitalsViewModel),
-                labels = list.map { it.createdOn.formatDateToDayMonth() })
+                labels = list.map { it.createdOn.formatDateToDayMonth() }.toSet().toList()
+            )
         }
     }
 
@@ -554,39 +665,27 @@ fun getChartEntries2(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): 
 
 }
 
-private fun getEntryList(
-    list: List<VitalLocal>, valueSelector: (VitalLocal) -> Float?
-): MutableList<Entry> {
-    val mutableList: MutableList<Entry> = mutableListOf()
 
-    for (index in list.indices) { // Updated to use indices for better bounds
-        valueSelector(list[index])?.let { value ->
-            mutableList.add(Entry(index.toFloat(), value))
-        }
-    }
-
-    return mutableList
-}
 
 private fun getEntryListGlucose(
     list: List<VitalLocal>, labels: List<String>, valueSelector: (VitalLocal) -> Float?
 ): MutableList<Entry> {
     val mutableList: MutableList<Entry> = mutableListOf()
 
-    // Iterate over the VitalLocal list
-    for (item in list) {
-        // Get the formatted date for the current item
-        val formattedDate = item.createdOn.formatDateToDayMonth()
+    // Group the list by formatted dates
+    val groupedByDate = list.groupBy { it.createdOn.formatDateToDayMonth() }
 
-        // Find the index of the formatted date in the labels list
-        val labelIndex = labels.indexOf(formattedDate)
-        Timber.d("LabelINDEX: $labels \n$labelIndex")
+    // Iterate through the grouped data
+    for ((date, records) in groupedByDate) {
+        // Find the index of the date in the labels list
+        val labelIndex = labels.indexOf(date)
 
-        // If the date is found in the labels, get the value and add the entry
         if (labelIndex != -1) {
-            valueSelector(item)?.let { value ->
-                mutableList.add(Entry(labelIndex.toFloat(), value))
-            }
+            // Calculate the average value for the grouped records
+            val averageValue = records.mapNotNull(valueSelector).average().roundToInt().toFloat()
+
+            // Add the average value as an Entry for the graph
+            mutableList.add(Entry(labelIndex.toFloat(), averageValue))
         }
     }
 
@@ -627,15 +726,7 @@ fun VitalsCardLayout(
                 )
             )
             VitalCardItem(
-                title = stringResource(id = R.string.height),
-                value = if (vital.heightCm != null) "${vital.heightCm} ${stringResource(id = R.string.cm)}"
-                else if (vital.heightFt != null || vital.heightInch != null) "${vital.heightFt ?: ""}.${vital.heightInch ?: "0"} ${
-                    stringResource(
-                        id = R.string.ft_in
-                    )
-                }" else stringResource(
-                    id = R.string.dashes
-                )
+                title = stringResource(id = R.string.height), value = setHeight(vital)
             )
             VitalCardItem(
                 title = stringResource(id = R.string.weight),
@@ -660,53 +751,7 @@ fun VitalsCardLayout(
                 )
             )
             AnimatedVisibility(visible = isViewMore) {
-                Column {
-                    VitalCardItem(
-                        title = stringResource(R.string.eye_test_result_left),
-                        value = if (vital.leftEye != null) vital.leftEye.toInt()
-                            .getEyeTypeName(context) else stringResource(
-                            id = R.string.dashes
-                        )
-                    )
-                    VitalCardItem(
-                        title = stringResource(R.string.eye_test_result_right),
-                        value = if (vital.rightEye != null) vital.rightEye.toInt()
-                            .getEyeTypeName(context) else stringResource(
-                            id = R.string.dashes
-                        )
-                    )
-                    VitalCardItem(
-                        title = stringResource(R.string.spo2_title),
-                        value = vital.spo2 ?: stringResource(
-                            id = R.string.dashes
-                        )
-                    )
-                    VitalCardItem(
-                        title = stringResource(id = R.string.blood_pressure),
-                        value = if (vital.bpDiastolic != null && vital.bpSystolic != null) "${vital.bpSystolic}/${vital.bpDiastolic} ${
-                            stringResource(
-                                id = R.string.mmhg
-                            )
-                        }" else stringResource(id = R.string.dashes)
-                    )
-                    VitalCardItem(
-                        title = "${
-                            stringResource(
-                                id = if (vital.bloodGlucoseType == stringResource(
-                                        id = R.string.fasting
-                                    ).lowercase()
-                                ) R.string.fasting else R.string.random
-                            )
-                        } ${
-                            stringResource(
-                                id = R.string.blood_glucose
-                            ).lowercase()
-                        }",
-                        value = if (vital.bloodGlucose != null) "${vital.bloodGlucose} ${vital.bloodGlucoseUnit}"
-                        else stringResource(R.string.dashes)
-                    )
-
-                }
+                ViewMoreItems(vital, context)
                 Spacer(modifier = Modifier.height(16.dp))
             }
             Text(
@@ -724,6 +769,191 @@ fun VitalsCardLayout(
         }
 
     }
+}
+
+@Composable
+fun CVDRecordCardLayout(
+    modifier: Modifier = Modifier, cvdResponse: CVDResponse, context: Context
+) {
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
+    ) {
+        Column(modifier = modifier.fillMaxWidth()) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+
+                    Text(
+                        text = cvdResponse.createdOn.convertedDate().convertDateFormat(),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = cvdResponse.practitionerName ?: stringResource(id = R.string.dash),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+
+                }
+                Spacer(modifier = Modifier.height(16.dp).width(8.dp))
+                CustomChip(idSelected = false, label = "CVD record") {
+
+                }
+            }
+            HorizontalDivider(
+                modifier = Modifier.padding(
+                    start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp
+                )
+            )
+            VitalCardItem(
+                title = stringResource(id = R.string.blood_pressure),
+                value = if (cvdResponse.bpDiastolic != 0 && cvdResponse.bpSystolic != 0) "${cvdResponse.bpSystolic}/${cvdResponse.bpDiastolic} ${
+                    stringResource(
+                        id = R.string.mmhg
+                    )
+                }" else stringResource(id = R.string.dashes)
+            )
+
+            VitalCardItem(
+                title = stringResource(id = R.string.total_cholestrol),
+                value = if (cvdResponse.cholesterol != null) "${cvdResponse.cholesterol} ${cvdResponse.cholesterolUnit}" else stringResource(
+                    id = R.string.dashes
+                )
+            )
+            VitalCardItem(
+                title = stringResource(id = R.string.height), value = setCVDHeight(cvdResponse)
+            )
+            VitalCardItem(
+                title = stringResource(id = R.string.weight),
+                value = if (cvdResponse.weight != null) "${cvdResponse.weight} ${
+                    stringResource(
+                        id = R.string.kg
+                    ).lowercase()
+                }" else stringResource(id = R.string.dashes)
+            )
+
+            VitalCardItem(
+                title = stringResource(R.string.bmi),
+                value = cvdResponse.bmi?.toInt()?.toString() ?: stringResource(id = R.string.dashes)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+        }
+
+    }
+}
+
+@Composable
+fun setHeight(vital: VitalLocal): String {
+    return when {
+        vital.heightCm != null -> {
+            "${vital.heightCm} ${stringResource(id = R.string.cm)}"
+        }
+
+        vital.heightFt != null || vital.heightInch != null -> {
+            "${vital.heightFt ?: ""}.${vital.heightInch ?: "0"} ${
+                stringResource(
+                    id = R.string.ft_in
+                )
+            }"
+        }
+
+        else -> {
+            stringResource(
+                id = R.string.dashes
+            )
+        }
+    }
+
+}
+
+@Composable
+fun setCVDHeight(cvdResponse: CVDResponse): String {
+    return when {
+        cvdResponse.heightCm != null -> {
+            "${cvdResponse.heightCm} ${stringResource(id = R.string.cm)}"
+        }
+
+        cvdResponse.heightFt != null || cvdResponse.heightInch != null -> {
+            "${cvdResponse.heightFt ?: ""}.${cvdResponse.heightInch ?: "0"} ${
+                stringResource(
+                    id = R.string.ft_in
+                )
+            }"
+        }
+
+        else -> {
+            stringResource(
+                id = R.string.dashes
+            )
+        }
+    }
+
+}
+
+@Composable
+fun ViewMoreItems(vital: VitalLocal, context: Context) {
+    Column {
+        VitalCardItem(
+            title = stringResource(R.string.eye_test_result_left),
+            value = if (vital.leftEye != null) vital.leftEye.toInt()
+                .getEyeTypeName(context) else stringResource(
+                id = R.string.dashes
+            )
+        )
+        VitalCardItem(
+            title = stringResource(R.string.eye_test_result_right),
+            value = if (vital.rightEye != null) vital.rightEye.toInt()
+                .getEyeTypeName(context) else stringResource(
+                id = R.string.dashes
+            )
+        )
+        VitalCardItem(
+            title = stringResource(R.string.spo2_title), value = vital.spo2 ?: stringResource(
+                id = R.string.dashes
+            )
+        )
+        VitalCardItem(
+            title = stringResource(id = R.string.blood_pressure),
+            value = if (vital.bpDiastolic != null && vital.bpSystolic != null) "${vital.bpSystolic}/${vital.bpDiastolic} ${
+                stringResource(
+                    id = R.string.mmhg
+                )
+            }" else stringResource(id = R.string.dashes)
+        )
+        VitalCardItem(
+            title = stringResource(id = R.string.total_cholestrol),
+            value = if (vital.cholesterol != null) "${vital.cholesterol} ${vital.cholesterolUnit}" else stringResource(
+                id = R.string.dashes
+            )
+        )
+        VitalCardItem(
+            title = "${
+                stringResource(
+                    id = if (vital.bloodGlucoseType == stringResource(
+                            id = R.string.fasting
+                        ).lowercase()
+                    ) R.string.fasting else R.string.random
+                )
+            } ${
+                stringResource(
+                    id = R.string.blood_glucose
+                ).lowercase()
+            }",
+            value = if (vital.bloodGlucose != null) "${vital.bloodGlucose} ${vital.bloodGlucoseUnit}"
+            else stringResource(R.string.dashes)
+        )
+
+    }
+
+
 }
 
 @Composable
@@ -773,31 +1003,37 @@ fun String.extractStringInBrackets(): String {
 
 private fun showChipSelection(vitalsViewModel: VitalsViewModel, list: List<VitalLocal>) {
     when {
-        list.filter { it.weight != null }.size > 1 -> {
+        list.filter { it.weight != null }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 -> {
             vitalsViewModel.isWeightSelected = true
         }
 
-        list.filter { it.heartRate != null }.size > 1 -> {
+        list.filter { it.heartRate != null }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 -> {
             vitalsViewModel.isHRSelected = true
             vitalsViewModel.isWeightSelected = false
         }
 
-        list.filter { it.respRate != null }.size > 1 -> {
+        list.filter { it.respRate != null }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 -> {
             vitalsViewModel.isRRSelected = true
             vitalsViewModel.isWeightSelected = false
         }
 
-        list.filter { it.spo2 != null }.size > 1 -> {
+        list.filter { it.spo2 != null }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 -> {
             vitalsViewModel.isSpO2Selected = true
             vitalsViewModel.isWeightSelected = false
         }
 
-        list.filter { it.bloodGlucose != null && it.bloodGlucoseType == BGEnum.RANDOM.value || it.bloodGlucoseType == BGEnum.FASTING.value }.size > 1 -> {
+        list.filter { it.bloodGlucose != null && it.bloodGlucoseType == BGEnum.RANDOM.value || it.bloodGlucoseType == BGEnum.FASTING.value }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 -> {
             vitalsViewModel.isGlucoseSelected = true
             vitalsViewModel.isWeightSelected = false
         }
 
-        list.filter { it.bpSystolic != null }.size > 1 -> {
+        list.filter { it.bpSystolic != null }
+            .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1 -> {
             vitalsViewModel.isBPSelected = true
             vitalsViewModel.isWeightSelected = false
         }
