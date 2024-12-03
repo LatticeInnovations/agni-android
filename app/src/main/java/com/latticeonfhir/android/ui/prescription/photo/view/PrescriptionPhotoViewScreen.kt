@@ -295,7 +295,15 @@ fun PrescriptionPhotoViewScreen(
             if (!viewModel.isTapped) {
                 FloatingActionButton(
                     onClick = {
-                        viewModel.showAddPrescriptionBottomSheet = true
+                        viewModel.getAppointmentInfo {
+                            if (viewModel.canAddPrescription) {
+                                viewModel.showAddPrescriptionBottomSheet = true
+                            } else if (viewModel.isAppointmentCompleted) {
+                                viewModel.showAppointmentCompletedDialog = true
+                            } else {
+                                viewModel.showAddToQueueDialog = true
+                            }
+                        }
                     }
                 ) {
                     Icon(
@@ -373,21 +381,7 @@ fun PrescriptionPhotoViewScreen(
                         viewModel.appointment!!
                     ) {
                         viewModel.showAddToQueueDialog = false
-                        checkPermissions(
-                            context = context,
-                            requestPermission = { permissionsToBeRequest ->
-                                requestPermissionLauncher.launch(permissionsToBeRequest)
-                            },
-                            navigate = {
-                                coroutineScope.launch {
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        NavControllerConstants.PATIENT,
-                                        viewModel.patient!!
-                                    )
-                                    navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
-                                }
-                            }
-                        )
+                        viewModel.showAddPrescriptionBottomSheet = true
                     }
                 } else {
                     if (viewModel.ifAllSlotsBooked) {
@@ -395,21 +389,7 @@ fun PrescriptionPhotoViewScreen(
                     } else {
                         viewModel.addPatientToQueue(viewModel.patient!!) {
                             viewModel.showAddToQueueDialog = false
-                            checkPermissions(
-                                context = context,
-                                requestPermission = { permissionsToBeRequest ->
-                                    requestPermissionLauncher.launch(permissionsToBeRequest)
-                                },
-                                navigate = {
-                                    coroutineScope.launch {
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            NavControllerConstants.PATIENT,
-                                            viewModel.patient!!
-                                        )
-                                        navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
-                                    }
-                                }
-                            )
+                            viewModel.showAddPrescriptionBottomSheet = true
                         }
                     }
                 }
@@ -485,52 +465,37 @@ fun PrescriptionPhotoViewScreen(
                         icon = painterResource(R.drawable.camera),
                         label = stringResource(R.string.upload_a_prescription),
                         onClick = {
-                            viewModel.getAppointmentInfo {
-                                if (viewModel.canAddPrescription) {
-                                    checkPermissions(
-                                        context = context,
-                                        requestPermission = { permissionsToBeRequest ->
-                                            requestPermissionLauncher.launch(permissionsToBeRequest)
-                                        },
-                                        navigate = {
-                                            viewModel.hideSyncStatus()
-                                            viewModel.showAddPrescriptionBottomSheet = false
-                                            coroutineScope.launch {
-                                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                    NavControllerConstants.PATIENT,
-                                                    viewModel.patient!!
-                                                )
-                                                navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
-                                            }
-                                        }
-                                    )
-                                } else if (viewModel.isAppointmentCompleted) {
-                                    viewModel.showAppointmentCompletedDialog = true
-                                } else {
-                                    viewModel.showAddToQueueDialog = true
-                                }
-                            }
-                        }
-                    )
-                    PrescriptionOptionRow(
-                        icon = painterResource(R.drawable.prescriptions),
-                        label = stringResource(R.string.fill_prescription),
-                        onClick = {
-                            viewModel.getAppointmentInfo {
-                                if (viewModel.canAddPrescription) {
+                            checkPermissions(
+                                context = context,
+                                requestPermission = { permissionsToBeRequest ->
+                                    requestPermissionLauncher.launch(permissionsToBeRequest)
+                                },
+                                navigate = {
+                                    viewModel.hideSyncStatus()
                                     viewModel.showAddPrescriptionBottomSheet = false
                                     coroutineScope.launch {
                                         navController.currentBackStackEntry?.savedStateHandle?.set(
                                             NavControllerConstants.PATIENT,
                                             viewModel.patient!!
                                         )
-                                        navController.navigate(Screen.Prescription.route)
+                                        navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
                                     }
-                                } else if (viewModel.isAppointmentCompleted) {
-                                    viewModel.showAppointmentCompletedDialog = true
-                                } else {
-                                    viewModel.showAddToQueueDialog = true
                                 }
+                            )
+                        }
+                    )
+                    PrescriptionOptionRow(
+                        icon = painterResource(R.drawable.prescriptions),
+                        label = stringResource(R.string.fill_prescription),
+                        onClick = {
+                            viewModel.hideSyncStatus()
+                            viewModel.showAddPrescriptionBottomSheet = false
+                            coroutineScope.launch {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    NavControllerConstants.PATIENT,
+                                    viewModel.patient!!
+                                )
+                                navController.navigate(Screen.Prescription.route)
                             }
                         }
                     )
