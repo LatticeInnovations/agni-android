@@ -13,6 +13,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntit
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoPatch
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
@@ -348,20 +349,20 @@ open class GenericRepositoryDatabaseTransactions(
 
     protected suspend fun insertOrUpdatePhotoPrescriptionGenericEntityPatch(
         prescriptionGenericEntity: GenericEntity?,
-        prescriptionPhotoResponse: PrescriptionPhotoResponse,
+        prescriptionPhotoPatch: PrescriptionPhotoPatch,
         prescriptionFhirId: String,
         uuid: String
     ): Long {
         return if (prescriptionGenericEntity != null) {
             genericDao.insertGenericEntity(
-                prescriptionGenericEntity.copy(payload = prescriptionPhotoResponse.toJson())
+                prescriptionGenericEntity.copy(payload = prescriptionPhotoPatch.toJson())
             )[0]
         } else {
             genericDao.insertGenericEntity(
                 GenericEntity(
                     id = uuid,
                     patientId = prescriptionFhirId,
-                    payload = prescriptionPhotoResponse.toJson(),
+                    payload = prescriptionPhotoPatch.toJson(),
                     type = GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE,
                     syncType = SyncType.PATCH
                 )

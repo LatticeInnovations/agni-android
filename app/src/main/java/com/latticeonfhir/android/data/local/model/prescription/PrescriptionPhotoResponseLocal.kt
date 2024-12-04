@@ -11,5 +11,6 @@ data class PrescriptionPhotoResponseLocal(
     val appointmentId: String,
     val generatedOn: Date,
     val prescriptionId: String,
-    val prescription: List<File>
+    val prescription: List<File>,
+    val prescriptionFhirId: String?
 )

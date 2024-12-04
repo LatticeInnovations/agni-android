@@ -112,11 +112,6 @@ fun PrescriptionScreen(
                 Date(Date().toEndOfDay()),
                 viewModel.patient!!.id
             )
-            viewModel.patient?.let {
-                viewModel.getPreviousPrescription(it.id) { prescriptionList ->
-                    viewModel.previousPrescriptionList = prescriptionList
-                }
-            }
         }
         viewModel.getAllMedicationDirections {
             viewModel.medicationDirectionsList = it
