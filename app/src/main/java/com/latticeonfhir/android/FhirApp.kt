@@ -118,7 +118,6 @@ class FhirApp : Application() {
             fhirAppDatabase.getCVDDao(),
             fhirAppDatabase.getVitalDao(),
             fhirAppDatabase.getSymptomsAndDiagnosisDao(),
-            fhirAppDatabase.getCVDDao(),
             fhirAppDatabase.getLabTestAndMedDao()
         )
 
