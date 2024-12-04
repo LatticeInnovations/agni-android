@@ -585,6 +585,24 @@ fun QueuePatientCard(
         patient?.gender?.get(0)?.uppercase()
     }/$age${if (patient?.fhirId.isNullOrEmpty()) "" else ", PID: ${patient?.fhirId}"} "
 
+    val containerColor = when (appointmentResponseLocal.status) {
+        AppointmentStatusEnum.WALK_IN.value -> WalkInContainer
+        AppointmentStatusEnum.ARRIVED.value -> ArrivedContainer
+        AppointmentStatusEnum.SCHEDULED.value -> TodayScheduledContainer
+        AppointmentStatusEnum.CANCELLED.value -> CancelledContainer
+        AppointmentStatusEnum.COMPLETED.value -> CompletedContainer
+        AppointmentStatusEnum.IN_PROGRESS.value -> InProgressContainer
+        else -> NoShowContainer
+    }
+    val labelColor = when (appointmentResponseLocal.status) {
+        AppointmentStatusEnum.WALK_IN.value -> WalkInLabel
+        AppointmentStatusEnum.ARRIVED.value -> ArrivedLabel
+        AppointmentStatusEnum.SCHEDULED.value -> TodayScheduledLabel
+        AppointmentStatusEnum.CANCELLED.value -> CancelledLabel
+        AppointmentStatusEnum.COMPLETED.value -> CompletedLabel
+        AppointmentStatusEnum.IN_PROGRESS.value -> InProgressLabel
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
     ElevatedCard(
         colors = CardDefaults.elevatedCardColors(
             containerColor = if (appointmentResponseLocal.status == AppointmentStatusEnum.NO_SHOW.value) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
@@ -593,7 +611,7 @@ fun QueuePatientCard(
             .testTag("QUEUE_PATIENT_CARD")
             .clickable {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
-                    NavControllerConstants.PATIENT,
+                    PATIENT,
                     patient
                 )
                 navController.currentBackStackEntry?.savedStateHandle?.set(
@@ -618,36 +636,23 @@ fun QueuePatientCard(
             Column {
                 AssistChip(
                     onClick = {
-                        if ((appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
-                                    || appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value
-                                    || appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
-                                    || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
-                            && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
-                        ) {
-                            viewModel.statusList = when (appointmentResponseLocal.status) {
-                                AppointmentStatusEnum.SCHEDULED.value -> listOf(
-                                    "Arrived",
-                                    "Completed"
-                                )
+                        viewModel.statusList = when (appointmentResponseLocal.status) {
+                            AppointmentStatusEnum.SCHEDULED.value -> listOf(
+                                "Arrived"
+                            )
 
-                                AppointmentStatusEnum.IN_PROGRESS.value, AppointmentStatusEnum.WALK_IN.value, AppointmentStatusEnum.ARRIVED.value -> listOf(
-                                    "Completed"
-                                )
-
-                                else -> listOf()
-                            }
-                            viewModel.appointmentSelected = appointmentResponseLocal
-                            landingViewModel.showStatusChangeLayout = true
+                            else -> listOf()
                         }
+                        viewModel.appointmentSelected = appointmentResponseLocal
+                        landingViewModel.showStatusChangeLayout = true
                     },
+                    enabled = appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
+                            && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay(),
                     label = {
                         Text(text = fromValue(appointmentResponseLocal.status).label)
                     },
                     trailingIcon = {
-                        if ((appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
-                                    || appointmentResponseLocal.status == AppointmentStatusEnum.IN_PROGRESS.value
-                                    || appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
-                                    || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
+                        if (appointmentResponseLocal.status == AppointmentStatusEnum.SCHEDULED.value
                             && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
                         ) {
                             Icon(
@@ -665,24 +670,10 @@ fun QueuePatientCard(
                         }
                     },
                     colors = AssistChipDefaults.assistChipColors(
-                        containerColor = when (appointmentResponseLocal.status) {
-                            AppointmentStatusEnum.WALK_IN.value -> WalkInContainer
-                            AppointmentStatusEnum.ARRIVED.value -> ArrivedContainer
-                            AppointmentStatusEnum.SCHEDULED.value -> TodayScheduledContainer
-                            AppointmentStatusEnum.CANCELLED.value -> CancelledContainer
-                            AppointmentStatusEnum.COMPLETED.value -> CompletedContainer
-                            AppointmentStatusEnum.IN_PROGRESS.value -> InProgressContainer
-                            else -> NoShowContainer
-                        },
-                        labelColor = when (appointmentResponseLocal.status) {
-                            AppointmentStatusEnum.WALK_IN.value -> WalkInLabel
-                            AppointmentStatusEnum.ARRIVED.value -> ArrivedLabel
-                            AppointmentStatusEnum.SCHEDULED.value -> TodayScheduledLabel
-                            AppointmentStatusEnum.CANCELLED.value -> CancelledLabel
-                            AppointmentStatusEnum.COMPLETED.value -> CompletedLabel
-                            AppointmentStatusEnum.IN_PROGRESS.value -> InProgressLabel
-                            else -> MaterialTheme.colorScheme.onSurfaceVariant
-                        }
+                        containerColor = containerColor,
+                        labelColor = labelColor,
+                        disabledContainerColor = containerColor,
+                        disabledLabelColor = labelColor
                     ),
                     border = AssistChipDefaults.assistChipBorder(
                         enabled = true,
@@ -767,7 +758,7 @@ fun QueuePatientCard(
                                     appointmentResponseLocal
                                 )
                                 navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    NavControllerConstants.PATIENT,
+                                    PATIENT,
                                     patient
                                 )
                                 navController.currentBackStackEntry?.savedStateHandle?.set(

@@ -11,7 +11,8 @@ enum class GenericTypeEnum(val number: Int, val value: String) {
     FHIR_IDS_PRESCRIPTION(8, "FHIR_IDS_PRESCRIPTION"),
     PRESCRIPTION_PHOTO(9, "prescription_photo"),
     CVD(10, "cvd_record"),
-    SYMPTOMS_DIAGNOSIS(11, "SymptomsAndDiagnosis");
+    VITAL(11, "VitalPatch"),
+    SYMPTOMS_DIAGNOSIS(12, "SymptomsAndDiagnosis");
 
     companion object {
         fun fromString(value: String) = entries.firstOrNull { it.value == value }
