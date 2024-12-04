@@ -214,6 +214,19 @@ fun PatientLandingScreen(
                         )
                         CardComposable(
                             viewModel,
+                            stringResource(id = R.string.vital),
+                            R.drawable.vital_signs,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
+                                navController.navigate(Screen.VitalsScreen.route)
+                            }
+                        )
+                        CardComposable(
+                            viewModel,
                             stringResource(id = R.string.cvd_risk_assessment),
                             R.drawable.cardiology,
                             if (viewModel.cvdRisk.isBlank()) null
@@ -270,7 +283,8 @@ fun PatientLandingScreen(
     ) {
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.padding(bottom = 160.dp)
+            modifier = Modifier
+                .padding(bottom = 160.dp)
                 .navigationBarsPadding()
         )
     }

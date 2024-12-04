@@ -67,4 +67,26 @@
         <item>09:30 PM</item>
         <item>10:00 PM</item>
     </string-array>
+
+    <string-array name="height_option_list">
+        <item>ft/in</item>
+        <item>Centimeter</item>
+    </string-array>
+    <string-array name="eye_test_option_list">
+        <item>Normal Vision (6/6 or 20/20)</item>
+        <item>Mild Impairment (6/9 or 20/30)</item>
+        <item>Moderate Impairment (6/12 or 20/40)</item>
+        <item>Significant Impairment (6/18 or 20/60)</item>
+        <item>Severe Impairment (6/24 or 20/80)</item>
+        <item>Very Severe Impairment (6/36 or 20/120)</item>
+        <item>Legal Blindness (6/60 or 20/200)</item>
+    </string-array>
+    <string-array name="temperature_option_list">
+        <item>Fahrenheit</item>
+        <item>Celsius</item>
+    </string-array>
+    <string-array name="bg_option_list">
+        <item>mg/dl</item>
+        <item>mmol/L</item>
+    </string-array>
 </resources>
