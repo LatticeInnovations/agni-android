@@ -17,6 +17,7 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import javax.inject.Inject
 
@@ -277,5 +278,25 @@ class GenericRepositoryImpl @Inject constructor(
                 uuid
             )
         }
+    }
+
+    override suspend fun removeGenericRecord(id: String): Int {
+        return genericDao.removeGenericRecord(id)
+    }
+
+    override suspend fun insertDeleteRequest(
+        fhirId: String,
+        typeEnum: GenericTypeEnum,
+        syncType: SyncType
+    ): Long {
+        return genericDao.insertGenericEntity(
+            GenericEntity(
+                id = UUIDBuilder.generateUUID(),
+                patientId = fhirId,
+                payload = fhirId.toJson(),
+                type = typeEnum,
+                syncType = syncType
+            )
+        )[0]
     }
 }

@@ -77,8 +77,8 @@ class PrescriptionRepositoryImpl @Inject constructor(
 
     override suspend fun deletePhotoPrescription(prescriptionPhotoResponseLocal: PrescriptionPhotoResponseLocal): Int {
         fileUploadDao.deleteFile(prescriptionPhotoResponseLocal.prescription[0].filename)
-        return prescriptionDao.deletePrescriptionEntity(prescriptionPhotoResponseLocal.toPrescriptionEntity()).also {
-            prescriptionDao.deletePrescriptionPhoto(prescriptionPhotoResponseLocal.toListOfPrescriptionPhotoEntity()[0])
+        return prescriptionDao.deletePrescriptionPhoto(prescriptionPhotoResponseLocal.toListOfPrescriptionPhotoEntity()[0]).also {
+            prescriptionDao.deletePrescriptionEntity(prescriptionPhotoResponseLocal.toPrescriptionEntity())
         }
     }
 }
