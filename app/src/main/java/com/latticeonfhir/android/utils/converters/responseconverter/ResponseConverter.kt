@@ -3,6 +3,7 @@ package com.latticeonfhir.android.utils.converters.responseconverter
 import com.latticeonfhir.android.data.local.enums.PrescriptionType
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
+import com.latticeonfhir.android.data.local.model.prescription.MedicationLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
@@ -42,7 +43,6 @@ import com.latticeonfhir.android.data.server.model.prescription.medication.Medic
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
@@ -473,12 +473,12 @@ internal fun PrescriptionAndMedicineRelation.toPrescriptionResponseLocal(): Pres
         appointmentId = prescriptionEntity.appointmentId,
         generatedOn = prescriptionEntity.prescriptionDate,
         prescriptionId = prescriptionEntity.id,
-        prescription = prescriptionDirectionAndMedicineView.map { prescriptionDirectionAndMedicineView -> prescriptionDirectionAndMedicineView.toMedication() }
+        prescription = prescriptionDirectionAndMedicineView.map { prescriptionDirectionAndMedicineView -> prescriptionDirectionAndMedicineView.toMedicationLocal() }
     )
 }
 
-internal fun PrescriptionDirectionAndMedicineView.toMedication(): Medication {
-    return Medication(
+internal fun PrescriptionDirectionAndMedicineView.toMedicationLocal(): MedicationLocal {
+    return MedicationLocal(
         doseForm = medicationEntity.doseForm,
         duration = prescriptionDirectionsEntity.duration,
         frequency = prescriptionDirectionsEntity.frequency,
@@ -488,7 +488,9 @@ internal fun PrescriptionDirectionAndMedicineView.toMedication(): Medication {
         qtyPrescribed = prescriptionDirectionsEntity.qtyPrescribed,
         timing = prescriptionDirectionsEntity.timing,
         medReqFhirId = prescriptionDirectionsEntity.medReqFhirId,
-        medReqUuid = prescriptionDirectionsEntity.id
+        medReqUuid = prescriptionDirectionsEntity.id,
+        medName = medicationEntity.medName,
+        medUnit = medicationEntity.medUnit
     )
 }
 
@@ -520,13 +522,35 @@ internal suspend fun PrescriptionAndFileEntity.toPrescriptionPhotoResponse(
                 documentUuid = prescriptionPhotoEntity.id,
                 documentFhirId = prescriptionPhotoEntity.documentFhirId,
                 filename = prescriptionPhotoEntity.fileName,
-                note = prescriptionPhotoEntity.note ?: "")
+                note = prescriptionPhotoEntity.note ?: ""
+            )
         },
         appointmentUuid = prescriptionEntity.appointmentId,
         prescriptionFhirId = prescriptionEntity.prescriptionFhirId
     )
 }
 
+
+internal fun PrescriptionAndFileEntity.toPrescriptionPhotoResponseLocal(): PrescriptionPhotoResponseLocal {
+    return PrescriptionPhotoResponseLocal(
+        patientId = prescriptionEntity.patientId,
+        patientFhirId = prescriptionEntity.patientFhirId,
+        appointmentId = prescriptionEntity.appointmentId,
+        generatedOn = prescriptionEntity.prescriptionDate,
+        prescriptionId = prescriptionEntity.id,
+        prescription = prescriptionPhotoEntity.map { it.toFile() },
+        prescriptionFhirId = prescriptionEntity.prescriptionFhirId
+    )
+}
+
+private fun PrescriptionPhotoEntity.toFile(): File {
+    return File(
+        documentUuid = id,
+        documentFhirId = documentFhirId,
+        filename = fileName,
+        note = note ?: ""
+    )
+}
 
 internal fun PrescriptionAndFileEntity.toFilesList(): List<File> {
     return prescriptionPhotoEntity.map {

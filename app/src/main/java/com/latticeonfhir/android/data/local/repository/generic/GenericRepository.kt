@@ -4,6 +4,7 @@ import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoPatch
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
@@ -80,7 +81,7 @@ interface GenericRepository {
 
     suspend fun insertOrUpdatePhotoPrescriptionPatch(
         prescriptionFhirId: String,
-        prescriptionPhotoResponse: PrescriptionPhotoResponse,
+        prescriptionPhotoPatch: PrescriptionPhotoPatch,
         uuid: String = UUIDBuilder.generateUUID()
     ): Long
 

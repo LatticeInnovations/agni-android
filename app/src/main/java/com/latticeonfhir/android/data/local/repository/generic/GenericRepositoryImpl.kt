@@ -11,6 +11,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntit
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoPatch
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
@@ -221,7 +222,7 @@ class GenericRepositoryImpl @Inject constructor(
 
     override suspend fun insertOrUpdatePhotoPrescriptionPatch(
         prescriptionFhirId: String,
-        prescriptionPhotoResponse: PrescriptionPhotoResponse,
+        prescriptionPhotoPatch: PrescriptionPhotoPatch,
         uuid: String
     ): Long {
         return genericDao.getGenericEntityById(
@@ -232,7 +233,7 @@ class GenericRepositoryImpl @Inject constructor(
             insertOrUpdatePhotoPrescriptionGenericEntityPatch(
                 prescriptionFhirId = prescriptionFhirId,
                 prescriptionGenericEntity = prescriptionGenericEntity,
-                prescriptionPhotoResponse = prescriptionPhotoResponse,
+                prescriptionPhotoPatch = prescriptionPhotoPatch,
                 uuid = uuid
             )
         }

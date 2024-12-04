@@ -18,14 +18,11 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.roomdb.entities.file.DownloadedFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.file.FileUploadEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.file.BitmapUtils.compressImage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -108,7 +105,8 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
                 generatedOn = generatedOn,
                 prescriptionId = prescriptionUuid,
                 prescription = listOfFiles,
-                appointmentId = appointmentResponseLocal!!.uuid
+                appointmentId = appointmentResponseLocal!!.uuid,
+                prescriptionFhirId = null
             )
         ).also {
             insertInFileRepositories(filename)

@@ -62,8 +62,15 @@ interface PrescriptionDao {
         endDate: Long
     ): List<PrescriptionAndFileEntity>
 
+    @Transaction
+    @Query("SELECT * FROM PrescriptionEntity WHERE id=:prescriptionId")
+    suspend fun getPrescriptionPhotoById(prescriptionId: String): PrescriptionAndFileEntity
+
     @Delete
     suspend fun deletePrescriptionPhoto(prescriptionPhotoEntity: PrescriptionPhotoEntity): Int
+
+    @Delete
+    suspend fun deletePrescriptionEntity(prescriptionEntity: PrescriptionEntity): Int
 
     @Transaction
     @Query("UPDATE PrescriptionDirectionsEntity SET medReqFhirId = :medReqFhirId WHERE id = :medReqUuid")

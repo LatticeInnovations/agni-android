@@ -107,8 +107,8 @@ import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.PrescriptionType
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionAndFileEntity
+import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
+import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.CustomDialog
@@ -328,7 +328,7 @@ fun PrescriptionPhotoViewScreen(
                 viewModel.deletePrescription {
                     FileManager.removeFromInternalStorage(
                         context,
-                        (viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].fileName
+                        (viewModel.selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescription[0].filename
                     )
                     viewModel.isTapped = false
                     viewModel.isLongPressed = false
@@ -340,11 +340,10 @@ fun PrescriptionPhotoViewScreen(
     }
     if (viewModel.showNoteDialog) {
         AddNoteDialog(
-            image = (viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].fileName.getUriFromFileName(
+            image = (viewModel.selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescription[0].filename.getUriFromFileName(
                 context
             ),
-            note = (viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].note
-                ?: "",
+            note = (viewModel.selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescription[0].note,
             dismiss = {
                 viewModel.showNoteDialog = false
             },
@@ -357,8 +356,16 @@ fun PrescriptionPhotoViewScreen(
                     }
                     if (viewModel.isTapped) {
                         viewModel.displayNote = true
+                        val prescriptionPhotoResponseLocal =
+                            (viewModel.selectedFile!!.prescription as PrescriptionPhotoResponseLocal)
                         viewModel.selectedFile = viewModel.selectedFile?.copy(
-                            // note = note
+                            prescription = prescriptionPhotoResponseLocal.copy(
+                                prescription = listOf(
+                                    prescriptionPhotoResponseLocal.prescription[0].copy(
+                                        note = note
+                                    )
+                                )
+                            )
                         )
                     }
                     viewModel.showNoteDialog = false
@@ -589,7 +596,7 @@ fun NavBarActions(
             IconButton(onClick = {
                 shareImageToOtherApps(
                     context,
-                    (viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].fileName.getUriFromFileName(
+                    (viewModel.selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescription[0].filename.getUriFromFileName(
                         context
                     )
                 )
@@ -603,7 +610,7 @@ fun NavBarActions(
                 viewModel.showNoteDialog = true
             }) {
                 Icon(
-                    painter = if ((viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].note.isNullOrEmpty())
+                    painter = if ((viewModel.selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescription[0].note.isEmpty())
                         painterResource(id = R.drawable.note_add)
                     else painterResource(id = R.drawable.edit_note),
                     contentDescription = "NOTE_ICON"
@@ -635,7 +642,7 @@ private fun DisplayImage(
                     .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.surface)
                     .clickable(
-                        enabled = !(viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].note.isNullOrBlank(),
+                        enabled = (viewModel.selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescription[0].note.isNotBlank(),
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
@@ -667,14 +674,14 @@ private fun DisplayImage(
                         imageSize.value = it
                     },
                 painter = rememberImagePainter(
-                    (viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].fileName.getUriFromFileName(
+                    (viewModel.selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescription[0].filename.getUriFromFileName(
                         context
                     )
                 ),
                 contentDescription = null,
                 contentScale = ContentScale.Fit
             )
-            if (!(viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].note.isNullOrBlank()) {
+            if ((viewModel.selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescription[0].note.isNotBlank()) {
                 AnimatedVisibility(
                     visible = viewModel.displayNote,
                     enter = expandVertically(),
@@ -685,8 +692,7 @@ private fun DisplayImage(
                         color = Color.Black.copy(alpha = 0.5f)
                     ) {
                         Text(
-                            text = (viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].note
-                                ?: "",
+                            text = (viewModel.selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescription[0].note,
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier
@@ -785,17 +791,17 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                                 .padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            (prescription.prescription as PrescriptionAndMedicineRelation).prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
+                            (prescription.prescription as PrescriptionResponseLocal).prescription.forEach { directionAndMedication ->
                                 MedicineDetails(
-                                    medName = directionAndMedication.medicationEntity.medName,
+                                    medName = directionAndMedication.medName,
                                     details = getMedInfo(
-                                        duration = directionAndMedication.prescriptionDirectionsEntity.duration,
-                                        frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
-                                        medUnit = directionAndMedication.medicationEntity.medUnit,
-                                        timing = directionAndMedication.prescriptionDirectionsEntity.timing,
-                                        note = directionAndMedication.prescriptionDirectionsEntity.note,
-                                        qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
-                                        qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed,
+                                        duration = directionAndMedication.duration,
+                                        frequency = directionAndMedication.frequency,
+                                        medUnit = directionAndMedication.medUnit,
+                                        timing = directionAndMedication.timing,
+                                        note = directionAndMedication.note,
+                                        qtyPerDose = directionAndMedication.qtyPerDose,
+                                        qtyPrescribed = directionAndMedication.qtyPrescribed,
                                         context = context
                                     )
                                 )
@@ -812,11 +818,11 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                 }
             } else {
                 val prescriptionPhoto =
-                    (prescription.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0]
+                    (prescription.prescription as PrescriptionPhotoResponseLocal).prescription[0]
                 val uploadFolder = FileManager.createFolder(context)
                 val photoFile = File(
                     uploadFolder,
-                    prescriptionPhoto.fileName
+                    prescriptionPhoto.filename
                 )
                 val uri = Uri.fromFile(photoFile)
                 key(viewModel.recompose) {
@@ -879,7 +885,7 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                                     .clip(RoundedCornerShape(16.dp)),
                                 contentScale = ContentScale.Crop
                             )
-                            if (!prescriptionPhoto.note.isNullOrBlank()) {
+                            if (prescriptionPhoto.note.isNotBlank()) {
                                 Text(
                                     text = prescriptionPhoto.note,
                                     style = MaterialTheme.typography.bodySmall,
@@ -891,7 +897,7 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                             }
                             Text(
                                 text = Date(
-                                    prescriptionPhoto.fileName.substringBefore(".").toLong()
+                                    prescriptionPhoto.filename.substringBefore(".").toLong()
                                 ).toPrescriptionTime(),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.secondary,

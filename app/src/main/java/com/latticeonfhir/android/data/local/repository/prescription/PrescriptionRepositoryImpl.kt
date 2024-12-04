@@ -2,24 +2,18 @@ package com.latticeonfhir.android.data.local.repository.prescription
 
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
-import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionAndFileEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
-import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionDirectionsEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionPhotoEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionPhotoResponse
+import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionResponseLocal
 import javax.inject.Inject
 
 class PrescriptionRepositoryImpl @Inject constructor(
     private val prescriptionDao: PrescriptionDao,
-    private val fileUploadDao: FileUploadDao,
-    private val appointmentDao: AppointmentDao
+    private val fileUploadDao: FileUploadDao
 ) :
     PrescriptionRepository {
 
@@ -39,12 +33,12 @@ class PrescriptionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getLastPrescription(patientId: String): List<PrescriptionAndMedicineRelation> {
-        return prescriptionDao.getPastPrescriptions(patientId)
+    override suspend fun getLastPrescription(patientId: String): List<PrescriptionResponseLocal> {
+        return prescriptionDao.getPastPrescriptions(patientId).map { it.toPrescriptionResponseLocal() }
     }
 
-    override suspend fun getLastPhotoPrescription(patientId: String): List<PrescriptionAndFileEntity> {
-        return prescriptionDao.getPastPhotoPrescriptions(patientId)
+    override suspend fun getLastPhotoPrescription(patientId: String): List<PrescriptionPhotoResponseLocal> {
+        return prescriptionDao.getPastPhotoPrescriptions(patientId).map { it.toPrescriptionPhotoResponseLocal() }
     }
 
     override suspend fun getPrescriptionByAppointmentId(appointmentId: String): List<PrescriptionResponseLocal> {
@@ -54,10 +48,10 @@ class PrescriptionRepositoryImpl @Inject constructor(
             }
     }
 
-    override suspend fun getPrescriptionPhotoByAppointmentId(appointmentId: String): List<PrescriptionPhotoResponse> {
+    override suspend fun getPrescriptionPhotoByAppointmentId(appointmentId: String): List<PrescriptionPhotoResponseLocal> {
         return prescriptionDao.getPrescriptionPhotoByAppointmentId(appointmentId)
             .map {
-                it.toPrescriptionPhotoResponse(appointmentDao)
+                it.toPrescriptionPhotoResponseLocal()
             }
     }
 
@@ -65,19 +59,26 @@ class PrescriptionRepositoryImpl @Inject constructor(
         patientId: String,
         startDate: Long,
         endDate: Long
-    ): PrescriptionPhotoResponse {
+    ): PrescriptionPhotoResponseLocal {
         return prescriptionDao.getPrescriptionPhotoByDate(patientId, startDate, endDate)
-            .map { it.toPrescriptionPhotoResponse(appointmentDao) }[0]
+            .map { it.toPrescriptionPhotoResponseLocal() }[0]
     }
 
-    override suspend fun insertPrescriptionPhotos(prescriptionPhotoEntity: PrescriptionPhotoEntity): Long {
+    override suspend fun getPrescriptionPhotoById(prescriptionId: String): PrescriptionPhotoResponseLocal {
+        return prescriptionDao.getPrescriptionPhotoById(prescriptionId)
+            .toPrescriptionPhotoResponseLocal()
+    }
+
+    override suspend fun insertPrescriptionPhotos(prescriptionPhotoResponseLocal: PrescriptionPhotoResponseLocal): Long {
         return prescriptionDao.insertPrescriptionPhotos(
-            prescriptionPhotoEntity
+            *prescriptionPhotoResponseLocal.toListOfPrescriptionPhotoEntity().toTypedArray()
         )[0]
     }
 
-    override suspend fun deletePrescriptionPhotos(prescriptionPhotoEntity: PrescriptionPhotoEntity): Int {
-        fileUploadDao.deleteFile(prescriptionPhotoEntity.fileName)
-        return prescriptionDao.deletePrescriptionPhoto(prescriptionPhotoEntity)
+    override suspend fun deletePhotoPrescription(prescriptionPhotoResponseLocal: PrescriptionPhotoResponseLocal): Int {
+        fileUploadDao.deleteFile(prescriptionPhotoResponseLocal.prescription[0].filename)
+        return prescriptionDao.deletePrescriptionEntity(prescriptionPhotoResponseLocal.toPrescriptionEntity()).also {
+            prescriptionDao.deletePrescriptionPhoto(prescriptionPhotoResponseLocal.toListOfPrescriptionPhotoEntity()[0])
+        }
     }
 }
