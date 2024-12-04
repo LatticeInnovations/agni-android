@@ -17,7 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -42,6 +42,7 @@ import com.latticeonfhir.android.data.local.model.prescription.medication.Medica
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
@@ -134,10 +135,10 @@ fun PrescriptionCard(
                 Column(
                     modifier = Modifier.testTag("PREVIOUS_PRESCRIPTION_EXPANDED_CARD")
                 ) {
-                    Divider(
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 20.dp),
                         thickness = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        modifier = Modifier.padding(vertical = 20.dp)
+                        color = MaterialTheme.colorScheme.outlineVariant
                     )
                     prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
                         MedicineDetails(
@@ -227,28 +228,28 @@ fun saveRePrescription(
     viewModel.medicationsResponseWithMedicationList = emptyList()
     viewModel.selectedActiveIngredientsList = emptyList()
     prescription.prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
-        viewModel.selectedActiveIngredientsList =
-            viewModel.selectedActiveIngredientsList + listOf(
-                directionAndMedication.medicationEntity.activeIngredient
-            )
-        viewModel.medicationsResponseWithMedicationList =
-            viewModel.medicationsResponseWithMedicationList + listOf(
-                MedicationResponseWithMedication(
-                    activeIngredient = directionAndMedication.medicationEntity.activeIngredient,
-                    medName = directionAndMedication.medicationEntity.medName,
-                    medUnit = directionAndMedication.medicationEntity.medUnit,
-                    medication = Medication(
-                        doseForm = directionAndMedication.medicationEntity.doseForm,
-                        duration = directionAndMedication.prescriptionDirectionsEntity.duration,
-                        qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
-                        frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
-                        medFhirId = directionAndMedication.medicationEntity.medFhirId,
-                        note = directionAndMedication.prescriptionDirectionsEntity.note,
-                        timing = directionAndMedication.prescriptionDirectionsEntity.timing,
-                        qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed
-                    )
+        viewModel.selectedActiveIngredientsList += listOf(
+            directionAndMedication.medicationEntity.activeIngredient
+        )
+        viewModel.medicationsResponseWithMedicationList += listOf(
+            MedicationResponseWithMedication(
+                activeIngredient = directionAndMedication.medicationEntity.activeIngredient,
+                medName = directionAndMedication.medicationEntity.medName,
+                medUnit = directionAndMedication.medicationEntity.medUnit,
+                medication = Medication(
+                    doseForm = directionAndMedication.medicationEntity.doseForm,
+                    duration = directionAndMedication.prescriptionDirectionsEntity.duration,
+                    qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
+                    frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
+                    medFhirId = directionAndMedication.medicationEntity.medFhirId,
+                    note = directionAndMedication.prescriptionDirectionsEntity.note,
+                    timing = directionAndMedication.prescriptionDirectionsEntity.timing,
+                    qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed,
+                    medReqUuid = UUIDBuilder.generateUUID(),
+                    medReqFhirId = null
                 )
             )
+        )
     }
     viewModel.bottomNavExpanded = false
     coroutineScope.launch {

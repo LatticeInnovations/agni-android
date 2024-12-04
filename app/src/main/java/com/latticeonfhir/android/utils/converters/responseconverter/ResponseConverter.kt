@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
+import com.latticeonfhir.android.data.local.enums.PrescriptionType
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
@@ -226,7 +227,8 @@ internal suspend fun PrescriptionResponse.toPrescriptionEntity(
         patientId = patientDao.getPatientIdByFhirId(patientFhirId)!!,
         appointmentId = appointmentUuid,
         patientFhirId = patientFhirId,
-        prescriptionFhirId = prescriptionFhirId
+        prescriptionFhirId = prescriptionFhirId,
+        prescriptionType = PrescriptionType.FORM.type
     )
 }
 
@@ -240,7 +242,8 @@ internal suspend fun PrescriptionPhotoResponse.toPrescriptionEntity(
         patientId = patientDao.getPatientIdByFhirId(patientFhirId)!!,
         appointmentId = appointmentUuid,
         patientFhirId = patientFhirId,
-        prescriptionFhirId = prescriptionFhirId
+        prescriptionFhirId = prescriptionFhirId,
+        prescriptionType = PrescriptionType.PHOTO.type
     )
 }
 
@@ -252,7 +255,8 @@ internal fun PrescriptionResponseLocal.toPrescriptionEntity(): PrescriptionEntit
         patientId = patientId,
         appointmentId = appointmentId,
         patientFhirId = patientFhirId,
-        prescriptionFhirId = null
+        prescriptionFhirId = null,
+        prescriptionType = PrescriptionType.FORM.type
     )
 }
 
@@ -263,7 +267,8 @@ internal fun PrescriptionPhotoResponseLocal.toPrescriptionEntity(): Prescription
         patientId = patientId,
         appointmentId = appointmentId,
         patientFhirId = patientFhirId,
-        prescriptionFhirId = null
+        prescriptionFhirId = null,
+        prescriptionType = PrescriptionType.PHOTO.type
     )
 }
 
@@ -283,6 +288,7 @@ internal suspend fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(m
             qtyPrescribed = medication.qtyPrescribed,
             note = medication.note,
             prescriptionId = prescriptionId,
+            medReqFhirId = medication.medReqFhirId
         )
     }
 }
@@ -310,7 +316,8 @@ internal fun PrescriptionResponseLocal.toListOfPrescriptionDirectionsEntity(): L
             duration = medication.duration,
             qtyPrescribed = medication.qtyPrescribed,
             note = medication.note,
-            prescriptionId = prescriptionId
+            prescriptionId = prescriptionId,
+            medReqFhirId = medication.medReqFhirId
         )
     }
 }
@@ -477,7 +484,9 @@ internal fun PrescriptionDirectionAndMedicineView.toMedication(): Medication {
         note = prescriptionDirectionsEntity.note,
         qtyPerDose = prescriptionDirectionsEntity.qtyPerDose,
         qtyPrescribed = prescriptionDirectionsEntity.qtyPrescribed,
-        timing = prescriptionDirectionsEntity.timing
+        timing = prescriptionDirectionsEntity.timing,
+        medReqFhirId = prescriptionDirectionsEntity.medReqFhirId,
+        medReqUuid = prescriptionDirectionsEntity.id
     )
 }
 
