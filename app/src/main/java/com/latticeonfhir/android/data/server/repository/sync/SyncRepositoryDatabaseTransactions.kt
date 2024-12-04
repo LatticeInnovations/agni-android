@@ -15,6 +15,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.server.api.PatientApiService
@@ -25,6 +26,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
@@ -36,6 +38,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicineDirectionsEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionDirectionsEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionPhotoEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientLastUpdatedEntity
@@ -85,6 +88,13 @@ open class SyncRepositoryDatabaseTransactions(
                         payload = patientResponse.fhirId,
                         type = GenericTypeEnum.FHIR_IDS_PRESCRIPTION,
                         syncType = SyncType.POST
+                    ),
+                    GenericEntity(
+                        id = UUID.randomUUID().toString(),
+                        patientId = patientResponse.id,
+                        payload = patientResponse.fhirId,
+                        type = GenericTypeEnum.FHIR_IDS_PRESCRIPTION_PHOTO,
+                        syncType = SyncType.POST
                     )
                 )
             )
@@ -126,7 +136,26 @@ open class SyncRepositoryDatabaseTransactions(
         }
     }
 
-    protected suspend fun insertPrescriptions(body: List<PrescriptionPhotoResponse>) {
+    protected suspend fun insertFormPrescriptions(body: List<PrescriptionResponse>) {
+        prescriptionDao.insertPrescription(*body.map { prescriptionResponse ->
+            prescriptionResponse.toPrescriptionEntity(
+                patientDao
+            )
+        }.toTypedArray())
+        val medicineDirections = mutableListOf<PrescriptionDirectionsEntity>()
+        body.forEach { prescriptionResponse ->
+            medicineDirections.addAll(
+                prescriptionResponse.toListOfPrescriptionDirectionsEntity(
+                    medicationDao
+                )
+            )
+        }
+        prescriptionDao.insertPrescriptionMedicines(
+            *medicineDirections.toTypedArray()
+        )
+    }
+
+    protected suspend fun insertPhotoPrescriptions(body: List<PrescriptionPhotoResponse>) {
         prescriptionDao.insertPrescription(*body.map { prescriptionResponse ->
             prescriptionResponse.toPrescriptionEntity(
                 patientDao
@@ -215,7 +244,7 @@ open class SyncRepositoryDatabaseTransactions(
         return deleteGenericEntityData(listOfGenericEntities)
     }
 
-    protected suspend fun insertPrescriptionFhirId(
+    protected suspend fun insertPhotoPrescriptionFhirId(
         listOfGenericEntities: List<GenericEntity>,
         body: List<CreateResponse>
     ): Int {
@@ -226,6 +255,30 @@ open class SyncRepositoryDatabaseTransactions(
                 prescriptionDao.updatePrescriptionFhirId(
                     createResponse.id!!, createResponse.fhirId!!
                 )
+            } else {
+                idsToDelete.remove(createResponse.id)
+            }
+        }
+        return deleteGenericEntityByListOfIds(idsToDelete.toList())
+    }
+
+    protected suspend fun insertPrescriptionAndMedicationRequestFhirId(
+        listOfGenericEntities: List<GenericEntity>,
+        body: List<CreateResponse>
+    ): Int {
+        val idsToDelete = mutableSetOf<String>()
+        idsToDelete.addAll(listOfGenericEntities.map { genericEntity -> genericEntity.id })
+        body.forEach { createResponse ->
+            if (createResponse.error == null) {
+                prescriptionDao.updatePrescriptionFhirId(
+                    createResponse.id!!, createResponse.fhirId!!
+                )
+                createResponse.prescription!!.forEach { prescriptionResponse ->
+                    prescriptionDao.updateMedReqFhirId(
+                        prescriptionResponse.medReqUuid,
+                        prescriptionResponse.medReqFhirId
+                    )
+                }
             } else {
                 idsToDelete.remove(createResponse.id)
             }

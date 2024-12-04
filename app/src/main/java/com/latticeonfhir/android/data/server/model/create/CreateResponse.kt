@@ -7,5 +7,6 @@ data class CreateResponse(
     val status: String,
     val fhirId: String?,
     val id: String?,
-    val error: String?
+    val error: String?,
+    val prescription: List<MedReqIdResponse>?,
 )
