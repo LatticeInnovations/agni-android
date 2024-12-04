@@ -27,5 +27,7 @@ data class PrescriptionEntity(
     val appointmentId: String,
     val patientId: String,
     val patientFhirId: String?,
-    val prescriptionFhirId: String?
+    val prescriptionFhirId: String?,
+    @ColumnInfo(defaultValue = "DEFAULT_PRESCRIPTION_TYPE")
+    val prescriptionType: String,
 )

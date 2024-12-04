@@ -21,6 +21,7 @@ import androidx.room.PrimaryKey
 data class PrescriptionDirectionsEntity(
     @PrimaryKey
     val id: String,
+    val medReqFhirId: String?,
     @ColumnInfo("med_fhir_id")
     val medFhirId: String,
     val qtyPerDose: Int,

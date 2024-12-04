@@ -56,6 +56,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
 import java.util.Locale
 
@@ -137,7 +138,9 @@ fun FillDetailsScreen(
                                         qtyPrescribed = viewModel.quantityPrescribed().toInt(),
                                         timing = viewModel.timing,
                                         doseForm = viewModel.medDoseForm,
-                                        medFhirId = viewModel.medFhirId
+                                        medFhirId = viewModel.medFhirId,
+                                        medReqFhirId = null,
+                                        medReqUuid = UUIDBuilder.generateUUID()
                                     )
                                 )
                             )
