@@ -412,13 +412,4 @@ class AddSymptomsAndDiagnosisViewModel @Inject constructor(
         }
     }
 
-    internal fun checkIsEdit(): Boolean {
-        return if (local != null && local!!.symptoms != selectedActiveSymptomsList)
-            true
-        else if (local == null) {
-            true
-        } else false
-    }
-
-
 }

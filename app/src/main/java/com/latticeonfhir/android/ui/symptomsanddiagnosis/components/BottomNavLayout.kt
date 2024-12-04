@@ -158,7 +158,7 @@ fun BottomNavLayout(viewModel: AddSymptomsAndDiagnosisViewModel, navController: 
                             handleNavigate(
                                 viewModel, coroutineScope, navController, context
                             ) {
-                                it.popBackStack()
+                                it.navigateUp()
                             }
 
                         }, modifier = Modifier.weight(1f)

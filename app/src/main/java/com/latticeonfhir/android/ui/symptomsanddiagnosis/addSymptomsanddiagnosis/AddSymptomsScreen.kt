@@ -83,7 +83,7 @@ fun AddSymptomsScreen(
                 showSelectSymptomScreen = false
                 state = 0
             } else {
-                navController.popBackStack()
+                navController.navigateUp()
             }
         }
     }

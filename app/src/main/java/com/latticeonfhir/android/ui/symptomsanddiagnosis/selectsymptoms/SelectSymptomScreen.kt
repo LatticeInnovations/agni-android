@@ -311,7 +311,7 @@ private fun BottomButtonLayout(
                                 context
                             ) {
 
-                                it.popBackStack()
+                                it.navigateUp()
                             }
                         },
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
@@ -336,7 +336,7 @@ private fun BottomButtonLayout(
                             viewModel.isSearchForDiagnosis = true
                             viewModel.searchQuery = ""
                             viewModel.isSearchResult = false
-                            viewModel.isSearching = false
+                            viewModel.isSearching = true
                             viewModel.isSearchingInProgress = false
                             viewModel.getPreviousSearches()
                             handleNavigate(
@@ -380,7 +380,7 @@ private fun TopAppBarLayout(
                 SYM_DIAG_UPDATE_OR_ADD,
                 ""
             )
-            navController.popBackStack()
+            navController.navigateUp()
         }) {
             Icon(
                 Icons.Filled.Close, contentDescription = "BACK_ICON"
