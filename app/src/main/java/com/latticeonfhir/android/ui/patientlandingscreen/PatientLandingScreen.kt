@@ -212,19 +212,8 @@ fun PatientLandingScreen(
                                 navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
                             }
                         )
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.vital),
-                            R.drawable.vital_signs,
-                            null,
-                            onClick = {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PATIENT,
-                                    viewModel.patient
-                                )
-                                navController.navigate(Screen.VitalsScreen.route)
-                            }
-                        )
+
+
                         CardComposable(
                             viewModel,
                             stringResource(id = R.string.cvd_risk_assessment),
@@ -253,6 +242,33 @@ fun PatientLandingScreen(
                                     }
                                 }
 
+                            }
+                        )
+                        CardComposable(
+                            viewModel,
+                            stringResource(id = R.string.vital),
+                            R.drawable.vital_signs,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
+                                navController.navigate(Screen.VitalsScreen.route)
+                            }
+                        )
+
+                        CardComposable(
+                            viewModel,
+                            stringResource(id = R.string.symptoms_and_diagnosis),
+                            R.drawable.diagnosis,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
+                                navController.navigate(Screen.SymptomsAndDiagnosisScreen.route)
                             }
                         )
                     }

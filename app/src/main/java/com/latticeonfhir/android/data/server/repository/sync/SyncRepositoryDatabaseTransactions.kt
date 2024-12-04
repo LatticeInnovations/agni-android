@@ -13,6 +13,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
+import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
@@ -29,6 +30,7 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
+import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toCVDEntity
@@ -43,6 +45,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toPrescripti
 import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toScheduleEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toVitalEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toSymptomsAndDiagnosisEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -59,8 +62,10 @@ open class SyncRepositoryDatabaseTransactions(
     private val appointmentDao: AppointmentDao,
     private val patientLastUpdatedDao: PatientLastUpdatedDao,
     private val cvdDao: CVDDao,
-    private val vitalDao: VitalDao
+    private val vitalDao: VitalDao,
+    private val symptomsAndDiagnosisDao: SymptomsAndDiagnosisDao
 ) {
+
 
     protected suspend fun insertPatient(body: List<PatientResponse>) {
         //Insert Patient Data
@@ -205,6 +210,24 @@ open class SyncRepositoryDatabaseTransactions(
 
     }
 
+    protected suspend fun insertSymDiag(body: List<SymptomsAndDiagnosisResponse>) {
+        //Insert Vital Data
+        symptomsAndDiagnosisDao.insertSymptomsAndDiagnosis(*body.map {
+            it.toSymptomsAndDiagnosisEntity(
+                patientDao,
+                appointmentDao
+            )
+        }
+            .toTypedArray())
+
+        val listOfGenericEntity = mutableListOf<GenericEntity>()
+
+        genericDao.insertGenericEntity(
+            *listOfGenericEntity.toTypedArray()
+        )
+
+    }
+
     protected suspend fun insertPatientFhirId(
         listOfGenericEntities: List<GenericEntity>,
         body: List<CreateResponse>
@@ -302,6 +325,16 @@ open class SyncRepositoryDatabaseTransactions(
     ): Int {
         body.map { createResponse ->
             vitalDao.updateVitalFhirId(createResponse.id!!, createResponse.fhirId!!)
+        }
+        return deleteGenericEntityData(listOfGenericEntities)
+    }
+    protected suspend fun insertSymDiagFhirId(
+        listOfGenericEntities: List<GenericEntity>, body: List<CreateResponse>
+    ): Int {
+        body.map { createResponse ->
+            symptomsAndDiagnosisDao.updateSymDiagFhirId(
+                createResponse.id!!, createResponse.fhirId!!
+            )
         }
         return deleteGenericEntityData(listOfGenericEntities)
     }

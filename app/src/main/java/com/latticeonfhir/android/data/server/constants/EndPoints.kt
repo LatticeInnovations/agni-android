@@ -7,4 +7,6 @@ object EndPoints {
     const val MEDICATION_REQUEST = "MedicationRequest"
     const val VITAL = "Observation"
 
+    const val SYMPTOMS_DIAGNOSIS = "Condition"
+
 }
