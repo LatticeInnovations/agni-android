@@ -61,20 +61,7 @@ import java.util.Locale
 fun SearchSymptomsAndDiagnosis(
     viewModel: AddSymptomsAndDiagnosisViewModel, navController: NavController
 ) {
-    BackHandler {
-        viewModel.apply {
-            if (isSearching) {
-                isSearching = false
-                state = 0
-                clearSearchDiagnosis()
-                if (!isSearchForDiagnosis) {
-                    showSelectSymptomScreen = true
-                }
-            } else {
-                navController.popBackStack()
-            }
-        }
-    }
+    HandleBackPress(viewModel, navController)
     val focusRequester = remember { FocusRequester() }
     Column(
         modifier = Modifier
@@ -92,42 +79,7 @@ fun SearchSymptomsAndDiagnosis(
             SymptomsView(viewModel)
         }
 
-        if (viewModel.clearAllConfirmDialog) {
-            AlertDialog(onDismissRequest = { viewModel.clearAllConfirmDialog = false }, title = {
-                Text(
-                    text = stringResource(id = R.string.discard_diagnosis_dialog_title),
-                    modifier = Modifier.testTag("DIALOG_TITLE")
-                )
-            }, text = {
-                Text(
-                    text = stringResource(id = R.string.discard_diagnosis_dialog_description),
-                    modifier = Modifier.testTag("DIALOG_DESCRIPTION")
-                )
-            }, confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.selectedActiveDiagnosisList = mutableStateListOf()
-                        viewModel.bottomNavExpanded = false
-                        viewModel.clearAllConfirmDialog = false
-                    }, modifier = Modifier.testTag("POSITIVE_BTN")
-                ) {
-                    Text(
-                        stringResource(id = R.string.yes_discard)
-                    )
-                }
-            }, dismissButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.clearAllConfirmDialog = false
-                    }, modifier = Modifier.testTag("NEGATIVE_BTN")
-                ) {
-                    Text(
-                        stringResource(id = R.string.no_go_back)
-                    )
-                }
-            })
-        }
-
+        ShowDiscardDialog(viewModel)
     }
     AnimatedVisibility(visible = viewModel.isSearchForDiagnosis && (viewModel.selectedActiveDiagnosisList.isNotEmpty() || viewModel.local?.diagnosis?.isNotEmpty() == true)) {
         Box(
@@ -143,6 +95,64 @@ fun SearchSymptomsAndDiagnosis(
         }
 
     }
+}
+
+@Composable
+fun HandleBackPress(viewModel: AddSymptomsAndDiagnosisViewModel, navController: NavController) {
+    BackHandler {
+        viewModel.apply {
+            if (isSearching) {
+                isSearching = false
+                state = 0
+                if (!isSearchForDiagnosis) {
+                    showSelectSymptomScreen = true
+                }
+                clearSearchDiagnosis()
+            } else {
+                navController.navigateUp()
+            }
+        }
+    }
+}
+
+@Composable
+fun ShowDiscardDialog(viewModel: AddSymptomsAndDiagnosisViewModel) {
+    if (viewModel.clearAllConfirmDialog) {
+        AlertDialog(onDismissRequest = { viewModel.clearAllConfirmDialog = false }, title = {
+            Text(
+                text = stringResource(id = R.string.discard_diagnosis_dialog_title),
+                modifier = Modifier.testTag("DIALOG_TITLE")
+            )
+        }, text = {
+            Text(
+                text = stringResource(id = R.string.discard_diagnosis_dialog_description),
+                modifier = Modifier.testTag("DIALOG_DESCRIPTION")
+            )
+        }, confirmButton = {
+            TextButton(
+                onClick = {
+                    viewModel.selectedActiveDiagnosisList = mutableStateListOf()
+                    viewModel.bottomNavExpanded = false
+                    viewModel.clearAllConfirmDialog = false
+                }, modifier = Modifier.testTag("POSITIVE_BTN")
+            ) {
+                Text(
+                    stringResource(id = R.string.yes_discard)
+                )
+            }
+        }, dismissButton = {
+            TextButton(
+                onClick = {
+                    viewModel.clearAllConfirmDialog = false
+                }, modifier = Modifier.testTag("NEGATIVE_BTN")
+            ) {
+                Text(
+                    stringResource(id = R.string.no_go_back)
+                )
+            }
+        })
+    }
+
 }
 
 @Composable
@@ -167,10 +177,10 @@ fun SymDiagSearchField(
         leadingIcon = {
             IconButton(onClick = {
                 viewModel.apply {
-                    clearSearchDiagnosis()
                     if (!isSearchForDiagnosis) {
                         showSelectSymptomScreen = true
                     }
+                    clearSearchDiagnosis()
                 }
             }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")

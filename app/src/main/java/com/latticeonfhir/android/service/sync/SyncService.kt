@@ -202,6 +202,9 @@ class SyncService(
                 CoroutineScope(Dispatchers.IO).launch {
                     updateFhirIdInVital(logout)
                 }
+//                CoroutineScope(Dispatchers.IO).launch {
+//                    updateFhirIdInSymDiag(logout)
+//                }
             }
         }
     }
@@ -449,6 +452,10 @@ class SyncService(
     private suspend fun updateFhirIdInVital(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         genericRepository.updateVitalFhirId()
         return uploadVital(logout)
+    }
+    private suspend fun updateFhirIdInSymDiag(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        genericRepository.updateSymDiagFhirId()
+        return uploadSymDiag(logout)
     }
 
     /** Check Session Expiry and Authorization */

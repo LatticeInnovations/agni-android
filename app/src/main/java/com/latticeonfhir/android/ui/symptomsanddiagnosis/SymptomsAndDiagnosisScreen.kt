@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -45,6 +46,8 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.CustomDialog
+import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.ui.symptomsanddiagnosis.components.SymptomsAndDiagnosisCard
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.SymptomsAndDiagnosisConstants
@@ -52,6 +55,8 @@ import com.latticeonfhir.android.utils.constants.SymptomsAndDiagnosisConstants.S
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.network.CheckNetwork
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Date
 
@@ -62,6 +67,7 @@ fun SymptomsAndDiagnosisScreen(
 ) {
     val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     HandleLaunchEffect(viewModel, navController, context, snackBarHostState)
     Scaffold(modifier = Modifier.fillMaxSize(),
@@ -72,7 +78,7 @@ fun SymptomsAndDiagnosisScreen(
                 ),
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.popBackStack()
+                        navController.navigateUp()
                     }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON"
@@ -149,14 +155,7 @@ fun SymptomsAndDiagnosisScreen(
                         modifier = Modifier
                             .padding(12.dp)
                             .fillMaxWidth(), onClick = {
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                key = SymptomsAndDiagnosisConstants.SYM_DIAG,
-                                viewModel.symptomsAndDiagnosisLocal
-                            )
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                key = PATIENT, viewModel.patient
-                            )
-                            navController.navigate(Screen.AddSymptomsScreen.route)
+                            handleNavigation(viewModel, scope, navController)
                         }, contentPadding = ButtonDefaults.ButtonWithIconContentPadding
                     ) {
                         Icon(
@@ -180,7 +179,100 @@ fun SymptomsAndDiagnosisScreen(
 
         })
 
+    ShowDialogs(viewModel, navController, scope)
+
+
 }
+
+fun handleNavigation(
+    viewModel: SymptomsAndDiagnosisViewModel,
+    scope: CoroutineScope,
+    navController: NavController
+) {
+    viewModel.getAppointmentInfo {
+        if (viewModel.canAddAssessment) {
+            scope.launch {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    key = SymptomsAndDiagnosisConstants.SYM_DIAG,
+                    viewModel.symptomsAndDiagnosisLocal
+                )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    key = PATIENT, viewModel.patient
+                )
+                navController.navigate(Screen.AddSymptomsScreen.route)
+            }
+
+        } else if (viewModel.isAppointmentCompleted) {
+            viewModel.showAppointmentCompletedDialog = true
+        } else {
+            viewModel.showAddToQueueDialog = true
+        }
+    }
+
+}
+
+@Composable
+fun ShowDialogs(
+    viewModel: SymptomsAndDiagnosisViewModel, navController: NavController, scope: CoroutineScope
+) {
+    if (viewModel.showAddToQueueDialog) {
+        CustomDialog(title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
+            id = R.string.add_to_queue_question
+        ),
+            text = stringResource(id = R.string.add_to_queue_vital_dialog_description),
+            dismissBtnText = stringResource(id = R.string.dismiss),
+            confirmBtnText = if (viewModel.appointment != null) stringResource(id = R.string.mark_arrived) else stringResource(
+                id = R.string.add_to_queue
+            ),
+            dismiss = { viewModel.showAddToQueueDialog = false },
+            confirm = {
+                if (viewModel.appointment != null) {
+                    viewModel.updateStatusToArrived(
+                        viewModel.patient!!, viewModel.appointment!!
+                    ) {
+                        scope.launch {
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                key = SymptomsAndDiagnosisConstants.SYM_DIAG,
+                                viewModel.symptomsAndDiagnosisLocal
+                            )
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                key = PATIENT, viewModel.patient
+                            )
+                            navController.navigate(Screen.AddSymptomsScreen.route)
+                        }
+
+                    }
+                } else {
+                    if (viewModel.ifAllSlotsBooked) {
+                        viewModel.showAllSlotsBookedDialog = true
+                    } else {
+                        viewModel.addPatientToQueue(viewModel.patient!!) {
+                            viewModel.showAddToQueueDialog = false
+
+                            scope.launch {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    key = SymptomsAndDiagnosisConstants.SYM_DIAG,
+                                    viewModel.symptomsAndDiagnosisLocal
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    key = PATIENT, viewModel.patient
+                                )
+                                navController.navigate(Screen.AddSymptomsScreen.route)
+                            }
+                        }
+
+
+                    }
+                }
+            })
+    }
+    if (viewModel.ifAllSlotsBooked) {
+        AllSlotsBookedDialog {
+            viewModel.showAllSlotsBookedDialog = false
+        }
+    }
+}
+
 
 @Composable
 fun HandleLaunchEffect(
