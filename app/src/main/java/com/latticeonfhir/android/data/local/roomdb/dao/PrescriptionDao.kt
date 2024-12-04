@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.latticeonfhir.android.data.local.enums.PrescriptionType
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
@@ -28,16 +29,17 @@ interface PrescriptionDao {
     suspend fun insertPrescriptionPhotos(vararg prescriptionPhotoEntity: PrescriptionPhotoEntity): List<Long>
 
     @Transaction
-    @Query("SELECT * FROM PrescriptionEntity prescription WHERE patientId = :patientId ORDER BY prescription.prescriptionDate DESC LIMIT :limit")
+    @Query("SELECT * FROM PrescriptionEntity prescription WHERE patientId = :patientId AND prescriptionType=:prescriptionType ORDER BY prescription.prescriptionDate DESC")
     suspend fun getPastPrescriptions(
         patientId: String,
-        limit: Int = 5
+        prescriptionType: String = PrescriptionType.FORM.type
     ): List<PrescriptionAndMedicineRelation>
 
     @Transaction
-    @Query("SELECT * FROM PrescriptionEntity WHERE patientId=:patientId")
+    @Query("SELECT * FROM PrescriptionEntity WHERE patientId=:patientId AND prescriptionType=:prescriptionType ")
     suspend fun getPastPhotoPrescriptions(
-        patientId: String
+        patientId: String,
+        prescriptionType: String = PrescriptionType.PHOTO.type
     ): List<PrescriptionAndFileEntity>
 
     @Transaction

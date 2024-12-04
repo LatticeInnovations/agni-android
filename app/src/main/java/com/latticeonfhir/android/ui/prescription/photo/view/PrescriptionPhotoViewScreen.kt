@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -104,7 +105,10 @@ import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.PrescriptionType
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
+import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionAndFileEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.CustomDialog
@@ -118,6 +122,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toDayFullMonthYear
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionNavDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionTime
+import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import com.latticeonfhir.android.utils.file.FileManager
 import com.latticeonfhir.android.utils.file.FileManager.getUriFromFileName
 import com.latticeonfhir.android.utils.file.FileManager.shareImageToOtherApps
@@ -165,9 +170,9 @@ fun PrescriptionPhotoViewScreen(
                     NavControllerConstants.PATIENT
                 )
             viewModel.getCurrentSyncStatus()
-            viewModel.getPastPrescription()
             viewModel.isLaunched = true
         }
+        viewModel.getPastPrescription()
     }
 
     BackHandler(enabled = true) {
@@ -194,13 +199,8 @@ fun PrescriptionPhotoViewScreen(
                             ),
                             title = {
                                 Text(
-                                    text = viewModel.selectedFile?.filename?.substringBefore(".")
-                                        ?.toLong()
-                                        ?.let { long ->
-                                            Date(
-                                                long
-                                            ).toPrescriptionNavDate()
-                                        } ?: "",
+                                    text = viewModel.selectedFile?.date?.toPrescriptionNavDate()
+                                        ?: "",
                                     style = MaterialTheme.typography.titleLarge,
                                     modifier = Modifier.testTag("HEADING_TAG")
                                 )
@@ -263,7 +263,7 @@ fun PrescriptionPhotoViewScreen(
             Box(modifier = Modifier.padding(it)) {
                 Column {
                     CheckNetwork(viewModel, activity)
-                    if (viewModel.prescriptionPhotos.isEmpty()) {
+                    if (viewModel.allPrescriptionList.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -328,7 +328,7 @@ fun PrescriptionPhotoViewScreen(
                 viewModel.deletePrescription {
                     FileManager.removeFromInternalStorage(
                         context,
-                        viewModel.selectedFile!!.filename
+                        (viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].fileName
                     )
                     viewModel.isTapped = false
                     viewModel.isLongPressed = false
@@ -340,8 +340,11 @@ fun PrescriptionPhotoViewScreen(
     }
     if (viewModel.showNoteDialog) {
         AddNoteDialog(
-            image = viewModel.selectedFile!!.filename.getUriFromFileName(context),
-            note = viewModel.selectedFile!!.note,
+            image = (viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].fileName.getUriFromFileName(
+                context
+            ),
+            note = (viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].note
+                ?: "",
             dismiss = {
                 viewModel.showNoteDialog = false
             },
@@ -355,7 +358,7 @@ fun PrescriptionPhotoViewScreen(
                     if (viewModel.isTapped) {
                         viewModel.displayNote = true
                         viewModel.selectedFile = viewModel.selectedFile?.copy(
-                            note = note
+                            // note = note
                         )
                     }
                     viewModel.showNoteDialog = false
@@ -572,36 +575,40 @@ fun NavBarActions(
     context: Context,
     viewModel: PrescriptionPhotoViewViewModel
 ) {
-    Row {
-        IconButton(onClick = {
-            viewModel.showDeleteDialog = true
-        }) {
-            Icon(
-                painter = painterResource(id = R.drawable.delete_icon),
-                contentDescription = "DELETE_ICON",
-                modifier = Modifier.size(24.dp)
-            )
-        }
-        IconButton(onClick = {
-            shareImageToOtherApps(
-                context,
-                viewModel.selectedFile!!.filename.getUriFromFileName(context)
-            )
-        }) {
-            Icon(
-                painter = painterResource(id = R.drawable.share),
-                contentDescription = null
-            )
-        }
-        IconButton(onClick = {
-            viewModel.showNoteDialog = true
-        }) {
-            Icon(
-                painter = if (viewModel.selectedFile?.note.isNullOrEmpty())
-                    painterResource(id = R.drawable.note_add)
-                else painterResource(id = R.drawable.edit_note),
-                contentDescription = "NOTE_ICON"
-            )
+    if (viewModel.selectedFile != null) {
+        Row {
+            IconButton(onClick = {
+                viewModel.showDeleteDialog = true
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.delete_icon),
+                    contentDescription = "DELETE_ICON",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            IconButton(onClick = {
+                shareImageToOtherApps(
+                    context,
+                    (viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].fileName.getUriFromFileName(
+                        context
+                    )
+                )
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.share),
+                    contentDescription = null
+                )
+            }
+            IconButton(onClick = {
+                viewModel.showNoteDialog = true
+            }) {
+                Icon(
+                    painter = if ((viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].note.isNullOrEmpty())
+                        painterResource(id = R.drawable.note_add)
+                    else painterResource(id = R.drawable.edit_note),
+                    contentDescription = "NOTE_ICON"
+                )
+            }
         }
     }
 }
@@ -616,73 +623,76 @@ private fun DisplayImage(
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
     val imageSize = remember { mutableStateOf(IntSize.Zero) }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .zIndex(2f),
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        Image(
+    if (viewModel.selectedFile != null) {
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.surface)
-                .clickable(
-                    enabled = !viewModel.selectedFile?.note.isNullOrBlank(),
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    viewModel.displayNote = !viewModel.displayNote
-                }
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
-                    translationX = offsetX,
-                    translationY = offsetY
-                )
-                .pointerInput(Unit) {
-                    detectTransformGestures { _, pan, zoom, _ ->
-                        val newScale = scale * zoom
-                        if (newScale in 1f..8f) {
-                            scale = newScale
+                .zIndex(2f),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Image(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.surface)
+                    .clickable(
+                        enabled = !(viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].note.isNullOrBlank(),
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        viewModel.displayNote = !viewModel.displayNote
+                    }
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offsetX,
+                        translationY = offsetY
+                    )
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            val newScale = scale * zoom
+                            if (newScale in 1f..8f) {
+                                scale = newScale
 
-                            // calculate maximum allowable translations
-                            val maxOffsetX = (imageSize.value.width * (scale - 1)) / 2
-                            val maxOffsetY = (imageSize.value.height * (scale - 1)) / 2
+                                // calculate maximum allowable translations
+                                val maxOffsetX = (imageSize.value.width * (scale - 1)) / 2
+                                val maxOffsetY = (imageSize.value.height * (scale - 1)) / 2
 
-                            // update offsets within bounds
-                            offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
-                            offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                                // update offsets within bounds
+                                offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
+                                offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                            }
                         }
                     }
-                }
-                .onSizeChanged {
-                    imageSize.value = it
-                },
-            painter = rememberImagePainter(
-                viewModel.selectedFile?.filename?.getUriFromFileName(
-                    context
-                )
-            ),
-            contentDescription = null,
-            contentScale = ContentScale.Fit
-        )
-        if (!viewModel.selectedFile?.note.isNullOrBlank()) {
-            AnimatedVisibility(
-                visible = viewModel.displayNote,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = Color.Black.copy(alpha = 0.5f)
-                ) {
-                    Text(
-                        text = viewModel.selectedFile!!.note,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier
-                            .padding(16.dp)
+                    .onSizeChanged {
+                        imageSize.value = it
+                    },
+                painter = rememberImagePainter(
+                    (viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].fileName.getUriFromFileName(
+                        context
                     )
+                ),
+                contentDescription = null,
+                contentScale = ContentScale.Fit
+            )
+            if (!(viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].note.isNullOrBlank()) {
+                AnimatedVisibility(
+                    visible = viewModel.displayNote,
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
+                ) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = Color.Black.copy(alpha = 0.5f)
+                    ) {
+                        Text(
+                            text = (viewModel.selectedFile!!.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0].note
+                                ?: "",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier
+                                .padding(16.dp)
+                        )
+                    }
                 }
             }
         }
@@ -696,23 +706,23 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    LaunchedEffect(viewModel.prescriptionPhotos.size) {
+    LaunchedEffect(viewModel.allPrescriptionList.size) {
         coroutineScope.launch {
-            if (viewModel.prescriptionPhotos.isNotEmpty()) listState.scrollToItem(viewModel.prescriptionPhotos.size - 1)
+            if (viewModel.allPrescriptionList.isNotEmpty()) listState.scrollToItem(viewModel.allPrescriptionList.size - 1)
         }
     }
 
     LazyColumn(
         state = listState
     ) {
-        itemsIndexed(viewModel.prescriptionPhotos.filter {
-            !viewModel.deletedPhotos.contains(it)
-        }) { index, file ->
-            val currentDate = Date(file.filename.substringBefore(".").toLong())
-            val previousDate =
-                viewModel.prescriptionPhotos.getOrNull(index - 1)?.filename?.substringBefore(".")
-                    ?.toLong()
-                    ?.let { Date(it) }
+        itemsIndexed(
+            viewModel.allPrescriptionList
+                .filter {
+                    !viewModel.deletedPhotos.contains(it)
+                }
+        ) { index, prescription ->
+            val currentDate = prescription.date
+            val previousDate = viewModel.allPrescriptionList.getOrNull(index - 1)?.date
 
             val showHeader = when {
                 previousDate == null -> true
@@ -746,14 +756,8 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                     }
                 }
             }
-
-            val uploadFolder = FileManager.createFolder(context)
-            val photoFile = File(
-                uploadFolder,
-                file.filename
-            )
-            val uri = Uri.fromFile(photoFile)
-            key(viewModel.recompose) {
+            if (prescription.type == PrescriptionType.FORM.type) {
+                // form prescription
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -764,16 +768,6 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                 ) {
                     Column(
                         modifier = Modifier
-                            .shadow(
-                                elevation = if (viewModel.isLongPressed && viewModel.selectedFile == file)
-                                    11.dp else 0.dp,
-                                shape = RoundedCornerShape(
-                                    topStart = 48f,
-                                    topEnd = 48f,
-                                    bottomStart = 48f,
-                                    bottomEnd = 0f
-                                )
-                            )
                             .background(
                                 shape = RoundedCornerShape(
                                     topStart = 48f,
@@ -781,68 +775,141 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                                     bottomStart = 48f,
                                     bottomEnd = 0f
                                 ),
-                                color = if (viewModel.isLongPressed && viewModel.selectedFile == file)
-                                    MaterialTheme.colorScheme.primaryContainer
-                                else MaterialTheme.colorScheme.surface
-                            )
-                            .pointerInput(viewModel.selectedFile) {
-                                detectTapGestures(
-                                    onLongPress = {
-                                        viewModel.isLongPressed = true
-                                        viewModel.selectedFile = file
-                                    },
-                                    onTap = {
-                                        if (viewModel.isLongPressed) {
-                                            viewModel.isLongPressed = false
-                                            viewModel.selectedFile = null
-                                        } else {
-                                            viewModel.isTapped = true
-                                            viewModel.selectedFile = file
-                                        }
-                                    }
-                                )
-                            },
+                                color = MaterialTheme.colorScheme.surface
+                            ),
                         horizontalAlignment = Alignment.End
                     ) {
-                        Image(
-                            painter = rememberImagePainter(uri),
-                            contentDescription = null,
+                        Column(
                             modifier = Modifier
-                                .size(250.dp, 330.dp)
-                                .padding(4.dp)
-                                .clip(RoundedCornerShape(16.dp)),
-                            contentScale = ContentScale.Crop
-                        )
-                        if (file.note.isNotBlank()) {
-                            Text(
-                                text = file.note,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier
-                                    .width(250.dp)
-                                    .padding(top = 6.dp, start = 6.dp, end = 6.dp)
-                            )
+                                .widthIn(250.dp, 300.dp)
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            (prescription.prescription as PrescriptionAndMedicineRelation).prescriptionDirectionAndMedicineView.forEach { directionAndMedication ->
+                                MedicineDetails(
+                                    medName = directionAndMedication.medicationEntity.medName,
+                                    details = getMedInfo(
+                                        duration = directionAndMedication.prescriptionDirectionsEntity.duration,
+                                        frequency = directionAndMedication.prescriptionDirectionsEntity.frequency,
+                                        medUnit = directionAndMedication.medicationEntity.medUnit,
+                                        timing = directionAndMedication.prescriptionDirectionsEntity.timing,
+                                        note = directionAndMedication.prescriptionDirectionsEntity.note,
+                                        qtyPerDose = directionAndMedication.prescriptionDirectionsEntity.qtyPerDose,
+                                        qtyPrescribed = directionAndMedication.prescriptionDirectionsEntity.qtyPrescribed,
+                                        context = context
+                                    )
+                                )
+                            }
                         }
                         Text(
-                            text = Date(
-                                file.filename.substringBefore(".").toLong()
-                            ).toPrescriptionTime(),
+                            text = prescription.date.toPrescriptionTime(),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier
-                                .width(250.dp)
-                                .padding(end = 10.dp, bottom = 6.dp),
-                            textAlign = TextAlign.End
+                                .padding(end = 10.dp, bottom = 6.dp)
                         )
                     }
+                }
+            } else {
+                val prescriptionPhoto =
+                    (prescription.prescription as PrescriptionAndFileEntity).prescriptionPhotoEntity[0]
+                val uploadFolder = FileManager.createFolder(context)
+                val photoFile = File(
+                    uploadFolder,
+                    prescriptionPhoto.fileName
+                )
+                val uri = Uri.fromFile(photoFile)
+                key(viewModel.recompose) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateItemPlacement(tween(300, easing = LinearEasing))
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .shadow(
+                                    elevation = if (viewModel.isLongPressed && viewModel.selectedFile == prescription)
+                                        11.dp else 0.dp,
+                                    shape = RoundedCornerShape(
+                                        topStart = 48f,
+                                        topEnd = 48f,
+                                        bottomStart = 48f,
+                                        bottomEnd = 0f
+                                    )
+                                )
+                                .background(
+                                    shape = RoundedCornerShape(
+                                        topStart = 48f,
+                                        topEnd = 48f,
+                                        bottomStart = 48f,
+                                        bottomEnd = 0f
+                                    ),
+                                    color = if (viewModel.isLongPressed && viewModel.selectedFile == prescription)
+                                        MaterialTheme.colorScheme.primaryContainer
+                                    else MaterialTheme.colorScheme.surface
+                                )
+                                .pointerInput(viewModel.selectedFile) {
+                                    detectTapGestures(
+                                        onLongPress = {
+                                            viewModel.isLongPressed = true
+                                            viewModel.selectedFile = prescription
+                                        },
+                                        onTap = {
+                                            if (viewModel.isLongPressed) {
+                                                viewModel.isLongPressed = false
+                                                viewModel.selectedFile = null
+                                            } else {
+                                                viewModel.isTapped = true
+                                                viewModel.selectedFile = prescription
+                                            }
+                                        }
+                                    )
+                                },
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            Image(
+                                painter = rememberImagePainter(uri),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(250.dp, 330.dp)
+                                    .padding(4.dp)
+                                    .clip(RoundedCornerShape(16.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                            if (!prescriptionPhoto.note.isNullOrBlank()) {
+                                Text(
+                                    text = prescriptionPhoto.note,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier
+                                        .width(250.dp)
+                                        .padding(top = 6.dp, start = 6.dp, end = 6.dp)
+                                )
+                            }
+                            Text(
+                                text = Date(
+                                    prescriptionPhoto.fileName.substringBefore(".").toLong()
+                                ).toPrescriptionTime(),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier
+                                    .width(250.dp)
+                                    .padding(end = 10.dp, bottom = 6.dp),
+                                textAlign = TextAlign.End
+                            )
+                        }
 
-                    AnimatedVisibility(viewModel.isLongPressed && viewModel.selectedFile == file) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.check_circle),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
+                        AnimatedVisibility(viewModel.isLongPressed && viewModel.selectedFile == prescription) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.check_circle),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -963,6 +1030,22 @@ private fun CheckNetwork(viewModel: PrescriptionPhotoViewViewModel, context: Mai
             viewModel.syncStatus,
             viewModel.getSyncIcon(),
             viewModel.getSyncStatusMessage()
+        )
+    }
+}
+
+@Composable
+private fun MedicineDetails(medName: String, details: String) {
+    Column {
+        Text(
+            text = medName,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = details,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

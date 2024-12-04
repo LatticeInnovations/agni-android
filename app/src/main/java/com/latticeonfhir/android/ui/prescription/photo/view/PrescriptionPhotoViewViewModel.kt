@@ -18,9 +18,8 @@ import com.latticeonfhir.android.data.local.repository.patient.lastupdated.Patie
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.prescription.photo.File
+import com.latticeonfhir.android.ui.prescription.model.PrescriptionFormAndPhoto
 import com.latticeonfhir.android.utils.common.Queries
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
@@ -51,8 +50,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     var showNoteDialog by mutableStateOf(false)
     var showDeleteDialog by mutableStateOf(false)
     var displayNote by mutableStateOf(true)
-    var prescriptionPhotos by mutableStateOf(listOf<File>())
-    var deletedPhotos = mutableListOf<File>()
+    var deletedPhotos = mutableListOf<PrescriptionFormAndPhoto>()
     var canAddPrescription by mutableStateOf(false)
     var showAddToQueueDialog by mutableStateOf(false)
     var ifAllSlotsBooked by mutableStateOf(false)
@@ -64,10 +62,12 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
     var showAddPrescriptionBottomSheet by mutableStateOf(false)
 
-    var selectedFile: File? by mutableStateOf(null)
+    var selectedFile: PrescriptionFormAndPhoto? by mutableStateOf(null)
 
     // syncing
     var syncStatus by mutableStateOf(WorkerStatus.TODO)
+
+    val allPrescriptionList by mutableStateOf(mutableListOf<PrescriptionFormAndPhoto>())
 
     internal fun getCurrentSyncStatus() {
         viewModelScope.launch {
@@ -153,7 +153,34 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
 
     internal fun getPastPrescription() {
         viewModelScope.launch(Dispatchers.IO) {
-            prescriptionPhotos = prescriptionRepository.getLastPhotoPrescription(patient!!.id)
+            prescriptionRepository.getLastPrescription(patient!!.id).forEach { formPrescription ->
+                if (!allPrescriptionList.map { it.date }
+                        .contains(formPrescription.prescriptionEntity.prescriptionDate)) {
+                    allPrescriptionList.add(
+                        PrescriptionFormAndPhoto(
+                            date = formPrescription.prescriptionEntity.prescriptionDate,
+                            type = formPrescription.prescriptionEntity.prescriptionType,
+                            prescription = formPrescription
+                        )
+                    )
+                }
+            }
+            prescriptionRepository.getLastPhotoPrescription(patient!!.id)
+                .forEach { photoPrescription ->
+                    if (!allPrescriptionList.map { it.date }
+                            .contains(photoPrescription.prescriptionEntity.prescriptionDate)) {
+                        allPrescriptionList.add(
+                            PrescriptionFormAndPhoto(
+                                date = photoPrescription.prescriptionEntity.prescriptionDate,
+                                type = photoPrescription.prescriptionEntity.prescriptionType,
+                                prescription = photoPrescription
+                            )
+                        )
+                    }
+                }
+            allPrescriptionList.sortBy {
+                it.date
+            }
         }
     }
 
