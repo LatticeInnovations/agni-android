@@ -255,6 +255,12 @@ open class SyncRepositoryDatabaseTransactions(
                 prescriptionDao.updatePrescriptionFhirId(
                     createResponse.id!!, createResponse.fhirId!!
                 )
+                createResponse.prescriptionFiles!!.forEach { prescriptionResponse ->
+                    prescriptionDao.updateDocumentFhirId(
+                        prescriptionResponse.documentUuid,
+                        prescriptionResponse.documentfhirId
+                    )
+                }
             } else {
                 idsToDelete.remove(createResponse.id)
             }
