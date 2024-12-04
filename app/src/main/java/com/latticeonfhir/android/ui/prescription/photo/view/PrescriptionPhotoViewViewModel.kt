@@ -9,8 +9,10 @@ import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.PrescriptionType
 import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
+import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
@@ -215,6 +217,17 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                 prescription
             )
             // update in generic
+            if (prescription.prescriptionFhirId == null) {
+                // remove post request of prescription
+                genericRepository.removeGenericRecord(prescription.prescriptionId)
+            } else {
+                // add delete request of prescription
+                genericRepository.insertDeleteRequest(
+                    fhirId = prescription.prescriptionFhirId,
+                    typeEnum = GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE,
+                    syncType = SyncType.DELETE
+                )
+            }
             deletedPhotos.add(selectedFile!!)
             deleted()
         }

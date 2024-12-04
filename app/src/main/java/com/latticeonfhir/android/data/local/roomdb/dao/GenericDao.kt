@@ -46,4 +46,8 @@ interface GenericDao {
         genericTypeEnum: GenericTypeEnum,
         syncType: SyncType = SyncType.POST
     ): List<GenericEntity>
+
+    @Transaction
+    @Query("DELETE FROM GenericEntity WHERE patientId=:id")
+    suspend fun removeGenericRecord(id: String): Int
 }

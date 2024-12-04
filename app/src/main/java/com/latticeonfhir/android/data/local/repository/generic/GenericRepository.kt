@@ -1,5 +1,7 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
+import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
+import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
@@ -102,4 +104,7 @@ interface GenericRepository {
         patientLastUpdatedResponse: PatientLastUpdatedResponse,
         uuid: String = UUIDBuilder.generateUUID()
     ): Long
+
+    suspend fun removeGenericRecord(id: String): Int
+    suspend fun insertDeleteRequest(fhirId: String, typeEnum: GenericTypeEnum, syncType: SyncType): Long
 }
