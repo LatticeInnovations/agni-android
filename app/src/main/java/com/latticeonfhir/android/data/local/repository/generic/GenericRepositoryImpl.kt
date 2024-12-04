@@ -90,7 +90,7 @@ class GenericRepositoryImpl @Inject constructor(
     ): Long {
         return genericDao.getGenericEntityById(
             patientId = prescriptionPhotoResponse.patientFhirId,
-            genericTypeEnum = GenericTypeEnum.PRESCRIPTION,
+            genericTypeEnum = GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE,
             syncType = SyncType.POST
         ).let { prescriptionGenericEntity ->
             insertPrescriptionPhotoGenericEntity(
@@ -104,7 +104,11 @@ class GenericRepositoryImpl @Inject constructor(
     override suspend fun updatePrescriptionFhirId() {
         genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION)
             .forEach { prescriptionGenericEntity ->
-                updatePrescriptionFhirIdInGenericEntity(prescriptionGenericEntity)
+                updateFormPrescriptionFhirIdInGenericEntity(prescriptionGenericEntity)
+            }
+        genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE)
+            .forEach { prescriptionGenericEntity ->
+                updatePhotoPrescriptionFhirIdInGenericEntity(prescriptionGenericEntity)
             }
     }
 
@@ -222,7 +226,7 @@ class GenericRepositoryImpl @Inject constructor(
     ): Long {
         return genericDao.getGenericEntityById(
             prescriptionFhirId,
-            GenericTypeEnum.PRESCRIPTION,
+            GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE,
             SyncType.PATCH
         ).let { prescriptionGenericEntity ->
             insertOrUpdatePhotoPrescriptionGenericEntityPatch(

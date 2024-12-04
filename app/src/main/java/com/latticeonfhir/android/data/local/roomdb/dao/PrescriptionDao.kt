@@ -62,4 +62,8 @@ interface PrescriptionDao {
 
     @Delete
     suspend fun deletePrescriptionPhoto(prescriptionPhotoEntity: PrescriptionPhotoEntity): Int
+
+    @Transaction
+    @Query("UPDATE PrescriptionDirectionsEntity SET medReqFhirId = :medReqFhirId WHERE id = :medReqUuid")
+    suspend fun updateMedReqFhirId(medReqUuid: String, medReqFhirId: String)
 }

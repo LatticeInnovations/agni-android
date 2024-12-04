@@ -201,9 +201,14 @@ class SyncService(
         }
     }
 
-    /** Upload Prescription */
-    private suspend fun uploadPrescription(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
-        return checkAuthenticationStatus(syncRepository.sendPrescriptionPostData(), logout)
+    /** Upload Form Prescription*/
+    private suspend fun uploadPhotoPrescriptionData(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendPhotoPrescriptionPostData(), logout)
+    }
+
+    /** Upload Photo Prescription*/
+    private suspend fun uploadFormPrescriptionData(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendFormPrescriptionPostData(), logout)
     }
 
     /** Upload Patient Last Updated Data */
@@ -314,7 +319,10 @@ class SyncService(
                 if (this) {
                     downloadPatientLastUpdated(logout)
                     CoroutineScope(Dispatchers.IO).launch {
-                        downloadPrescription(null, logout)
+                        downloadFormPrescription(null, logout)
+                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        downloadPhotoPrescription(null, logout)
                     }
                     CoroutineScope(Dispatchers.IO).launch {
                         downloadCVD(logout)
@@ -327,13 +335,24 @@ class SyncService(
         }
     }
 
-    /** Download Prescription*/
-    internal suspend fun downloadPrescription(
+    /** Download Form Prescription*/
+    internal suspend fun downloadFormPrescription(
         patientId: String?,
         logout: (Boolean, String) -> Unit
     ): ResponseMapper<Any>? {
         return checkAuthenticationStatus(
-            syncRepository.getAndInsertPrescription(patientId),
+            syncRepository.getAndInsertFormPrescription(patientId),
+            logout
+        )
+    }
+
+    /** Download Photo Prescription*/
+    private suspend fun downloadPhotoPrescription(
+        patientId: String?,
+        logout: (Boolean, String) -> Unit
+    ): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(
+            syncRepository.getAndInsertPhotoPrescription(patientId),
             logout
         )?.apply {
             if (this is ApiEmptyResponse || this is ApiEndResponse) {
@@ -406,7 +425,10 @@ class SyncService(
     private suspend fun updateFhirIdInPrescription(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         genericRepository.updatePrescriptionFhirId()
         /** Upload Prescription */
-        return uploadPrescription(logout)
+        CoroutineScope(Dispatchers.IO).launch {
+            uploadFormPrescriptionData(logout)
+        }
+        return uploadPhotoPrescriptionData(logout)
     }
 
     /** Update Appointment FHIR ID in CVD */
