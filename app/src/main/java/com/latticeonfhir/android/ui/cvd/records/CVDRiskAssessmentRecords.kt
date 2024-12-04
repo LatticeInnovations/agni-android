@@ -69,13 +69,19 @@ fun CVDRiskAssessmentRecords(
             }
         } else {
             // line chart
-            LineChartView(modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp)
-                .height(200.dp),
-                entries1 = getChartEntries(viewModel.previousRecords.reversed()),
+            LineChartView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp)
+                    .height(200.dp),
+                entries1 = getChartEntries(viewModel.previousRecords.reversed().groupBy {
+                    it.createdOn.formatDateToDayMonth()
+                }.map { (_, entries) ->
+                    entries.maxBy { it.createdOn }
+                }),
                 entries2 = null,
-                labels = viewModel.previousRecords.reversed().map { it.createdOn.formatDateToDayMonth() }
+                labels = viewModel.previousRecords.reversed()
+                    .map { it.createdOn.formatDateToDayMonth() }.toSet().toList()
             )
         }
         if (viewModel.previousRecords.isEmpty()) {
@@ -261,7 +267,6 @@ fun LineChartView(
             .height(300.dp) // Adjust chart size as needed
     )
 }
-
 
 
 fun getChartEntries(list: List<CVDResponse>): List<Entry> {

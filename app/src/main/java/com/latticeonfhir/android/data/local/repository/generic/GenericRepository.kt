@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.data.local.repository.generic
 
+import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
@@ -68,6 +69,7 @@ interface GenericRepository {
     suspend fun updateAppointmentFhirIdInPatch()
 
     suspend fun updateCVDFhirIds()
+    suspend fun updateVitalFhirId()
     suspend fun updateSymDiagFhirId()
 
     suspend fun insertOrUpdatePatientPatchEntity(
@@ -98,6 +100,13 @@ interface GenericRepository {
         fhirId: String, map: Map<String, Any>, uuid: String = UUIDBuilder.generateUUID()
     ): Long
 
+    suspend fun insertVital(
+        vitalLocal: VitalLocal, uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
+    suspend fun insertOrUpdateVitalPatchEntity(
+        vitalFhirId: String, map: Map<String, Any>, uuid: String = UUIDBuilder.generateUUID()
+    ): Long
     suspend fun insertPatientLastUpdated(
         patientLastUpdatedResponse: PatientLastUpdatedResponse,
         uuid: String = UUIDBuilder.generateUUID()

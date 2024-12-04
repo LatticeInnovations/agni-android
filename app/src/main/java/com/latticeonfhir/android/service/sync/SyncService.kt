@@ -199,6 +199,9 @@ class SyncService(
                     updateFhirIdInPrescription(logout)
                 }
                 updateFhirIdInCVD(logout)
+                CoroutineScope(Dispatchers.IO).launch {
+                    updateFhirIdInVital(logout)
+                }
             }
         }
     }
@@ -228,6 +231,10 @@ class SyncService(
         return checkAuthenticationStatus(syncRepository.sendSymptomsAndDiagnosisPostData(), logout)
     }
 
+    /** Upload Vital */
+    private suspend fun uploadVital(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendVitalPostData(), logout)
+    }
     /**
      *
      *
@@ -267,6 +274,12 @@ class SyncService(
     /** Patch SymDiag */
     private suspend fun patchSymDiag(logout: (Boolean, String) -> Unit) {
         checkAuthenticationStatus(syncRepository.sendSymptomsAndDiagnosisPatchData(), logout)
+    }
+
+    /** Patch Vital */
+    private suspend fun patchVital(logout: (Boolean, String) -> Unit) {
+
+        checkAuthenticationStatus(syncRepository.sendVitalPatchData(), logout)
     }
 
     /**
@@ -319,6 +332,9 @@ class SyncService(
                     }
                     CoroutineScope(Dispatchers.IO).launch {
                         downloadCVD(logout)
+                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        downloadVitals(logout)
                     }
 //                    CoroutineScope(Dispatchers.IO).launch {
 //                        getAndInsertSymptoms()
@@ -383,6 +399,10 @@ class SyncService(
         )
     }
 
+    /** Download Vitals*/
+    private suspend fun downloadVitals(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.getAndInsertListVitalData(0), logout)
+    }
     /**
      *
      *
@@ -424,6 +444,11 @@ class SyncService(
         genericRepository.updateCVDFhirIds()
         /** Upload Prescription */
         return uploadCVD(logout)
+    }
+
+    private suspend fun updateFhirIdInVital(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        genericRepository.updateVitalFhirId()
+        return uploadVital(logout)
     }
 
     /** Check Session Expiry and Authorization */

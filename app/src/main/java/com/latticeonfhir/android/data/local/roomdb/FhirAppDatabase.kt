@@ -21,6 +21,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RiskPredictionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
+import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.CVDEntity
@@ -39,6 +40,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.P
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vitals.VitalEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SymDiagSearchEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
@@ -71,6 +73,7 @@ import java.util.UUID
         DownloadedFileEntity::class,
         RiskPredictionCharts::class,
         CVDEntity::class,
+        VitalEntity::class,
         SymptomsEntity::class,
         DiagnosisEntity::class,
         SymptomAndDiagnosisEntity::class,
@@ -78,7 +81,7 @@ import java.util.UUID
 
     ],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
-    version = 8,
+    version = 10,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
@@ -87,6 +90,8 @@ import java.util.UUID
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7),
         AutoMigration(from = 7, to = 8),
+        AutoMigration(from = 8, to = 9),
+        AutoMigration(from = 9, to = 10)
     ],
     exportSchema = true
 )
@@ -107,6 +112,8 @@ abstract class FhirAppDatabase : RoomDatabase() {
     abstract fun getDownloadedFileDao(): DownloadedFileDao
     abstract fun getRiskPredictionDao(): RiskPredictionDao
     abstract fun getCVDDao(): CVDDao
+    abstract fun getVitalDao(): VitalDao
+
     abstract fun getSymptomsAndDiagnosisDao(): SymptomsAndDiagnosisDao
 
 
