@@ -1,9 +1,5 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
-import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndFileEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
-import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecord
-import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordResponse
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.labtest.LabTestLocal
@@ -11,8 +7,8 @@ import com.latticeonfhir.android.data.local.model.labtest.LabTestPhotoResponseLo
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
+import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -21,6 +17,8 @@ import com.latticeonfhir.android.data.local.roomdb.entities.appointment.Appointm
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.CVDEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.LabTestAndMedEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndFileEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
@@ -35,11 +33,11 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.P
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.vitals.VitalEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vitals.VitalEntity
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
@@ -48,6 +46,8 @@ import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.labormed.labtest.DiagnosticReport
 import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestPhotoResponse
 import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
+import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecord
+import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
@@ -62,10 +62,10 @@ import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsItem
+import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getInverseRelation
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
@@ -73,6 +73,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
+import timber.log.Timber
 import java.util.Date
 import java.util.UUID
 
@@ -413,6 +414,9 @@ internal suspend fun AppointmentResponse.toAppointmentEntity(
     patientDao: PatientDao,
     scheduleDao: ScheduleDao
 ): AppointmentEntity {
+    Timber.d("manseeyy patient $patientFhirId")
+    Timber.d("manseeyy appointment $appointmentId")
+    Timber.d("manseeyy $appointmentId")
     return AppointmentEntity(
         id = uuid,
         appointmentFhirId = appointmentId,

@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
@@ -104,6 +105,7 @@ import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.ui.common.DisplaySyncStatus
 import com.latticeonfhir.android.ui.main.MainActivity
+import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.constants.PhotoUploadViewType.PHOTO_VIEW_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isSameDay
@@ -118,6 +120,7 @@ import com.latticeonfhir.android.utils.file.FileManager
 import com.latticeonfhir.android.utils.file.FileManager.getUriFromFileName
 import com.latticeonfhir.android.utils.file.FileManager.shareImageToOtherApps
 import com.latticeonfhir.android.utils.network.ConnectivityObserver
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Date
@@ -312,31 +315,34 @@ fun PhotoViewScreen(
                 FloatingActionButton(
                     onClick = {
 
-                        if (viewModel.canAddLabTest) {
-                            checkPermissions(
-                                context = context,
-                                requestPermission = { permissionsToBeRequest ->
-                                    requestPermissionLauncher.launch(permissionsToBeRequest)
-                                },
-                                navigate = {
-                                    viewModel.hideSyncStatus()
-                                    coroutineScope.launch {
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            NavControllerConstants.PATIENT, viewModel.patient!!
-                                        )
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            PHOTO_VIEW_TYPE,
-                                            if (checkPhotoViewIsLabTestType(viewModel)) PhotoUploadTypeEnum.LAB_TEST.value else PhotoUploadTypeEnum.MEDICAL_RECORD.value
-                                        )
-                                        navController.navigate(Screen.LabAndMedPhotoUploadScreen.route)
+                        viewModel.getAppointmentInfo {
+                            if (viewModel.canAddAssessment) {
+                                checkPermissions(
+                                    context = context,
+                                    requestPermission = { permissionsToBeRequest ->
+                                        requestPermissionLauncher.launch(permissionsToBeRequest)
+                                    },
+                                    navigate = {
+                                        viewModel.hideSyncStatus()
+                                        coroutineScope.launch {
+                                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                NavControllerConstants.PATIENT, viewModel.patient!!
+                                            )
+                                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                PHOTO_VIEW_TYPE,
+                                                if (checkPhotoViewIsLabTestType(viewModel)) PhotoUploadTypeEnum.LAB_TEST.value else PhotoUploadTypeEnum.MEDICAL_RECORD.value
+                                            )
+                                            navController.navigate(Screen.LabAndMedPhotoUploadScreen.route)
+                                        }
                                     }
-                                }
-                            )
-                        } else if (viewModel.isAppointmentCompleted) {
-                            viewModel.showAppointmentCompletedDialog = true
-                        } else {
-                            viewModel.showAddToQueueDialog = true
+                                )
+                            } else if (viewModel.isAppointmentCompleted) {
+                                viewModel.showAppointmentCompletedDialog = true
+                            } else {
+                                viewModel.showAddToQueueDialog = true
+                            }
                         }
+
 
                     }
                 ) {
@@ -420,6 +426,93 @@ fun PhotoViewScreen(
                 viewModel.showOpenSettingsDialog = false
             }
         )
+    }
+
+    ShowDialogs(viewModel, navController, coroutineScope, context, requestPermissionLauncher)
+}
+
+@Composable
+fun ShowDialogs(
+    viewModel: PhotoViewViewModel,
+    navController: NavController,
+    coroutineScope: CoroutineScope,
+    context: Context,
+    requestPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>
+) {
+    if (viewModel.showAddToQueueDialog) {
+        CustomDialog(title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
+            id = R.string.add_to_queue_question
+        ),
+            text = stringResource(id = R.string.add_to_queue_vital_dialog_description),
+            dismissBtnText = stringResource(id = R.string.dismiss),
+            confirmBtnText = if (viewModel.appointment != null) stringResource(id = R.string.mark_arrived) else stringResource(
+                id = R.string.add_to_queue
+            ),
+            dismiss = { viewModel.showAddToQueueDialog = false },
+            confirm = {
+                if (viewModel.appointment != null) {
+                    viewModel.updateStatusToArrived(
+                        viewModel.patient!!, viewModel.appointment!!
+                    ) {
+                        checkPermissions(
+                            context = context,
+                            requestPermission = { permissionsToBeRequest ->
+                                requestPermissionLauncher.launch(permissionsToBeRequest)
+                            },
+                            navigate = {
+                                viewModel.hideSyncStatus()
+                                coroutineScope.launch {
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        NavControllerConstants.PATIENT, viewModel.patient!!
+                                    )
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        PHOTO_VIEW_TYPE,
+                                        if (checkPhotoViewIsLabTestType(viewModel)) PhotoUploadTypeEnum.LAB_TEST.value else PhotoUploadTypeEnum.MEDICAL_RECORD.value
+                                    )
+                                    navController.navigate(Screen.LabAndMedPhotoUploadScreen.route)
+                                }
+                            }
+                        )
+
+                    }
+                } else {
+                    if (viewModel.ifAllSlotsBooked) {
+                        viewModel.showAllSlotsBookedDialog = true
+                    } else {
+                        viewModel.addPatientToQueue(viewModel.patient!!) {
+                            viewModel.showAddToQueueDialog = false
+
+                            checkPermissions(
+                                context = context,
+                                requestPermission = { permissionsToBeRequest ->
+                                    requestPermissionLauncher.launch(permissionsToBeRequest)
+                                },
+                                navigate = {
+                                    viewModel.hideSyncStatus()
+                                    coroutineScope.launch {
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            NavControllerConstants.PATIENT, viewModel.patient!!
+                                        )
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            PHOTO_VIEW_TYPE,
+                                            if (checkPhotoViewIsLabTestType(viewModel)) PhotoUploadTypeEnum.LAB_TEST.value else PhotoUploadTypeEnum.MEDICAL_RECORD.value
+                                        )
+                                        navController.navigate(Screen.LabAndMedPhotoUploadScreen.route)
+                                    }
+                                }
+                            )
+
+                        }
+
+
+                    }
+                }
+            })
+    }
+    if (viewModel.ifAllSlotsBooked) {
+        AllSlotsBookedDialog {
+            viewModel.showAllSlotsBookedDialog = false
+        }
     }
 }
 

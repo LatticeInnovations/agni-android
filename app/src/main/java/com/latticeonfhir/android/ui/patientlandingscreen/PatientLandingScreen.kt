@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -162,7 +164,11 @@ fun PatientLandingScreen(
             },
             content = {
                 Box(modifier = Modifier.padding(it)) {
-                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    Column(modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .verticalScroll(
+                            rememberScrollState()
+                        )) {
                         CardComposable(
                             viewModel,
                             stringResource(id = R.string.appointments),
