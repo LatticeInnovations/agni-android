@@ -1,0 +1,46 @@
+package com.latticeonfhir.android.utils.constants
+
+object VitalConstants {
+
+    const val VITAL_UPDATE_OR_ADD = "vitalUpdatedOrAdd"
+
+    const val VITAL = "vital"
+    const val HEIGHT_IN_FT_IN = "ft/in"
+    const val HEIGHT_CENTIMETER = "Centimeter"
+
+    const val VITAL_FHIR_ID = "vitalFhirId"
+    const val OPERATION = "operation"
+    const val REPLACE = "replace"
+    const val ADD = "add"
+    const val HEIGHT = "Height"
+    const val HEIGHT_FT = "heightFt"
+    const val HEIGHT_INCH = "heightInch"
+    const val HEIGHT_CM = "heightCm"
+    const val WEIGHT = "Weight"
+    const val HEART_RATE = "Heart Rate"
+    const val HEART_RATE_KEY = "heartRate"
+    const val RESPIRATORY_RATE = "Respiratory rate"
+    const val RESPIRATORY_RATE_KEY = "respRate"
+    const val SPO2 = "spO2"
+    const val BODY_TEMPERATURE = "Body temperature"
+    const val TEMP = "temp"
+    const val TEMP_UNIT = "tempUnit"
+    const val BLOOD_PRESSURE = "Blood Pressure"
+    const val BP_DIASTOLIC = "bpDiastolic"
+    const val BP_SYSTOLIC = "bpSystolic"
+    const val BLOOD_GLUCOSE_KEY = "Blood Glucose"
+    const val BLOOD_GLUCOSE = "bloodGlucose"
+    const val BLOOD_GLUCOSE_TYPE = "bloodGlucoseType"
+    const val BLOOD_GLUCOSE_UNIT = "bloodGlucoseUnit"
+    const val LEFT_EYE = "leftEye"
+    const val RIGHT_EYE = "rightEye"
+    const val EYE_TEST = "Eye Test"
+    const val EYE_TEST_TYPE = "eyeTestType"
+    const val KEY = "key"
+    const val COMPONENT = "component"
+
+    const val LIST_TYPE_VITAL="Vitals"
+    const val LIST_TYPE_CVD="CVD"
+    const val CVD_RECORD="CVD record"
+    const val ALL="All"
+}

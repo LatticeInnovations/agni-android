@@ -28,6 +28,8 @@ import com.latticeonfhir.android.data.local.repository.schedule.ScheduleReposito
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.vital.VitalRepository
+import com.latticeonfhir.android.data.local.repository.vital.VitalRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
@@ -117,4 +119,9 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideCVDAssessmentRepository(cvdAssessmentRepositoryImpl: CVDAssessmentRepositoryImpl): CVDAssessmentRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideVitalRepository(vitalRepositoryImpl: VitalRepositoryImpl): VitalRepository
+
 }
