@@ -31,6 +31,10 @@ import com.latticeonfhir.android.ui.prescription.photo.view.PrescriptionPhotoVie
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 import com.latticeonfhir.android.ui.signup.SignUpPhoneEmailScreen
 import com.latticeonfhir.android.ui.signup.SignUpScreen
+import com.latticeonfhir.android.ui.vitalsscreen.VitalsScreen
+import com.latticeonfhir.android.ui.vitalsscreen.addvitals.AddVitalsScreen
+import com.latticeonfhir.android.ui.symptomsanddiagnosis.SymptomsAndDiagnosisScreen
+import com.latticeonfhir.android.ui.symptomsanddiagnosis.selectsymptoms.SelectSymptomScreen
 
 @Composable
 fun NavigationAppHost(navController: NavController, startDest: String) {
@@ -71,6 +75,11 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
             )
         }
         composable(Screen.CVDRiskAssessmentScreen.route) { CVDRiskAssessmentScreen(navController) }
+        composable(Screen.VitalsScreen.route) { VitalsScreen(navController = navController) }
+        composable(Screen.AddVitalsScreen.route) { AddVitalsScreen(navController = navController) }
+
+        composable(Screen.SymptomsAndDiagnosisScreen.route) { SymptomsAndDiagnosisScreen(navController = navController) }
+        composable(Screen.AddSymptomsScreen.route) { SelectSymptomScreen(navController = navController) }
         composable(Screen.LabAndMedPhotoUploadScreen.route) { PhotoUploadScreen(navController = navController) }
         composable(Screen.LabAndMedRecordPhotoViewScreen.route) { PhotoViewScreen(navController = navController) }
     }

@@ -214,6 +214,65 @@ fun PatientLandingScreen(
                                 navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
                             }
                         )
+
+
+                        CardComposable(
+                            viewModel,
+                            stringResource(id = R.string.cvd_risk_assessment),
+                            R.drawable.cardiology,
+                            if (viewModel.cvdRisk.isBlank()) null
+                            else stringResource(R.string.percentage, viewModel.cvdRisk),
+                            isCardDisabled = viewModel.patient!!.gender == "other" ||
+                                    viewModel.patient!!.birthDate.toTimeInMilli()
+                                        .toAge() !in 40..74,
+                            onClick = {
+                                if (viewModel.patient!!.gender == "other" ||
+                                    viewModel.patient!!.birthDate.toTimeInMilli().toAge() !in 40..74
+                                ) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = context.getString(R.string.cvd_error_message)
+                                        )
+                                    }
+                                } else {
+                                    scope.launch {
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            "patient",
+                                            viewModel.patient
+                                        )
+                                        navController.navigate(Screen.CVDRiskAssessmentScreen.route)
+                                    }
+                                }
+
+                            }
+                        )
+                        CardComposable(
+                            viewModel,
+                            stringResource(id = R.string.vital),
+                            R.drawable.vital_signs,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
+                                navController.navigate(Screen.VitalsScreen.route)
+                            }
+                        )
+
+                        CardComposable(
+                            viewModel,
+                            stringResource(id = R.string.symptoms_and_diagnosis),
+                            R.drawable.diagnosis,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
+                                navController.navigate(Screen.SymptomsAndDiagnosisScreen.route)
+                            }
+                        )
                         CardComposable(
                             viewModel,
                             stringResource(id = R.string.lab_test),
@@ -248,37 +307,6 @@ fun PatientLandingScreen(
                                 navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
                             }
                         )
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.cvd_risk_assessment),
-                            R.drawable.cardiology,
-                            if (viewModel.cvdRisk.isBlank()) null
-                            else stringResource(R.string.percentage, viewModel.cvdRisk),
-                            isCardDisabled = viewModel.patient!!.gender == "other" ||
-                                    viewModel.patient!!.birthDate.toTimeInMilli()
-                                        .toAge() !in 40..74,
-                            onClick = {
-                                if (viewModel.patient!!.gender == "other" ||
-                                    viewModel.patient!!.birthDate.toTimeInMilli().toAge() !in 40..74
-                                ) {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            message = context.getString(R.string.cvd_error_message)
-                                        )
-                                    }
-                                } else {
-                                    scope.launch {
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            "patient",
-                                            viewModel.patient
-                                        )
-                                        navController.navigate(Screen.CVDRiskAssessmentScreen.route)
-                                    }
-                                }
-
-                            }
-                        )
-
                     }
                     if (viewModel.showAllSlotsBookedDialog) {
                         AllSlotsBookedDialog {
