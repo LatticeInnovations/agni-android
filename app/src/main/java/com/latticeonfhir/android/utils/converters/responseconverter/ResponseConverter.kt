@@ -11,6 +11,8 @@ import com.latticeonfhir.android.data.local.model.labtest.LabTestPhotoResponseLo
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
+import com.latticeonfhir.android.data.local.model.vital.VitalLocal
+import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -33,6 +35,11 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.P
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vitals.VitalEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
+import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsEntity
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
@@ -55,6 +62,10 @@ import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
+import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
+import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
+import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsItem
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getInverseRelation
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
@@ -602,6 +613,171 @@ internal fun CVDEntity.toCVDResponse(): CVDResponse {
         weight = weight
     )
 }
+
+internal fun VitalEntity.toVitalLocal(): VitalLocal {
+    return VitalLocal(
+        vitalUuid = vitalUuid,
+        fhirId = fhirId,
+        patientId = patientId,
+        appointmentId = appointmentId,
+        bloodGlucose = bloodGlucose,
+        bloodGlucoseType = bloodGlucoseType,
+        bloodGlucoseUnit = bloodGlucoseUnit,
+        bpDiastolic = bpDiastolic,
+        bpSystolic = bpSystolic,
+        createdOn = createdOn,
+        eyeTestType = eyeTestType,
+        heartRate = heartRate,
+        heightCm = heightCm,
+        heightFt = heightFt,
+        heightInch = heightInch,
+        leftEye = leftEye,
+        respRate = respRate,
+        rightEye = rightEye,
+        spo2 = spo2,
+        temp = temp,
+        tempUnit = tempUnit,
+        weight = weight,
+        practitionerName = practitionerName,
+        cholesterol = cholesterol,
+        cholesterolUnit = cholesterolUnit
+    )
+}
+
+internal fun VitalLocal.toVitalEntity(): VitalEntity {
+    return VitalEntity(
+        vitalUuid = vitalUuid,
+        fhirId = fhirId,
+        patientId = patientId,
+        appointmentId = appointmentId,
+        bloodGlucose = bloodGlucose,
+        bloodGlucoseType = bloodGlucoseType,
+        bloodGlucoseUnit = bloodGlucoseUnit,
+        bpDiastolic = bpDiastolic,
+        bpSystolic = bpSystolic,
+        createdOn = createdOn,
+        eyeTestType = eyeTestType,
+        heartRate = heartRate,
+        heightCm = heightCm,
+        heightFt = heightFt,
+        heightInch = heightInch,
+        leftEye = leftEye,
+        respRate = respRate,
+        rightEye = rightEye,
+        spo2 = spo2,
+        temp = temp,
+        tempUnit = tempUnit,
+        weight = weight,
+        practitionerName = practitionerName,
+        cholesterol = cholesterol,
+        cholesterolUnit = cholesterolUnit
+    )
+}
+
+internal suspend fun VitalResponse.toVitalEntity(
+    patientDao: PatientDao,
+    appointmentDao: AppointmentDao
+): VitalEntity {
+    return VitalEntity(
+        vitalUuid = vitalUuid,
+        fhirId = vitalFhirId,
+        patientId = patientDao.getPatientIdByFhirId(patientId!!),
+        appointmentId = appointmentDao.getAppointmentIdByFhirId(appointmentId),
+        bloodGlucose = bloodGlucose,
+        bloodGlucoseType = bloodGlucoseType,
+        bloodGlucoseUnit = bloodGlucoseUnit,
+        bpDiastolic = bpDiastolic,
+        bpSystolic = bpSystolic,
+        createdOn = createdOn.convertStringToDate(),
+        eyeTestType = eyeTestType,
+        heartRate = heartRate,
+        heightCm = heightCm,
+        heightFt = heightFt,
+        heightInch = heightInch,
+        leftEye = leftEye?.trim()?.toInt(),
+        respRate = respRate,
+        rightEye = rightEye?.trim()?.toInt(),
+        spo2 = spo2,
+        temp = temp,
+        tempUnit = tempUnit,
+        weight = weight,
+        practitionerName = practitionerName,
+        cholesterol = cholesterol,
+        cholesterolUnit = cholesterolUnit
+    )
+}
+
+
+internal fun SymptomsItem.toSymptomsEntity(): SymptomsEntity {
+    return SymptomsEntity(id = UUID.randomUUID().toString(), code = code, display = display,
+        type = type,
+        gender = gender
+    )
+}
+
+internal fun SymptomsAndDiagnosisItem.toDiagnosisEntity(): DiagnosisEntity {
+    return DiagnosisEntity(id = UUID.randomUUID().toString(), code = code, display = display)
+}
+
+internal fun SymptomsEntity.toSymptoms(): SymptomsItem {
+    return SymptomsItem(code = code, display = display, type = type, gender = gender)
+}
+
+internal fun DiagnosisEntity.toDiagnosis(): SymptomsAndDiagnosisItem {
+    return SymptomsAndDiagnosisItem(code = code, display = display)
+}
+
+internal fun SymptomsAndDiagnosisLocal.toSymptomsAndDiagnosisEntity(): SymptomAndDiagnosisEntity {
+    return SymptomAndDiagnosisEntity(
+        symDiagUuid = symDiagUuid,
+        appointmentId = appointmentId, fhirId = symDiagFhirId,
+        createdOn = createdOn,
+        diagnosis = diagnosis,
+        symptoms = symptoms,
+        practitionerName = practitionerName!!,
+        patientId = patientId!!
+    )
+}
+
+internal fun SymptomAndDiagnosisEntity.toSymptomsAndDiagnosisLocal(): SymptomsAndDiagnosisLocal {
+    return SymptomsAndDiagnosisLocal(
+        symDiagUuid = symDiagUuid,
+        appointmentId = appointmentId, symDiagFhirId = fhirId,
+        createdOn = createdOn,
+        diagnosis = diagnosis,
+        symptoms = symptoms,
+        practitionerName = practitionerName,
+        patientId = patientId
+    )
+}
+
+
+internal suspend fun SymptomsAndDiagnosisResponse.toSymptomsAndDiagnosisEntity(
+    studentDao: PatientDao,
+    appointmentDao: AppointmentDao
+): SymptomAndDiagnosisEntity {
+    return SymptomAndDiagnosisEntity(
+        symDiagUuid = symDiagUuid,
+        appointmentId = appointmentDao.getAppointmentIdByFhirId(appointmentId),
+        fhirId = symDiagFhirId,
+        createdOn = createdOn.convertStringToDate(),
+        diagnosis = diagnosis,
+        symptoms = symptoms,
+        practitionerName = practitionerName,
+        patientId = studentDao.getPatientIdByFhirId(patientId)!!
+    )
+}
+internal fun SymptomsAndDiagnosisLocal.toSymDiagData(): SymptomsAndDiagnosisData {
+    return SymptomsAndDiagnosisData(
+        symDiagUuid = symDiagUuid,
+        appointmentId = appointmentId,
+        createdOn = createdOn,
+        diagnosis = diagnosis.map { it.code },
+        symptoms = symptoms.map { it.code },
+        patientId = patientId
+    )
+}
+
 internal fun LabTestAndFileEntity.toFilesList(): List<File> {
     return labTestAndMedPhotoEntity.map {
         File(

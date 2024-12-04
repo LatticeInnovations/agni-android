@@ -18,8 +18,12 @@ import com.latticeonfhir.android.data.server.api.LabTestAndMedRecordService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
+import com.latticeonfhir.android.data.server.api.VitalApiService
+import com.latticeonfhir.android.data.server.api.SymptomsAndDiagnosisService
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepositoryImpl
+import com.latticeonfhir.android.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
+import com.latticeonfhir.android.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import com.latticeonfhir.android.service.sync.SyncService
@@ -59,6 +63,10 @@ class FhirApp : Application() {
     @Inject
     lateinit var cvdApiService: CVDApiService
     @Inject
+    lateinit var vitalApiService: VitalApiService
+    @Inject
+    lateinit var symptomsAndDiagnosisService: SymptomsAndDiagnosisService
+    @Inject
     lateinit var labTestAndMedRecordService: LabTestAndMedRecordService
 
     @Inject
@@ -76,6 +84,8 @@ class FhirApp : Application() {
     internal val syncService get() = _syncService
     val sessionExpireFlow = MutableLiveData<Map<String, Any>>(emptyMap())
 
+    private lateinit var _symDiagRepository: SymptomsAndDiagnosisRepository
+    private val symDiagRepository get() = _symDiagRepository
     internal var syncWorkerStatus = MutableLiveData<WorkerStatus>()
     internal var photosWorkerStatus = MutableLiveData<WorkerStatus>()
     private val isSyncing = AtomicBoolean(false)
@@ -93,6 +103,8 @@ class FhirApp : Application() {
             prescriptionApiService,
             scheduleAndAppointmentApiService,
             cvdApiService,
+            vitalApiService,
+            symptomsAndDiagnosisService,
             labTestAndMedRecordService,
             fhirAppDatabase.getPatientDao(),
             fhirAppDatabase.getGenericDao(),
@@ -103,6 +115,9 @@ class FhirApp : Application() {
             fhirAppDatabase.getScheduleDao(),
             fhirAppDatabase.getAppointmentDao(),
             fhirAppDatabase.getPatientLastUpdatedDao(),
+            fhirAppDatabase.getCVDDao(),
+            fhirAppDatabase.getVitalDao(),
+            fhirAppDatabase.getSymptomsAndDiagnosisDao(),
             fhirAppDatabase.getCVDDao(),
             fhirAppDatabase.getLabTestAndMedDao()
         )
@@ -122,6 +137,10 @@ class FhirApp : Application() {
             fhirAppDatabase.getAppointmentDao()
         )
 
+        _symDiagRepository = SymptomsAndDiagnosisRepositoryImpl(
+            symptomsAndDiagnosisService,
+            fhirAppDatabase.getSymptomsAndDiagnosisDao()
+        )
         if (!this::_workRequestBuilder.isInitialized) {
             _workRequestBuilder = WorkRequestBuilders(this)
         }
@@ -133,7 +152,8 @@ class FhirApp : Application() {
                     syncRepository,
                     genericRepository,
                     preferenceRepository,
-                    fileSyncRepository
+                    fileSyncRepository,
+                    symptomsAndDiagnosisRepository = symDiagRepository
                 )
         }
     }

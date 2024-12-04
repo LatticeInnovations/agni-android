@@ -204,7 +204,7 @@ object Queries {
         )
     }
 
-    suspend fun updatePatientLastUpdated(
+     suspend fun updatePatientLastUpdated(
         patientId: String,
         patientLastUpdatedRepository: PatientLastUpdatedRepository,
         genericRepository: GenericRepository

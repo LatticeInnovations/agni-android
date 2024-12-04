@@ -417,13 +417,27 @@ object TimeConverter {
         val formatter = SimpleDateFormat("dd MMM", Locale.getDefault())
         return formatter.format(this)
     }
-
-    fun Date.convertedDate(): String {
-        val sdf = SimpleDateFormat(YYYY_MM_DD, Locale.getDefault())
-        return sdf.format(this)
-    }
     fun String.convertStringToDate(): Date {
         val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return formatter.parse(this)?:Date()
+    }
+    fun String.convertDateFormat(): String {
+        // Define the input and output date formats
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+        val outputFormat = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
+
+        // Parse the input date string
+        val date: Date? = inputFormat.parse(this)
+
+        // Format the date into the desired output format
+        return if (date != null) {
+            outputFormat.format(date)
+        } else {
+            "Invalid Date"
+        }
+    }
+    fun Date.convertedDate(): String {
+        val sdf = SimpleDateFormat(YYYY_MM_DD, Locale.getDefault())
+        return sdf.format(this)
     }
 }

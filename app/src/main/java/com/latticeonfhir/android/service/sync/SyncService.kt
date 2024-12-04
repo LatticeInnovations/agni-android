@@ -4,6 +4,7 @@ import android.content.Context
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
+import com.latticeonfhir.android.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
@@ -24,7 +25,8 @@ class SyncService(
     private val syncRepository: SyncRepository,
     private val genericRepository: GenericRepository,
     private val preferenceRepository: PreferenceRepository,
-    private val fileSyncRepository: FileSyncRepository
+    private val fileSyncRepository: FileSyncRepository,
+    private val symptomsAndDiagnosisRepository: SymptomsAndDiagnosisRepository
 ) {
 
     private lateinit var patientDownloadJob: Deferred<ResponseMapper<Any>?>
@@ -68,6 +70,9 @@ class SyncService(
                     async {
                         patchCVD(logout)
                     }
+//                      ,      async {
+//                        patchSymDiag(logout)
+//                    }
 //                    ,async {
 //                        patchLabTest(logout)
 //                    }, async {
@@ -201,6 +206,12 @@ class SyncService(
                     updateFhirIdInPrescription(logout)
                 }
                 updateFhirIdInCVD(logout)
+                CoroutineScope(Dispatchers.IO).launch {
+                    updateFhirIdInVital(logout)
+                }
+//                CoroutineScope(Dispatchers.IO).launch {
+//                    updateFhirIdInSymDiag(logout)
+//                }
             }
         }
     }
@@ -223,6 +234,16 @@ class SyncService(
     /** Upload CVD */
     private suspend fun uploadCVD(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(syncRepository.sendCVDPostData(), logout)
+    }
+    /** Upload SymDiag */
+
+    private suspend fun uploadSymDiag(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendSymptomsAndDiagnosisPostData(), logout)
+    }
+
+    /** Upload Vital */
+    private suspend fun uploadVital(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendVitalPostData(), logout)
     }
     /** Upload Photos Data */
     private suspend fun uploadLabAndMedPhoto(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
@@ -263,6 +284,16 @@ class SyncService(
     /** Patch CVD */
     private suspend fun patchCVD(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(syncRepository.sendCVDPatchData(), logout)
+    }
+    /** Patch SymDiag */
+    private suspend fun patchSymDiag(logout: (Boolean, String) -> Unit) {
+        checkAuthenticationStatus(syncRepository.sendSymptomsAndDiagnosisPatchData(), logout)
+    }
+
+    /** Patch Vital */
+    private suspend fun patchVital(logout: (Boolean, String) -> Unit) {
+
+        checkAuthenticationStatus(syncRepository.sendVitalPatchData(), logout)
     }
     /** Patch LabTest */
     private suspend fun patchLabTest(logout: (Boolean, String) -> Unit) {
@@ -327,6 +358,18 @@ class SyncService(
                     CoroutineScope(Dispatchers.IO).launch {
                         downloadCVD(logout)
                     }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        downloadVitals(logout)
+                    }
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        getAndInsertSymptoms()
+//                    }
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        getAndInsertDiagnosis()
+//                    }
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        downloadSymDiag(logout)
+//                    }
 //                    CoroutineScope(Dispatchers.IO).launch {
 //                        downloadLabAndMedicalRecordPhoto(logout)
 //                    }
@@ -376,10 +419,21 @@ class SyncService(
     private suspend fun downloadCVD(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(syncRepository.getAndInsertCVD(0), logout)
     }
+    /** Download SympDiag*/
+    private suspend fun downloadSymDiag(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(
+            syncRepository.getAndInsertListSymptomsAndDiagnosisData(0),
+            logout
+        )
+    }
     /** Download Lab And Medical Record Photo */
     private suspend fun downloadLabAndMedicalRecordPhoto(logout: (Boolean, String) -> Unit) {
         coroutineScope {
 
+    /** Download Vitals*/
+    private suspend fun downloadVitals(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.getAndInsertListVitalData(0), logout)
+    }
             awaitAll(async {
                 downloadLabTest(logout)
             }, async {
@@ -451,6 +505,15 @@ class SyncService(
         return uploadCVD(logout)
     }
 
+    private suspend fun updateFhirIdInVital(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        genericRepository.updateVitalFhirId()
+        return uploadVital(logout)
+    }
+    private suspend fun updateFhirIdInSymDiag(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        genericRepository.updateSymDiagFhirId()
+        return uploadSymDiag(logout)
+    }
+
     /** Check Session Expiry and Authorization */
     private fun checkAuthenticationStatus(
         responseMapper: ResponseMapper<Any>,
@@ -463,6 +526,17 @@ class SyncService(
             null
         } else {
             responseMapper
+        }
+    }
+    private suspend fun getAndInsertSymptoms() {
+        if (symptomsAndDiagnosisRepository.getSymptoms().isEmpty()) {
+            symptomsAndDiagnosisRepository.insertSymptoms()
+        }
+
+    }
+    private suspend fun getAndInsertDiagnosis() {
+        if (symptomsAndDiagnosisRepository.getDiagnosis().isEmpty()) {
+            symptomsAndDiagnosisRepository.insertDiagnosis()
         }
     }
 }
