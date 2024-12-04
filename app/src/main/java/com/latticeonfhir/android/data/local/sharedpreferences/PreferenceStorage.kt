@@ -31,6 +31,7 @@ interface PreferenceStorage {
     var lastCVDSyncTime: Long
     var lastVitalSyncTime: Long
 
+    var lastSymptomsSyncTime: Long
 
     fun clear()
 }

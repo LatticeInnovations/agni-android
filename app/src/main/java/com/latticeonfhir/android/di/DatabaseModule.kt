@@ -17,6 +17,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.RiskPredictionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
+import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import dagger.Module
 import dagger.Provides
@@ -127,4 +128,9 @@ object DatabaseModule {
         return fhirAppDatabase.getVitalDao()
     }
 
+    @Singleton
+    @Provides
+    fun provideSymptomsAndDiagnosisDao(fhirAppDatabase: FhirAppDatabase): SymptomsAndDiagnosisDao {
+        return fhirAppDatabase.getSymptomsAndDiagnosisDao()
+    }
 }
