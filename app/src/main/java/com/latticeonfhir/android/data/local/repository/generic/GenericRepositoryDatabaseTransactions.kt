@@ -598,7 +598,7 @@ open class GenericRepositoryDatabaseTransactions(
             genericDao.insertGenericEntity(
                 GenericEntity(
                     id = uuid,
-                    patientId = prescriptionPhotoResponse.patientFhirId,
+                    patientId = prescriptionPhotoResponse.prescriptionId,
                     payload = prescriptionPhotoResponse.toJson(),
                     type = GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE,
                     syncType = SyncType.POST

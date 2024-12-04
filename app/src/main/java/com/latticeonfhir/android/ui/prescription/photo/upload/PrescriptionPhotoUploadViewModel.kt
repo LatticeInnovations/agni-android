@@ -81,74 +81,26 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
             // if appointment is in-progress, fetch prescription entity
             // compress and save the image
             if (compressImage(application, imageUri)) {
-                var files = mutableListOf<File>()
-                var prescriptionUuid = UUIDBuilder.generateUUID()
-                var generatedOn = Date()
-                val prescriptionPhotoResponse =
-                    prescriptionRepository.getPrescriptionPhotoByAppointmentId(
-                        appointmentResponseLocal!!.uuid
-                    ).firstOrNull {
-                        it.generatedOn.time in Date().toTodayStartDate().. Date().toEndOfDay()
-                    }
-                if (prescriptionPhotoResponse != null) {
-                    if (prescriptionPhotoResponse.prescriptionFhirId == null) {
-                        // insert in generic post
-                        prescriptionUuid = prescriptionPhotoResponse.prescriptionId
-                        generatedOn = prescriptionPhotoResponse.generatedOn
-                        files = prescriptionPhotoResponse.prescription.toMutableList()
-                        updateOrInsertNewPrescription(
-                            imageUri,
-                            files,
-                            prescriptionUuid,
-                            generatedOn
-                        )
-                    } else {
-                        // insert generic patch
-                        val filename = imageUri.toFile().name
-                        prescriptionRepository.insertPrescriptionPhotos(
-                            PrescriptionPhotoEntity(
-                                id = filename + prescriptionPhotoResponse.prescriptionId,
-                                prescriptionId = prescriptionPhotoResponse.prescriptionId,
-                                fileName = filename,
-                                note = ""
-                            )
-                        ).also {
-                            insertInFileRepositories(filename)
-                            val updatedPrescriptionPhotoResponse =
-                                prescriptionRepository.getPrescriptionPhotoByAppointmentId(
-                                    appointmentResponseLocal!!.uuid
-                                )[0]
-                            genericRepository.insertOrUpdatePhotoPrescriptionPatch(
-                                prescriptionFhirId = updatedPrescriptionPhotoResponse.prescriptionFhirId!!,
-                                prescriptionPhotoResponse = updatedPrescriptionPhotoResponse
-                            )
+                appointmentRepository.updateAppointment(
+                    appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
+                        .also { updatedAppointmentResponse ->
+                            appointmentResponseLocal = updatedAppointmentResponse
                         }
-                    }
-                } else {
-                    appointmentRepository.updateAppointment(
-                        appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
-                            .also { updatedAppointmentResponse ->
-                                appointmentResponseLocal = updatedAppointmentResponse
-                            }
-                    )
-                    updateOrInsertNewPrescription(imageUri, files, prescriptionUuid, generatedOn)
-                }
+                )
+                insertNewPhotoPrescription(imageUri)
                 inserted(true)
             } else inserted(false)
         }
     }
 
-    private suspend fun updateOrInsertNewPrescription(
-        imageUri: Uri,
-        files: MutableList<File>,
-        prescriptionUuid: String,
-        generatedOn: Date
+    private suspend fun insertNewPhotoPrescription(
+        imageUri: Uri
     ) {
         // insert in db
         val filename = imageUri.toFile().name
-        val listOfFiles = files.apply {
-            add(File(filename, ""))
-        }
+        val listOfFiles = listOf(File(documentFhirId = null, documentUuid = UUIDBuilder.generateUUID(), filename = filename, note = ""))
+        val generatedOn = Date(imageUri.toFile().name.substringBefore(".").toLong())
+        val prescriptionUuid = UUIDBuilder.generateUUID()
         prescriptionRepository.insertPhotoPrescription(
             PrescriptionPhotoResponseLocal(
                 patientId = patient!!.id,

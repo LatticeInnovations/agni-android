@@ -76,7 +76,7 @@ class GenericRepositoryImpl @Inject constructor(
         return genericDao.insertGenericEntity(
             GenericEntity(
                 id = uuid,
-                patientId = prescriptionResponse.patientFhirId,
+                patientId = prescriptionResponse.prescriptionId,
                 payload = prescriptionResponse.toJson(),
                 type = GenericTypeEnum.PRESCRIPTION,
                 syncType = SyncType.POST
@@ -89,7 +89,7 @@ class GenericRepositoryImpl @Inject constructor(
         uuid: String
     ): Long {
         return genericDao.getGenericEntityById(
-            patientId = prescriptionPhotoResponse.patientFhirId,
+            patientId = prescriptionPhotoResponse.prescriptionId,
             genericTypeEnum = GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE,
             syncType = SyncType.POST
         ).let { prescriptionGenericEntity ->

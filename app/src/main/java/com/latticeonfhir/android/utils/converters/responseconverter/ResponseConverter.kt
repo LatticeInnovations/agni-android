@@ -297,10 +297,11 @@ internal suspend fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(m
 internal fun PrescriptionPhotoResponse.toListOfPrescriptionPhotoEntity(): List<PrescriptionPhotoEntity> {
     return prescription.map { prescriptionItem ->
         PrescriptionPhotoEntity(
-            id = prescriptionItem.filename + prescriptionId,
+            id = prescriptionItem.documentUuid,
             fileName = prescriptionItem.filename,
             prescriptionId = prescriptionId,
-            note = prescriptionItem.note
+            note = prescriptionItem.note,
+            documentFhirId = prescriptionItem.documentFhirId
         )
     }
 }
@@ -325,10 +326,11 @@ internal fun PrescriptionResponseLocal.toListOfPrescriptionDirectionsEntity(): L
 internal fun PrescriptionPhotoResponseLocal.toListOfPrescriptionPhotoEntity(): List<PrescriptionPhotoEntity> {
     return prescription.map { prescriptionItem ->
         PrescriptionPhotoEntity(
-            id = prescriptionItem.filename + prescriptionId,
+            id = prescriptionItem.documentUuid,
             fileName = prescriptionItem.filename,
             prescriptionId = prescriptionId,
-            note = prescriptionItem.note
+            note = prescriptionItem.note,
+            documentFhirId = prescriptionItem.documentFhirId
         )
     }
 }
@@ -514,7 +516,11 @@ internal suspend fun PrescriptionAndFileEntity.toPrescriptionPhotoResponse(
         generatedOn = prescriptionEntity.prescriptionDate,
         prescriptionId = prescriptionEntity.id,
         prescription = prescriptionPhotoEntity.map { prescriptionPhotoEntity ->
-            File(prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note ?: "")
+            File(
+                documentUuid = prescriptionPhotoEntity.id,
+                documentFhirId = prescriptionPhotoEntity.documentFhirId,
+                filename = prescriptionPhotoEntity.fileName,
+                note = prescriptionPhotoEntity.note ?: "")
         },
         appointmentUuid = prescriptionEntity.appointmentId,
         prescriptionFhirId = prescriptionEntity.prescriptionFhirId
@@ -525,6 +531,8 @@ internal suspend fun PrescriptionAndFileEntity.toPrescriptionPhotoResponse(
 internal fun PrescriptionAndFileEntity.toFilesList(): List<File> {
     return prescriptionPhotoEntity.map {
         File(
+            documentUuid = it.id,
+            documentFhirId = it.documentFhirId,
             filename = it.fileName,
             note = it.note ?: ""
         )
