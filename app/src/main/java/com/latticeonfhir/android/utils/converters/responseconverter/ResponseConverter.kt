@@ -275,7 +275,7 @@ internal fun PrescriptionPhotoResponseLocal.toPrescriptionEntity(): Prescription
 internal suspend fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(medicationDao: MedicationDao): List<PrescriptionDirectionsEntity> {
     return prescription.map { medication ->
         PrescriptionDirectionsEntity(
-            id = medication.medFhirId + prescriptionId,
+            id = medication.medReqUuid,
             medFhirId = medication.medFhirId,
             qtyPerDose = medication.qtyPerDose,
             frequency = medication.frequency,
@@ -308,7 +308,7 @@ internal fun PrescriptionPhotoResponse.toListOfPrescriptionPhotoEntity(): List<P
 internal fun PrescriptionResponseLocal.toListOfPrescriptionDirectionsEntity(): List<PrescriptionDirectionsEntity> {
     return prescription.map { medication ->
         PrescriptionDirectionsEntity(
-            id = medication.medFhirId + prescriptionId,
+            id = medication.medReqUuid,
             medFhirId = medication.medFhirId,
             qtyPerDose = medication.qtyPerDose,
             frequency = medication.frequency,

@@ -71,7 +71,13 @@ class PatientLandingScreenViewModel @Inject constructor(
                         logoutReason = errorMsg
                     }
                 }
-                syncService.downloadPrescription(patientFhirId) { isErrorReceived, errorMsg ->
+                syncService.downloadFormPrescription(patientFhirId) { isErrorReceived, errorMsg ->
+                    if (isErrorReceived) {
+                        logoutUser = true
+                        logoutReason = errorMsg
+                    }
+                }
+                syncService.downloadPhotoPrescription(patientFhirId) { isErrorReceived, errorMsg ->
                     if (isErrorReceived) {
                         logoutUser = true
                         logoutReason = errorMsg
