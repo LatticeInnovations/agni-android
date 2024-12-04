@@ -66,4 +66,8 @@ interface PrescriptionDao {
     @Transaction
     @Query("UPDATE PrescriptionDirectionsEntity SET medReqFhirId = :medReqFhirId WHERE id = :medReqUuid")
     suspend fun updateMedReqFhirId(medReqUuid: String, medReqFhirId: String)
+
+    @Transaction
+    @Query("UPDATE PrescriptionPhotoEntity SET documentFhirId = :documentFhirId WHERE id = :documentUuid")
+    suspend fun updateDocumentFhirId(documentUuid: String, documentFhirId: String)
 }
