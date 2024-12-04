@@ -162,22 +162,22 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
         added: () -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val dateOfFile = Date(selectedFile!!.filename.substringBefore(".").toLong())
-            val prescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
-                patient!!.id,
-                dateOfFile.toTodayStartDate(),
-                dateOfFile.toEndOfDay()
-            )
-            prescriptionRepository.insertPrescriptionPhotos(
-                PrescriptionPhotoEntity(
-                    id = selectedFile!!.filename + prescriptionPhotoResponse.prescriptionId,
-                    prescriptionId = prescriptionPhotoResponse.prescriptionId,
-                    fileName = selectedFile!!.filename,
-                    note = note
-                )
-            )
-            updateInGeneric(dateOfFile)
-            getPastPrescription()
+//            val dateOfFile = Date(selectedFile!!.filename.substringBefore(".").toLong())
+//            val prescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
+//                patient!!.id,
+//                dateOfFile.toTodayStartDate(),
+//                dateOfFile.toEndOfDay()
+//            )
+//            prescriptionRepository.insertPrescriptionPhotos(
+//                PrescriptionPhotoEntity(
+//                    id = selectedFile!!.filename + prescriptionPhotoResponse.prescriptionId,
+//                    prescriptionId = prescriptionPhotoResponse.prescriptionId,
+//                    fileName = selectedFile!!.filename,
+//                    note = note
+//                )
+//            )
+//            updateInGeneric(dateOfFile)
+//            getPastPrescription()
             added()
         }
     }
@@ -186,23 +186,23 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
         deleted: () -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val dateOfFile = Date(selectedFile!!.filename.substringBefore(".").toLong())
-            val prescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
-                patient!!.id,
-                dateOfFile.toTodayStartDate(),
-                dateOfFile.toEndOfDay()
-            )
-            // delete from local db
-            prescriptionRepository.deletePrescriptionPhotos(
-                PrescriptionPhotoEntity(
-                    id = selectedFile!!.filename + prescriptionPhotoResponse.prescriptionId,
-                    prescriptionId = prescriptionPhotoResponse.prescriptionId,
-                    fileName = selectedFile!!.filename,
-                    note = selectedFile!!.note
-                )
-            )
-            updateInGeneric(dateOfFile)
-            deletedPhotos.add(selectedFile!!)
+//            val dateOfFile = Date(selectedFile!!.filename.substringBefore(".").toLong())
+//            val prescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
+//                patient!!.id,
+//                dateOfFile.toTodayStartDate(),
+//                dateOfFile.toEndOfDay()
+//            )
+//            // delete from local db
+//            prescriptionRepository.deletePrescriptionPhotos(
+//                PrescriptionPhotoEntity(
+//                    id = selectedFile!!.filename + prescriptionPhotoResponse.prescriptionId,
+//                    prescriptionId = prescriptionPhotoResponse.prescriptionId,
+//                    fileName = selectedFile!!.filename,
+//                    note = selectedFile!!.note
+//                )
+//            )
+//            updateInGeneric(dateOfFile)
+//            deletedPhotos.add(selectedFile!!)
             deleted()
         }
     }
