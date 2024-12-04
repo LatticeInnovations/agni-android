@@ -347,7 +347,7 @@ class SyncService(
     }
 
     /** Download Photo Prescription*/
-    private suspend fun downloadPhotoPrescription(
+    internal suspend fun downloadPhotoPrescription(
         patientId: String?,
         logout: (Boolean, String) -> Unit
     ): ResponseMapper<Any>? {
