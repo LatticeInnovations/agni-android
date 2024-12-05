@@ -4,8 +4,8 @@ import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.AppointmentPatchRequest
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
+import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -722,7 +722,7 @@ open class GenericRepositoryDatabaseTransactions(
 
     protected suspend fun insertLabTestPhotoGenericEntity(
         map: Map<String, Any>,
-        patientId: String,
+        labTestId: String,
         photoGenericEntity: GenericEntity?,
         uuid: String,
         typeEnum: GenericTypeEnum
@@ -735,7 +735,7 @@ open class GenericRepositoryDatabaseTransactions(
             genericDao.insertGenericEntity(
                 GenericEntity(
                     id = uuid,
-                    patientId = patientId,
+                    patientId = labTestId,
                     payload = map.toJson(),
                     type = typeEnum,
                     syncType = SyncType.POST

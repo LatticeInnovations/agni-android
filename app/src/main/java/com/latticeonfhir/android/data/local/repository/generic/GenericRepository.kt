@@ -124,6 +124,7 @@ interface GenericRepository {
         map: Map<String, Any>,
         patientId: String,
         uuid: String = UUIDBuilder.generateUUID(),
+        labTestId:String,
         typeEnum: GenericTypeEnum
     ): Long
 

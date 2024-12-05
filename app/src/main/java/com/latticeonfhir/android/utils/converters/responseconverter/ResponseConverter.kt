@@ -3,9 +3,9 @@ package com.latticeonfhir.android.utils.converters.responseconverter
 import com.latticeonfhir.android.data.local.enums.PrescriptionType
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.data.local.model.prescription.MedicationLocal
 import com.latticeonfhir.android.data.local.model.labtest.LabTestLocal
 import com.latticeonfhir.android.data.local.model.labtest.LabTestPhotoResponseLocal
+import com.latticeonfhir.android.data.local.model.prescription.MedicationLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
@@ -859,12 +859,12 @@ internal suspend fun LabTestAndFileEntity.toLabTestPhotoResponseLocal(
         patientId = labTestAndMedEntity.patientId,
         labTestFhirId = labTestAndMedEntity.labTestFhirId,
         createdOn = labTestAndMedEntity.createdOn,
-        labTests = labTestAndMedPhotoEntity.map { prescriptionPhotoEntity ->
+        labTests = labTestAndMedPhotoEntity.map { labTestAndMedPhotoEntity ->
             File(
-                "",
-                "",
-                prescriptionPhotoEntity.fileName,
-                prescriptionPhotoEntity.note ?: ""
+                labTestAndMedPhotoEntity.id,
+                labTestAndMedPhotoEntity.fhirId,
+                labTestAndMedPhotoEntity.fileName,
+                labTestAndMedPhotoEntity.note ?: ""
             )
         })
 }
@@ -908,10 +908,9 @@ internal fun LabTestResponse.toListOfLabTestPhotoEntity(
 
                 list.add(
                     LabTestAndMedPhotoEntity(
-                        id = UUID.randomUUID().toString(),
+                        id = it.labDocumentUuid,
                         labTestId = diagnosticReport.diagnosticUuid,
-                        fileName = it.filename,
-                        note = it.note
+                        fileName = it.filename, note = it.note, fhirId = it.labDocumentfhirId
                     )
                 )
                 fileNameSet.add(it.filename)
@@ -932,10 +931,9 @@ internal fun MedicalRecordResponse.toListOfLabTestAndMedPhotoEntity(
             if (!fileNameSet.contains(it.filename)) { // Check if fileName is not already in the set
                 list.add(
                     LabTestAndMedPhotoEntity(
-                        id = UUID.randomUUID().toString(),
+                        id = it.medicalDocumentUuid,
                         labTestId = diagnosticReport.medicalReportUuid,
-                        fileName = it.filename,
-                        note = it.note
+                        fileName = it.filename, note = it.note, fhirId = it.medicalDocumentfhirId
                     )
                 )
                 fileNameSet.add(it.filename) // Add the fileName to the set
@@ -959,10 +957,9 @@ internal fun LabTestPhotoResponseLocal.toLabTestAndMedEntity(type: String): LabT
 internal fun LabTestPhotoResponseLocal.toListOfLabTestPhotoEntity(): List<LabTestAndMedPhotoEntity> {
     return labTests.map { labTestItem ->
         LabTestAndMedPhotoEntity(
-            id = labTestItem.filename + labTestId,
+            id = labTestItem.documentUuid,
             fileName = labTestItem.filename,
-            labTestId = labTestId,
-            note = labTestItem.note
+            labTestId = labTestId, note = labTestItem.note, fhirId = labTestItem.documentFhirId
         )
     }
 }

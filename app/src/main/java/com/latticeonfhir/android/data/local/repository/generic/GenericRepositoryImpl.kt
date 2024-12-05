@@ -19,8 +19,8 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -347,16 +347,18 @@ class GenericRepositoryImpl @Inject constructor(
         map: Map<String, Any>,
         patientId: String,
         uuid: String,
+        labTestId:String,
         typeEnum: GenericTypeEnum
     ): Long {
+        Timber.d("LAB: $labTestId")
         return genericDao.getGenericEntityById(
-            patientId = map[LabTestAndMedConstants.PATIENT_ID].toString(),
+            patientId = labTestId,
             genericTypeEnum = typeEnum,
             syncType = SyncType.POST
         ).let { genericEntity ->
             insertLabTestPhotoGenericEntity(
                 map = map,
-                patientId = patientId,
+                labTestId = labTestId,
                 photoGenericEntity = genericEntity,
                 uuid = uuid, typeEnum = typeEnum
             )
