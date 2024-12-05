@@ -164,28 +164,13 @@ fun PatientLandingScreen(
             },
             content = {
                 Box(modifier = Modifier.padding(it)) {
-                    Column(modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                        .verticalScroll(
-                            rememberScrollState()
-                        )) {
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.appointments),
-                            R.drawable.event_note_icon,
-                            stringResource(
-                                id = R.string.appointments_scheduled,
-                                viewModel.appointmentsCount,
-                                viewModel.pastAppointmentsCount
-                            ),
-                            onClick = {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "patient",
-                                    viewModel.patient
-                                )
-                                navController.navigate(Screen.Appointments.route)
-                            }
-                        )
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .verticalScroll(
+                                rememberScrollState()
+                            )
+                    ) {
                         CardComposable(
                             viewModel,
                             stringResource(id = R.string.household_members),
@@ -203,22 +188,23 @@ fun PatientLandingScreen(
                                 navController.navigate(Screen.HouseholdMembersScreen.route)
                             }
                         )
-                        /***** Feature Hidden *****/
                         CardComposable(
                             viewModel,
-                            stringResource(id = R.string.prescriptions),
-                            R.drawable.prescriptions_icon,
-                            null,
+                            stringResource(id = R.string.appointments),
+                            R.drawable.event_note_icon,
+                            stringResource(
+                                id = R.string.appointments_scheduled,
+                                viewModel.appointmentsCount,
+                                viewModel.pastAppointmentsCount
+                            ),
                             onClick = {
                                 navController.currentBackStackEntry?.savedStateHandle?.set(
                                     "patient",
                                     viewModel.patient
                                 )
-                                navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
+                                navController.navigate(Screen.Appointments.route)
                             }
                         )
-
-
                         CardComposable(
                             viewModel,
                             stringResource(id = R.string.cvd_risk_assessment),
@@ -274,6 +260,19 @@ fun PatientLandingScreen(
                                     viewModel.patient
                                 )
                                 navController.navigate(Screen.SymptomsAndDiagnosisScreen.route)
+                            }
+                        )
+                        CardComposable(
+                            viewModel,
+                            stringResource(id = R.string.prescriptions),
+                            R.drawable.prescriptions_icon,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    "patient",
+                                    viewModel.patient
+                                )
+                                navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
                             }
                         )
                         CardComposable(
