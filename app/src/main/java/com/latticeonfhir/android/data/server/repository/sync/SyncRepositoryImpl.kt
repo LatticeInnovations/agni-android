@@ -2,6 +2,7 @@ package com.latticeonfhir.android.data.server.repository.sync
 
 import com.google.gson.internal.LinkedTreeMap
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
+import com.latticeonfhir.android.data.local.enums.PhotoUploadTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
@@ -9,6 +10,7 @@ import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepo
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
+import com.latticeonfhir.android.data.local.roomdb.dao.LabTestAndMedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
@@ -18,6 +20,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.server.api.CVDApiService
+import com.latticeonfhir.android.data.server.api.LabTestAndMedRecordService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
@@ -40,6 +43,8 @@ import com.latticeonfhir.android.data.server.constants.QueryParameters.PATIENT_I
 import com.latticeonfhir.android.data.server.constants.QueryParameters.SORT
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
+import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
@@ -71,6 +76,7 @@ class SyncRepositoryImpl @Inject constructor(
     private val cvdApiService: CVDApiService,
     private val vitalApiService: VitalApiService,
     private val symptomsAndDiagnosisService: SymptomsAndDiagnosisService,
+    private val labTestAndMedRecordService: LabTestAndMedRecordService,
     patientDao: PatientDao,
     private val genericDao: GenericDao,
     private val preferenceRepository: PreferenceRepository,
@@ -83,6 +89,7 @@ class SyncRepositoryImpl @Inject constructor(
     cvdDao: CVDDao,
     vitalDao: VitalDao,
     symptomsAndDiagnosisDao: SymptomsAndDiagnosisDao,
+    labTestAndMedDao: LabTestAndMedDao
 ) : SyncRepository, SyncRepositoryDatabaseTransactions(
     patientApiService,
     patientDao,
@@ -95,7 +102,8 @@ class SyncRepositoryImpl @Inject constructor(
     patientLastUpdatedDao,
     cvdDao,
     vitalDao,
-    symptomsAndDiagnosisDao
+    symptomsAndDiagnosisDao,
+    labTestAndMedDao,
 ) {
 
     override suspend fun getAndInsertListPatientData(
@@ -471,6 +479,77 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getAndInsertListLabTestData(offset: Int): ResponseMapper<List<LabTestResponse>> {
+        val map = mutableMapOf<String, String>()
+        map[COUNT] = COUNT_VALUE.toString()
+        map[OFFSET] = offset.toString()
+        map[SORT] = "-$ID"
+        if (preferenceRepository.getLastSyncLabTest() != 0L) map[LAST_UPDATED] = String.format(
+            GREATER_THAN_BUILDER, preferenceRepository.getLastSyncLabTest().toTimeStampDate()
+        )
+
+        ApiResponseConverter.convert(
+            labTestAndMedRecordService.getListData(
+                EndPoints.LAB_TEST, map
+            ), true
+        ).run {
+            return when (this) {
+                is ApiContinueResponse -> {
+                    //Insert Patient
+                    insertLabTest(body, PhotoUploadTypeEnum.LAB_TEST.value)
+                    //Call for next batch data
+                    getAndInsertListLabTestData(offset + COUNT_VALUE)
+                }
+
+                is ApiEndResponse -> {
+                    //Set Last Update Time
+                    preferenceRepository.setLastSyncLabTest(Date().time)
+                    //Insert Patient
+                    insertLabTest(body, PhotoUploadTypeEnum.LAB_TEST.value)
+                    this
+                }
+
+                else -> this
+            }
+        }
+    }
+
+    override suspend fun getAndInsertListMedicalRecordData(offset: Int): ResponseMapper<List<MedicalRecordResponse>> {
+        val map = mutableMapOf<String, String>()
+        map[COUNT] = COUNT_VALUE.toString()
+        map[OFFSET] = offset.toString()
+        map[SORT] = "-$ID"
+        if (preferenceRepository.getLastSyncMedicalRecord() != 0L) map[LAST_UPDATED] = String.format(
+            GREATER_THAN_BUILDER, preferenceRepository.getLastSyncMedicalRecord().toTimeStampDate()
+        )
+
+        ApiResponseConverter.convert(
+            labTestAndMedRecordService.getListMedicalRecordData(
+                EndPoints.MEDICAL_RECORD, map
+            ), true
+        ).run {
+            return when (this) {
+                is ApiContinueResponse -> {
+                    //Insert Patient
+                    insertMedicalRecord(body, PhotoUploadTypeEnum.MEDICAL_RECORD.value)
+                    //Call for next batch data
+                    getAndInsertListMedicalRecordData(offset + COUNT_VALUE)
+                }
+
+                is ApiEndResponse -> {
+                    //Set Last Update Time
+                    preferenceRepository.setLastSyncMedicalRecord(Date().time)
+                    //Insert Patient
+                    insertMedicalRecord(body, PhotoUploadTypeEnum.MEDICAL_RECORD.value)
+                    this
+                }
+
+                else -> this
+            }
+        }
+
+    }
+
 
 
     override suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>> {
@@ -708,6 +787,64 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
 
+    override suspend fun sendLabTestPostData(
+    ): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.LAB_TEST, syncType = SyncType.POST
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else ApiResponseConverter.convert(
+                labTestAndMedRecordService.createData(EndPoints.LAB_TEST, listOfGenericEntity.map {
+                    it.payload.fromJson<MutableMap<String, Any>>()
+                })
+            ).run {
+                when (this) {
+                    is ApiEndResponse -> {
+                        insertLabOrMedFhirId(
+                            listOfGenericEntity, body
+                        ).let { deletedRows ->
+                            if (deletedRows > 0) sendLabTestPostData(
+                            ) else this
+                        }
+                    }
+
+                    else -> this
+                }
+            }
+        }
+
+    }
+
+    override suspend fun sendMedRecordPostData(
+    ): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.MEDICAL_RECORD, syncType = SyncType.POST
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else ApiResponseConverter.convert(
+                labTestAndMedRecordService.createData(
+                    EndPoints.MEDICAL_RECORD,
+                    listOfGenericEntity.map {
+                        it.payload.fromJson()
+                    })
+            ).run {
+                when (this) {
+                    is ApiEndResponse -> {
+                        insertLabOrMedFhirId(
+                            listOfGenericEntity, body
+                        ).let { deletedRows ->
+                            if (deletedRows > 0) sendMedRecordPostData(
+                            ) else this
+                        }
+                    }
+
+                    else -> this
+                }
+            }
+        }
+
+    }
+
     override suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
             genericTypeEnum = GenericTypeEnum.PATIENT, syncType = SyncType.PATCH
@@ -828,6 +965,62 @@ class SyncRepositoryImpl @Inject constructor(
                 }
             }
         }
+    }
+
+    override suspend fun sendLabTestPatchData(
+    ): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.LAB_TEST, syncType = SyncType.PATCH
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    labTestAndMedRecordService.patchListOfChanges(
+                        EndPoints.LAB_TEST,
+                        listOfGenericEntity.map { it.payload.fromJson() })
+                ).run {
+                    when (this) {
+                        is ApiEndResponse -> {
+                            deleteGenericEntityData(listOfGenericEntity).let {
+                                if (it > 0) sendLabTestPatchData(
+                                ) else this
+                            }
+                        }
+
+                        else -> this
+                    }
+                }
+            }
+        }
+
+    }
+
+    override suspend fun sendMedRecordPatchData(
+    ): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.MEDICAL_RECORD, syncType = SyncType.PATCH
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    labTestAndMedRecordService.patchListOfChanges(
+                        EndPoints.MEDICAL_RECORD,
+                        listOfGenericEntity.map { it.payload.fromJson() })
+                ).run {
+                    when (this) {
+                        is ApiEndResponse -> {
+                            deleteGenericEntityData(listOfGenericEntity).let {
+                                if (it > 0) sendMedRecordPatchData(
+                                ) else this
+                            }
+                        }
+
+                        else -> this
+                    }
+                }
+            }
+        }
+
     }
     override suspend fun sendVitalPatchData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(

@@ -86,6 +86,16 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         0L
     )
 
+    override var lastLabTestSyncTime by LongPreference(
+        sharedPreferences,
+        PREF_LAST_LAB_TEST_SYNC_TIME,
+        0L
+    )
+    override var lastMedicalRecordSyncTime by LongPreference(
+        sharedPreferences,
+        PREF_LAST_MEDICAL_RECORD_SYNC_TIME,
+        0L
+    )
     override fun clear() {
         sharedPreferences.edit {
             clear()
@@ -122,6 +132,7 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         const val PREF_LAST_CVD_SYNC_TIME = "pref_last_cvd_sync_time"
         const val PREF_LAST_VITAL_SYNC_TIME = "pref_last_vital_sync_time"
         const val PREF_LAST_SYM_DIAG_SYNC_TIME = "pref_last_sym_diag_sync_time"
-
+        const val PREF_LAST_LAB_TEST_SYNC_TIME = "pref_last_lab_test_sync_time"
+        const val PREF_LAST_MEDICAL_RECORD_SYNC_TIME = "pref_last_medical_record_sync_time"
     }
 }
