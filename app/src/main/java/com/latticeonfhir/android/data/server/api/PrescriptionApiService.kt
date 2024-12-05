@@ -8,6 +8,7 @@ import com.latticeonfhir.android.data.server.model.prescription.photo.Prescripti
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -35,6 +36,9 @@ interface PrescriptionApiService {
     @GET("sct/medTime")
     suspend fun getMedicineTime(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<MedicineTimeResponse>>>
 
-    @PATCH("sync/MedicationRequest")
+    @PATCH("sync/DocumentReference")
     suspend fun patchListOfChanges(@Body patchLogs: List<Any>): Response<BaseResponse<List<CreateResponse>>>
+
+    @DELETE("sync/PrescriptionFile")
+    suspend fun deletePrescriptionPhoto(@Body patchLogs: List<Any>): Response<BaseResponse<List<CreateResponse>>>
 }

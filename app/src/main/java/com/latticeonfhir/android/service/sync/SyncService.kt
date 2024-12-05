@@ -57,6 +57,9 @@ class SyncService(
                         patchPrescription(logout)
                     },
                     async {
+                        deletePhotoPrescription(logout)
+                    },
+                    async {
                         downloadMedicationTiming(logout)
                     },
                     async {
@@ -271,6 +274,11 @@ class SyncService(
     private suspend fun patchVital(logout: (Boolean, String) -> Unit) {
 
         checkAuthenticationStatus(syncRepository.sendVitalPatchData(), logout)
+    }
+
+    /** Delete Photo Prescription */
+    private suspend fun deletePhotoPrescription(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.deletePrescriptionPhoto(), logout)
     }
 
     /**
