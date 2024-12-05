@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.local.enums.IdentifierCodeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
+import com.latticeonfhir.android.data.local.roomdb.dao.DispenseDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.LabTestAndMedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
@@ -15,6 +16,8 @@ import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseDataEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
@@ -24,6 +27,8 @@ import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEnt
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.dispense.response.DispenseData
+import com.latticeonfhir.android.data.server.model.dispense.response.MedicineDispenseResponse
 import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
 import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
@@ -40,14 +45,17 @@ import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.Symptoms
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toCVDEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toDispensePrescriptionEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toLabTestEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toLabTestPhotoResponseLocal
+import com.latticeonfhir.android.utils.converters.responseconverter.toListOfDispenseDataEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfLabTestAndMedPhotoEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfLabTestPhotoEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicineDirectionsEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicineDispenseListEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionDirectionsEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionPhotoEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toMedRecordPhotoResponseLocal
@@ -76,7 +84,8 @@ open class SyncRepositoryDatabaseTransactions(
     private val cvdDao: CVDDao,
     private val vitalDao: VitalDao,
     private val symptomsAndDiagnosisDao: SymptomsAndDiagnosisDao,
-    private val labTestAndMedDao: LabTestAndMedDao
+    private val labTestAndMedDao: LabTestAndMedDao,
+    private val dispenseDao: DispenseDao
 ) {
 
 
@@ -109,6 +118,20 @@ open class SyncRepositoryDatabaseTransactions(
                         patientId = patientResponse.id,
                         payload = patientResponse.fhirId,
                         type = GenericTypeEnum.FHIR_IDS_PRESCRIPTION_PHOTO,
+                        syncType = SyncType.POST
+                    ),
+                    GenericEntity(
+                        id = UUID.randomUUID().toString(),
+                        patientId = patientResponse.id,
+                        payload = patientResponse.fhirId,
+                        type = GenericTypeEnum.FHIR_IDS_DISPENSE,
+                        syncType = SyncType.POST
+                    ),
+                    GenericEntity(
+                        id = UUID.randomUUID().toString(),
+                        patientId = patientResponse.id,
+                        payload = patientResponse.fhirId,
+                        type = GenericTypeEnum.FHIR_IDS_OTC,
                         syncType = SyncType.POST
                     )
                 )
@@ -523,5 +546,86 @@ open class SyncRepositoryDatabaseTransactions(
             )
         }
         return deleteGenericEntityData(listOfGenericEntities)
+    }
+
+
+    protected suspend fun insertDispenseFhirId(
+        listOfGenericEntities: List<GenericEntity>,
+        body: List<CreateResponse>
+    ): Int {
+        val idsToDelete = mutableSetOf<String>()
+        idsToDelete.addAll(listOfGenericEntities.map { genericEntity -> genericEntity.id })
+        body.forEach { createResponse ->
+            if (createResponse.error == null) {
+                dispenseDao.updateDispenseFhirId(
+                    createResponse.id!!, createResponse.fhirId!!
+                )
+                createResponse.medicineDispensedList!!.forEach { medicineResponse ->
+                    dispenseDao.updateMedicineDispenseFhirId(
+                        medicineResponse.medDispenseUuid,
+                        medicineResponse.medDispenseFhirId
+                    )
+                }
+            } else {
+                idsToDelete.remove(createResponse.id)
+            }
+        }
+        return deleteGenericEntityByListOfIds(idsToDelete.toList())
+    }
+
+    protected suspend fun insertDispense(body: List<MedicineDispenseResponse>) {
+        dispenseDao.insertPrescriptionDispenseData(*body.map { medDispenseResponse ->
+            medDispenseResponse.toDispensePrescriptionEntity(
+                patientDao,
+                prescriptionDao
+            )
+        }.toTypedArray())
+
+        val dispenseRecords = mutableListOf<DispenseDataEntity>()
+        body.forEach { medDispenseResponse ->
+            dispenseRecords.addAll(
+                medDispenseResponse.dispenseData.map { dispenseData ->
+                    dispenseData.toListOfDispenseDataEntity(
+                        patientDao, prescriptionDao, appointmentDao, medDispenseResponse.prescriptionFhirId
+                    )
+                }
+            )
+        }
+        dispenseDao.insertDispenseDataEntity(
+            *dispenseRecords.toTypedArray()
+        )
+
+        val dispensedMedicationList = mutableListOf<MedicineDispenseListEntity>()
+        body.forEach { medDispenseResponse ->
+            medDispenseResponse.dispenseData.forEach { dispenseData ->
+                dispensedMedicationList.addAll(
+                    dispenseData.toListOfMedicineDispenseListEntity(
+                        patientDao, dispenseDao
+                    )
+                )
+            }
+        }
+        dispenseDao.insertMedicineDispenseDataList(
+            *dispensedMedicationList.toTypedArray()
+        )
+    }
+
+    protected suspend fun insertOTC(body: List<DispenseData>) {
+        dispenseDao.insertDispenseDataEntity(
+            *body.map { it.toListOfDispenseDataEntity(patientDao, prescriptionDao, appointmentDao, null) }
+                .toTypedArray()
+        )
+
+        val dispensedMedicationList = mutableListOf<MedicineDispenseListEntity>()
+        body.forEach { dispenseData ->
+            dispensedMedicationList.addAll(
+                dispenseData.toListOfMedicineDispenseListEntity(
+                    patientDao, dispenseDao
+                )
+            )
+        }
+        dispenseDao.insertMedicineDispenseDataList(
+            *dispensedMedicationList.toTypedArray()
+        )
     }
 }
