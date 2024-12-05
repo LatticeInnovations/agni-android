@@ -3,6 +3,7 @@ package com.latticeonfhir.android.data.local.repository.generic
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
+import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -18,6 +19,7 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import javax.inject.Inject
 
@@ -150,6 +152,25 @@ class GenericRepositoryImpl @Inject constructor(
                 updateVitalFhirIdInGenericEntity(vitalGenericEntity)
             }
     }
+    override suspend fun updateSymDiagFhirId() {
+        genericDao.getNotSyncedData(GenericTypeEnum.SYMPTOMS_DIAGNOSIS)
+            .forEach { symDiagGenericEntity ->
+                updateSymDiagFhirIdInGenericEntity(symDiagGenericEntity)
+            }
+    }
+    override suspend fun updateLabTestFhirId() {
+        genericDao.getNotSyncedData(GenericTypeEnum.LAB_TEST)
+            .forEach { genericEntity ->
+                updateLabTestFhirIdInGenericEntity(genericEntity)
+            }
+    }
+
+    override suspend fun updateMedRecordFhirId() {
+        genericDao.getNotSyncedData(GenericTypeEnum.MEDICAL_RECORD)
+            .forEach { genericEntity ->
+                updateMedicalRecordFhirIdInGenericEntity(genericEntity)
+            }
+    }
 
     override suspend fun insertAppointment(
         appointmentResponse: AppointmentResponse,
@@ -174,6 +195,15 @@ class GenericRepositoryImpl @Inject constructor(
             syncType = SyncType.POST
         ).let { cvdGenericEntity ->
             insertCVDGenericEntity(cvdGenericEntity, cvdResponse, uuid)
+        }
+    }
+    override suspend fun insertSymDiag(local: SymptomsAndDiagnosisData, uuid: String): Long {
+        return genericDao.getGenericEntityById(
+            patientId = local.symDiagUuid,
+            genericTypeEnum = GenericTypeEnum.SYMPTOMS_DIAGNOSIS,
+            syncType = SyncType.POST
+        ).let {
+            insertSymDiagGenericEntity(local, it, uuid)
         }
     }
 
@@ -252,6 +282,19 @@ class GenericRepositoryImpl @Inject constructor(
             insertOrUpdateCVDGenericEntityPatch(genericEntities, cvdFhirId, map, uuid)
         }
     }
+    override suspend fun insertOrUpdateSymDiagPatchEntity(
+        fhirId: String,
+        map: Map<String, Any>,
+        uuid: String
+    ): Long {
+        return genericDao.getGenericEntityById(
+            patientId = fhirId,
+            genericTypeEnum = GenericTypeEnum.SYMPTOMS_DIAGNOSIS,
+            syncType = SyncType.PATCH
+        ).let { genericEntity ->
+            insertSymDiagGenericEntityPatch(genericEntity, fhirId, map, uuid)
+        }
+    }
 
     override suspend fun insertOrUpdateVitalPatchEntity(
         vitalFhirId: String, map: Map<String, Any>, uuid: String
@@ -279,7 +322,7 @@ class GenericRepositoryImpl @Inject constructor(
             )
         }
     }
-
+    
     override suspend fun removeGenericRecord(id: String): Int {
         return genericDao.removeGenericRecord(id)
     }
@@ -298,5 +341,47 @@ class GenericRepositoryImpl @Inject constructor(
                 syncType = syncType
             )
         )[0]
+    }
+
+    override suspend fun insertPhotoLabTestAndMedRecord(
+        map: Map<String, Any>,
+        patientId: String,
+        uuid: String,
+        typeEnum: GenericTypeEnum
+    ): Long {
+        return genericDao.getGenericEntityById(
+            patientId = map[LabTestAndMedConstants.PATIENT_ID].toString(),
+            genericTypeEnum = typeEnum,
+            syncType = SyncType.POST
+        ).let { genericEntity ->
+            insertLabTestPhotoGenericEntity(
+                map = map,
+                patientId = patientId,
+                photoGenericEntity = genericEntity,
+                uuid = uuid, typeEnum = typeEnum
+            )
+        }
+    }
+    
+    override suspend fun insertOrUpdatePhotoLabTestAndMedPatch(
+        fhirId: String,
+        map: Map<String, Any>,
+        uuid: String,
+        typeEnum: GenericTypeEnum
+    ): Long {
+        return genericDao.getGenericEntityById(
+            fhirId,
+            typeEnum,
+            SyncType.PATCH
+        ).let { prescriptionGenericEntity ->
+            insertOrUpdatePhotoLabTestGenericEntityPatch(
+                prescriptionFhirId = fhirId,
+                prescriptionGenericEntity = prescriptionGenericEntity,
+                map = map,
+                uuid = uuid,
+                typeEnum = typeEnum
+            )
+        }
+
     }
 }

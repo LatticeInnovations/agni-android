@@ -5,12 +5,15 @@ import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.AppointmentPatchRequest
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
+import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestRequest
+import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordRequest
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoPatch
@@ -237,6 +240,28 @@ open class GenericRepositoryDatabaseTransactions(
         }
     }
 
+    protected suspend fun insertSymDiagGenericEntity(
+        local: SymptomsAndDiagnosisData,
+        genericEntity: GenericEntity?,
+        uuid: String
+    ): Long {
+        return if (genericEntity != null) {
+            genericDao.insertGenericEntity(
+                genericEntity.copy(payload = local.toJson())
+            )[0]
+        } else {
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid, patientId = local.symDiagUuid,
+                    payload = local.toJson(),
+                    type = GenericTypeEnum.SYMPTOMS_DIAGNOSIS,
+                    syncType = SyncType.POST
+                )
+            )[0]
+        }
+    }
+
+
     protected suspend fun updateAppointmentFhirIdInGenericEntity(appointmentGenericEntity: GenericEntity) {
         val existingMap = appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
             .mapToObject(AppointmentResponse::class.java)
@@ -290,6 +315,65 @@ open class GenericRepositoryDatabaseTransactions(
             )
         }
     }
+    protected suspend fun updateSymDiagFhirIdInGenericEntity(genericEntity: GenericEntity) {
+        val existingMap =
+            genericEntity.payload.fromJson<MutableMap<String, Any>>()
+                .mapToObject(SymptomsAndDiagnosisData::class.java)
+        if (existingMap != null) {
+            genericDao.insertGenericEntity(
+                genericEntity.copy(
+                    payload = existingMap.copy(
+                        patientId = if (!existingMap.patientId!!.isFhirId()) getPatientFhirIdById(
+                            existingMap.patientId
+                        )!! else existingMap.patientId,
+                        appointmentId = if (!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(
+                            existingMap.appointmentId
+                        )!! else existingMap.appointmentId
+                    ).toJson()
+                )
+            )
+        }
+    }
+    protected suspend fun updateLabTestFhirIdInGenericEntity(genericEntity: GenericEntity) {
+        val existingMap =
+            genericEntity.payload.fromJson<MutableMap<String, Any>>()
+                .mapToObject(LabTestRequest::class.java)
+        if (existingMap != null) {
+            genericDao.insertGenericEntity(
+                genericEntity.copy(
+                    payload = existingMap.copy(
+                        patientId = if (!existingMap.patientId.isFhirId()) getPatientFhirIdById(
+                            existingMap.patientId
+                        )!! else existingMap.patientId,
+                        appointmentId = if (!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(
+                            existingMap.appointmentId
+                        )!! else existingMap.appointmentId
+                    ).toJson()
+                )
+            )
+        }
+    }
+
+    protected suspend fun updateMedicalRecordFhirIdInGenericEntity(prescriptionGenericEntity: GenericEntity) {
+        val existingMap =
+            prescriptionGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+                .mapToObject(MedicalRecordRequest::class.java)
+        if (existingMap != null) {
+            genericDao.insertGenericEntity(
+                prescriptionGenericEntity.copy(
+                    payload = existingMap.copy(
+                        patientId = if (!existingMap.patientId.isFhirId()) getPatientFhirIdById(
+                            existingMap.patientId
+                        )!! else existingMap.patientId,
+                        appointmentId = if (!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(
+                            existingMap.appointmentId
+                        )!! else existingMap.appointmentId
+                    ).toJson()
+                )
+            )
+        }
+    }
+
 
     protected suspend fun updateVitalFhirIdInGenericEntity(genericEntity: GenericEntity) {
         val existingMap =
@@ -430,6 +514,34 @@ open class GenericRepositoryDatabaseTransactions(
 
         return lastInsertedId
     }
+
+    protected suspend fun insertSymDiagGenericEntityPatch(
+        genericEntity: GenericEntity?,
+        fhirId: String,
+        map: Map<String, Any>,
+        uuid: String
+    ): Long {
+        return if (genericEntity != null) {
+            genericDao.insertGenericEntity(
+                genericEntity.copy(payload = map.toJson())
+            )[0]
+        } else {
+            /** Insert Freshly Patch data */
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid,
+                    patientId = fhirId,
+                    payload = map.toMutableMap().let { mutableMap ->
+                        mutableMap[Id.ID] = fhirId
+                        mutableMap
+                    }.toJson(),
+                    type = GenericTypeEnum.SYMPTOMS_DIAGNOSIS,
+                    syncType = SyncType.PATCH
+                )
+            )[0]
+        }
+    }
+
 
     protected suspend fun insertVitalGenericEntityPatch(
         genericEntity: List<GenericEntity>,
@@ -607,4 +719,54 @@ open class GenericRepositoryDatabaseTransactions(
             )[0]
         }
     }
+
+    protected suspend fun insertLabTestPhotoGenericEntity(
+        map: Map<String, Any>,
+        patientId: String,
+        photoGenericEntity: GenericEntity?,
+        uuid: String,
+        typeEnum: GenericTypeEnum
+    ): Long {
+        return if (photoGenericEntity != null) {
+            genericDao.insertGenericEntity(
+                photoGenericEntity.copy(payload = map.toJson())
+            )[0]
+        } else {
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid,
+                    patientId = patientId,
+                    payload = map.toJson(),
+                    type = typeEnum,
+                    syncType = SyncType.POST
+                )
+            )[0]
+        }
+    }
+
+    protected suspend fun insertOrUpdatePhotoLabTestGenericEntityPatch(
+        prescriptionGenericEntity: GenericEntity?,
+        map: Map<String, Any>,
+        prescriptionFhirId: String,
+        uuid: String,
+        typeEnum: GenericTypeEnum
+    ): Long {
+        return if (prescriptionGenericEntity != null) {
+            genericDao.insertGenericEntity(
+                prescriptionGenericEntity.copy(payload = map.toJson())
+            )[0]
+        } else {
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid,
+                    patientId = prescriptionFhirId,
+                    payload = map.toJson(),
+                    type = typeEnum,
+                    syncType = SyncType.PATCH
+                )
+            )[0]
+        }
+    }
+
+
 }

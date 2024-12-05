@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.repository.search
 
 import androidx.paging.PagingData
+import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.model.pagination.PaginationResponse
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
@@ -53,4 +54,11 @@ interface SearchRepository {
     ): List<PatientResponse>
 
     suspend fun getSearchList(): List<PatientAndIdentifierEntity>
+
+    /** Recent Symptoms Search*/
+    suspend fun insertRecentSymptomAndDiagnosisSearch(searchQuery: String, searchTypeEnum: SearchTypeEnum, size:Int, date: Date = Date()): Long
+    suspend fun getRecentSymptomAndDiagnosisSearches(searchTypeEnum: SearchTypeEnum): List<String>
+
+    suspend fun searchSymptoms(searchQuery: String, gender:String?): List<String>
+    suspend fun searchDiagnosis(searchQuery: String): List<String>
 }

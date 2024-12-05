@@ -46,6 +46,18 @@ interface PreferenceRepository {
     fun setLastSyncVital(long: Long)
     fun getLastSyncVital(): Long
 
+    /** Last Sync Symptoms And Diagnosis */
+    fun setLastSyncSymDiag(long: Long)
+    fun getLastSyncSymDiag(): Long
+
+    /** Last Sync Lab Test */
+    fun setLastSyncLabTest(long: Long)
+    fun getLastSyncLabTest(): Long
+
+    /** Last Sync Medical Record */
+    fun setLastSyncMedicalRecord(long: Long)
+    fun getLastSyncMedicalRecord(): Long
+
     /** User Data */
     fun setUserFhirId(userFhirId: String)
     fun getUserFhirId(): String
