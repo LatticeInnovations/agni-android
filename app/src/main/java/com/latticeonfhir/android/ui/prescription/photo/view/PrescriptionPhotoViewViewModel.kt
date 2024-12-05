@@ -253,9 +253,9 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
         } else {
             // insert generic patch
             genericRepository.insertOrUpdatePhotoPrescriptionPatch(
-                prescriptionFhirId = updatedPrescriptionPhotoResponseLocal.prescriptionFhirId,
+                prescriptionFhirId = updatedPrescriptionPhotoResponseLocal.prescription[0].documentFhirId!!,
                 prescriptionPhotoPatch = PrescriptionPhotoPatch(
-                    documentFhirId = updatedPrescriptionPhotoResponseLocal.prescriptionFhirId,
+                    documentFhirId = updatedPrescriptionPhotoResponseLocal.prescription[0].documentFhirId!!,
                     note = updatedPrescriptionPhotoResponseLocal.prescription[0].note,
                     filename = updatedPrescriptionPhotoResponseLocal.prescription[0].filename
                 )
