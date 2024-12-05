@@ -2,6 +2,8 @@ package com.latticeonfhir.android.data.server.repository.sync
 
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
+import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
@@ -12,6 +14,7 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
+import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 
 interface SyncRepository {
@@ -28,6 +31,9 @@ interface SyncRepository {
     suspend fun getAndInsertPatientLastUpdatedData(): ResponseMapper<List<PatientLastUpdatedResponse>>
     suspend fun getAndInsertCVD(offset: Int): ResponseMapper<List<CVDResponse>>
     suspend fun getAndInsertListVitalData(offset: Int): ResponseMapper<List<VitalResponse>>
+    suspend fun getAndInsertListSymptomsAndDiagnosisData(offset: Int): ResponseMapper<List<SymptomsAndDiagnosisResponse>>
+    suspend fun getAndInsertListLabTestData(offset: Int): ResponseMapper<List<LabTestResponse>>
+    suspend fun getAndInsertListMedicalRecordData(offset: Int): ResponseMapper<List<MedicalRecordResponse>>
 
     //POST
     suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>>
@@ -39,7 +45,9 @@ interface SyncRepository {
     suspend fun sendPatientLastUpdatePostData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendCVDPostData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendVitalPostData(): ResponseMapper<List<CreateResponse>>
-
+    suspend fun sendSymptomsAndDiagnosisPostData(): ResponseMapper<List<CreateResponse>>
+    suspend fun sendLabTestPostData(): ResponseMapper<List<CreateResponse>>
+    suspend fun sendMedRecordPostData(): ResponseMapper<List<CreateResponse>>
 
     //PATCH
     suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>>
@@ -48,6 +56,9 @@ interface SyncRepository {
     suspend fun sendPrescriptionPhotoPatchData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendCVDPatchData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendVitalPatchData(): ResponseMapper<List<CreateResponse>>
+    suspend fun sendSymptomsAndDiagnosisPatchData(): ResponseMapper<List<CreateResponse>>
+    suspend fun sendLabTestPatchData(): ResponseMapper<List<CreateResponse>>
+    suspend fun sendMedRecordPatchData(): ResponseMapper<List<CreateResponse>>
 
     //DELETE
     suspend fun deletePrescriptionPhoto(): ResponseMapper<List<CreateResponse>>

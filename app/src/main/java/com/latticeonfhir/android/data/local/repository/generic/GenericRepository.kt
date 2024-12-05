@@ -3,6 +3,8 @@ package com.latticeonfhir.android.data.local.repository.generic
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
+import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
+import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -63,11 +65,18 @@ interface GenericRepository {
         uuid: String = UUIDBuilder.generateUUID()
     ): Long
 
+    suspend fun insertSymDiag(
+        local: SymptomsAndDiagnosisData, uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
     suspend fun updateAppointmentFhirIds()
     suspend fun updateAppointmentFhirIdInPatch()
 
     suspend fun updateCVDFhirIds()
     suspend fun updateVitalFhirId()
+    suspend fun updateSymDiagFhirId()
+    suspend fun updateLabTestFhirId()
+    suspend fun updateMedRecordFhirId()
 
     suspend fun insertOrUpdatePatientPatchEntity(
         patientFhirId: String,
@@ -93,6 +102,10 @@ interface GenericRepository {
         uuid: String = UUIDBuilder.generateUUID()
     ): Long
 
+    suspend fun insertOrUpdateSymDiagPatchEntity(
+        fhirId: String, map: Map<String, Any>, uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
     suspend fun insertVital(
         vitalLocal: VitalLocal, uuid: String = UUIDBuilder.generateUUID()
     ): Long
@@ -107,4 +120,18 @@ interface GenericRepository {
 
     suspend fun removeGenericRecord(id: String): Int
     suspend fun insertDeleteRequest(fhirId: String, typeEnum: GenericTypeEnum, syncType: SyncType): Long
+
+    suspend fun insertPhotoLabTestAndMedRecord(
+        map: Map<String, Any>,
+        patientId: String,
+        uuid: String = UUIDBuilder.generateUUID(),
+        typeEnum: GenericTypeEnum
+    ): Long
+
+    suspend fun insertOrUpdatePhotoLabTestAndMedPatch(
+        fhirId: String,
+        map: Map<String, Any>,
+        uuid: String = UUIDBuilder.generateUUID(),
+        typeEnum: GenericTypeEnum
+    ): Long
 }

@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -46,12 +48,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.PhotoUploadTypeEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.BottomNavBar
 import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
+import com.latticeonfhir.android.utils.constants.PhotoUploadViewType.PHOTO_VIEW_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
@@ -160,7 +164,11 @@ fun PatientLandingScreen(
             },
             content = {
                 Box(modifier = Modifier.padding(it)) {
-                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    Column(modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .verticalScroll(
+                            rememberScrollState()
+                        )) {
                         CardComposable(
                             viewModel,
                             stringResource(id = R.string.appointments),
@@ -212,19 +220,8 @@ fun PatientLandingScreen(
                                 navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
                             }
                         )
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.vital),
-                            R.drawable.vital_signs,
-                            null,
-                            onClick = {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PATIENT,
-                                    viewModel.patient
-                                )
-                                navController.navigate(Screen.VitalsScreen.route)
-                            }
-                        )
+
+
                         CardComposable(
                             viewModel,
                             stringResource(id = R.string.cvd_risk_assessment),
@@ -253,6 +250,67 @@ fun PatientLandingScreen(
                                     }
                                 }
 
+                            }
+                        )
+                        CardComposable(
+                            viewModel,
+                            stringResource(id = R.string.vital),
+                            R.drawable.vital_signs,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
+                                navController.navigate(Screen.VitalsScreen.route)
+                            }
+                        )
+
+                        CardComposable(
+                            viewModel,
+                            stringResource(id = R.string.symptoms_and_diagnosis),
+                            R.drawable.diagnosis,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
+                                navController.navigate(Screen.SymptomsAndDiagnosisScreen.route)
+                            }
+                        )
+                        CardComposable(
+                            viewModel,
+                            stringResource(id = R.string.lab_test),
+                            R.drawable.lab_research,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PHOTO_VIEW_TYPE,
+                                    PhotoUploadTypeEnum.LAB_TEST.value
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
+                                navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
+                            }
+                        )
+                        CardComposable(
+                            viewModel,
+                            stringResource(id = R.string.medical_record),
+                            R.drawable.contract,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PHOTO_VIEW_TYPE,
+                                    PhotoUploadTypeEnum.MEDICAL_RECORD.value
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
+                                navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
                             }
                         )
                     }

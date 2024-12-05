@@ -308,7 +308,7 @@ fun HandleLaunchedEffect(vitalsViewModel: VitalsViewModel, navController: NavCon
 }
 
 @Composable
-fun ShowDialogs(
+private fun ShowDialogs(
     vitalsViewModel: VitalsViewModel, navController: NavController, scope: CoroutineScope
 ) {
     if (vitalsViewModel.showAddToQueueDialog) {
@@ -327,10 +327,12 @@ fun ShowDialogs(
                         vitalsViewModel.patient!!, vitalsViewModel.appointment!!
                     ) {
                         vitalsViewModel.showAddToQueueDialog = false
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            key = PATIENT, vitalsViewModel.patient
-                        )
-                        navController.navigate(Screen.AddVitalsScreen.route)
+                        scope.launch {
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                key = PATIENT, vitalsViewModel.patient
+                            )
+                            navController.navigate(Screen.AddVitalsScreen.route)
+                        }
 
                     }
                 } else {
@@ -804,7 +806,8 @@ fun VitalsCardLayout(
             Text(
                 modifier = Modifier.padding(start = 16.dp, top = 16.dp),
                 text = vital.createdOn.convertedDate().convertDateFormat(),
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Text(
                 modifier = Modifier.padding(start = 16.dp, top = 8.dp),
@@ -879,7 +882,7 @@ fun CVDRecordCardLayout(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 16.dp),
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -887,7 +890,12 @@ fun CVDRecordCardLayout(
 
                     Text(
                         text = cvdResponse.createdOn.convertedDate().convertDateFormat(),
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+
+                    )
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
                     )
                     Text(
                         text = cvdResponse.practitionerName ?: stringResource(id = R.string.dash),
@@ -906,7 +914,7 @@ fun CVDRecordCardLayout(
             }
             HorizontalDivider(
                 modifier = Modifier.padding(
-                    start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp
+                    start = 16.dp, end = 16.dp, bottom = 8.dp
                 )
             )
             VitalCardItem(

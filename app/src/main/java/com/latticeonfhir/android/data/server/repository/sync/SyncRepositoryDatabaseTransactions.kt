@@ -6,6 +6,7 @@ import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
+import com.latticeonfhir.android.data.local.roomdb.dao.LabTestAndMedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
@@ -13,7 +14,9 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
+import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
@@ -21,6 +24,8 @@ import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEnt
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
+import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
@@ -31,21 +36,28 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
+import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toCVDEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toLabTestEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toLabTestPhotoResponseLocal
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toListOfLabTestAndMedPhotoEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toListOfLabTestPhotoEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfMedicineDirectionsEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionDirectionsEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfPrescriptionPhotoEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toMedRecordPhotoResponseLocal
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientLastUpdatedEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toScheduleEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toVitalEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toSymptomsAndDiagnosisEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,8 +74,11 @@ open class SyncRepositoryDatabaseTransactions(
     private val appointmentDao: AppointmentDao,
     private val patientLastUpdatedDao: PatientLastUpdatedDao,
     private val cvdDao: CVDDao,
-    private val vitalDao: VitalDao
+    private val vitalDao: VitalDao,
+    private val symptomsAndDiagnosisDao: SymptomsAndDiagnosisDao,
+    private val labTestAndMedDao: LabTestAndMedDao
 ) {
+
 
     protected suspend fun insertPatient(body: List<PatientResponse>) {
         //Insert Patient Data
@@ -234,6 +249,24 @@ open class SyncRepositoryDatabaseTransactions(
 
     }
 
+    protected suspend fun insertSymDiag(body: List<SymptomsAndDiagnosisResponse>) {
+        //Insert Vital Data
+        symptomsAndDiagnosisDao.insertSymptomsAndDiagnosis(*body.map {
+            it.toSymptomsAndDiagnosisEntity(
+                patientDao,
+                appointmentDao
+            )
+        }
+            .toTypedArray())
+
+        val listOfGenericEntity = mutableListOf<GenericEntity>()
+
+        genericDao.insertGenericEntity(
+            *listOfGenericEntity.toTypedArray()
+        )
+
+    }
+
     protected suspend fun insertPatientFhirId(
         listOfGenericEntities: List<GenericEntity>,
         body: List<CreateResponse>
@@ -364,6 +397,16 @@ open class SyncRepositoryDatabaseTransactions(
         }
         return deleteGenericEntityData(listOfGenericEntities)
     }
+    protected suspend fun insertSymDiagFhirId(
+        listOfGenericEntities: List<GenericEntity>, body: List<CreateResponse>
+    ): Int {
+        body.map { createResponse ->
+            symptomsAndDiagnosisDao.updateSymDiagFhirId(
+                createResponse.id!!, createResponse.fhirId!!
+            )
+        }
+        return deleteGenericEntityData(listOfGenericEntities)
+    }
 
     private suspend fun deleteGenericEntityByListOfIds(idsToDelete: List<String>): Int {
         return genericDao.deleteSyncPayload(idsToDelete)
@@ -371,5 +414,114 @@ open class SyncRepositoryDatabaseTransactions(
 
     protected suspend fun deleteGenericEntityData(listOfGenericEntities: List<GenericEntity>): Int {
         return genericDao.deleteSyncPayload(listOfGenericEntities.toListOfId())
+    }
+
+
+    protected suspend fun insertLabTest(body: List<LabTestResponse>, type: String) {
+        body.map { labTestResponse ->
+            labTestResponse.diagnosticReport.map {
+                it.toLabTestPhotoResponseLocal(
+                    labTestResponse,
+                    appointmentDao,
+                    patientDao
+                ).toLabTestEntity(type)
+            }.also { labTests ->
+                labTestAndMedDao.insertLabAndMedTest(*labTests.toTypedArray())
+            }
+
+        }
+        val labTestAndMedPhotoEntity = mutableListOf<LabTestAndMedPhotoEntity>()
+        body.forEach { response ->
+            labTestAndMedPhotoEntity.addAll(
+                response.toListOfLabTestPhotoEntity()
+            )
+        }
+        labTestAndMedDao.insertLabTestsAndMedPhotos(
+            *labTestAndMedPhotoEntity.toTypedArray()
+        )
+        val listOfGenericEntity = mutableListOf<GenericEntity>()
+
+        body.map { labTestResponse ->
+            labTestResponse.diagnosticReport.map {
+                it.documents.forEach { fileName ->
+                    listOfGenericEntity.add(
+                        GenericEntity(
+                            id = UUID.randomUUID().toString(),
+                            patientId = it.diagnosticReportFhirId,
+                            payload = fileName.filename,
+                            type = GenericTypeEnum.PHOTO_DOWNLOAD,
+                            syncType = SyncType.POST
+                        )
+                    )
+
+                }
+
+            }
+
+        }
+
+        genericDao.insertGenericEntity(
+            *listOfGenericEntity.toTypedArray()
+        )
+
+    }
+
+    protected suspend fun insertMedicalRecord(body: List<MedicalRecordResponse>, type: String) {
+        body.map { medicalRecordResponse ->
+            medicalRecordResponse.medicalRecord.map {
+                it.toMedRecordPhotoResponseLocal(
+                    medicalRecordResponse,
+                    appointmentDao, patientDao
+                ).toLabTestEntity(type)
+            }.also { labTests ->
+                labTestAndMedDao.insertLabAndMedTest(*labTests.toTypedArray())
+            }
+
+        }
+        val labTestAndMedPhotoEntity = mutableSetOf<LabTestAndMedPhotoEntity>()
+        body.forEach { response ->
+            labTestAndMedPhotoEntity.addAll(
+                response.toListOfLabTestAndMedPhotoEntity()
+            )
+        }
+        labTestAndMedDao.insertLabTestsAndMedPhotos(
+            *labTestAndMedPhotoEntity.toTypedArray()
+        )
+        val listOfGenericEntity = mutableListOf<GenericEntity>()
+
+        body.map { labTestResponse ->
+            labTestResponse.medicalRecord.map {
+                it.documents.forEach { fileName ->
+                    listOfGenericEntity.add(
+                        GenericEntity(
+                            id = UUID.randomUUID().toString(),
+                            patientId = it.medicalRecordFhirId,
+                            payload = fileName.filename,
+                            type = GenericTypeEnum.PHOTO_DOWNLOAD,
+                            syncType = SyncType.POST
+                        )
+                    )
+
+                }
+
+            }
+
+        }
+
+        genericDao.insertGenericEntity(
+            *listOfGenericEntity.toTypedArray()
+        )
+
+    }
+
+    protected suspend fun insertLabOrMedFhirId(
+        listOfGenericEntities: List<GenericEntity>, body: List<CreateResponse>
+    ): Int {
+        body.map { createResponse ->
+            labTestAndMedDao.updateLabTestAndFhirId(
+                createResponse.id!!, createResponse.fhirId!!
+            )
+        }
+        return deleteGenericEntityData(listOfGenericEntities)
     }
 }

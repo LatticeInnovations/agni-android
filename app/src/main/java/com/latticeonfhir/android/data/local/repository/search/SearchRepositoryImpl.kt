@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.model.pagination.PaginationResponse
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
@@ -11,13 +12,16 @@ import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.search.SymDiagSearchEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.Paging.PAGE_SIZE
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientResponse
 import com.latticeonfhir.android.utils.paging.SearchPagingSource
+import com.latticeonfhir.android.utils.search.Search.getFuzzySearchDiagnosisList
 import com.latticeonfhir.android.utils.search.Search.getFuzzySearchList
 import com.latticeonfhir.android.utils.search.Search.getFuzzySearchMedicationList
+import com.latticeonfhir.android.utils.search.Search.getFuzzySearchSymptomsList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.Date
@@ -253,5 +257,62 @@ class SearchRepositoryImpl @Inject constructor(
             } else list
         }
         return suggestionsList
+    }
+
+    override suspend fun insertRecentSymptomAndDiagnosisSearch(
+        searchQuery: String, searchTypeEnum: SearchTypeEnum, size: Int, date: Date
+    ): Long {
+        val symDiagSearchEntity = searchDao.getSearchByQuery(searchQuery)
+        return insertSearch(
+            symDiagSearchEntity = symDiagSearchEntity,
+            searchTypeEnum = searchTypeEnum,
+            date = date,
+            searchQuery = searchQuery
+        )
+
+    }
+
+    private suspend fun insertSearch(
+        symDiagSearchEntity: SymDiagSearchEntity?,
+        searchTypeEnum: SearchTypeEnum,
+        date: Date,
+        searchQuery: String
+    ): Long {
+        return if (symDiagSearchEntity == null) {
+            searchDao.insertOrUpdateSearch(
+                SymDiagSearchEntity(
+                    searchQuery = searchQuery,
+                    date = date,
+                    searchCount = 1,
+                    searchType = searchTypeEnum
+                )
+            )
+        } else {
+            searchDao.updateSearch(
+                searchQuery = symDiagSearchEntity.searchQuery,
+                searchCount = symDiagSearchEntity.searchCount + 1
+            ).toLong()
+        }
+
+    }
+    override suspend fun getRecentSymptomAndDiagnosisSearches(searchTypeEnum: SearchTypeEnum): List<String> {
+        return searchDao.getMostFrequentSearches(searchTypeEnum)
+    }
+
+    override suspend fun searchSymptoms(searchQuery: String, gender: String?): List<String> {
+        val symptoms = if (gender != GenderEnum.OTHER.value) {
+            searchDao.getSymptoms().filter { it.gender == null || it.gender == gender }
+                .map { it.display }
+        } else {
+            searchDao.getSymptoms().map { it.display }
+        }
+        return getFuzzySearchSymptomsList(searchQuery, symptoms, 60)
+
+    }
+
+    override suspend fun searchDiagnosis(searchQuery: String): List<String> {
+        val diagnosis = searchDao.getDiagnosis().map { "${it.code}, ${it.display}" }
+        return getFuzzySearchDiagnosisList(searchQuery, diagnosis, 60)
+
     }
 }
