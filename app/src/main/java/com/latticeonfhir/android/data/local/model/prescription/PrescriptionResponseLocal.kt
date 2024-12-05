@@ -1,7 +1,6 @@
 package com.latticeonfhir.android.data.local.model.prescription
 
 import androidx.annotation.Keep
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import java.util.Date
 
 @Keep
@@ -11,5 +10,21 @@ data class PrescriptionResponseLocal(
     val appointmentId: String,
     val generatedOn: Date,
     val prescriptionId: String,
-    val prescription: List<Medication>
+    val prescription: List<MedicationLocal>
+)
+
+@Keep
+data class MedicationLocal(
+    val medReqUuid: String,
+    val medReqFhirId: String?,
+    val doseForm: String,
+    val duration: Int,
+    val frequency: Int,
+    val medFhirId: String,
+    val note: String?,
+    val qtyPerDose: Int,
+    val qtyPrescribed: Int,
+    val timing: String?,
+    val medName: String,
+    val medUnit: String
 )

@@ -9,18 +9,23 @@ import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
+import com.latticeonfhir.android.data.local.enums.PrescriptionType
 import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
+import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
+import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.prescription.photo.File
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoPatch
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
+import com.latticeonfhir.android.ui.prescription.model.PrescriptionFormAndPhoto
 import com.latticeonfhir.android.utils.common.Queries
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
@@ -51,8 +56,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     var showNoteDialog by mutableStateOf(false)
     var showDeleteDialog by mutableStateOf(false)
     var displayNote by mutableStateOf(true)
-    var prescriptionPhotos by mutableStateOf(listOf<File>())
-    var deletedPhotos = mutableListOf<File>()
+    var deletedPhotos = mutableListOf<PrescriptionFormAndPhoto>()
     var canAddPrescription by mutableStateOf(false)
     var showAddToQueueDialog by mutableStateOf(false)
     var ifAllSlotsBooked by mutableStateOf(false)
@@ -62,11 +66,14 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     var recompose by mutableStateOf(false)
     private val maxNumberOfAppointmentsInADay = 250
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
+    var showAddPrescriptionBottomSheet by mutableStateOf(false)
 
-    var selectedFile: File? by mutableStateOf(null)
+    var selectedFile: PrescriptionFormAndPhoto? by mutableStateOf(null)
 
     // syncing
     var syncStatus by mutableStateOf(WorkerStatus.TODO)
+
+    var allPrescriptionList by mutableStateOf(mutableListOf<PrescriptionFormAndPhoto>())
 
     internal fun getCurrentSyncStatus() {
         viewModelScope.launch {
@@ -152,7 +159,27 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
 
     internal fun getPastPrescription() {
         viewModelScope.launch(Dispatchers.IO) {
-            prescriptionPhotos = prescriptionRepository.getLastPhotoPrescription(patient!!.id)
+            prescriptionRepository.getLastPrescription(patient!!.id).forEach { formPrescription ->
+                allPrescriptionList.removeIf { it.date == formPrescription.generatedOn }
+                allPrescriptionList.add(
+                    PrescriptionFormAndPhoto(
+                        date = formPrescription.generatedOn,
+                        type = PrescriptionType.FORM.type,
+                        prescription = formPrescription
+                    )
+                )
+            }
+            prescriptionRepository.getLastPhotoPrescription(patient!!.id)
+                .forEach { photoPrescription ->
+                    allPrescriptionList.removeIf { it.date == photoPrescription.generatedOn }
+                    allPrescriptionList.add(
+                        PrescriptionFormAndPhoto(
+                            date = photoPrescription.generatedOn,
+                            type = PrescriptionType.PHOTO.type,
+                            prescription = photoPrescription
+                        )
+                    )
+                }
         }
     }
 
@@ -161,21 +188,16 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
         added: () -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val dateOfFile = Date(selectedFile!!.filename.substringBefore(".").toLong())
-            val prescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
-                patient!!.id,
-                dateOfFile.toTodayStartDate(),
-                dateOfFile.toEndOfDay()
-            )
             prescriptionRepository.insertPrescriptionPhotos(
-                PrescriptionPhotoEntity(
-                    id = selectedFile!!.filename + prescriptionPhotoResponse.prescriptionId,
-                    prescriptionId = prescriptionPhotoResponse.prescriptionId,
-                    fileName = selectedFile!!.filename,
-                    note = note
+                (selectedFile!!.prescription as PrescriptionPhotoResponseLocal).copy(
+                    prescription = listOf(
+                        (selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescription[0].copy(
+                            note = note
+                        )
+                    )
                 )
             )
-            updateInGeneric(dateOfFile)
+            updateInGeneric((selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescriptionId)
             getPastPrescription()
             added()
         }
@@ -185,44 +207,54 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
         deleted: () -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val dateOfFile = Date(selectedFile!!.filename.substringBefore(".").toLong())
-            val prescriptionPhotoResponse = prescriptionRepository.getPrescriptionPhotoByDate(
-                patient!!.id,
-                dateOfFile.toTodayStartDate(),
-                dateOfFile.toEndOfDay()
-            )
             // delete from local db
-            prescriptionRepository.deletePrescriptionPhotos(
-                PrescriptionPhotoEntity(
-                    id = selectedFile!!.filename + prescriptionPhotoResponse.prescriptionId,
-                    prescriptionId = prescriptionPhotoResponse.prescriptionId,
-                    fileName = selectedFile!!.filename,
-                    note = selectedFile!!.note
-                )
+            val prescription = (selectedFile!!.prescription as PrescriptionPhotoResponseLocal)
+            prescriptionRepository.deletePhotoPrescription(
+                prescription
             )
-            updateInGeneric(dateOfFile)
+            // update in generic
+            if (prescription.prescriptionFhirId == null) {
+                // remove post request of prescription
+                genericRepository.removeGenericRecord(prescription.prescriptionId)
+            } else {
+                // add delete request of prescription
+                genericRepository.insertDeleteRequest(
+                    fhirId = prescription.prescriptionFhirId,
+                    typeEnum = GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE,
+                    syncType = SyncType.DELETE
+                )
+            }
             deletedPhotos.add(selectedFile!!)
             deleted()
         }
     }
 
-    private suspend fun updateInGeneric(dateOfFile: Date) {
-        val updatedPrescriptionPhotoResponse =
-            prescriptionRepository.getPrescriptionPhotoByDate(
-                patient!!.id,
-                dateOfFile.toTodayStartDate(),
-                dateOfFile.toEndOfDay()
-            )
-        if (updatedPrescriptionPhotoResponse.prescriptionFhirId == null) {
+    private suspend fun updateInGeneric(prescriptionId: String) {
+        val updatedPrescriptionPhotoResponseLocal =
+            prescriptionRepository.getPrescriptionPhotoById(prescriptionId)
+        if (updatedPrescriptionPhotoResponseLocal.prescriptionFhirId == null) {
             // insert generic post
+            val appointmentResponse = appointmentRepository.getAppointmentByAppointmentId(updatedPrescriptionPhotoResponseLocal.appointmentId)
             genericRepository.insertPhotoPrescription(
-                updatedPrescriptionPhotoResponse
+                PrescriptionPhotoResponse(
+                    appointmentUuid = updatedPrescriptionPhotoResponseLocal.appointmentId,
+                    appointmentId = appointmentResponse.appointmentId ?: appointmentResponse.uuid,
+                    generatedOn = updatedPrescriptionPhotoResponseLocal.generatedOn,
+                    patientFhirId = patient!!.fhirId ?: patient!!.id,
+                    prescriptionFhirId = null,
+                    prescriptionId = updatedPrescriptionPhotoResponseLocal.prescriptionId,
+                    prescription = updatedPrescriptionPhotoResponseLocal.prescription
+                )
             )
         } else {
             // insert generic patch
             genericRepository.insertOrUpdatePhotoPrescriptionPatch(
-                prescriptionFhirId = updatedPrescriptionPhotoResponse.prescriptionFhirId,
-                prescriptionPhotoResponse = updatedPrescriptionPhotoResponse
+                prescriptionFhirId = updatedPrescriptionPhotoResponseLocal.prescription[0].documentFhirId!!,
+                prescriptionPhotoPatch = PrescriptionPhotoPatch(
+                    documentFhirId = updatedPrescriptionPhotoResponseLocal.prescription[0].documentFhirId!!,
+                    note = updatedPrescriptionPhotoResponseLocal.prescription[0].note,
+                    filename = updatedPrescriptionPhotoResponseLocal.prescription[0].filename
+                )
             )
         }
     }

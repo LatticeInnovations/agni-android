@@ -4,6 +4,8 @@ import androidx.annotation.Keep
 
 @Keep
 data class Medication(
+    val medReqUuid: String,
+    val medReqFhirId: String?,
     val doseForm: String,
     val duration: Int,
     val frequency: Int,

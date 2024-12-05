@@ -1,7 +1,9 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
+import com.latticeonfhir.android.data.local.enums.PrescriptionType
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
+import com.latticeonfhir.android.data.local.model.prescription.MedicationLocal
 import com.latticeonfhir.android.data.local.model.labtest.LabTestLocal
 import com.latticeonfhir.android.data.local.model.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
@@ -56,7 +58,6 @@ import com.latticeonfhir.android.data.server.model.prescription.medication.Medic
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
@@ -246,7 +247,8 @@ internal suspend fun PrescriptionResponse.toPrescriptionEntity(
         patientId = patientDao.getPatientIdByFhirId(patientFhirId)!!,
         appointmentId = appointmentUuid,
         patientFhirId = patientFhirId,
-        prescriptionFhirId = prescriptionFhirId
+        prescriptionFhirId = prescriptionFhirId,
+        prescriptionType = PrescriptionType.FORM.type
     )
 }
 
@@ -260,7 +262,8 @@ internal suspend fun PrescriptionPhotoResponse.toPrescriptionEntity(
         patientId = patientDao.getPatientIdByFhirId(patientFhirId)!!,
         appointmentId = appointmentUuid,
         patientFhirId = patientFhirId,
-        prescriptionFhirId = prescriptionFhirId
+        prescriptionFhirId = prescriptionFhirId,
+        prescriptionType = PrescriptionType.PHOTO.type
     )
 }
 
@@ -272,7 +275,8 @@ internal fun PrescriptionResponseLocal.toPrescriptionEntity(): PrescriptionEntit
         patientId = patientId,
         appointmentId = appointmentId,
         patientFhirId = patientFhirId,
-        prescriptionFhirId = null
+        prescriptionFhirId = null,
+        prescriptionType = PrescriptionType.FORM.type
     )
 }
 
@@ -283,14 +287,15 @@ internal fun PrescriptionPhotoResponseLocal.toPrescriptionEntity(): Prescription
         patientId = patientId,
         appointmentId = appointmentId,
         patientFhirId = patientFhirId,
-        prescriptionFhirId = null
+        prescriptionFhirId = null,
+        prescriptionType = PrescriptionType.PHOTO.type
     )
 }
 
 internal suspend fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(medicationDao: MedicationDao): List<PrescriptionDirectionsEntity> {
     return prescription.map { medication ->
         PrescriptionDirectionsEntity(
-            id = medication.medFhirId + prescriptionId,
+            id = medication.medReqUuid,
             medFhirId = medication.medFhirId,
             qtyPerDose = medication.qtyPerDose,
             frequency = medication.frequency,
@@ -303,6 +308,7 @@ internal suspend fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(m
             qtyPrescribed = medication.qtyPrescribed,
             note = medication.note,
             prescriptionId = prescriptionId,
+            medReqFhirId = medication.medReqFhirId
         )
     }
 }
@@ -311,10 +317,11 @@ internal suspend fun PrescriptionResponse.toListOfPrescriptionDirectionsEntity(m
 internal fun PrescriptionPhotoResponse.toListOfPrescriptionPhotoEntity(): List<PrescriptionPhotoEntity> {
     return prescription.map { prescriptionItem ->
         PrescriptionPhotoEntity(
-            id = prescriptionItem.filename + prescriptionId,
+            id = prescriptionItem.documentUuid,
             fileName = prescriptionItem.filename,
             prescriptionId = prescriptionId,
-            note = prescriptionItem.note
+            note = prescriptionItem.note,
+            documentFhirId = prescriptionItem.documentFhirId
         )
     }
 }
@@ -322,7 +329,7 @@ internal fun PrescriptionPhotoResponse.toListOfPrescriptionPhotoEntity(): List<P
 internal fun PrescriptionResponseLocal.toListOfPrescriptionDirectionsEntity(): List<PrescriptionDirectionsEntity> {
     return prescription.map { medication ->
         PrescriptionDirectionsEntity(
-            id = medication.medFhirId + prescriptionId,
+            id = medication.medReqUuid,
             medFhirId = medication.medFhirId,
             qtyPerDose = medication.qtyPerDose,
             frequency = medication.frequency,
@@ -330,7 +337,8 @@ internal fun PrescriptionResponseLocal.toListOfPrescriptionDirectionsEntity(): L
             duration = medication.duration,
             qtyPrescribed = medication.qtyPrescribed,
             note = medication.note,
-            prescriptionId = prescriptionId
+            prescriptionId = prescriptionId,
+            medReqFhirId = medication.medReqFhirId
         )
     }
 }
@@ -338,10 +346,11 @@ internal fun PrescriptionResponseLocal.toListOfPrescriptionDirectionsEntity(): L
 internal fun PrescriptionPhotoResponseLocal.toListOfPrescriptionPhotoEntity(): List<PrescriptionPhotoEntity> {
     return prescription.map { prescriptionItem ->
         PrescriptionPhotoEntity(
-            id = prescriptionItem.filename + prescriptionId,
+            id = prescriptionItem.documentUuid,
             fileName = prescriptionItem.filename,
             prescriptionId = prescriptionId,
-            note = prescriptionItem.note
+            note = prescriptionItem.note,
+            documentFhirId = prescriptionItem.documentFhirId
         )
     }
 }
@@ -487,12 +496,12 @@ internal fun PrescriptionAndMedicineRelation.toPrescriptionResponseLocal(): Pres
         appointmentId = prescriptionEntity.appointmentId,
         generatedOn = prescriptionEntity.prescriptionDate,
         prescriptionId = prescriptionEntity.id,
-        prescription = prescriptionDirectionAndMedicineView.map { prescriptionDirectionAndMedicineView -> prescriptionDirectionAndMedicineView.toMedication() }
+        prescription = prescriptionDirectionAndMedicineView.map { prescriptionDirectionAndMedicineView -> prescriptionDirectionAndMedicineView.toMedicationLocal() }
     )
 }
 
-internal fun PrescriptionDirectionAndMedicineView.toMedication(): Medication {
-    return Medication(
+internal fun PrescriptionDirectionAndMedicineView.toMedicationLocal(): MedicationLocal {
+    return MedicationLocal(
         doseForm = medicationEntity.doseForm,
         duration = prescriptionDirectionsEntity.duration,
         frequency = prescriptionDirectionsEntity.frequency,
@@ -500,7 +509,11 @@ internal fun PrescriptionDirectionAndMedicineView.toMedication(): Medication {
         note = prescriptionDirectionsEntity.note,
         qtyPerDose = prescriptionDirectionsEntity.qtyPerDose,
         qtyPrescribed = prescriptionDirectionsEntity.qtyPrescribed,
-        timing = prescriptionDirectionsEntity.timing
+        timing = prescriptionDirectionsEntity.timing,
+        medReqFhirId = prescriptionDirectionsEntity.medReqFhirId,
+        medReqUuid = prescriptionDirectionsEntity.id,
+        medName = medicationEntity.medName,
+        medUnit = medicationEntity.medUnit
     )
 }
 
@@ -528,7 +541,12 @@ internal suspend fun PrescriptionAndFileEntity.toPrescriptionPhotoResponse(
         generatedOn = prescriptionEntity.prescriptionDate,
         prescriptionId = prescriptionEntity.id,
         prescription = prescriptionPhotoEntity.map { prescriptionPhotoEntity ->
-            File(prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note ?: "")
+            File(
+                documentUuid = prescriptionPhotoEntity.id,
+                documentFhirId = prescriptionPhotoEntity.documentFhirId,
+                filename = prescriptionPhotoEntity.fileName,
+                note = prescriptionPhotoEntity.note ?: ""
+            )
         },
         appointmentUuid = prescriptionEntity.appointmentId,
         prescriptionFhirId = prescriptionEntity.prescriptionFhirId
@@ -536,9 +554,32 @@ internal suspend fun PrescriptionAndFileEntity.toPrescriptionPhotoResponse(
 }
 
 
+internal fun PrescriptionAndFileEntity.toPrescriptionPhotoResponseLocal(): PrescriptionPhotoResponseLocal {
+    return PrescriptionPhotoResponseLocal(
+        patientId = prescriptionEntity.patientId,
+        patientFhirId = prescriptionEntity.patientFhirId,
+        appointmentId = prescriptionEntity.appointmentId,
+        generatedOn = prescriptionEntity.prescriptionDate,
+        prescriptionId = prescriptionEntity.id,
+        prescription = prescriptionPhotoEntity.map { it.toFile() },
+        prescriptionFhirId = prescriptionEntity.prescriptionFhirId
+    )
+}
+
+private fun PrescriptionPhotoEntity.toFile(): File {
+    return File(
+        documentUuid = id,
+        documentFhirId = documentFhirId,
+        filename = fileName,
+        note = note ?: ""
+    )
+}
+
 internal fun PrescriptionAndFileEntity.toFilesList(): List<File> {
     return prescriptionPhotoEntity.map {
         File(
+            documentUuid = it.id,
+            documentFhirId = it.documentFhirId,
             filename = it.fileName,
             note = it.note ?: ""
         )
@@ -784,8 +825,9 @@ internal fun SymptomsAndDiagnosisLocal.toSymDiagData(): SymptomsAndDiagnosisData
 
 internal fun LabTestAndFileEntity.toFilesList(): List<File> {
     return labTestAndMedPhotoEntity.map {
+        // TODO: added added string, to be changed
         File(
-            filename = it.fileName, note = it.note ?: ""
+            filename = it.fileName, note = it.note ?: "", documentFhirId = "", documentUuid = ""
         )
     }
 }
@@ -794,6 +836,7 @@ internal fun LabTestAndFileEntity.toFilesList(): List<File> {
 internal suspend fun LabTestAndFileEntity.toLabTestPhotoResponse(
     appointmentDao: AppointmentDao
 ): LabTestPhotoResponse {
+    // TODO: added added string, to be changed
     return LabTestPhotoResponse(
         labTestId = labTestAndMedEntity.id,
         appointmentId = appointmentDao.getFhirIdByAppointmentId(labTestAndMedEntity.appointmentId)
@@ -802,7 +845,7 @@ internal suspend fun LabTestAndFileEntity.toLabTestPhotoResponse(
         labTestFhirId = labTestAndMedEntity.labTestFhirId,
         createdOn = labTestAndMedEntity.createdOn,
         labTests = labTestAndMedPhotoEntity.map { prescriptionPhotoEntity ->
-            File(prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note ?: "")
+            File("", "", prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note ?: "")
         })
 }
 
@@ -817,7 +860,12 @@ internal suspend fun LabTestAndFileEntity.toLabTestPhotoResponseLocal(
         labTestFhirId = labTestAndMedEntity.labTestFhirId,
         createdOn = labTestAndMedEntity.createdOn,
         labTests = labTestAndMedPhotoEntity.map { prescriptionPhotoEntity ->
-            File(prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note ?: "")
+            File(
+                "",
+                "",
+                prescriptionPhotoEntity.fileName,
+                prescriptionPhotoEntity.note ?: ""
+            )
         })
 }
 
