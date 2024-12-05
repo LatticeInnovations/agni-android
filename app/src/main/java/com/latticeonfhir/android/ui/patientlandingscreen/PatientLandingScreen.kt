@@ -208,10 +208,7 @@ fun PatientLandingScreen(
                             viewModel,
                             stringResource(id = R.string.prescriptions),
                             R.drawable.prescriptions_icon,
-                            stringResource(
-                                id = R.string.uploads_count,
-                                viewModel.uploadsCount
-                            ),
+                            null,
                             onClick = {
                                 navController.currentBackStackEntry?.savedStateHandle?.set(
                                     "patient",
