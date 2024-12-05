@@ -2,6 +2,7 @@ package com.latticeonfhir.android.ui.prescription.search
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -19,6 +20,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -62,12 +64,24 @@ fun PrescriptionSearchResult(viewModel: PrescriptionViewModel) {
         },
         content = {
             Box(modifier = Modifier.padding(it)) {
-                key(viewModel.selectedActiveIngredientsList) {
-                    Column(
-                        modifier = Modifier.verticalScroll(rememberScrollState())
+                if (viewModel.activeIngredientSearchList.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        viewModel.activeIngredientSearchList.forEach { activeIngredient ->
-                            CompoundRow(activeIngredient = activeIngredient, viewModel = viewModel)
+                        Text(stringResource(R.string.no_results_found))
+                    }
+                } else {
+                    key(viewModel.selectedActiveIngredientsList) {
+                        Column(
+                            modifier = Modifier.verticalScroll(rememberScrollState())
+                        ) {
+                            viewModel.activeIngredientSearchList.forEach { activeIngredient ->
+                                CompoundRow(
+                                    activeIngredient = activeIngredient,
+                                    viewModel = viewModel
+                                )
+                            }
                         }
                     }
                 }
