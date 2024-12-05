@@ -41,8 +41,11 @@ interface LabTestAndMedDao {
     suspend fun updateLabTestAndMedPhotoFhirId(labTestId: String, labTestFhirId: String)
 
     @Transaction
-    @Query("SELECT * FROM LabTestAndMedEntity WHERE appointmentId = :appointmentId AND type=:photoviewType")
-    suspend fun getLabTestAndMedPhotoByAppointmentId(appointmentId: String,photoviewType: String): List<LabTestAndFileEntity>
+    @Query("SELECT * FROM LabTestAndMedEntity WHERE patientId = :patientId AND type=:photoviewType")
+    suspend fun getLabTestAndMedPhotoByPatientId(
+        patientId: String,
+        photoviewType: String
+    ): List<LabTestAndFileEntity>
 
     @Transaction
     @Query("SELECT * FROM LabTestAndMedEntity WHERE createdOn BETWEEN :startDate AND :endDate AND patientId=:patientId AND type= :photoviewType")
@@ -53,5 +56,11 @@ interface LabTestAndMedDao {
     @Delete
     suspend fun deleteLabTestAndMedPhoto(labTestAndMedPhotoEntity: LabTestAndMedPhotoEntity): Int
 
+    @Delete
+    suspend fun deleteLabTestAndMedEntity(labTestAndMedEntity: LabTestAndMedEntity): Int
+
+    @Transaction
+    @Query("UPDATE LabTestAndMedPhotoEntity SET fhirId = :documentFhirId WHERE id = :documentUuid")
+    suspend fun updateDocumentFhirId(documentUuid: String, documentFhirId: String)
 
 }

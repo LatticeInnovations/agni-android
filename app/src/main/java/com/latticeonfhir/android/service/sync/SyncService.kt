@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.service.sync
 
 import android.content.Context
+import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
@@ -69,16 +70,15 @@ class SyncService(
                     },
                     async {
                         patchCVD(logout)
+                    }, async {
+                        patchLabTest(logout)
+                    }, async {
+                        patchMedRecord(logout)
+                    }, async {
+                        uploadLabAndMedPhoto(logout)
                     }
-//                      ,      async {
+//                   ,  async {
 //                        patchSymDiag(logout)
-//                    }
-//                    ,async {
-//                        patchLabTest(logout)
-//                    }, async {
-//                        patchMedRecord(logout)
-//                    }, async {
-//                        uploadLabAndMedPhoto(logout)
 //                    }
                 )
             }
@@ -213,12 +213,12 @@ class SyncService(
 //                CoroutineScope(Dispatchers.IO).launch {
 //                    updateFhirIdInSymDiag(logout)
 //                }
-//                CoroutineScope(Dispatchers.IO).launch {
-//                    updateFhirIdInLabTest(logout)
-//                }
-//                CoroutineScope(Dispatchers.IO).launch {
-//                    updateFhirIdInMedical(logout)
-//                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    updateFhirIdInLabTest(logout)
+                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    updateFhirIdInMedical(logout)
+                }
             }
         }
     }
@@ -338,6 +338,16 @@ class SyncService(
         return checkAuthenticationStatus(syncRepository.deletePrescriptionPhoto(), logout)
     }
 
+    /** Delete Photo LabTest */
+    private suspend fun deletePhotoLabTest(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.deleteLabTestPhoto(), logout)
+    }
+
+    /** Delete Photo Medical Record */
+    private suspend fun deletePhotoMedicalRecord(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.deleteLabTestPhoto(), logout)
+    }
+
     /**
      *
      *
@@ -387,6 +397,12 @@ class SyncService(
                         deletePhotoPrescription(logout)
                     }
                     CoroutineScope(Dispatchers.IO).launch {
+                        deletePhotoLabTest(logout)
+                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        deletePhotoMedicalRecord(logout)
+                    }
+                    CoroutineScope(Dispatchers.IO).launch {
                         downloadFormPrescription(null, logout)
                     }
                     CoroutineScope(Dispatchers.IO).launch {
@@ -398,6 +414,7 @@ class SyncService(
                     CoroutineScope(Dispatchers.IO).launch {
                         downloadVitals(logout)
                     }
+
 //                    CoroutineScope(Dispatchers.IO).launch {
 //                        getAndInsertSymptoms()
 //                    }
@@ -407,9 +424,9 @@ class SyncService(
 //                    CoroutineScope(Dispatchers.IO).launch {
 //                        downloadSymDiag(logout)
 //                    }
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        downloadLabAndMedicalRecordPhoto(logout)
-//                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        downloadLabAndMedicalRecordPhoto(logout)
+                    }
                 }
             }
         }
@@ -460,7 +477,7 @@ class SyncService(
 
     /** Download Patient Last Updated */
     private suspend fun downloadPrescriptionPhoto(logout: (Boolean, String) -> Unit) {
-        fileSyncRepository.startDownload(logout)
+        fileSyncRepository.startDownload(GenericTypeEnum.PRESCRIPTION_PHOTO, logout)
     }
 
     /** Download CVD*/
@@ -492,7 +509,7 @@ class SyncService(
                 responseMapper is ApiEndResponse
             }.apply {
                 if (this) {
-                    fileSyncRepository.startDownload(logout)
+                    fileSyncRepository.startDownload(GenericTypeEnum.PHOTO_DOWNLOAD, logout)
                 }
             }
         }

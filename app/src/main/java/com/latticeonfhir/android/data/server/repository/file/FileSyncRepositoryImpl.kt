@@ -46,14 +46,18 @@ class FileSyncRepositoryImpl @Inject constructor(
         return fileUploadApiService.getMultipleFiles(filesRequest)
     }
 
-    override suspend fun startDownload(logout: (Boolean, String) -> Unit) {
+    override suspend fun startDownload(
+        typeEnum: GenericTypeEnum,
+        logout: (Boolean, String) -> Unit
+    ) {
         (context as FhirApp).photosWorkerStatus.postValue(WorkerStatus.IN_PROGRESS)
         genericDao.getSameTypeGenericEntityPayload(
-            GenericTypeEnum.PRESCRIPTION_PHOTO,
+            typeEnum,
             SyncType.POST
         ).let { listOfGenericEntity ->
             if (listOfGenericEntity.isNotEmpty()) {
                 processDownload(
+                    typeEnum,
                     listOfGenericEntity,
                     logout
                 )
@@ -64,6 +68,7 @@ class FileSyncRepositoryImpl @Inject constructor(
     }
 
     private suspend fun processDownload(
+        typeEnum: GenericTypeEnum,
         listOfGenericEntity: List<GenericEntity>,
         logout: (Boolean, String) -> Unit
     ) {
@@ -80,11 +85,12 @@ class FileSyncRepositoryImpl @Inject constructor(
                 !downloadedFileDao.getDownloadedFileNames().contains(it.payload)
             }
         for (chunk in filesEntitiesToBeDownloaded.map { it.payload }.toSet().chunked(10)) {
-            downloadAndSaveFiles(filesEntitiesToBeDownloaded, chunk, logout)
+            downloadAndSaveFiles(typeEnum, filesEntitiesToBeDownloaded, chunk, logout)
         }
     }
 
     private suspend fun downloadAndSaveFiles(
+        typeEnum: GenericTypeEnum,
         listOfGenericEntity: List<GenericEntity>,
         filesToBeDownloaded: List<String>,
         logout: (Boolean, String) -> Unit
@@ -96,7 +102,7 @@ class FileSyncRepositoryImpl @Inject constructor(
                 downloadedFileDao.insertFile(*filesToBeDownloaded.map { uniqueFileName ->
                     DownloadedFileEntity(name = uniqueFileName)
                 }.toTypedArray())
-                startDownload(logout)
+                startDownload(typeEnum, logout)
             }
             it.errorBody()?.let { errorBody ->
                 (context as FhirApp).photosWorkerStatus.postValue(WorkerStatus.FAILED)

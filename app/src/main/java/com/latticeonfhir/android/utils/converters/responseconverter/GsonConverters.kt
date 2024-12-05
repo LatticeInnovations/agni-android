@@ -21,4 +21,12 @@ object GsonConverters {
         val json = gson.toJson(this)
         return gson.fromJson(json, type)
     }
+    inline fun <reified T> deserializeList(input: List<*>?): List<T>? {
+        if (input == null) return null
+
+        val json = gson.toJson(input)
+        val type = object : TypeToken<List<T>>() {}.type
+
+        return gson.fromJson(json, type)
+    }
 }
