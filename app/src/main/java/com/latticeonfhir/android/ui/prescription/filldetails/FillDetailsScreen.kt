@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -55,6 +56,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
 import java.util.Locale
 
@@ -87,6 +89,7 @@ fun FillDetailsScreen(
         }
     }
     Scaffold(
+        modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
                 title = {
@@ -112,37 +115,35 @@ fun FillDetailsScreen(
                     TextButton(
                         onClick = {
                             if (prescriptionViewModel.medicationToEdit != null) {
-                                prescriptionViewModel.selectedActiveIngredientsList =
-                                    prescriptionViewModel.selectedActiveIngredientsList - listOf(
-                                        prescriptionViewModel.medicationToEdit!!.activeIngredient
-                                    ).toSet()
-                                prescriptionViewModel.medicationsResponseWithMedicationList =
-                                    prescriptionViewModel.medicationsResponseWithMedicationList - listOf(
-                                        prescriptionViewModel.medicationToEdit!!
-                                    ).toSet()
+                                prescriptionViewModel.selectedActiveIngredientsList -= listOf(
+                                    prescriptionViewModel.medicationToEdit!!.activeIngredient
+                                ).toSet()
+                                prescriptionViewModel.medicationsResponseWithMedicationList -= listOf(
+                                    prescriptionViewModel.medicationToEdit!!
+                                ).toSet()
                             }
-                            prescriptionViewModel.selectedActiveIngredientsList =
-                                prescriptionViewModel.selectedActiveIngredientsList + listOf(
-                                    prescriptionViewModel.checkedActiveIngredient
-                                )
-                            prescriptionViewModel.medicationsResponseWithMedicationList =
-                                prescriptionViewModel.medicationsResponseWithMedicationList + listOf(
-                                    MedicationResponseWithMedication(
-                                        medName = viewModel.medSelected,
-                                        medUnit = viewModel.medUnit,
-                                        activeIngredient = prescriptionViewModel.checkedActiveIngredient,
-                                        medication = Medication(
-                                            duration = viewModel.duration.toInt(),
-                                            frequency = viewModel.frequency.toInt(),
-                                            note = viewModel.notes,
-                                            qtyPerDose = viewModel.quantityPerDose.toInt(),
-                                            qtyPrescribed = viewModel.quantityPrescribed().toInt(),
-                                            timing = viewModel.timing,
-                                            doseForm = viewModel.medDoseForm,
-                                            medFhirId = viewModel.medFhirId
-                                        )
+                            prescriptionViewModel.selectedActiveIngredientsList += listOf(
+                                prescriptionViewModel.checkedActiveIngredient
+                            )
+                            prescriptionViewModel.medicationsResponseWithMedicationList += listOf(
+                                MedicationResponseWithMedication(
+                                    medName = viewModel.medSelected,
+                                    medUnit = viewModel.medUnit,
+                                    activeIngredient = prescriptionViewModel.checkedActiveIngredient,
+                                    medication = Medication(
+                                        duration = viewModel.duration.toInt(),
+                                        frequency = viewModel.frequency.toInt(),
+                                        note = viewModel.notes,
+                                        qtyPerDose = viewModel.quantityPerDose.toInt(),
+                                        qtyPrescribed = viewModel.quantityPrescribed().toInt(),
+                                        timing = viewModel.timing,
+                                        doseForm = viewModel.medDoseForm,
+                                        medFhirId = viewModel.medFhirId,
+                                        medReqFhirId = null,
+                                        medReqUuid = UUIDBuilder.generateUUID()
                                     )
                                 )
+                            )
                             prescriptionViewModel.checkedActiveIngredient = ""
                             prescriptionViewModel.medicationToEdit = null
                             viewModel.reset()
@@ -169,10 +170,8 @@ fun FillDetailsScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("ACTIVE_INGREDIENT_FIELD"),
-                            value = prescriptionViewModel.checkedActiveIngredient.replaceFirstChar {
-                                if (it.isLowerCase()) it.titlecase(
-                                    Locale.getDefault()
-                                ) else it.toString()
+                            value = prescriptionViewModel.checkedActiveIngredient.replaceFirstChar { char ->
+                                char.titlecase(Locale.getDefault())
                             },
                             onValueChange = {
                             },
@@ -190,8 +189,8 @@ fun FillDetailsScreen(
                                 MutableInteractionSource()
                             }.also { interactionSource ->
                                 LaunchedEffect(interactionSource) {
-                                    interactionSource.interactions.collect {
-                                        if (it is PressInteraction.Release) {
+                                    interactionSource.interactions.collect { interaction ->
+                                        if (interaction is PressInteraction.Release) {
                                             formulationExpanded = !formulationExpanded
                                         }
                                     }
@@ -207,8 +206,8 @@ fun FillDetailsScreen(
                             expanded = formulationExpanded,
                             onDismissRequest = { formulationExpanded = !formulationExpanded },
                         ) {
-                            prescriptionViewModel.activeIngredientsList.filter {
-                                !prescriptionViewModel.selectedActiveIngredientsList.contains(it)
+                            prescriptionViewModel.activeIngredientsList.filter { ingredient ->
+                                !prescriptionViewModel.selectedActiveIngredientsList.contains(ingredient)
                             }.forEach { label ->
                                 DropdownMenuItem(
                                     onClick = {
@@ -218,10 +217,8 @@ fun FillDetailsScreen(
                                     },
                                     text = {
                                         Text(
-                                            text = label.replaceFirstChar {
-                                                if (it.isLowerCase()) it.titlecase(
-                                                    Locale.getDefault()
-                                                ) else it.toString()
+                                            text = label.replaceFirstChar {char ->
+                                                char.titlecase(Locale.getDefault())
                                             },
                                             style = MaterialTheme.typography.bodyLarge,
                                             color = MaterialTheme.colorScheme.onSurface

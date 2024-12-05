@@ -12,11 +12,13 @@ import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntit
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoPatch
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import javax.inject.Inject
@@ -78,7 +80,7 @@ class GenericRepositoryImpl @Inject constructor(
         return genericDao.insertGenericEntity(
             GenericEntity(
                 id = uuid,
-                patientId = prescriptionResponse.patientFhirId,
+                patientId = prescriptionResponse.prescriptionId,
                 payload = prescriptionResponse.toJson(),
                 type = GenericTypeEnum.PRESCRIPTION,
                 syncType = SyncType.POST
@@ -91,8 +93,8 @@ class GenericRepositoryImpl @Inject constructor(
         uuid: String
     ): Long {
         return genericDao.getGenericEntityById(
-            patientId = prescriptionPhotoResponse.patientFhirId,
-            genericTypeEnum = GenericTypeEnum.PRESCRIPTION,
+            patientId = prescriptionPhotoResponse.prescriptionId,
+            genericTypeEnum = GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE,
             syncType = SyncType.POST
         ).let { prescriptionGenericEntity ->
             insertPrescriptionPhotoGenericEntity(
@@ -106,7 +108,11 @@ class GenericRepositoryImpl @Inject constructor(
     override suspend fun updatePrescriptionFhirId() {
         genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION)
             .forEach { prescriptionGenericEntity ->
-                updatePrescriptionFhirIdInGenericEntity(prescriptionGenericEntity)
+                updateFormPrescriptionFhirIdInGenericEntity(prescriptionGenericEntity)
+            }
+        genericDao.getNotSyncedData(GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE)
+            .forEach { prescriptionGenericEntity ->
+                updatePhotoPrescriptionFhirIdInGenericEntity(prescriptionGenericEntity)
             }
     }
 
@@ -247,18 +253,18 @@ class GenericRepositoryImpl @Inject constructor(
 
     override suspend fun insertOrUpdatePhotoPrescriptionPatch(
         prescriptionFhirId: String,
-        prescriptionPhotoResponse: PrescriptionPhotoResponse,
+        prescriptionPhotoPatch: PrescriptionPhotoPatch,
         uuid: String
     ): Long {
         return genericDao.getGenericEntityById(
             prescriptionFhirId,
-            GenericTypeEnum.PRESCRIPTION,
+            GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE,
             SyncType.PATCH
         ).let { prescriptionGenericEntity ->
             insertOrUpdatePhotoPrescriptionGenericEntityPatch(
                 prescriptionFhirId = prescriptionFhirId,
                 prescriptionGenericEntity = prescriptionGenericEntity,
-                prescriptionPhotoResponse = prescriptionPhotoResponse,
+                prescriptionPhotoPatch = prescriptionPhotoPatch,
                 uuid = uuid
             )
         }
@@ -316,6 +322,27 @@ class GenericRepositoryImpl @Inject constructor(
             )
         }
     }
+    
+    override suspend fun removeGenericRecord(id: String): Int {
+        return genericDao.removeGenericRecord(id)
+    }
+
+    override suspend fun insertDeleteRequest(
+        fhirId: String,
+        typeEnum: GenericTypeEnum,
+        syncType: SyncType
+    ): Long {
+        return genericDao.insertGenericEntity(
+            GenericEntity(
+                id = UUIDBuilder.generateUUID(),
+                patientId = fhirId,
+                payload = fhirId.toJson(),
+                type = typeEnum,
+                syncType = syncType
+            )
+        )[0]
+    }
+
     override suspend fun insertPhotoLabTestAndMedRecord(
         map: Map<String, Any>,
         patientId: String,
@@ -335,6 +362,7 @@ class GenericRepositoryImpl @Inject constructor(
             )
         }
     }
+    
     override suspend fun insertOrUpdatePhotoLabTestAndMedPatch(
         fhirId: String,
         map: Map<String, Any>,
@@ -356,5 +384,4 @@ class GenericRepositoryImpl @Inject constructor(
         }
 
     }
-
 }

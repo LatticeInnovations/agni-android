@@ -232,7 +232,7 @@ include them in the household</string>
     <string name="discard_prescription">Discard prescription ?</string>
     <string name="discard_prescription_description">Are you sure you want to discard the prescription ?</string>
     <string name="add_notes_here">Add your notes here</string>
-    <string name="add_to_queue_dialog_description">To upload a prescription, the patient has to be in today’s queue.</string>
+    <string name="add_to_queue_dialog_description">To perform this action, the patient has to be in today’s queue.</string>
     <string name="add_to_queue_assessment_dialog_description">To do assessment, the patient has to be in today’s queue.</string>
     <string name="dismiss">Dismiss</string>
     <string name="discard">Discard</string>
@@ -279,6 +279,9 @@ include them in the household</string>
     <string name="cvd_error_message">Not applicable for gender type “Other”, age below 40 or above 74</string>
     <string name="dash">--</string>
     <string name="assessment_record_updated">Assessment record updated</string>
+    <string name="add_a_new_prescription">Add a new prescription</string>
+    <string name="upload_a_prescription">Upload a prescription</string>
+    <string name="fill_prescription">Fill prescription</string>
     <string name="vital">Vitals</string>
     <string name="vitals">Vitals</string>
     <string name="vitals_trend">Vitals trend</string>
@@ -344,7 +347,6 @@ include them in the household</string>
     <string name="edit_vital">Edit vitals</string>
     <string name="bmi_label">BMI</string>
     <string name="add_to_queue_vital_dialog_description">To perform this action, the patient has to be in today\'s queue</string>
-
     <string name="symptoms_and_diagnosis">Symptoms &amp; Diagnosis</string>
     <string name="add_symptoms_diagnosis">Add symptoms &amp; diagnosis</string>
     <string name="update_symptoms_diagnosis">Update symptoms &amp; diagnosis</string>
@@ -387,4 +389,5 @@ include them in the household</string>
     <string name="no_med_record_fount">No medical record added</string>
     <string name="discard_med_record_test">Discard medical record?</string>
     <string name="discard_med_record_description">Are you sure you want to discard the medical record?</string>
+    <string name="no_results_found">No results found</string>
 </resources>

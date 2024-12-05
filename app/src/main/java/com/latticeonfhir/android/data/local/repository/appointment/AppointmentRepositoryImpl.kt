@@ -40,6 +40,10 @@ class AppointmentRepositoryImpl @Inject constructor(private val appointmentDao: 
             ?.toAppointmentResponseLocal()
     }
 
+    override suspend fun getAppointmentByAppointmentId(appointmentId: String): AppointmentResponseLocal {
+        return appointmentDao.getAppointmentById(appointmentId)[0].toAppointmentResponseLocal()
+    }
+
     override suspend fun updateAppointment(appointmentResponseLocal: AppointmentResponseLocal): Int {
         return appointmentDao.updateAppointmentEntity(appointmentResponseLocal.toAppointmentEntity())
     }

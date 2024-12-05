@@ -9,6 +9,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
@@ -21,7 +22,8 @@ interface SyncRepository {
     suspend fun getAndInsertListPatientData(offset: Int): ResponseMapper<List<PatientResponse>>
     suspend fun getAndInsertPatientDataById(id: String): ResponseMapper<List<PatientResponse>>
     suspend fun getAndInsertRelation(): ResponseMapper<List<RelatedPersonResponse>>
-    suspend fun getAndInsertPrescription(patientId: String?): ResponseMapper<List<PrescriptionPhotoResponse>>
+    suspend fun getAndInsertPhotoPrescription(patientId: String?): ResponseMapper<List<PrescriptionPhotoResponse>>
+    suspend fun getAndInsertFormPrescription(patientId: String?): ResponseMapper<List<PrescriptionResponse>>
     suspend fun getAndInsertMedication(offset: Int): ResponseMapper<List<MedicationResponse>>
     suspend fun getMedicineTime(): ResponseMapper<List<MedicineTimeResponse>>
     suspend fun getAndInsertSchedule(offset: Int): ResponseMapper<List<ScheduleResponse>>
@@ -36,7 +38,8 @@ interface SyncRepository {
     //POST
     suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendRelatedPersonPostData(): ResponseMapper<List<CreateResponse>>
-    suspend fun sendPrescriptionPostData(): ResponseMapper<List<CreateResponse>>
+    suspend fun sendFormPrescriptionPostData(): ResponseMapper<List<CreateResponse>>
+    suspend fun sendPhotoPrescriptionPostData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendSchedulePostData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendAppointmentPostData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendPatientLastUpdatePostData(): ResponseMapper<List<CreateResponse>>
@@ -57,4 +60,6 @@ interface SyncRepository {
     suspend fun sendLabTestPatchData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendMedRecordPatchData(): ResponseMapper<List<CreateResponse>>
 
+    //DELETE
+    suspend fun deletePrescriptionPhoto(): ResponseMapper<List<CreateResponse>>
 }

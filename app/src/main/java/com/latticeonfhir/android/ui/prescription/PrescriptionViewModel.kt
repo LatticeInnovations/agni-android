@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
+import com.latticeonfhir.android.data.local.model.prescription.MedicationLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
@@ -46,8 +47,6 @@ class PrescriptionViewModel @Inject constructor(
     var bottomNavExpanded by mutableStateOf(false)
     var clearAllConfirmDialog by mutableStateOf(false)
 
-    val tabs = listOf("Previous prescription", "Quick select")
-
     var patient by mutableStateOf<PatientResponse?>(null)
 
     var activeIngredientsList by mutableStateOf(listOf<String>())
@@ -78,17 +77,6 @@ class PrescriptionViewModel @Inject constructor(
                     .firstOrNull { appointmentEntity ->
                         appointmentEntity.patientId == patientId && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
                     }
-        }
-    }
-
-    internal fun getPreviousPrescription(
-        patientId: String,
-        previousPrescriptionList: (List<PrescriptionAndMedicineRelation>) -> Unit
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            previousPrescriptionList(
-                prescriptionRepository.getLastPrescription(patientId)
-            )
         }
     }
 
@@ -173,7 +161,22 @@ class PrescriptionViewModel @Inject constructor(
                 patientFhirId = patient?.fhirId,
                 generatedOn = date,
                 prescriptionId = prescriptionId,
-                prescription = medicationsList,
+                prescription = medicationsList.map {
+                    MedicationLocal(
+                        medUnit = "",
+                        medName = "",
+                        doseForm = it.doseForm,
+                        qtyPrescribed = it.qtyPrescribed,
+                        frequency = it.frequency,
+                        duration = it.duration,
+                        medFhirId = it.medFhirId,
+                        medReqUuid = it.medReqUuid,
+                        medReqFhirId = it.medReqFhirId,
+                        note = it.note,
+                        qtyPerDose = it.qtyPerDose,
+                        timing = it.timing
+                    )
+                },
                 appointmentId = appointmentResponseLocal!!.uuid
             )
         )

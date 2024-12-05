@@ -16,7 +16,9 @@ import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestReque
 import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordRequest
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoPatch
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
+import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
@@ -111,7 +113,27 @@ open class GenericRepositoryDatabaseTransactions(
         }
     }
 
-    protected suspend fun updatePrescriptionFhirIdInGenericEntity(prescriptionGenericEntity: GenericEntity) {
+    protected suspend fun updateFormPrescriptionFhirIdInGenericEntity(prescriptionGenericEntity: GenericEntity) {
+        val existingMap =
+            prescriptionGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+                .mapToObject(PrescriptionResponse::class.java)
+        if (existingMap != null) {
+            genericDao.insertGenericEntity(
+                prescriptionGenericEntity.copy(
+                    payload = existingMap.copy(
+                        patientFhirId = if (!existingMap.patientFhirId.isFhirId()) getPatientFhirIdById(
+                            existingMap.patientFhirId
+                        )!! else existingMap.patientFhirId,
+                        appointmentId = if (!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(
+                            existingMap.appointmentId
+                        )!! else existingMap.appointmentId
+                    ).toJson()
+                )
+            )
+        }
+    }
+
+    protected suspend fun updatePhotoPrescriptionFhirIdInGenericEntity(prescriptionGenericEntity: GenericEntity) {
         val existingMap =
             prescriptionGenericEntity.payload.fromJson<MutableMap<String, Any>>()
                 .mapToObject(PrescriptionPhotoResponse::class.java)
@@ -411,21 +433,21 @@ open class GenericRepositoryDatabaseTransactions(
 
     protected suspend fun insertOrUpdatePhotoPrescriptionGenericEntityPatch(
         prescriptionGenericEntity: GenericEntity?,
-        prescriptionPhotoResponse: PrescriptionPhotoResponse,
+        prescriptionPhotoPatch: PrescriptionPhotoPatch,
         prescriptionFhirId: String,
         uuid: String
     ): Long {
         return if (prescriptionGenericEntity != null) {
             genericDao.insertGenericEntity(
-                prescriptionGenericEntity.copy(payload = prescriptionPhotoResponse.toJson())
+                prescriptionGenericEntity.copy(payload = prescriptionPhotoPatch.toJson())
             )[0]
         } else {
             genericDao.insertGenericEntity(
                 GenericEntity(
                     id = uuid,
                     patientId = prescriptionFhirId,
-                    payload = prescriptionPhotoResponse.toJson(),
-                    type = GenericTypeEnum.PRESCRIPTION,
+                    payload = prescriptionPhotoPatch.toJson(),
+                    type = GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE,
                     syncType = SyncType.PATCH
                 )
             )[0]
@@ -689,9 +711,9 @@ open class GenericRepositoryDatabaseTransactions(
             genericDao.insertGenericEntity(
                 GenericEntity(
                     id = uuid,
-                    patientId = prescriptionPhotoResponse.patientFhirId,
+                    patientId = prescriptionPhotoResponse.prescriptionId,
                     payload = prescriptionPhotoResponse.toJson(),
-                    type = GenericTypeEnum.PRESCRIPTION,
+                    type = GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE,
                     syncType = SyncType.POST
                 )
             )[0]
