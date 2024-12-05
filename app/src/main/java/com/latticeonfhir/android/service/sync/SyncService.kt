@@ -32,7 +32,7 @@ class SyncService(
     private lateinit var patientDownloadJob: Deferred<ResponseMapper<Any>?>
     private lateinit var scheduleDownloadJob: Deferred<ResponseMapper<Any>?>
     private lateinit var appointmentPatchJob: Deferred<ResponseMapper<Any>?>
-//    private lateinit var prescriptionPatchJob: Deferred<ResponseMapper<Any>?>
+    private lateinit var prescriptionPatchJob: Deferred<ResponseMapper<Any>?>
 
     /**
      *
@@ -297,12 +297,10 @@ class SyncService(
     }
 
     /** Patch Prescription */
-    internal suspend fun patchPrescription(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
-        return checkAuthenticationStatus(syncRepository.sendPrescriptionPhotoPatchData(), logout)?.apply {
-            if (this is ApiEndResponse) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    deletePhotoPrescription(logout)
-                }
+    internal suspend fun patchPrescription(logout: (Boolean, String) -> Unit) {
+        coroutineScope {
+            prescriptionPatchJob = async {
+                checkAuthenticationStatus(syncRepository.sendPrescriptionPhotoPatchData(), logout)
             }
         }
     }
@@ -379,12 +377,15 @@ class SyncService(
                 async {
                     checkAuthenticationStatus(syncRepository.getAndInsertAppointment(0), logout)
                 },
-//                prescriptionPatchJob
+               prescriptionPatchJob
             ).all { responseMapper ->
                 responseMapper is ApiEmptyResponse || responseMapper is ApiEndResponse
             }.apply {
                 if (this) {
                     downloadPatientLastUpdated(logout)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        deletePhotoPrescription(logout)
+                    }
                     CoroutineScope(Dispatchers.IO).launch {
                         downloadFormPrescription(null, logout)
                     }
