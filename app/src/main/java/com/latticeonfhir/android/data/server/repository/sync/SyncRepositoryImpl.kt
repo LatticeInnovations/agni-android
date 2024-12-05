@@ -28,6 +28,7 @@ import com.latticeonfhir.android.data.server.api.VitalApiService
 import com.latticeonfhir.android.data.server.api.SymptomsAndDiagnosisService
 import com.latticeonfhir.android.data.server.constants.ConstantValues.COUNT_VALUE
 import com.latticeonfhir.android.data.server.constants.ConstantValues.DEFAULT_MAX_COUNT_VALUE
+import com.latticeonfhir.android.data.server.constants.EndPoints
 import com.latticeonfhir.android.data.server.constants.EndPoints.MEDICATION_REQUEST
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.EndPoints.PRESCRIPTION_FILE

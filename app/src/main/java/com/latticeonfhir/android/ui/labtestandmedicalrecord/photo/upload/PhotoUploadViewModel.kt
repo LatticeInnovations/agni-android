@@ -222,8 +222,9 @@ class PhotoUploadViewModel @Inject constructor(
     ) {
         // insert in db
         val filename = imageUri.toFile().name
+        // TODO: added added string, to be changed
         val listOfFiles = files.apply {
-            add(File(filename, ""))
+            add(File(filename, "", "", ""))
         }
         labTestRepository.insertPhotoLabTestAndMed(
             local = LabTestPhotoResponseLocal(
