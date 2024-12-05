@@ -180,10 +180,6 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                         )
                     )
                 }
-            allPrescriptionList.sortBy {
-                it.date
-            }
-            recompose = !recompose
         }
     }
 

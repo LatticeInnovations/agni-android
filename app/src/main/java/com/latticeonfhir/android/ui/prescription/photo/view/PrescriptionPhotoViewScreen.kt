@@ -72,7 +72,6 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -723,6 +722,9 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
     ) {
         itemsIndexed(
             viewModel.allPrescriptionList
+                .sortedBy {
+                    it.date
+                }
                 .filter {
                     !viewModel.deletedPhotos.contains(it)
                 }
@@ -825,97 +827,95 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                     prescriptionPhoto.filename
                 )
                 val uri = Uri.fromFile(photoFile)
-                key(viewModel.recompose) {
-                    Row(
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItemPlacement(tween(300, easing = LinearEasing))
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .animateItemPlacement(tween(300, easing = LinearEasing))
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .shadow(
-                                    elevation = if (viewModel.isLongPressed && viewModel.selectedFile == prescription)
-                                        11.dp else 0.dp,
-                                    shape = RoundedCornerShape(
-                                        topStart = 48f,
-                                        topEnd = 48f,
-                                        bottomStart = 48f,
-                                        bottomEnd = 0f
-                                    )
+                            .shadow(
+                                elevation = if (viewModel.isLongPressed && viewModel.selectedFile == prescription)
+                                    11.dp else 0.dp,
+                                shape = RoundedCornerShape(
+                                    topStart = 48f,
+                                    topEnd = 48f,
+                                    bottomStart = 48f,
+                                    bottomEnd = 0f
                                 )
-                                .background(
-                                    shape = RoundedCornerShape(
-                                        topStart = 48f,
-                                        topEnd = 48f,
-                                        bottomStart = 48f,
-                                        bottomEnd = 0f
-                                    ),
-                                    color = if (viewModel.isLongPressed && viewModel.selectedFile == prescription)
-                                        MaterialTheme.colorScheme.primaryContainer
-                                    else MaterialTheme.colorScheme.surface
-                                )
-                                .pointerInput(viewModel.selectedFile) {
-                                    detectTapGestures(
-                                        onLongPress = {
-                                            viewModel.isLongPressed = true
-                                            viewModel.selectedFile = prescription
-                                        },
-                                        onTap = {
-                                            if (viewModel.isLongPressed) {
-                                                viewModel.isLongPressed = false
-                                                viewModel.selectedFile = null
-                                            } else {
-                                                viewModel.isTapped = true
-                                                viewModel.selectedFile = prescription
-                                            }
-                                        }
-                                    )
-                                },
-                            horizontalAlignment = Alignment.End
-                        ) {
-                            Image(
-                                painter = rememberImagePainter(uri),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(250.dp, 330.dp)
-                                    .padding(4.dp)
-                                    .clip(RoundedCornerShape(16.dp)),
-                                contentScale = ContentScale.Crop
                             )
-                            if (prescriptionPhoto.note.isNotBlank()) {
-                                Text(
-                                    text = prescriptionPhoto.note,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    modifier = Modifier
-                                        .width(250.dp)
-                                        .padding(top = 6.dp, start = 6.dp, end = 6.dp)
+                            .background(
+                                shape = RoundedCornerShape(
+                                    topStart = 48f,
+                                    topEnd = 48f,
+                                    bottomStart = 48f,
+                                    bottomEnd = 0f
+                                ),
+                                color = if (viewModel.isLongPressed && viewModel.selectedFile == prescription)
+                                    MaterialTheme.colorScheme.primaryContainer
+                                else MaterialTheme.colorScheme.surface
+                            )
+                            .pointerInput(viewModel.selectedFile) {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        viewModel.isLongPressed = true
+                                        viewModel.selectedFile = prescription
+                                    },
+                                    onTap = {
+                                        if (viewModel.isLongPressed) {
+                                            viewModel.isLongPressed = false
+                                            viewModel.selectedFile = null
+                                        } else {
+                                            viewModel.isTapped = true
+                                            viewModel.selectedFile = prescription
+                                        }
+                                    }
                                 )
-                            }
+                            },
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Image(
+                            painter = rememberImagePainter(uri),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(250.dp, 330.dp)
+                                .padding(4.dp)
+                                .clip(RoundedCornerShape(16.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                        if (prescriptionPhoto.note.isNotBlank()) {
                             Text(
-                                text = Date(
-                                    prescriptionPhoto.filename.substringBefore(".").toLong()
-                                ).toPrescriptionTime(),
+                                text = prescriptionPhoto.note,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.secondary,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 modifier = Modifier
                                     .width(250.dp)
-                                    .padding(end = 10.dp, bottom = 6.dp),
-                                textAlign = TextAlign.End
+                                    .padding(top = 6.dp, start = 6.dp, end = 6.dp)
                             )
                         }
+                        Text(
+                            text = Date(
+                                prescriptionPhoto.filename.substringBefore(".").toLong()
+                            ).toPrescriptionTime(),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier
+                                .width(250.dp)
+                                .padding(end = 10.dp, bottom = 6.dp),
+                            textAlign = TextAlign.End
+                        )
+                    }
 
-                        AnimatedVisibility(viewModel.isLongPressed && viewModel.selectedFile == prescription) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.check_circle),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
+                    AnimatedVisibility(viewModel.isLongPressed && viewModel.selectedFile == prescription) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.check_circle),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
                     }
                 }
             }
