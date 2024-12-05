@@ -59,9 +59,6 @@ class SyncService(
                         patchPrescription(logout)
                     },
                     async {
-                        deletePhotoPrescription(logout)
-                    },
-                    async {
                         downloadMedicationTiming(logout)
                     },
                     async {
@@ -300,8 +297,14 @@ class SyncService(
     }
 
     /** Patch Prescription */
-    internal suspend fun patchPrescription(logout: (Boolean, String) -> Unit) {
-        checkAuthenticationStatus(syncRepository.sendPrescriptionPhotoPatchData(), logout)
+    internal suspend fun patchPrescription(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendPrescriptionPhotoPatchData(), logout)?.apply {
+            if (this is ApiEndResponse) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    deletePhotoPrescription(logout)
+                }
+            }
+        }
     }
 
     /** Patch CVD */
