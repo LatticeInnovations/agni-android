@@ -33,5 +33,7 @@ interface PreferenceStorage {
 
     var lastSymptomsSyncTime: Long
 
+    var lastLabTestSyncTime: Long
+    var lastMedicalRecordSyncTime: Long
     fun clear()
 }

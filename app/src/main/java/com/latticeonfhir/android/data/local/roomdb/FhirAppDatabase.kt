@@ -13,6 +13,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.DownloadedFileDao
 import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
+import com.latticeonfhir.android.data.local.roomdb.dao.LabTestAndMedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
@@ -29,6 +30,8 @@ import com.latticeonfhir.android.data.local.roomdb.entities.cvd.RiskPredictionCh
 import com.latticeonfhir.android.data.local.roomdb.entities.file.DownloadedFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.file.FileUploadEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.LabTestAndMedEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
@@ -77,11 +80,12 @@ import java.util.UUID
         SymptomsEntity::class,
         DiagnosisEntity::class,
         SymptomAndDiagnosisEntity::class,
-        SymDiagSearchEntity::class
-
+        SymDiagSearchEntity::class,
+        LabTestAndMedEntity::class,
+        LabTestAndMedPhotoEntity::class
     ],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
-    version = 10,
+    version = 11,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
@@ -91,7 +95,8 @@ import java.util.UUID
         AutoMigration(from = 6, to = 7),
         AutoMigration(from = 7, to = 8),
         AutoMigration(from = 8, to = 9),
-        AutoMigration(from = 9, to = 10)
+        AutoMigration(from = 9, to = 10),
+        AutoMigration(from = 10, to = 11)
     ],
     exportSchema = true
 )
@@ -113,8 +118,8 @@ abstract class FhirAppDatabase : RoomDatabase() {
     abstract fun getRiskPredictionDao(): RiskPredictionDao
     abstract fun getCVDDao(): CVDDao
     abstract fun getVitalDao(): VitalDao
-
     abstract fun getSymptomsAndDiagnosisDao(): SymptomsAndDiagnosisDao
+    abstract fun getLabTestAndMedDao(): LabTestAndMedDao
 
 
     companion object {

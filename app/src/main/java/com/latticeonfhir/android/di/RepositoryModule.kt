@@ -1,5 +1,7 @@
 package com.latticeonfhir.android.di
 
+import com.latticeonfhir.android.data.local.repository.labtest.LabTestRepository
+import com.latticeonfhir.android.data.local.repository.labtest.LabTestRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.cvd.chart.RiskPredictionChartRepository
@@ -136,4 +138,7 @@ abstract class RepositoryModule {
     @ViewModelScoped
     abstract fun provideSymDiagRepository(symDiagRepositoryImpl: SymDiagRepositoryImpl): SymDiagRepository
 
+    @Binds
+    @ViewModelScoped
+    abstract fun provideLabTestRepository(labTestRepositoryImpl: LabTestRepositoryImpl): LabTestRepository
 }

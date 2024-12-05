@@ -377,5 +377,14 @@ include them in the household</string>
     <string name="arrow_right_icon">arrow_right_icon</string>
     <string name="no_symptoms_found">No symptoms &amp; diagnosis added yet</string>
 
-
+    <string name="lab_test">Lab Test</string>
+    <string name="lab_test_title">Lab test</string>
+    <string name="medical_record">Medical Record</string>
+    <string name="medical_record_title">Medical record</string>
+    <string name="discard_lab_test">Discard lab test?</string>
+    <string name="discard_lab_test_description">Are you sure you want to discard the lab test ?</string>
+    <string name="no_lab_test_added">No lab test added</string>
+    <string name="no_med_record_fount">No medical record added</string>
+    <string name="discard_med_record_test">Discard medical record?</string>
+    <string name="discard_med_record_description">Are you sure you want to discard the medical record?</string>
 </resources>

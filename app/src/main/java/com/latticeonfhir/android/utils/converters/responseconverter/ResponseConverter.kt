@@ -2,11 +2,13 @@ package com.latticeonfhir.android.utils.converters.responseconverter
 
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
+import com.latticeonfhir.android.data.local.model.labtest.LabTestLocal
+import com.latticeonfhir.android.data.local.model.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
+import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
@@ -14,6 +16,9 @@ import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.CVDEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.LabTestAndMedEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndFileEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
@@ -28,16 +33,21 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.P
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.vitals.VitalEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vitals.VitalEntity
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.QueryParameters
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.labormed.labtest.DiagnosticReport
+import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestPhotoResponse
+import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
+import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecord
+import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
@@ -52,10 +62,10 @@ import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsItem
+import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getInverseRelation
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
@@ -63,6 +73,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
+import timber.log.Timber
 import java.util.Date
 import java.util.UUID
 
@@ -403,6 +414,9 @@ internal suspend fun AppointmentResponse.toAppointmentEntity(
     patientDao: PatientDao,
     scheduleDao: ScheduleDao
 ): AppointmentEntity {
+    Timber.d("manseeyy patient $patientFhirId")
+    Timber.d("manseeyy appointment $appointmentId")
+    Timber.d("manseeyy $appointmentId")
     return AppointmentEntity(
         id = uuid,
         appointmentFhirId = appointmentId,
@@ -765,5 +779,163 @@ internal fun SymptomsAndDiagnosisLocal.toSymDiagData(): SymptomsAndDiagnosisData
         diagnosis = diagnosis.map { it.code },
         symptoms = symptoms.map { it.code },
         patientId = patientId
+    )
+}
+
+internal fun LabTestAndFileEntity.toFilesList(): List<File> {
+    return labTestAndMedPhotoEntity.map {
+        File(
+            filename = it.fileName, note = it.note ?: ""
+        )
+    }
+}
+
+
+internal suspend fun LabTestAndFileEntity.toLabTestPhotoResponse(
+    appointmentDao: AppointmentDao
+): LabTestPhotoResponse {
+    return LabTestPhotoResponse(
+        labTestId = labTestAndMedEntity.id,
+        appointmentId = appointmentDao.getFhirIdByAppointmentId(labTestAndMedEntity.appointmentId)
+            ?: labTestAndMedEntity.appointmentId,
+        patientId = labTestAndMedEntity.patientId,
+        labTestFhirId = labTestAndMedEntity.labTestFhirId,
+        createdOn = labTestAndMedEntity.createdOn,
+        labTests = labTestAndMedPhotoEntity.map { prescriptionPhotoEntity ->
+            File(prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note ?: "")
+        })
+}
+
+internal suspend fun LabTestAndFileEntity.toLabTestPhotoResponseLocal(
+    appointmentDao: AppointmentDao
+): LabTestPhotoResponseLocal {
+    return LabTestPhotoResponseLocal(
+        labTestId = labTestAndMedEntity.id,
+        appointmentId = appointmentDao.getFhirIdByAppointmentId(labTestAndMedEntity.appointmentId)
+            ?: labTestAndMedEntity.appointmentId,
+        patientId = labTestAndMedEntity.patientId,
+        labTestFhirId = labTestAndMedEntity.labTestFhirId,
+        createdOn = labTestAndMedEntity.createdOn,
+        labTests = labTestAndMedPhotoEntity.map { prescriptionPhotoEntity ->
+            File(prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note ?: "")
+        })
+}
+
+internal suspend fun DiagnosticReport.toLabTestPhotoResponseLocal(
+    labTestResponse: LabTestResponse,
+    appointmentDao: AppointmentDao,
+    studentDao: PatientDao
+): LabTestLocal {
+    return LabTestLocal(
+        labTestId = diagnosticUuid,
+        appointmentId = appointmentDao.getAppointmentIdByFhirId(labTestResponse.appointmentId),
+        patientId = studentDao.getPatientIdByFhirId(labTestResponse.patientId)!!,
+        labTestFhirId = diagnosticReportFhirId,
+        createdOn = createdOn.convertStringToDate()
+    )
+}
+
+internal suspend fun MedicalRecord.toMedRecordPhotoResponseLocal(
+    medicalRecordResponse: MedicalRecordResponse,
+    appointmentDao: AppointmentDao,
+    studentDao: PatientDao
+): LabTestLocal {
+    return LabTestLocal(
+        labTestId = medicalReportUuid,
+        appointmentId = appointmentDao.getAppointmentIdByFhirId(medicalRecordResponse.appointmentId),
+        patientId = studentDao.getPatientIdByFhirId(medicalRecordResponse.patientId)!!,
+        labTestFhirId = medicalRecordFhirId,
+        createdOn = createdOn.convertStringToDate()
+    )
+}
+
+internal fun LabTestResponse.toListOfLabTestPhotoEntity(
+): List<LabTestAndMedPhotoEntity> {
+    val list: MutableList<LabTestAndMedPhotoEntity> = mutableListOf()
+    val fileNameSet: MutableSet<String> = mutableSetOf()
+
+    diagnosticReport.map { diagnosticReport ->
+        diagnosticReport.documents.map {
+            if (!fileNameSet.contains(it.filename)) {
+
+                list.add(
+                    LabTestAndMedPhotoEntity(
+                        id = UUID.randomUUID().toString(),
+                        labTestId = diagnosticReport.diagnosticUuid,
+                        fileName = it.filename,
+                        note = it.note
+                    )
+                )
+                fileNameSet.add(it.filename)
+
+            }
+        }
+    }
+    return list
+}
+
+internal fun MedicalRecordResponse.toListOfLabTestAndMedPhotoEntity(
+): List<LabTestAndMedPhotoEntity> {
+    val list: MutableList<LabTestAndMedPhotoEntity> = mutableListOf()
+    val fileNameSet: MutableSet<String> = mutableSetOf() // Set to track unique file names
+
+    medicalRecord.map { diagnosticReport ->
+        diagnosticReport.documents.map {
+            if (!fileNameSet.contains(it.filename)) { // Check if fileName is not already in the set
+                list.add(
+                    LabTestAndMedPhotoEntity(
+                        id = UUID.randomUUID().toString(),
+                        labTestId = diagnosticReport.medicalReportUuid,
+                        fileName = it.filename,
+                        note = it.note
+                    )
+                )
+                fileNameSet.add(it.filename) // Add the fileName to the set
+            }
+        }
+    }
+    return list
+}
+
+internal fun LabTestPhotoResponseLocal.toLabTestAndMedEntity(type: String): LabTestAndMedEntity {
+    return LabTestAndMedEntity(
+        id = labTestId,
+        appointmentId = appointmentId,
+        labTestFhirId = labTestFhirId,
+        patientId = patientId,
+        createdOn = createdOn,
+        type = type
+
+    )
+}
+internal fun LabTestPhotoResponseLocal.toListOfLabTestPhotoEntity(): List<LabTestAndMedPhotoEntity> {
+    return labTests.map { labTestItem ->
+        LabTestAndMedPhotoEntity(
+            id = labTestItem.filename + labTestId,
+            fileName = labTestItem.filename,
+            labTestId = labTestId,
+            note = labTestItem.note
+        )
+    }
+}
+internal fun LabTestAndMedEntity.toLabTestLocal(): LabTestLocal {
+    return LabTestLocal(
+        labTestId = id,
+        appointmentId = appointmentId,
+        patientId = patientId,
+        labTestFhirId = labTestFhirId,
+        createdOn = createdOn
+
+    )
+}
+internal fun LabTestLocal.toLabTestEntity(type: String): LabTestAndMedEntity {
+    return LabTestAndMedEntity(
+        id = labTestId,
+        appointmentId = appointmentId,
+        patientId = patientId,
+        labTestFhirId = labTestFhirId,
+        createdOn = createdOn,
+        type = type
+
     )
 }

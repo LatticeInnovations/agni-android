@@ -12,6 +12,8 @@ import com.latticeonfhir.android.ui.householdmember.HouseholdMembersScreen
 import com.latticeonfhir.android.ui.householdmember.addhouseholdmember.AddHouseholdMember
 import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatient
 import com.latticeonfhir.android.ui.householdmember.searchresult.SearchResult
+import com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.upload.PhotoUploadScreen
+import com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.view.PhotoViewScreen
 import com.latticeonfhir.android.ui.landingscreen.LandingScreen
 import com.latticeonfhir.android.ui.login.OtpScreen
 import com.latticeonfhir.android.ui.login.PhoneEmailScreen
@@ -78,5 +80,7 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
 
         composable(Screen.SymptomsAndDiagnosisScreen.route) { SymptomsAndDiagnosisScreen(navController = navController) }
         composable(Screen.AddSymptomsScreen.route) { SelectSymptomScreen(navController = navController) }
+        composable(Screen.LabAndMedPhotoUploadScreen.route) { PhotoUploadScreen(navController = navController) }
+        composable(Screen.LabAndMedRecordPhotoViewScreen.route) { PhotoViewScreen(navController = navController) }
     }
 }
