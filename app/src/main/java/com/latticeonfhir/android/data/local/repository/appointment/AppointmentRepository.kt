@@ -26,6 +26,8 @@ interface AppointmentRepository {
         endOfDay: Long
     ): AppointmentResponseLocal?
 
+    suspend fun getAppointmentByAppointmentId(appointmentId: String): AppointmentResponseLocal
+
     suspend fun getLastCompletedAppointment(
         patientId: String
     ): AppointmentEntity?

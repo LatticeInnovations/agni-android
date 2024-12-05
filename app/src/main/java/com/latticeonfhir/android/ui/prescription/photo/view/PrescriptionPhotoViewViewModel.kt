@@ -238,15 +238,11 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             prescriptionRepository.getPrescriptionPhotoById(prescriptionId)
         if (updatedPrescriptionPhotoResponseLocal.prescriptionFhirId == null) {
             // insert generic post
-            val appointmentLocal = appointmentRepository.getAppointmentsOfPatientByDate(
-                patient!!.id,
-                Date().toTodayStartDate(),
-                Date().toEndOfDay()
-            )
+            val appointmentResponse = appointmentRepository.getAppointmentByAppointmentId(updatedPrescriptionPhotoResponseLocal.appointmentId)
             genericRepository.insertPhotoPrescription(
                 PrescriptionPhotoResponse(
                     appointmentUuid = updatedPrescriptionPhotoResponseLocal.appointmentId,
-                    appointmentId = appointmentLocal!!.appointmentId ?: appointmentLocal.uuid,
+                    appointmentId = appointmentResponse.appointmentId ?: appointmentResponse.uuid,
                     generatedOn = updatedPrescriptionPhotoResponseLocal.generatedOn,
                     patientFhirId = patient!!.fhirId ?: patient!!.id,
                     prescriptionFhirId = null,
