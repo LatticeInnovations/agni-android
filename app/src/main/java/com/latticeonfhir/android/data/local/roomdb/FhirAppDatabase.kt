@@ -9,6 +9,7 @@ import androidx.room.TypeConverters
 import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
+import com.latticeonfhir.android.data.local.roomdb.dao.DispenseDao
 import com.latticeonfhir.android.data.local.roomdb.dao.DownloadedFileDao
 import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
@@ -27,6 +28,9 @@ import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.CVDEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.RiskPredictionCharts
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseDataEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.file.DownloadedFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.file.FileUploadEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
@@ -34,6 +38,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.
 import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.StrengthEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientLastUpdatedEntity
@@ -82,10 +87,14 @@ import java.util.UUID
         SymptomAndDiagnosisEntity::class,
         SymDiagSearchEntity::class,
         LabTestAndMedEntity::class,
-        LabTestAndMedPhotoEntity::class
+        LabTestAndMedPhotoEntity::class,
+        DispensePrescriptionEntity::class,
+        DispenseDataEntity::class,
+        MedicineDispenseListEntity::class,
+        StrengthEntity::class,
     ],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
-    version = 11,
+    version = 12,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
@@ -96,7 +105,8 @@ import java.util.UUID
         AutoMigration(from = 7, to = 8),
         AutoMigration(from = 8, to = 9),
         AutoMigration(from = 9, to = 10),
-        AutoMigration(from = 10, to = 11)
+        AutoMigration(from = 10, to = 11),
+        AutoMigration(from = 11, to = 12)
     ],
     exportSchema = true
 )
@@ -120,6 +130,7 @@ abstract class FhirAppDatabase : RoomDatabase() {
     abstract fun getVitalDao(): VitalDao
     abstract fun getSymptomsAndDiagnosisDao(): SymptomsAndDiagnosisDao
     abstract fun getLabTestAndMedDao(): LabTestAndMedDao
+    abstract fun getDispenseDao(): DispenseDao
 
 
     companion object {

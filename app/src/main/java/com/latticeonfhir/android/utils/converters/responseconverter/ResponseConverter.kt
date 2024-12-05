@@ -22,7 +22,9 @@ import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.
 import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationStrengthRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.StrengthEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
@@ -56,6 +58,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedRes
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
+import com.latticeonfhir.android.data.server.model.prescription.medication.Strength
 import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
@@ -353,36 +356,6 @@ internal fun PrescriptionPhotoResponseLocal.toListOfPrescriptionPhotoEntity(): L
             documentFhirId = prescriptionItem.documentFhirId
         )
     }
-}
-
-internal fun List<MedicationResponse>.toListOfMedicationEntity(): List<MedicationEntity> {
-    return this.map { medication ->
-        MedicationEntity(
-            medFhirId = medication.medFhirId,
-            medCodeName = medication.medCode,
-            medName = medication.medName,
-            doseForm = medication.doseForm,
-            doseFormCode = medication.doseFormCode,
-            activeIngredient = medication.activeIngredient,
-            activeIngredientCode = medication.activeIngredientCode,
-            medUnit = medication.medUnit,
-            medNumeratorVal = medication.medNumeratorVal
-        )
-    }
-}
-
-internal fun MedicationEntity.toMedicationResponse(): MedicationResponse {
-    return MedicationResponse(
-        medFhirId = this.medFhirId,
-        medCode = this.medCodeName,
-        medName = this.medName,
-        doseForm = this.doseForm,
-        doseFormCode = this.doseFormCode,
-        activeIngredient = this.activeIngredient,
-        activeIngredientCode = this.activeIngredientCode,
-        medUnit = this.medUnit,
-        medNumeratorVal = this.medNumeratorVal
-    )
 }
 
 internal fun List<MedicineTimeResponse>.toListOfMedicineDirectionsEntity(): List<MedicineTimingEntity> {
@@ -985,5 +958,56 @@ internal fun LabTestLocal.toLabTestEntity(type: String): LabTestAndMedEntity {
         createdOn = createdOn,
         type = type
 
+    )
+}
+
+internal fun List<MedicationResponse>.toListOfMedicationEntity(): List<MedicationEntity> {
+    return this.map { medication ->
+        MedicationEntity(
+            medFhirId = medication.medFhirId,
+            medCodeName = medication.medCode,
+            medName = medication.medName,
+            doseForm = medication.doseForm,
+            doseFormCode = medication.doseFormCode,
+            activeIngredient = medication.activeIngredient,
+            activeIngredientCode = medication.activeIngredientCode,
+            medUnit = medication.medUnit,
+            medNumeratorVal = medication.medNumeratorVal,
+            isOTC = medication.isOTC
+        )
+    }
+}
+
+internal fun MedicationResponse.toListOfStrengthEntity(): List<StrengthEntity> {
+    return this.strength.map { strength ->
+        StrengthEntity(
+            id = UUIDBuilder.generateUUID(),
+            medFhirId = this.medFhirId,
+            medName = strength.medName,
+            unitMeasureValue = strength.unitMeasureValue,
+            medMeasureCode = strength.medMeasureCode
+        )
+    }
+}
+
+internal fun MedicationStrengthRelation.toMedicationResponse(): MedicationResponse {
+    return MedicationResponse(
+        medFhirId = this.medicationEntity.medFhirId,
+        medCode = this.medicationEntity.medCodeName,
+        medName = this.medicationEntity.medName,
+        doseForm = this.medicationEntity.doseForm,
+        doseFormCode = this.medicationEntity.doseFormCode,
+        activeIngredient = this.medicationEntity.activeIngredient,
+        activeIngredientCode = this.medicationEntity.activeIngredientCode,
+        medUnit = this.medicationEntity.medUnit,
+        medNumeratorVal = this.medicationEntity.medNumeratorVal,
+        isOTC = this.medicationEntity.isOTC,
+        strength = this.strength.map {
+            Strength(
+                medMeasureCode = it.medMeasureCode,
+                medName = it.medName,
+                unitMeasureValue = it.unitMeasureValue
+            )
+        }
     )
 }

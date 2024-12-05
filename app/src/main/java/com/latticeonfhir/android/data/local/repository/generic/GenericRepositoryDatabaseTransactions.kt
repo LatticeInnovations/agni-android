@@ -12,6 +12,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestRequest
 import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordRequest
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
@@ -261,6 +262,27 @@ open class GenericRepositoryDatabaseTransactions(
         }
     }
 
+    protected suspend fun insertDispenseGenericEntity(
+        medicineDispenseRequest: MedicineDispenseRequest,
+        patientGenericEntity: GenericEntity?,
+        uuid: String
+    ): Long {
+        return if (patientGenericEntity != null) {
+            genericDao.insertGenericEntity(
+                patientGenericEntity.copy(payload = medicineDispenseRequest.toJson())
+            )[0]
+        } else {
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid,
+                    patientId = medicineDispenseRequest.dispenseId,
+                    payload = medicineDispenseRequest.toJson(),
+                    type = GenericTypeEnum.DISPENSE,
+                    syncType = SyncType.POST
+                )
+            )[0]
+        }
+    }
 
     protected suspend fun updateAppointmentFhirIdInGenericEntity(appointmentGenericEntity: GenericEntity) {
         val existingMap = appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()

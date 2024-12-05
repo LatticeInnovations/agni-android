@@ -5,6 +5,7 @@ import com.latticeonfhir.android.FhirApp.Companion.gson
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import com.latticeonfhir.android.data.server.api.AuthenticationApiService
 import com.latticeonfhir.android.data.server.api.CVDApiService
+import com.latticeonfhir.android.data.server.api.DispenseApiService
 import com.latticeonfhir.android.data.server.api.FileUploadApiService
 import com.latticeonfhir.android.data.server.api.LabTestAndMedRecordService
 import com.latticeonfhir.android.data.server.api.PatientApiService
@@ -149,5 +150,11 @@ object NetworkModule {
     @Singleton
     internal fun provideLabAndMedAPiService(retrofit: Retrofit): LabTestAndMedRecordService {
         return retrofit.create(LabTestAndMedRecordService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    internal fun provideDispenseApiService(retrofit: Retrofit): DispenseApiService {
+        return retrofit.create(DispenseApiService::class.java)
     }
 }
