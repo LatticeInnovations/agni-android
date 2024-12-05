@@ -7,6 +7,7 @@ import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisDa
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
@@ -35,9 +36,10 @@ class GenericRepositoryImpl @Inject constructor(
     private val genericDao: GenericDao,
     patientDao: PatientDao,
     scheduleDao: ScheduleDao,
-    appointmentDao: AppointmentDao
+    appointmentDao: AppointmentDao,
+    prescriptionDao: PrescriptionDao
 ) : GenericRepository,
-    GenericRepositoryDatabaseTransactions(genericDao, patientDao, scheduleDao, appointmentDao) {
+    GenericRepositoryDatabaseTransactions(genericDao, patientDao, scheduleDao, appointmentDao, prescriptionDao) {
 
     override suspend fun insertPatient(patientResponse: PatientResponse, uuid: String): Long {
         return genericDao.getGenericEntityById(
@@ -170,6 +172,13 @@ class GenericRepositoryImpl @Inject constructor(
         genericDao.getNotSyncedData(GenericTypeEnum.MEDICAL_RECORD)
             .forEach { genericEntity ->
                 updateMedicalRecordFhirIdInGenericEntity(genericEntity)
+            }
+    }
+
+    override suspend fun updateDispenseFhirId() {
+        genericDao.getNotSyncedData(GenericTypeEnum.DISPENSE)
+            .forEach { dispenseGenericEntity ->
+                updateDispenseFhirIdInGenericEntity(dispenseGenericEntity)
             }
     }
 

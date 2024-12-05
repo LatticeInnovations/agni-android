@@ -12,11 +12,16 @@ import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.android.data.local.roomdb.dao.DispenseDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.CVDEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseDataEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.LabTestAndMedEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndFileEntity
@@ -47,6 +52,8 @@ import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.QueryParameters
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.dispense.response.DispenseData
+import com.latticeonfhir.android.data.server.model.dispense.response.MedicineDispenseResponse
 import com.latticeonfhir.android.data.server.model.labormed.labtest.DiagnosticReport
 import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestPhotoResponse
 import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
@@ -1010,4 +1017,58 @@ internal fun MedicationStrengthRelation.toMedicationResponse(): MedicationRespon
             )
         }
     )
+}
+
+internal suspend fun MedicineDispenseResponse.toDispensePrescriptionEntity(
+    patientDao: PatientDao,
+    prescriptionDao: PrescriptionDao
+): DispensePrescriptionEntity {
+    return DispensePrescriptionEntity(
+        patientId = patientDao.getPatientIdByFhirId(this.patientId)!!,
+        prescriptionId = prescriptionDao.getPrescriptionIdByFhirId(this.prescriptionFhirId),
+        status = this.status
+    )
+}
+
+internal suspend fun DispenseData.toListOfDispenseDataEntity(
+    patientDao: PatientDao,
+    prescriptionDao: PrescriptionDao,
+    appointmentDao: AppointmentDao,
+    prescriptionFhirId: String?
+): DispenseDataEntity {
+    return DispenseDataEntity(
+        dispenseId = this.dispenseId,
+        dispenseFhirId = this.dispenseFhirId,
+        generatedOn = this.generatedOn,
+        note = this.note,
+        patientId = patientDao.getPatientIdByFhirId(this.patientId)!!,
+        prescriptionId = if (prescriptionFhirId.isNullOrBlank()) null else prescriptionDao.getPrescriptionIdByFhirId(
+            prescriptionFhirId
+        ),
+        appointmentId = if (this.appointmentId.isNullOrBlank()) null else appointmentDao.getAppointmentIdByFhirId(this.appointmentId)
+    )
+}
+
+internal suspend fun DispenseData.toListOfMedicineDispenseListEntity(
+    patientDao: PatientDao,
+    dispenseDao: DispenseDao
+): List<MedicineDispenseListEntity> {
+    return this.medicineDispensedList.map {
+        MedicineDispenseListEntity(
+            medDispenseUuid = it.medDispenseUuid,
+            medDispenseFhirId = it.medDispenseFhirId,
+            dispenseId = this.dispenseId,
+            patientId = patientDao.getPatientIdByFhirId(it.patientId)!!,
+            category = it.category,
+            qtyDispensed = it.qtyDispensed,
+            qtyPrescribed = it.prescriptionData?.qtyPrescribed ?: it.qtyDispensed,
+            date = it.date,
+            isModified = it.isModified,
+            modificationType = it.modificationType,
+            medNote = it.medNote,
+            dispensedMedFhirId = it.dispensedMedication.medFhirId,
+            prescribedMedFhirId = it.prescriptionData?.medFhirId ?: it.medFhirId,
+            prescribedMedReqId = it.prescriptionData?.medReqFhirId
+        )
+    }
 }

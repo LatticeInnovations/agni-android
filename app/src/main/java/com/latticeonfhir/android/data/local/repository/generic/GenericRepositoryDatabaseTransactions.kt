@@ -9,6 +9,7 @@ import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisDa
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
@@ -34,7 +35,8 @@ open class GenericRepositoryDatabaseTransactions(
     private val genericDao: GenericDao,
     private val patientDao: PatientDao,
     private val scheduleDao: ScheduleDao,
-    private val appointmentDao: AppointmentDao
+    private val appointmentDao: AppointmentDao,
+    private val prescriptionDao: PrescriptionDao
 ) {
 
     protected suspend fun insertPatientGenericEntity(
@@ -417,6 +419,39 @@ open class GenericRepositoryDatabaseTransactions(
         }
     }
 
+
+
+    protected suspend fun updateDispenseFhirIdInGenericEntity(dispenseGenericEntity: GenericEntity) {
+        val existingMap =
+            dispenseGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+                .mapToObject(MedicineDispenseRequest::class.java)
+        if (existingMap != null) {
+            genericDao.insertGenericEntity(
+                dispenseGenericEntity.copy(
+                    payload = existingMap.copy(
+                        patientId = if (!existingMap.patientId.isFhirId()) getPatientFhirIdById(
+                            existingMap.patientId
+                        )!! else existingMap.patientId,
+                        prescriptionFhirId = if (!existingMap.prescriptionFhirId.isNullOrBlank() && !existingMap.prescriptionFhirId.isFhirId()) getPrescriptionFhirIdById(
+                            existingMap.prescriptionFhirId
+                        )!! else existingMap.prescriptionFhirId,
+                        medicineDispensedList = existingMap.medicineDispensedList.map { medicine ->
+                            medicine.copy(
+                                medReqFhirId = if (!medicine.medReqFhirId.isNullOrBlank() && !medicine.medReqFhirId.isFhirId()) getMedReqFhirIdById(
+                                    medicine.medReqFhirId
+                                )!!
+                                else medicine.medReqFhirId
+                            )
+                        },
+                        appointmentId = if (!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(
+                            existingMap.appointmentId
+                        )!! else existingMap.appointmentId
+                    ).toJson()
+                )
+            )
+        }
+    }
+
     protected suspend fun insertOrUpdateAppointmentGenericEntityPatch(
         appointmentGenericEntity: GenericEntity?,
         map: Map<String, Any>,
@@ -695,6 +730,14 @@ open class GenericRepositoryDatabaseTransactions(
 
     private suspend fun getAppointmentFhirIdById(appointmentId: String): String? {
         return appointmentDao.getAppointmentById(appointmentId)[0].appointmentFhirId
+    }
+
+    private suspend fun getPrescriptionFhirIdById(prescriptionId: String): String? {
+        return prescriptionDao.getPrescriptionById(prescriptionId)[0].prescriptionFhirId
+    }
+
+    private suspend fun getMedReqFhirIdById(medReqUuid: String): String? {
+        return prescriptionDao.getMedReqById(medReqUuid)[0].medReqFhirId
     }
 
     protected suspend fun insertPatientLastUpdatedGenericEntity(
