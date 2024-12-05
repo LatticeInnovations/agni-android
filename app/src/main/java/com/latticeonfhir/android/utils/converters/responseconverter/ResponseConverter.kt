@@ -825,8 +825,9 @@ internal fun SymptomsAndDiagnosisLocal.toSymDiagData(): SymptomsAndDiagnosisData
 
 internal fun LabTestAndFileEntity.toFilesList(): List<File> {
     return labTestAndMedPhotoEntity.map {
+        // TODO: added added string, to be changed
         File(
-            filename = it.fileName, note = it.note ?: ""
+            filename = it.fileName, note = it.note ?: "", documentFhirId = "", documentUuid = ""
         )
     }
 }
@@ -835,6 +836,7 @@ internal fun LabTestAndFileEntity.toFilesList(): List<File> {
 internal suspend fun LabTestAndFileEntity.toLabTestPhotoResponse(
     appointmentDao: AppointmentDao
 ): LabTestPhotoResponse {
+    // TODO: added added string, to be changed
     return LabTestPhotoResponse(
         labTestId = labTestAndMedEntity.id,
         appointmentId = appointmentDao.getFhirIdByAppointmentId(labTestAndMedEntity.appointmentId)
@@ -843,7 +845,7 @@ internal suspend fun LabTestAndFileEntity.toLabTestPhotoResponse(
         labTestFhirId = labTestAndMedEntity.labTestFhirId,
         createdOn = labTestAndMedEntity.createdOn,
         labTests = labTestAndMedPhotoEntity.map { prescriptionPhotoEntity ->
-            File(prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note ?: "")
+            File("", "", prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note ?: "")
         })
 }
 
@@ -858,7 +860,12 @@ internal suspend fun LabTestAndFileEntity.toLabTestPhotoResponseLocal(
         labTestFhirId = labTestAndMedEntity.labTestFhirId,
         createdOn = labTestAndMedEntity.createdOn,
         labTests = labTestAndMedPhotoEntity.map { prescriptionPhotoEntity ->
-            File(prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note ?: "")
+            File(
+                "",
+                "",
+                prescriptionPhotoEntity.fileName,
+                prescriptionPhotoEntity.note ?: ""
+            )
         })
 }
 
