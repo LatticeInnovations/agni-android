@@ -389,4 +389,5 @@ include them in the household</string>
     <string name="no_med_record_fount">No medical record added</string>
     <string name="discard_med_record_test">Discard medical record?</string>
     <string name="discard_med_record_description">Are you sure you want to discard the medical record?</string>
+    <string name="no_results_found">No results found</string>
 </resources>
