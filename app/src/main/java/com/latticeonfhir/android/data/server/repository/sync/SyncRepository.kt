@@ -49,4 +49,6 @@ interface SyncRepository {
     suspend fun sendCVDPatchData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendVitalPatchData(): ResponseMapper<List<CreateResponse>>
 
+    //DELETE
+    suspend fun deletePrescriptionPhoto(): ResponseMapper<List<CreateResponse>>
 }
