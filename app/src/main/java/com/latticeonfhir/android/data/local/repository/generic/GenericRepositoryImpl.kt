@@ -10,6 +10,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoPatch
@@ -204,6 +205,19 @@ class GenericRepositoryImpl @Inject constructor(
             syncType = SyncType.POST
         ).let {
             insertSymDiagGenericEntity(local, it, uuid)
+        }
+    }
+
+    override suspend fun insertDispense(
+        medicineDispenseRequest: MedicineDispenseRequest,
+        uuid: String
+    ): Long {
+        return genericDao.getGenericEntityById(
+            patientId = medicineDispenseRequest.dispenseId,
+            genericTypeEnum = GenericTypeEnum.DISPENSE,
+            syncType = SyncType.POST
+        ).let { dispenseGenericEntity ->
+            insertDispenseGenericEntity(medicineDispenseRequest, dispenseGenericEntity, uuid)
         }
     }
 

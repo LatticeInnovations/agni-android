@@ -8,6 +8,9 @@ import androidx.navigation.compose.composable
 import com.latticeonfhir.android.ui.appointments.AppointmentsScreen
 import com.latticeonfhir.android.ui.appointments.schedule.ScheduleAppointments
 import com.latticeonfhir.android.ui.cvd.CVDRiskAssessmentScreen
+import com.latticeonfhir.android.ui.dispense.DrugDispenseScreen
+import com.latticeonfhir.android.ui.dispense.otc.OTCScreen
+import com.latticeonfhir.android.ui.dispense.prescription.dispenseprescription.DispensePrescriptionScreen
 import com.latticeonfhir.android.ui.householdmember.HouseholdMembersScreen
 import com.latticeonfhir.android.ui.householdmember.addhouseholdmember.AddHouseholdMember
 import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatient
@@ -82,5 +85,9 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.AddSymptomsScreen.route) { SelectSymptomScreen(navController = navController) }
         composable(Screen.LabAndMedPhotoUploadScreen.route) { PhotoUploadScreen(navController = navController) }
         composable(Screen.LabAndMedRecordPhotoViewScreen.route) { PhotoViewScreen(navController = navController) }
+
+        composable(Screen.DrugDispenseScreen.route) { DrugDispenseScreen(navController = navController) }
+        composable(Screen.DispensePrescriptionScreen.route) { DispensePrescriptionScreen(navController = navController) }
+        composable(Screen.OTCScreen.route) { OTCScreen(navController = navController) }
     }
 }

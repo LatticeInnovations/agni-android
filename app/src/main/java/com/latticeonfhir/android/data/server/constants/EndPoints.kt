@@ -10,4 +10,6 @@ object EndPoints {
     const val SYMPTOMS_DIAGNOSIS = "Condition"
     const val LAB_TEST = "DiagnosticReport"
     const val MEDICAL_RECORD = "DocumentManifest"
+    const val MEDICATION_DISPENSE = "MedicationDispense"
+    const val DISPENSE_LOG = "DispenseLog"
 }

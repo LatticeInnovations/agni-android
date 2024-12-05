@@ -4,6 +4,7 @@ import android.content.Context
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
+import com.latticeonfhir.android.data.local.roomdb.dao.DispenseDao
 import com.latticeonfhir.android.data.local.roomdb.dao.DownloadedFileDao
 import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
@@ -138,5 +139,11 @@ object DatabaseModule {
     @Provides
     fun provideLabTestAndMedDao(fhirAppDatabase: FhirAppDatabase): LabTestAndMedDao {
         return fhirAppDatabase.getLabTestAndMedDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideDispenseDao(fhirAppDatabase: FhirAppDatabase): DispenseDao {
+        return fhirAppDatabase.getDispenseDao()
     }
 }

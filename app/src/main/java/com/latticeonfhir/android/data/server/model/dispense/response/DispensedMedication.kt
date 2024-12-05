@@ -1,9 +1,10 @@
-package com.latticeonfhir.android.data.server.model.prescription.medication
+package com.latticeonfhir.android.data.server.model.dispense.response
 
 import androidx.annotation.Keep
+import com.latticeonfhir.android.data.server.model.prescription.medication.Strength
 
 @Keep
-data class MedicationResponse(
+data class DispensedMedication(
     val activeIngredient: String,
     val activeIngredientCode: String,
     val doseForm: String,
@@ -11,8 +12,7 @@ data class MedicationResponse(
     val medCode: String,
     val medFhirId: String,
     val medName: String,
-    val medNumeratorVal: Double,
+    val medNumeratorVal: String,
     val medUnit: String,
-    val isOTC: Boolean,
     val strength: List<Strength>
 )
