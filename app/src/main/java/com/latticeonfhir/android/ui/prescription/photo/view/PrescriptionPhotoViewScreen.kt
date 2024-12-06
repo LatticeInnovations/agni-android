@@ -269,7 +269,7 @@ fun PrescriptionPhotoViewScreen(
             Box(modifier = Modifier.padding(it)) {
                 Column {
                     CheckNetwork(viewModel, activity)
-                    if (viewModel.allPrescriptionList.isEmpty()) {
+                    if (viewModel.allPrescriptionList.none { prescription -> !viewModel.deletedPhotos.contains(prescription) }) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
