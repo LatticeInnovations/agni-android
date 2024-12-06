@@ -416,4 +416,5 @@ include them in the household</string>
     <string name="quantity_prescribed_info">Quantity prescribed: %d</string>
     <string name="qty_to_dispense">Qty. to dispense*</string>
     <string name="drugs_dispense">Drug Dispense</string>
+    <string name="yesterday">Yesterday</string>
 </resources>
