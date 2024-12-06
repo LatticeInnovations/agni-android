@@ -7,6 +7,7 @@ import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestRespo
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -32,11 +33,14 @@ interface LabTestAndMedRecordService {
         @Body labOrMed: List<Any>
     ): Response<BaseResponse<List<CreateResponse>>>
 
-    @PATCH("sync/{endPoint}")
+    @PATCH("sync/DocumentReference")
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
-        @Path("endPoint") endPoint: String,
         @Body patchLogs: List<Map<String, Any>>
     ): Response<BaseResponse<List<CreateResponse>>>
 
+    @HTTP(method = "DELETE", path = "sync/{endPoint}", hasBody = true)
+    @JvmSuppressWildcards
+    suspend fun deleteLabOrMedicalRecordPhoto(
+        @Path("endPoint") endPoint: String,@Body patchLogs: List<Any>): Response<BaseResponse<List<CreateResponse>>>
 }

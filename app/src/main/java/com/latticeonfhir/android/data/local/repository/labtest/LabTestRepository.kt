@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.data.local.repository.labtest
 
-import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 import com.latticeonfhir.android.data.local.model.labtest.LabTestLocal
 import com.latticeonfhir.android.data.local.model.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.android.data.server.model.prescription.photo.File
@@ -11,7 +10,7 @@ interface LabTestRepository {
     suspend fun getLastLabTestAndMed(appointmentId: String): LabTestLocal
     suspend fun getLastPhotoLabAndMedTest(patientId: String, photoviewType: String): List<File>
     suspend fun getLabTestAndMedPhotoByAppointmentId(
-        appointmentId: String,
+        patientId: String,
         photoviewType: String
     ): List<LabTestPhotoResponseLocal>
 
@@ -22,6 +21,13 @@ interface LabTestRepository {
         endDate: Long
     ): LabTestPhotoResponseLocal
 
-    suspend fun insertLabTestAndPhotos(labTestAndMedPhotoEntity: LabTestAndMedPhotoEntity): Long
-    suspend fun deleteLabTestAndPhotos(labTestAndMedPhotoEntity: LabTestAndMedPhotoEntity): Int
+    suspend fun insertLabTestAndPhotos(
+        labTestPhotoResponseLocal: LabTestPhotoResponseLocal,
+        type: String
+    ): Long
+
+    suspend fun deleteLabTestAndPhotos(
+        labTestPhotoResponseLocal: LabTestPhotoResponseLocal,
+        type: String
+    ): Int
 }

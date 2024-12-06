@@ -67,4 +67,6 @@ interface SyncRepository {
 
     //DELETE
     suspend fun deletePrescriptionPhoto(): ResponseMapper<List<CreateResponse>>
+    suspend fun deleteLabTestPhoto(): ResponseMapper<List<CreateResponse>>
+    suspend fun deleteMedTestPhoto(): ResponseMapper<List<CreateResponse>>
 }

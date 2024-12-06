@@ -18,16 +18,16 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
-import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
+import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.server.api.CVDApiService
 import com.latticeonfhir.android.data.server.api.DispenseApiService
 import com.latticeonfhir.android.data.server.api.LabTestAndMedRecordService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
-import com.latticeonfhir.android.data.server.api.VitalApiService
 import com.latticeonfhir.android.data.server.api.SymptomsAndDiagnosisService
+import com.latticeonfhir.android.data.server.api.VitalApiService
 import com.latticeonfhir.android.data.server.constants.ConstantValues.COUNT_VALUE
 import com.latticeonfhir.android.data.server.constants.ConstantValues.DEFAULT_MAX_COUNT_VALUE
 import com.latticeonfhir.android.data.server.constants.EndPoints
@@ -61,8 +61,8 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
+import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
@@ -972,6 +972,13 @@ class SyncRepositoryImpl @Inject constructor(
         return genericDao.getSameTypeGenericEntityPayload(
             genericTypeEnum = GenericTypeEnum.LAB_TEST, syncType = SyncType.POST
         ).let { listOfGenericEntity ->
+            Timber.d(
+                "Request: ${
+                    listOfGenericEntity.map {
+                        it.payload.fromJson<MutableMap<String, Any>>()
+                    }
+                }"
+            )
             if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
             else ApiResponseConverter.convert(
                 labTestAndMedRecordService.createData(EndPoints.LAB_TEST, listOfGenericEntity.map {
@@ -981,7 +988,7 @@ class SyncRepositoryImpl @Inject constructor(
                 when (this) {
                     is ApiEndResponse -> {
                         insertLabOrMedFhirId(
-                            listOfGenericEntity, body
+                            listOfGenericEntity, body, PhotoUploadTypeEnum.LAB_TEST.value
                         ).let { deletedRows ->
                             if (deletedRows > 0) sendLabTestPostData(
                             ) else this
@@ -1011,7 +1018,7 @@ class SyncRepositoryImpl @Inject constructor(
                 when (this) {
                     is ApiEndResponse -> {
                         insertLabOrMedFhirId(
-                            listOfGenericEntity, body
+                            listOfGenericEntity, body, PhotoUploadTypeEnum.MEDICAL_RECORD.value
                         ).let { deletedRows ->
                             if (deletedRows > 0) sendMedRecordPostData(
                             ) else this
@@ -1186,7 +1193,6 @@ class SyncRepositoryImpl @Inject constructor(
             else {
                 ApiResponseConverter.convert(
                     labTestAndMedRecordService.patchListOfChanges(
-                        EndPoints.LAB_TEST,
                         listOfGenericEntity.map { it.payload.fromJson() })
                 ).run {
                     when (this) {
@@ -1214,7 +1220,6 @@ class SyncRepositoryImpl @Inject constructor(
             else {
                 ApiResponseConverter.convert(
                     labTestAndMedRecordService.patchListOfChanges(
-                        EndPoints.MEDICAL_RECORD,
                         listOfGenericEntity.map { it.payload.fromJson() })
                 ).run {
                     when (this) {
@@ -1282,6 +1287,55 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteLabTestPhoto(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.LAB_TEST, syncType = SyncType.DELETE
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    labTestAndMedRecordService.deleteLabOrMedicalRecordPhoto(
+                        EndPoints.LAB_TEST,
+                        listOfGenericEntity.map { it.payload.fromJson() })
+                ).run {
+                    when (this) {
+                        is ApiEndResponse -> {
+                            deleteGenericEntityData(listOfGenericEntity).let {
+                                if (it > 0) deleteLabTestPhoto() else this
+                            }
+                        }
+
+                        else -> this
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun deleteMedTestPhoto(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.MEDICAL_RECORD, syncType = SyncType.DELETE
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    labTestAndMedRecordService.deleteLabOrMedicalRecordPhoto(
+                        EndPoints.MEDICAL_RECORD,
+                        listOfGenericEntity.map { it.payload.fromJson() })
+                ).run {
+                    when (this) {
+                        is ApiEndResponse -> {
+                            deleteGenericEntityData(listOfGenericEntity).let {
+                                if (it > 0) deleteMedTestPhoto() else this
+                            }
+                        }
+
+                        else -> this
+                    }
+                }
+            }
+        }
+    }
 
     override suspend fun sendSymptomsAndDiagnosisPatchData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(

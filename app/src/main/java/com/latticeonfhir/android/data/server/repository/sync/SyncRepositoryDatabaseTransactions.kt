@@ -2,6 +2,7 @@ package com.latticeonfhir.android.data.server.repository.sync
 
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.IdentifierCodeEnum
+import com.latticeonfhir.android.data.local.enums.PhotoUploadTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
@@ -14,8 +15,8 @@ import com.latticeonfhir.android.data.local.roomdb.dao.PatientLastUpdatedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
-import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
+import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseDataEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
@@ -26,6 +27,8 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.P
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
+import com.latticeonfhir.android.data.server.model.create.LabDocumentIdResponse
+import com.latticeonfhir.android.data.server.model.create.MedDocumentIdResponse
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.dispense.response.DispenseData
 import com.latticeonfhir.android.data.server.model.dispense.response.MedicineDispenseResponse
@@ -40,9 +43,10 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
+import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.constants.ErrorConstants
+import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toCVDEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toDispensePrescriptionEntity
@@ -64,8 +68,8 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toPatientLas
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toScheduleEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toVitalEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toSymptomsAndDiagnosisEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.toVitalEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -538,12 +542,33 @@ open class SyncRepositoryDatabaseTransactions(
     }
 
     protected suspend fun insertLabOrMedFhirId(
-        listOfGenericEntities: List<GenericEntity>, body: List<CreateResponse>
+        listOfGenericEntities: List<GenericEntity>, body: List<CreateResponse>, type: String
     ): Int {
         body.map { createResponse ->
             labTestAndMedDao.updateLabTestAndFhirId(
                 createResponse.id!!, createResponse.fhirId!!
             )
+            if (type == PhotoUploadTypeEnum.LAB_TEST.value) {
+                val labDocumentIdResponse =
+                    GsonConverters.deserializeList<LabDocumentIdResponse>(createResponse.files)
+
+                labDocumentIdResponse!!.forEach { labTestResponse ->
+                    labTestAndMedDao.updateDocumentFhirId(
+                        labTestResponse.labDocumentUuid,
+                        labTestResponse.labDocumentfhirId
+                    )
+                }
+            } else {
+                val medDocumentIdResponse =
+                    GsonConverters.deserializeList<MedDocumentIdResponse>(createResponse.files)
+
+                medDocumentIdResponse!!.forEach { medRecordResponse ->
+                    labTestAndMedDao.updateDocumentFhirId(
+                        medRecordResponse.medicalDocumentUuid,
+                        medRecordResponse.medicalDocumentfhirId
+                    )
+                }
+            }
         }
         return deleteGenericEntityData(listOfGenericEntities)
     }

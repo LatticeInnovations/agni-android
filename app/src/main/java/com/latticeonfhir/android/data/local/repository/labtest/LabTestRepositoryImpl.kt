@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.data.local.repository.labtest
 
-import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 import com.latticeonfhir.android.data.local.model.labtest.LabTestLocal
 import com.latticeonfhir.android.data.local.model.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
@@ -51,10 +50,13 @@ class LabTestRepositoryImpl @Inject constructor(
 
 
     override suspend fun getLabTestAndMedPhotoByAppointmentId(
-        appointmentId: String,
+        patientId: String,
         photoviewType: String
     ): List<LabTestPhotoResponseLocal> {
-        return labTestAndMedDao.getLabTestAndMedPhotoByAppointmentId(appointmentId, photoviewType)
+        return labTestAndMedDao.getLabTestAndMedPhotoByPatientId(
+            patientId = patientId,
+            photoviewType
+        )
             .map {
                 it.toLabTestPhotoResponseLocal(appointmentDao)
             }
@@ -72,15 +74,28 @@ class LabTestRepositoryImpl @Inject constructor(
             .map { it.toLabTestPhotoResponseLocal(appointmentDao) }[0]
     }
 
-    override suspend fun insertLabTestAndPhotos(labTestAndMedPhotoEntity: LabTestAndMedPhotoEntity): Long {
+    override suspend fun insertLabTestAndPhotos(
+        labTestPhotoResponseLocal: LabTestPhotoResponseLocal,
+        type: String
+    ): Long {
         return labTestAndMedDao.insertLabTestsAndMedPhotos(
-            labTestAndMedPhotoEntity
+            *labTestPhotoResponseLocal.toListOfLabTestPhotoEntity().toTypedArray()
         )[0]
     }
 
-    override suspend fun deleteLabTestAndPhotos(labTestAndMedPhotoEntity: LabTestAndMedPhotoEntity): Int {
-        fileUploadDao.deleteFile(labTestAndMedPhotoEntity.fileName)
-        return labTestAndMedDao.deleteLabTestAndMedPhoto(labTestAndMedPhotoEntity)
+    override suspend fun deleteLabTestAndPhotos(
+        labTestPhotoResponseLocal: LabTestPhotoResponseLocal,
+        type: String
+    ): Int {
+        fileUploadDao.deleteFile(labTestPhotoResponseLocal.labTests[0].filename)
+        return labTestAndMedDao.deleteLabTestAndMedPhoto(labTestPhotoResponseLocal.toListOfLabTestPhotoEntity()[0])
+            .also {
+                labTestAndMedDao.deleteLabTestAndMedEntity(
+                    labTestPhotoResponseLocal.toLabTestAndMedEntity(
+                        type
+                    )
+                )
+            }
     }
 
 }
