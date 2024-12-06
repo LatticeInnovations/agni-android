@@ -13,6 +13,7 @@ import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepo
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import com.latticeonfhir.android.data.server.api.CVDApiService
+import com.latticeonfhir.android.data.server.api.DispenseApiService
 import com.latticeonfhir.android.data.server.api.FileUploadApiService
 import com.latticeonfhir.android.data.server.api.LabTestAndMedRecordService
 import com.latticeonfhir.android.data.server.api.PatientApiService
@@ -68,6 +69,8 @@ class FhirApp : Application() {
     lateinit var symptomsAndDiagnosisService: SymptomsAndDiagnosisService
     @Inject
     lateinit var labTestAndMedRecordService: LabTestAndMedRecordService
+    @Inject
+    lateinit var dispenseApiService: DispenseApiService
 
     @Inject
     lateinit var fileUploadApiService: FileUploadApiService
@@ -106,6 +109,7 @@ class FhirApp : Application() {
             vitalApiService,
             symptomsAndDiagnosisService,
             labTestAndMedRecordService,
+            dispenseApiService,
             fhirAppDatabase.getPatientDao(),
             fhirAppDatabase.getGenericDao(),
             preferenceRepository,
@@ -118,7 +122,8 @@ class FhirApp : Application() {
             fhirAppDatabase.getCVDDao(),
             fhirAppDatabase.getVitalDao(),
             fhirAppDatabase.getSymptomsAndDiagnosisDao(),
-            fhirAppDatabase.getLabTestAndMedDao()
+            fhirAppDatabase.getLabTestAndMedDao(),
+            fhirAppDatabase.getDispenseDao()
         )
 
         _fileSyncRepository = FileSyncRepositoryImpl(
@@ -133,7 +138,8 @@ class FhirApp : Application() {
             fhirAppDatabase.getGenericDao(),
             fhirAppDatabase.getPatientDao(),
             fhirAppDatabase.getScheduleDao(),
-            fhirAppDatabase.getAppointmentDao()
+            fhirAppDatabase.getAppointmentDao(),
+            fhirAppDatabase.getPrescriptionDao()
         )
 
         _symDiagRepository = SymptomsAndDiagnosisRepositoryImpl(

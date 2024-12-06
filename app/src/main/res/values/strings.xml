@@ -390,4 +390,30 @@ include them in the household</string>
     <string name="discard_med_record_test">Discard medical record?</string>
     <string name="discard_med_record_description">Are you sure you want to discard the medical record?</string>
     <string name="no_results_found">No results found</string>
+
+    <string name="otc">OTC</string>
+    <string name="view_rx">View Rx</string>
+    <string name="dispense">Dispense</string>
+    <string name="prescribed_on">Prescribed on %s</string>
+    <string name="add_note">Add note</string>
+    <string name="dispense_notes">Dispense Notes : %s</string>
+    <string name="edit_note">Edit note</string>
+    <string name="edit_medicine">Edit medicine</string>
+    <string name="notes_label">Notes*</string>
+    <string name="edit_qty_error_message">Quantity should be less than quantity prescribed</string>
+    <string name="notes_dispense">Notes: %s</string>
+    <string name="previous_dispense">Previous dispense</string>
+    <string name="dispensed_on">Dispensed on: %s</string>
+    <string name="modified_prescription">Modified prescription</string>
+    <string name="prescribed">Prescribed</string>
+    <string name="see_details">See details</string>
+    <string name="no_prescription_found">No prescription found</string>
+    <string name="no_dispense_records">No dispense records found</string>
+    <string name="medicine_name">Medicine name*</string>
+    <string name="drugs_dispense_heading">Drug dispense</string>
+    <string name="otc_quantity_error_message">Range 1-50</string>
+    <string name="quantity_dispensed_info">Quantity dispensed: %d</string>
+    <string name="quantity_prescribed_info">Quantity prescribed: %d</string>
+    <string name="qty_to_dispense">Qty. to dispense*</string>
+    <string name="drugs_dispense">Drug Dispense</string>
 </resources>

@@ -10,5 +10,6 @@ data class CreateResponse(
     val error: String?,
     val prescription: List<MedReqIdResponse>?,
     val prescriptionFiles: List<DocumentIdResponse>?,
+    val medicineDispensedList: List<MedDispenseIdResponse>?,
     val files: List<*>?,
 )

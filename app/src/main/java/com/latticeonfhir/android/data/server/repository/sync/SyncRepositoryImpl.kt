@@ -9,6 +9,7 @@ import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
+import com.latticeonfhir.android.data.local.roomdb.dao.DispenseDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.LabTestAndMedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
@@ -20,6 +21,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.server.api.CVDApiService
+import com.latticeonfhir.android.data.server.api.DispenseApiService
 import com.latticeonfhir.android.data.server.api.LabTestAndMedRecordService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
@@ -29,6 +31,7 @@ import com.latticeonfhir.android.data.server.api.VitalApiService
 import com.latticeonfhir.android.data.server.constants.ConstantValues.COUNT_VALUE
 import com.latticeonfhir.android.data.server.constants.ConstantValues.DEFAULT_MAX_COUNT_VALUE
 import com.latticeonfhir.android.data.server.constants.EndPoints
+import com.latticeonfhir.android.data.server.constants.EndPoints.MEDICATION_DISPENSE
 import com.latticeonfhir.android.data.server.constants.EndPoints.MEDICATION_REQUEST
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.EndPoints.PRESCRIPTION_FILE
@@ -44,6 +47,9 @@ import com.latticeonfhir.android.data.server.constants.QueryParameters.PATIENT_I
 import com.latticeonfhir.android.data.server.constants.QueryParameters.SORT
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
+import com.latticeonfhir.android.data.server.model.dispense.response.DispenseData
+import com.latticeonfhir.android.data.server.model.dispense.response.MedicineDispenseResponse
 import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
 import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
@@ -79,6 +85,7 @@ class SyncRepositoryImpl @Inject constructor(
     private val vitalApiService: VitalApiService,
     private val symptomsAndDiagnosisService: SymptomsAndDiagnosisService,
     private val labTestAndMedRecordService: LabTestAndMedRecordService,
+    private val dispenseApiService: DispenseApiService,
     patientDao: PatientDao,
     private val genericDao: GenericDao,
     private val preferenceRepository: PreferenceRepository,
@@ -91,7 +98,8 @@ class SyncRepositoryImpl @Inject constructor(
     cvdDao: CVDDao,
     vitalDao: VitalDao,
     symptomsAndDiagnosisDao: SymptomsAndDiagnosisDao,
-    labTestAndMedDao: LabTestAndMedDao
+    labTestAndMedDao: LabTestAndMedDao,
+    dispenseDao: DispenseDao
 ) : SyncRepository, SyncRepositoryDatabaseTransactions(
     patientApiService,
     patientDao,
@@ -106,6 +114,7 @@ class SyncRepositoryImpl @Inject constructor(
     vitalDao,
     symptomsAndDiagnosisDao,
     labTestAndMedDao,
+    dispenseDao
 ) {
 
     override suspend fun getAndInsertListPatientData(
@@ -599,7 +608,99 @@ class SyncRepositoryImpl @Inject constructor(
 
     }
 
+    override suspend fun getAndInsertDispense(patientId: String?): ResponseMapper<List<MedicineDispenseResponse>> {
+        return if (patientId == null) {
+            genericDao.getSameTypeGenericEntityPayload(
+                GenericTypeEnum.FHIR_IDS_DISPENSE, SyncType.POST, COUNT_VALUE
+            ).let { listOfGenericEntity ->
+                if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+                else {
+                    val map = mutableMapOf<String, String>()
+                    map[PATIENT_ID] =
+                        listOfGenericEntity.map { it.payload }.toNoBracketAndNoSpaceString()
+                    map[COUNT] = DEFAULT_MAX_COUNT_VALUE.toString()
+                    ApiResponseConverter.convert(dispenseApiService.getDispenseRecords(map))
+                        .run {
+                            when (this) {
+                                is ApiEndResponse -> {
+                                    insertDispense(body)
+                                    genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId())
+                                    getAndInsertDispense(null)
+                                }
 
+                                else -> {
+                                    this
+                                }
+                            }
+                        }
+                }
+            }
+        } else {
+            ApiResponseConverter.convert(
+                dispenseApiService.getDispenseRecords(
+                    mapOf(
+                        Pair(PATIENT_ID, patientId)
+                    )
+                )
+            ).run {
+                when (this) {
+                    is ApiEndResponse -> {
+                        insertDispense(body)
+                        this
+                    }
+
+                    else -> this
+                }
+            }
+        }
+    }
+
+    override suspend fun getAndInsertOTC(patientId: String?): ResponseMapper<List<DispenseData>> {
+        return if (patientId == null) {
+            genericDao.getSameTypeGenericEntityPayload(
+                GenericTypeEnum.FHIR_IDS_OTC, SyncType.POST, COUNT_VALUE
+            ).let { listOfGenericEntity ->
+                if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+                else {
+                    val map = mutableMapOf<String, String>()
+                    map[PATIENT_ID] =
+                        listOfGenericEntity.map { it.payload }.toNoBracketAndNoSpaceString()
+                    map[COUNT] = DEFAULT_MAX_COUNT_VALUE.toString()
+                    ApiResponseConverter.convert(dispenseApiService.getOTCRecords(map))
+                        .run {
+                            when (this) {
+                                is ApiEndResponse -> {
+                                    insertOTC(body)
+                                    genericDao.deleteSyncPayload(listOfGenericEntity.toListOfId())
+                                    getAndInsertOTC(null)
+                                }
+
+                                else -> {
+                                    this
+                                }
+                            }
+                        }
+                }
+            }
+        } else {
+            ApiResponseConverter.convert(
+                dispenseApiService.getOTCRecords(
+                    mapOf(
+                        Pair(PATIENT_ID, patientId)
+                    )
+                )
+            ).run {
+                when (this) {
+                    is ApiEndResponse -> {
+                        insertOTC(body)
+                        this
+                    }
+
+                    else -> this
+                }
+            }
+        }
+    }
 
     override suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
@@ -929,6 +1030,36 @@ class SyncRepositoryImpl @Inject constructor(
             }
         }
 
+    }
+
+    override suspend fun sendDispensePostData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.DISPENSE,
+            syncType = SyncType.POST
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    dispenseApiService.postDispenseData(
+                        MEDICATION_DISPENSE,
+                        listOfGenericEntity.map { dispenseGenericEntity ->
+                            dispenseGenericEntity.payload.fromJson<LinkedTreeMap<*, *>>()
+                                .mapToObject(MedicineDispenseRequest::class.java)!!
+                        }
+                    )
+                ).run {
+                    when (this) {
+                        is ApiEndResponse -> {
+                            insertDispenseFhirId(listOfGenericEntity, body).let { deletedRows ->
+                                if (deletedRows > 0) sendDispensePostData() else this
+                            }
+                        }
+
+                        else -> this
+                    }
+                }
+            }
+        }
     }
 
     override suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>> {
