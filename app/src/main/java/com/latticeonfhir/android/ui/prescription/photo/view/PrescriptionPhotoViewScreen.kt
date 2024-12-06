@@ -34,16 +34,19 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
@@ -72,6 +75,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -115,9 +119,9 @@ import com.latticeonfhir.android.ui.common.DisplaySyncStatus
 import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isSameDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isToday
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isYesterday
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toDayFullMonthYear
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionNavDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionTime
@@ -144,6 +148,8 @@ fun PrescriptionPhotoViewScreen(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { map ->
             if (!map.values.contains(false)) {
+                viewModel.hideSyncStatus()
+                viewModel.showAddPrescriptionBottomSheet = false
                 navController.currentBackStackEntry?.savedStateHandle?.set(
                     NavControllerConstants.PATIENT,
                     viewModel.patient!!
@@ -156,6 +162,7 @@ fun PrescriptionPhotoViewScreen(
                 if (shouldShowDialog.contains(true)) {
                     viewModel.showOpenSettingsDialog = true
                 } else {
+                    viewModel.showAddPrescriptionBottomSheet = false
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
                     }
@@ -339,7 +346,7 @@ fun PrescriptionPhotoViewScreen(
     }
     if (viewModel.showNoteDialog) {
         AddNoteDialog(
-            image = (viewModel.selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescription[0].filename.getUriFromFileName(
+            image = (viewModel.selectedFile?.prescription as PrescriptionPhotoResponseLocal).prescription[0].filename.getUriFromFileName(
                 context
             ),
             note = (viewModel.selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescription[0].note,
@@ -419,6 +426,7 @@ fun PrescriptionPhotoViewScreen(
             confirmBtnText = stringResource(id = R.string.go_to_settings),
             dismiss = {
                 viewModel.showOpenSettingsDialog = false
+                viewModel.showAddPrescriptionBottomSheet = false
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
                 }
@@ -687,7 +695,10 @@ private fun DisplayImage(
                     exit = shrinkVertically()
                 ) {
                     Surface(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 500.dp)
+                            .verticalScroll(rememberScrollState()),
                         color = Color.Black.copy(alpha = 0.5f)
                     ) {
                         Text(
@@ -711,40 +722,32 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    val groupedPrescriptionList =
+        remember(viewModel.allPrescriptionList.toList(), viewModel.deletedPhotos.toList()) {
+            viewModel.allPrescriptionList.filter {
+                !viewModel.deletedPhotos.contains(it)
+            }.groupBy { it.date.toDayFullMonthYear() }.toSortedMap()
+        }
     LaunchedEffect(viewModel.allPrescriptionList.size) {
         coroutineScope.launch {
-            if (viewModel.allPrescriptionList.isNotEmpty()) listState.scrollToItem(viewModel.allPrescriptionList.size - 1)
+            val lastItemIndex =
+                (groupedPrescriptionList.values.flatten().size + groupedPrescriptionList.keys.size)
+            if (lastItemIndex >= 0) {
+                listState.animateScrollToItem(lastItemIndex)
+            }
         }
     }
 
     LazyColumn(
         state = listState
     ) {
-        itemsIndexed(
-            viewModel.allPrescriptionList
-                .sortedBy {
-                    it.date
+        groupedPrescriptionList.forEach { (date, items) ->
+            item {
+                val header = when {
+                    isToday(date.toDate("dd MMMM yyyy")) -> stringResource(R.string.today)
+                    isYesterday(date.toDate("dd MMMM yyyy")) -> stringResource(R.string.yesterday)
+                    else -> date
                 }
-                .filter {
-                    !viewModel.deletedPhotos.contains(it)
-                }
-        ) { index, prescription ->
-            val currentDate = prescription.date
-            val previousDate = viewModel.allPrescriptionList.getOrNull(index - 1)?.date
-
-            val showHeader = when {
-                previousDate == null -> true
-                !isSameDay(currentDate, previousDate) -> true
-                else -> false
-            }
-
-            if (showHeader) {
-                val headerText = when {
-                    isToday(currentDate) -> "Today"
-                    isYesterday(currentDate) -> "Yesterday"
-                    else -> currentDate.toDayFullMonthYear()
-                }
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -756,7 +759,7 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
-                            text = headerText,
+                            text = header,
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier
                                 .padding(8.dp)
@@ -764,158 +767,162 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                     }
                 }
             }
-            if (prescription.type == PrescriptionType.FORM.type) {
-                // form prescription
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .animateItemPlacement(tween(300, easing = LinearEasing))
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Column(
+            items(items) { prescription ->
+                if (prescription.type == PrescriptionType.FORM.type) {
+                    // form prescription
+                    Row(
                         modifier = Modifier
-                            .background(
-                                shape = RoundedCornerShape(
-                                    topStart = 48f,
-                                    topEnd = 48f,
-                                    bottomStart = 48f,
-                                    bottomEnd = 0f
-                                ),
-                                color = MaterialTheme.colorScheme.surface
-                            ),
-                        horizontalAlignment = Alignment.End
+                            .fillMaxWidth()
+                            .animateItemPlacement(tween(300, easing = LinearEasing))
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.End
                     ) {
                         Column(
                             modifier = Modifier
-                                .widthIn(250.dp, 300.dp)
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                                .background(
+                                    shape = RoundedCornerShape(
+                                        topStart = 48f,
+                                        topEnd = 48f,
+                                        bottomStart = 48f,
+                                        bottomEnd = 0f
+                                    ),
+                                    color = MaterialTheme.colorScheme.surface
+                                ),
+                            horizontalAlignment = Alignment.End
                         ) {
-                            (prescription.prescription as PrescriptionResponseLocal).prescription.forEach { directionAndMedication ->
-                                MedicineDetails(
-                                    medName = directionAndMedication.medName,
-                                    details = getMedInfo(
-                                        duration = directionAndMedication.duration,
-                                        frequency = directionAndMedication.frequency,
-                                        medUnit = directionAndMedication.medUnit,
-                                        timing = directionAndMedication.timing,
-                                        note = directionAndMedication.note,
-                                        qtyPerDose = directionAndMedication.qtyPerDose,
-                                        qtyPrescribed = directionAndMedication.qtyPrescribed,
-                                        context = context
+                            Column(
+                                modifier = Modifier
+                                    .widthIn(250.dp, 300.dp)
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                (prescription.prescription as PrescriptionResponseLocal).prescription.forEach { directionAndMedication ->
+                                    MedicineDetails(
+                                        medName = directionAndMedication.medName,
+                                        details = getMedInfo(
+                                            duration = directionAndMedication.duration,
+                                            frequency = directionAndMedication.frequency,
+                                            medUnit = directionAndMedication.medUnit,
+                                            timing = directionAndMedication.timing,
+                                            note = directionAndMedication.note,
+                                            qtyPerDose = directionAndMedication.qtyPerDose,
+                                            qtyPrescribed = directionAndMedication.qtyPrescribed,
+                                            context = context
+                                        )
                                     )
+                                }
+                            }
+                            Text(
+                                text = prescription.date.toPrescriptionTime(),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier
+                                    .padding(end = 10.dp, bottom = 6.dp)
+                            )
+                        }
+                    }
+                } else {
+                    val prescriptionPhoto =
+                        (prescription.prescription as PrescriptionPhotoResponseLocal).prescription[0]
+                    val uploadFolder = FileManager.createFolder(context)
+                    val photoFile = File(
+                        uploadFolder,
+                        prescriptionPhoto.filename
+                    )
+                    val uri = Uri.fromFile(photoFile)
+                    key(viewModel.recompose) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateItemPlacement(tween(300, easing = LinearEasing))
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.Bottom,
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .shadow(
+                                        elevation = if (viewModel.isLongPressed && viewModel.selectedFile == prescription)
+                                            11.dp else 0.dp,
+                                        shape = RoundedCornerShape(
+                                            topStart = 48f,
+                                            topEnd = 48f,
+                                            bottomStart = 48f,
+                                            bottomEnd = 0f
+                                        )
+                                    )
+                                    .background(
+                                        shape = RoundedCornerShape(
+                                            topStart = 48f,
+                                            topEnd = 48f,
+                                            bottomStart = 48f,
+                                            bottomEnd = 0f
+                                        ),
+                                        color = if (viewModel.isLongPressed && viewModel.selectedFile == prescription)
+                                            MaterialTheme.colorScheme.primaryContainer
+                                        else MaterialTheme.colorScheme.surface
+                                    )
+                                    .pointerInput(prescription) {
+                                        detectTapGestures(
+                                            onLongPress = {
+                                                viewModel.isLongPressed = true
+                                                viewModel.selectedFile = prescription
+                                            },
+                                            onTap = {
+                                                if (viewModel.isLongPressed) {
+                                                    viewModel.isLongPressed = false
+                                                    viewModel.selectedFile = null
+                                                } else {
+                                                    viewModel.isTapped = true
+                                                    viewModel.selectedFile = prescription
+                                                }
+                                            }
+                                        )
+                                    },
+                                horizontalAlignment = Alignment.End
+                            ) {
+                                Image(
+                                    painter = rememberImagePainter(uri),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(250.dp, 330.dp)
+                                        .padding(4.dp)
+                                        .clip(RoundedCornerShape(16.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                                if (prescriptionPhoto.note.isNotBlank()) {
+                                    Text(
+                                        text = prescriptionPhoto.note,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier
+                                            .width(250.dp)
+                                            .padding(top = 6.dp, start = 6.dp, end = 6.dp)
+                                    )
+                                }
+                                Text(
+                                    text = Date(
+                                        prescriptionPhoto.filename.substringBefore(".").toLong()
+                                    ).toPrescriptionTime(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    modifier = Modifier
+                                        .width(250.dp)
+                                        .padding(end = 10.dp, bottom = 6.dp),
+                                    textAlign = TextAlign.End
+                                )
+                            }
+
+                            AnimatedVisibility(viewModel.isLongPressed && viewModel.selectedFile == prescription) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.check_circle),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(start = 8.dp)
                                 )
                             }
                         }
-                        Text(
-                            text = prescription.date.toPrescriptionTime(),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier
-                                .padding(end = 10.dp, bottom = 6.dp)
-                        )
-                    }
-                }
-            } else {
-                val prescriptionPhoto =
-                    (prescription.prescription as PrescriptionPhotoResponseLocal).prescription[0]
-                val uploadFolder = FileManager.createFolder(context)
-                val photoFile = File(
-                    uploadFolder,
-                    prescriptionPhoto.filename
-                )
-                val uri = Uri.fromFile(photoFile)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .animateItemPlacement(tween(300, easing = LinearEasing))
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .shadow(
-                                elevation = if (viewModel.isLongPressed && viewModel.selectedFile == prescription)
-                                    11.dp else 0.dp,
-                                shape = RoundedCornerShape(
-                                    topStart = 48f,
-                                    topEnd = 48f,
-                                    bottomStart = 48f,
-                                    bottomEnd = 0f
-                                )
-                            )
-                            .background(
-                                shape = RoundedCornerShape(
-                                    topStart = 48f,
-                                    topEnd = 48f,
-                                    bottomStart = 48f,
-                                    bottomEnd = 0f
-                                ),
-                                color = if (viewModel.isLongPressed && viewModel.selectedFile == prescription)
-                                    MaterialTheme.colorScheme.primaryContainer
-                                else MaterialTheme.colorScheme.surface
-                            )
-                            .pointerInput(viewModel.selectedFile) {
-                                detectTapGestures(
-                                    onLongPress = {
-                                        viewModel.isLongPressed = true
-                                        viewModel.selectedFile = prescription
-                                    },
-                                    onTap = {
-                                        if (viewModel.isLongPressed) {
-                                            viewModel.isLongPressed = false
-                                            viewModel.selectedFile = null
-                                        } else {
-                                            viewModel.isTapped = true
-                                            viewModel.selectedFile = prescription
-                                        }
-                                    }
-                                )
-                            },
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        Image(
-                            painter = rememberImagePainter(uri),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(250.dp, 330.dp)
-                                .padding(4.dp)
-                                .clip(RoundedCornerShape(16.dp)),
-                            contentScale = ContentScale.Crop
-                        )
-                        if (prescriptionPhoto.note.isNotBlank()) {
-                            Text(
-                                text = prescriptionPhoto.note,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier
-                                    .width(250.dp)
-                                    .padding(top = 6.dp, start = 6.dp, end = 6.dp)
-                            )
-                        }
-                        Text(
-                            text = Date(
-                                prescriptionPhoto.filename.substringBefore(".").toLong()
-                            ).toPrescriptionTime(),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier
-                                .width(250.dp)
-                                .padding(end = 10.dp, bottom = 6.dp),
-                            textAlign = TextAlign.End
-                        )
-                    }
-
-                    AnimatedVisibility(viewModel.isLongPressed && viewModel.selectedFile == prescription) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.check_circle),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
                     }
                 }
             }
