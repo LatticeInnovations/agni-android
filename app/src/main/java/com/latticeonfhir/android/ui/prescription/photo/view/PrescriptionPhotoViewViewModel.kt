@@ -2,6 +2,7 @@ package com.latticeonfhir.android.ui.prescription.photo.view
 
 import android.app.Application
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -73,7 +74,8 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     // syncing
     var syncStatus by mutableStateOf(WorkerStatus.TODO)
 
-    var allPrescriptionList by mutableStateOf(mutableListOf<PrescriptionFormAndPhoto>())
+    private var _allPrescriptionList = mutableStateListOf<PrescriptionFormAndPhoto>()
+    var allPrescriptionList: List<PrescriptionFormAndPhoto> = listOf()
 
     internal fun getCurrentSyncStatus() {
         viewModelScope.launch {
@@ -160,8 +162,8 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     internal fun getPastPrescription() {
         viewModelScope.launch(Dispatchers.IO) {
             prescriptionRepository.getLastPrescription(patient!!.id).forEach { formPrescription ->
-                allPrescriptionList.removeIf { it.date == formPrescription.generatedOn }
-                allPrescriptionList.add(
+                _allPrescriptionList.removeIf { it.date == formPrescription.generatedOn }
+                _allPrescriptionList.add(
                     PrescriptionFormAndPhoto(
                         date = formPrescription.generatedOn,
                         type = PrescriptionType.FORM.type,
@@ -171,8 +173,8 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             }
             prescriptionRepository.getLastPhotoPrescription(patient!!.id)
                 .forEach { photoPrescription ->
-                    allPrescriptionList.removeIf { it.date == photoPrescription.generatedOn }
-                    allPrescriptionList.add(
+                    _allPrescriptionList.removeIf { it.date == photoPrescription.generatedOn }
+                    _allPrescriptionList.add(
                         PrescriptionFormAndPhoto(
                             date = photoPrescription.generatedOn,
                             type = PrescriptionType.PHOTO.type,
@@ -180,6 +182,8 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                         )
                     )
                 }
+            _allPrescriptionList.sortBy { it.date }
+            allPrescriptionList = _allPrescriptionList
         }
     }
 

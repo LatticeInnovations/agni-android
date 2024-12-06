@@ -440,4 +440,9 @@ object TimeConverter {
         val sdf = SimpleDateFormat(YYYY_MM_DD, Locale.getDefault())
         return sdf.format(this)
     }
+
+    fun String.toDate(format: String): Date {
+        val dateFormat = SimpleDateFormat(format, Locale.getDefault())
+        return dateFormat.parse(this)!!
+    }
 }
