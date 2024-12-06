@@ -79,4 +79,16 @@ interface PrescriptionDao {
     @Transaction
     @Query("UPDATE PrescriptionPhotoEntity SET documentFhirId = :documentFhirId WHERE id = :documentUuid")
     suspend fun updateDocumentFhirId(documentUuid: String, documentFhirId: String)
+
+    @Transaction
+    @Query("SELECT * FROM PrescriptionEntity WHERE id IN (:prescriptionId)")
+    suspend fun getPrescriptionById(vararg prescriptionId: String): List<PrescriptionEntity>
+
+    @Transaction
+    @Query("SELECT * FROM PrescriptionDirectionsEntity WHERE id IN (:medReqUuid)")
+    suspend fun getMedReqById(vararg medReqUuid: String): List<PrescriptionDirectionsEntity>
+
+    @Transaction
+    @Query("SELECT id FROM PrescriptionEntity WHERE prescriptionFhirId=:fhirId")
+    suspend fun getPrescriptionIdByFhirId(fhirId: String): String
 }

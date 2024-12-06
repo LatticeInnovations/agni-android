@@ -8,6 +8,8 @@ import com.latticeonfhir.android.data.local.repository.cvd.chart.RiskPredictionC
 import com.latticeonfhir.android.data.local.repository.cvd.chart.RiskPredictionChartRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.cvd.records.CVDAssessmentRepository
 import com.latticeonfhir.android.data.local.repository.cvd.records.CVDAssessmentRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.dispense.DispenseRepository
+import com.latticeonfhir.android.data.local.repository.dispense.DispenseRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.file.DownloadedFileRepository
 import com.latticeonfhir.android.data.local.repository.file.DownloadedFileRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
@@ -141,4 +143,8 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideLabTestRepository(labTestRepositoryImpl: LabTestRepositoryImpl): LabTestRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideDispenseRepository(dispenseRepositoryImpl: DispenseRepositoryImpl): DispenseRepository
 }
