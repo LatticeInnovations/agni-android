@@ -12,17 +12,24 @@ import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.android.data.local.roomdb.dao.DispenseDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.CVDEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseDataEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.LabTestAndMedEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationStrengthRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.medication.StrengthEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
@@ -45,6 +52,8 @@ import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
 import com.latticeonfhir.android.data.server.constants.QueryParameters
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.dispense.response.DispenseData
+import com.latticeonfhir.android.data.server.model.dispense.response.MedicineDispenseResponse
 import com.latticeonfhir.android.data.server.model.labormed.labtest.DiagnosticReport
 import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestPhotoResponse
 import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
@@ -56,6 +65,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedRes
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
+import com.latticeonfhir.android.data.server.model.prescription.medication.Strength
 import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
@@ -353,36 +363,6 @@ internal fun PrescriptionPhotoResponseLocal.toListOfPrescriptionPhotoEntity(): L
             documentFhirId = prescriptionItem.documentFhirId
         )
     }
-}
-
-internal fun List<MedicationResponse>.toListOfMedicationEntity(): List<MedicationEntity> {
-    return this.map { medication ->
-        MedicationEntity(
-            medFhirId = medication.medFhirId,
-            medCodeName = medication.medCode,
-            medName = medication.medName,
-            doseForm = medication.doseForm,
-            doseFormCode = medication.doseFormCode,
-            activeIngredient = medication.activeIngredient,
-            activeIngredientCode = medication.activeIngredientCode,
-            medUnit = medication.medUnit,
-            medNumeratorVal = medication.medNumeratorVal
-        )
-    }
-}
-
-internal fun MedicationEntity.toMedicationResponse(): MedicationResponse {
-    return MedicationResponse(
-        medFhirId = this.medFhirId,
-        medCode = this.medCodeName,
-        medName = this.medName,
-        doseForm = this.doseForm,
-        doseFormCode = this.doseFormCode,
-        activeIngredient = this.activeIngredient,
-        activeIngredientCode = this.activeIngredientCode,
-        medUnit = this.medUnit,
-        medNumeratorVal = this.medNumeratorVal
-    )
 }
 
 internal fun List<MedicineTimeResponse>.toListOfMedicineDirectionsEntity(): List<MedicineTimingEntity> {
@@ -983,4 +963,109 @@ internal fun LabTestLocal.toLabTestEntity(type: String): LabTestAndMedEntity {
         type = type
 
     )
+}
+
+internal fun List<MedicationResponse>.toListOfMedicationEntity(): List<MedicationEntity> {
+    return this.map { medication ->
+        MedicationEntity(
+            medFhirId = medication.medFhirId,
+            medCodeName = medication.medCode,
+            medName = medication.medName,
+            doseForm = medication.doseForm,
+            doseFormCode = medication.doseFormCode,
+            activeIngredient = medication.activeIngredient,
+            activeIngredientCode = medication.activeIngredientCode,
+            medUnit = medication.medUnit,
+            medNumeratorVal = medication.medNumeratorVal,
+            isOTC = medication.isOTC
+        )
+    }
+}
+
+internal fun MedicationResponse.toListOfStrengthEntity(): List<StrengthEntity> {
+    return this.strength.map { strength ->
+        StrengthEntity(
+            id = UUIDBuilder.generateUUID(),
+            medFhirId = this.medFhirId,
+            medName = strength.medName,
+            unitMeasureValue = strength.unitMeasureValue,
+            medMeasureCode = strength.medMeasureCode
+        )
+    }
+}
+
+internal fun MedicationStrengthRelation.toMedicationResponse(): MedicationResponse {
+    return MedicationResponse(
+        medFhirId = this.medicationEntity.medFhirId,
+        medCode = this.medicationEntity.medCodeName,
+        medName = this.medicationEntity.medName,
+        doseForm = this.medicationEntity.doseForm,
+        doseFormCode = this.medicationEntity.doseFormCode,
+        activeIngredient = this.medicationEntity.activeIngredient,
+        activeIngredientCode = this.medicationEntity.activeIngredientCode,
+        medUnit = this.medicationEntity.medUnit,
+        medNumeratorVal = this.medicationEntity.medNumeratorVal,
+        isOTC = this.medicationEntity.isOTC,
+        strength = this.strength.map {
+            Strength(
+                medMeasureCode = it.medMeasureCode,
+                medName = it.medName,
+                unitMeasureValue = it.unitMeasureValue
+            )
+        }
+    )
+}
+
+internal suspend fun MedicineDispenseResponse.toDispensePrescriptionEntity(
+    patientDao: PatientDao,
+    prescriptionDao: PrescriptionDao
+): DispensePrescriptionEntity {
+    return DispensePrescriptionEntity(
+        patientId = patientDao.getPatientIdByFhirId(this.patientId)!!,
+        prescriptionId = prescriptionDao.getPrescriptionIdByFhirId(this.prescriptionFhirId),
+        status = this.status
+    )
+}
+
+internal suspend fun DispenseData.toListOfDispenseDataEntity(
+    patientDao: PatientDao,
+    prescriptionDao: PrescriptionDao,
+    appointmentDao: AppointmentDao,
+    prescriptionFhirId: String?
+): DispenseDataEntity {
+    return DispenseDataEntity(
+        dispenseId = this.dispenseId,
+        dispenseFhirId = this.dispenseFhirId,
+        generatedOn = this.generatedOn,
+        note = this.note,
+        patientId = patientDao.getPatientIdByFhirId(this.patientId)!!,
+        prescriptionId = if (prescriptionFhirId.isNullOrBlank()) null else prescriptionDao.getPrescriptionIdByFhirId(
+            prescriptionFhirId
+        ),
+        appointmentId = if (this.appointmentId.isNullOrBlank()) null else appointmentDao.getAppointmentIdByFhirId(this.appointmentId)
+    )
+}
+
+internal suspend fun DispenseData.toListOfMedicineDispenseListEntity(
+    patientDao: PatientDao,
+    dispenseDao: DispenseDao
+): List<MedicineDispenseListEntity> {
+    return this.medicineDispensedList.map {
+        MedicineDispenseListEntity(
+            medDispenseUuid = it.medDispenseUuid,
+            medDispenseFhirId = it.medDispenseFhirId,
+            dispenseId = this.dispenseId,
+            patientId = patientDao.getPatientIdByFhirId(it.patientId)!!,
+            category = it.category,
+            qtyDispensed = it.qtyDispensed,
+            qtyPrescribed = it.prescriptionData?.qtyPrescribed ?: it.qtyDispensed,
+            date = it.date,
+            isModified = it.isModified,
+            modificationType = it.modificationType,
+            medNote = it.medNote,
+            dispensedMedFhirId = it.dispensedMedication.medFhirId,
+            prescribedMedFhirId = it.prescriptionData?.medFhirId ?: it.medFhirId,
+            prescribedMedReqId = it.prescriptionData?.medReqFhirId
+        )
+    }
 }

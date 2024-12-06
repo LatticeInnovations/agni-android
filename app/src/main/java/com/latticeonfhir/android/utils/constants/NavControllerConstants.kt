@@ -9,4 +9,5 @@ object NavControllerConstants {
     const val SCHEDULED = "scheduled"
     const val IF_RESCHEDULING = "ifRescheduling"
     const val SELECTED_INDEX = "selectedIndex"
+    const val OTC_DISPENSED = "otc_dispensed"
 }

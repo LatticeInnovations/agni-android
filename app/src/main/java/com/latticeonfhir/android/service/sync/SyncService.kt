@@ -230,7 +230,13 @@ class SyncService(
 
     /** Upload Photo Prescription*/
     private suspend fun uploadFormPrescriptionData(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
-        return checkAuthenticationStatus(syncRepository.sendFormPrescriptionPostData(), logout)
+        return checkAuthenticationStatus(syncRepository.sendFormPrescriptionPostData(), logout)?.apply {
+            if (this is ApiEmptyResponse) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    updateFhirIdInDispense(logout)
+                }
+            }
+        }
     }
 
     /** Upload Patient Last Updated Data */
@@ -238,7 +244,7 @@ class SyncService(
         return checkAuthenticationStatus(syncRepository.sendPatientLastUpdatePostData(), logout)
     }
 
-    /** Upload Patient Last Updated Data */
+    /** Upload Prescription photos */
     private suspend fun uploadPrescriptionPhoto(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(fileSyncRepository.uploadFile(), logout)
     }
@@ -273,6 +279,12 @@ class SyncService(
     private suspend fun uploadMedicalRecord(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(syncRepository.sendMedRecordPostData(), logout)
     }
+
+    /** Upload Dispense */
+    private suspend fun uploadDispense(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendDispensePostData(), logout)
+    }
+
     /**
      *
      *
@@ -440,7 +452,16 @@ class SyncService(
         return checkAuthenticationStatus(
             syncRepository.getAndInsertFormPrescription(patientId),
             logout
-        )
+        )?.apply {
+            if (this is ApiEmptyResponse || this is ApiEndResponse) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    downloadDispense(patientId, logout)
+                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    downloadOTC(patientId, logout)
+                }
+            }
+        }
     }
 
     /** Download Photo Prescription*/
@@ -530,6 +551,29 @@ class SyncService(
             logout
         )
     }
+
+    /** Download Dispense*/
+    internal suspend fun downloadDispense(
+        patientId: String?,
+        logout: (Boolean, String) -> Unit
+    ): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(
+            syncRepository.getAndInsertDispense(patientId),
+            logout
+        )
+    }
+
+    /** Download OTC Dispense*/
+    internal suspend fun downloadOTC(
+        patientId: String?,
+        logout: (Boolean, String) -> Unit
+    ): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(
+            syncRepository.getAndInsertOTC(patientId),
+            logout
+        )
+    }
+
     /**
      *
      *
@@ -594,6 +638,13 @@ class SyncService(
     private suspend fun updateFhirIdInMedical(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         genericRepository.updateMedRecordFhirId()
         return uploadMedicalRecord(logout)
+    }
+
+    /** Update Appointment FHIR ID in Dispense */
+    private suspend fun updateFhirIdInDispense(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        genericRepository.updateDispenseFhirId()
+        /** Upload Dispense */
+        return uploadDispense(logout)
     }
 
     /** Check Session Expiry and Authorization */
