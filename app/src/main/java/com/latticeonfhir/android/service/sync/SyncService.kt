@@ -76,10 +76,9 @@ class SyncService(
                         patchMedRecord(logout)
                     }, async {
                         uploadLabAndMedPhoto(logout)
+                    }, async {
+                        patchSymDiag(logout)
                     }
-//                   ,  async {
-//                        patchSymDiag(logout)
-//                    }
                 )
             }
         }
@@ -210,9 +209,9 @@ class SyncService(
                 CoroutineScope(Dispatchers.IO).launch {
                     updateFhirIdInPrescription(logout)
                 }
-//                CoroutineScope(Dispatchers.IO).launch {
-//                    updateFhirIdInSymDiag(logout)
-//                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    updateFhirIdInSymDiag(logout)
+                }
                 CoroutineScope(Dispatchers.IO).launch {
                     updateFhirIdInLabTest(logout)
                 }
@@ -327,12 +326,6 @@ class SyncService(
         checkAuthenticationStatus(syncRepository.sendSymptomsAndDiagnosisPatchData(), logout)
     }
 
-    /** Patch Vital */
-    private suspend fun patchVital(logout: (Boolean, String) -> Unit) {
-
-        checkAuthenticationStatus(syncRepository.sendVitalPatchData(), logout)
-    }
-
     /** Patch LabTest */
     private suspend fun patchLabTest(logout: (Boolean, String) -> Unit) {
         checkAuthenticationStatus(syncRepository.sendLabTestPatchData(), logout)
@@ -427,15 +420,15 @@ class SyncService(
                         downloadVitals(logout)
                     }
 
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        getAndInsertSymptoms()
-//                    }
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        getAndInsertDiagnosis()
-//                    }
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        downloadSymDiag(logout)
-//                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        getAndInsertSymptoms()
+                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        getAndInsertDiagnosis()
+                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        downloadSymDiag(logout)
+                    }
                     CoroutineScope(Dispatchers.IO).launch {
                         downloadLabAndMedicalRecordPhoto(logout)
                     }
@@ -506,7 +499,7 @@ class SyncService(
         return checkAuthenticationStatus(syncRepository.getAndInsertCVD(0), logout)
     }
 
-    /** Download SympDiag*/
+    /** Download SymptomsDiag*/
     private suspend fun downloadSymDiag(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(
             syncRepository.getAndInsertListSymptomsAndDiagnosisData(0),
