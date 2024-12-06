@@ -2,6 +2,8 @@ package com.latticeonfhir.android.utils.converters.responseconverter
 
 import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants
+import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants.DOC_ID
+import java.util.Date
 
 object LabAndMedConverter {
 
@@ -10,12 +12,15 @@ object LabAndMedConverter {
         dynamicKeyValue: String,
         appointmentId: String,
         patientId: String,
-        createdOn: String,
+        createdOn: Date,
+        docUuid: String,
+        docIdKey: String,
         files: List<File>
     ): Map<String, Any> {
 
         val fileList = files.map { file ->
             mapOf(
+                docIdKey to docUuid,
                 LabTestAndMedConstants.FILENAME to file.filename,
                 LabTestAndMedConstants.NOTE to file.note
             )
@@ -31,20 +36,15 @@ object LabAndMedConverter {
     }
 
     internal fun patchGenericMap(
-        dynamicKey: String,
         dynamicKeyValue: String,
         files: List<File>
     ): Map<String, Any> {
 
-        val fileList = files.map { file ->
-            mapOf(
-                LabTestAndMedConstants.FILENAME to file.filename,
-                LabTestAndMedConstants.NOTE to file.note
-            )
-        }
+
         return mapOf(
-            dynamicKey to dynamicKeyValue,
-            LabTestAndMedConstants.FILES to fileList
+            DOC_ID to dynamicKeyValue,
+            LabTestAndMedConstants.FILENAME to files[0].filename,
+            LabTestAndMedConstants.NOTE to files[0].note
         )
     }
 

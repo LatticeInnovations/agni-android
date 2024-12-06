@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 import com.latticeonfhir.android.FhirApp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
@@ -13,8 +12,10 @@ import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.PhotoUploadTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
+import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
+import com.latticeonfhir.android.data.local.model.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.labtest.LabTestRepository
@@ -25,10 +26,9 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.utils.common.Queries
 import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
-
+import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.LabAndMedConverter.createGenericMap
 import com.latticeonfhir.android.utils.converters.responseconverter.LabAndMedConverter.patchGenericMap
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertedDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -193,22 +193,34 @@ class PhotoViewViewModel @Inject constructor(
         added: () -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val dateOfFile = Date(selectedFile!!.filename.substringBefore(".").toLong())
-            val labTestPhotoResponseLocal = labTestRepository.getLabTestAndPhotoByDate(
-                patient!!.id,
-                photoviewType,
-                dateOfFile.toTodayStartDate(),
-                dateOfFile.toEndOfDay()
+
+            val list = labTestRepository.getLabTestAndMedPhotoByAppointmentId(
+                patientId = patient!!.id, photoviewType = photoviewType
             )
-            labTestRepository.insertLabTestAndPhotos(
-                LabTestAndMedPhotoEntity(
-                    id = selectedFile!!.filename + labTestPhotoResponseLocal.labTestId,
-                    labTestId = labTestPhotoResponseLocal.labTestId,
-                    fileName = selectedFile!!.filename,
-                    note = note
-                )
-            )
-            updateInGeneric(dateOfFile)
+
+            var labTestPhotoResponseLocal: LabTestPhotoResponseLocal? = null
+            list.map {
+                it.labTests.map { files ->
+                    if (files.filename == selectedFile!!.filename) {
+                        labTestPhotoResponseLocal = it
+                    }
+                }
+            }.also {
+                labTestPhotoResponseLocal?.let {
+                    labTestRepository.insertLabTestAndPhotos(
+                        labTestPhotoResponseLocal!!.copy(labTests = labTestPhotoResponseLocal!!.labTests.map {
+                            it.copy(
+                                note = note
+                            )
+                        }), type = photoviewType
+                    )
+                    updateInGeneric(labTestPhotoResponseLocal!!.copy(labTests = labTestPhotoResponseLocal!!.labTests.map {
+                        it.copy(
+                            note = note
+                        )
+                    }))
+                }
+            }
             getPastLabAndMedTest()
             added()
         }
@@ -218,36 +230,45 @@ class PhotoViewViewModel @Inject constructor(
         deleted: () -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val dateOfFile = Date(selectedFile!!.filename.substringBefore(".").toLong())
-            val labTestPhotoResponse = labTestRepository.getLabTestAndPhotoByDate(
-                patient!!.id,
-                photoviewType,
-                dateOfFile.toTodayStartDate(),
-                dateOfFile.toEndOfDay()
+            val list = labTestRepository.getLabTestAndMedPhotoByAppointmentId(
+                patientId = patient!!.id, photoviewType = photoviewType
             )
-            // delete from local db
-            labTestRepository.deleteLabTestAndPhotos(
-                LabTestAndMedPhotoEntity(
-                    id = selectedFile!!.filename + labTestPhotoResponse.labTestId,
-                    labTestId = labTestPhotoResponse.labTestId,
-                    fileName = selectedFile!!.filename,
-                    note = selectedFile!!.note
-                )
-            )
-            updateInGeneric(dateOfFile)
+
+            var labTestPhotoResponseLocal: LabTestPhotoResponseLocal? = null
+            list.map {
+                it.labTests.map { files ->
+                    if (files.filename == selectedFile!!.filename) {
+                        labTestPhotoResponseLocal = it
+                    }
+                }
+            }.also {
+                labTestPhotoResponseLocal?.let {
+                    // delete from local db
+                    labTestRepository.deleteLabTestAndPhotos(
+                        labTestPhotoResponseLocal!!, type = photoviewType
+                    )
+                    // update in generic
+                    if (labTestPhotoResponseLocal!!.labTestFhirId == null) {
+                        // remove post request of prescription
+                        genericRepository.removeGenericRecord(labTestPhotoResponseLocal!!.labTestId)
+                    } else {
+                        // add delete request of prescription
+                        genericRepository.insertDeleteRequest(
+                            fhirId = labTestPhotoResponseLocal!!.labTestFhirId!!,
+                            typeEnum = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) GenericTypeEnum.LAB_TEST else GenericTypeEnum.MEDICAL_RECORD,
+                            syncType = SyncType.DELETE
+                        )
+                    }
+                }
+            }
+
             deletedPhotos.add(selectedFile!!)
             deleted()
         }
     }
 
-    private suspend fun updateInGeneric(dateOfFile: Date) {
-        val labTestPhotoResponseLocal =
-            labTestRepository.getLabTestAndPhotoByDate(
-                patient!!.id,
-                photoviewType,
-                dateOfFile.toTodayStartDate(),
-                dateOfFile.toEndOfDay()
-            )
+    private suspend fun updateInGeneric(labTestPhotoResponseLocal: LabTestPhotoResponseLocal) {
+
         if (labTestPhotoResponseLocal.labTestFhirId == null) {
             // insert generic post
             genericRepository.insertPhotoLabTestAndMedRecord(
@@ -256,20 +277,22 @@ class PhotoViewViewModel @Inject constructor(
                     dynamicKeyValue = labTestPhotoResponseLocal.labTestId,
                     appointmentId = labTestPhotoResponseLocal.appointmentId,
                     patientId = patient!!.fhirId ?: patient!!.id,
-                    createdOn = labTestPhotoResponseLocal.createdOn.convertedDate(),
-                    files = labTestPhotoResponseLocal.labTests
+                    createdOn = labTestPhotoResponseLocal.createdOn,
+                    files = labTestPhotoResponseLocal.labTests,
+                    docIdKey = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) LabTestAndMedConstants.LAB_DOC_ID else LabTestAndMedConstants.MED_DOC_ID,
+                    docUuid = selectedFile?.filename + labTestPhotoResponseLocal.labTestId,
                 ),
                 patientId = patient!!.fhirId ?: patient!!.id,
+                labTestId = labTestPhotoResponseLocal.labTestId,
                 typeEnum = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) GenericTypeEnum.LAB_TEST else GenericTypeEnum.MEDICAL_RECORD
             )
 
         } else {
             // insert generic patch
             genericRepository.insertOrUpdatePhotoLabTestAndMedPatch(
-                fhirId = labTestPhotoResponseLocal.labTestFhirId,
+                fhirId = labTestPhotoResponseLocal.labTests[0].documentFhirId!!,
                 map = patchGenericMap(
-                    dynamicKey = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) "diagnosticReportFhirId" else "medicalRecordFhirId",
-                    dynamicKeyValue = labTestPhotoResponseLocal.labTestFhirId,
+                    dynamicKeyValue = labTestPhotoResponseLocal.labTests[0].documentFhirId!!,
                     files = labTestPhotoResponseLocal.labTests
                 ),
                 typeEnum = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) GenericTypeEnum.LAB_TEST else GenericTypeEnum.MEDICAL_RECORD

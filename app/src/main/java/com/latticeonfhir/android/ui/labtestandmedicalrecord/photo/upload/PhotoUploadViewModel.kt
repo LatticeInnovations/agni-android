@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toFile
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
@@ -30,9 +29,8 @@ import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.common.Queries
 import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
+import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.LabAndMedConverter.createGenericMap
-import com.latticeonfhir.android.utils.converters.responseconverter.LabAndMedConverter.patchGenericMap
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertedDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.file.BitmapUtils.compressImage
@@ -129,87 +127,24 @@ class PhotoUploadViewModel @Inject constructor(
         inserted: (Boolean) -> Unit
     ) {
         if (compressImage(application, imageUri)) {
-            var files = mutableListOf<File>()
-            var labTestUuid = UUIDBuilder.generateUUID()
-            var createdOn = Date()
+            val files = mutableListOf<File>()
+            val labTestUuid = UUIDBuilder.generateUUID()
+            val createdOn = Date()
 
-            val labTestPhotoResponse: LabTestPhotoResponseLocal? =
-                if (labTestRepository.getLabTestAndMedPhotoByAppointmentId(
-                        appointmentResponseLocal!!.uuid,
-                        photoviewType
-                    ).isNotEmpty()
-                ) {
-                    labTestRepository.getLabTestAndMedPhotoByAppointmentId(
-                        appointmentResponseLocal!!.uuid,
-                        photoviewType
-                    )[0]
-                } else {
-                    null
-                }
+            appointmentRepository.updateAppointment(
+                appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
+                    .also { updatedAppointmentResponse ->
+                        appointmentResponseLocal = updatedAppointmentResponse
+                    })
 
-            if (labTestPhotoResponse != null && labTestPhotoResponse.labTestFhirId == null) {
-                // insert in generic post
-                labTestUuid = labTestPhotoResponse.labTestId
-                createdOn = labTestPhotoResponse.createdOn
-                files = labTestPhotoResponse.labTests.toMutableList()
-                updateOrInsertNewLabTestOrMedRecord(
-                    imageUri,
-                    files,
-                    labTestUuid,
-                    createdOn
-                )
-                appointmentRepository.updateAppointment(
-                    appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
-                        .also { updatedAppointmentResponse ->
-                            appointmentResponseLocal = updatedAppointmentResponse
-                        })
-
-            } else if (labTestPhotoResponse?.labTestFhirId != null) {
-
-                // insert generic patch
-                val filename = imageUri.toFile().name
-                labTestRepository.insertLabTestAndPhotos(
-                    LabTestAndMedPhotoEntity(
-                        id = filename + labTestPhotoResponse.labTestId,
-                        labTestId = labTestPhotoResponse.labTestId,
-                        fileName = filename,
-                        note = ""
-                    )
-                ).also {
-                    insertInFileRepositories(filename)
-                    val labTestPhotoResponseLocal =
-                        labTestRepository.getLabTestAndMedPhotoByAppointmentId(
-                            appointmentResponseLocal!!.uuid, photoviewType
-                        )[0]
-                    genericRepository.insertOrUpdatePhotoLabTestAndMedPatch(
-                        fhirId = labTestPhotoResponseLocal.labTestFhirId!!,
-                        map = patchGenericMap(
-                            dynamicKey = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) "diagnosticReportFhirId" else "medicalRecordFhirId",
-                            dynamicKeyValue = labTestPhotoResponseLocal.labTestFhirId,
-                            files = labTestPhotoResponseLocal.labTests
-                        ),
-                        typeEnum = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) GenericTypeEnum.LAB_TEST else GenericTypeEnum.MEDICAL_RECORD
-                    )
-
-                }
-            } else {
-                updateOrInsertNewLabTestOrMedRecord(
-                    imageUri,
-                    files,
-                    labTestUuid,
-                    createdOn
-                )
-
-                appointmentRepository.updateAppointment(
-                    appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
-                        .also { updatedAppointmentResponse ->
-                            appointmentResponseLocal = updatedAppointmentResponse
-                        })
-
-
-            }
+            updateOrInsertNewLabTestOrMedRecord(
+                imageUri,
+                files,
+                labTestUuid,
+                createdOn
+            )
             inserted(true)
-        }
+        } else inserted(false)
 
 
     }
@@ -217,20 +152,19 @@ class PhotoUploadViewModel @Inject constructor(
     private suspend fun updateOrInsertNewLabTestOrMedRecord(
         imageUri: Uri,
         files: MutableList<File>,
-        prescriptionUuid: String,
+        labTestUuid: String,
         generatedOn: Date
     ) {
         // insert in db
         val filename = imageUri.toFile().name
-        // TODO: added added string, to be changed
         val listOfFiles = files.apply {
-            add(File(filename, "", "", ""))
+            add(File(UUIDBuilder.generateUUID(), null, filename, ""))
         }
         labTestRepository.insertPhotoLabTestAndMed(
             local = LabTestPhotoResponseLocal(
                 patientId = patient!!.id,
                 createdOn = generatedOn,
-                labTestId = prescriptionUuid,
+                labTestId = labTestUuid,
                 labTests = listOfFiles,
                 appointmentId = appointmentResponseLocal?.appointmentId
                     ?: appointmentResponseLocal!!.uuid
@@ -240,14 +174,17 @@ class PhotoUploadViewModel @Inject constructor(
             genericRepository.insertPhotoLabTestAndMedRecord(
                 map = createGenericMap(
                     dynamicKey = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) "diagnosticUuid" else "medicalReportUuid",
-                    dynamicKeyValue = prescriptionUuid,
+                    dynamicKeyValue = labTestUuid,
                     appointmentId = appointmentResponseLocal!!.appointmentId
                         ?: appointmentResponseLocal!!.uuid,
                     patientId = patient!!.fhirId ?: patient!!.id,
-                    createdOn = generatedOn.convertedDate(),
+                    createdOn = generatedOn,
+                    docUuid = filename + labTestUuid,
+                    docIdKey = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) LabTestAndMedConstants.LAB_DOC_ID else LabTestAndMedConstants.MED_DOC_ID,
                     files = listOfFiles
                 ),
                 patientId = patient!!.fhirId ?: patient!!.id,
+                labTestId = labTestUuid,
                 typeEnum = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) GenericTypeEnum.LAB_TEST else GenericTypeEnum.MEDICAL_RECORD
             )
             updatePatientLastUpdated(
