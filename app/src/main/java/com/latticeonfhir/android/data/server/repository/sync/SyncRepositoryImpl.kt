@@ -1193,7 +1193,6 @@ class SyncRepositoryImpl @Inject constructor(
             else {
                 ApiResponseConverter.convert(
                     labTestAndMedRecordService.patchListOfChanges(
-                        EndPoints.LAB_TEST,
                         listOfGenericEntity.map { it.payload.fromJson() })
                 ).run {
                     when (this) {
@@ -1221,7 +1220,6 @@ class SyncRepositoryImpl @Inject constructor(
             else {
                 ApiResponseConverter.convert(
                     labTestAndMedRecordService.patchListOfChanges(
-                        EndPoints.MEDICAL_RECORD,
                         listOfGenericEntity.map { it.payload.fromJson() })
                 ).run {
                     when (this) {

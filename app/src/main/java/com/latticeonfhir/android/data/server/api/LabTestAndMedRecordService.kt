@@ -33,10 +33,9 @@ interface LabTestAndMedRecordService {
         @Body labOrMed: List<Any>
     ): Response<BaseResponse<List<CreateResponse>>>
 
-    @PATCH("sync/{endPoint}")
+    @PATCH("sync/DocumentReference")
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
-        @Path("endPoint") endPoint: String,
         @Body patchLogs: List<Map<String, Any>>
     ): Response<BaseResponse<List<CreateResponse>>>
 

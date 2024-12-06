@@ -205,19 +205,22 @@ class PhotoViewViewModel @Inject constructor(
                         labTestPhotoResponseLocal = it
                     }
                 }
-            }
-            labTestRepository.insertLabTestAndPhotos(
-                labTestPhotoResponseLocal!!.copy(labTests = labTestPhotoResponseLocal!!.labTests.map {
-                    it.copy(
-                        note = note
+            }.also {
+                labTestPhotoResponseLocal?.let {
+                    labTestRepository.insertLabTestAndPhotos(
+                        labTestPhotoResponseLocal!!.copy(labTests = labTestPhotoResponseLocal!!.labTests.map {
+                            it.copy(
+                                note = note
+                            )
+                        }), type = photoviewType
                     )
-                }), type = photoviewType
-            )
-            updateInGeneric(labTestPhotoResponseLocal!!.copy(labTests = labTestPhotoResponseLocal!!.labTests.map {
-                it.copy(
-                    note = note
-                )
-            }))
+                    updateInGeneric(labTestPhotoResponseLocal!!.copy(labTests = labTestPhotoResponseLocal!!.labTests.map {
+                        it.copy(
+                            note = note
+                        )
+                    }))
+                }
+            }
             getPastLabAndMedTest()
             added()
         }
@@ -238,23 +241,27 @@ class PhotoViewViewModel @Inject constructor(
                         labTestPhotoResponseLocal = it
                     }
                 }
+            }.also {
+                labTestPhotoResponseLocal?.let {
+                    // delete from local db
+                    labTestRepository.deleteLabTestAndPhotos(
+                        labTestPhotoResponseLocal!!, type = photoviewType
+                    )
+                    // update in generic
+                    if (labTestPhotoResponseLocal!!.labTestFhirId == null) {
+                        // remove post request of prescription
+                        genericRepository.removeGenericRecord(labTestPhotoResponseLocal!!.labTestId)
+                    } else {
+                        // add delete request of prescription
+                        genericRepository.insertDeleteRequest(
+                            fhirId = labTestPhotoResponseLocal!!.labTestFhirId!!,
+                            typeEnum = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) GenericTypeEnum.LAB_TEST else GenericTypeEnum.MEDICAL_RECORD,
+                            syncType = SyncType.DELETE
+                        )
+                    }
+                }
             }
-            // delete from local db
-            labTestRepository.deleteLabTestAndPhotos(
-                labTestPhotoResponseLocal!!, type = photoviewType
-            )
-            // update in generic
-            if (labTestPhotoResponseLocal!!.labTestFhirId == null) {
-                // remove post request of prescription
-                genericRepository.removeGenericRecord(labTestPhotoResponseLocal!!.labTestId)
-            } else {
-                // add delete request of prescription
-                genericRepository.insertDeleteRequest(
-                    fhirId = labTestPhotoResponseLocal!!.labTestFhirId!!,
-                    typeEnum = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) GenericTypeEnum.LAB_TEST else GenericTypeEnum.MEDICAL_RECORD,
-                    syncType = SyncType.DELETE
-                )
-            }
+
             deletedPhotos.add(selectedFile!!)
             deleted()
         }
@@ -285,7 +292,6 @@ class PhotoViewViewModel @Inject constructor(
             genericRepository.insertOrUpdatePhotoLabTestAndMedPatch(
                 fhirId = labTestPhotoResponseLocal.labTests[0].documentFhirId!!,
                 map = patchGenericMap(
-                    dynamicKey =if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) "labDocumentfhirId" else "medicalRecordFhirId" ,
                     dynamicKeyValue = labTestPhotoResponseLocal.labTests[0].documentFhirId!!,
                     files = labTestPhotoResponseLocal.labTests
                 ),

@@ -9,4 +9,5 @@ object LabTestAndMedConstants {
     const val NOTE = "note"
     const val LAB_DOC_ID = "labDocumentUuid"
     const val MED_DOC_ID = "medicalDocumentUuid"
+    const val DOC_ID = "documentFhirId"
 }
