@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoPatch
@@ -68,6 +69,11 @@ interface GenericRepository {
         local: SymptomsAndDiagnosisData, uuid: String = UUIDBuilder.generateUUID()
     ): Long
 
+    suspend fun insertDispense(
+        medicineDispenseRequest: MedicineDispenseRequest,
+        uuid: String = UUIDBuilder.generateUUID()
+    ): Long
+
     suspend fun updateAppointmentFhirIds()
     suspend fun updateAppointmentFhirIdInPatch()
 
@@ -76,6 +82,7 @@ interface GenericRepository {
     suspend fun updateSymDiagFhirId()
     suspend fun updateLabTestFhirId()
     suspend fun updateMedRecordFhirId()
+    suspend fun updateDispenseFhirId()
 
     suspend fun insertOrUpdatePatientPatchEntity(
         patientFhirId: String,

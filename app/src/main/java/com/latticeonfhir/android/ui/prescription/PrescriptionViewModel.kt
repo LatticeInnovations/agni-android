@@ -6,15 +6,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.android.data.local.enums.DispenseStatusEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.MedicationLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
+import com.latticeonfhir.android.data.local.repository.dispense.DispenseRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -37,7 +40,8 @@ class PrescriptionViewModel @Inject constructor(
     private val medicationRepository: MedicationRepository,
     private val searchRepository: SearchRepository,
     private val genericRepository: GenericRepository,
-    private val appointmentRepository: AppointmentRepository
+    private val appointmentRepository: AppointmentRepository,
+    private val dispenseRepository: DispenseRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
@@ -117,6 +121,13 @@ class PrescriptionViewModel @Inject constructor(
                             .also { updatedAppointmentResponse ->
                                 appointmentResponseLocal = updatedAppointmentResponse
                             }
+                    )
+                    dispenseRepository.insertPrescriptionDispenseData(
+                        DispensePrescriptionEntity(
+                            patientId = patient!!.id,
+                            prescriptionId = prescriptionId,
+                            status = DispenseStatusEnum.NOT_DISPENSED.code
+                        )
                     )
                 }
             })

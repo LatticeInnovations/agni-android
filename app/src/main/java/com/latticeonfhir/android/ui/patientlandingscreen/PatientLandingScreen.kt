@@ -264,7 +264,7 @@ fun PatientLandingScreen(
                         )
                         CardComposable(
                             viewModel,
-                            stringResource(id = R.string.prescriptions),
+                            stringResource(id = R.string.prescription),
                             R.drawable.prescriptions_icon,
                             null,
                             onClick = {
@@ -273,6 +273,19 @@ fun PatientLandingScreen(
                                     viewModel.patient
                                 )
                                 navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
+                            }
+                        )
+                        CardComposable(
+                            viewModel,
+                            stringResource(id = R.string.drugs_dispense),
+                            R.drawable.pill,
+                            null,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
+                                navController.navigate(Screen.DrugDispenseScreen.route)
                             }
                         )
                         CardComposable(
