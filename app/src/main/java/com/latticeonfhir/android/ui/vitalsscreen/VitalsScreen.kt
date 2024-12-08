@@ -705,7 +705,7 @@ fun getChartEntries2(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): 
             list.filter { it.bloodGlucoseType == BGEnum.RANDOM.value },
             list.map { it.createdOn.formatDateToDayMonth() }) {
             if (it.bloodGlucoseUnit?.equals(BGEnum.BG_MMO.value) == true) it.bloodGlucose?.toFloat()
-                ?.times(18.018f)
+                ?.times(18.018f)?.roundToInt()?.toFloat()
             else it.bloodGlucose?.toFloat()
         }
     } else if (vitalsViewModel.isBPSelected) {
@@ -736,10 +736,13 @@ private fun getEntries(
 
         if (labelIndex != -1) {
             // Calculate the average value for the grouped records
-            val averageValue = records.mapNotNull(valueSelector).average().roundToInt().toFloat()
-
-            // Add the average value as an Entry for the graph
-            mutableList.add(Entry(labelIndex.toFloat(), averageValue))
+            val values = records.mapNotNull(valueSelector)
+            if (values.isNotEmpty()) {
+                // Calculate the average only if values are present
+                val averageValue = values.average().toFloat()
+                // Add the average value as an Entry for the graph
+                mutableList.add(Entry(labelIndex.toFloat(), averageValue.roundToInt().toFloat()))
+            }
         }
     }
 
@@ -776,7 +779,7 @@ private fun getCombinedEntries(
             // Calculate the average of the combined values
             if (combinedValues.isNotEmpty()) {
                 val finalAverage = combinedValues.average().toFloat()
-                mutableList.add(Entry(labelIndex.toFloat(), finalAverage))
+                mutableList.add(Entry(labelIndex.toFloat(), finalAverage.roundToInt().toFloat()))
             }
         }
     }
