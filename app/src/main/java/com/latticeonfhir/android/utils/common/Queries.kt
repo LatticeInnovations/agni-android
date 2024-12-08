@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.utils.common
 
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.android.data.local.enums.AppointmentTypeEnum
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.LastVisit
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
@@ -125,7 +126,9 @@ object Queries {
                         createdOn = createdOn,
                         orgId = preferenceRepository.getOrganizationFhirId(),
                         slot = slot,
-                        status = AppointmentStatusEnum.WALK_IN.value
+                        status = AppointmentStatusEnum.WALK_IN.value,
+                        appointmentType = AppointmentTypeEnum.WALK_IN.code,
+                        inProgressTime = null
                     )
                 ).also {
                     genericRepository.insertAppointment(
@@ -138,7 +141,9 @@ object Queries {
                             createdOn = createdOn,
                             orgId = preferenceRepository.getOrganizationFhirId(),
                             slot = slot,
-                            status = AppointmentStatusEnum.WALK_IN.value
+                            status = AppointmentStatusEnum.WALK_IN.value,
+                            appointmentType = AppointmentTypeEnum.WALK_IN.code,
+                            inProgressTime = null
                         )
                     )
                     updatePatientLastUpdated(
@@ -178,7 +183,9 @@ object Queries {
                             scheduleId = scheduleRepository.getScheduleByStartTime(appointment.scheduleId.time)?.scheduleId
                                 ?: scheduleRepository.getScheduleByStartTime(appointment.scheduleId.time)?.uuid!!,
                             slot = appointment.slot,
-                            status = AppointmentStatusEnum.ARRIVED.value
+                            status = AppointmentStatusEnum.ARRIVED.value,
+                            appointmentType = appointment.appointmentType,
+                            inProgressTime = appointment.inProgressTime
                         )
                     )
                 } else {

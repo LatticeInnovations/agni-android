@@ -18,5 +18,8 @@ data class AppointmentResponse(
     val slot: Slot,
     val orgId: String,
     val createdOn: Date,
-    val status: String
+    val status: String,
+    val appointmentType: String,
+    @SerializedName("generatedOn")
+    val inProgressTime: Date?
 ) : Parcelable

@@ -84,7 +84,6 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
-import timber.log.Timber
 import java.util.Date
 import java.util.UUID
 
@@ -403,9 +402,6 @@ internal suspend fun AppointmentResponse.toAppointmentEntity(
     patientDao: PatientDao,
     scheduleDao: ScheduleDao
 ): AppointmentEntity {
-    Timber.d("manseeyy patient $patientFhirId")
-    Timber.d("manseeyy appointment $appointmentId")
-    Timber.d("manseeyy $appointmentId")
     return AppointmentEntity(
         id = uuid,
         appointmentFhirId = appointmentId,
@@ -415,7 +411,9 @@ internal suspend fun AppointmentResponse.toAppointmentEntity(
         orgId = orgId,
         status = status,
         startTime = slot.start,
-        endTime = slot.end
+        endTime = slot.end,
+        appointmentType = appointmentType,
+        inProgressTime = inProgressTime
     )
 }
 
@@ -434,7 +432,9 @@ internal suspend fun AppointmentEntity.toAppointmentResponse(
             start = startTime,
             end = endTime
         ),
-        status = status
+        status = status,
+        appointmentType = appointmentType,
+        inProgressTime = inProgressTime
     )
 }
 
@@ -450,7 +450,9 @@ internal fun AppointmentEntity.toAppointmentResponseLocal(): AppointmentResponse
             start = startTime,
             end = endTime
         ),
-        status = status
+        status = status,
+        appointmentType = appointmentType,
+        inProgressTime = inProgressTime
     )
 }
 
@@ -465,7 +467,9 @@ internal fun AppointmentResponseLocal.toAppointmentEntity(): AppointmentEntity {
         orgId = orgId,
         status = status,
         startTime = slot.start,
-        endTime = slot.end
+        endTime = slot.end,
+        appointmentType = appointmentType,
+        inProgressTime = inProgressTime
     )
 }
 
