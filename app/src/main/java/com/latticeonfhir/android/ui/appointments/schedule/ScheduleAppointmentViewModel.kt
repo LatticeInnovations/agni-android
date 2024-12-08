@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.android.data.local.enums.AppointmentTypeEnum
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
@@ -115,7 +116,9 @@ class ScheduleAppointmentViewModel @Inject constructor(
                                     createdOn = createdOn,
                                     orgId = preferenceRepository.getOrganizationFhirId(),
                                     slot = slot,
-                                    status = AppointmentStatusEnum.SCHEDULED.value
+                                    status = AppointmentStatusEnum.SCHEDULED.value,
+                                    appointmentType = AppointmentTypeEnum.ROUTINE.code,
+                                    inProgressTime = null
                                 )
                             ).also {
                                 genericRepository.insertAppointment(
@@ -127,7 +130,9 @@ class ScheduleAppointmentViewModel @Inject constructor(
                                         createdOn = createdOn,
                                         orgId = preferenceRepository.getOrganizationFhirId(),
                                         slot = slot,
-                                        status = AppointmentStatusEnum.SCHEDULED.value
+                                        status = AppointmentStatusEnum.SCHEDULED.value,
+                                        appointmentType = AppointmentTypeEnum.ROUTINE.code,
+                                        inProgressTime = null
                                     )
                                 )
                                 val patientLastUpdatedResponse = PatientLastUpdatedResponse(
@@ -222,7 +227,9 @@ class ScheduleAppointmentViewModel @Inject constructor(
                             slot = slot,
                             orgId = appointment!!.orgId,
                             patientId = patient?.id!!,
-                            status = appointment!!.status
+                            status = appointment!!.status,
+                            appointmentType = appointment!!.appointmentType,
+                            inProgressTime = appointment!!.inProgressTime
                         )
                     ).also {
                         if (appointment?.appointmentId.isNullOrBlank()) {
@@ -236,7 +243,9 @@ class ScheduleAppointmentViewModel @Inject constructor(
                                     appointmentId = null,
                                     orgId = appointment!!.orgId,
                                     status = appointment!!.status,
-                                    uuid = appointment!!.uuid
+                                    uuid = appointment!!.uuid,
+                                    appointmentType = appointment!!.appointmentType,
+                                    inProgressTime = appointment!!.inProgressTime
                                 )
                             )
                         } else {
