@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.roomdb.entities.appointment
 
 import androidx.annotation.Keep
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -36,5 +37,8 @@ data class AppointmentEntity(
     val endTime: Date,
     val orgId: String,
     val createdOn: Date,
-    val status: String
+    val status: String,
+    @ColumnInfo(defaultValue = "DEFAULT_APPOINTMENT_TYPE")
+    val appointmentType: String,
+    val inProgressTime: Date?
 )

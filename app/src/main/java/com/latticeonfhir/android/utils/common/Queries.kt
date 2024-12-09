@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.utils.common
 
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.android.data.local.enums.AppointmentTypeEnum
 import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.LastVisit
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
@@ -125,7 +126,9 @@ object Queries {
                         createdOn = createdOn,
                         orgId = preferenceRepository.getOrganizationFhirId(),
                         slot = slot,
-                        status = AppointmentStatusEnum.WALK_IN.value
+                        status = AppointmentStatusEnum.WALK_IN.value,
+                        appointmentType = AppointmentTypeEnum.WALK_IN.code,
+                        inProgressTime = null
                     )
                 ).also {
                     genericRepository.insertAppointment(
@@ -138,7 +141,9 @@ object Queries {
                             createdOn = createdOn,
                             orgId = preferenceRepository.getOrganizationFhirId(),
                             slot = slot,
-                            status = AppointmentStatusEnum.WALK_IN.value
+                            status = AppointmentStatusEnum.WALK_IN.value,
+                            appointmentType = AppointmentTypeEnum.WALK_IN.code,
+                            inProgressTime = null
                         )
                     )
                     updatePatientLastUpdated(
@@ -178,7 +183,9 @@ object Queries {
                             scheduleId = scheduleRepository.getScheduleByStartTime(appointment.scheduleId.time)?.scheduleId
                                 ?: scheduleRepository.getScheduleByStartTime(appointment.scheduleId.time)?.uuid!!,
                             slot = appointment.slot,
-                            status = AppointmentStatusEnum.ARRIVED.value
+                            status = AppointmentStatusEnum.ARRIVED.value,
+                            appointmentType = appointment.appointmentType,
+                            inProgressTime = appointment.inProgressTime
                         )
                     )
                 } else {
@@ -246,6 +253,59 @@ object Queries {
             it.appointmentEntity.startTime
         }.map {
             it.patientAndIdentifierEntity
+        }
+    }
+
+    internal suspend fun checkAndUpdateAppointmentStatusToInProgress(
+        inProgressTime: Date,
+        patient: PatientResponse,
+        appointmentResponseLocal: AppointmentResponseLocal,
+        appointmentRepository: AppointmentRepository,
+        genericRepository: GenericRepository,
+        scheduleRepository: ScheduleRepository
+    ) {
+        if (appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
+            || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value) {
+            appointmentRepository.updateAppointment(
+                appointmentResponseLocal.copy(
+                    status = AppointmentStatusEnum.IN_PROGRESS.value,
+                    inProgressTime = inProgressTime
+                )
+            )
+            if (appointmentResponseLocal.appointmentId.isNullOrBlank()) {
+                genericRepository.insertAppointment(
+                    AppointmentResponse(
+                        appointmentId = null,
+                        createdOn = appointmentResponseLocal.createdOn,
+                        uuid = appointmentResponseLocal.uuid,
+                        patientFhirId = patient.fhirId ?: patient.id,
+                        orgId = appointmentResponseLocal.orgId,
+                        scheduleId = scheduleRepository.getScheduleByStartTime(appointmentResponseLocal.scheduleId.time)?.scheduleId
+                            ?: scheduleRepository.getScheduleByStartTime(appointmentResponseLocal.scheduleId.time)?.uuid!!,
+                        slot = appointmentResponseLocal.slot,
+                        status = AppointmentStatusEnum.IN_PROGRESS.value,
+                        appointmentType = appointmentResponseLocal.appointmentType,
+                        inProgressTime = inProgressTime
+                    )
+                )
+            } else {
+                genericRepository.insertOrUpdateAppointmentPatch(
+                    appointmentFhirId = appointmentResponseLocal.appointmentId,
+                    map = mapOf(
+                        Pair(
+                            "generatedOn",
+                            inProgressTime
+                        ),
+                        Pair(
+                            "status",
+                            ChangeRequest(
+                                operation = ChangeTypeEnum.REPLACE.value,
+                                value = AppointmentStatusEnum.IN_PROGRESS.value
+                            )
+                        )
+                    )
+                )
+            }
         }
     }
 }

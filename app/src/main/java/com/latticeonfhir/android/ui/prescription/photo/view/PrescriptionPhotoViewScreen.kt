@@ -116,6 +116,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.ui.common.DisplaySyncStatus
+import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
@@ -177,6 +178,7 @@ fun PrescriptionPhotoViewScreen(
                 )
             viewModel.getCurrentSyncStatus()
             viewModel.isLaunched = true
+            viewModel.isLoading = true
         }
         viewModel.getPastPrescription()
     }
@@ -269,19 +271,32 @@ fun PrescriptionPhotoViewScreen(
             Box(modifier = Modifier.padding(it)) {
                 Column {
                     CheckNetwork(viewModel, activity)
-                    if (viewModel.allPrescriptionList.isEmpty()) {
+                    if (viewModel.isLoading) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = stringResource(id = R.string.no_prescription_added),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            Loader()
                         }
+                    } else {
+                        if (viewModel.allPrescriptionList.none { prescription ->
+                                !viewModel.deletedPhotos.contains(
+                                    prescription
+                                )
+                            }) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.no_prescription_added),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                        PhotoView(viewModel)
                     }
-                    PhotoView(viewModel)
                 }
                 AnimatedVisibility(
                     visible = viewModel.isTapped,

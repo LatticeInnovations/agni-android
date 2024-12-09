@@ -148,7 +148,9 @@ class QueueViewModel @Inject constructor(
                                 appointmentId = null,
                                 orgId = appointmentSelected!!.orgId,
                                 status = AppointmentStatusEnum.CANCELLED.value,
-                                uuid = appointmentSelected!!.uuid
+                                uuid = appointmentSelected!!.uuid,
+                                appointmentType = appointmentSelected!!.appointmentType,
+                                inProgressTime = appointmentSelected!!.inProgressTime
                             )
                         )
                     } else {
@@ -194,7 +196,9 @@ class QueueViewModel @Inject constructor(
                                 appointmentId = null,
                                 orgId = appointmentSelected!!.orgId,
                                 status = status,
-                                uuid = appointmentSelected!!.uuid
+                                uuid = appointmentSelected!!.uuid,
+                                appointmentType = appointmentSelected!!.appointmentType,
+                                inProgressTime = appointmentSelected!!.inProgressTime
                             )
                         )
                     } else {

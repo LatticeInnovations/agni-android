@@ -15,7 +15,9 @@ import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRe
 import com.latticeonfhir.android.data.local.repository.dispense.DispenseRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
+import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
+import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
@@ -24,6 +26,8 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
+import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Deferred
@@ -41,7 +45,9 @@ class PrescriptionViewModel @Inject constructor(
     private val searchRepository: SearchRepository,
     private val genericRepository: GenericRepository,
     private val appointmentRepository: AppointmentRepository,
-    private val dispenseRepository: DispenseRepository
+    private val dispenseRepository: DispenseRepository,
+    private val scheduleRepository: ScheduleRepository,
+    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
 ) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
@@ -116,18 +122,25 @@ class PrescriptionViewModel @Inject constructor(
             inserted(withContext(ioDispatcher) {
                 insertPrescriptionInDB(date, prescriptionId, medicationsList).also {
                     insertGenericEntityInDB(date, prescriptionId, medicationsList)
-                    appointmentRepository.updateAppointment(
-                        appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
-                            .also { updatedAppointmentResponse ->
-                                appointmentResponseLocal = updatedAppointmentResponse
-                            }
-                    )
                     dispenseRepository.insertPrescriptionDispenseData(
                         DispensePrescriptionEntity(
                             patientId = patient!!.id,
                             prescriptionId = prescriptionId,
                             status = DispenseStatusEnum.NOT_DISPENSED.code
                         )
+                    )
+                    checkAndUpdateAppointmentStatusToInProgress(
+                        inProgressTime = date,
+                        patient = patient!!,
+                        appointmentResponseLocal = appointmentResponseLocal!!,
+                        appointmentRepository = appointmentRepository,
+                        scheduleRepository = scheduleRepository,
+                        genericRepository = genericRepository
+                    )
+                    updatePatientLastUpdated(
+                        patient!!.id,
+                        patientLastUpdatedRepository,
+                        genericRepository
                     )
                 }
             })

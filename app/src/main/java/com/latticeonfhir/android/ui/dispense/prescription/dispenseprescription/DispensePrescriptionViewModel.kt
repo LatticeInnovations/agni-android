@@ -26,9 +26,10 @@ import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDis
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationStrengthRelation
 import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispensed
-import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.common.Queries
+import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
+import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -214,12 +215,21 @@ class DispensePrescriptionViewModel @Inject constructor(
             medicineDispenseRequest = medDispenseRequest
         )
 
-        val patientLastUpdatedResponse = PatientLastUpdatedResponse(
-            uuid = prescription!!.prescription.patientId,
-            timestamp = Date()
+        val patient = patientRepository.getPatientById(prescription!!.prescription.patientId)[0]
+
+        checkAndUpdateAppointmentStatusToInProgress(
+            inProgressTime = generatedOn,
+            patient = patient,
+            appointmentResponseLocal = appointmentResponseLocal,
+            appointmentRepository = appointmentRepository,
+            scheduleRepository = scheduleRepository,
+            genericRepository = genericRepository
         )
-        patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
-        genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
+        updatePatientLastUpdated(
+            patient.id,
+            patientLastUpdatedRepository,
+            genericRepository
+        )
         dispensed()
     }
 

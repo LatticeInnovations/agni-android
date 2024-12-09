@@ -99,7 +99,9 @@ class AppointmentsScreenViewModel @Inject constructor(
                                 slot = selectedAppointment!!.slot,
                                 orgId = selectedAppointment!!.orgId,
                                 createdOn = selectedAppointment!!.createdOn,
-                                status = AppointmentStatusEnum.CANCELLED.value
+                                status = AppointmentStatusEnum.CANCELLED.value,
+                                appointmentType = selectedAppointment!!.appointmentType,
+                                inProgressTime = selectedAppointment!!.inProgressTime
                             )
                         )
                     } else {
