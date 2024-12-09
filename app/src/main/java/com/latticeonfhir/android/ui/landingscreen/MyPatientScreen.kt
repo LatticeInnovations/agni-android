@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.landingscreen
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -63,49 +64,62 @@ fun MyPatientScreen(
         } else {
             viewModel.patientList.collectAsLazyPagingItems()
         }
-        LazyColumn(modifier = Modifier.testTag("patients list")) {
-            items(
-                count = patientsList.itemCount,
-                key = patientsList.itemKey(),
-                contentType = patientsList.itemContentType(
-                )
-            ) { index ->
-                val item = patientsList[index]
-                if (item != null) {
-                    var lastVisited: Date? by remember {
-                        mutableStateOf(null)
-                    }
-                    viewModel.getLastVisitedOfPatient(item.id) {
-                        lastVisited = it
-                    }
-                    PatientItemCard(
-                        navController, item, lastVisited, viewModel
-                    )
+        if (viewModel.isLoading || patientsList.loadState.refresh == LoadState.Loading) {
+            Loader()
+        } else {
+            if (patientsList.itemCount == 0) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(stringResource(R.string.no_records))
                 }
-            }
-            when (patientsList.loadState.append) {
-                is LoadState.NotLoading -> Unit
-                LoadState.Loading -> {
-                    item {
-                        Loader()
+            } else {
+                LazyColumn(modifier = Modifier.testTag("patients list")) {
+                    items(
+                        count = patientsList.itemCount,
+                        key = patientsList.itemKey(),
+                        contentType = patientsList.itemContentType(
+                        )
+                    ) { index ->
+                        val item = patientsList[index]
+                        if (item != null) {
+                            var lastVisited: Date? by remember {
+                                mutableStateOf(null)
+                            }
+                            viewModel.getLastVisitedOfPatient(item.id) {
+                                lastVisited = it
+                            }
+                            PatientItemCard(
+                                navController, item, lastVisited, viewModel
+                            )
+                        }
                     }
-                }
+                    when (patientsList.loadState.append) {
+                        is LoadState.NotLoading -> Unit
+                        LoadState.Loading -> {
+                            item {
+                                Loader()
+                            }
+                        }
 
-                is LoadState.Error -> {
-                    // TODO
-                }
-            }
-
-            when (patientsList.loadState.refresh) {
-                is LoadState.NotLoading -> Unit
-                LoadState.Loading -> {
-                    item {
-                        Loader()
+                        is LoadState.Error -> {
+                            // TODO
+                        }
                     }
-                }
 
-                is LoadState.Error -> {
-                    // TODO
+                    when (patientsList.loadState.refresh) {
+                        is LoadState.NotLoading -> Unit
+                        LoadState.Loading -> {
+                            item {
+                                Loader()
+                            }
+                        }
+
+                        is LoadState.Error -> {
+                            // TODO
+                        }
+                    }
                 }
             }
         }

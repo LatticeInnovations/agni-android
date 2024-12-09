@@ -291,6 +291,7 @@ class LandingScreenViewModel @Inject constructor(
     private fun getPatientList() {
         viewModelScope.launch(Dispatchers.IO) {
             patientList = patientRepository.getPatientList().asFlow().cachedIn(viewModelScope)
+            isLoading = false
         }
     }
 
