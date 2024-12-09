@@ -584,7 +584,7 @@ fun ShowTrendGraphCard(
                 .height(200.dp),
                 entriesRandom = getChartEntries2(list, vitalsViewModel),
                 entriesFasting = getChartEntries(list, vitalsViewModel),
-                labels = list.map { it.createdOn.formatDateToDayMonth() }.toSet().toList()
+                labels = getLabels(vitalsViewModel, list)
             )
         }
     }
@@ -594,7 +594,7 @@ fun ShowTrendGraphCard(
 
 fun getLabels(vitalsViewModel: VitalsViewModel, list: List<VitalLocal>): List<String> {
     return if (!vitalsViewModel.isBPSelected) {
-        list.map { it.createdOn.formatDateToDayMonth() }.toSet().toList()
+        (list.map { it.createdOn }).distinct().sorted().map { it.formatDateToDayMonth() }.distinct()
     } else {
         val vitalDates = list.map { it.createdOn }
         val cvdDates = vitalsViewModel.previousRecords.map { it.createdOn }
@@ -653,29 +653,25 @@ fun getChartEntries(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): L
 
     return when {
         vitalsViewModel.isWeightSelected -> {
-            getEntries(list,
-                list.map { it.createdOn.formatDateToDayMonth() }) { it.weight?.toFloat() }
+            getEntries(list) { it.weight?.toFloat() }
         }
         vitalsViewModel.isHRSelected -> {
-            getEntries(list,
-                list.map { it.createdOn.formatDateToDayMonth() }) { it.heartRate?.toFloat() }
+            getEntries(list) { it.heartRate?.toFloat() }
         }
 
         vitalsViewModel.isRRSelected -> {
-            getEntries(list,
-                list.map { it.createdOn.formatDateToDayMonth() }) { it.respRate?.toFloat() }
+            getEntries(list) { it.respRate?.toFloat() }
         }
 
         vitalsViewModel.isSpO2Selected -> {
-            getEntries(list,
-                list.map { it.createdOn.formatDateToDayMonth() }) { it.spo2?.toFloat() }
+            getEntries(list) { it.spo2?.toFloat() }
 
         }
 
         vitalsViewModel.isGlucoseSelected -> {
             getEntries(
-                list.filter { it.bloodGlucoseType == BGEnum.FASTING.value },
-                list.map { it.createdOn.formatDateToDayMonth() }) {
+                list.filter { it.bloodGlucoseType == BGEnum.FASTING.value }, list
+            ) {
                 if (it.bloodGlucoseUnit?.equals(BGEnum.BG_MMO.value) == true) it.bloodGlucose?.toFloat()
                     ?.times(18.018f)
                 else it.bloodGlucose?.toFloat()
@@ -702,10 +698,10 @@ fun getChartEntries2(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): 
 
     return if (vitalsViewModel.isGlucoseSelected) {
         getEntries(
-            list.filter { it.bloodGlucoseType == BGEnum.RANDOM.value },
-            list.map { it.createdOn.formatDateToDayMonth() }) {
+            list.filter { it.bloodGlucoseType == BGEnum.RANDOM.value }, list
+        ) {
             if (it.bloodGlucoseUnit?.equals(BGEnum.BG_MMO.value) == true) it.bloodGlucose?.toFloat()
-                ?.times(18.018f)
+                ?.times(18.018f)?.roundToInt()?.toFloat()
             else it.bloodGlucose?.toFloat()
         }
     } else if (vitalsViewModel.isBPSelected) {
@@ -722,29 +718,55 @@ fun getChartEntries2(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): 
 
 
 private fun getEntries(
-    list: List<VitalLocal>, labels: List<String>, valueSelector: (VitalLocal) -> Float?
+    list: List<VitalLocal>, bgList: List<VitalLocal>? = null, valueSelector: (VitalLocal) -> Float?
 ): MutableList<Entry> {
     val mutableList: MutableList<Entry> = mutableListOf()
 
     // Group the list by formatted dates
-    val groupedByDate = list.groupBy { it.createdOn.formatDateToDayMonth() }
+    val filteredList = list.groupBy { it.createdOn.formatDateToDayMonth() }
+    val vitalGroupedByDate = bgList?.groupBy { it.createdOn.formatDateToDayMonth() }
+        ?: list.groupBy { it.createdOn.formatDateToDayMonth() }
 
-    // Iterate through the grouped data
-    for ((date, records) in groupedByDate) {
-        // Find the index of the date in the labels list
-        val labelIndex = labels.indexOf(date)
+    // Get a union of all dates from both lists
+    (vitalGroupedByDate.keys).distinct()
+        .sortedBy { SimpleDateFormat("dd MMM", Locale.getDefault()).parse(it) }.also { allDates ->
+            Timber.d("Date: $allDates")
+            for (date in allDates) {
 
-        if (labelIndex != -1) {
-            // Calculate the average value for the grouped records
-            val averageValue = records.mapNotNull(valueSelector).average().roundToInt().toFloat()
+                // Find the index of the date in the labels list
+                val labelIndex = allDates.indexOf(date)
+                if (labelIndex != -1) {
+                    Timber.d(
+                        "Value: $labelIndex: $date :\n${
+                            vitalGroupedByDate[date]?.mapNotNull(
+                                valueSelector
+                            ).orEmpty()
+                        }"
+                    )
+                    // Calculate the average value for the grouped records
 
-            // Add the average value as an Entry for the graph
-            mutableList.add(Entry(labelIndex.toFloat(), averageValue))
+                    val values = if (bgList != null) filteredList[date]?.mapNotNull(valueSelector)
+                        .orEmpty() else vitalGroupedByDate[date]?.mapNotNull(valueSelector)
+                        .orEmpty()
+                    if (values.isNotEmpty()) {
+                        // Calculate the average only if values are present
+                        val averageValue = values.average().toFloat()
+                        // Add the average value as an Entry for the graph
+                        mutableList.add(
+                            Entry(
+                                labelIndex.toFloat(),
+                                averageValue.roundToInt().toFloat()
+                            )
+                        )
+                    }
+                }
+            }
+
         }
-    }
 
     return mutableList
 }
+
 
 private fun getCombinedEntries(
     vitalList: List<VitalLocal>,
@@ -776,7 +798,7 @@ private fun getCombinedEntries(
             // Calculate the average of the combined values
             if (combinedValues.isNotEmpty()) {
                 val finalAverage = combinedValues.average().toFloat()
-                mutableList.add(Entry(labelIndex.toFloat(), finalAverage))
+                mutableList.add(Entry(labelIndex.toFloat(), finalAverage.roundToInt().toFloat()))
             }
         }
     }

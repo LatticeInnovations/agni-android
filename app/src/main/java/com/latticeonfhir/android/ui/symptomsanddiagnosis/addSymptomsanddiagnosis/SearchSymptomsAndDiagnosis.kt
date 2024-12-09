@@ -191,6 +191,7 @@ fun SymDiagSearchField(
                 IconButton(onClick = {
                     viewModel.searchQuery = ""
                     viewModel.clearSymptomsList()
+                    viewModel.clearDiagnosisList()
                     viewModel.isSearchResult = false
                     viewModel.isSearchingInProgress = false
                 }) {
@@ -336,7 +337,7 @@ fun DiagnosisListView(viewModel: AddSymptomsAndDiagnosisViewModel) {
         )
 
     }
-        AnimatedVisibility(visible = viewModel.isSearchingInProgress) {
+    AnimatedVisibility(visible = viewModel.isSearchingInProgress) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -348,7 +349,7 @@ fun DiagnosisListView(viewModel: AddSymptomsAndDiagnosisViewModel) {
         }
 
 
-    AnimatedVisibility(visible = list.value.isNotEmpty() || mostRecentList.value.isNotEmpty()) {
+    AnimatedVisibility(visible = !viewModel.isSearchingInProgress && (list.value.isNotEmpty() || mostRecentList.value.isNotEmpty())) {
         Column(modifier = Modifier.wrapContentHeight()) {
             Text(
                 modifier = Modifier.padding(start = 16.dp, top = 16.dp),
@@ -367,7 +368,6 @@ fun DiagnosisListView(viewModel: AddSymptomsAndDiagnosisViewModel) {
 
 @Composable
 fun CompoundRow(index: Int, activeDiagnosis: String, viewModel: AddSymptomsAndDiagnosisViewModel) {
-    viewModel.isSearchingInProgress=false
     Row(
         modifier = Modifier
             .fillMaxWidth()
