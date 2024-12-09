@@ -619,7 +619,10 @@ class SyncRepositoryImpl @Inject constructor(
             genericDao.getSameTypeGenericEntityPayload(
                 GenericTypeEnum.FHIR_IDS_DISPENSE, SyncType.POST, COUNT_VALUE
             ).let { listOfGenericEntity ->
-                if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+                if (listOfGenericEntity.isEmpty()) {
+                    insertNotDispensedPrescriptions()
+                    ApiEmptyResponse()
+                }
                 else {
                     val map = mutableMapOf<String, String>()
                     map[PATIENT_ID] =
@@ -652,6 +655,7 @@ class SyncRepositoryImpl @Inject constructor(
                 when (this) {
                     is ApiEndResponse -> {
                         insertDispense(body)
+                        insertNotDispensedPrescriptions()
                         this
                     }
 

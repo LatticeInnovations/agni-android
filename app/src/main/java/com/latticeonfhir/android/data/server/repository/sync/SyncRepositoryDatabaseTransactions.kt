@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.data.server.repository.sync
 
+import com.latticeonfhir.android.data.local.enums.DispenseStatusEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.IdentifierCodeEnum
 import com.latticeonfhir.android.data.local.enums.PhotoUploadTypeEnum
@@ -19,6 +20,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseDataEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
@@ -660,6 +662,20 @@ open class SyncRepositoryDatabaseTransactions(
         }
         dispenseDao.insertMedicineDispenseDataList(
             *dispensedMedicationList.toTypedArray()
+        )
+    }
+
+    protected suspend fun insertNotDispensedPrescriptions() {
+        dispenseDao.insertPrescriptionDispenseData(
+            *prescriptionDao.getAllFormPrescriptions().filter {
+                it.id !in dispenseDao.getAllDispense().map { it.prescriptionId }
+            }.map { prescription ->
+                DispensePrescriptionEntity(
+                    patientId = prescription.patientId,
+                    prescriptionId = prescription.id,
+                    status = DispenseStatusEnum.NOT_DISPENSED.code
+                )
+            }.toTypedArray()
         )
     }
 
