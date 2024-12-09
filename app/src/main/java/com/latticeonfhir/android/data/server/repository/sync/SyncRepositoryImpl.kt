@@ -649,10 +649,6 @@ class SyncRepositoryImpl @Inject constructor(
                 when (this) {
                     is ApiEndResponse -> {
                         insertDispense(body)
-                        this
-                    }
-
-                    is ApiEmptyResponse -> {
                         insertNotDispensedPrescriptions()
                         this
                     }
