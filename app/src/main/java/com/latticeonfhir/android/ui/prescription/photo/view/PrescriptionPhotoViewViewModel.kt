@@ -2,7 +2,6 @@ package com.latticeonfhir.android.ui.prescription.photo.view
 
 import android.app.Application
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -37,6 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
+import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
 
 @HiltViewModel
@@ -76,7 +76,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     var syncStatus by mutableStateOf(WorkerStatus.TODO)
     var isLoading by mutableStateOf(true)
 
-    private var _allPrescriptionList = mutableStateListOf<PrescriptionFormAndPhoto>()
+    private var _allPrescriptionList = CopyOnWriteArrayList<PrescriptionFormAndPhoto>()
     var allPrescriptionList: List<PrescriptionFormAndPhoto> = listOf()
 
     internal fun getCurrentSyncStatus() {
@@ -164,15 +164,16 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     internal fun getPastPrescription() {
         viewModelScope.launch(Dispatchers.IO) {
             val newPrescriptions = mutableListOf<PrescriptionFormAndPhoto>()
-            prescriptionRepository.getLastPrescription(patient!!.id).forEach { formPrescription ->
-                newPrescriptions.add(
-                    PrescriptionFormAndPhoto(
-                        date = formPrescription.generatedOn,
-                        type = PrescriptionType.FORM.type,
-                        prescription = formPrescription
+            prescriptionRepository.getLastPrescription(patient!!.id)
+                .forEach { formPrescription ->
+                    newPrescriptions.add(
+                        PrescriptionFormAndPhoto(
+                            date = formPrescription.generatedOn,
+                            type = PrescriptionType.FORM.type,
+                            prescription = formPrescription
+                        )
                     )
-                )
-            }
+                }
             prescriptionRepository.getLastPhotoPrescription(patient!!.id)
                 .forEach { photoPrescription ->
                     newPrescriptions.add(
