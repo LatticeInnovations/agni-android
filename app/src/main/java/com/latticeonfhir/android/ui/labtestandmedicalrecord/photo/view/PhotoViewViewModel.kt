@@ -221,6 +221,12 @@ class PhotoViewViewModel @Inject constructor(
                     }))
                 }
             }
+
+            updatePatientLastUpdated(
+                patient!!.id,
+                patientLastUpdatedRepository,
+                genericRepository
+            )
             getPastLabAndMedTest()
             added()
         }
@@ -261,7 +267,11 @@ class PhotoViewViewModel @Inject constructor(
                     }
                 }
             }
-
+            updatePatientLastUpdated(
+                patient!!.id,
+                patientLastUpdatedRepository,
+                genericRepository
+            )
             deletedPhotos.add(selectedFile!!)
             deleted()
         }

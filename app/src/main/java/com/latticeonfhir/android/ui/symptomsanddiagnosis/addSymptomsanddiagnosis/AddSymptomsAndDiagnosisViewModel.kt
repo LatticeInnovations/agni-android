@@ -24,6 +24,8 @@ import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.Symptoms
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsItem
 import com.latticeonfhir.android.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
 import com.latticeonfhir.android.utils.common.Queries
+import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
+import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.constants.SymptomsAndDiagnosisConstants.CREATED_ON
 import com.latticeonfhir.android.utils.constants.SymptomsAndDiagnosisConstants.DIAGNOSIS
 import com.latticeonfhir.android.utils.constants.SymptomsAndDiagnosisConstants.SYMPTOMS
@@ -226,14 +228,14 @@ class AddSymptomsAndDiagnosisViewModel @Inject constructor(
     private suspend fun createSymDiag(
         symDiagUuid: String, ioDispatcher: CoroutineDispatcher, inserted: (Long) -> Unit
     ) {
-
+        val createdOn = Date()
         inserted(withContext(ioDispatcher) {
             insertSymDiagLocal(
                 getSymDiagDetails(
                     symDiagUuid = symDiagUuid,
                     fhirId = null,
                     practitionerName = preferenceRepository.getUserName(),
-                    createdOn = Date(),
+                    createdOn = createdOn,
                     patient!!.id
                 )
             ).also {
@@ -243,10 +245,22 @@ class AddSymptomsAndDiagnosisViewModel @Inject constructor(
 
                     )
                 )
-                appointmentRepository.updateAppointment(appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
-                    .also { updatedAppointmentResponse ->
-                        appointmentResponseLocal = updatedAppointmentResponse
-                    })
+                checkAndUpdateAppointmentStatusToInProgress(
+                    inProgressTime = createdOn,
+                    patient = patient!!,
+                    appointmentResponseLocal = appointmentResponseLocal!!,
+                    appointmentRepository = appointmentRepository,
+                    scheduleRepository = scheduleRepository,
+                    genericRepository = genericRepository
+                )
+                updatePatientLastUpdated(
+                    patient!!.id,
+                    patientLastUpdatedRepository,
+                    genericRepository
+                )
+                getStudentTodayAppointment(
+                    Date(Date().toTodayStartDate()), Date(Date().toEndOfDay()), patient!!.id
+                )
             }
         })
     }
@@ -338,7 +352,7 @@ class AddSymptomsAndDiagnosisViewModel @Inject constructor(
                         ).toSymDiagData()
                     )
                 }
-                Queries.updatePatientLastUpdated(
+                updatePatientLastUpdated(
                     patient!!.id,
                     patientLastUpdatedRepository,
                     genericRepository

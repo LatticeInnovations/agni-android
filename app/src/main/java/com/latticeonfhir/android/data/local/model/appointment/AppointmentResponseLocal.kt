@@ -16,5 +16,7 @@ data class AppointmentResponseLocal(
     val slot: Slot,
     val orgId: String,
     val createdOn: Date,
-    val status: String
+    val status: String,
+    val appointmentType: String,
+    val inProgressTime: Date?
 ) : Parcelable

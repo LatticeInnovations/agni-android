@@ -28,6 +28,7 @@ import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.common.Queries
+import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
 import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.LabAndMedConverter.createGenericMap
@@ -131,12 +132,6 @@ class PhotoUploadViewModel @Inject constructor(
             val labTestUuid = UUIDBuilder.generateUUID()
             val createdOn = Date()
 
-            appointmentRepository.updateAppointment(
-                appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
-                    .also { updatedAppointmentResponse ->
-                        appointmentResponseLocal = updatedAppointmentResponse
-                    })
-
             updateOrInsertNewLabTestOrMedRecord(
                 imageUri,
                 files,
@@ -187,12 +182,19 @@ class PhotoUploadViewModel @Inject constructor(
                 labTestId = labTestUuid,
                 typeEnum = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) GenericTypeEnum.LAB_TEST else GenericTypeEnum.MEDICAL_RECORD
             )
+            checkAndUpdateAppointmentStatusToInProgress(
+                inProgressTime = generatedOn,
+                patient = patient!!,
+                appointmentResponseLocal = appointmentResponseLocal!!,
+                appointmentRepository = appointmentRepository,
+                scheduleRepository = scheduleRepository,
+                genericRepository = genericRepository
+            )
             updatePatientLastUpdated(
                 patient!!.id,
                 patientLastUpdatedRepository,
                 genericRepository
             )
-
         }
     }
 
