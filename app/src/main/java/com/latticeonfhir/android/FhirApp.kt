@@ -19,8 +19,8 @@ import com.latticeonfhir.android.data.server.api.LabTestAndMedRecordService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
-import com.latticeonfhir.android.data.server.api.VitalApiService
 import com.latticeonfhir.android.data.server.api.SymptomsAndDiagnosisService
+import com.latticeonfhir.android.data.server.api.VitalApiService
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
@@ -31,6 +31,7 @@ import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.utils.converters.gson.DateDeserializer
 import com.latticeonfhir.android.utils.converters.gson.DateSerializer
+import com.latticeonfhir.android.utils.file.DeleteFileManager
 import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -75,6 +76,9 @@ class FhirApp : Application() {
     @Inject
     lateinit var fileUploadApiService: FileUploadApiService
 
+    @Inject
+    lateinit var deleteFileManager: DeleteFileManager
+
     private lateinit var _syncRepository: SyncRepository
     private val fileSyncRepository get() = _fileSyncRepository
     private lateinit var _fileSyncRepository: FileSyncRepository
@@ -113,6 +117,7 @@ class FhirApp : Application() {
             fhirAppDatabase.getPatientDao(),
             fhirAppDatabase.getGenericDao(),
             preferenceRepository,
+            deleteFileManager,
             fhirAppDatabase.getRelationDao(),
             fhirAppDatabase.getMedicationDao(),
             fhirAppDatabase.getPrescriptionDao(),
@@ -123,7 +128,8 @@ class FhirApp : Application() {
             fhirAppDatabase.getVitalDao(),
             fhirAppDatabase.getSymptomsAndDiagnosisDao(),
             fhirAppDatabase.getLabTestAndMedDao(),
-            fhirAppDatabase.getDispenseDao()
+            fhirAppDatabase.getDispenseDao(),
+            fhirAppDatabase.getFileUploadDao()
         )
 
         _fileSyncRepository = FileSyncRepositoryImpl(
