@@ -20,6 +20,8 @@ import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.common.Queries
+import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
+import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
@@ -225,13 +227,21 @@ class CVDRiskAssessmentViewModel @Inject constructor(
                     patientId = patient!!.id
                 )
             )
-            appointmentRepository.updateAppointment(
-                appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
-                    .also { updatedAppointmentResponse ->
-                        appointmentResponseLocal = updatedAppointmentResponse
-                    }
-            )
             genericRepository.insertCVDRecord(cvdResponse)
+            checkAndUpdateAppointmentStatusToInProgress(
+                inProgressTime = cvdResponse.createdOn,
+                patient = patient!!,
+                appointmentResponseLocal = appointmentResponseLocal!!,
+                appointmentRepository = appointmentRepository,
+                scheduleRepository = scheduleRepository,
+                genericRepository = genericRepository
+            )
+            getAppointment()
+            updatePatientLastUpdated(
+                patient!!.id,
+                patientLastUpdatedRepository,
+                genericRepository
+            )
             clearForm()
             getTodayCVDAssessment()
             saved()

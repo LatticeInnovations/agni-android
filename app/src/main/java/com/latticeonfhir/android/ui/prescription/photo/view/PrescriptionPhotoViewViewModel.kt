@@ -28,6 +28,7 @@ import com.latticeonfhir.android.data.server.model.prescription.photo.Prescripti
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.ui.prescription.model.PrescriptionFormAndPhoto
 import com.latticeonfhir.android.utils.common.Queries
+import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -73,6 +74,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
 
     // syncing
     var syncStatus by mutableStateOf(WorkerStatus.TODO)
+    var isLoading by mutableStateOf(true)
 
     private var _allPrescriptionList = mutableStateListOf<PrescriptionFormAndPhoto>()
     var allPrescriptionList: List<PrescriptionFormAndPhoto> = listOf()
@@ -161,9 +163,9 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
 
     internal fun getPastPrescription() {
         viewModelScope.launch(Dispatchers.IO) {
+            val newPrescriptions = mutableListOf<PrescriptionFormAndPhoto>()
             prescriptionRepository.getLastPrescription(patient!!.id).forEach { formPrescription ->
-                _allPrescriptionList.removeIf { it.date == formPrescription.generatedOn }
-                _allPrescriptionList.add(
+                newPrescriptions.add(
                     PrescriptionFormAndPhoto(
                         date = formPrescription.generatedOn,
                         type = PrescriptionType.FORM.type,
@@ -173,8 +175,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             }
             prescriptionRepository.getLastPhotoPrescription(patient!!.id)
                 .forEach { photoPrescription ->
-                    _allPrescriptionList.removeIf { it.date == photoPrescription.generatedOn }
-                    _allPrescriptionList.add(
+                    newPrescriptions.add(
                         PrescriptionFormAndPhoto(
                             date = photoPrescription.generatedOn,
                             type = PrescriptionType.PHOTO.type,
@@ -182,8 +183,13 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                         )
                     )
                 }
+            _allPrescriptionList.removeIf { old ->
+                newPrescriptions.any { new -> old.date == new.date }
+            }
+            _allPrescriptionList.addAll(newPrescriptions)
             _allPrescriptionList.sortBy { it.date }
             allPrescriptionList = _allPrescriptionList
+            isLoading = false
         }
     }
 
@@ -202,6 +208,11 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                 )
             )
             updateInGeneric((selectedFile!!.prescription as PrescriptionPhotoResponseLocal).prescriptionId)
+            updatePatientLastUpdated(
+                patient!!.id,
+                patientLastUpdatedRepository,
+                genericRepository
+            )
             getPastPrescription()
             added()
         }
@@ -228,6 +239,11 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                     syncType = SyncType.DELETE
                 )
             }
+            updatePatientLastUpdated(
+                patient!!.id,
+                patientLastUpdatedRepository,
+                genericRepository
+            )
             deletedPhotos.add(selectedFile!!)
             deleted()
         }
@@ -238,7 +254,9 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
             prescriptionRepository.getPrescriptionPhotoById(prescriptionId)
         if (updatedPrescriptionPhotoResponseLocal.prescriptionFhirId == null) {
             // insert generic post
-            val appointmentResponse = appointmentRepository.getAppointmentByAppointmentId(updatedPrescriptionPhotoResponseLocal.appointmentId)
+            val appointmentResponse = appointmentRepository.getAppointmentByAppointmentId(
+                updatedPrescriptionPhotoResponseLocal.appointmentId
+            )
             genericRepository.insertPhotoPrescription(
                 PrescriptionPhotoResponse(
                     appointmentUuid = updatedPrescriptionPhotoResponseLocal.appointmentId,

@@ -15,7 +15,9 @@ import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhoto
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.file.DownloadedFileRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
+import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
 import com.latticeonfhir.android.data.local.roomdb.entities.file.DownloadedFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.file.FileUploadEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
@@ -23,6 +25,8 @@ import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
+import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.file.BitmapUtils.compressImage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -38,7 +42,9 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
     private val prescriptionRepository: PrescriptionRepository,
     private val genericRepository: GenericRepository,
     private val fileSyncRepository: FileSyncRepository,
-    private val downloadedFileRepository: DownloadedFileRepository
+    private val downloadedFileRepository: DownloadedFileRepository,
+    private val scheduleRepository: ScheduleRepository,
+    private val patientLastUpdatedRepository: PatientLastUpdatedRepository
 ) : BaseAndroidViewModel(application) {
 
     var patient: PatientResponse? by mutableStateOf(null)
@@ -78,12 +84,6 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
             // if appointment is in-progress, fetch prescription entity
             // compress and save the image
             if (compressImage(application, imageUri)) {
-                appointmentRepository.updateAppointment(
-                    appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
-                        .also { updatedAppointmentResponse ->
-                            appointmentResponseLocal = updatedAppointmentResponse
-                        }
-                )
                 insertNewPhotoPrescription(imageUri)
                 inserted(true)
             } else inserted(false)
@@ -121,6 +121,19 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
                     appointmentId = appointmentResponseLocal!!.appointmentId
                         ?: appointmentResponseLocal!!.uuid
                 )
+            )
+            checkAndUpdateAppointmentStatusToInProgress(
+                inProgressTime = generatedOn,
+                patient = patient!!,
+                appointmentResponseLocal = appointmentResponseLocal!!,
+                appointmentRepository = appointmentRepository,
+                scheduleRepository = scheduleRepository,
+                genericRepository = genericRepository
+            )
+            updatePatientLastUpdated(
+                patient!!.id,
+                patientLastUpdatedRepository,
+                genericRepository
             )
         }
     }

@@ -21,6 +21,7 @@ import com.latticeonfhir.android.ui.vitalsscreen.enums.EyeTestTypeEnum
 import com.latticeonfhir.android.ui.vitalsscreen.enums.TemperatureEnum
 import com.latticeonfhir.android.ui.vitalsscreen.enums.VitalsEyeEnum
 import com.latticeonfhir.android.utils.common.Queries
+import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
 import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.constants.VitalConstants
 import com.latticeonfhir.android.utils.constants.VitalConstants.ADD
@@ -194,20 +195,30 @@ class AddVitalsViewModel @Inject constructor(
     ) {
 
         inserted(withContext(ioDispatcher) {
+            val generatedOn = Date()
             insertVitalInDB(
                 getVitalDetails(
-                    vitalUuid, null, preferenceRepository.getUserName(), Date()
+                    vitalUuid, null, preferenceRepository.getUserName(), generatedOn
                 )
             ).also {
                 insertGenericEntityInDB(
                     getVitalDetails(
-                        vitalUuid, null, null, Date()
+                        vitalUuid, null, null, generatedOn
                     )
                 )
-                appointmentRepository.updateAppointment(appointmentResponseLocal!!.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
-                    .also { updatedAppointmentResponse ->
-                        appointmentResponseLocal = updatedAppointmentResponse
-                    })
+                checkAndUpdateAppointmentStatusToInProgress(
+                    inProgressTime = generatedOn,
+                    patient = patient!!,
+                    appointmentResponseLocal = appointmentResponseLocal!!,
+                    appointmentRepository = appointmentRepository,
+                    scheduleRepository = scheduleRepository,
+                    genericRepository = genericRepository
+                )
+                updatePatientLastUpdated(
+                    patient!!.id,
+                    patientLastUpdatedRepository,
+                    genericRepository
+                )
             }
         })
     }
