@@ -153,7 +153,7 @@ class AddSymptomsAndDiagnosisViewModel @Inject constructor(
             symptoms.value = searchRepository.searchSymptoms(
                 searchQuery.trim(),
                 patient?.gender
-            )
+            ).toSet().toList()
             Timber.d("Symptoms: ${symptoms.value.toJson()}")
             isSearchingInProgress = false
         }
