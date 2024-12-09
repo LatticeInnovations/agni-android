@@ -186,6 +186,9 @@ class AddSymptomsAndDiagnosisViewModel @Inject constructor(
     fun clearSymptomsList() {
         symptoms.value = emptyList()
     }
+    fun clearDiagnosisList() {
+        diagnosis.value = emptyList()
+    }
 
     internal fun insertSymDiag(
         ioDispatcher: CoroutineDispatcher = Dispatchers.IO, inserted: (Long) -> Unit
