@@ -41,6 +41,7 @@ import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isToday
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
@@ -187,7 +188,8 @@ private fun PatientItemCard(
         Text(
             text = if (lastVisited != null) stringResource(
                 id = R.string.last_visited,
-                lastVisited.toSlotDate()
+                if (isToday(lastVisited)) stringResource(R.string.today)
+                else lastVisited.toSlotDate()
             ) else stringResource(
                 id = R.string.registered
             ),
