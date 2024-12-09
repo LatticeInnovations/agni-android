@@ -191,6 +191,7 @@ fun SymDiagSearchField(
                 IconButton(onClick = {
                     viewModel.searchQuery = ""
                     viewModel.clearSymptomsList()
+                    viewModel.clearDiagnosisList()
                     viewModel.isSearchResult = false
                     viewModel.isSearchingInProgress = false
                 }) {
