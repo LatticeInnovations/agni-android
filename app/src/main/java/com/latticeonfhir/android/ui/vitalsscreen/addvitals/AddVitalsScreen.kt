@@ -171,46 +171,56 @@ fun AddVitals(navController: NavController, viewModel: AddVitalsViewModel) {
 
     }, bottomBar = {
         AnimatedVisibility(visible = (viewModel.cholesterol.isNotBlank() && !viewModel.cholesterolError) || viewModel.validateVitalsDetails()) {
-            Box(
-                modifier = Modifier
-                    .padding()
-                    .navigationBarsPadding(),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface),
-                    verticalArrangement = Arrangement.Bottom,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Button(
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        ),
-                        enabled = if (viewModel.vitalLocal != null && viewModel.appointmentResponseLocal != null) viewModel.checkIsEdit() else getBooleanTrue(),
-                        modifier = Modifier
-                            .padding(14.dp)
-                            .fillMaxWidth(), onClick = {
-                            if (!viewModel.isButtonClicked) {
-                                handleNavigate(
-                                    viewModel, coroutineScope, navController, context
-                                )
-                                viewModel.isButtonClicked = true
-                            }
-                        }, contentPadding = ButtonDefaults.ButtonWithIconContentPadding
-                    ) {
-                        Text("Save")
-                    }
-                }
-
-
-            }
-
+            SaveButton(navController, viewModel, coroutineScope, context)
         }
         })
 
+
+}
+
+@Composable
+fun SaveButton(
+    navController: NavController,
+    viewModel: AddVitalsViewModel,
+    coroutineScope: CoroutineScope,
+    context: Context
+) {
+    Box(
+        modifier = Modifier
+            .padding()
+            .navigationBarsPadding(),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                enabled = if (viewModel.vitalLocal != null && viewModel.appointmentResponseLocal != null) viewModel.checkIsEdit() else getBooleanTrue(),
+                modifier = Modifier
+                    .padding(14.dp)
+                    .fillMaxWidth(), onClick = {
+                    if (!viewModel.isButtonClicked) {
+                        handleNavigate(
+                            viewModel, coroutineScope, navController, context
+                        )
+                        viewModel.isButtonClicked = true
+                    }
+                }, contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+            ) {
+                Text("Save")
+            }
+        }
+
+
+    }
 
 }
 
@@ -779,28 +789,7 @@ fun BloodGlucoseCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewMode
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
         )
 
-        Row(
-            modifier = modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CustomChip(
-                idSelected = viewModel.bgRandomChipSelected, label = stringResource(R.string.random)
-            ) {
-                viewModel.bgRandomChipSelected = !viewModel.bgRandomChipSelected
-                if (viewModel.bgRandomChipSelected) {
-                    viewModel.bgFastingChipSelected = false
-                }
-            }
-            CustomChip(
-                idSelected = viewModel.bgFastingChipSelected,
-                label = stringResource(R.string.fasting)
-            ) {
-                viewModel.bgFastingChipSelected = !viewModel.bgFastingChipSelected
-                if (viewModel.bgFastingChipSelected) viewModel.bgRandomChipSelected = false
-
-            }
-        }
+        BgChip(modifier, viewModel)
 
         Row(
             modifier = modifier.fillMaxWidth(),
@@ -839,6 +828,32 @@ fun BloodGlucoseCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewMode
             })
         }
 
+    }
+}
+
+@Composable
+fun BgChip(modifier: Modifier, viewModel: AddVitalsViewModel) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CustomChip(
+            idSelected = viewModel.bgRandomChipSelected, label = stringResource(R.string.random)
+        ) {
+            viewModel.bgRandomChipSelected = !viewModel.bgRandomChipSelected
+            if (viewModel.bgRandomChipSelected) {
+                viewModel.bgFastingChipSelected = false
+            }
+        }
+        CustomChip(
+            idSelected = viewModel.bgFastingChipSelected,
+            label = stringResource(R.string.fasting)
+        ) {
+            viewModel.bgFastingChipSelected = !viewModel.bgFastingChipSelected
+            if (viewModel.bgFastingChipSelected) viewModel.bgRandomChipSelected = false
+
+        }
     }
 }
 
@@ -916,11 +931,10 @@ fun checkFeetValid(viewModel: AddVitalsViewModel, hFeet: String) {
 
 fun checkInchValid(viewModel: AddVitalsViewModel, hInch: String) {
     viewModel.apply {
-        inch = hInch.isValidFloat()
-        isInchNotValid = if (inch.isNotBlank()) {
-            inch.toFloat() < 0.0 || inch.toFloat() > 11.9
-        } else {
-            false
+        if (hInch.isBlank() || (hInch.matches(onlyNumbersWithDecimal) && hInch.length <= 4)) {
+            inch = hInch
+            isInchNotValid = inch.isNotBlank() &&
+                    inch.toDouble() !in 0.0..11.9
         }
 
     }
@@ -928,28 +942,25 @@ fun checkInchValid(viewModel: AddVitalsViewModel, hInch: String) {
 
 fun checkCmValid(viewModel: AddVitalsViewModel, hCentimeter: String) {
     viewModel.apply {
-        centimeter = hCentimeter.trim().isValidFloat()
-        isCmNotValid = if (centimeter.isNotBlank()) {
-            centimeter.toFloat() < 30 || centimeter.toFloat() > 250
-        } else {
-            false
+        if (hCentimeter.isBlank() || (hCentimeter.matches(onlyNumbersWithDecimal) && hCentimeter.length <= 5)) {
+            centimeter = hCentimeter
+            isCmNotValid = centimeter.isNotBlank() &&
+                    centimeter.toDouble() !in 30.0..250.0
         }
 
     }
+
 
 }
 
 fun checkWeightValid(viewModel: AddVitalsViewModel, sWeight: String) {
     viewModel.apply {
-        weight = sWeight.isValidFloat()
-        isWeightNotValid = if (weight.isNotBlank()) {
-            weight.toFloat() < 1 || weight.toFloat() > 200
-        } else {
-            false
+        if (sWeight.isBlank() || (sWeight.matches(onlyNumbersWithDecimal) && sWeight.length <= 5)) {
+            weight = sWeight
+            isWeightNotValid = weight.isNotBlank() &&
+                    weight.toDouble() !in 1.0..200.0
         }
-
     }
-
 }
 
 fun checkHRValid(viewModel: AddVitalsViewModel, hRate: String) {
@@ -993,12 +1004,22 @@ fun checkSpo2Valid(viewModel: AddVitalsViewModel, sp: String) {
 
 fun checkTempValid(viewModel: AddVitalsViewModel, temp: String, context: Context) {
     viewModel.apply {
-        this.temperature = temp.isValidFloat()
-        isTempNotValid = if (temperature.isNotBlank()) {
-            if (viewModel.temperatureType.lowercase() == context.getString(R.string.fahrenheit)
-                    .lowercase()
-            ) temperature.toFloat() < 91.8 || temperature.toFloat() > 105.5 else temperature.toFloat() < 33.2 || temperature.toFloat() > 41.0
-        } else false
+        if (viewModel.temperatureType.lowercase() == context.getString(R.string.fahrenheit)
+                .lowercase()
+        ) {
+            if (temp.isBlank() || (temp.matches(onlyNumbersWithDecimal) && temp.length <= 5)) {
+                temperature = temp
+                isTempNotValid = temperature.isNotBlank() &&
+                        temperature.toDouble() !in 91.8..105.5
+            }
+        } else {
+            if (temp.isBlank() || (temp.matches(onlyNumbersWithDecimal) && temp.length <= 4)) {
+                temperature = temp
+                isTempNotValid = temperature.isNotBlank() &&
+                        temperature.toDouble() !in 33.2..41.0
+            }
+        }
+
     }
 
 }
@@ -1059,32 +1080,23 @@ fun checkBpDiastolicValid(viewModel: AddVitalsViewModel, diastolic: String) {
 
 fun checkBgValid(viewModel: AddVitalsViewModel, bg: String, context: Context) {
     viewModel.apply {
-        if (bgType.lowercase() == context.getString(R.string.mg_dl)) {
-            this.bloodGlucose = bg.trim().filter { it.isDigit() }
+        if (viewModel.bgType.lowercase() != context.getString(R.string.mg_dl).lowercase()) {
+            if (bg.isBlank() || (bg.matches(onlyNumbersWithDecimal) && bg.length < 5)) {
+                viewModel.bloodGlucose = bg
+                viewModel.isBgNotValid = viewModel.bloodGlucose.isNotBlank() &&
+                        viewModel.bloodGlucose.toDouble() !in 1.1..33.4
+            }
         } else {
-            this.bloodGlucose = bg.isValidFloat()
+            if (bg.isBlank() || (bg.matches(onlyNumbers) && bg.length < 4)) {
+                viewModel.bloodGlucose = bg
+                viewModel.isBgNotValid = viewModel.bloodGlucose.isNotBlank() &&
+                        viewModel.bloodGlucose.toInt() !in 20..600
+            }
         }
-        isBgNotValid = if (bloodGlucose.isNotBlank()) {
-            if (viewModel.bgType.lowercase() == context.getString(R.string.mg_dl)
-                    .lowercase()
-            ) bloodGlucose.toFloat() < 20 || bloodGlucose.toFloat() > 600 else bloodGlucose.toFloat() < 1.1f || bloodGlucose.toFloat() > 33.4f
-        } else {
-            false
-        }
+
     }
 
-}
 
-fun String.isValidFloat(): String {
-    val trimmedValue = this.trim()
-    val validValue = if (trimmedValue.startsWith(".")) {
-        "0$trimmedValue"
-    } else {
-        trimmedValue
-    }
-    return validValue.filterIndexed { index, char ->
-        char.isDigit() || (char == '.' && validValue.indexOf('.') == index)
-    }
 }
 
 fun getBooleanTrue(): Boolean {

@@ -153,7 +153,7 @@ class AddSymptomsAndDiagnosisViewModel @Inject constructor(
             symptoms.value = searchRepository.searchSymptoms(
                 searchQuery.trim(),
                 patient?.gender
-            )
+            ).toSet().toList()
             Timber.d("Symptoms: ${symptoms.value.toJson()}")
             isSearchingInProgress = false
         }
@@ -163,8 +163,9 @@ class AddSymptomsAndDiagnosisViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             diagnosis.value = searchRepository.searchDiagnosis(
                 searchQuery.trim()
-            )
-            isSearchingInProgress = false
+            ).also {
+                isSearchingInProgress = false
+            }
         }
     }
 
@@ -184,6 +185,9 @@ class AddSymptomsAndDiagnosisViewModel @Inject constructor(
 
     fun clearSymptomsList() {
         symptoms.value = emptyList()
+    }
+    fun clearDiagnosisList() {
+        diagnosis.value = emptyList()
     }
 
     internal fun insertSymDiag(
