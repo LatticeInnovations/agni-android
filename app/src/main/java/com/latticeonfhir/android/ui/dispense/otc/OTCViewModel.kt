@@ -20,10 +20,11 @@ import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDis
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationStrengthRelation
 import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispensed
-import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.common.Queries
+import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
+import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -157,15 +158,19 @@ class OTCViewModel@Inject constructor(
         genericRepository.insertDispense(
             medicineDispenseRequest = medDispenseRequest
         )
-        appointmentRepository.updateAppointment(
-            appointmentResponse.copy(status = AppointmentStatusEnum.IN_PROGRESS.value)
+        checkAndUpdateAppointmentStatusToInProgress(
+            inProgressTime = generatedOn,
+            patient = patient!!,
+            appointmentResponseLocal = appointmentResponse,
+            appointmentRepository = appointmentRepository,
+            scheduleRepository = scheduleRepository,
+            genericRepository = genericRepository
         )
-        val patientLastUpdatedResponse = PatientLastUpdatedResponse(
-            uuid = patient!!.id,
-            timestamp = Date()
+        updatePatientLastUpdated(
+            patient!!.id,
+            patientLastUpdatedRepository,
+            genericRepository
         )
-        patientLastUpdatedRepository.insertPatientLastUpdatedData(patientLastUpdatedResponse)
-        genericRepository.insertPatientLastUpdated(patientLastUpdatedResponse)
         dispensed()
     }
 }

@@ -275,6 +275,7 @@ private fun DisplayImage(
             modifier = Modifier
                 .zIndex(2f)
                 .padding(8.dp)
+                .statusBarsPadding()
         ) {
             Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
         }
@@ -349,6 +350,7 @@ private fun DisplayImage(
                 .fillMaxWidth()
                 .padding(16.dp)
                 .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
         ) {
             Text(text = stringResource(id = R.string.save))
         }
