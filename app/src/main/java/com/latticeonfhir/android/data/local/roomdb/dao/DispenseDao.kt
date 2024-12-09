@@ -57,4 +57,8 @@ interface DispenseDao {
     @Transaction
     @Query("SELECT dispenseId FROM DispenseDataEntity WHERE dispenseFhirId=:fhirId")
     suspend fun getDispenseIdByFhirId(fhirId: String): String
+
+    @Transaction
+    @Query("SELECT * FROM DispensePrescriptionEntity")
+    suspend fun getAllDispense(): List<DispensePrescriptionEntity>
 }
