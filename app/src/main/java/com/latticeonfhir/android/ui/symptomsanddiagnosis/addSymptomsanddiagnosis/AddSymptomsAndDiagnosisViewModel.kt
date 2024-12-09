@@ -163,8 +163,9 @@ class AddSymptomsAndDiagnosisViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             diagnosis.value = searchRepository.searchDiagnosis(
                 searchQuery.trim()
-            )
-            isSearchingInProgress = false
+            ).also {
+                isSearchingInProgress = false
+            }
         }
     }
 

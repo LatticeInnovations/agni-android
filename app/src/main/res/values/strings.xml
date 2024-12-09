@@ -366,8 +366,8 @@ include them in the household</string>
     <string name="symptoms_lable">Search, e.g., Headache, Fever</string>
     <string name="symptoms">Symptoms:</string>
     <string name="diagnosis">Diagnosis:</string>
-    <string name="symdiag_added_successfully">Symptoms &amp; diagnosis added successfully</string>
-    <string name="symdiag_update_successfully">Symptoms &amp; diagnosis updated successfully</string>
+    <string name="symdiag_added_successfully">Symptoms &amp; diagnosis added successfully!</string>
+    <string name="symdiag_update_successfully">Symptoms &amp; diagnosis updated successfully!</string>
     <string name="discard_diagnosis_dialog_title">Discard Diagnosis ?</string>
     <string name="discard_diagnosis_dialog_description">Are you sure you want to discard all Diagnosis ?</string>
     <string name="recent_symptoms_diagnosis">Recent symptoms &amp; diagnosis</string>
