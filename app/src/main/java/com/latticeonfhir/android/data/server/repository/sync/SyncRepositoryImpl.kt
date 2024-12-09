@@ -10,6 +10,7 @@ import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepo
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
 import com.latticeonfhir.android.data.local.roomdb.dao.DispenseDao
+import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.LabTestAndMedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
@@ -73,6 +74,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmpty
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.android.utils.file.DeleteFileManager
 import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
@@ -89,6 +91,7 @@ class SyncRepositoryImpl @Inject constructor(
     patientDao: PatientDao,
     private val genericDao: GenericDao,
     private val preferenceRepository: PreferenceRepository,
+    deleteFileManager: DeleteFileManager,
     relationDao: RelationDao,
     medicationDao: MedicationDao,
     prescriptionDao: PrescriptionDao,
@@ -99,7 +102,8 @@ class SyncRepositoryImpl @Inject constructor(
     vitalDao: VitalDao,
     symptomsAndDiagnosisDao: SymptomsAndDiagnosisDao,
     labTestAndMedDao: LabTestAndMedDao,
-    dispenseDao: DispenseDao
+    dispenseDao: DispenseDao,
+    fileUploadDao: FileUploadDao
 ) : SyncRepository, SyncRepositoryDatabaseTransactions(
     patientApiService,
     patientDao,
@@ -114,7 +118,9 @@ class SyncRepositoryImpl @Inject constructor(
     vitalDao,
     symptomsAndDiagnosisDao,
     labTestAndMedDao,
-    dispenseDao
+    dispenseDao,
+    fileUploadDao,
+    deleteFileManager
 ) {
 
     override suspend fun getAndInsertListPatientData(
