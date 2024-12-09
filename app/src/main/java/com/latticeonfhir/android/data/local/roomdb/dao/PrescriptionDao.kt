@@ -91,4 +91,8 @@ interface PrescriptionDao {
     @Transaction
     @Query("SELECT id FROM PrescriptionEntity WHERE prescriptionFhirId=:fhirId")
     suspend fun getPrescriptionIdByFhirId(fhirId: String): String
+
+    @Transaction
+    @Query("SELECT * FROM PrescriptionEntity where prescriptionType=\"form\"")
+    suspend fun getAllFormPrescriptions() : List<PrescriptionEntity>
 }
