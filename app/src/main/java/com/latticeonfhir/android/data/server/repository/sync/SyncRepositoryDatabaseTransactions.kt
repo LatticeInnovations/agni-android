@@ -205,13 +205,16 @@ open class SyncRepositoryDatabaseTransactions(
     }
 
     protected suspend fun insertPhotoPrescriptions(body: List<PrescriptionPhotoResponse>) {
-        prescriptionDao.insertPrescription(*body.map { prescriptionResponse ->
-            prescriptionResponse.toPrescriptionEntity(
-                patientDao
-            )
-        }.toTypedArray())
+        val savedPhotoPrescription = body.filter { it.status == PhotoDeleteEnum.SAVED.value }
+        prescriptionDao.insertPrescription(
+            *savedPhotoPrescription.map { prescriptionResponse ->
+                prescriptionResponse.toPrescriptionEntity(
+                    patientDao
+                )
+            }.toTypedArray()
+        )
         val prescriptionPhotos = mutableListOf<PrescriptionPhotoEntity>()
-        body.forEach { prescriptionResponse ->
+        savedPhotoPrescription.forEach { prescriptionResponse ->
             prescriptionPhotos.addAll(
                 prescriptionResponse.toListOfPrescriptionPhotoEntity()
             )
@@ -220,7 +223,7 @@ open class SyncRepositoryDatabaseTransactions(
             *prescriptionPhotos.toTypedArray()
         )
         val listOfGenericEntity = mutableListOf<GenericEntity>()
-        body.map { prescriptionPhotoResponse ->
+        savedPhotoPrescription.map { prescriptionPhotoResponse ->
             prescriptionPhotoResponse.prescription.map {
                 it.filename
             }.forEach { fileName ->
@@ -238,6 +241,15 @@ open class SyncRepositoryDatabaseTransactions(
         genericDao.insertGenericEntity(
             *listOfGenericEntity.toTypedArray()
         )
+
+        body.filter { it.status == PhotoDeleteEnum.DELETE.value }
+            .map { deletedPhotoPrescription ->
+                fileUploadDao.deleteFile(deletedPhotoPrescription.prescription[0].filename)
+                deleteFileManager.removeFromInternalStorage(deletedPhotoPrescription.prescription[0].filename)
+                prescriptionDao.deletePrescriptionPhoto(deletedPhotoPrescription.toListOfPrescriptionPhotoEntity()[0]).also {
+                    prescriptionDao.deletePrescriptionEntity(deletedPhotoPrescription.toPrescriptionEntity(patientDao))
+                }
+            }
     }
 
     protected suspend fun insertMedication(body: List<MedicationResponse>) {
@@ -423,6 +435,7 @@ open class SyncRepositoryDatabaseTransactions(
         }
         return deleteGenericEntityByListOfIds(idsToDelete.toList())
     }
+
     protected suspend fun insertVitalFhirId(
         listOfGenericEntities: List<GenericEntity>, body: List<CreateResponse>
     ): Int {
@@ -431,6 +444,7 @@ open class SyncRepositoryDatabaseTransactions(
         }
         return deleteGenericEntityData(listOfGenericEntities)
     }
+
     protected suspend fun insertSymDiagFhirId(
         listOfGenericEntities: List<GenericEntity>, body: List<CreateResponse>
     ): Int {
@@ -455,14 +469,14 @@ open class SyncRepositoryDatabaseTransactions(
         body.map { labTestResponse ->
             labTestResponse.diagnosticReport.filter { it.status == PhotoDeleteEnum.SAVED.value }
                 .map {
-                it.toLabTestPhotoResponseLocal(
-                    labTestResponse,
-                    appointmentDao,
-                    patientDao
-                ).toLabTestEntity(type)
-            }.also { labTests ->
-                labTestAndMedDao.insertLabAndMedTest(*labTests.toTypedArray())
-            }
+                    it.toLabTestPhotoResponseLocal(
+                        labTestResponse,
+                        appointmentDao,
+                        patientDao
+                    ).toLabTestEntity(type)
+                }.also { labTests ->
+                    labTestAndMedDao.insertLabAndMedTest(*labTests.toTypedArray())
+                }
         }
 
         body.map { labTestResponse ->
@@ -489,20 +503,20 @@ open class SyncRepositoryDatabaseTransactions(
         body.map { labTestResponse ->
             labTestResponse.diagnosticReport.filter { it.status == PhotoDeleteEnum.SAVED.value }
                 .map {
-                it.documents.forEach { fileName ->
-                    listOfGenericEntity.add(
-                        GenericEntity(
-                            id = UUID.randomUUID().toString(),
-                            patientId = it.diagnosticReportFhirId,
-                            payload = fileName.filename,
-                            type = GenericTypeEnum.PHOTO_DOWNLOAD,
-                            syncType = SyncType.POST
+                    it.documents.forEach { fileName ->
+                        listOfGenericEntity.add(
+                            GenericEntity(
+                                id = UUID.randomUUID().toString(),
+                                patientId = it.diagnosticReportFhirId,
+                                payload = fileName.filename,
+                                type = GenericTypeEnum.PHOTO_DOWNLOAD,
+                                syncType = SyncType.POST
+                            )
                         )
-                    )
+
+                    }
 
                 }
-
-            }
 
         }
 
@@ -516,13 +530,13 @@ open class SyncRepositoryDatabaseTransactions(
         body.map { medicalRecordResponse ->
             medicalRecordResponse.medicalRecord.filter { it.status == PhotoDeleteEnum.SAVED.value }
                 .map {
-                it.toMedRecordPhotoResponseLocal(
-                    medicalRecordResponse,
-                    appointmentDao, patientDao
-                ).toLabTestEntity(type)
-            }.also { labTests ->
-                labTestAndMedDao.insertLabAndMedTest(*labTests.toTypedArray())
-            }
+                    it.toMedRecordPhotoResponseLocal(
+                        medicalRecordResponse,
+                        appointmentDao, patientDao
+                    ).toLabTestEntity(type)
+                }.also { labTests ->
+                    labTestAndMedDao.insertLabAndMedTest(*labTests.toTypedArray())
+                }
 
         }
         body.map { labTestResponse ->
@@ -548,20 +562,20 @@ open class SyncRepositoryDatabaseTransactions(
         body.map { labTestResponse ->
             labTestResponse.medicalRecord.filter { it.status == PhotoDeleteEnum.SAVED.value }
                 .map {
-                it.documents.forEach { fileName ->
-                    listOfGenericEntity.add(
-                        GenericEntity(
-                            id = UUID.randomUUID().toString(),
-                            patientId = it.medicalRecordFhirId,
-                            payload = fileName.filename,
-                            type = GenericTypeEnum.PHOTO_DOWNLOAD,
-                            syncType = SyncType.POST
+                    it.documents.forEach { fileName ->
+                        listOfGenericEntity.add(
+                            GenericEntity(
+                                id = UUID.randomUUID().toString(),
+                                patientId = it.medicalRecordFhirId,
+                                payload = fileName.filename,
+                                type = GenericTypeEnum.PHOTO_DOWNLOAD,
+                                syncType = SyncType.POST
+                            )
                         )
-                    )
+
+                    }
 
                 }
-
-            }
 
         }
 
@@ -641,7 +655,10 @@ open class SyncRepositoryDatabaseTransactions(
             dispenseRecords.addAll(
                 medDispenseResponse.dispenseData.map { dispenseData ->
                     dispenseData.toListOfDispenseDataEntity(
-                        patientDao, prescriptionDao, appointmentDao, medDispenseResponse.prescriptionFhirId
+                        patientDao,
+                        prescriptionDao,
+                        appointmentDao,
+                        medDispenseResponse.prescriptionFhirId
                     )
                 }
             )
@@ -681,7 +698,14 @@ open class SyncRepositoryDatabaseTransactions(
 
     protected suspend fun insertOTC(body: List<DispenseData>) {
         dispenseDao.insertDispenseDataEntity(
-            *body.map { it.toListOfDispenseDataEntity(patientDao, prescriptionDao, appointmentDao, null) }
+            *body.map {
+                it.toListOfDispenseDataEntity(
+                    patientDao,
+                    prescriptionDao,
+                    appointmentDao,
+                    null
+                )
+            }
                 .toTypedArray()
         )
 
