@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -30,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.DispenseCategoryEnum
 import com.latticeonfhir.android.data.local.enums.DispenseStatusEnum
 import com.latticeonfhir.android.data.local.enums.DispenseStatusEnum.Companion.codeToDisplay
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseAndPrescriptionRelation
@@ -38,12 +40,14 @@ import com.latticeonfhir.android.ui.dispense.DrugDispenseViewModel
 import com.latticeonfhir.android.ui.theme.FullyDispensed
 import com.latticeonfhir.android.ui.theme.PartiallyDispensed
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import kotlinx.coroutines.launch
 
 @Composable
 fun PrescriptionTabScreen(
     navController: NavController,
     viewModel: DrugDispenseViewModel
 ) {
+    val coroutineScope = rememberCoroutineScope()
     if (viewModel.previousPrescriptionList.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -69,11 +73,25 @@ fun PrescriptionTabScreen(
                         viewModel.prescriptionSelected = prescription
                     },
                     dispenseBtnClicked = {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "prescription_id",
-                            prescription.prescription.id
+                        viewModel.getAppointmentInfo(
+                            callback = {
+                                if (viewModel.canAddDispense) {
+                                    coroutineScope.launch {
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            "prescription_id",
+                                            prescription.prescription.id
+                                        )
+                                        navController.navigate(Screen.DispensePrescriptionScreen.route)
+                                    }
+                                } else if (viewModel.isAppointmentCompleted) {
+                                    viewModel.showAppointmentCompletedDialog = true
+                                } else {
+                                    viewModel.prescriptionToDispense = prescription
+                                    viewModel.categoryClicked = DispenseCategoryEnum.PRESCRIBED.value
+                                    viewModel.showAddToQueueDialog = true
+                                }
+                            }
                         )
-                        navController.navigate(Screen.DispensePrescriptionScreen.route)
                     }
                 )
             }
