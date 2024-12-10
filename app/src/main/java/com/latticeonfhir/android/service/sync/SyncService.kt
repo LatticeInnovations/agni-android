@@ -350,7 +350,7 @@ class SyncService(
 
     /** Delete Photo Medical Record */
     private suspend fun deletePhotoMedicalRecord(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
-        return checkAuthenticationStatus(syncRepository.deleteLabTestPhoto(), logout)
+        return checkAuthenticationStatus(syncRepository.deleteMedTestPhoto(), logout)
     }
 
     /**

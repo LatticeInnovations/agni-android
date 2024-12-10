@@ -63,4 +63,10 @@ interface LabTestAndMedDao {
     @Query("UPDATE LabTestAndMedPhotoEntity SET fhirId = :documentFhirId WHERE id = :documentUuid")
     suspend fun updateDocumentFhirId(documentUuid: String, documentFhirId: String)
 
+    @Query("delete from labtestandmedphotoentity where fileName=:fileName")
+    suspend fun deleteLabTestAndMedPhoto(fileName: String): Int
+
+    @Query("delete from labtestandmedentity where id=:labTestId")
+    suspend fun deleteLabTestAndMedEntity(labTestId: String): Int
+
 }
