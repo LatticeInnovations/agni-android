@@ -3,6 +3,7 @@ package com.latticeonfhir.android.data.server.repository.sync
 import com.latticeonfhir.android.data.local.enums.DispenseStatusEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.IdentifierCodeEnum
+import com.latticeonfhir.android.data.local.enums.PhotoDeleteEnum
 import com.latticeonfhir.android.data.local.enums.PhotoUploadTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
@@ -49,7 +50,6 @@ import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedu
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
 import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.constants.ErrorConstants
-import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toCVDEntity
@@ -453,7 +453,7 @@ open class SyncRepositoryDatabaseTransactions(
 
     protected suspend fun insertLabTest(body: List<LabTestResponse>, type: String) {
         body.map { labTestResponse ->
-            labTestResponse.diagnosticReport.filter { it.status == LabTestAndMedConstants.SAVEED }
+            labTestResponse.diagnosticReport.filter { it.status == PhotoDeleteEnum.SAVED.value }
                 .map {
                 it.toLabTestPhotoResponseLocal(
                     labTestResponse,
@@ -466,7 +466,7 @@ open class SyncRepositoryDatabaseTransactions(
         }
 
         body.map { labTestResponse ->
-            labTestResponse.diagnosticReport.filter { it.status == LabTestAndMedConstants.DELETEED }
+            labTestResponse.diagnosticReport.filter { it.status == PhotoDeleteEnum.DELETE.value }
                 .map {
                     fileUploadDao.deleteFile(it.documents[0].filename)
                     deleteFileManager.removeFromInternalStorage(it.documents[0].filename)
@@ -487,7 +487,7 @@ open class SyncRepositoryDatabaseTransactions(
         val listOfGenericEntity = mutableListOf<GenericEntity>()
 
         body.map { labTestResponse ->
-            labTestResponse.diagnosticReport.filter { it.status == LabTestAndMedConstants.SAVEED }
+            labTestResponse.diagnosticReport.filter { it.status == PhotoDeleteEnum.SAVED.value }
                 .map {
                 it.documents.forEach { fileName ->
                     listOfGenericEntity.add(
@@ -514,7 +514,7 @@ open class SyncRepositoryDatabaseTransactions(
 
     protected suspend fun insertMedicalRecord(body: List<MedicalRecordResponse>, type: String) {
         body.map { medicalRecordResponse ->
-            medicalRecordResponse.medicalRecord.filter { it.status == LabTestAndMedConstants.SAVEED }
+            medicalRecordResponse.medicalRecord.filter { it.status == PhotoDeleteEnum.SAVED.value }
                 .map {
                 it.toMedRecordPhotoResponseLocal(
                     medicalRecordResponse,
@@ -526,7 +526,7 @@ open class SyncRepositoryDatabaseTransactions(
 
         }
         body.map { labTestResponse ->
-            labTestResponse.medicalRecord.filter { it.status == LabTestAndMedConstants.DELETEED }
+            labTestResponse.medicalRecord.filter { it.status == PhotoDeleteEnum.DELETE.value }
                 .map {
                     fileUploadDao.deleteFile(it.documents[0].filename)
                     deleteFileManager.removeFromInternalStorage(it.documents[0].filename)
@@ -546,7 +546,7 @@ open class SyncRepositoryDatabaseTransactions(
         val listOfGenericEntity = mutableListOf<GenericEntity>()
 
         body.map { labTestResponse ->
-            labTestResponse.medicalRecord.filter { it.status == LabTestAndMedConstants.SAVEED }
+            labTestResponse.medicalRecord.filter { it.status == PhotoDeleteEnum.SAVED.value }
                 .map {
                 it.documents.forEach { fileName ->
                     listOfGenericEntity.add(

@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
+import com.latticeonfhir.android.data.local.enums.PhotoDeleteEnum
 import com.latticeonfhir.android.data.local.enums.PrescriptionType
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
@@ -77,7 +78,6 @@ import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.Symptoms
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsItem
 import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getInverseRelation
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
@@ -869,7 +869,7 @@ internal fun LabTestResponse.toListOfLabTestPhotoEntity(
     val list: MutableList<LabTestAndMedPhotoEntity> = mutableListOf()
     val fileNameSet: MutableSet<String> = mutableSetOf()
 
-    diagnosticReport.filter { it.status == LabTestAndMedConstants.SAVEED }.map { diagnosticReport ->
+    diagnosticReport.filter { it.status == PhotoDeleteEnum.SAVED.value }.map { diagnosticReport ->
         diagnosticReport.documents.map {
             if (!fileNameSet.contains(it.filename)) {
 
@@ -893,7 +893,7 @@ internal fun MedicalRecordResponse.toListOfLabTestAndMedPhotoEntity(
     val list: MutableList<LabTestAndMedPhotoEntity> = mutableListOf()
     val fileNameSet: MutableSet<String> = mutableSetOf() // Set to track unique file names
 
-    medicalRecord.filter { it.status == LabTestAndMedConstants.SAVEED }.map { diagnosticReport ->
+    medicalRecord.filter { it.status == PhotoDeleteEnum.SAVED.value }.map { diagnosticReport ->
         diagnosticReport.documents.map {
             if (!fileNameSet.contains(it.filename)) { // Check if fileName is not already in the set
                 list.add(
