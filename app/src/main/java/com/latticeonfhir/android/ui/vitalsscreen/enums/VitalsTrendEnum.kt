@@ -4,7 +4,7 @@ enum class VitalsTrendEnum {
     Weight,
     HR,
     RR,
-    spO2,
+    SpO2,
     Glucose,
     BP
 }

@@ -493,7 +493,7 @@ fun ShowTrendGraphCard(
                 .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size > 1) {
 
                 CustomChip(
-                    idSelected = vitalsViewModel.isSpO2Selected, label = VitalsTrendEnum.spO2.name
+                    idSelected = vitalsViewModel.isSpO2Selected, label = VitalsTrendEnum.SpO2.name
                 ) {
                     vitalsViewModel.apply {
                         isWeightSelected = false
