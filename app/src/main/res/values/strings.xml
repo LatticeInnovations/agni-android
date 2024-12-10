@@ -418,4 +418,5 @@ include them in the household</string>
     <string name="drugs_dispense">Drug Dispense</string>
     <string name="yesterday">Yesterday</string>
     <string name="no_records">No records.</string>
+    <string name="no_previous_prescription">No previous prescription</string>
 </resources>
