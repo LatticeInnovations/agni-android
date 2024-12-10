@@ -3,11 +3,13 @@ package com.latticeonfhir.android.data.server.repository.sync
 import com.latticeonfhir.android.data.local.enums.DispenseStatusEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.IdentifierCodeEnum
+import com.latticeonfhir.android.data.local.enums.PhotoDeleteEnum
 import com.latticeonfhir.android.data.local.enums.PhotoUploadTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.CVDDao
 import com.latticeonfhir.android.data.local.roomdb.dao.DispenseDao
+import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
 import com.latticeonfhir.android.data.local.roomdb.dao.LabTestAndMedDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
@@ -72,6 +74,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEn
 import com.latticeonfhir.android.utils.converters.responseconverter.toScheduleEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toSymptomsAndDiagnosisEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toVitalEntity
+import com.latticeonfhir.android.utils.file.DeleteFileManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -91,7 +94,9 @@ open class SyncRepositoryDatabaseTransactions(
     private val vitalDao: VitalDao,
     private val symptomsAndDiagnosisDao: SymptomsAndDiagnosisDao,
     private val labTestAndMedDao: LabTestAndMedDao,
-    private val dispenseDao: DispenseDao
+    private val dispenseDao: DispenseDao,
+    private val fileUploadDao: FileUploadDao,
+    private val deleteFileManager: DeleteFileManager
 ) {
 
 
@@ -448,7 +453,8 @@ open class SyncRepositoryDatabaseTransactions(
 
     protected suspend fun insertLabTest(body: List<LabTestResponse>, type: String) {
         body.map { labTestResponse ->
-            labTestResponse.diagnosticReport.map {
+            labTestResponse.diagnosticReport.filter { it.status == PhotoDeleteEnum.SAVED.value }
+                .map {
                 it.toLabTestPhotoResponseLocal(
                     labTestResponse,
                     appointmentDao,
@@ -457,8 +463,18 @@ open class SyncRepositoryDatabaseTransactions(
             }.also { labTests ->
                 labTestAndMedDao.insertLabAndMedTest(*labTests.toTypedArray())
             }
-
         }
+
+        body.map { labTestResponse ->
+            labTestResponse.diagnosticReport.filter { it.status == PhotoDeleteEnum.DELETE.value }
+                .map {
+                    fileUploadDao.deleteFile(it.documents[0].filename)
+                    deleteFileManager.removeFromInternalStorage(it.documents[0].filename)
+                    labTestAndMedDao.deleteLabTestAndMedPhoto(it.documents[0].filename)
+                    labTestAndMedDao.deleteLabTestAndMedEntity(it.diagnosticUuid)
+                }
+        }
+
         val labTestAndMedPhotoEntity = mutableListOf<LabTestAndMedPhotoEntity>()
         body.forEach { response ->
             labTestAndMedPhotoEntity.addAll(
@@ -471,7 +487,8 @@ open class SyncRepositoryDatabaseTransactions(
         val listOfGenericEntity = mutableListOf<GenericEntity>()
 
         body.map { labTestResponse ->
-            labTestResponse.diagnosticReport.map {
+            labTestResponse.diagnosticReport.filter { it.status == PhotoDeleteEnum.SAVED.value }
+                .map {
                 it.documents.forEach { fileName ->
                     listOfGenericEntity.add(
                         GenericEntity(
@@ -497,7 +514,8 @@ open class SyncRepositoryDatabaseTransactions(
 
     protected suspend fun insertMedicalRecord(body: List<MedicalRecordResponse>, type: String) {
         body.map { medicalRecordResponse ->
-            medicalRecordResponse.medicalRecord.map {
+            medicalRecordResponse.medicalRecord.filter { it.status == PhotoDeleteEnum.SAVED.value }
+                .map {
                 it.toMedRecordPhotoResponseLocal(
                     medicalRecordResponse,
                     appointmentDao, patientDao
@@ -506,6 +524,15 @@ open class SyncRepositoryDatabaseTransactions(
                 labTestAndMedDao.insertLabAndMedTest(*labTests.toTypedArray())
             }
 
+        }
+        body.map { labTestResponse ->
+            labTestResponse.medicalRecord.filter { it.status == PhotoDeleteEnum.DELETE.value }
+                .map {
+                    fileUploadDao.deleteFile(it.documents[0].filename)
+                    deleteFileManager.removeFromInternalStorage(it.documents[0].filename)
+                    labTestAndMedDao.deleteLabTestAndMedPhoto(it.documents[0].filename)
+                    labTestAndMedDao.deleteLabTestAndMedEntity(it.medicalReportUuid)
+                }
         }
         val labTestAndMedPhotoEntity = mutableSetOf<LabTestAndMedPhotoEntity>()
         body.forEach { response ->
@@ -519,7 +546,8 @@ open class SyncRepositoryDatabaseTransactions(
         val listOfGenericEntity = mutableListOf<GenericEntity>()
 
         body.map { labTestResponse ->
-            labTestResponse.medicalRecord.map {
+            labTestResponse.medicalRecord.filter { it.status == PhotoDeleteEnum.SAVED.value }
+                .map {
                 it.documents.forEach { fileName ->
                     listOfGenericEntity.add(
                         GenericEntity(

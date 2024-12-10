@@ -15,8 +15,8 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
+import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 
 interface SyncRepository {

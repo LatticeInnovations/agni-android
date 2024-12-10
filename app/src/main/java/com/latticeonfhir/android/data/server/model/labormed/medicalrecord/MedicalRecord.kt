@@ -9,5 +9,6 @@ data class MedicalRecord(
     val documents: List<MedDocument>,
     val medicalRecordFhirId: String,
     val medicalReportUuid: String,
-    val resourceType: String
+    val resourceType: String,
+    val status: String
 )

@@ -10,6 +10,7 @@ import androidx.core.net.toFile
 import androidx.core.net.toUri
 import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.utils.file.FileManager.createFolder
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
@@ -139,5 +140,11 @@ object FileManager {
 
     fun String.getUriFromFileName(context: Context): Uri {
         return File(createFolder(context), this).toUri()
+    }
+}
+
+class DeleteFileManager(private val context: Context) {
+    fun removeFromInternalStorage(fileName: String) {
+        File(createFolder(context), fileName).delete()
     }
 }
