@@ -454,6 +454,7 @@ fun ShowDialogs(
                     viewModel.updateStatusToArrived(
                         viewModel.patient!!, viewModel.appointment!!
                     ) {
+                        viewModel.showAddToQueueDialog = false
                         checkPermissions(
                             context = context,
                             requestPermission = { permissionsToBeRequest ->
