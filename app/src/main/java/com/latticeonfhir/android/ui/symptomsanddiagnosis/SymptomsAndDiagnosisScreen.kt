@@ -230,6 +230,7 @@ fun ShowDialogs(
                     viewModel.updateStatusToArrived(
                         viewModel.patient!!, viewModel.appointment!!
                     ) {
+                        viewModel.showAddToQueueDialog = false
                         scope.launch {
                             navController.currentBackStackEntry?.savedStateHandle?.set(
                                 key = SymptomsAndDiagnosisConstants.SYM_DIAG,
