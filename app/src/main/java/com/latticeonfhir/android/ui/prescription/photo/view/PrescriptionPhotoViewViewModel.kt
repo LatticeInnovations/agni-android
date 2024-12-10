@@ -31,10 +31,12 @@ import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
@@ -90,7 +92,9 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                             hideSyncStatus()
                         }
                         recompose = true
-                        getPastPrescription()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            getPastPrescription()
+                        }
                         WorkerStatus.SUCCESS
                     }
 
@@ -161,8 +165,10 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
         }
     }
 
-    internal fun getPastPrescription() {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal suspend fun getPastPrescription(
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        withContext(ioDispatcher) {
             val newPrescriptions = mutableListOf<PrescriptionFormAndPhoto>()
             prescriptionRepository.getLastPrescription(patient!!.id)
                 .forEach { formPrescription ->
