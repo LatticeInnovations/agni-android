@@ -133,7 +133,7 @@ fun FillDetailsScreen(
                                     medication = Medication(
                                         duration = viewModel.duration.toInt(),
                                         frequency = viewModel.frequency.toInt(),
-                                        note = viewModel.notes,
+                                        note = viewModel.notes.trim(),
                                         qtyPerDose = viewModel.quantityPerDose.toInt(),
                                         qtyPrescribed = viewModel.quantityPrescribed().toInt(),
                                         timing = viewModel.timing,
