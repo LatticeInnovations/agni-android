@@ -289,7 +289,7 @@ fun PrescriptionPhotoViewScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = stringResource(id = R.string.no_prescription_added),
+                                    text = stringResource(id = R.string.no_previous_prescription),
                                     style = MaterialTheme.typography.titleLarge,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
