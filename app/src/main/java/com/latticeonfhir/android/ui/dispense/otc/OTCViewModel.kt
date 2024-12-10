@@ -13,7 +13,6 @@ import com.latticeonfhir.android.data.local.repository.dispense.DispenseReposito
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseDataEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
@@ -22,7 +21,6 @@ import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDisp
 import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispensed
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.common.Queries
 import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
 import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
@@ -34,15 +32,14 @@ import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
-class OTCViewModel@Inject constructor(
+class OTCViewModel @Inject constructor(
     private val medicationRepository: MedicationRepository,
     private val dispenseRepository: DispenseRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository,
     private val genericRepository: GenericRepository,
     private val appointmentRepository: AppointmentRepository,
-    private val scheduleRepository: ScheduleRepository,
-    private val preferenceRepository: PreferenceRepository
-): ViewModel() {
+    private val scheduleRepository: ScheduleRepository
+) : ViewModel() {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
     var selectedMedicine by mutableStateOf<MedicationStrengthRelation?>(null)
@@ -59,42 +56,17 @@ class OTCViewModel@Inject constructor(
 
     internal fun dispenseMedication(dispensed: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            var appointmentResponseLocal =
+            val appointmentResponseLocal =
                 appointmentRepository.getAppointmentListByDate(
                     Date(Date().toTodayStartDate()).time,
                     Date(Date().toEndOfDay()).time
                 ).firstOrNull { appointmentEntity ->
-                        appointmentEntity.patientId == patient!!.id && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
-                    }
-            if (appointmentResponseLocal == null) {
-                Queries.addPatientToQueue(
-                    patient!!,
-                    scheduleRepository,
-                    genericRepository,
-                    preferenceRepository,
-                    appointmentRepository,
-                    patientLastUpdatedRepository
-                ) {
-                    viewModelScope.launch(Dispatchers.IO) {
-                        appointmentResponseLocal =
-                            appointmentRepository.getAppointmentListByDate(
-                                Date(Date().toTodayStartDate()).time,
-                                Date(Date().toEndOfDay()).time
-                            ).firstOrNull { appointmentEntity ->
-                                appointmentEntity.patientId == patient!!.id && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
-                            }
-                        createDispense(
-                            appointmentResponseLocal!!,
-                            dispensed
-                        )
-                    }
+                    appointmentEntity.patientId == patient!!.id && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
                 }
-            } else {
-                createDispense(
-                    appointmentResponseLocal!!,
-                    dispensed
-                )
-            }
+            createDispense(
+                appointmentResponseLocal!!,
+                dispensed
+            )
         }
     }
 
