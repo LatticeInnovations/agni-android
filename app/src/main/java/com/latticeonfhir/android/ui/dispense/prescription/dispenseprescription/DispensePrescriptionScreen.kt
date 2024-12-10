@@ -211,11 +211,13 @@ fun DispensePrescriptionScreen(
                     Button(
                         onClick = {
                             // dispense medicine
-                            viewModel.dispenseMedication {
-                                coroutineScope.launch {
-                                    navController.navigateUp()
+                            viewModel.dispenseMedication(
+                                dispensed = {
+                                    coroutineScope.launch {
+                                        navController.navigateUp()
+                                    }
                                 }
-                            }
+                            )
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -466,15 +468,15 @@ fun EditMedication(viewModel: DispensePrescriptionViewModel) {
                     actions = {
                         TextButton(
                             onClick = {
-                                viewModel.medicationList.forEach {
-                                    if (it.medication == viewModel.medToEdit!!.medication) {
-                                        it.qtyToBeDispensed = tempQuantity.toInt()
-                                        it.note = notes
-                                        it.isModified = true
-                                        viewModel.selectedMedicine.removeIf {
-                                            it.medication.medicationEntity.medFhirId == viewModel.medToEdit!!.medication.medicationEntity.medFhirId
+                                viewModel.medicationList.forEach { med ->
+                                    if (med.medication == viewModel.medToEdit!!.medication) {
+                                        med.qtyToBeDispensed = tempQuantity.toInt()
+                                        med.note = notes
+                                        med.isModified = true
+                                        viewModel.selectedMedicine.removeIf { selectedMed ->
+                                            selectedMed.medication.medicationEntity.medFhirId == viewModel.medToEdit!!.medication.medicationEntity.medFhirId
                                         }
-                                        viewModel.selectedMedicine.add(it)
+                                        viewModel.selectedMedicine.add(med)
                                         Timber.d("manseeyy after editing ${viewModel.selectedMedicine}")
                                         viewModel.recompose = !viewModel.recompose
                                     }

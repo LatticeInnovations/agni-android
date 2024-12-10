@@ -190,7 +190,7 @@ fun PrescriptionPhotoViewScreen(
             viewModel.isLongPressed = false
             viewModel.displayNote = true
             viewModel.selectedFile = null
-        } else navController.popBackStack(Screen.PatientLandingScreen.route, inclusive = false)
+        } else navController.navigateUp()
     }
 
     Scaffold(
@@ -246,10 +246,7 @@ fun PrescriptionPhotoViewScreen(
                             },
                             navigationIcon = {
                                 IconButton(onClick = {
-                                    navController.popBackStack(
-                                        Screen.PatientLandingScreen.route,
-                                        inclusive = false
-                                    )
+                                    navController.navigateUp()
                                 }) {
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowBack,
@@ -289,7 +286,7 @@ fun PrescriptionPhotoViewScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = stringResource(id = R.string.no_prescription_added),
+                                    text = stringResource(id = R.string.no_previous_prescription),
                                     style = MaterialTheme.typography.titleLarge,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
@@ -733,7 +730,6 @@ private fun DisplayImage(
 @OptIn(ExperimentalCoilApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
-    val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -743,10 +739,12 @@ fun PhotoView(viewModel: PrescriptionPhotoViewViewModel) {
                 !viewModel.deletedPhotos.contains(it)
             }.groupBy { it.date.toDayFullMonthYear() }.toSortedMap()
         }
+    val lastItemIndex =
+        (groupedPrescriptionList.values.flatten().size + groupedPrescriptionList.keys.size)
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = lastItemIndex)
+
     LaunchedEffect(viewModel.allPrescriptionList.size) {
         coroutineScope.launch {
-            val lastItemIndex =
-                (groupedPrescriptionList.values.flatten().size + groupedPrescriptionList.keys.size)
             if (lastItemIndex >= 0) {
                 listState.animateScrollToItem(lastItemIndex)
             }
