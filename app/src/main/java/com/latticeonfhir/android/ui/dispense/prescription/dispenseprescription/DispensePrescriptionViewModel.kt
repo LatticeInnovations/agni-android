@@ -33,6 +33,7 @@ import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -61,8 +62,11 @@ class DispensePrescriptionViewModel @Inject constructor(
     var medToEdit by mutableStateOf<DispenseModifiedInfo?>(null)
     private var allMedications by mutableStateOf(listOf<MedicationStrengthRelation>())
 
-    internal fun getData(prescriptionId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal fun getData(
+        prescriptionId: String,
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        viewModelScope.launch(ioDispatcher) {
             prescription = dispenseRepository.getPrescriptionDispenseDataById(prescriptionId)
             allMedications = medicationRepository.getAllMedication()
             previousDispensed = dispenseRepository.getDispensedPrescriptionInfo(prescriptionId)
@@ -97,8 +101,11 @@ class DispensePrescriptionViewModel @Inject constructor(
         }
     }
 
-    internal fun dispenseMedication(dispensed: () -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal fun dispenseMedication(
+        dispensed: () -> Unit,
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        viewModelScope.launch(ioDispatcher) {
             val patient = patientRepository.getPatientById(prescription!!.prescription.patientId)[0]
             var appointmentResponseLocal =
                 appointmentRepository.getAppointmentListByDate(
@@ -116,7 +123,7 @@ class DispensePrescriptionViewModel @Inject constructor(
                     appointmentRepository,
                     patientLastUpdatedRepository
                 ) {
-                    viewModelScope.launch(Dispatchers.IO) {
+                    viewModelScope.launch(ioDispatcher) {
                         appointmentResponseLocal =
                             appointmentRepository.getAppointmentListByDate(
                                 Date(Date().toTodayStartDate()).time,
