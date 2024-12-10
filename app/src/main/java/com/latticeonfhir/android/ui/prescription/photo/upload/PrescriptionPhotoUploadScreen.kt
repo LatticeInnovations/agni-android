@@ -75,7 +75,6 @@ import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.ScreenLoader
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
@@ -332,11 +331,7 @@ private fun DisplayImage(
                         viewModel.selectedImageUri = null
                         viewModel.isSelectedFromGallery = false
                         coroutineScope.launch {
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                PATIENT,
-                                viewModel.patient!!
-                            )
-                            navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
+                            navController.navigateUp()
                         }
                     } else {
                         coroutineScope.launch {
