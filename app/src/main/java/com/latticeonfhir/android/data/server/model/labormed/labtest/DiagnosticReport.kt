@@ -9,5 +9,6 @@ data class DiagnosticReport(
     val diagnosticReportFhirId: String,
     val diagnosticUuid: String,
     val documents: List<Document>,
-    val resourceType: String
+    val resourceType: String,
+    val status: String
 )

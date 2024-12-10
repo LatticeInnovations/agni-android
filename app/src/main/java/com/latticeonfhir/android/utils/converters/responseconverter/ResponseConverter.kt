@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
+import com.latticeonfhir.android.data.local.enums.PhotoDeleteEnum
 import com.latticeonfhir.android.data.local.enums.PrescriptionType
 import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
@@ -55,7 +56,6 @@ import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.dispense.response.DispenseData
 import com.latticeonfhir.android.data.server.model.dispense.response.MedicineDispenseResponse
 import com.latticeonfhir.android.data.server.model.labormed.labtest.DiagnosticReport
-import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestPhotoResponse
 import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
 import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecord
 import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordResponse
@@ -809,29 +809,12 @@ internal fun SymptomsAndDiagnosisLocal.toSymDiagData(): SymptomsAndDiagnosisData
 
 internal fun LabTestAndFileEntity.toFilesList(): List<File> {
     return labTestAndMedPhotoEntity.map {
-        // TODO: added added string, to be changed
         File(
             filename = it.fileName, note = it.note ?: "", documentFhirId = "", documentUuid = ""
         )
     }
 }
 
-
-internal suspend fun LabTestAndFileEntity.toLabTestPhotoResponse(
-    appointmentDao: AppointmentDao
-): LabTestPhotoResponse {
-    // TODO: added added string, to be changed
-    return LabTestPhotoResponse(
-        labTestId = labTestAndMedEntity.id,
-        appointmentId = appointmentDao.getFhirIdByAppointmentId(labTestAndMedEntity.appointmentId)
-            ?: labTestAndMedEntity.appointmentId,
-        patientId = labTestAndMedEntity.patientId,
-        labTestFhirId = labTestAndMedEntity.labTestFhirId,
-        createdOn = labTestAndMedEntity.createdOn,
-        labTests = labTestAndMedPhotoEntity.map { prescriptionPhotoEntity ->
-            File("", "", prescriptionPhotoEntity.fileName, prescriptionPhotoEntity.note ?: "")
-        })
-}
 
 internal suspend fun LabTestAndFileEntity.toLabTestPhotoResponseLocal(
     appointmentDao: AppointmentDao
@@ -886,7 +869,7 @@ internal fun LabTestResponse.toListOfLabTestPhotoEntity(
     val list: MutableList<LabTestAndMedPhotoEntity> = mutableListOf()
     val fileNameSet: MutableSet<String> = mutableSetOf()
 
-    diagnosticReport.map { diagnosticReport ->
+    diagnosticReport.filter { it.status == PhotoDeleteEnum.SAVED.value }.map { diagnosticReport ->
         diagnosticReport.documents.map {
             if (!fileNameSet.contains(it.filename)) {
 
@@ -910,7 +893,7 @@ internal fun MedicalRecordResponse.toListOfLabTestAndMedPhotoEntity(
     val list: MutableList<LabTestAndMedPhotoEntity> = mutableListOf()
     val fileNameSet: MutableSet<String> = mutableSetOf() // Set to track unique file names
 
-    medicalRecord.map { diagnosticReport ->
+    medicalRecord.filter { it.status == PhotoDeleteEnum.SAVED.value }.map { diagnosticReport ->
         diagnosticReport.documents.map {
             if (!fileNameSet.contains(it.filename)) { // Check if fileName is not already in the set
                 list.add(
