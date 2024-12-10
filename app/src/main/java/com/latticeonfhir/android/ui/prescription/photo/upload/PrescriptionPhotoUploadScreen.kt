@@ -133,7 +133,7 @@ fun PrescriptionPhotoUploadScreen(
             viewModel.isImageCaptured = false
             viewModel.selectedImageUri = null
             viewModel.isSelectedFromGallery = false
-        } else navController.popBackStack()
+        } else navController.navigateUp()
     }
     Box(modifier = Modifier.fillMaxSize()
         .navigationBarsPadding()) {
@@ -374,7 +374,7 @@ private fun TopRow(
     ) {
         IconButton(
             onClick = {
-                navController.popBackStack()
+                navController.navigateUp()
             }
         ) {
             Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
