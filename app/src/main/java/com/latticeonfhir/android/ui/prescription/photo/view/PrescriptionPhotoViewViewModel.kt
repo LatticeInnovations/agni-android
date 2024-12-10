@@ -272,7 +272,8 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
                     patientFhirId = patient!!.fhirId ?: patient!!.id,
                     prescriptionFhirId = null,
                     prescriptionId = updatedPrescriptionPhotoResponseLocal.prescriptionId,
-                    prescription = updatedPrescriptionPhotoResponseLocal.prescription
+                    prescription = updatedPrescriptionPhotoResponseLocal.prescription,
+                    status = null
                 )
             )
         } else {

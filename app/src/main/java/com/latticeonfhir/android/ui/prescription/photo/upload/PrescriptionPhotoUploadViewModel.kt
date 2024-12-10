@@ -119,7 +119,8 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
                     prescriptionFhirId = null,
                     appointmentUuid = appointmentResponseLocal!!.uuid,
                     appointmentId = appointmentResponseLocal!!.appointmentId
-                        ?: appointmentResponseLocal!!.uuid
+                        ?: appointmentResponseLocal!!.uuid,
+                    status = null
                 )
             )
             checkAndUpdateAppointmentStatusToInProgress(

@@ -15,5 +15,6 @@ data class PrescriptionPhotoResponse(
     val patientFhirId: String,
     val generatedOn: Date,
     @SerializedName("prescriptionFiles")
-    val prescription: List<File>
+    val prescription: List<File>,
+    val status: String?
 )

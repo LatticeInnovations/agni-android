@@ -533,7 +533,8 @@ internal suspend fun PrescriptionAndFileEntity.toPrescriptionPhotoResponse(
             )
         },
         appointmentUuid = prescriptionEntity.appointmentId,
-        prescriptionFhirId = prescriptionEntity.prescriptionFhirId
+        prescriptionFhirId = prescriptionEntity.prescriptionFhirId,
+        status = null
     )
 }
 
