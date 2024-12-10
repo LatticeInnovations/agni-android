@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.landingscreen
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -41,6 +42,7 @@ import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isToday
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
@@ -62,49 +64,62 @@ fun MyPatientScreen(
         } else {
             viewModel.patientList.collectAsLazyPagingItems()
         }
-        LazyColumn(modifier = Modifier.testTag("patients list")) {
-            items(
-                count = patientsList.itemCount,
-                key = patientsList.itemKey(),
-                contentType = patientsList.itemContentType(
-                )
-            ) { index ->
-                val item = patientsList[index]
-                if (item != null) {
-                    var lastVisited: Date? by remember {
-                        mutableStateOf(null)
-                    }
-                    viewModel.getLastVisitedOfPatient(item.id) {
-                        lastVisited = it
-                    }
-                    PatientItemCard(
-                        navController, item, lastVisited, viewModel
-                    )
+        if (viewModel.isLoading || patientsList.loadState.refresh == LoadState.Loading) {
+            Loader()
+        } else {
+            if (patientsList.itemCount == 0) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(stringResource(R.string.no_records))
                 }
-            }
-            when (patientsList.loadState.append) {
-                is LoadState.NotLoading -> Unit
-                LoadState.Loading -> {
-                    item {
-                        Loader()
+            } else {
+                LazyColumn(modifier = Modifier.testTag("patients list")) {
+                    items(
+                        count = patientsList.itemCount,
+                        key = patientsList.itemKey(),
+                        contentType = patientsList.itemContentType(
+                        )
+                    ) { index ->
+                        val item = patientsList[index]
+                        if (item != null) {
+                            var lastVisited: Date? by remember {
+                                mutableStateOf(null)
+                            }
+                            viewModel.getLastVisitedOfPatient(item.id) {
+                                lastVisited = it
+                            }
+                            PatientItemCard(
+                                navController, item, lastVisited, viewModel
+                            )
+                        }
                     }
-                }
+                    when (patientsList.loadState.append) {
+                        is LoadState.NotLoading -> Unit
+                        LoadState.Loading -> {
+                            item {
+                                Loader()
+                            }
+                        }
 
-                is LoadState.Error -> {
-                    // TODO
-                }
-            }
-
-            when (patientsList.loadState.refresh) {
-                is LoadState.NotLoading -> Unit
-                LoadState.Loading -> {
-                    item {
-                        Loader()
+                        is LoadState.Error -> {
+                            // TODO
+                        }
                     }
-                }
 
-                is LoadState.Error -> {
-                    // TODO
+                    when (patientsList.loadState.refresh) {
+                        is LoadState.NotLoading -> Unit
+                        LoadState.Loading -> {
+                            item {
+                                Loader()
+                            }
+                        }
+
+                        is LoadState.Error -> {
+                            // TODO
+                        }
+                    }
                 }
             }
         }
@@ -187,7 +202,8 @@ private fun PatientItemCard(
         Text(
             text = if (lastVisited != null) stringResource(
                 id = R.string.last_visited,
-                lastVisited.toSlotDate()
+                if (isToday(lastVisited)) stringResource(R.string.today)
+                else lastVisited.toSlotDate()
             ) else stringResource(
                 id = R.string.registered
             ),
