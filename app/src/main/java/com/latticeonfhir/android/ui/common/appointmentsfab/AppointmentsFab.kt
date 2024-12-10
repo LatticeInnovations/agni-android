@@ -1,14 +1,5 @@
 package com.latticeonfhir.android.ui.common.appointmentsfab
 
-import android.Manifest
-import android.app.Activity
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Build
-import android.provider.Settings
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,27 +28,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -73,33 +58,6 @@ fun AppointmentsFab(
     showDialog: (Boolean) -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
-    val activity = LocalContext.current as Activity
-    val coroutineScope = rememberCoroutineScope()
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions(),
-        onResult = { map ->
-            if (!map.values.contains(false)) {
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    PATIENT,
-                    patient
-                )
-                navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
-                showDialog(false)
-            } else {
-                val shouldShowDialog = map.map { (permission, _) ->
-                    ActivityCompat.shouldShowRequestPermissionRationale(activity, permission).not()
-                }
-                if (shouldShowDialog.contains(true)) {
-                    appointmentsFabViewModel.showOpenSettingsDialog = true
-                } else {
-                    showDialog(false)
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
-                    }
-                }
-            }
-        })
     LaunchedEffect(true) {
         appointmentsFabViewModel.initialize(patient.id)
     }
@@ -163,99 +121,9 @@ fun AppointmentsFab(
                             )
                             Spacer(modifier = Modifier.height(20.dp))
                         }
-                        if (appointmentsFabViewModel.canAddPrescription) {
-                            AddPrescriptionFAB {
-                                val permissionsToBeRequest = mutableListOf<String>()
-                                val permissions = mutableListOf(Manifest.permission.CAMERA)
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
-                                } else {
-                                    permissions.addAll(
-                                        listOf(
-                                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-                                        )
-                                    )
-                                }
-                                permissions.forEach {
-                                    if (ContextCompat.checkSelfPermission(
-                                            context,
-                                            it
-                                        ) != PackageManager.PERMISSION_GRANTED
-                                    ) permissionsToBeRequest.add(it)
-                                }
-                                if (permissionsToBeRequest.isNotEmpty()) {
-                                    requestPermissionLauncher.launch(permissionsToBeRequest.toTypedArray())
-                                } else {
-                                    coroutineScope.launch {
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            PATIENT,
-                                            patient
-                                        )
-                                        navController.navigate(Screen.PrescriptionPhotoUploadScreen.route)
-                                        showDialog(false)
-                                    }
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(20.dp))
-                        }
                     }
                 }
             }
-        }
-        if (appointmentsFabViewModel.showOpenSettingsDialog) {
-            CustomDialog(
-                canBeDismissed = false,
-                title = stringResource(id = R.string.permissions_required),
-                text = stringResource(id = R.string.permissions_required_description),
-                dismissBtnText = stringResource(id = R.string.cancel),
-                confirmBtnText = stringResource(id = R.string.go_to_settings),
-                dismiss = {
-                    appointmentsFabViewModel.showOpenSettingsDialog = false
-                    showDialog(false)
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
-                    }
-                },
-                confirm = {
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        addCategory(Intent.CATEGORY_DEFAULT)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        data = Uri.fromParts("package", context.packageName, null)
-                    }
-                    context.startActivity(intent)
-                    appointmentsFabViewModel.showOpenSettingsDialog = false
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun AddPrescriptionFAB(
-    onClick: () -> Unit
-) {
-    FloatingActionButton(
-        onClick = {
-            onClick()
-        },
-        modifier = Modifier.testTag("ADD_PRESCRIPTION_FAB")
-    ) {
-        Row(
-            modifier = Modifier.padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(id = R.string.add_prescription),
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Icon(
-                painter = painterResource(id = R.drawable.prescriptions_icon),
-                contentDescription = null,
-                Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
         }
     }
 }
