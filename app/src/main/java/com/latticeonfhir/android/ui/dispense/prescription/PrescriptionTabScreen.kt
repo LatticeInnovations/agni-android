@@ -73,25 +73,36 @@ fun PrescriptionTabScreen(
                         viewModel.prescriptionSelected = prescription
                     },
                     dispenseBtnClicked = {
-                        viewModel.getAppointmentInfo(
-                            callback = {
-                                if (viewModel.canAddDispense) {
-                                    coroutineScope.launch {
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            "prescription_id",
-                                            prescription.prescription.id
-                                        )
-                                        navController.navigate(Screen.DispensePrescriptionScreen.route)
-                                    }
-                                } else if (viewModel.isAppointmentCompleted) {
-                                    viewModel.showAppointmentCompletedDialog = true
-                                } else {
-                                    viewModel.prescriptionToDispense = prescription
-                                    viewModel.categoryClicked = DispenseCategoryEnum.PRESCRIBED.value
-                                    viewModel.showAddToQueueDialog = true
-                                }
+                        if (prescription.dispensePrescriptionEntity.status == DispenseStatusEnum.FULLY_DISPENSED.code) {
+                            coroutineScope.launch {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    "prescription_id",
+                                    prescription.prescription.id
+                                )
+                                navController.navigate(Screen.DispensePrescriptionScreen.route)
                             }
-                        )
+                        } else {
+                            viewModel.getAppointmentInfo(
+                                callback = {
+                                    if (viewModel.canAddDispense) {
+                                        coroutineScope.launch {
+                                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                "prescription_id",
+                                                prescription.prescription.id
+                                            )
+                                            navController.navigate(Screen.DispensePrescriptionScreen.route)
+                                        }
+                                    } else if (viewModel.isAppointmentCompleted) {
+                                        viewModel.showAppointmentCompletedDialog = true
+                                    } else {
+                                        viewModel.prescriptionToDispense = prescription
+                                        viewModel.categoryClicked =
+                                            DispenseCategoryEnum.PRESCRIBED.value
+                                        viewModel.showAddToQueueDialog = true
+                                    }
+                                }
+                            )
+                        }
                     }
                 )
             }
