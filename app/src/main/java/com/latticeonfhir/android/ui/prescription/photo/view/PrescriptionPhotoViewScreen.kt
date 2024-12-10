@@ -190,7 +190,7 @@ fun PrescriptionPhotoViewScreen(
             viewModel.isLongPressed = false
             viewModel.displayNote = true
             viewModel.selectedFile = null
-        } else navController.popBackStack(Screen.PatientLandingScreen.route, inclusive = false)
+        } else navController.navigateUp()
     }
 
     Scaffold(
@@ -246,10 +246,7 @@ fun PrescriptionPhotoViewScreen(
                             },
                             navigationIcon = {
                                 IconButton(onClick = {
-                                    navController.popBackStack(
-                                        Screen.PatientLandingScreen.route,
-                                        inclusive = false
-                                    )
+                                    navController.navigateUp()
                                 }) {
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowBack,
