@@ -306,7 +306,7 @@ fun HeightCard(viewModel: AddVitalsViewModel, modifier: Modifier = Modifier) {
         )
         Row(
             modifier = modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (viewModel.heightType == stringArrayResource(R.array.height_option_list)[0]) {
@@ -870,7 +870,7 @@ fun DropDownView(value: String, setValue: () -> Unit) {
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(4.dp))
         Icon(
             painter = painterResource(R.drawable.swap),
             contentDescription = null,
