@@ -54,7 +54,9 @@ fun CVDRiskAssessmentRecords(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        if (viewModel.previousRecords.size < 2) {
+        if (viewModel.previousRecords.groupBy {
+                it.createdOn.formatDateToDayMonth()
+            }.size < 2) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
