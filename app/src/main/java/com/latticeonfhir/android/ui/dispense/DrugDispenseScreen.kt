@@ -32,12 +32,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.DispenseCategoryEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.dispense.log.DispenseLogScreen
 import com.latticeonfhir.android.ui.dispense.prescription.PrescriptionTabScreen
 import com.latticeonfhir.android.ui.dispense.prescription.ViewRXScreen
+import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
+import com.latticeonfhir.android.ui.prescription.photo.view.AppointmentCompletedDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.OTC_DISPENSED
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import kotlinx.coroutines.launch
@@ -97,18 +101,31 @@ fun DrugDispenseScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 },
                 actions = {
                     FilledTonalButton(
                         onClick = {
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                PATIENT,
-                                viewModel.patient
+                            viewModel.getAppointmentInfo (
+                                callback = {
+                                    if (viewModel.canAddDispense) {
+                                        coroutineScope.launch {
+                                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                PATIENT,
+                                                viewModel.patient
+                                            )
+                                            navController.navigate(Screen.OTCScreen.route)
+                                        }
+                                    } else if (viewModel.isAppointmentCompleted) {
+                                        viewModel.showAppointmentCompletedDialog = true
+                                    } else {
+                                        viewModel.categoryClicked = DispenseCategoryEnum.OTC.value
+                                        viewModel.showAddToQueueDialog = true
+                                    }
+                                }
                             )
-                            navController.navigate(Screen.OTCScreen.route)
                         }
                     ) {
                         Text(stringResource(R.string.otc))
@@ -157,6 +174,85 @@ fun DrugDispenseScreen(
             exit = slideOutVertically(targetOffsetY = { it })
         ) {
             ViewRXScreen(viewModel)
+        }
+    }
+    if (viewModel.showAddToQueueDialog) {
+        CustomDialog(
+            title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
+                id = R.string.add_to_queue_question
+            ),
+            text = stringResource(id = R.string.add_to_queue_assessment_dialog_description),
+            dismissBtnText = stringResource(id = R.string.dismiss),
+            confirmBtnText = if (viewModel.appointment != null) stringResource(id = R.string.mark_arrived) else stringResource(
+                id = R.string.add_to_queue
+            ),
+            dismiss = { viewModel.showAddToQueueDialog = false },
+            confirm = {
+                if (viewModel.appointment != null) {
+                    viewModel.updateStatusToArrived(
+                        viewModel.patient!!,
+                        viewModel.appointment!!,
+                        updated = {
+                            viewModel.showAddToQueueDialog = false
+                            if (viewModel.categoryClicked == DispenseCategoryEnum.PRESCRIBED.value){
+                                coroutineScope.launch {
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "prescription_id",
+                                        viewModel.prescriptionToDispense!!.prescription.id
+                                    )
+                                    navController.navigate(Screen.DispensePrescriptionScreen.route)
+                                }
+                            } else {
+                                coroutineScope.launch {
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        PATIENT,
+                                        viewModel.patient
+                                    )
+                                    navController.navigate(Screen.OTCScreen.route)
+                                }
+                            }
+                        }
+                    )
+                } else {
+                    if (viewModel.ifAllSlotsBooked) {
+                        viewModel.showAllSlotsBookedDialog = true
+                    } else {
+                        viewModel.addPatientToQueue(
+                            viewModel.patient!!,
+                            addedToQueue = {
+                                viewModel.showAddToQueueDialog = false
+                                if (viewModel.categoryClicked == DispenseCategoryEnum.PRESCRIBED.value){
+                                    coroutineScope.launch {
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            "prescription_id",
+                                            viewModel.prescriptionToDispense!!.prescription.id
+                                        )
+                                        navController.navigate(Screen.DispensePrescriptionScreen.route)
+                                    }
+                                } else {
+                                    coroutineScope.launch {
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            PATIENT,
+                                            viewModel.patient
+                                        )
+                                        navController.navigate(Screen.OTCScreen.route)
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        )
+    }
+    if (viewModel.ifAllSlotsBooked) {
+        AllSlotsBookedDialog {
+            viewModel.showAllSlotsBookedDialog = false
+        }
+    }
+    if (viewModel.showAppointmentCompletedDialog) {
+        AppointmentCompletedDialog {
+            viewModel.showAppointmentCompletedDialog = false
         }
     }
 }

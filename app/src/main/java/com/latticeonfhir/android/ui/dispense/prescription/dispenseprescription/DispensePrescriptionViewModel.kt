@@ -16,7 +16,6 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseAndPrescriptionRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseDataEntity
@@ -27,7 +26,6 @@ import com.latticeonfhir.android.data.local.roomdb.entities.medication.Medicatio
 import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispensed
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.common.Queries
 import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
 import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
@@ -48,8 +46,7 @@ class DispensePrescriptionViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository,
     private val appointmentRepository: AppointmentRepository,
-    private val scheduleRepository: ScheduleRepository,
-    private val preferenceRepository: PreferenceRepository
+    private val scheduleRepository: ScheduleRepository
 ) : ViewModel() {
     var recompose by mutableStateOf(false)
     var isLaunched by mutableStateOf(false)
@@ -107,42 +104,17 @@ class DispensePrescriptionViewModel @Inject constructor(
     ) {
         viewModelScope.launch(ioDispatcher) {
             val patient = patientRepository.getPatientById(prescription!!.prescription.patientId)[0]
-            var appointmentResponseLocal =
+            val appointmentResponseLocal =
                 appointmentRepository.getAppointmentListByDate(
                     Date(Date().toTodayStartDate()).time,
                     Date(Date().toEndOfDay()).time
                 ).firstOrNull { appointmentEntity ->
                     appointmentEntity.patientId == patient.id && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
                 }
-            if (appointmentResponseLocal == null) {
-                Queries.addPatientToQueue(
-                    patient,
-                    scheduleRepository,
-                    genericRepository,
-                    preferenceRepository,
-                    appointmentRepository,
-                    patientLastUpdatedRepository
-                ) {
-                    viewModelScope.launch(ioDispatcher) {
-                        appointmentResponseLocal =
-                            appointmentRepository.getAppointmentListByDate(
-                                Date(Date().toTodayStartDate()).time,
-                                Date(Date().toEndOfDay()).time
-                            ).firstOrNull { appointmentEntity ->
-                                appointmentEntity.patientId ==patient.id && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
-                            }
-                        createDispense(
-                            appointmentResponseLocal!!,
-                            dispensed
-                        )
-                    }
-                }
-            } else {
-                createDispense(
-                    appointmentResponseLocal!!,
-                    dispensed
-                )
-            }
+            createDispense(
+                appointmentResponseLocal!!,
+                dispensed
+            )
         }
     }
 
