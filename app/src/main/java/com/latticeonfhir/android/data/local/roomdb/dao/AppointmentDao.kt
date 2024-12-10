@@ -66,7 +66,7 @@ interface AppointmentDao {
     suspend fun getAppointmentById(vararg appointmentId: String): List<AppointmentEntity>
 
     @Transaction
-    @Query("SELECT * FROM AppointmentEntity WHERE patientId=:patientId and status=\"completed\" ORDER BY startTime DESC LIMIT 1")
+    @Query("SELECT * FROM AppointmentEntity WHERE patientId=:patientId AND (status=\"completed\" OR status=\"in-progress\") ORDER BY startTime DESC LIMIT 1")
     suspend fun getLastCompletedAppointment(
         patientId: String
     ): AppointmentEntity?

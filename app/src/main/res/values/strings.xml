@@ -417,4 +417,5 @@ include them in the household</string>
     <string name="qty_to_dispense">Qty. to dispense*</string>
     <string name="drugs_dispense">Drug Dispense</string>
     <string name="yesterday">Yesterday</string>
+    <string name="no_records">No records.</string>
 </resources>
