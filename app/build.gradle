@@ -50,8 +50,8 @@ android {
         applicationId "com.latticeonfhir.android"
         minSdk 24
         targetSdk 34
-        versionCode 65
-        versionName "3.0.2"
+        versionCode 66
+        versionName "3.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -88,7 +88,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "\"https://fhir.api.thelattice.org/fhir/api/v1/\""
+            buildConfigField "String", "BASE_URL", "\"https://fhir.api.thelattice.org/facadeDev/api/v1/\""
             // test
             signingConfig signingConfigs.release
         }
