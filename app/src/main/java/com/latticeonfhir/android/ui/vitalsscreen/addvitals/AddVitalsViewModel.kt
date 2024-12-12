@@ -24,36 +24,6 @@ import com.latticeonfhir.android.utils.common.Queries
 import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
 import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.android.utils.constants.VitalConstants
-import com.latticeonfhir.android.utils.constants.VitalConstants.ADD
-import com.latticeonfhir.android.utils.constants.VitalConstants.BLOOD_GLUCOSE
-import com.latticeonfhir.android.utils.constants.VitalConstants.BLOOD_GLUCOSE_KEY
-import com.latticeonfhir.android.utils.constants.VitalConstants.BLOOD_GLUCOSE_TYPE
-import com.latticeonfhir.android.utils.constants.VitalConstants.BLOOD_GLUCOSE_UNIT
-import com.latticeonfhir.android.utils.constants.VitalConstants.BLOOD_PRESSURE
-import com.latticeonfhir.android.utils.constants.VitalConstants.BODY_TEMPERATURE
-import com.latticeonfhir.android.utils.constants.VitalConstants.BP_DIASTOLIC
-import com.latticeonfhir.android.utils.constants.VitalConstants.BP_SYSTOLIC
-import com.latticeonfhir.android.utils.constants.VitalConstants.COMPONENT
-import com.latticeonfhir.android.utils.constants.VitalConstants.EYE_TEST
-import com.latticeonfhir.android.utils.constants.VitalConstants.EYE_TEST_TYPE
-import com.latticeonfhir.android.utils.constants.VitalConstants.HEART_RATE
-import com.latticeonfhir.android.utils.constants.VitalConstants.HEART_RATE_KEY
-import com.latticeonfhir.android.utils.constants.VitalConstants.HEIGHT
-import com.latticeonfhir.android.utils.constants.VitalConstants.HEIGHT_CM
-import com.latticeonfhir.android.utils.constants.VitalConstants.HEIGHT_FT
-import com.latticeonfhir.android.utils.constants.VitalConstants.HEIGHT_INCH
-import com.latticeonfhir.android.utils.constants.VitalConstants.KEY
-import com.latticeonfhir.android.utils.constants.VitalConstants.LEFT_EYE
-import com.latticeonfhir.android.utils.constants.VitalConstants.OPERATION
-import com.latticeonfhir.android.utils.constants.VitalConstants.REPLACE
-import com.latticeonfhir.android.utils.constants.VitalConstants.RESPIRATORY_RATE
-import com.latticeonfhir.android.utils.constants.VitalConstants.RESPIRATORY_RATE_KEY
-import com.latticeonfhir.android.utils.constants.VitalConstants.RIGHT_EYE
-import com.latticeonfhir.android.utils.constants.VitalConstants.SPO2
-import com.latticeonfhir.android.utils.constants.VitalConstants.TEMP
-import com.latticeonfhir.android.utils.constants.VitalConstants.TEMP_UNIT
-import com.latticeonfhir.android.utils.constants.VitalConstants.VITAL_FHIR_ID
-import com.latticeonfhir.android.utils.constants.VitalConstants.WEIGHT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -236,10 +206,8 @@ class AddVitalsViewModel @Inject constructor(
                     createdOn = vitalLocal!!.createdOn
                 )
             ).also {
-                if (it > 0 && vitalLocal?.fhirId != null) {
-                    checkAndUpdateVitals(vitalLocal)
-                } else {
-                    genericRepository.insertVital(
+
+                genericRepository.insertVital(
                         getVitalDetails(
                             vitalUuid = vitalLocal!!.vitalUuid,
                             fhirId = vitalLocal?.fhirId,
@@ -247,7 +215,7 @@ class AddVitalsViewModel @Inject constructor(
                             createdOn = vitalLocal!!.createdOn
                         )
                     )
-                }
+
                 updatePatientLastUpdated(
                     patient!!.id,
                     patientLastUpdatedRepository,
@@ -420,146 +388,6 @@ class AddVitalsViewModel @Inject constructor(
         return this.lowercase().replaceFirstChar { it.uppercaseChar() }
     }
 
-    private suspend fun addPatch(key: String, component: Map<String, Any>) {
-        val vitalFhirId = vitalLocal!!.fhirId
-
-        map = mapOf(
-            VITAL_FHIR_ID to vitalFhirId!!, KEY to key, COMPONENT to component
-
-        )
-        genericRepository.insertOrUpdateVitalPatchEntity(
-            vitalFhirId = vitalFhirId, map = map
-        )
-
-    }
-
-    private suspend fun checkAndUpdateVitals(
-        vitalLocal: VitalLocal?
-    ) {
-        val vitalFhirId = vitalLocal!!.fhirId
-
-        // Check for Height (Feet, Inch, Cm)
-        if (feet != (vitalLocal.heightFt ?: "") || inch != (vitalLocal.heightInch
-                ?: "") || centimeter != (vitalLocal.heightCm ?: "")
-        ) {
-            addPatch(
-                key = HEIGHT, component = mapOf(
-                    OPERATION to if (vitalLocal.heightCm != null || vitalLocal.heightFt != null || vitalLocal.heightInch != null) REPLACE else ADD,
-                    HEIGHT_FT to feet.addZeroAfterDot().ifBlank { "" },
-                    HEIGHT_INCH to inch.addZeroAfterDot().ifBlank { "" },
-                    HEIGHT_CM to centimeter.addZeroAfterDot().ifBlank { "" })
-            )
-        }
-
-        // Check for Weight
-        if (weight != (vitalLocal.weight ?: "")) {
-            addPatch(
-                key = WEIGHT,
-                component = mapOf(
-                    OPERATION to if (vitalLocal.weight != null) REPLACE else ADD,
-                    WEIGHT.lowercase() to weight.addZeroAfterDot().ifBlank { "" })
-            )
-        }
-
-        // Check for Heart Rate
-        if (heartRate != (vitalLocal.heartRate ?: "")) {
-            addPatch(
-                key = HEART_RATE,
-                component = mapOf(
-                    OPERATION to if (vitalLocal.heartRate != null) REPLACE else ADD,
-                    HEART_RATE_KEY to heartRate.ifBlank { "" })
-            )
-        }
-
-        // Check for Respiratory Rate
-        if (respiratoryRate != (vitalLocal.respRate ?: "")) {
-            addPatch(
-                key = RESPIRATORY_RATE,
-                component = mapOf(
-                    OPERATION to if (vitalLocal.respRate != null) REPLACE else ADD,
-                    RESPIRATORY_RATE_KEY to respiratoryRate.ifBlank { "" })
-            )
-        }
-
-        // Check for SpO2
-        if (spo2 != (vitalLocal.spo2 ?: "")) {
-            addPatch(
-                key = SPO2,
-                component = mapOf(
-                    OPERATION to if (vitalLocal.spo2 != null) REPLACE else ADD,
-                    SPO2.lowercase() to spo2.ifBlank { "" })
-            )
-        }
-        // Check for Body Temperature
-        if (temperature != (vitalLocal.temp
-                ?: "") || (temperatureType.isNotBlank() && temperatureType[0].toString() != (vitalLocal.tempUnit
-                ?: ""))
-        ) {
-            addPatch(
-                key = BODY_TEMPERATURE, component = mapOf(
-                    OPERATION to if (vitalLocal.temp != null) REPLACE else ADD,
-                    TEMP to temperature.addZeroAfterDot().ifBlank { "" },
-                    TEMP_UNIT to if (temperature.isNotBlank() && temperatureType.lowercase() == TemperatureEnum.FAHRENHEIT.name.lowercase()) TemperatureEnum.FAHRENHEIT.value else if (temperature.isNotBlank()) TemperatureEnum.CELSIUS.value else ""
-                )
-            )
-        }
-
-        // Check for Blood Pressure
-        if (bpDiastolic != (vitalLocal.bpDiastolic ?: "") || bpSystolic != (vitalLocal.bpSystolic
-                ?: "")
-        ) {
-            addPatch(
-                key = BLOOD_PRESSURE, component = mapOf(
-                    OPERATION to if (vitalLocal.bpDiastolic != null && vitalLocal.bpSystolic != null) REPLACE else ADD,
-                    BP_DIASTOLIC to bpDiastolic.ifBlank { "" },
-                    BP_SYSTOLIC to bpSystolic.ifBlank { "" })
-            )
-        }
-
-        // Check for Blood Glucose
-        checkBloodGlucose()
-
-        // Check for Eye Test
-        checkEyeTest()
-
-
-    }
-
-    private suspend fun checkBloodGlucose() {
-        if (bloodGlucose != vitalLocal?.bloodGlucose || bgType != vitalLocal?.bloodGlucoseUnit || (bgRandomChipSelected && vitalLocal?.bloodGlucoseType != "random") || (bgFastingChipSelected && vitalLocal?.bloodGlucoseType != "fasting")) {
-            addPatch(
-                key = BLOOD_GLUCOSE_KEY, component = mapOf(
-                    OPERATION to if (vitalLocal?.bloodGlucose != null) REPLACE else ADD,
-                    BLOOD_GLUCOSE to if (bgType == BGEnum.BG_MMO.value) bloodGlucose.trim()
-                        .addZeroAfterDot() else bloodGlucose.ifBlank { "" },
-                    BLOOD_GLUCOSE_TYPE to if (bloodGlucose.isNotBlank() && bgRandomChipSelected) BGEnum.RANDOM.value else if (bloodGlucose.isNotBlank() && bgFastingChipSelected) BGEnum.FASTING.value else "",
-                    BLOOD_GLUCOSE_UNIT to if (bloodGlucose.isNotBlank()) bgType else ""
-                )
-            )
-        }
-    }
-
-    private suspend fun checkEyeTest() {
-        if ((leftEye.getEyeTypeNumber() != (vitalLocal?.leftEye
-                ?: 0) || rightEye.getEyeTypeNumber() != (vitalLocal?.rightEye
-                ?: 0)) && (leftEye.getEyeTypeNumber()
-                .toString() != vitalLocal?.leftEye?.toString() || rightEye.getEyeTypeNumber()
-                .toString() != vitalLocal?.rightEye?.toString())
-        ) {
-            addPatch(
-                key = EYE_TEST, component = mapOf(
-                    OPERATION to if (vitalLocal?.leftEye != null || vitalLocal?.rightEye != null) REPLACE else ADD,
-                    LEFT_EYE to if (leftEye.isNotBlank()) leftEye.getEyeTypeNumber() else "",
-                    RIGHT_EYE to if (rightEye.isNotBlank()) rightEye.getEyeTypeNumber() else "",
-                    EYE_TEST_TYPE to getEyeTestTypeValue()
-                )
-            )
-        }
-    }
-
-    private fun getEyeTestTypeValue(): String {
-        return if ((leftEye.isNotBlank() || rightEye.isNotBlank()) && withoutGlassChipSelected) EyeTestTypeEnum.WITHOUT_GLASSES.value else if ((leftEye.isNotBlank() || rightEye.isNotBlank()) && withGlassChipSelected) EyeTestTypeEnum.WITH_GLASSES.value else ""
-    }
 
     private fun String.addZeroAfterDot(): String {
         return if (this.isNotBlank() && this.endsWith(".")) {
