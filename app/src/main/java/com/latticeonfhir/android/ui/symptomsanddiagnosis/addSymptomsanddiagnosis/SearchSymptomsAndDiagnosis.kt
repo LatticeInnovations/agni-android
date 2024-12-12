@@ -131,6 +131,7 @@ fun ShowDiscardDialog(viewModel: AddSymptomsAndDiagnosisViewModel) {
         }, confirmButton = {
             TextButton(
                 onClick = {
+                    viewModel.selectedActiveDiagnosisList.clear()
                     viewModel.selectedActiveDiagnosisList = mutableStateListOf()
                     viewModel.bottomNavExpanded = false
                     viewModel.clearAllConfirmDialog = false
