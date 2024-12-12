@@ -96,6 +96,28 @@ fun PhotoUploadScreen(
     viewModel: PhotoUploadViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+
+    HandleLaunchEffects(viewModel, navController)
+    BackHandler(enabled = true) {
+        if (viewModel.isImageCaptured) {
+            if (!viewModel.isSelectedFromGallery) {
+                FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
+                viewModel.tempFileName = ""
+            }
+            viewModel.isImageCaptured = false
+            viewModel.selectedImageUri = null
+            viewModel.isSelectedFromGallery = false
+
+        } else {
+            navController.popBackStack()
+        }
+    }
+    CaptureImage(viewModel, context, navController)
+
+}
+
+@Composable
+fun CaptureImage(viewModel: PhotoUploadViewModel, context: Context, navController: NavController) {
     var hasFlashUnit by remember { mutableStateOf(false) }
     val lifecycleOwner = LocalLifecycleOwner.current
     var camera: Camera? by remember { mutableStateOf(null) }
@@ -114,38 +136,6 @@ fun PhotoUploadScreen(
             }
         }
 
-    LaunchedEffect(viewModel.isLaunched) {
-        if (!viewModel.isLaunched) {
-            viewModel.patient =
-                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    PATIENT
-                )
-            viewModel.photoviewType =
-                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-                    PHOTO_VIEW_TYPE
-                ) ?: ""
-            viewModel.getPatientTodayAppointment(
-                Date(Date().toTodayStartDate()),
-                Date(Date().toEndOfDay()),
-                viewModel.patient!!.id
-            )
-            viewModel.isLaunched = true
-        }
-    }
-    BackHandler(enabled = true) {
-        if (viewModel.isImageCaptured) {
-            if (!viewModel.isSelectedFromGallery) {
-                FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
-                viewModel.tempFileName = ""
-            }
-            viewModel.isImageCaptured = false
-            viewModel.selectedImageUri = null
-            viewModel.isSelectedFromGallery = false
-
-        } else {
-            navController.popBackStack()
-        }
-    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -259,12 +249,35 @@ fun PhotoUploadScreen(
             }
         }
     }
+
     AnimatedVisibility(
         visible = viewModel.isImageCaptured,
         enter = enterTransition,
         exit = exitTransition
     ) {
         DisplayImage(viewModel, navController)
+    }
+}
+
+@Composable
+fun HandleLaunchEffects(viewModel: PhotoUploadViewModel, navController: NavController) {
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            viewModel.patient =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    PATIENT
+                )
+            viewModel.photoviewType =
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                    PHOTO_VIEW_TYPE
+                ) ?: ""
+            viewModel.getPatientTodayAppointment(
+                Date(Date().toTodayStartDate()),
+                Date(Date().toEndOfDay()),
+                viewModel.patient!!.id
+            )
+            viewModel.isLaunched = true
+        }
     }
 }
 
