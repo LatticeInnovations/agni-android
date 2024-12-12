@@ -280,7 +280,14 @@ class AddSymptomsAndDiagnosisViewModel @Inject constructor(
             createdOn = createdOn,
             diagnosis = when {
                 local != null && selectedActiveDiagnosisList.isEmpty() -> {
-                    listOf()
+                    if (local?.diagnosis?.isNotEmpty() == true) {
+                        local!!.diagnosis.map {
+                            SymptomsAndDiagnosisItem(
+                                code = it.code, display = it.display
+                            )
+
+                        }
+                    } else listOf()
                 }
 
                 (local != null && selectedActiveDiagnosisList.isNotEmpty()) || selectedActiveDiagnosisList.isNotEmpty() -> {
