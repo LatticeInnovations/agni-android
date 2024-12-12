@@ -90,17 +90,71 @@ class AddVitalsViewModel @Inject constructor(
     var cholesterolUnits = listOf("mmol/L", "mg/dl")
 
     fun validateVitalsDetails(): Boolean {
-        if ((feet.isNotBlank() && isFeetNotValid) || (inch.isNotBlank() && isInchNotValid) || (centimeter.isNotBlank() && isCmNotValid)) return false
-        if (weight.isNotBlank() && isWeightNotValid) return false
-        if (heartRate.isNotBlank() && isHeartNotValid) return false
-        if (respiratoryRate.isNotBlank() && isRespNotValid) return false
-        if (spo2.isNotBlank() && isSpo2NotValid) return false
-        if (temperature.isNotBlank() && isTempNotValid) return false
-        if ((bpSystolic.isNotBlank() || bpDiastolic.isNotBlank()) && (bpSystolic.isBlank() || bpDiastolic.isBlank() || isSystolicNotValid || isDiastolicNotValid)) return false
-        if (bloodGlucose.isNotBlank() && isBgNotValid) return false
-        if ((leftEye.isNotBlank() || rightEye.isNotBlank()) && (isFeetNotValid || isWeightNotValid || isHeartNotValid || isRespNotValid || isSpo2NotValid || isTempNotValid || isSystolicNotValid || isDiastolicNotValid || isBgNotValid)) return false
-        if (feet.isBlank() && inch.isBlank() && centimeter.isBlank() && weight.isBlank() && heartRate.isBlank() && respiratoryRate.isBlank() && spo2.isBlank() && temperature.isBlank() && bpSystolic.isBlank() && bpDiastolic.isBlank() && bloodGlucose.isBlank() && leftEye.isBlank() && rightEye.isBlank()) return false
-        return true
+        checkHeight()
+        checkWeight()
+        checkHearRate()
+        checkRR()
+        checkSpo2()
+        checkTemp()
+        checkBG()
+        checkBP()
+        checkCholesterol()
+        checkEyes()
+        checkAllFields()
+        return !(checkHeight() || checkWeight() || checkHearRate() || checkRR() || checkSpo2() || checkTemp() || checkBG() || checkBP() || checkCholesterol() || checkEyes() || checkAllFields())
+    }
+
+    private fun checkAllFields(): Boolean {
+        return (feet.isBlank() && inch.isBlank() && centimeter.isBlank() && weight.isBlank() && heartRate.isBlank() && respiratoryRate.isBlank() && spo2.isBlank() && temperature.isBlank() && bpSystolic.isBlank() && bpDiastolic.isBlank() && bloodGlucose.isBlank() && leftEye.isBlank() && rightEye.isBlank() && cholesterol.isBlank())
+
+    }
+
+    private fun checkEyes(): Boolean {
+        return ((leftEye.isNotBlank() || rightEye.isNotBlank()) && (isFeetNotValid || isWeightNotValid || isHeartNotValid || isRespNotValid || isSpo2NotValid || isTempNotValid || isSystolicNotValid || isDiastolicNotValid || isBgNotValid || cholesterolError))
+
+    }
+
+    private fun checkHeight(): Boolean {
+        return ((feet.isNotBlank() && isFeetNotValid) || (inch.isNotBlank() && isInchNotValid) || (centimeter.isNotBlank() && isCmNotValid))
+
+    }
+
+    private fun checkCholesterol(): Boolean {
+        return (cholesterol.isNotBlank() && cholesterolError)
+    }
+
+    private fun checkBP(): Boolean {
+        return ((bpSystolic.isNotBlank() || bpDiastolic.isNotBlank()) && (bpSystolic.isBlank() || bpDiastolic.isBlank() || isSystolicNotValid || isDiastolicNotValid))
+
+    }
+
+    private fun checkBG(): Boolean {
+        return (bloodGlucose.isNotBlank() && isBgNotValid)
+
+    }
+
+    private fun checkTemp(): Boolean {
+        return (temperature.isNotBlank() && isTempNotValid)
+
+    }
+
+    private fun checkSpo2(): Boolean {
+        return (spo2.isNotBlank() && isSpo2NotValid)
+
+    }
+
+    private fun checkRR(): Boolean {
+        return (respiratoryRate.isNotBlank() && isRespNotValid)
+
+    }
+
+    private fun checkHearRate(): Boolean {
+        return (heartRate.isNotBlank() && isHeartNotValid)
+
+    }
+
+    private fun checkWeight(): Boolean {
+        return (weight.isNotBlank() && isWeightNotValid)
     }
 
 
