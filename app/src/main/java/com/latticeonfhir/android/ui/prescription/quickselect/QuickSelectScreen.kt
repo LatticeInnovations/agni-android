@@ -48,20 +48,7 @@ fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
             .fillMaxWidth()
             .padding(10.dp)
             .clickable {
-                if (!checkedState.value) {
-                    if (viewModel.selectedActiveIngredientsList.size < 10) {
-                        viewModel.checkedActiveIngredient = activeIngredient
-                    }
-                } else {
-                    viewModel.selectedActiveIngredientsList =
-                        viewModel.selectedActiveIngredientsList - listOf(activeIngredient).toSet()
-                    viewModel.medicationsResponseWithMedicationList.forEach { medication ->
-                        if (medication.activeIngredient == activeIngredient) {
-                            viewModel.medicationsResponseWithMedicationList =
-                                viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
-                        }
-                    }
-                }
+                updateList(!checkedState.value, viewModel, activeIngredient)
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -69,20 +56,7 @@ fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
             modifier = Modifier.testTag("ACTIVE_INGREDIENT_CHECK_BOX"),
             checked = checkedState.value,
             onCheckedChange = {
-                if (it) {
-                    if (viewModel.selectedActiveIngredientsList.size < 10) {
-                        viewModel.checkedActiveIngredient = activeIngredient
-                    }
-                } else {
-                    viewModel.selectedActiveIngredientsList =
-                        viewModel.selectedActiveIngredientsList - listOf(activeIngredient).toSet()
-                    viewModel.medicationsResponseWithMedicationList.forEach { medication ->
-                        if (medication.activeIngredient == activeIngredient) {
-                            viewModel.medicationsResponseWithMedicationList =
-                                viewModel.medicationsResponseWithMedicationList - listOf(medication).toSet()
-                        }
-                    }
-                }
+                updateList(it, viewModel, activeIngredient)
             },
         )
         Column(
@@ -94,6 +68,25 @@ fun CompoundRow(activeIngredient: String, viewModel: PrescriptionViewModel) {
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.testTag("ACTIVE_INGREDIENT_NAME")
             )
+        }
+    }
+}
+
+private fun updateList(
+    condition: Boolean,
+    viewModel: PrescriptionViewModel,
+    activeIngredient: String
+) {
+    if (condition) {
+        if (viewModel.selectedActiveIngredientsList.size < 10) {
+            viewModel.checkedActiveIngredient = activeIngredient
+        }
+    } else {
+        viewModel.selectedActiveIngredientsList -= listOf(activeIngredient).toSet()
+        viewModel.medicationsResponseWithMedicationList.forEach { medication ->
+            if (medication.activeIngredient == activeIngredient) {
+                viewModel.medicationsResponseWithMedicationList -= listOf(medication).toSet()
+            }
         }
     }
 }
