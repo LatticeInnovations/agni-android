@@ -105,7 +105,8 @@ fun ProfileScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                modifier = Modifier.size(55.dp)
+                modifier = Modifier
+                    .size(55.dp)
                     .background(
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -141,44 +142,8 @@ fun ProfileScreen(
                 )
             }
         }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.call),
-                contentDescription = "CALL_ICON",
-                tint = MaterialTheme.colorScheme.outline,
-                modifier = Modifier
-                    .padding(12.dp)
-                    .size(26.dp)
-            )
-            Text(
-                text = if (viewModel.userPhoneNo == "0") "--" else "+91 ${viewModel.userPhoneNo}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.mail),
-                contentDescription = "MAIL_ICON",
-                tint = MaterialTheme.colorScheme.outline,
-                modifier = Modifier
-                    .padding(12.dp)
-                    .size(26.dp)
-            )
-            Text(
-                text = viewModel.userEmail.ifBlank { "--" },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        PhoneNumberRow(viewModel)
+        EmailRow(viewModel)
         SyncStatusView(viewModel)
         HorizontalDivider(
             thickness = 1.dp,
@@ -199,21 +164,71 @@ fun ProfileScreen(
                 )
             },
             resendOtpClicked = {
-                if (isInternetAvailable(activity)) {
-                    viewModel.deleteAccountError = ""
-                    viewModel.isResending = true
-                    viewModel.otpEntered = ""
-                    viewModel.isOtpIncorrect = false
-                    viewModel.resendOTP { resent ->
-                        if (resent) {
-                            viewModel.twoMinuteTimer = 120
-                        }
-                    }
-                } else {
-                    viewModel.deleteAccountError =
-                        activity.getString(R.string.no_internet_error_msg)
-                }
+                handleResendOtp(viewModel, activity)
             }
+        )
+    }
+}
+
+private fun handleResendOtp(viewModel: LandingScreenViewModel, activity: MainActivity) {
+    if (isInternetAvailable(activity)) {
+        viewModel.deleteAccountError = ""
+        viewModel.isResending = true
+        viewModel.otpEntered = ""
+        viewModel.isOtpIncorrect = false
+        viewModel.resendOTP { resent ->
+            if (resent) {
+                viewModel.twoMinuteTimer = 120
+            }
+        }
+    } else {
+        viewModel.deleteAccountError =
+            activity.getString(R.string.no_internet_error_msg)
+    }
+}
+
+@Composable
+private fun EmailRow(viewModel: LandingScreenViewModel) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(horizontal = 20.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.mail),
+            contentDescription = "MAIL_ICON",
+            tint = MaterialTheme.colorScheme.outline,
+            modifier = Modifier
+                .padding(12.dp)
+                .size(26.dp)
+        )
+        Text(
+            text = viewModel.userEmail.ifBlank { "--" },
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun PhoneNumberRow(viewModel: LandingScreenViewModel) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(horizontal = 20.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.call),
+            contentDescription = "CALL_ICON",
+            tint = MaterialTheme.colorScheme.outline,
+            modifier = Modifier
+                .padding(12.dp)
+                .size(26.dp)
+        )
+        Text(
+            text = if (viewModel.userPhoneNo == "0") "--" else "+91 ${viewModel.userPhoneNo}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
