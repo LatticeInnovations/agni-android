@@ -51,19 +51,26 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
             return false
         if (middleName.length > 100 || lastName.length > 100)
             return false
-        if (dobAgeSelector == "dob" && ((dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()) || (!TimeConverter.isDOBValid(
-                dobDay.toInt(),
-                dobMonth.toMonthInteger(),
-                dobYear.toInt()
-            )))
-        )
+        if (verifyDOB())
             return false
-        if (dobAgeSelector == "age" && ((years.isBlank() && months.isBlank() && days.isBlank()) || (isAgeYearsValid || isAgeDaysValid || isAgeMonthsValid)))
+        if (verifyAge())
             return false
         if (isPhoneValid || phoneNumber.isBlank())
             return false
         if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return false
         return gender != ""
+    }
+
+    private fun verifyDOB(): Boolean{
+        return dobAgeSelector == "dob" && ((dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()) || (!TimeConverter.isDOBValid(
+            dobDay.toInt(),
+            dobMonth.toMonthInteger(),
+            dobYear.toInt()
+        )))
+    }
+
+    private fun verifyAge(): Boolean{
+        return dobAgeSelector == "age" && ((years.isBlank() && months.isBlank() && days.isBlank()) || (isAgeYearsValid || isAgeDaysValid || isAgeMonthsValid))
     }
 }

@@ -66,33 +66,9 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             Spacer(modifier = Modifier.height(15.dp))
             GenderComposable(viewModel = searchPatientViewModel)
             Spacer(modifier = Modifier.height(20.dp))
-            CustomTextField(
-                value = searchPatientViewModel.patientName,
-                label = stringResource(id = R.string.patient_name),
-                weight = 1f,
-                maxLength = 100, searchPatientViewModel.isNameValid,
-                stringResource(id = R.string.patient_name_error_msg),
-                KeyboardType.Text,
-                KeyboardCapitalization.Words
-            ) {
-                if (it.length <= 150) searchPatientViewModel.patientName = it
-                searchPatientViewModel.isNameValid =
-                    searchPatientViewModel.patientName.isNotEmpty() && searchPatientViewModel.patientName.length < 3
-            }
+            PatientNameComposable(searchPatientViewModel)
             Spacer(modifier = Modifier.height(15.dp))
-            CustomTextField(
-                value = searchPatientViewModel.patientId,
-                label = stringResource(id = R.string.patient_id),
-                weight = 1f,
-                maxLength = 12, searchPatientViewModel.isPatientIdValid,
-                stringResource(id = R.string.patient_id_error_msg),
-                KeyboardType.Text,
-                KeyboardCapitalization.Characters
-            ) {
-                searchPatientViewModel.patientId = it
-                searchPatientViewModel.isPatientIdValid =
-                    searchPatientViewModel.patientId.isNotEmpty() && searchPatientViewModel.patientId.length < 2
-            }
+            PatientIdComposable(searchPatientViewModel)
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = stringResource(id = R.string.select_age_range),
@@ -100,31 +76,7 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(15.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                AgeBox(searchPatientViewModel.minAge, "Min") {
-                    if (it.isEmpty()) searchPatientViewModel.minAge = it
-                    else if (it.matches(searchPatientViewModel.onlyNumbers)) {
-                        if (it.toInt() in 0..100) searchPatientViewModel.minAge = it
-                    }
-                    searchPatientViewModel.updateRange(
-                        searchPatientViewModel.minAge,
-                        searchPatientViewModel.maxAge
-                    )
-                }
-                AgeBox(searchPatientViewModel.maxAge, "Max") {
-                    if (it.isEmpty()) searchPatientViewModel.maxAge = it
-                    else if (it.matches(searchPatientViewModel.onlyNumbers)) {
-                        if (it.toInt() in 0..100) searchPatientViewModel.maxAge = it
-                    }
-                    searchPatientViewModel.updateRange(
-                        searchPatientViewModel.minAge,
-                        searchPatientViewModel.maxAge
-                    )
-                }
-            }
+            AgeBoxRow(searchPatientViewModel)
             Spacer(modifier = Modifier.height(10.dp))
             AgeRangeSlider(viewModel = searchPatientViewModel)
             Spacer(modifier = Modifier.height(10.dp))
@@ -143,6 +95,67 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
         }
     }
 
+}
+
+@Composable
+private fun AgeBoxRow(searchPatientViewModel: SearchPatientViewModel) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        AgeBox(searchPatientViewModel.minAge, "Min") {
+            if (it.isEmpty()) searchPatientViewModel.minAge = it
+            else if (it.matches(searchPatientViewModel.onlyNumbers) && it.toInt() in 0..100)
+                searchPatientViewModel.minAge = it
+            searchPatientViewModel.updateRange(
+                searchPatientViewModel.minAge,
+                searchPatientViewModel.maxAge
+            )
+        }
+        AgeBox(searchPatientViewModel.maxAge, "Max") {
+            if (it.isEmpty()) searchPatientViewModel.maxAge = it
+            else if (it.matches(searchPatientViewModel.onlyNumbers) && it.toInt() in 0..100)
+                searchPatientViewModel.maxAge = it
+            searchPatientViewModel.updateRange(
+                searchPatientViewModel.minAge,
+                searchPatientViewModel.maxAge
+            )
+        }
+    }
+}
+
+@Composable
+private fun PatientIdComposable(searchPatientViewModel: SearchPatientViewModel) {
+    CustomTextField(
+        value = searchPatientViewModel.patientId,
+        label = stringResource(id = R.string.patient_id),
+        weight = 1f,
+        maxLength = 12, searchPatientViewModel.isPatientIdValid,
+        stringResource(id = R.string.patient_id_error_msg),
+        KeyboardType.Text,
+        KeyboardCapitalization.Characters
+    ) {
+        searchPatientViewModel.patientId = it
+        searchPatientViewModel.isPatientIdValid =
+            searchPatientViewModel.patientId.isNotEmpty() && searchPatientViewModel.patientId.length < 2
+    }
+}
+
+@Composable
+private fun PatientNameComposable(searchPatientViewModel: SearchPatientViewModel) {
+    CustomTextField(
+        value = searchPatientViewModel.patientName,
+        label = stringResource(id = R.string.patient_name),
+        weight = 1f,
+        maxLength = 100, searchPatientViewModel.isNameValid,
+        stringResource(id = R.string.patient_name_error_msg),
+        KeyboardType.Text,
+        KeyboardCapitalization.Words
+    ) {
+        if (it.length <= 150) searchPatientViewModel.patientName = it
+        searchPatientViewModel.isNameValid =
+            searchPatientViewModel.patientName.isNotEmpty() && searchPatientViewModel.patientName.length < 3
+    }
 }
 
 

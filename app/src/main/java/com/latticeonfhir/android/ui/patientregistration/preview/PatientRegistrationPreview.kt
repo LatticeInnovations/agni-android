@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.patientregistration.preview
 
+import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -70,47 +71,7 @@ fun PatientRegistrationPreview(
             )!!
         viewModel.patientFromId = viewModel.patientFrom!!.id
     }
-    patientRegisterDetails
-        ?.run {
-            viewModel.firstName = firstName.toString()
-            viewModel.middleName = middleName.toString()
-            viewModel.lastName = lastName.toString()
-            viewModel.email = email.toString()
-            viewModel.phoneNumber = phoneNumber.toString()
-            viewModel.dobDay = dobDay.toString()
-            viewModel.dobMonth = dobMonth.toString()
-            viewModel.dobYear = dobYear.toString()
-            viewModel.years = years.toString()
-            viewModel.months = months.toString()
-            viewModel.days = days.toString()
-            viewModel.gender = gender.toString()
-            viewModel.passportId = passportId.toString()
-            viewModel.voterId = voterId.toString()
-            viewModel.patientId = patientId.toString()
-            viewModel.homeAddress.pincode = homePostalCode.toString()
-            viewModel.homeAddress.state = homeState.toString()
-            viewModel.homeAddress.addressLine1 = homeAddressLine1.toString()
-            viewModel.homeAddress.addressLine2 = homeAddressLine2.toString()
-            viewModel.homeAddress.city = homeCity.toString()
-            viewModel.homeAddress.district = homeDistrict.toString()
-            viewModel.workAddress.pincode = workPostalCode.toString()
-            viewModel.workAddress.state = workState.toString()
-            viewModel.workAddress.addressLine1 = workAddressLine1.toString()
-            viewModel.workAddress.addressLine2 = workAddressLine2.toString()
-            viewModel.workAddress.city = workCity.toString()
-            viewModel.workAddress.district = workDistrict.toString()
-
-            if (dobAgeSelector == "dob") {
-                viewModel.dob = "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
-            } else {
-                viewModel.dob = ageToPatientDate(
-                    viewModel.years.toIntOrNull() ?: 0,
-                    viewModel.months.toIntOrNull() ?: 0,
-                    viewModel.days.toIntOrNull() ?: 0
-                )
-                Timber.d("manseeyy ${viewModel.dob.toPatientDate()}")
-            }
-        }
+    setData(patientRegisterDetails, viewModel)
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -159,75 +120,7 @@ fun PatientRegistrationPreview(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                if (patientRegisterDetails != null) {
-                    viewModel.identifierList.clear()
-                    if (viewModel.passportId.isNotEmpty()) {
-                        viewModel.identifierList.add(
-                            PatientIdentifier(
-                                identifierType = context.getString(R.string.passport_id_web_link),
-                                identifierNumber = viewModel.passportId,
-                                code = null
-                            )
-                        )
-                    }
-                    if (viewModel.voterId.isNotEmpty()) {
-                        viewModel.identifierList.add(
-                            PatientIdentifier(
-                                identifierType = context.getString(R.string.voter_id_web_link),
-                                identifierNumber = viewModel.voterId,
-                                code = null
-                            )
-                        )
-                    }
-                    if (viewModel.patientId.isNotEmpty()) {
-                        viewModel.identifierList.add(
-                            PatientIdentifier(
-                                identifierType = context.getString(R.string.patient_id_web_link),
-                                identifierNumber = viewModel.patientId,
-                                code = null
-                            )
-                        )
-                    }
-                    viewModel.patientResponse = PatientResponse(
-                        id = viewModel.relativeId,
-                        firstName = viewModel.firstName,
-                        middleName = viewModel.middleName.ifBlank { null },
-                        lastName = viewModel.lastName.ifBlank { null },
-                        birthDate = viewModel.dob.toPatientDate(),
-                        email = viewModel.email.ifBlank { null },
-                        active = true,
-                        gender = viewModel.gender,
-                        mobileNumber = viewModel.phoneNumber.toLong(),
-                        fhirId = null,
-                        permanentAddress = PatientAddressResponse(
-                            postalCode = viewModel.homeAddress.pincode,
-                            state = viewModel.homeAddress.state,
-                            addressLine1 = viewModel.homeAddress.addressLine1,
-                            addressLine2 = viewModel.homeAddress.addressLine2.ifBlank { null },
-                            city = viewModel.homeAddress.city,
-                            country = "India",
-                            district = viewModel.homeAddress.district.ifBlank { null }
-                        ),
-                        identifier = viewModel.identifierList
-                    )
-                    PreviewScreen(
-                        viewModel.patientResponse!!
-                    ) { index ->
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "isEditing",
-                            true
-                        )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "currentStep",
-                            index
-                        )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "patient_register_details",
-                            patientRegisterDetails
-                        )
-                        navController.navigate(Screen.PatientRegistrationScreen.route)
-                    }
-                }
+                PreviewScreenComposable(patientRegisterDetails, viewModel, context, navController)
                 if (viewModel.openDialog) {
                     DiscardDialog(navController, viewModel.fromHouseholdMember) {
                         viewModel.openDialog = false
@@ -288,6 +181,128 @@ fun PatientRegistrationPreview(
             }
         }
     )
+}
+
+@Composable
+private fun PreviewScreenComposable(
+    patientRegisterDetails: PatientRegister?,
+    viewModel: PatientRegistrationPreviewViewModel,
+    context: Context,
+    navController: NavController
+) {
+    if (patientRegisterDetails != null) {
+        viewModel.identifierList.clear()
+        if (viewModel.passportId.isNotEmpty()) {
+            viewModel.identifierList.add(
+                PatientIdentifier(
+                    identifierType = context.getString(R.string.passport_id_web_link),
+                    identifierNumber = viewModel.passportId,
+                    code = null
+                )
+            )
+        }
+        if (viewModel.voterId.isNotEmpty()) {
+            viewModel.identifierList.add(
+                PatientIdentifier(
+                    identifierType = context.getString(R.string.voter_id_web_link),
+                    identifierNumber = viewModel.voterId,
+                    code = null
+                )
+            )
+        }
+        if (viewModel.patientId.isNotEmpty()) {
+            viewModel.identifierList.add(
+                PatientIdentifier(
+                    identifierType = context.getString(R.string.patient_id_web_link),
+                    identifierNumber = viewModel.patientId,
+                    code = null
+                )
+            )
+        }
+        viewModel.patientResponse = PatientResponse(
+            id = viewModel.relativeId,
+            firstName = viewModel.firstName,
+            middleName = viewModel.middleName.ifBlank { null },
+            lastName = viewModel.lastName.ifBlank { null },
+            birthDate = viewModel.dob.toPatientDate(),
+            email = viewModel.email.ifBlank { null },
+            active = true,
+            gender = viewModel.gender,
+            mobileNumber = viewModel.phoneNumber.toLong(),
+            fhirId = null,
+            permanentAddress = PatientAddressResponse(
+                postalCode = viewModel.homeAddress.pincode,
+                state = viewModel.homeAddress.state,
+                addressLine1 = viewModel.homeAddress.addressLine1,
+                addressLine2 = viewModel.homeAddress.addressLine2.ifBlank { null },
+                city = viewModel.homeAddress.city,
+                country = "India",
+                district = viewModel.homeAddress.district.ifBlank { null }
+            ),
+            identifier = viewModel.identifierList
+        )
+        PreviewScreen(
+            viewModel.patientResponse!!
+        ) { index ->
+            navController.currentBackStackEntry?.savedStateHandle?.set(
+                "isEditing",
+                true
+            )
+            navController.currentBackStackEntry?.savedStateHandle?.set(
+                "currentStep",
+                index
+            )
+            navController.currentBackStackEntry?.savedStateHandle?.set(
+                "patient_register_details",
+                patientRegisterDetails
+            )
+            navController.navigate(Screen.PatientRegistrationScreen.route)
+        }
+    }
+}
+
+private fun setData(patientRegisterDetails: PatientRegister?, viewModel: PatientRegistrationPreviewViewModel) {
+    patientRegisterDetails
+        ?.run {
+            viewModel.firstName = firstName.toString()
+            viewModel.middleName = middleName.toString()
+            viewModel.lastName = lastName.toString()
+            viewModel.email = email.toString()
+            viewModel.phoneNumber = phoneNumber.toString()
+            viewModel.dobDay = dobDay.toString()
+            viewModel.dobMonth = dobMonth.toString()
+            viewModel.dobYear = dobYear.toString()
+            viewModel.years = years.toString()
+            viewModel.months = months.toString()
+            viewModel.days = days.toString()
+            viewModel.gender = gender.toString()
+            viewModel.passportId = passportId.toString()
+            viewModel.voterId = voterId.toString()
+            viewModel.patientId = patientId.toString()
+            viewModel.homeAddress.pincode = homePostalCode.toString()
+            viewModel.homeAddress.state = homeState.toString()
+            viewModel.homeAddress.addressLine1 = homeAddressLine1.toString()
+            viewModel.homeAddress.addressLine2 = homeAddressLine2.toString()
+            viewModel.homeAddress.city = homeCity.toString()
+            viewModel.homeAddress.district = homeDistrict.toString()
+            viewModel.workAddress.pincode = workPostalCode.toString()
+            viewModel.workAddress.state = workState.toString()
+            viewModel.workAddress.addressLine1 = workAddressLine1.toString()
+            viewModel.workAddress.addressLine2 = workAddressLine2.toString()
+            viewModel.workAddress.city = workCity.toString()
+            viewModel.workAddress.district = workDistrict.toString()
+
+            if (dobAgeSelector == "dob") {
+                viewModel.dob = "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
+            } else {
+                viewModel.dob = ageToPatientDate(
+                    viewModel.years.toIntOrNull() ?: 0,
+                    viewModel.months.toIntOrNull() ?: 0,
+                    viewModel.days.toIntOrNull() ?: 0
+                )
+                Timber.d("manseeyy ${viewModel.dob.toPatientDate()}")
+            }
+        }
 }
 
 @Composable

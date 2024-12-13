@@ -387,49 +387,7 @@ private fun RecordsFullDetailsComposable(
                 ),
             verticalArrangement = Arrangement.Bottom
         ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.percentage, record.risk.toString()),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = record.createdOn.toddMMMyyyy(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                Surface(
-                    shape = RoundedCornerShape(40.dp),
-                    color = if (record.bmi == null) MaterialTheme.colorScheme.surfaceVariant
-                    else MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Text(
-                        text = stringResource(
-                            R.string.bmi,
-                            record.bmi?.toInt()?.toString() ?: stringResource(R.string.dash)
-                        ),
-                        style = if (record.bmi == null) MaterialTheme.typography.bodyMedium
-                        else MaterialTheme.typography.labelLarge,
-                        color = if (record.bmi == null) MaterialTheme.colorScheme.onSurfaceVariant
-                        else MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp)
-                    )
-                }
-                FilledTonalIconButton(
-                    onClick = {
-                        onClick()
-                    }
-                ) {
-                    Icon(Icons.Default.Clear, Icons.Default.Clear.name)
-                }
-            }
+            CVDRiskRow(record, onClick)
             HorizontalDivider(
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant
@@ -467,6 +425,53 @@ private fun RecordsFullDetailsComposable(
                     else stringResource(R.string.dash)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun CVDRiskRow(record: CVDResponse, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier.padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Column {
+            Text(
+                text = stringResource(R.string.percentage, record.risk.toString()),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = record.createdOn.toddMMMyyyy(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Surface(
+            shape = RoundedCornerShape(40.dp),
+            color = if (record.bmi == null) MaterialTheme.colorScheme.surfaceVariant
+            else MaterialTheme.colorScheme.primaryContainer
+        ) {
+            Text(
+                text = stringResource(
+                    R.string.bmi,
+                    record.bmi?.toInt()?.toString() ?: stringResource(R.string.dash)
+                ),
+                style = if (record.bmi == null) MaterialTheme.typography.bodyMedium
+                else MaterialTheme.typography.labelLarge,
+                color = if (record.bmi == null) MaterialTheme.colorScheme.onSurfaceVariant
+                else MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp)
+            )
+        }
+        FilledTonalIconButton(
+            onClick = {
+                onClick()
+            }
+        ) {
+            Icon(Icons.Default.Clear, Icons.Default.Clear.name)
         }
     }
 }

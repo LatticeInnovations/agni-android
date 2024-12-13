@@ -43,8 +43,9 @@ class AppointmentsFabViewModel @Inject constructor(
                 Date().toTodayStartDate(),
                 Date().toEndOfDay()
             ).let { appointmentResponse ->
-                ifAlreadyWaiting = if (appointmentResponse == null) false
-                else appointmentResponse.status != AppointmentStatusEnum.SCHEDULED.value
+                ifAlreadyWaiting = appointmentResponse?.status?.let {
+                    it != AppointmentStatusEnum.SCHEDULED.value
+                } ?: false
             }
             ifAllSlotsBooked = appointmentRepository.getAppointmentListByDate(
                 Date().toTodayStartDate(),

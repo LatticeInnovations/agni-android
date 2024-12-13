@@ -62,7 +62,6 @@ import com.latticeonfhir.android.ui.theme.FullyDispensed
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,86 +123,7 @@ fun DispensePrescriptionScreen(
                     if (viewModel.prescription?.dispensePrescriptionEntity?.status != DispenseStatusEnum.FULLY_DISPENSED.code) {
                         NotDispensedComposable(viewModel)
                     }
-                    if (viewModel.previousDispensed.isNotEmpty()) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-
-                            if (viewModel.prescription?.dispensePrescriptionEntity?.status != DispenseStatusEnum.FULLY_DISPENSED.code) {
-                                Text(
-                                    text = stringResource(R.string.previous_dispense),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            viewModel.previousDispensed.forEach { medicine ->
-                                Surface(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(8.dp),
-                                    border = BorderStroke(
-                                        width = 1.dp,
-                                        color = MaterialTheme.colorScheme.outlineVariant
-                                    )
-                                ) {
-                                    Column {
-                                        Box(
-                                            modifier = Modifier
-                                                .padding(16.dp)
-                                                .background(
-                                                    color = FullyDispensed.copy(alpha = 0.12f),
-                                                    shape = RoundedCornerShape(8.dp)
-                                                )
-                                                .border(
-                                                    width = 1.dp,
-                                                    color = FullyDispensed,
-                                                    shape = RoundedCornerShape(8.dp)
-                                                ),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = stringResource(
-                                                    R.string.dispensed_on,
-                                                    medicine.dispenseDataEntity.generatedOn.toPrescriptionDate()
-                                                ),
-                                                style = MaterialTheme.typography.labelLarge,
-                                                color = FullyDispensed,
-                                                modifier = Modifier.padding(
-                                                    vertical = 4.dp,
-                                                    horizontal = 10.dp
-                                                )
-                                            )
-                                        }
-                                        HorizontalDivider(
-                                            thickness = 1.dp,
-                                            color = MaterialTheme.colorScheme.outlineVariant
-                                        )
-                                        medicine.medicineDispenseList.forEach { med ->
-                                            Column(
-                                                modifier = Modifier.padding(16.dp),
-                                                verticalArrangement = Arrangement.spacedBy(4.dp)
-                                            ) {
-                                                Text(
-                                                    text = viewModel.getMedNameFromMedFhirId(med.dispensedMedFhirId).medicationEntity.medName,
-                                                    style = MaterialTheme.typography.bodyLarge,
-                                                    color = MaterialTheme.colorScheme.onSurface
-                                                )
-                                                Text(
-                                                    text = "${med.qtyDispensed} ${
-                                                        viewModel.getMedNameFromMedFhirId(
-                                                            med.dispensedMedFhirId
-                                                        ).medicationEntity.doseForm
-                                                    }",
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    PreviousDispensedComposable(viewModel)
                 }
             },
             bottomBar = {
@@ -231,43 +151,7 @@ fun DispensePrescriptionScreen(
         )
     }
     if (viewModel.showAddNoteDialog) {
-        var notes by remember { mutableStateOf(viewModel.dispenseNotes) }
-        AlertDialog(
-            onDismissRequest = { viewModel.showAddNoteDialog = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    viewModel.dispenseNotes = notes.trim()
-                    viewModel.showAddNoteDialog = false
-                }) {
-                    Text(text = stringResource(R.string.save))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    notes = ""
-                    viewModel.showAddNoteDialog = false
-                }) {
-                    Text(text = stringResource(R.string.cancel))
-                }
-            },
-            title = {
-                Text(text = stringResource(R.string.add_note))
-            },
-            text = {
-                OutlinedTextField(
-                    value = notes,
-                    onValueChange = { value ->
-                        if (value.length <= 100) notes = value
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 24.dp),
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences
-                    )
-                )
-            }
-        )
+        AddNotesDialog(viewModel)
     }
     Box(
         modifier = Modifier.fillMaxSize()
@@ -278,6 +162,131 @@ fun DispensePrescriptionScreen(
             exit = fadeOut()
         ) {
             EditMedication(viewModel)
+        }
+    }
+}
+
+@Composable
+private fun AddNotesDialog(viewModel: DispensePrescriptionViewModel) {
+    var notes by remember { mutableStateOf(viewModel.dispenseNotes) }
+    AlertDialog(
+        onDismissRequest = { viewModel.showAddNoteDialog = false },
+        confirmButton = {
+            TextButton(onClick = {
+                viewModel.dispenseNotes = notes.trim()
+                viewModel.showAddNoteDialog = false
+            }) {
+                Text(text = stringResource(R.string.save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                notes = ""
+                viewModel.showAddNoteDialog = false
+            }) {
+                Text(text = stringResource(R.string.cancel))
+            }
+        },
+        title = {
+            Text(text = stringResource(R.string.add_note))
+        },
+        text = {
+            OutlinedTextField(
+                value = notes,
+                onValueChange = { value ->
+                    if (value.length <= 100) notes = value
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 24.dp),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences
+                )
+            )
+        }
+    )
+}
+
+@Composable
+private fun PreviousDispensedComposable(viewModel: DispensePrescriptionViewModel) {
+    if (viewModel.previousDispensed.isNotEmpty()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+            if (viewModel.prescription?.dispensePrescriptionEntity?.status != DispenseStatusEnum.FULLY_DISPENSED.code) {
+                Text(
+                    text = stringResource(R.string.previous_dispense),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            viewModel.previousDispensed.forEach { medicine ->
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                ) {
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .background(
+                                    color = FullyDispensed.copy(alpha = 0.12f),
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .border(
+                                    width = 1.dp,
+                                    color = FullyDispensed,
+                                    shape = RoundedCornerShape(8.dp)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(
+                                    R.string.dispensed_on,
+                                    medicine.dispenseDataEntity.generatedOn.toPrescriptionDate()
+                                ),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = FullyDispensed,
+                                modifier = Modifier.padding(
+                                    vertical = 4.dp,
+                                    horizontal = 10.dp
+                                )
+                            )
+                        }
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                        medicine.medicineDispenseList.forEach { med ->
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = viewModel.getMedNameFromMedFhirId(med.dispensedMedFhirId).medicationEntity.medName,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "${med.qtyDispensed} ${
+                                        viewModel.getMedNameFromMedFhirId(
+                                            med.dispensedMedFhirId
+                                        ).medicationEntity.doseForm
+                                    }",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -389,7 +398,6 @@ fun NotDispensedComposable(viewModel: DispensePrescriptionViewModel) {
                                         it.medication.medicationEntity.medFhirId == medicine.medication.medicationEntity.medFhirId
                                     }
                                 }
-                                Timber.d("manseeyy ${viewModel.selectedMedicine}")
                                 viewModel.recompose = !viewModel.recompose
                             }
                         )
@@ -477,7 +485,6 @@ fun EditMedication(viewModel: DispensePrescriptionViewModel) {
                                             selectedMed.medication.medicationEntity.medFhirId == viewModel.medToEdit!!.medication.medicationEntity.medFhirId
                                         }
                                         viewModel.selectedMedicine.add(med)
-                                        Timber.d("manseeyy after editing ${viewModel.selectedMedicine}")
                                         viewModel.recompose = !viewModel.recompose
                                     }
                                 }
@@ -506,13 +513,19 @@ fun EditMedication(viewModel: DispensePrescriptionViewModel) {
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = stringResource(R.string.quantity_prescribed_info, viewModel.medToEdit!!.medication.prescriptionDirectionsEntity.qtyPrescribed),
+                            text = stringResource(
+                                R.string.quantity_prescribed_info,
+                                viewModel.medToEdit!!.medication.prescriptionDirectionsEntity.qtyPrescribed
+                            ),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(start = 8.dp)
                         )
                         Text(
-                            text = stringResource(R.string.quantity_dispensed_info, viewModel.medToEdit!!.medication.prescriptionDirectionsEntity.qtyPrescribed - viewModel.medToEdit!!.qtyLeft),
+                            text = stringResource(
+                                R.string.quantity_dispensed_info,
+                                viewModel.medToEdit!!.medication.prescriptionDirectionsEntity.qtyPrescribed - viewModel.medToEdit!!.qtyLeft
+                            ),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(start = 8.dp)

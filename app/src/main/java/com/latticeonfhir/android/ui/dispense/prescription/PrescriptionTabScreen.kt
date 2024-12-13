@@ -40,6 +40,7 @@ import com.latticeonfhir.android.ui.dispense.DrugDispenseViewModel
 import com.latticeonfhir.android.ui.theme.FullyDispensed
 import com.latticeonfhir.android.ui.theme.PartiallyDispensed
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -73,41 +74,50 @@ fun PrescriptionTabScreen(
                         viewModel.prescriptionSelected = prescription
                     },
                     dispenseBtnClicked = {
-                        if (prescription.dispensePrescriptionEntity.status == DispenseStatusEnum.FULLY_DISPENSED.code) {
-                            coroutineScope.launch {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "prescription_id",
-                                    prescription.prescription.id
-                                )
-                                navController.navigate(Screen.DispensePrescriptionScreen.route)
-                            }
-                        } else {
-                            viewModel.getAppointmentInfo(
-                                callback = {
-                                    if (viewModel.canAddDispense) {
-                                        coroutineScope.launch {
-                                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                "prescription_id",
-                                                prescription.prescription.id
-                                            )
-                                            navController.navigate(Screen.DispensePrescriptionScreen.route)
-                                        }
-                                    } else if (viewModel.isAppointmentCompleted) {
-                                        viewModel.showAppointmentCompletedDialog = true
-                                    } else {
-                                        viewModel.prescriptionToDispense = prescription
-                                        viewModel.categoryClicked =
-                                            DispenseCategoryEnum.PRESCRIBED.value
-                                        viewModel.showAddToQueueDialog = true
-                                    }
-                                }
-                            )
-                        }
+                        dispenseBtnClickHandle(viewModel, prescription, coroutineScope, navController)
                     }
                 )
             }
             Spacer(modifier = Modifier.height(1.dp))
         }
+    }
+}
+
+private fun dispenseBtnClickHandle(
+    viewModel: DrugDispenseViewModel,
+    prescription: DispenseAndPrescriptionRelation,
+    coroutineScope: CoroutineScope,
+    navController: NavController
+) {
+    if (prescription.dispensePrescriptionEntity.status == DispenseStatusEnum.FULLY_DISPENSED.code) {
+        coroutineScope.launch {
+            navController.currentBackStackEntry?.savedStateHandle?.set(
+                "prescription_id",
+                prescription.prescription.id
+            )
+            navController.navigate(Screen.DispensePrescriptionScreen.route)
+        }
+    } else {
+        viewModel.getAppointmentInfo(
+            callback = {
+                if (viewModel.canAddDispense) {
+                    coroutineScope.launch {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "prescription_id",
+                            prescription.prescription.id
+                        )
+                        navController.navigate(Screen.DispensePrescriptionScreen.route)
+                    }
+                } else if (viewModel.isAppointmentCompleted) {
+                    viewModel.showAppointmentCompletedDialog = true
+                } else {
+                    viewModel.prescriptionToDispense = prescription
+                    viewModel.categoryClicked =
+                        DispenseCategoryEnum.PRESCRIBED.value
+                    viewModel.showAddToQueueDialog = true
+                }
+            }
+        )
     }
 }
 

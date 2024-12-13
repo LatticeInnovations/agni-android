@@ -13,7 +13,6 @@ import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
-import com.latticeonfhir.android.data.local.roomdb.dao.DispenseDao
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
@@ -1035,8 +1034,7 @@ internal suspend fun DispenseData.toListOfDispenseDataEntity(
 }
 
 internal suspend fun DispenseData.toListOfMedicineDispenseListEntity(
-    patientDao: PatientDao,
-    dispenseDao: DispenseDao
+    patientDao: PatientDao
 ): List<MedicineDispenseListEntity> {
     return this.medicineDispensedList.map {
         MedicineDispenseListEntity(

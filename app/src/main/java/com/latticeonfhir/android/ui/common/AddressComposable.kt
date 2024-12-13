@@ -49,98 +49,7 @@ fun AddressComposable(label: String, address: Address, isSearching: Boolean = fa
             color = MaterialTheme.colorScheme.onBackground
         )
     }
-    Row(
-        modifier = Modifier.padding(top = 10.dp)
-    ) {
-        val onlyNumbers = Regex("^\\d+\$")
-        CustomTextField(
-            value = address.pincode,
-            label = if (isSearching) stringResource(id = R.string.postal_code) else stringResource(
-                id = R.string.postal_code_mandatory
-            ),
-            weight = 0.4f,
-            maxLength = 6,
-            address.isPostalCodeValid,
-            stringResource(id = R.string.postal_code_error_msg),
-            KeyboardType.Number,
-            KeyboardCapitalization.None
-        ) {
-            if (it.matches(onlyNumbers) || it.isEmpty()) address.pincode = it
-            if (isSearching) address.isPostalCodeValid =
-                address.pincode.isNotEmpty() && address.pincode.length < 6
-            else address.isPostalCodeValid = address.pincode.length < 6
-        }
-        Spacer(modifier = Modifier.width(15.dp))
-        var expanded by remember { mutableStateOf(false) }
-        Box {
-            OutlinedTextField(
-                value = address.state,
-                onValueChange = {
-                    address.isStateValid = address.state == ""
-                },
-                label = {
-                    Text(
-                        text = if (isSearching) stringResource(id = R.string.state)
-                        else stringResource(id = R.string.state_mandatory),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("State *"),
-                readOnly = true,
-                interactionSource = remember {
-                    MutableInteractionSource()
-                }.also { interactionSource ->
-                    LaunchedEffect(interactionSource) {
-                        interactionSource.interactions.collect {
-                            if (it is PressInteraction.Release) {
-                                expanded = !expanded
-                            }
-                        }
-                    }
-                },
-                trailingIcon = {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                },
-                isError = address.isStateValid,
-                supportingText = {
-                    if (address.isStateValid)
-                        Text(
-                            text = stringResource(id = R.string.state_error_msg),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                }
-            )
-
-            val statesList = States.getStateList()
-
-            DropdownMenu(
-                modifier = Modifier
-                    .fillMaxHeight(0.5f)
-                    .testTag("STATE_DROP_DOWN"),
-                expanded = expanded,
-                onDismissRequest = { expanded = !expanded },
-            ) {
-                statesList.forEach { label ->
-                    DropdownMenuItem(
-                        onClick = {
-                            expanded = !expanded
-                            address.state = label
-                        },
-                        text = {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    )
-                }
-            }
-        }
-    }
+    PinCodeAndStateComposable(address, isSearching)
     Spacer(modifier = Modifier.height(15.dp))
     CustomTextField(
         value = address.addressLine1,
@@ -192,5 +101,106 @@ fun AddressComposable(label: String, address: Address, isSearching: Boolean = fa
         KeyboardCapitalization.Words
     ) {
         address.district = it
+    }
+}
+
+@Composable
+private fun PinCodeAndStateComposable(address: Address, isSearching: Boolean) {
+    Row(
+        modifier = Modifier.padding(top = 10.dp)
+    ) {
+        val onlyNumbers = Regex("^\\d+\$")
+        CustomTextField(
+            value = address.pincode,
+            label = if (isSearching) stringResource(id = R.string.postal_code) else stringResource(
+                id = R.string.postal_code_mandatory
+            ),
+            weight = 0.4f,
+            maxLength = 6,
+            address.isPostalCodeValid,
+            stringResource(id = R.string.postal_code_error_msg),
+            KeyboardType.Number,
+            KeyboardCapitalization.None
+        ) {
+            if (it.matches(onlyNumbers) || it.isEmpty()) address.pincode = it
+            if (isSearching) address.isPostalCodeValid =
+                address.pincode.isNotEmpty() && address.pincode.length < 6
+            else address.isPostalCodeValid = address.pincode.length < 6
+        }
+        Spacer(modifier = Modifier.width(15.dp))
+        StateDropDown(address, isSearching)
+    }
+}
+
+@Composable
+private fun StateDropDown(address: Address, isSearching: Boolean) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        OutlinedTextField(
+            value = address.state,
+            onValueChange = {
+                address.isStateValid = address.state == ""
+            },
+            label = {
+                Text(
+                    text = if (isSearching) stringResource(id = R.string.state)
+                    else stringResource(id = R.string.state_mandatory),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("State *"),
+            readOnly = true,
+            interactionSource = remember {
+                MutableInteractionSource()
+            }.also { interactionSource ->
+                LaunchedEffect(interactionSource) {
+                    interactionSource.interactions.collect {
+                        if (it is PressInteraction.Release) {
+                            expanded = !expanded
+                        }
+                    }
+                }
+            },
+            trailingIcon = {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+            },
+            isError = address.isStateValid,
+            supportingText = {
+                if (address.isStateValid)
+                    Text(
+                        text = stringResource(id = R.string.state_error_msg),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+            }
+        )
+
+        val statesList = States.getStateList()
+
+        DropdownMenu(
+            modifier = Modifier
+                .fillMaxHeight(0.5f)
+                .testTag("STATE_DROP_DOWN"),
+            expanded = expanded,
+            onDismissRequest = { expanded = !expanded },
+        ) {
+            statesList.forEach { label ->
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = !expanded
+                        address.state = label
+                    },
+                    text = {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                )
+            }
+        }
     }
 }

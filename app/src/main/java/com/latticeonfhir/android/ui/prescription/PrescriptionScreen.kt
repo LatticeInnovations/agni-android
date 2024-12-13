@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -86,18 +87,7 @@ fun PrescriptionScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    BackHandler(enabled = true) {
-        when {
-            viewModel.isSearching -> viewModel.isSearching = false
-            viewModel.checkedActiveIngredient.isNotEmpty() -> {
-                viewModel.checkedActiveIngredient = ""
-                viewModel.medicationToEdit = null
-            }
-            viewModel.bottomNavExpanded -> viewModel.bottomNavExpanded = false
-            viewModel.isSearchResult -> viewModel.isSearchResult = false
-            else -> navController.popBackStack()
-        }
-    }
+    SetBackHandler(viewModel, navController)
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.getActiveIngredients {
@@ -143,7 +133,10 @@ fun PrescriptionScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "BACK_ICON"
+                            )
                         }
                     },
                     actions = {
@@ -277,6 +270,23 @@ fun PrescriptionScreen(
 }
 
 @Composable
+private fun SetBackHandler(viewModel: PrescriptionViewModel, navController: NavController) {
+    BackHandler(enabled = true) {
+        when {
+            viewModel.isSearching -> viewModel.isSearching = false
+            viewModel.checkedActiveIngredient.isNotEmpty() -> {
+                viewModel.checkedActiveIngredient = ""
+                viewModel.medicationToEdit = null
+            }
+
+            viewModel.bottomNavExpanded -> viewModel.bottomNavExpanded = false
+            viewModel.isSearchResult -> viewModel.isSearchResult = false
+            else -> navController.popBackStack()
+        }
+    }
+}
+
+@Composable
 fun BottomNavLayout(
     viewModel: PrescriptionViewModel,
     navController: NavController,
@@ -291,7 +301,9 @@ fun BottomNavLayout(
         enter = expandVertically(),
         exit = shrinkVertically()
     ) {
-        Column {
+        Column(
+            modifier = Modifier.navigationBarsPadding()
+        ) {
             AnimatedVisibility(viewModel.bottomNavExpanded) {
                 Surface(
                     color = MaterialTheme.colorScheme.surface,

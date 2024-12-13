@@ -3,6 +3,7 @@ package com.latticeonfhir.android.ui.searchpatient
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -48,7 +49,8 @@ fun SearchPatient(
         viewModel.isLaunched = true
     }
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
+            .imePadding(),
         topBar = {
             TopAppBar(
                 title = {
@@ -87,18 +89,18 @@ fun SearchPatient(
             Button(
                 onClick = {
                     val searchParameters = SearchParameters(
-                        name = if (viewModel.patientName.isEmpty()) null else viewModel.patientName,
-                        patientId = if (viewModel.patientId.isEmpty()) null else viewModel.patientId,
+                        name = viewModel.patientName.ifEmpty { null },
+                        patientId = viewModel.patientId.ifEmpty { null },
                         minAge = viewModel.minAge.toInt(),
                         maxAge = viewModel.maxAge.toInt(),
-                        addressLine1 = if (viewModel.address.addressLine1.isEmpty()) null else viewModel.address.addressLine1,
-                        addressLine2 = if (viewModel.address.addressLine2.isEmpty()) null else viewModel.address.addressLine2,
-                        postalCode = if (viewModel.address.pincode.isEmpty()) null else viewModel.address.pincode,
-                        state = if (viewModel.address.state.isEmpty()) null else viewModel.address.state,
-                        district = if (viewModel.address.district.isEmpty()) null else viewModel.address.district,
-                        city = if (viewModel.address.city.isEmpty()) null else viewModel.address.city,
+                        addressLine1 = viewModel.address.addressLine1.ifEmpty { null },
+                        addressLine2 = viewModel.address.addressLine2.ifEmpty { null },
+                        postalCode = viewModel.address.pincode.ifEmpty { null },
+                        state = viewModel.address.state.ifEmpty { null },
+                        district = viewModel.address.district.ifEmpty { null },
+                        city = viewModel.address.city.ifEmpty { null },
                         lastFacilityVisit = viewModel.visitSelected,
-                        gender = if (viewModel.gender.isEmpty()) null else viewModel.gender
+                        gender = viewModel.gender.ifEmpty { null }
                     )
                     if (viewModel.fromHouseholdMember) {
                         navController.currentBackStackEntry?.savedStateHandle?.set(
