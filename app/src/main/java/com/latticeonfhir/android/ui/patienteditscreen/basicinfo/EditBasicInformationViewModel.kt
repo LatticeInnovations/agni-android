@@ -171,35 +171,12 @@ class EditBasicInformationViewModel @Inject constructor(
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (response > 0) {
                 if (patientResponse.fhirId != null) {
-                    if (firstName != firstNameTemp) {
-                        genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
-                            map = mapOf(
-                                Pair(
-                                    "firstName", ChangeRequest(
-                                        value = firstName, operation = ChangeTypeEnum.REPLACE.value
-                                    )
-                                )
-                            )
-                        )
-                    }
+                    saveFirstName(patientResponse)
                     checkIsValueChange(patientResponse, middleName, middleNameTemp, "middleName")
                     checkIsValueChange(patientResponse, lastName, lastNameTemp, "lastName")
                     checkIsValueChange(patientResponse, email, emailTemp, "email")
 
-                    if (patientResponse.gender != genderTemp) {
-                        genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
-                            map = mapOf(
-                                Pair(
-                                    "gender", ChangeRequest(
-                                        value = patientResponse.gender,
-                                        operation = ChangeTypeEnum.REPLACE.value
-                                    )
-                                )
-                            )
-                        )
-                    }
+                    saveGender(patientResponse)
                     if (phoneNumber != phoneNumberTemp) {
                         genericRepository.insertOrUpdatePatientPatchEntity(
                             patientFhirId = patientResponse.fhirId,
@@ -233,6 +210,38 @@ class EditBasicInformationViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    private suspend fun saveGender(patientResponse: PatientResponse) {
+        if (patientResponse.gender != genderTemp) {
+            genericRepository.insertOrUpdatePatientPatchEntity(
+                patientFhirId = patientResponse.fhirId!!,
+                map = mapOf(
+                    Pair(
+                        "gender", ChangeRequest(
+                            value = patientResponse.gender,
+                            operation = ChangeTypeEnum.REPLACE.value
+                        )
+                    )
+                )
+            )
+        }
+
+    }
+
+    private suspend fun saveFirstName(patientResponse: PatientResponse) {
+        if (firstName != firstNameTemp) {
+            genericRepository.insertOrUpdatePatientPatchEntity(
+                patientFhirId = patientResponse.fhirId!!,
+                map = mapOf(
+                    Pair(
+                        "firstName", ChangeRequest(
+                            value = firstName, operation = ChangeTypeEnum.REPLACE.value
+                        )
+                    )
+                )
+            )
         }
     }
 
