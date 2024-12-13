@@ -90,17 +90,6 @@ class AddVitalsViewModel @Inject constructor(
     var cholesterolUnits = listOf("mmol/L", "mg/dl")
 
     fun validateVitalsDetails(): Boolean {
-        checkHeight()
-        checkWeight()
-        checkHearRate()
-        checkRR()
-        checkSpo2()
-        checkTemp()
-        checkBG()
-        checkBP()
-        checkCholesterol()
-        checkEyes()
-        checkAllFields()
         return !(checkHeight() || checkWeight() || checkHearRate() || checkRR() || checkSpo2() || checkTemp() || checkBG() || checkBP() || checkCholesterol() || checkEyes() || checkAllFields())
     }
 
