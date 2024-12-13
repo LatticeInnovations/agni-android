@@ -381,7 +381,6 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            var monthExpanded by remember { mutableStateOf(false) }
             CustomTextField(
                 value = viewModel.dobDay,
                 label = "Day",
@@ -392,64 +391,10 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
                 KeyboardType.Number,
                 KeyboardCapitalization.None
             ) {
-                if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobDay = it
-                if (viewModel.dobDay.isNotEmpty()) {
-                    viewModel.monthsList = MonthsList.getMonthsList(viewModel.dobDay)
-                }
+                setDobValues(viewModel, it)
             }
             Spacer(modifier = Modifier.width(10.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .testTag("Month")
-            ) {
-                OutlinedTextField(
-                    value = viewModel.dobMonth,
-                    onValueChange = {
-                        viewModel.dobMonth = it
-                    },
-                    label = {
-                        Text(text = "Month")
-                    },
-                    trailingIcon = {
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "")
-                    },
-                    interactionSource = remember {
-                        MutableInteractionSource()
-                    }.also { interactionSource ->
-                        LaunchedEffect(interactionSource) {
-                            interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    monthExpanded = !monthExpanded
-                                }
-                            }
-                        }
-                    },
-                    readOnly = true,
-                    singleLine = true
-                )
-                DropdownMenu(
-                    modifier = Modifier.fillMaxHeight(0.5f),
-                    expanded = monthExpanded,
-                    onDismissRequest = { monthExpanded = false },
-                ) {
-                    viewModel.monthsList.forEach { label ->
-                        DropdownMenuItem(
-                            onClick = {
-                                monthExpanded = false
-                                viewModel.dobMonth = label
-                            },
-                            text = {
-                                Text(
-                                    text = label,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        )
-                    }
-                }
-            }
+            MonthField(viewModel)
             Spacer(modifier = Modifier.width(10.dp))
             CustomTextField(
                 value = viewModel.dobYear,
@@ -464,13 +409,7 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
                 if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobYear = it
             }
         }
-        if (viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
-            && !TimeConverter.isDOBValid(
-                viewModel.dobDay.toInt(),
-                viewModel.dobMonth.toMonthInteger(),
-                viewModel.dobYear.toInt()
-            )
-        ) {
+        if (validateDate(viewModel)) {
             Text(
                 text = stringResource(
                     id = R.string.invalid_date,
@@ -480,6 +419,81 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(start = 8.dp)
             )
+        }
+    }
+}
+
+private fun setDobValues(viewModel: EditBasicInformationViewModel, value: String) {
+    if (value.matches(viewModel.onlyNumbers) || value.isEmpty()) viewModel.dobDay = value
+    if (viewModel.dobDay.isNotEmpty()) {
+        viewModel.monthsList = MonthsList.getMonthsList(viewModel.dobDay)
+    }
+}
+
+private fun validateDate(viewModel: EditBasicInformationViewModel): Boolean {
+    return viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
+            && !TimeConverter.isDOBValid(
+        viewModel.dobDay.toInt(),
+        viewModel.dobMonth.toMonthInteger(),
+        viewModel.dobYear.toInt()
+    )
+
+}
+
+@Composable
+private fun MonthField(viewModel: EditBasicInformationViewModel) {
+    var monthExpanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.6f)
+            .testTag("Month")
+    ) {
+        OutlinedTextField(
+            value = viewModel.dobMonth,
+            onValueChange = {
+                viewModel.dobMonth = it
+            },
+            label = {
+                Text(text = "Month")
+            },
+            trailingIcon = {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+            },
+            interactionSource = remember {
+                MutableInteractionSource()
+            }.also { interactionSource ->
+                LaunchedEffect(interactionSource) {
+                    interactionSource.interactions.collect {
+                        if (it is PressInteraction.Release) {
+                            monthExpanded = !monthExpanded
+                        }
+                    }
+                }
+            },
+            readOnly = true,
+            singleLine = true
+        )
+        DropdownMenu(
+            modifier = Modifier.fillMaxHeight(0.5f),
+            expanded = monthExpanded,
+            onDismissRequest = { monthExpanded = false },
+        ) {
+            viewModel.monthsList.forEach { label ->
+                DropdownMenuItem(
+                    onClick = {
+                        monthExpanded = false
+                        viewModel.dobMonth = label
+                    },
+                    text = {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                )
+            }
         }
     }
 }
