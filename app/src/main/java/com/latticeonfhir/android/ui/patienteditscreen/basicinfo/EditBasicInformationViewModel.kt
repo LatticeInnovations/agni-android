@@ -251,41 +251,47 @@ class EditBasicInformationViewModel @Inject constructor(
         tempValue: String,
         key: String
     ) {
-        if (value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        key, ChangeRequest(
-                            value = value, operation = ChangeTypeEnum.REPLACE.value
+        when {
+            value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty() -> {
+                genericRepository.insertOrUpdatePatientPatchEntity(
+                    patientFhirId = patientResponse.fhirId!!,
+                    map = mapOf(
+                        Pair(
+                            key, ChangeRequest(
+                                value = value, operation = ChangeTypeEnum.REPLACE.value
+                            )
                         )
                     )
                 )
-            )
-        } else if (value != tempValue && tempValue.isNotEmpty() && value.isEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        key, ChangeRequest(
-                            value = tempValue, operation = ChangeTypeEnum.REMOVE.value
-                        )
-                    )
-                )
-            )
+            }
 
-        } else if (value != tempValue && tempValue.isEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        key, ChangeRequest(
-                            value = value, operation = ChangeTypeEnum.ADD.value
+            value != tempValue && tempValue.isNotEmpty() && value.isEmpty() -> {
+                genericRepository.insertOrUpdatePatientPatchEntity(
+                    patientFhirId = patientResponse.fhirId!!,
+                    map = mapOf(
+                        Pair(
+                            key, ChangeRequest(
+                                value = tempValue, operation = ChangeTypeEnum.REMOVE.value
+                            )
                         )
                     )
                 )
-            )
 
+            }
+
+            value != tempValue && tempValue.isEmpty() && value.isNotEmpty() -> {
+                genericRepository.insertOrUpdatePatientPatchEntity(
+                    patientFhirId = patientResponse.fhirId!!,
+                    map = mapOf(
+                        Pair(
+                            key, ChangeRequest(
+                                value = value, operation = ChangeTypeEnum.ADD.value
+                            )
+                        )
+                    )
+                )
+
+            }
         }
 
 
