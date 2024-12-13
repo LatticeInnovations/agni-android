@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.upload
 
 import android.content.ContentUris
+import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.compose.BackHandler
@@ -83,6 +84,7 @@ import com.latticeonfhir.android.utils.constants.PhotoUploadViewType.PHOTO_VIEW_
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.file.FileManager
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -94,6 +96,28 @@ fun PhotoUploadScreen(
     viewModel: PhotoUploadViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+
+    HandleLaunchEffects(viewModel, navController)
+    BackHandler(enabled = true) {
+        if (viewModel.isImageCaptured) {
+            if (!viewModel.isSelectedFromGallery) {
+                FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
+                viewModel.tempFileName = ""
+            }
+            viewModel.isImageCaptured = false
+            viewModel.selectedImageUri = null
+            viewModel.isSelectedFromGallery = false
+
+        } else {
+            navController.popBackStack()
+        }
+    }
+    CaptureImage(viewModel, context, navController)
+
+}
+
+@Composable
+fun CaptureImage(viewModel: PhotoUploadViewModel, context: Context, navController: NavController) {
     var hasFlashUnit by remember { mutableStateOf(false) }
     val lifecycleOwner = LocalLifecycleOwner.current
     var camera: Camera? by remember { mutableStateOf(null) }
@@ -112,38 +136,6 @@ fun PhotoUploadScreen(
             }
         }
 
-    LaunchedEffect(viewModel.isLaunched) {
-        if (!viewModel.isLaunched) {
-            viewModel.patient =
-                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    PATIENT
-                )
-            viewModel.photoviewType =
-                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-                    PHOTO_VIEW_TYPE
-                ) ?: ""
-            viewModel.getPatientTodayAppointment(
-                Date(Date().toTodayStartDate()),
-                Date(Date().toEndOfDay()),
-                viewModel.patient!!.id
-            )
-            viewModel.isLaunched = true
-        }
-    }
-    BackHandler(enabled = true) {
-        if (viewModel.isImageCaptured) {
-            if (!viewModel.isSelectedFromGallery) {
-                FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
-                viewModel.tempFileName = ""
-            }
-            viewModel.isImageCaptured = false
-            viewModel.selectedImageUri = null
-            viewModel.isSelectedFromGallery = false
-
-        } else {
-            navController.popBackStack()
-        }
-    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -257,12 +249,35 @@ fun PhotoUploadScreen(
             }
         }
     }
+
     AnimatedVisibility(
         visible = viewModel.isImageCaptured,
         enter = enterTransition,
         exit = exitTransition
     ) {
         DisplayImage(viewModel, navController)
+    }
+}
+
+@Composable
+fun HandleLaunchEffects(viewModel: PhotoUploadViewModel, navController: NavController) {
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            viewModel.patient =
+                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                    PATIENT
+                )
+            viewModel.photoviewType =
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                    PHOTO_VIEW_TYPE
+                ) ?: ""
+            viewModel.getPatientTodayAppointment(
+                Date(Date().toTodayStartDate()),
+                Date(Date().toEndOfDay()),
+                viewModel.patient!!.id
+            )
+            viewModel.isLaunched = true
+        }
     }
 }
 
@@ -323,48 +338,8 @@ private fun DisplayImage(
         )
         Button(
             onClick = {
-                viewModel.isSaving = true
-                // save prescription
-                var uri = viewModel.selectedImageUri
-                if (viewModel.isSelectedFromGallery) {
-                    val fileName = "${Date().time}.jpeg"
-                    val uploadFolder = FileManager.createFolder(context)
-                    FileManager.insertFileToInternalStorage(
-                        uploadFolder,
-                        fileName,
-                        viewModel.selectedImageUri!!.toString(),
-                        context
-                    )
-                    val photoFile = File(
-                        uploadFolder,
-                        fileName
-                    )
-                    uri = Uri.fromFile(photoFile)
-                }
-                viewModel.insertLabTestOrMedRecord(uri!!) { inserted ->
-                    viewModel.isSaving = false
-                    if (inserted) {
-                        viewModel.isImageCaptured = false
-                        viewModel.selectedImageUri = null
-                        viewModel.isSelectedFromGallery = false
-                        coroutineScope.launch {
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                PATIENT,
-                                viewModel.patient!!
-                            )
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                PHOTO_VIEW_TYPE,
-                                if (viewModel.photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) PhotoUploadTypeEnum.LAB_TEST.value else PhotoUploadTypeEnum.MEDICAL_RECORD.value
-                            )
-                            navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
-                        }
-                    } else {
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Image size too big.")
-                        }
-                    }
-                }
-            },
+                savePhoto(viewModel,coroutineScope,context,navController,snackbarHostState)
+                },
             modifier = Modifier
                 .zIndex(2f)
                 .fillMaxWidth()
@@ -378,6 +353,57 @@ private fun DisplayImage(
     if (viewModel.isSaving) {
         ScreenLoader()
     }
+}
+
+private fun savePhoto(
+    viewModel: PhotoUploadViewModel,
+    coroutineScope: CoroutineScope,
+    context: Context,
+    navController: NavController,
+    snackbarHostState: SnackbarHostState
+) {
+    viewModel.isSaving = true
+    // save prescription
+    var uri = viewModel.selectedImageUri
+    if (viewModel.isSelectedFromGallery) {
+        val fileName = "${Date().time}.jpeg"
+        val uploadFolder = FileManager.createFolder(context)
+        FileManager.insertFileToInternalStorage(
+            uploadFolder,
+            fileName,
+            viewModel.selectedImageUri!!.toString(),
+            context
+        )
+        val photoFile = File(
+            uploadFolder,
+            fileName
+        )
+        uri = Uri.fromFile(photoFile)
+    }
+    viewModel.insertLabTestOrMedRecord(uri!!) { inserted ->
+        viewModel.isSaving = false
+        if (inserted) {
+            viewModel.isImageCaptured = false
+            viewModel.selectedImageUri = null
+            viewModel.isSelectedFromGallery = false
+            coroutineScope.launch {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PATIENT,
+                    viewModel.patient!!
+                )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PHOTO_VIEW_TYPE,
+                    if (viewModel.photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) PhotoUploadTypeEnum.LAB_TEST.value else PhotoUploadTypeEnum.MEDICAL_RECORD.value
+                )
+                navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
+            }
+        } else {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar("Image size too big.")
+            }
+        }
+    }
+
 }
 
 @Composable

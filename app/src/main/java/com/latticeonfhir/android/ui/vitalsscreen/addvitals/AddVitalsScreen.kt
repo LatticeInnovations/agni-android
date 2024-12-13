@@ -170,7 +170,7 @@ fun AddVitals(navController: NavController, viewModel: AddVitalsViewModel) {
         }
 
     }, bottomBar = {
-        AnimatedVisibility(visible = (viewModel.cholesterol.isNotBlank() && !viewModel.cholesterolError) || viewModel.validateVitalsDetails()) {
+        AnimatedVisibility(visible =  viewModel.validateVitalsDetails()) {
             SaveButton(navController, viewModel, coroutineScope, context)
         }
         })

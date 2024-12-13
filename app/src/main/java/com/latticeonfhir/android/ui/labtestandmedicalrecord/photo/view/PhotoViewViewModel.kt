@@ -61,7 +61,7 @@ class PhotoViewViewModel @Inject constructor(
     var displayNote by mutableStateOf(true)
     var labTestPhotos by mutableStateOf(listOf<File>())
     var deletedPhotos = mutableListOf<File>()
-    var canAddLabTest by mutableStateOf(false)
+    private var canAddLabTest by mutableStateOf(false)
     var showAddToQueueDialog by mutableStateOf(false)
     var isAppointmentCompleted by mutableStateOf(false)
     var showAppointmentCompletedDialog by mutableStateOf(false)
@@ -281,6 +281,15 @@ class PhotoViewViewModel @Inject constructor(
 
         if (labTestPhotoResponseLocal.labTestFhirId == null) {
             // insert generic post
+            val docIdKey =
+                if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) LabTestAndMedConstants.LAB_DOC_ID else LabTestAndMedConstants.MED_DOC_ID
+            val fileList = labTestPhotoResponseLocal.labTests.map { file ->
+                mapOf(
+                    docIdKey to selectedFile?.filename + labTestPhotoResponseLocal.labTestId,
+                    LabTestAndMedConstants.FILENAME to file.filename,
+                    LabTestAndMedConstants.NOTE to file.note
+                )
+            }
             genericRepository.insertPhotoLabTestAndMedRecord(
                 map = createGenericMap(
                     dynamicKey = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) "diagnosticUuid" else "medicalReportUuid",
@@ -288,9 +297,7 @@ class PhotoViewViewModel @Inject constructor(
                     appointmentId = labTestPhotoResponseLocal.appointmentId,
                     patientId = patient!!.fhirId ?: patient!!.id,
                     createdOn = labTestPhotoResponseLocal.createdOn,
-                    files = labTestPhotoResponseLocal.labTests,
-                    docIdKey = if (photoviewType == PhotoUploadTypeEnum.LAB_TEST.value) LabTestAndMedConstants.LAB_DOC_ID else LabTestAndMedConstants.MED_DOC_ID,
-                    docUuid = selectedFile?.filename + labTestPhotoResponseLocal.labTestId,
+                    fileList = fileList
                 ),
                 patientId = patient!!.fhirId ?: patient!!.id,
                 labTestId = labTestPhotoResponseLocal.labTestId,

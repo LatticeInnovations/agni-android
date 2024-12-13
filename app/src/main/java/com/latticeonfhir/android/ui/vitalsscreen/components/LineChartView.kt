@@ -15,14 +15,15 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.latticeonfhir.android.ui.theme.VitalLabel
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.latticeonfhir.android.ui.theme.VitalLabel
 import timber.log.Timber
 
 
@@ -65,32 +66,15 @@ fun LineChartView(
                 description.isEnabled = false // Disable description
 
                 // X Axis configuration
-                xAxis.apply {
-                    position = XAxis.XAxisPosition.BOTTOM
-                    setDrawGridLines(true)
-                    setDrawAxisLine(false)
-                    textSize = 10f
-                    labelCount = labels.size
-                    textColor = Color.GRAY
-                    granularity = 1f
-                    valueFormatter = IndexAxisValueFormatter(labels)
-                    gridColor = gridLineColor
-                    setGridDashedLine(DashPathEffect(floatArrayOf(10f, 5f), 0f))
-
-                }
+                xAxis.xAxisConfiguration(gridLineColor, labels)
 
                 // Y Axis (Left) configuration
-                axisLeft.apply {
-                    setDrawGridLines(true)
-                    setDrawAxisLine(false)
-                    textSize = 12f
-                    textColor = Color.GRAY
-                    axisMinimum = axisMin
-                    axisMaximum = axisMax
-                    gridColor = fastingColor
-                    setLabelCount(yLabelCount, true)
-                    setGridDashedLine(DashPathEffect(floatArrayOf(10f, 5f), 0f))
-                }
+                axisLeft.axisLeftConfiguration(
+                    fastingColor,
+                    axisMin = axisMin,
+                    axisMax = axisMax,
+                    yLabelCount = yLabelCount
+                )
 
                 // Y Axis (Right) configuration
                 axisRight.isEnabled = false // Disable the right Y Axis
@@ -110,38 +94,14 @@ fun LineChartView(
                 }
             }
             // First line data set (e.g., Line 1)
-            val lineDataSet1 = entries1?.let {
-                LineDataSet(entries1, "Line 1").apply {
-                    color =
-                        if (isBp) randomColor else fastingColor // Custom color for the first line
-                    lineWidth = 1f
-                    circleRadius = 4f
-                    setDrawCircles(true) // Hide data point circles
-                    setCircleColor(if (isBp) randomColor else fastingColor)
-                    setDrawCircleHole(false)    // Remove the hole from the circles
-                    setDrawValues(true)  // Hide values
-                    valueTextColor = if (isBp) randomColor else fastingColor  // Color of the value text
-                    valueTextSize = 10f         // Size of the value text
-                    valueFormatter = customValueFormatter // Display value next to dots
-                }
-            }
+            val lineDataSet1 =
+                entries1.lineDataSet(isBp, randomColor, fastingColor, customValueFormatter)
+
 
             // Second line data set (e.g., Line 2)
-            val lineDataSet2 = entries2?.let {
-                LineDataSet(it, "Line 2").apply {
-                    color =
-                        if (isBp) fastingColor else randomColor // Different color for the second line
-                    lineWidth = 1f
-                    circleRadius = 4f
-                    setCircleColor(if (isBp) fastingColor else randomColor)   // Circle color for random data points
-                    setDrawCircleHole(false)    // Remove the hole from the circles
-                    setDrawCircles(true) // Hide data point circles
-                    setDrawValues(true)  // Hide values
-                    valueTextColor = if (isBp) fastingColor else randomColor  // Color of the value text
-                    valueTextSize = 10f         // Size of the value text
-                    valueFormatter = customValueFormatter // Display value next to dots
-                }
-            }
+            val lineDataSet2 =
+                entries2.lineDateSet2(isBp, randomColor, fastingColor, customValueFormatter)
+
             val lineData = if (lineDataSet1 != null && lineDataSet2 != null) {
                 LineData(lineDataSet1, lineDataSet2)
             } else if (lineDataSet1 != null) {
@@ -163,6 +123,91 @@ fun LineChartView(
     )
 }
 
+fun XAxis.xAxisConfiguration(gridLineColor: Int, labels: List<String>) {
+    this.apply {
+        position = XAxis.XAxisPosition.BOTTOM
+        setDrawGridLines(true)
+        setDrawAxisLine(false)
+        textSize = 10f
+        labelCount = labels.size
+        textColor = Color.GRAY
+        granularity = 1f
+        valueFormatter = IndexAxisValueFormatter(labels)
+        gridColor = gridLineColor
+        setGridDashedLine(DashPathEffect(floatArrayOf(10f, 5f), 0f))
+
+    }
+}
+
+fun YAxis.axisLeftConfiguration(
+    fastingColor: Int,
+    axisMin: Float,
+    axisMax: Float,
+    yLabelCount: Int
+) {
+    this.apply {
+        setDrawGridLines(true)
+        setDrawAxisLine(false)
+        textSize = 12f
+        textColor = Color.GRAY
+        axisMinimum = axisMin
+        axisMaximum = axisMax
+        gridColor = fastingColor
+        setLabelCount(yLabelCount, true)
+        setGridDashedLine(DashPathEffect(floatArrayOf(10f, 5f), 0f))
+    }
+}
+
+fun List<Entry>?.lineDataSet(
+    isBp: Boolean,
+    randomColor: Int,
+    fastingColor: Int,
+    customValueFormatter: ValueFormatter
+): LineDataSet? {
+    var lineDatSet: LineDataSet? = null
+    this?.let {
+        lineDatSet = LineDataSet(this, "Line 1").apply {
+            color =
+                if (isBp) randomColor else fastingColor // Custom color for the first line
+            lineWidth = 1f
+            circleRadius = 4f
+            setDrawCircles(true) // Hide data point circles
+            setCircleColor(if (isBp) randomColor else fastingColor)
+            setDrawCircleHole(false)    // Remove the hole from the circles
+            setDrawValues(true)  // Hide values
+            valueTextColor = if (isBp) randomColor else fastingColor  // Color of the value text
+            valueTextSize = 10f         // Size of the value text
+            valueFormatter = customValueFormatter // Display value next to dots
+        }
+    }
+    return lineDatSet
+}
+
+fun List<Entry>?.lineDateSet2(
+    isBp: Boolean,
+    randomColor: Int,
+    fastingColor: Int,
+    customValueFormatter: ValueFormatter,
+): LineDataSet? {
+    var lineDatSet: LineDataSet? = null
+
+    this?.let {
+        lineDatSet = LineDataSet(it, "Line 2").apply {
+            color =
+                if (isBp) fastingColor else randomColor // Different color for the second line
+            lineWidth = 1f
+            circleRadius = 4f
+            setCircleColor(if (isBp) fastingColor else randomColor)   // Circle color for random data points
+            setDrawCircleHole(false)    // Remove the hole from the circles
+            setDrawCircles(true) // Hide data point circles
+            setDrawValues(true)  // Hide values
+            valueTextColor = if (isBp) fastingColor else randomColor  // Color of the value text
+            valueTextSize = 10f         // Size of the value text
+            valueFormatter = customValueFormatter // Display value next to dots
+        }
+    }
+    return lineDatSet
+}
 
 @Composable
 fun LineChartViewGlucose(

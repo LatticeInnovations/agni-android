@@ -8,6 +8,7 @@ import java.util.Locale
 object TimeConverter {
 
     private const val YYYY_MM_DD = "yyyy-MM-dd"
+    private const val DD_MM_YYYY = "dd MMM yyyy"
     private const val HH_MM_A = "hh:mm a"
 
     internal fun Long.toAge(): Int {
@@ -82,7 +83,7 @@ object TimeConverter {
 
     internal fun Long.toDate(): String {
         return if (this != 0.toLong()) {
-            val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+            val formatter = SimpleDateFormat(DD_MM_YYYY, Locale.getDefault())
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = this
             formatter.format(calendar.time)
@@ -121,7 +122,7 @@ object TimeConverter {
     }
 
     internal fun Date.toPrescriptionDate(): String {
-        val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+        val formatter = SimpleDateFormat(DD_MM_YYYY, Locale.getDefault())
         return formatter.format(this)
     }
 
@@ -418,13 +419,13 @@ object TimeConverter {
         return formatter.format(this)
     }
     fun String.convertStringToDate(): Date {
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val formatter = SimpleDateFormat(YYYY_MM_DD, Locale.getDefault())
         return formatter.parse(this)?:Date()
     }
     fun String.convertDateFormat(): String {
         // Define the input and output date formats
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
-        val outputFormat = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
+        val inputFormat = SimpleDateFormat(YYYY_MM_DD, Locale.ENGLISH)
+        val outputFormat = SimpleDateFormat(DD_MM_YYYY, Locale.ENGLISH)
 
         // Parse the input date string
         val date: Date? = inputFormat.parse(this)
