@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.patientlandingscreen
 
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -59,9 +60,9 @@ import com.latticeonfhir.android.utils.constants.PhotoUploadViewType.PHOTO_VIEW_
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientLandingScreen(
     navController: NavController,
@@ -104,225 +105,11 @@ fun PatientLandingScreen(
     viewModel.patient?.let {
         Scaffold(
             topBar = {
-                LargeTopAppBar(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = TopAppBarDefaults.largeTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
-                    ),
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            navController.navigateUp()
-                        }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "BACK_ICON"
-                            )
-                        }
-                    },
-                    title = {
-                        val age = viewModel.patient?.birthDate?.toTimeInMilli()?.toAge()
-                        val subTitle = "${
-                            viewModel.patient?.gender?.get(0)?.uppercase()
-                        }/$age · +91 ${viewModel.patient?.mobileNumber} ${if (viewModel.patient?.fhirId.isNullOrEmpty()) "" else " · ${viewModel.patient?.fhirId}"} "
-                        Column {
-                            Text(
-                                text = NameConverter.getFullName(
-                                    viewModel.patient?.firstName,
-                                    viewModel.patient?.middleName,
-                                    viewModel.patient?.lastName
-                                ),
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.testTag("TITLE"),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = subTitle,
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.testTag("SUBTITLE")
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = {
-
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                key = "patient_detailsID",
-                                value = viewModel.patient?.id
-                            )
-                            navController.navigate(Screen.PatientProfile.route)
-                        }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.profile_icon),
-                                contentDescription = "profile icon",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                )
+                AppBarComposable(viewModel, navController)
             },
             content = {
                 Box(modifier = Modifier.padding(it)) {
-                    Column(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .verticalScroll(
-                                rememberScrollState()
-                            )
-                    ) {
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.household_members),
-                            R.drawable.group_icon,
-                            null,
-                            onClick = {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "patient",
-                                    viewModel.patient
-                                )
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    SELECTED_INDEX,
-                                    viewModel.selectedIndex
-                                )
-                                navController.navigate(Screen.HouseholdMembersScreen.route)
-                            }
-                        )
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.appointments),
-                            R.drawable.event_note_icon,
-                            stringResource(
-                                id = R.string.appointments_scheduled,
-                                viewModel.appointmentsCount,
-                                viewModel.pastAppointmentsCount
-                            ),
-                            onClick = {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "patient",
-                                    viewModel.patient
-                                )
-                                navController.navigate(Screen.Appointments.route)
-                            }
-                        )
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.cvd_risk_assessment),
-                            R.drawable.cardiology,
-                            if (viewModel.cvdRisk.isBlank()) null
-                            else stringResource(R.string.percentage, viewModel.cvdRisk),
-                            isCardDisabled = viewModel.patient!!.gender == "other" ||
-                                    viewModel.patient!!.birthDate.toTimeInMilli()
-                                        .toAge() !in 40..74,
-                            onClick = {
-                                if (viewModel.patient!!.gender == "other" ||
-                                    viewModel.patient!!.birthDate.toTimeInMilli().toAge() !in 40..74
-                                ) {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            message = context.getString(R.string.cvd_error_message)
-                                        )
-                                    }
-                                } else {
-                                    scope.launch {
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            "patient",
-                                            viewModel.patient
-                                        )
-                                        navController.navigate(Screen.CVDRiskAssessmentScreen.route)
-                                    }
-                                }
-
-                            }
-                        )
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.vital),
-                            R.drawable.vital_signs,
-                            null,
-                            onClick = {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PATIENT,
-                                    viewModel.patient
-                                )
-                                navController.navigate(Screen.VitalsScreen.route)
-                            }
-                        )
-
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.symptoms_and_diagnosis),
-                            R.drawable.diagnosis,
-                            null,
-                            onClick = {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PATIENT,
-                                    viewModel.patient
-                                )
-                                navController.navigate(Screen.SymptomsAndDiagnosisScreen.route)
-                            }
-                        )
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.prescription),
-                            R.drawable.prescriptions_icon,
-                            null,
-                            onClick = {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "patient",
-                                    viewModel.patient
-                                )
-                                navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
-                            }
-                        )
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.drugs_dispense),
-                            R.drawable.pill,
-                            null,
-                            onClick = {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PATIENT,
-                                    viewModel.patient
-                                )
-                                navController.navigate(Screen.DrugDispenseScreen.route)
-                            }
-                        )
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.lab_test),
-                            R.drawable.lab_research,
-                            null,
-                            onClick = {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PHOTO_VIEW_TYPE,
-                                    PhotoUploadTypeEnum.LAB_TEST.value
-                                )
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PATIENT,
-                                    viewModel.patient
-                                )
-                                navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
-                            }
-                        )
-                        CardComposable(
-                            viewModel,
-                            stringResource(id = R.string.medical_record),
-                            R.drawable.contract,
-                            null,
-                            onClick = {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PHOTO_VIEW_TYPE,
-                                    PhotoUploadTypeEnum.MEDICAL_RECORD.value
-                                )
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PATIENT,
-                                    viewModel.patient
-                                )
-                                navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
-                            }
-                        )
-                    }
+                    CardComposableList(viewModel, navController, scope, snackbarHostState, context)
                     if (viewModel.showAllSlotsBookedDialog) {
                         AllSlotsBookedDialog {
                             viewModel.showAllSlotsBookedDialog = false
@@ -370,7 +157,241 @@ fun PatientLandingScreen(
 }
 
 @Composable
-fun CardComposable(
+private fun CardComposableList(
+    viewModel: PatientLandingScreenViewModel,
+    navController: NavController,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    context: Context
+) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .verticalScroll(
+                rememberScrollState()
+            )
+    ) {
+        CardComposable(
+            viewModel,
+            stringResource(id = R.string.household_members),
+            R.drawable.group_icon,
+            null,
+            onClick = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "patient",
+                    viewModel.patient
+                )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    SELECTED_INDEX,
+                    viewModel.selectedIndex
+                )
+                navController.navigate(Screen.HouseholdMembersScreen.route)
+            }
+        )
+        CardComposable(
+            viewModel,
+            stringResource(id = R.string.appointments),
+            R.drawable.event_note_icon,
+            stringResource(
+                id = R.string.appointments_scheduled,
+                viewModel.appointmentsCount,
+                viewModel.pastAppointmentsCount
+            ),
+            onClick = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "patient",
+                    viewModel.patient
+                )
+                navController.navigate(Screen.Appointments.route)
+            }
+        )
+        CardComposable(
+            viewModel,
+            stringResource(id = R.string.cvd_risk_assessment),
+            R.drawable.cardiology,
+            if (viewModel.cvdRisk.isBlank()) null
+            else stringResource(R.string.percentage, viewModel.cvdRisk),
+            isCardDisabled = viewModel.patient!!.gender == "other" ||
+                    viewModel.patient!!.birthDate.toTimeInMilli()
+                        .toAge() !in 40..74,
+            onClick = {
+                if (viewModel.patient!!.gender == "other" ||
+                    viewModel.patient!!.birthDate.toTimeInMilli().toAge() !in 40..74
+                ) {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = context.getString(R.string.cvd_error_message)
+                        )
+                    }
+                } else {
+                    scope.launch {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "patient",
+                            viewModel.patient
+                        )
+                        navController.navigate(Screen.CVDRiskAssessmentScreen.route)
+                    }
+                }
+
+            }
+        )
+        CardComposable(
+            viewModel,
+            stringResource(id = R.string.vital),
+            R.drawable.vital_signs,
+            null,
+            onClick = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PATIENT,
+                    viewModel.patient
+                )
+                navController.navigate(Screen.VitalsScreen.route)
+            }
+        )
+
+        CardComposable(
+            viewModel,
+            stringResource(id = R.string.symptoms_and_diagnosis),
+            R.drawable.diagnosis,
+            null,
+            onClick = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PATIENT,
+                    viewModel.patient
+                )
+                navController.navigate(Screen.SymptomsAndDiagnosisScreen.route)
+            }
+        )
+        CardComposable(
+            viewModel,
+            stringResource(id = R.string.prescription),
+            R.drawable.prescriptions_icon,
+            null,
+            onClick = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "patient",
+                    viewModel.patient
+                )
+                navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
+            }
+        )
+        CardComposable(
+            viewModel,
+            stringResource(id = R.string.drugs_dispense),
+            R.drawable.pill,
+            null,
+            onClick = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PATIENT,
+                    viewModel.patient
+                )
+                navController.navigate(Screen.DrugDispenseScreen.route)
+            }
+        )
+        CardComposable(
+            viewModel,
+            stringResource(id = R.string.lab_test),
+            R.drawable.lab_research,
+            null,
+            onClick = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PHOTO_VIEW_TYPE,
+                    PhotoUploadTypeEnum.LAB_TEST.value
+                )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PATIENT,
+                    viewModel.patient
+                )
+                navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
+            }
+        )
+        CardComposable(
+            viewModel,
+            stringResource(id = R.string.medical_record),
+            R.drawable.contract,
+            null,
+            onClick = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PHOTO_VIEW_TYPE,
+                    PhotoUploadTypeEnum.MEDICAL_RECORD.value
+                )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PATIENT,
+                    viewModel.patient
+                )
+                navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AppBarComposable(
+    viewModel: PatientLandingScreenViewModel,
+    navController: NavController
+) {
+    LargeTopAppBar(
+        modifier = Modifier.fillMaxWidth(),
+        colors = TopAppBarDefaults.largeTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+        ),
+        navigationIcon = {
+            IconButton(onClick = {
+                navController.navigateUp()
+            }) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "BACK_ICON"
+                )
+            }
+        },
+        title = {
+            val age = viewModel.patient?.birthDate?.toTimeInMilli()?.toAge()
+            val subTitle = "${
+                viewModel.patient?.gender?.get(0)?.uppercase()
+            }/$age · +91 ${viewModel.patient?.mobileNumber} ${if (viewModel.patient?.fhirId.isNullOrEmpty()) "" else " · ${viewModel.patient?.fhirId}"} "
+            Column {
+                Text(
+                    text = NameConverter.getFullName(
+                        viewModel.patient?.firstName,
+                        viewModel.patient?.middleName,
+                        viewModel.patient?.lastName
+                    ),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.testTag("TITLE"),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = subTitle,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.testTag("SUBTITLE")
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = {
+
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    key = "patient_detailsID",
+                    value = viewModel.patient?.id
+                )
+                navController.navigate(Screen.PatientProfile.route)
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.profile_icon),
+                    contentDescription = "profile icon",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun CardComposable(
     viewModel: PatientLandingScreenViewModel,
     label: String,
     icon: Int,
@@ -405,24 +426,7 @@ fun CardComposable(
                 modifier = Modifier.size(32.dp, 22.dp)
             )
             Spacer(modifier = Modifier.width(15.dp))
-            Column(
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = if (isCardDisabled) MaterialTheme.colorScheme.outline
-                    else MaterialTheme.colorScheme.onSurface
-                )
-                if (subText != null) {
-                    Text(
-                        text = subText,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (isCardDisabled) MaterialTheme.colorScheme.outline
-                        else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+            HeaderComposable(label, subText, isCardDisabled)
             Spacer(modifier = Modifier.weight(1f))
             Icon(
                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -435,6 +439,32 @@ fun CardComposable(
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant
         )
+    }
+}
+
+@Composable
+private fun HeaderComposable(
+    label: String,
+    subText: String?,
+    isCardDisabled: Boolean
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (isCardDisabled) MaterialTheme.colorScheme.outline
+            else MaterialTheme.colorScheme.onSurface
+        )
+        if (subText != null) {
+            Text(
+                text = subText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (isCardDisabled) MaterialTheme.colorScheme.outline
+                else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 

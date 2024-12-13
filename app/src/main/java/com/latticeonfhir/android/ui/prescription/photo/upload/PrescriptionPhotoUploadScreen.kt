@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.prescription.photo.upload
 
 import android.content.ContentUris
+import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.compose.BackHandler
@@ -123,17 +124,7 @@ fun PrescriptionPhotoUploadScreen(
             viewModel.isLaunched = true
         }
     }
-    BackHandler(enabled = true) {
-        if (viewModel.isImageCaptured) {
-            if (!viewModel.isSelectedFromGallery) {
-                FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
-                viewModel.tempFileName = ""
-            }
-            viewModel.isImageCaptured = false
-            viewModel.selectedImageUri = null
-            viewModel.isSelectedFromGallery = false
-        } else navController.navigateUp()
-    }
+    SetBackHandler(viewModel, context, navController)
     Box(modifier = Modifier.fillMaxSize()
         .navigationBarsPadding()) {
         Box(
@@ -249,6 +240,25 @@ fun PrescriptionPhotoUploadScreen(
         exit = exitTransition
     ) {
         DisplayImage(viewModel, navController)
+    }
+}
+
+@Composable
+fun SetBackHandler(
+    viewModel: PrescriptionPhotoUploadViewModel,
+    context: Context,
+    navController: NavController
+) {
+    BackHandler(enabled = true) {
+        if (viewModel.isImageCaptured) {
+            if (!viewModel.isSelectedFromGallery) {
+                FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
+                viewModel.tempFileName = ""
+            }
+            viewModel.isImageCaptured = false
+            viewModel.selectedImageUri = null
+            viewModel.isSelectedFromGallery = false
+        } else navController.navigateUp()
     }
 }
 

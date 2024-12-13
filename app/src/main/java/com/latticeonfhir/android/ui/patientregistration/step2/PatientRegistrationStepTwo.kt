@@ -102,65 +102,9 @@ fun PatientRegistrationStepTwo(
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            if (viewModel.isPassportSelected) {
-                Spacer(modifier = Modifier.height(5.dp))
-                CustomTextField(
-                    value = viewModel.passportId,
-                    label = stringResource(id = R.string.passport_id),
-                    weight = 1f,
-                    viewModel.maxPassportIdLength,
-                    viewModel.isPassportValid,
-                    stringResource(id = R.string.passport_id_error_msg),
-                    KeyboardType.Text,
-                    KeyboardCapitalization.Characters
-                ) {
-                    viewModel.passportId = it
-                    viewModel.isPassportValid =
-                        !viewModel.passportPattern.matches(viewModel.passportId)
-                }
-                IdLength(viewModel.passportId, viewModel.maxPassportIdLength, "PASSPORT_ID_LENGTH")
-            } else {
-                viewModel.passportId = ""
-            }
-            if (viewModel.isVoterSelected) {
-                Spacer(modifier = Modifier.height(5.dp))
-                CustomTextField(
-                    value = viewModel.voterId,
-                    label = stringResource(id = R.string.voter_id),
-                    weight = 1f,
-                    viewModel.maxVoterIdLength,
-                    viewModel.isVoterValid,
-                    stringResource(id = R.string.voter_id_error_msg),
-                    KeyboardType.Text,
-                    KeyboardCapitalization.Characters
-                ) {
-                    viewModel.voterId = it
-                    viewModel.isVoterValid = !viewModel.voterPattern.matches(viewModel.voterId)
-                }
-                IdLength(viewModel.voterId, viewModel.maxVoterIdLength, "VOTER_ID_LENGTH")
-            } else {
-                viewModel.voterId = ""
-            }
-            if (viewModel.isPatientSelected) {
-                Spacer(modifier = Modifier.height(5.dp))
-                CustomTextField(
-                    value = viewModel.patientId,
-                    label = stringResource(id = R.string.patient_id),
-                    weight = 1f,
-                    viewModel.maxPatientIdLength,
-                    viewModel.isPatientValid,
-                    stringResource(id = R.string.patient_id_error_msg),
-                    KeyboardType.Text,
-                    KeyboardCapitalization.Characters
-                ) {
-                    viewModel.patientId = it
-                    viewModel.isPatientValid =
-                        viewModel.patientId.length < viewModel.minPatientIdLength
-                }
-                IdLength(viewModel.patientId, viewModel.maxPatientIdLength, "PATIENT_ID_LENGTH")
-            } else {
-                viewModel.patientId = ""
-            }
+            PassportIdComposable(viewModel)
+            VoterIdComposable(viewModel)
+            PatientIdComposable(viewModel)
         }
         Button(
             onClick = {
@@ -176,6 +120,86 @@ fun PatientRegistrationStepTwo(
             enabled = viewModel.identityInfoValidation()
         ) {
             Text(text = "Next")
+        }
+    }
+}
+
+@Composable
+private fun PatientIdComposable(viewModel: PatientRegistrationStepTwoViewModel) {
+    Column {
+        if (viewModel.isPatientSelected) {
+            Spacer(modifier = Modifier.height(5.dp))
+            CustomTextField(
+                value = viewModel.patientId,
+                label = stringResource(id = R.string.patient_id),
+                weight = 1f,
+                viewModel.maxPatientIdLength,
+                viewModel.isPatientValid,
+                stringResource(id = R.string.patient_id_error_msg),
+                KeyboardType.Text,
+                KeyboardCapitalization.Characters
+            ) {
+                viewModel.patientId = it
+                viewModel.isPatientValid =
+                    viewModel.patientId.length < viewModel.minPatientIdLength
+            }
+            IdLength(viewModel.patientId, viewModel.maxPatientIdLength, "PATIENT_ID_LENGTH")
+        } else {
+            viewModel.patientId = ""
+            viewModel.isPatientValid = false
+        }
+    }
+}
+
+@Composable
+private fun VoterIdComposable(viewModel: PatientRegistrationStepTwoViewModel) {
+    Column {
+        if (viewModel.isVoterSelected) {
+            Spacer(modifier = Modifier.height(5.dp))
+            CustomTextField(
+                value = viewModel.voterId,
+                label = stringResource(id = R.string.voter_id),
+                weight = 1f,
+                viewModel.maxVoterIdLength,
+                viewModel.isVoterValid,
+                stringResource(id = R.string.voter_id_error_msg),
+                KeyboardType.Text,
+                KeyboardCapitalization.Characters
+            ) {
+                viewModel.voterId = it
+                viewModel.isVoterValid = !viewModel.voterPattern.matches(viewModel.voterId)
+            }
+            IdLength(viewModel.voterId, viewModel.maxVoterIdLength, "VOTER_ID_LENGTH")
+        } else {
+            viewModel.voterId = ""
+            viewModel.isVoterValid = false
+        }
+    }
+}
+
+@Composable
+private fun PassportIdComposable(viewModel: PatientRegistrationStepTwoViewModel) {
+    Column {
+        if (viewModel.isPassportSelected) {
+            Spacer(modifier = Modifier.height(5.dp))
+            CustomTextField(
+                value = viewModel.passportId,
+                label = stringResource(id = R.string.passport_id),
+                weight = 1f,
+                viewModel.maxPassportIdLength,
+                viewModel.isPassportValid,
+                stringResource(id = R.string.passport_id_error_msg),
+                KeyboardType.Text,
+                KeyboardCapitalization.Characters
+            ) {
+                viewModel.passportId = it
+                viewModel.isPassportValid =
+                    !viewModel.passportPattern.matches(viewModel.passportId)
+            }
+            IdLength(viewModel.passportId, viewModel.maxPassportIdLength, "PASSPORT_ID_LENGTH")
+        } else {
+            viewModel.passportId = ""
+            viewModel.isPassportValid = false
         }
     }
 }
