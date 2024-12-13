@@ -96,10 +96,8 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
-import org.burnoutcrew.reorderable.ReorderableLazyListState
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
-import timber.log.Timber
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -305,7 +303,6 @@ fun QueueScreen(
                                                     navController,
                                                     viewModel,
                                                     landingViewModel,
-                                                    queueListState,
                                                     waitingAppointmentResponse,
                                                     patient
                                                 )
@@ -335,7 +332,6 @@ fun QueueScreen(
                                 navController,
                                 viewModel,
                                 landingViewModel,
-                                queueListState,
                                 appointmentResponseLocal,
                                 patient
                             )
@@ -364,7 +360,6 @@ fun QueueScreen(
                                 navController,
                                 viewModel,
                                 landingViewModel,
-                                queueListState,
                                 appointmentResponseLocal,
                                 patient
                             )
@@ -393,7 +388,6 @@ fun QueueScreen(
                                 navController,
                                 viewModel,
                                 landingViewModel,
-                                queueListState,
                                 appointmentResponseLocal,
                                 patient
                             )
@@ -419,7 +413,6 @@ fun QueueScreen(
                                 navController,
                                 viewModel,
                                 landingViewModel,
-                                queueListState,
                                 appointmentResponseLocal,
                                 patient
                             )
@@ -465,7 +458,6 @@ fun QueueScreen(
         ) { cancel ->
             if (cancel) {
                 viewModel.cancelAppointment {
-                    Timber.d("manseeyy appointment cancelled")
                     viewModel.getAppointmentListByDate()
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar(
@@ -576,7 +568,6 @@ fun QueuePatientCard(
     navController: NavController,
     viewModel: QueueViewModel,
     landingViewModel: LandingScreenViewModel,
-    queueListState: ReorderableLazyListState,
     appointmentResponseLocal: AppointmentResponseLocal,
     patient: PatientResponse?
 ) {
@@ -698,19 +689,6 @@ fun QueuePatientCard(
                     appointmentResponseLocal.slot.start.toAppointmentTime()
                 )
             }
-            /***** Drag and drop feature - future scope *****/
-            /*if ((appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value || appointmentResponseLocal.status == AppointmentStatusEnum.ARRIVED.value)
-                && appointmentResponseLocal.slot.start.toEndOfDay() == Date().toEndOfDay()
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.drag_handle_icon),
-                    contentDescription = "DRAG_HANDLE",
-                    tint = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier
-                        .size(36.dp)
-                        .detectReorder(queueListState)
-                )
-            }*/
         }
         if ((
                     appointmentResponseLocal.status == AppointmentStatusEnum.WALK_IN.value
