@@ -86,18 +86,7 @@ fun PrescriptionScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    BackHandler(enabled = true) {
-        when {
-            viewModel.isSearching -> viewModel.isSearching = false
-            viewModel.checkedActiveIngredient.isNotEmpty() -> {
-                viewModel.checkedActiveIngredient = ""
-                viewModel.medicationToEdit = null
-            }
-            viewModel.bottomNavExpanded -> viewModel.bottomNavExpanded = false
-            viewModel.isSearchResult -> viewModel.isSearchResult = false
-            else -> navController.popBackStack()
-        }
-    }
+    SetBackHandler(viewModel, navController)
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.getActiveIngredients {
@@ -143,7 +132,10 @@ fun PrescriptionScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "BACK_ICON"
+                            )
                         }
                     },
                     actions = {
@@ -272,6 +264,23 @@ fun PrescriptionScreen(
             ) {
                 SearchPrescription(viewModel)
             }
+        }
+    }
+}
+
+@Composable
+private fun SetBackHandler(viewModel: PrescriptionViewModel, navController: NavController) {
+    BackHandler(enabled = true) {
+        when {
+            viewModel.isSearching -> viewModel.isSearching = false
+            viewModel.checkedActiveIngredient.isNotEmpty() -> {
+                viewModel.checkedActiveIngredient = ""
+                viewModel.medicationToEdit = null
+            }
+
+            viewModel.bottomNavExpanded -> viewModel.bottomNavExpanded = false
+            viewModel.isSearchResult -> viewModel.isSearchResult = false
+            else -> navController.popBackStack()
         }
     }
 }
