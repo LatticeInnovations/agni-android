@@ -13,18 +13,8 @@ object LabAndMedConverter {
         appointmentId: String,
         patientId: String,
         createdOn: Date,
-        docUuid: String,
-        docIdKey: String,
-        files: List<File>
+        fileList: List<Map<String, String>>
     ): Map<String, Any> {
-
-        val fileList = files.map { file ->
-            mapOf(
-                docIdKey to docUuid,
-                LabTestAndMedConstants.FILENAME to file.filename,
-                LabTestAndMedConstants.NOTE to file.note
-            )
-        }
 
         return mapOf(
             dynamicKey to dynamicKeyValue,

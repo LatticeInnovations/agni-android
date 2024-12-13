@@ -461,17 +461,7 @@ fun ShowDialogs(
                                 requestPermissionLauncher.launch(permissionsToBeRequest)
                             },
                             navigate = {
-                                viewModel.hideSyncStatus()
-                                coroutineScope.launch {
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        NavControllerConstants.PATIENT, viewModel.patient!!
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        PHOTO_VIEW_TYPE,
-                                        if (checkPhotoViewIsLabTestType(viewModel)) PhotoUploadTypeEnum.LAB_TEST.value else PhotoUploadTypeEnum.MEDICAL_RECORD.value
-                                    )
-                                    navController.navigate(Screen.LabAndMedPhotoUploadScreen.route)
-                                }
+                                navigateToUploadScreen(viewModel,navController,coroutineScope)
                             }
                         )
 
@@ -489,17 +479,7 @@ fun ShowDialogs(
                                     requestPermissionLauncher.launch(permissionsToBeRequest)
                                 },
                                 navigate = {
-                                    viewModel.hideSyncStatus()
-                                    coroutineScope.launch {
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            NavControllerConstants.PATIENT, viewModel.patient!!
-                                        )
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            PHOTO_VIEW_TYPE,
-                                            if (checkPhotoViewIsLabTestType(viewModel)) PhotoUploadTypeEnum.LAB_TEST.value else PhotoUploadTypeEnum.MEDICAL_RECORD.value
-                                        )
-                                        navController.navigate(Screen.LabAndMedPhotoUploadScreen.route)
-                                    }
+                                    navigateToUploadScreen(viewModel,navController,coroutineScope)
                                 }
                             )
 
@@ -514,6 +494,24 @@ fun ShowDialogs(
         AllSlotsBookedDialog {
             viewModel.showAllSlotsBookedDialog = false
         }
+    }
+}
+
+fun navigateToUploadScreen(
+    viewModel: PhotoViewViewModel,
+    navController: NavController,
+    coroutineScope: CoroutineScope
+) {
+    viewModel.hideSyncStatus()
+    coroutineScope.launch {
+        navController.currentBackStackEntry?.savedStateHandle?.set(
+            NavControllerConstants.PATIENT, viewModel.patient!!
+        )
+        navController.currentBackStackEntry?.savedStateHandle?.set(
+            PHOTO_VIEW_TYPE,
+            if (checkPhotoViewIsLabTestType(viewModel)) PhotoUploadTypeEnum.LAB_TEST.value else PhotoUploadTypeEnum.MEDICAL_RECORD.value
+        )
+        navController.navigate(Screen.LabAndMedPhotoUploadScreen.route)
     }
 }
 
