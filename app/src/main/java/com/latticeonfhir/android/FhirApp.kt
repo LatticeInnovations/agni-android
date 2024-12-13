@@ -34,6 +34,7 @@ import com.latticeonfhir.android.utils.converters.gson.DateSerializer
 import com.latticeonfhir.android.utils.file.DeleteFileManager
 import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -190,39 +191,46 @@ class FhirApp : Application() {
                             )
                         }
                     }.also {
-                        withContext(Dispatchers.Main) {
-                            photosWorkerStatus.observeForever { photosSyncStatus ->
-                                when (photosSyncStatus) {
-                                    WorkerStatus.SUCCESS -> {
-                                        preferenceStorage.lastSyncTime = Date().time
-                                        if (listOfErrors.isEmpty()) {
-                                            preferenceStorage.syncStatus =
-                                                SyncStatusMessageEnum.SYNCING_COMPLETED.display
-                                            syncWorkerStatus.postValue(WorkerStatus.SUCCESS)
-                                        } else {
-                                            preferenceStorage.syncStatus =
-                                                SyncStatusMessageEnum.SYNCING_FAILED.display
-                                            syncWorkerStatus.postValue(WorkerStatus.FAILED)
-                                        }
-                                    }
-
-                                    WorkerStatus.FAILED -> {
-                                        preferenceStorage.lastSyncTime = Date().time
-                                        preferenceStorage.syncStatus =
-                                            SyncStatusMessageEnum.SYNCING_FAILED.display
-                                        syncWorkerStatus.postValue(WorkerStatus.FAILED)
-                                    }
-
-                                    else -> {
-                                        Timber.d("manseeyy photos sync status $photosWorkerStatus")
-                                    }
-                                }
-                            }
-                        }
+                        checkPhotoWorkerStatus(listOfErrors)
                     }
                 }
             } finally {
                 isSyncing.set(false)
+            }
+        }
+    }
+
+    private suspend fun checkPhotoWorkerStatus(
+        listOfErrors: List<String>,
+        mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    ) {
+        withContext(mainDispatcher) {
+            photosWorkerStatus.observeForever { photosSyncStatus ->
+                when (photosSyncStatus) {
+                    WorkerStatus.SUCCESS -> {
+                        preferenceStorage.lastSyncTime = Date().time
+                        if (listOfErrors.isEmpty()) {
+                            preferenceStorage.syncStatus =
+                                SyncStatusMessageEnum.SYNCING_COMPLETED.display
+                            syncWorkerStatus.postValue(WorkerStatus.SUCCESS)
+                        } else {
+                            preferenceStorage.syncStatus =
+                                SyncStatusMessageEnum.SYNCING_FAILED.display
+                            syncWorkerStatus.postValue(WorkerStatus.FAILED)
+                        }
+                    }
+
+                    WorkerStatus.FAILED -> {
+                        preferenceStorage.lastSyncTime = Date().time
+                        preferenceStorage.syncStatus =
+                            SyncStatusMessageEnum.SYNCING_FAILED.display
+                        syncWorkerStatus.postValue(WorkerStatus.FAILED)
+                    }
+
+                    else -> {
+                        Timber.d("manseeyy photos sync status $photosWorkerStatus")
+                    }
+                }
             }
         }
     }
