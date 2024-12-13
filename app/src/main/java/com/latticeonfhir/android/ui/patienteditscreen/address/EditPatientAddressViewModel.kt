@@ -115,23 +115,19 @@ class EditPatientAddressViewModel @Inject constructor(
         value: String,
         tempValue: String
     ) {
-        if (value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        "permanentAddress", ChangeRequest(
-                            value = patientResponse.permanentAddress,
-                            operation = ChangeTypeEnum.REPLACE.value
-                        )
-                    )
-                )
-            )
-        } else if (value != tempValue && tempValue.isNotEmpty() && value.isEmpty()) {
-            updateAddress(patientResponse, ChangeTypeEnum.REPLACE.value)
+        when {
+            value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty() -> {
+                updateAddress(patientResponse, ChangeTypeEnum.REPLACE.value)
+            }
 
-        } else if (value != tempValue && tempValue.isEmpty() && value.isNotEmpty()) {
-            updateAddress(patientResponse, ChangeTypeEnum.ADD.value)
+            value != tempValue && tempValue.isNotEmpty() && value.isEmpty() -> {
+                updateAddress(patientResponse, ChangeTypeEnum.REPLACE.value)
+
+            }
+
+            value != tempValue && tempValue.isEmpty() && value.isNotEmpty() -> {
+                updateAddress(patientResponse, ChangeTypeEnum.ADD.value)
+            }
         }
 
 
