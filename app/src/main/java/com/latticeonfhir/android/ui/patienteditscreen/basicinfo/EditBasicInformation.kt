@@ -513,9 +513,7 @@ fun AgeTextField(viewModel: EditBasicInformationViewModel) {
             KeyboardType.Number,
             KeyboardCapitalization.None
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
-            if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
-                viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
+            setAgeValues(viewModel, it)
         }
         Spacer(modifier = Modifier.width(15.dp))
         CustomTextField(
@@ -543,11 +541,21 @@ fun AgeTextField(viewModel: EditBasicInformationViewModel) {
             KeyboardType.Number,
             KeyboardCapitalization.None
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
-            if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
-                viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
+            setDayValue(viewModel, it)
         }
     }
+}
+
+private fun setDayValue(viewModel: EditBasicInformationViewModel, it: String) {
+    if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
+    if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
+        viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
+}
+
+private fun setAgeValues(viewModel: EditBasicInformationViewModel, it: String) {
+    if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
+    if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
+        viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
 }
 
 @Composable
