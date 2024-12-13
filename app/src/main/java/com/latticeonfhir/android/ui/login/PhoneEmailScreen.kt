@@ -53,20 +53,7 @@ fun PhoneEmailScreen(
     BackHandler(enabled = true) {
         activity.finishAffinity()
     }
-    LaunchedEffect(viewModel.isLaunched) {
-        if (!viewModel.isLaunched) {
-            if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("logoutUser") == true) {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-                            "logoutReason"
-                        )!!
-                    )
-                }
-            }
-            viewModel.isLaunched = true
-        }
-    }
+    HandleLaunchedEffect(viewModel, navController, coroutineScope, snackbarHostState)
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -212,6 +199,29 @@ fun checkNetwork(
     }
 }
 
+@Composable
+fun HandleLaunchedEffect(
+    viewModel: PhoneEmailViewModel,
+    navController: NavController,
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("logoutUser") == true) {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                            "logoutReason"
+                        )!!
+                    )
+                }
+            }
+            viewModel.isLaunched = true
+        }
+    }
+
+}
 fun proceed(viewModel: PhoneEmailViewModel, navController: NavController) {
     if (viewModel.isDifferentUserLogin()) {
         viewModel.showDifferentUserLoginDialog = true
