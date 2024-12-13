@@ -672,7 +672,7 @@ open class SyncRepositoryDatabaseTransactions(
             medDispenseResponse.dispenseData.forEach { dispenseData ->
                 dispensedMedicationList.addAll(
                     dispenseData.toListOfMedicineDispenseListEntity(
-                        patientDao, dispenseDao
+                        patientDao
                     )
                 )
             }
@@ -713,7 +713,7 @@ open class SyncRepositoryDatabaseTransactions(
         body.forEach { dispenseData ->
             dispensedMedicationList.addAll(
                 dispenseData.toListOfMedicineDispenseListEntity(
-                    patientDao, dispenseDao
+                    patientDao
                 )
             )
         }
