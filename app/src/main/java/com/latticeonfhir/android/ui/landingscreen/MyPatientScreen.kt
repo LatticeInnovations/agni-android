@@ -47,6 +47,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.network.ConnectivityObserver
+import timber.log.Timber
 import java.util.Date
 
 @Composable
@@ -75,52 +76,61 @@ fun MyPatientScreen(
                     Text(stringResource(R.string.no_records))
                 }
             } else {
-                LazyColumn(modifier = Modifier.testTag("patients list")) {
-                    items(
-                        count = patientsList.itemCount,
-                        key = patientsList.itemKey(),
-                        contentType = patientsList.itemContentType(
-                        )
-                    ) { index ->
-                        val item = patientsList[index]
-                        if (item != null) {
-                            var lastVisited: Date? by remember {
-                                mutableStateOf(null)
-                            }
-                            viewModel.getLastVisitedOfPatient(item.id) {
-                                lastVisited = it
-                            }
-                            PatientItemCard(
-                                navController, item, lastVisited, viewModel
-                            )
-                        }
-                    }
-                    when (patientsList.loadState.append) {
-                        is LoadState.NotLoading -> Unit
-                        LoadState.Loading -> {
-                            item {
-                                Loader()
-                            }
-                        }
+                PatientList(patientsList, viewModel, navController)
+            }
+        }
+    }
+}
 
-                        is LoadState.Error -> {
-                            // TODO
-                        }
-                    }
-
-                    when (patientsList.loadState.refresh) {
-                        is LoadState.NotLoading -> Unit
-                        LoadState.Loading -> {
-                            item {
-                                Loader()
-                            }
-                        }
-
-                        is LoadState.Error -> {
-                            // TODO
-                        }
-                    }
+@Composable
+private fun PatientList(
+    patientsList: LazyPagingItems<PatientResponse>,
+    viewModel: LandingScreenViewModel,
+    navController: NavController
+) {
+    LazyColumn(modifier = Modifier.testTag("patients list")) {
+        items(
+            count = patientsList.itemCount,
+            key = patientsList.itemKey(),
+            contentType = patientsList.itemContentType(
+            )
+        ) { index ->
+            val item = patientsList[index]
+            if (item != null) {
+                var lastVisited: Date? by remember {
+                    mutableStateOf(null)
                 }
+                viewModel.getLastVisitedOfPatient(item.id) {
+                    lastVisited = it
+                }
+                PatientItemCard(
+                    navController, item, lastVisited, viewModel
+                )
+            }
+        }
+        when (patientsList.loadState.append) {
+            is LoadState.NotLoading -> Unit
+            LoadState.Loading -> {
+                item {
+                    Loader()
+                }
+            }
+
+            is LoadState.Error -> {
+                Timber.d("LOADING ERROR")
+            }
+        }
+
+        when (patientsList.loadState.refresh) {
+            is LoadState.NotLoading -> Unit
+            LoadState.Loading -> {
+                item {
+                    Loader()
+                }
+            }
+
+            is LoadState.Error -> {
+                Timber.d("LOADING ERROR")
             }
         }
     }
