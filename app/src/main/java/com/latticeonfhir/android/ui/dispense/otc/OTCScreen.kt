@@ -112,107 +112,124 @@ fun OTCScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column {
-                    var expanded by remember { mutableStateOf(false) }
-                    OutlinedTextField(
-                        value = viewModel.selectedMedicine?.medicationEntity?.medName ?: "",
-                        onValueChange = { },
-                        readOnly = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        label = {
-                            Text(stringResource(R.string.medicine_name))
-                        },
-                        trailingIcon = {
-                            Icon(
-                                Icons.Default.KeyboardArrowDown,
-                                Icons.Default.KeyboardArrowDown.name
-                            )
-                        },
-                        interactionSource = remember {
-                            MutableInteractionSource()
-                        }.also { interactionSource ->
-                            LaunchedEffect(interactionSource) {
-                                interactionSource.interactions.collect {
-                                    if (it is PressInteraction.Release) {
-                                        expanded = !expanded
-                                    }
-                                }
-                            }
-                        },
-                        singleLine = true
-                    )
-                    DropdownMenu(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                            .testTag("ACTIVE_INGREDIENT_DROPDOWN_LIST"),
-                        expanded = expanded,
-                        onDismissRequest = { expanded = !expanded },
-                    ) {
-                        viewModel.allMedications.forEach { medication ->
-                            DropdownMenuItem(
-                                onClick = {
-                                    expanded = !expanded
-                                    viewModel.selectedMedicine = medication
-                                },
-                                text = {
-                                    Text(
-                                        text = medication.medicationEntity.medName,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                },
-                                contentPadding = PaddingValues(10.dp)
-                            )
-                        }
-                    }
-                }
+                ActiveIngredientDropDown(viewModel)
                 if (viewModel.selectedMedicine != null) {
-                    Text(
-                        text = stringResource(R.string.formulations),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = viewModel.selectedMedicine!!.medicationEntity.medName,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
-                    OutlinedTextField(
-                        value = viewModel.qtyPrescribed,
-                        onValueChange = { value ->
-                            if (value.isBlank()) viewModel.qtyPrescribed = ""
-                            else if (value.matches(onlyNumbers) && value.length < 3) {
-                                viewModel.qtyPrescribed = value
-                                viewModel.isError = viewModel.qtyPrescribed.toInt() !in 1..50
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = {
-                            Text(stringResource(R.string.quantity_prescribed)+"*")
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
-                        ),
-                        isError = viewModel.isError,
-                        supportingText = {
-                            if (viewModel.isError) {
-                                Text(stringResource(R.string.otc_quantity_error_message))
-                            }
-                        }
-                    )
-                    OutlinedTextField(
-                        value = viewModel.notes,
-                        onValueChange = { value ->
-                            if (value.length <= 100) viewModel.notes = value
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = {
-                            Text(stringResource(R.string.notes_optional))
-                        }
-                    )
+                    FormulationsForm(viewModel)
                 }
             }
         }
     )
+}
+
+@Composable
+private fun FormulationsForm(viewModel: OTCViewModel) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.formulations),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = viewModel.selectedMedicine!!.medicationEntity.medName,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        OutlinedTextField(
+            value = viewModel.qtyPrescribed,
+            onValueChange = { value ->
+                if (value.isBlank()) {
+                    viewModel.qtyPrescribed = ""
+                    viewModel.isError = true
+                }
+                else if (value.matches(onlyNumbers) && value.length < 3) {
+                    viewModel.qtyPrescribed = value
+                    viewModel.isError = viewModel.qtyPrescribed.toInt() !in 1..50
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(stringResource(R.string.quantity_prescribed)+"*")
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number
+            ),
+            isError = viewModel.isError,
+            supportingText = {
+                if (viewModel.isError) {
+                    Text(stringResource(R.string.otc_quantity_error_message))
+                }
+            }
+        )
+        OutlinedTextField(
+            value = viewModel.notes,
+            onValueChange = { value ->
+                if (value.length <= 100) viewModel.notes = value
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(stringResource(R.string.notes_optional))
+            }
+        )
+    }
+}
+
+@Composable
+private fun ActiveIngredientDropDown(viewModel: OTCViewModel) {
+    Column {
+        var expanded by remember { mutableStateOf(false) }
+        OutlinedTextField(
+            value = viewModel.selectedMedicine?.medicationEntity?.medName ?: "",
+            onValueChange = { },
+            readOnly = true,
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(stringResource(R.string.medicine_name))
+            },
+            trailingIcon = {
+                Icon(
+                    Icons.Default.KeyboardArrowDown,
+                    Icons.Default.KeyboardArrowDown.name
+                )
+            },
+            interactionSource = remember {
+                MutableInteractionSource()
+            }.also { interactionSource ->
+                LaunchedEffect(interactionSource) {
+                    interactionSource.interactions.collect {
+                        if (it is PressInteraction.Release) {
+                            expanded = !expanded
+                        }
+                    }
+                }
+            },
+            singleLine = true
+        )
+        DropdownMenu(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .testTag("ACTIVE_INGREDIENT_DROPDOWN_LIST"),
+            expanded = expanded,
+            onDismissRequest = { expanded = !expanded },
+        ) {
+            viewModel.allMedications.forEach { medication ->
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = !expanded
+                        viewModel.selectedMedicine = medication
+                    },
+                    text = {
+                        Text(
+                            text = medication.medicationEntity.medName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    contentPadding = PaddingValues(10.dp)
+                )
+            }
+        }
+    }
 }
