@@ -90,12 +90,7 @@ class EditBasicInformationViewModel @Inject constructor(
             return false
         if (middleName.length > 100 || lastName.length > 100)
             return false
-        if (dobAgeSelector == "dob" && ((dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()) || (!TimeConverter.isDOBValid(
-                dobDay.toInt(),
-                dobMonth.toMonthInteger(),
-                dobYear.toInt()
-            )))
-        )
+        if (checkDob())
             return false
         if (dobAgeSelector == "age" && (days.isEmpty() && months.isEmpty() && years.isEmpty()) || (isAgeDaysValid || isAgeMonthsValid || isAgeYearsValid))
             return false
@@ -104,6 +99,15 @@ class EditBasicInformationViewModel @Inject constructor(
         if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return false
         return gender != ""
+    }
+
+    private fun checkDob(): Boolean {
+        return dobAgeSelector == "dob" && ((dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()) || (!TimeConverter.isDOBValid(
+            dobDay.toInt(),
+            dobMonth.toMonthInteger(),
+            dobYear.toInt()
+        )))
+
     }
 
     fun splitDOB(dob: String): Triple<Int, String, Int> {
