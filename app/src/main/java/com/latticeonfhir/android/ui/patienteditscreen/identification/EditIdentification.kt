@@ -50,6 +50,7 @@ import com.latticeonfhir.android.ui.common.IdLength
 import com.latticeonfhir.android.ui.common.IdSelectionChip
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +85,9 @@ fun EditIdentification(
                             viewModel.isPatientSelected = viewModel.patientId.isNotBlank()
                         }
 
-                        else -> {}
+                        else -> {
+                            Timber.d("Something wrong")
+                        }
 
                     }
                 }
