@@ -256,7 +256,6 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            var monthExpanded by remember { mutableStateOf(false) }
             CustomTextField(
                 value = viewModel.dobDay,
                 label = stringResource(id = R.string.day),
@@ -273,58 +272,7 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
                 }
             }
             Spacer(modifier = Modifier.width(10.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .testTag("Month")
-            ) {
-                OutlinedTextField(
-                    value = viewModel.dobMonth,
-                    onValueChange = {
-                        viewModel.dobMonth = it
-                    },
-                    label = {
-                        Text(text = stringResource(id = R.string.month))
-                    },
-                    trailingIcon = {
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "")
-                    },
-                    interactionSource = remember {
-                        MutableInteractionSource()
-                    }.also { interactionSource ->
-                        LaunchedEffect(interactionSource) {
-                            interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    monthExpanded = !monthExpanded
-                                }
-                            }
-                        }
-                    },
-                    readOnly = true,
-                    singleLine = true
-                )
-                DropdownMenu(
-                    modifier = Modifier.fillMaxHeight(0.5f),
-                    expanded = monthExpanded,
-                    onDismissRequest = { monthExpanded = false },
-                ) {
-                    viewModel.monthsList.forEach { label ->
-                        DropdownMenuItem(
-                            onClick = {
-                                monthExpanded = false
-                                viewModel.dobMonth = label
-                            },
-                            text = {
-                                Text(
-                                    text = label,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        )
-                    }
-                }
-            }
+            MonthDropDown(viewModel)
             Spacer(modifier = Modifier.width(10.dp))
             CustomTextField(
                 value = viewModel.dobYear,
@@ -339,22 +287,84 @@ fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
                 if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobYear = it
             }
         }
-        if (viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
-            && !isDOBValid(
-                viewModel.dobDay.toInt(),
-                viewModel.dobMonth.toMonthInteger(),
-                viewModel.dobYear.toInt()
-            )
+        DateErrorText(viewModel)
+    }
+}
+
+@Composable
+private fun DateErrorText(viewModel: PatientRegistrationStepOneViewModel) {
+    if (viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
+        && !isDOBValid(
+            viewModel.dobDay.toInt(),
+            viewModel.dobMonth.toMonthInteger(),
+            viewModel.dobYear.toInt()
+        )
+    ) {
+        Text(
+            text = stringResource(
+                id = R.string.invalid_date,
+                "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(start = 8.dp)
+        )
+    }
+}
+
+@Composable
+private fun MonthDropDown(viewModel: PatientRegistrationStepOneViewModel) {
+    var monthExpanded by remember { mutableStateOf(false) }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.6f)
+            .testTag("Month")
+    ) {
+        OutlinedTextField(
+            value = viewModel.dobMonth,
+            onValueChange = {
+                viewModel.dobMonth = it
+            },
+            label = {
+                Text(text = stringResource(id = R.string.month))
+            },
+            trailingIcon = {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+            },
+            interactionSource = remember {
+                MutableInteractionSource()
+            }.also { interactionSource ->
+                LaunchedEffect(interactionSource) {
+                    interactionSource.interactions.collect {
+                        if (it is PressInteraction.Release) {
+                            monthExpanded = !monthExpanded
+                        }
+                    }
+                }
+            },
+            readOnly = true,
+            singleLine = true
+        )
+        DropdownMenu(
+            modifier = Modifier.fillMaxHeight(0.5f),
+            expanded = monthExpanded,
+            onDismissRequest = { monthExpanded = false },
         ) {
-            Text(
-                text = stringResource(
-                    id = R.string.invalid_date,
-                    "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
-                ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(start = 8.dp)
-            )
+            viewModel.monthsList.forEach { label ->
+                DropdownMenuItem(
+                    onClick = {
+                        monthExpanded = false
+                        viewModel.dobMonth = label
+                    },
+                    text = {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                )
+            }
         }
     }
 }
@@ -364,56 +374,71 @@ fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
-        CustomTextField(
-            viewModel.years,
-            label = stringResource(id = R.string.age_years),
-            0.25F,
-            3,
-            viewModel.isAgeYearsValid,
-            stringResource(
-                id = R.string.age_years_error_msg
-            ),
-            KeyboardType.Number,
-            KeyboardCapitalization.None
-        ) {
-            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
-            if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
-                viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
-        }
+        AgeYearsComposable(viewModel)
         Spacer(modifier = Modifier.width(15.dp))
-        CustomTextField(
-            viewModel.months,
-            label = stringResource(id = R.string.age_months),
-            0.36F,
-            2,
-            viewModel.isAgeMonthsValid,
-            stringResource(
-                id = R.string.age_months_error_msg
-            ),
-            KeyboardType.Number,
-            KeyboardCapitalization.None
-        ) {
-            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.months = it
-            if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =
-                viewModel.months.toInt() < 1 || viewModel.months.toInt() > 11
-        }
+        AgeMonthsComposable(viewModel)
         Spacer(modifier = Modifier.width(15.dp))
-        CustomTextField(
-            viewModel.days,
-            label = stringResource(id = R.string.age_days),
-            0.5F,
-            2,
-            viewModel.isAgeDaysValid,
-            stringResource(
-                id = R.string.age_days_error_msg
-            ),
-            KeyboardType.Number,
-            KeyboardCapitalization.None
-        ) {
-            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
-            if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
-                viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
-        }
+        AgeDaysComposable(viewModel)
+    }
+}
+
+@Composable
+private fun AgeDaysComposable(viewModel: PatientRegistrationStepOneViewModel) {
+    CustomTextField(
+        viewModel.days,
+        label = stringResource(id = R.string.age_days),
+        0.5F,
+        2,
+        viewModel.isAgeDaysValid,
+        stringResource(
+            id = R.string.age_days_error_msg
+        ),
+        KeyboardType.Number,
+        KeyboardCapitalization.None
+    ) {
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
+        if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
+            viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
+    }
+}
+
+@Composable
+private fun AgeMonthsComposable(viewModel: PatientRegistrationStepOneViewModel) {
+    CustomTextField(
+        viewModel.months,
+        label = stringResource(id = R.string.age_months),
+        0.36F,
+        2,
+        viewModel.isAgeMonthsValid,
+        stringResource(
+            id = R.string.age_months_error_msg
+        ),
+        KeyboardType.Number,
+        KeyboardCapitalization.None
+    ) {
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.months = it
+        if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =
+            viewModel.months.toInt() < 1 || viewModel.months.toInt() > 11
+    }
+}
+
+@Composable
+private fun AgeYearsComposable(viewModel: PatientRegistrationStepOneViewModel) {
+    CustomTextField(
+        viewModel.years,
+        label = stringResource(id = R.string.age_years),
+        0.25F,
+        3,
+        viewModel.isAgeYearsValid,
+        stringResource(
+            id = R.string.age_years_error_msg
+        ),
+        KeyboardType.Number,
+        KeyboardCapitalization.None
+    ) {
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
+        if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
+            viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
     }
 }
 
