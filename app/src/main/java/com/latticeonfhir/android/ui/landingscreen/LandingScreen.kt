@@ -611,7 +611,6 @@ fun PreviousSearches(listItem: String, viewModel: LandingScreenViewModel) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchView(
     viewModel: LandingScreenViewModel,
@@ -639,76 +638,7 @@ private fun SearchView(
                 modifier = Modifier.wrapContentHeight(),
                 containerColor = Color.Transparent,
                 topBar = {
-                    TopAppBar(
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
-                        ),
-                        navigationIcon = {
-                            IconButton(onClick = {
-                                viewModel.searchQuery = ""
-                                viewModel.isSearching = false
-                            }) {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "BACK_ICON"
-                                )
-                            }
-                        },
-                        title = {
-                            Row(
-                                modifier = Modifier
-                                    .offset(x = (-16).dp)
-                                    .clickable(
-                                        enabled = true
-                                    ) { }
-                            ) {
-                                TextField(
-                                    value = viewModel.searchQuery,
-                                    onValueChange = {
-                                        viewModel.searchQuery = it
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .focusRequester(focusRequester)
-                                        .onGloballyPositioned {
-                                            focusRequester.requestFocus()
-                                        }
-                                        .testTag("SEARCH_TEXT_FIELD"),
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        focusedIndicatorColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent
-                                    ),
-                                    keyboardOptions = KeyboardOptions(
-                                        imeAction = ImeAction.Search
-                                    ),
-                                    keyboardActions = KeyboardActions(
-                                        onSearch = {
-                                            if (viewModel.searchQuery.trim().isNotBlank()) {
-                                                viewModel.isSearchResult = true
-                                                viewModel.isSearchingByQuery = true
-                                                viewModel.insertRecentSearch()
-                                                viewModel.populateList()
-                                            }
-                                            viewModel.isSearching = false
-                                        }
-                                    ),
-                                    singleLine = true,
-                                    textStyle = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                        },
-                        actions = {
-                            if (viewModel.searchQuery.isNotBlank()) {
-                                IconButton(onClick = {
-                                    viewModel.searchQuery = ""
-                                }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
-                                }
-                            }
-                        }
-                    )
+                    SearchViewTopAppBar(viewModel, focusRequester)
                 }
             ) { paddingValues ->
                 Column(
@@ -748,4 +678,82 @@ private fun SearchView(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchViewTopAppBar(
+    viewModel: LandingScreenViewModel,
+    focusRequester: FocusRequester
+) {
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+        ),
+        navigationIcon = {
+            IconButton(onClick = {
+                viewModel.searchQuery = ""
+                viewModel.isSearching = false
+            }) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "BACK_ICON"
+                )
+            }
+        },
+        title = {
+            Row(
+                modifier = Modifier
+                    .offset(x = (-16).dp)
+                    .clickable(
+                        enabled = true
+                    ) { }
+            ) {
+                TextField(
+                    value = viewModel.searchQuery,
+                    onValueChange = {
+                        viewModel.searchQuery = it
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                        .onGloballyPositioned {
+                            focusRequester.requestFocus()
+                        }
+                        .testTag("SEARCH_TEXT_FIELD"),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Search
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            if (viewModel.searchQuery.trim().isNotBlank()) {
+                                viewModel.isSearchResult = true
+                                viewModel.isSearchingByQuery = true
+                                viewModel.insertRecentSearch()
+                                viewModel.populateList()
+                            }
+                            viewModel.isSearching = false
+                        }
+                    ),
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge
+                )
+            }
+        },
+        actions = {
+            if (viewModel.searchQuery.isNotBlank()) {
+                IconButton(onClick = {
+                    viewModel.searchQuery = ""
+                }) {
+                    Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
+                }
+            }
+        }
+    )
 }
