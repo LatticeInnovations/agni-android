@@ -30,7 +30,7 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     private val relationRepository: RelationRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
 ) : BaseViewModel() {
-
+    var isLaunched by mutableStateOf(false)
     var patientResponse by mutableStateOf<PatientResponse?>(null)
 
     internal var firstName by mutableStateOf("")
