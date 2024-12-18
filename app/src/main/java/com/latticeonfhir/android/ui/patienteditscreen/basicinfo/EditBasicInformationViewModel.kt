@@ -90,12 +90,7 @@ class EditBasicInformationViewModel @Inject constructor(
             return false
         if (middleName.length > 100 || lastName.length > 100)
             return false
-        if (dobAgeSelector == "dob" && ((dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()) || (!TimeConverter.isDOBValid(
-                dobDay.toInt(),
-                dobMonth.toMonthInteger(),
-                dobYear.toInt()
-            )))
-        )
+        if (checkDob())
             return false
         if (dobAgeSelector == "age" && (days.isEmpty() && months.isEmpty() && years.isEmpty()) || (isAgeDaysValid || isAgeMonthsValid || isAgeYearsValid))
             return false
@@ -104,6 +99,15 @@ class EditBasicInformationViewModel @Inject constructor(
         if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return false
         return gender != ""
+    }
+
+    private fun checkDob(): Boolean {
+        return dobAgeSelector == "dob" && ((dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()) || (!TimeConverter.isDOBValid(
+            dobDay.toInt(),
+            dobMonth.toMonthInteger(),
+            dobYear.toInt()
+        )))
+
     }
 
     fun splitDOB(dob: String): Triple<Int, String, Int> {
@@ -167,35 +171,12 @@ class EditBasicInformationViewModel @Inject constructor(
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (response > 0) {
                 if (patientResponse.fhirId != null) {
-                    if (firstName != firstNameTemp) {
-                        genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
-                            map = mapOf(
-                                Pair(
-                                    "firstName", ChangeRequest(
-                                        value = firstName, operation = ChangeTypeEnum.REPLACE.value
-                                    )
-                                )
-                            )
-                        )
-                    }
+                    saveFirstName(patientResponse)
                     checkIsValueChange(patientResponse, middleName, middleNameTemp, "middleName")
                     checkIsValueChange(patientResponse, lastName, lastNameTemp, "lastName")
                     checkIsValueChange(patientResponse, email, emailTemp, "email")
 
-                    if (patientResponse.gender != genderTemp) {
-                        genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
-                            map = mapOf(
-                                Pair(
-                                    "gender", ChangeRequest(
-                                        value = patientResponse.gender,
-                                        operation = ChangeTypeEnum.REPLACE.value
-                                    )
-                                )
-                            )
-                        )
-                    }
+                    saveGender(patientResponse)
                     if (phoneNumber != phoneNumberTemp) {
                         genericRepository.insertOrUpdatePatientPatchEntity(
                             patientFhirId = patientResponse.fhirId,
@@ -232,47 +213,85 @@ class EditBasicInformationViewModel @Inject constructor(
         }
     }
 
+    private suspend fun saveGender(patientResponse: PatientResponse) {
+        if (patientResponse.gender != genderTemp) {
+            genericRepository.insertOrUpdatePatientPatchEntity(
+                patientFhirId = patientResponse.fhirId!!,
+                map = mapOf(
+                    Pair(
+                        "gender", ChangeRequest(
+                            value = patientResponse.gender,
+                            operation = ChangeTypeEnum.REPLACE.value
+                        )
+                    )
+                )
+            )
+        }
+
+    }
+
+    private suspend fun saveFirstName(patientResponse: PatientResponse) {
+        if (firstName != firstNameTemp) {
+            genericRepository.insertOrUpdatePatientPatchEntity(
+                patientFhirId = patientResponse.fhirId!!,
+                map = mapOf(
+                    Pair(
+                        "firstName", ChangeRequest(
+                            value = firstName, operation = ChangeTypeEnum.REPLACE.value
+                        )
+                    )
+                )
+            )
+        }
+    }
+
     private suspend fun checkIsValueChange(
         patientResponse: PatientResponse,
         value: String,
         tempValue: String,
         key: String
     ) {
-        if (value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        key, ChangeRequest(
-                            value = value, operation = ChangeTypeEnum.REPLACE.value
+        when {
+            value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty() -> {
+                genericRepository.insertOrUpdatePatientPatchEntity(
+                    patientFhirId = patientResponse.fhirId!!,
+                    map = mapOf(
+                        Pair(
+                            key, ChangeRequest(
+                                value = value, operation = ChangeTypeEnum.REPLACE.value
+                            )
                         )
                     )
                 )
-            )
-        } else if (value != tempValue && tempValue.isNotEmpty() && value.isEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        key, ChangeRequest(
-                            value = tempValue, operation = ChangeTypeEnum.REMOVE.value
-                        )
-                    )
-                )
-            )
+            }
 
-        } else if (value != tempValue && tempValue.isEmpty() && value.isNotEmpty()) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        key, ChangeRequest(
-                            value = value, operation = ChangeTypeEnum.ADD.value
+            value != tempValue && tempValue.isNotEmpty() && value.isEmpty() -> {
+                genericRepository.insertOrUpdatePatientPatchEntity(
+                    patientFhirId = patientResponse.fhirId!!,
+                    map = mapOf(
+                        Pair(
+                            key, ChangeRequest(
+                                value = tempValue, operation = ChangeTypeEnum.REMOVE.value
+                            )
                         )
                     )
                 )
-            )
 
+            }
+
+            value != tempValue && tempValue.isEmpty() && value.isNotEmpty() -> {
+                genericRepository.insertOrUpdatePatientPatchEntity(
+                    patientFhirId = patientResponse.fhirId!!,
+                    map = mapOf(
+                        Pair(
+                            key, ChangeRequest(
+                                value = value, operation = ChangeTypeEnum.ADD.value
+                            )
+                        )
+                    )
+                )
+
+            }
         }
 
 

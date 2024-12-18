@@ -78,50 +78,7 @@ fun EditBasicInformation(
 ) {
     val patientResponse =
         navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>("patient_details")
-    LaunchedEffect(viewModel.isLaunched) {
-        if (!viewModel.isLaunched) {
-            patientResponse?.run {
-                viewModel.firstName = firstName
-                viewModel.middleName = middleName ?: ""
-                viewModel.lastName = lastName ?: ""
-                viewModel.phoneNumber = mobileNumber.toString()
-                viewModel.email = email ?: ""
-                if (viewModel.dobRegex.matches(birthDate)) {
-                    viewModel.dobAgeSelector = "dob"
-                    val (day, month, year) = viewModel.splitDOB(birthDate)
-                    viewModel.dobDay = day.toString()
-                    viewModel.dobMonth = month
-                    viewModel.dobYear = year.toString()
-                } else if (viewModel.ageRegex.matches(birthDate)) {
-                    val (day, month, year) = viewModel.splitAge(birthDate.toPatientDate())
-                    viewModel.dobAgeSelector = "age"
-                    viewModel.years = year.toString()
-                    viewModel.months = month.toString()
-                    viewModel.days = day.toString()
-                }
-                viewModel.gender = gender
-                viewModel.birthDate = birthDate
-            }
-            viewModel.isLaunched = true
-
-            //set temp value
-            viewModel.firstNameTemp = viewModel.firstName
-            viewModel.middleNameTemp = viewModel.middleName
-            viewModel.lastNameTemp = viewModel.lastName
-            viewModel.phoneNumberTemp = viewModel.phoneNumber
-            viewModel.emailTemp = viewModel.email
-            viewModel.dobAgeSelectorTemp = viewModel.dobAgeSelector
-            viewModel.dobDayTemp = viewModel.dobDay
-            viewModel.dobMonthTemp = viewModel.dobMonth
-            viewModel.dobYearTemp = viewModel.dobYear
-            viewModel.daysTemp = viewModel.days
-            viewModel.monthsTemp = viewModel.months
-            viewModel.yearsTemp = viewModel.years
-            viewModel.genderTemp = viewModel.gender
-
-        }
-    }
-
+    HandleLaunchedEffect(viewModel, patientResponse)
     BackHandler(enabled = true) {
         navController.previousBackStackEntry?.savedStateHandle?.set("isProfileUpdated", false)
         navController.popBackStack()
@@ -208,10 +165,7 @@ fun EditBasicInformation(
                         KeyboardType.Text,
                         KeyboardCapitalization.Words
                     ) {
-                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.firstName =
-                            it.trim()
-                        viewModel.isNameValid =
-                            viewModel.firstName.length < 3 || viewModel.firstName.length > 100
+                        checkFirstName(viewModel, it)
                     }
                     ValueLength(viewModel.firstName)
                     CustomTextField(
@@ -224,8 +178,7 @@ fun EditBasicInformation(
                         KeyboardType.Text,
                         KeyboardCapitalization.Words
                     ) {
-                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.middleName =
-                            it.trim()
+                        checkMiddleName(viewModel, it)
                     }
                     ValueLength(viewModel.middleName)
                     CustomTextField(
@@ -238,8 +191,7 @@ fun EditBasicInformation(
                         KeyboardType.Text,
                         KeyboardCapitalization.Words
                     ) {
-                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.lastName =
-                            it.trim()
+                        checkLastName(viewModel, it)
                     }
                     ValueLength(viewModel.lastName)
                     Row(modifier = Modifier.fillMaxWidth()) {
@@ -284,13 +236,7 @@ fun EditBasicInformation(
                         KeyboardType.Email,
                         KeyboardCapitalization.None
                     ) {
-                        viewModel.email = it
-                        if (viewModel.email.isNotEmpty()) {
-                            viewModel.isEmailValid =
-                                !Patterns.EMAIL_ADDRESS.matcher(viewModel.email).matches()
-                        } else {
-                            viewModel.isEmailValid = false
-                        }
+                        checkEmail(viewModel, it)
                     }
                     ValueLengthEmail(viewModel.email)
 
@@ -309,30 +255,7 @@ fun EditBasicInformation(
         }, floatingActionButton = {
             Button(
                 onClick = {
-
-                    viewModel.updateBasicInfo(
-                        patientResponse!!.copy(
-                            firstName = viewModel.firstName,
-                            middleName = viewModel.middleName,
-                            lastName = viewModel.lastName,
-                            mobileNumber = viewModel.phoneNumber.toLong(),
-                            email = viewModel.email,
-                            birthDate = if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
-                            else ageToPatientDate(
-                                viewModel.years.toIntOrNull() ?: 0,
-                                viewModel.months.toIntOrNull() ?: 0,
-                                viewModel.days.toIntOrNull() ?: 0
-                            ).toPatientDate(),
-                            gender = viewModel.gender
-                        )
-                    )
-                    navController.previousBackStackEntry?.savedStateHandle?.set(
-                        "isProfileUpdated",
-                        true
-                    )
-                    navController.popBackStack()
-
-
+                    handleBasicInfoNavigation(viewModel, navController, patientResponse)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -345,6 +268,113 @@ fun EditBasicInformation(
 
         }
     )
+
+}
+
+fun checkFirstName(viewModel: EditBasicInformationViewModel, it: String) {
+    if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.firstName =
+        it.trim()
+    viewModel.isNameValid =
+        viewModel.firstName.length < 3 || viewModel.firstName.length > 100
+
+}
+
+fun checkMiddleName(viewModel: EditBasicInformationViewModel, it: String) {
+    if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.middleName =
+        it.trim()
+}
+
+private fun checkLastName(viewModel: EditBasicInformationViewModel, it: String) {
+    if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.lastName =
+        it.trim()
+}
+
+private fun checkEmail(viewModel: EditBasicInformationViewModel, value: String) {
+    viewModel.email = value
+    if (viewModel.email.isNotEmpty()) {
+        viewModel.isEmailValid =
+            !Patterns.EMAIL_ADDRESS.matcher(viewModel.email).matches()
+    } else {
+        viewModel.isEmailValid = false
+    }
+}
+
+private fun handleBasicInfoNavigation(
+    viewModel: EditBasicInformationViewModel,
+    navController: NavController,
+    patientResponse: PatientResponse?
+) {
+    viewModel.updateBasicInfo(
+        patientResponse!!.copy(
+            firstName = viewModel.firstName,
+            middleName = viewModel.middleName,
+            lastName = viewModel.lastName,
+            mobileNumber = viewModel.phoneNumber.toLong(),
+            email = viewModel.email,
+            birthDate = if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
+            else ageToPatientDate(
+                viewModel.years.toIntOrNull() ?: 0,
+                viewModel.months.toIntOrNull() ?: 0,
+                viewModel.days.toIntOrNull() ?: 0
+            ).toPatientDate(),
+            gender = viewModel.gender
+        )
+    )
+    navController.previousBackStackEntry?.savedStateHandle?.set(
+        "isProfileUpdated",
+        true
+    )
+    navController.popBackStack()
+}
+
+@Composable
+fun HandleLaunchedEffect(
+    viewModel: EditBasicInformationViewModel,
+    patientResponse: PatientResponse?
+) {
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            patientResponse?.run {
+                viewModel.firstName = firstName
+                viewModel.middleName = middleName ?: ""
+                viewModel.lastName = lastName ?: ""
+                viewModel.phoneNumber = mobileNumber.toString()
+                viewModel.email = email ?: ""
+                if (viewModel.dobRegex.matches(birthDate)) {
+                    viewModel.dobAgeSelector = "dob"
+                    val (day, month, year) = viewModel.splitDOB(birthDate)
+                    viewModel.dobDay = day.toString()
+                    viewModel.dobMonth = month
+                    viewModel.dobYear = year.toString()
+                } else if (viewModel.ageRegex.matches(birthDate)) {
+                    val (day, month, year) = viewModel.splitAge(birthDate.toPatientDate())
+                    viewModel.dobAgeSelector = "age"
+                    viewModel.years = year.toString()
+                    viewModel.months = month.toString()
+                    viewModel.days = day.toString()
+                }
+                viewModel.gender = gender
+                viewModel.birthDate = birthDate
+            }
+            viewModel.isLaunched = true
+
+            //set temp value
+            viewModel.firstNameTemp = viewModel.firstName
+            viewModel.middleNameTemp = viewModel.middleName
+            viewModel.lastNameTemp = viewModel.lastName
+            viewModel.phoneNumberTemp = viewModel.phoneNumber
+            viewModel.emailTemp = viewModel.email
+            viewModel.dobAgeSelectorTemp = viewModel.dobAgeSelector
+            viewModel.dobDayTemp = viewModel.dobDay
+            viewModel.dobMonthTemp = viewModel.dobMonth
+            viewModel.dobYearTemp = viewModel.dobYear
+            viewModel.daysTemp = viewModel.days
+            viewModel.monthsTemp = viewModel.months
+            viewModel.yearsTemp = viewModel.years
+            viewModel.genderTemp = viewModel.gender
+
+        }
+    }
 
 }
 
@@ -381,7 +411,6 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            var monthExpanded by remember { mutableStateOf(false) }
             CustomTextField(
                 value = viewModel.dobDay,
                 label = "Day",
@@ -392,64 +421,10 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
                 KeyboardType.Number,
                 KeyboardCapitalization.None
             ) {
-                if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobDay = it
-                if (viewModel.dobDay.isNotEmpty()) {
-                    viewModel.monthsList = MonthsList.getMonthsList(viewModel.dobDay)
-                }
+                setDobValues(viewModel, it)
             }
             Spacer(modifier = Modifier.width(10.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .testTag("Month")
-            ) {
-                OutlinedTextField(
-                    value = viewModel.dobMonth,
-                    onValueChange = {
-                        viewModel.dobMonth = it
-                    },
-                    label = {
-                        Text(text = "Month")
-                    },
-                    trailingIcon = {
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "")
-                    },
-                    interactionSource = remember {
-                        MutableInteractionSource()
-                    }.also { interactionSource ->
-                        LaunchedEffect(interactionSource) {
-                            interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    monthExpanded = !monthExpanded
-                                }
-                            }
-                        }
-                    },
-                    readOnly = true,
-                    singleLine = true
-                )
-                DropdownMenu(
-                    modifier = Modifier.fillMaxHeight(0.5f),
-                    expanded = monthExpanded,
-                    onDismissRequest = { monthExpanded = false },
-                ) {
-                    viewModel.monthsList.forEach { label ->
-                        DropdownMenuItem(
-                            onClick = {
-                                monthExpanded = false
-                                viewModel.dobMonth = label
-                            },
-                            text = {
-                                Text(
-                                    text = label,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        )
-                    }
-                }
-            }
+            MonthField(viewModel)
             Spacer(modifier = Modifier.width(10.dp))
             CustomTextField(
                 value = viewModel.dobYear,
@@ -464,13 +439,7 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
                 if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobYear = it
             }
         }
-        if (viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
-            && !TimeConverter.isDOBValid(
-                viewModel.dobDay.toInt(),
-                viewModel.dobMonth.toMonthInteger(),
-                viewModel.dobYear.toInt()
-            )
-        ) {
+        if (validateDate(viewModel)) {
             Text(
                 text = stringResource(
                     id = R.string.invalid_date,
@@ -480,6 +449,81 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(start = 8.dp)
             )
+        }
+    }
+}
+
+private fun setDobValues(viewModel: EditBasicInformationViewModel, value: String) {
+    if (value.matches(viewModel.onlyNumbers) || value.isEmpty()) viewModel.dobDay = value
+    if (viewModel.dobDay.isNotEmpty()) {
+        viewModel.monthsList = MonthsList.getMonthsList(viewModel.dobDay)
+    }
+}
+
+private fun validateDate(viewModel: EditBasicInformationViewModel): Boolean {
+    return viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
+            && !TimeConverter.isDOBValid(
+        viewModel.dobDay.toInt(),
+        viewModel.dobMonth.toMonthInteger(),
+        viewModel.dobYear.toInt()
+    )
+
+}
+
+@Composable
+private fun MonthField(viewModel: EditBasicInformationViewModel) {
+    var monthExpanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.6f)
+            .testTag("Month")
+    ) {
+        OutlinedTextField(
+            value = viewModel.dobMonth,
+            onValueChange = {
+                viewModel.dobMonth = it
+            },
+            label = {
+                Text(text = "Month")
+            },
+            trailingIcon = {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "")
+            },
+            interactionSource = remember {
+                MutableInteractionSource()
+            }.also { interactionSource ->
+                LaunchedEffect(interactionSource) {
+                    interactionSource.interactions.collect {
+                        if (it is PressInteraction.Release) {
+                            monthExpanded = !monthExpanded
+                        }
+                    }
+                }
+            },
+            readOnly = true,
+            singleLine = true
+        )
+        DropdownMenu(
+            modifier = Modifier.fillMaxHeight(0.5f),
+            expanded = monthExpanded,
+            onDismissRequest = { monthExpanded = false },
+        ) {
+            viewModel.monthsList.forEach { label ->
+                DropdownMenuItem(
+                    onClick = {
+                        monthExpanded = false
+                        viewModel.dobMonth = label
+                    },
+                    text = {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                )
+            }
         }
     }
 }
@@ -499,9 +543,7 @@ fun AgeTextField(viewModel: EditBasicInformationViewModel) {
             KeyboardType.Number,
             KeyboardCapitalization.None
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
-            if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
-                viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
+            setAgeValues(viewModel, it)
         }
         Spacer(modifier = Modifier.width(15.dp))
         CustomTextField(
@@ -529,11 +571,21 @@ fun AgeTextField(viewModel: EditBasicInformationViewModel) {
             KeyboardType.Number,
             KeyboardCapitalization.None
         ) {
-            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
-            if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
-                viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
+            setDayValue(viewModel, it)
         }
     }
+}
+
+private fun setDayValue(viewModel: EditBasicInformationViewModel, it: String) {
+    if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
+    if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
+        viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
+}
+
+private fun setAgeValues(viewModel: EditBasicInformationViewModel, it: String) {
+    if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
+    if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
+        viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
 }
 
 @Composable
