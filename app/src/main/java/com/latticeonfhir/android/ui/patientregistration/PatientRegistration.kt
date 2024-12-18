@@ -137,9 +137,15 @@ fun PatientRegistration(
                     3 -> PatientRegistrationStepThree(navController, patientRegister)
                 }
                 if (viewModel.openDialog) {
-                    DiscardDialog(navController) {
-                        viewModel.openDialog = false
-                    }
+                    DiscardDialog(
+                        closeDialog = {
+                            viewModel.openDialog = false
+                        },
+                        navigateBack = {
+                            viewModel.openDialog = false
+                            navController.navigateUp()
+                        }
+                    )
                 }
             }
             if (viewModel.showRelationDialogue) {

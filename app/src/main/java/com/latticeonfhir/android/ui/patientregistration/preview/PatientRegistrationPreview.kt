@@ -143,9 +143,15 @@ fun PatientRegistrationPreview(
             ) {
                 PreviewScreenComposable(patientRegisterDetails, viewModel, context, navController)
                 if (viewModel.openDialog) {
-                    DiscardDialog(navController) {
-                        viewModel.openDialog = false
-                    }
+                    DiscardDialog(
+                        closeDialog = {
+                            viewModel.openDialog = false
+                        },
+                        navigateBack = {
+                            viewModel.openDialog = false
+                            navController.popBackStack(Screen.PatientRegistrationScreen.route, true)
+                        }
+                    )
                 }
             }
         },
@@ -326,7 +332,10 @@ private fun setData(patientRegisterDetails: PatientRegister?, viewModel: Patient
 }
 
 @Composable
-fun DiscardDialog(navController: NavController, closeDialog: () -> Unit) {
+fun DiscardDialog(
+    closeDialog: () -> Unit,
+    navigateBack: () -> Unit
+) {
     AlertDialog(
         onDismissRequest = {
             closeDialog()
@@ -348,8 +357,7 @@ fun DiscardDialog(navController: NavController, closeDialog: () -> Unit) {
         confirmButton = {
             TextButton(
                 onClick = {
-                    closeDialog()
-                    navController.navigateUp()
+                    navigateBack()
                 }) {
                 Text(
                     stringResource(id = R.string.yes_discard),
