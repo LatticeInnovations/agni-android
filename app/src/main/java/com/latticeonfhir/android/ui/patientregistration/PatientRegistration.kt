@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -52,42 +52,45 @@ fun PatientRegistration(
     viewModel: PatientRegistrationViewModel = viewModel()
 ) {
     var patientRegister = PatientRegister()
-    if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+    if (navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
             "isEditing"
         ) == true
     ) {
-        viewModel.currentStep = navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
+        viewModel.currentStep = navController.currentBackStackEntry?.savedStateHandle?.get<Int>(
             "currentStep"
         )!!
-        viewModel.isEditing = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+        viewModel.isEditing = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
             "isEditing"
         )!!
         patientRegister =
-            navController.previousBackStackEntry?.savedStateHandle?.get<PatientRegister>(
+            navController.currentBackStackEntry?.savedStateHandle?.get<PatientRegister>(
                 "patient_register_details"
             )!!
     }
     LaunchedEffect(viewModel.isLaunched) {
-        if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-                "fromHouseholdMember"
-            ) == true
-        ) {
-            viewModel.fromHouseholdMember = true
-            viewModel.showRelationDialogue = true
-            viewModel.totalSteps = 4
-            viewModel.patientFrom =
-                navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
-                )
+        if (!viewModel.isLaunched) {
+            if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                    "fromHouseholdMember"
+                ) == true
+            ) {
+                viewModel.fromHouseholdMember = true
+                viewModel.showRelationDialogue = true
+                viewModel.totalSteps = 4
+                viewModel.patientFrom =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                        "patient"
+                    )
+            }
+            viewModel.isLaunched = true
         }
-        viewModel.isLaunched = true
     }
     BackHandler {
         if (viewModel.currentStep == 1) navController.navigateUp()
         else viewModel.openDialog = true
     }
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .imePadding(),
         topBar = {
             CenterAlignedTopAppBar(
@@ -103,7 +106,7 @@ fun PatientRegistration(
                             viewModel.currentStep -= 1
                         }) {
                             Icon(
-                                Icons.Default.ArrowBack,
+                                Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "BACK_ICON"
                             )
                         }
@@ -134,7 +137,7 @@ fun PatientRegistration(
                     3 -> PatientRegistrationStepThree(navController, patientRegister)
                 }
                 if (viewModel.openDialog) {
-                    DiscardDialog(navController, viewModel.fromHouseholdMember) {
+                    DiscardDialog(navController) {
                         viewModel.openDialog = false
                     }
                 }

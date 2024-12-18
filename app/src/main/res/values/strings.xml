@@ -411,7 +411,7 @@ include them in the household</string>
     <string name="no_dispense_records">No dispense records found</string>
     <string name="medicine_name">Medicine name*</string>
     <string name="drugs_dispense_heading">Drug dispense</string>
-    <string name="otc_quantity_error_message">Range 1-50</string>
+    <string name="otc_quantity_error_message">Range 1–50</string>
     <string name="quantity_dispensed_info">Quantity dispensed: %d</string>
     <string name="quantity_prescribed_info">Quantity prescribed: %d</string>
     <string name="qty_to_dispense">Qty. to dispense*</string>
@@ -419,4 +419,5 @@ include them in the household</string>
     <string name="yesterday">Yesterday</string>
     <string name="no_records">No records.</string>
     <string name="no_previous_prescription">No previous prescription</string>
+    <string name="same_address_as_source_patient">Same address as source patient</string>
 </resources>

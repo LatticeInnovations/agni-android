@@ -10,9 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +33,7 @@ import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.theme.Neutral40
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientRegistrationStepThree(
     navController: NavController,
@@ -78,6 +83,55 @@ fun PatientRegistrationStepThree(
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
+        if (patientRegistrationViewModel.fromHouseholdMember) {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+                    Checkbox(
+                        checked = viewModel.checkedState,
+                        onCheckedChange = { value ->
+                            viewModel.checkedState = value
+                            if (value) {
+                                viewModel.homeAddress.apply {
+                                    pincode =
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.postalCode
+                                    state =
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.state
+                                    addressLine1 =
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.addressLine1
+                                    addressLine2 =
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.addressLine2
+                                            ?: ""
+                                    district =
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.district
+                                            ?: ""
+                                    city =
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.city
+                                }
+                            } else {
+                                viewModel.homeAddress.apply {
+                                    pincode = ""
+                                    state = ""
+                                    addressLine1 = ""
+                                    addressLine2 = ""
+                                    district = ""
+                                    city = ""
+                                }
+                            }
+                        }
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.same_address_as_source_patient),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
@@ -85,7 +139,7 @@ fun PatientRegistrationStepThree(
                 .testTag("columnLayout")
         ) {
             AddressComposable(
-                label = stringResource(id = R.string.home_address),
+                label = null,
                 address = viewModel.homeAddress
             )
             Spacer(modifier = Modifier.testTag("end of page"))

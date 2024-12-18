@@ -37,17 +37,19 @@ import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import com.latticeonfhir.android.utils.converters.responseconverter.States
 
 @Composable
-fun AddressComposable(label: String, address: Address, isSearching: Boolean = false) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+fun AddressComposable(label: String?, address: Address, isSearching: Boolean = false) {
+    label?.let {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
     }
     PinCodeAndStateComposable(address, isSearching)
     Spacer(modifier = Modifier.height(15.dp))
