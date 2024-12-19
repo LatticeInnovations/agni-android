@@ -8,11 +8,9 @@ import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 
 class PatientRegistrationStepThreeViewModel : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
+    var checkedState by mutableStateOf(false)
 
     var homeAddress by mutableStateOf(Address())
-
-    // temp
-    val homeAddressTemp by mutableStateOf(Address())
 
     var workAddress by mutableStateOf(Address())
 

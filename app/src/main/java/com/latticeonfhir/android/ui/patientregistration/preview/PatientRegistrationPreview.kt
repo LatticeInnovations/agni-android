@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.patientregistration.preview
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -44,7 +46,6 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,22 +57,42 @@ fun PatientRegistrationPreview(
         navController.previousBackStackEntry?.savedStateHandle?.get<PatientRegister>(
             key = "patient_register_details"
         )
-    val context = LocalContext.current
-    if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-            key = "fromHouseholdMember"
-        ) == true
-    ) {
-        viewModel.fromHouseholdMember = true
-        viewModel.relation = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-            key = "relation"
-        )!!
-        viewModel.patientFrom =
-            navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                key = "patientFrom"
-            )!!
-        viewModel.patientFromId = viewModel.patientFrom!!.id
-    }
     setData(patientRegisterDetails, viewModel)
+    val context = LocalContext.current
+    LaunchedEffect(viewModel.isLaunched) {
+        if (!viewModel.isLaunched) {
+            if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
+                    key = "fromHouseholdMember"
+                ) == true
+            ) {
+                viewModel.fromHouseholdMember = true
+                viewModel.relation = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                    key = "relation"
+                )!!
+                viewModel.patientFrom =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
+                        key = "patientFrom"
+                    )!!
+                viewModel.patientFromId = viewModel.patientFrom!!.id
+            }
+            viewModel.isLaunched = true
+        }
+    }
+    BackHandler {
+        navController.previousBackStackEntry?.savedStateHandle?.set(
+            "isEditing",
+            true
+        )
+        navController.previousBackStackEntry?.savedStateHandle?.set(
+            "currentStep",
+            3
+        )
+        navController.previousBackStackEntry?.savedStateHandle?.set(
+            "patient_register_details",
+            patientRegisterDetails
+        )
+        navController.navigateUp()
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -84,19 +105,19 @@ fun PatientRegistrationPreview(
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
                             "isEditing",
                             true
                         )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
                             "currentStep",
                             3
                         )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
                             "patient_register_details",
                             patientRegisterDetails
                         )
-                        navController.navigate(Screen.PatientRegistrationScreen.route)
+                        navController.navigateUp()
                     }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
@@ -122,9 +143,15 @@ fun PatientRegistrationPreview(
             ) {
                 PreviewScreenComposable(patientRegisterDetails, viewModel, context, navController)
                 if (viewModel.openDialog) {
-                    DiscardDialog(navController, viewModel.fromHouseholdMember) {
-                        viewModel.openDialog = false
-                    }
+                    DiscardDialog(
+                        closeDialog = {
+                            viewModel.openDialog = false
+                        },
+                        navigateBack = {
+                            viewModel.openDialog = false
+                            navController.popBackStack(Screen.PatientRegistrationScreen.route, true)
+                        }
+                    )
                 }
             }
         },
@@ -244,19 +271,19 @@ private fun PreviewScreenComposable(
         PreviewScreen(
             viewModel.patientResponse!!
         ) { index ->
-            navController.currentBackStackEntry?.savedStateHandle?.set(
+            navController.previousBackStackEntry?.savedStateHandle?.set(
                 "isEditing",
                 true
             )
-            navController.currentBackStackEntry?.savedStateHandle?.set(
+            navController.previousBackStackEntry?.savedStateHandle?.set(
                 "currentStep",
                 index
             )
-            navController.currentBackStackEntry?.savedStateHandle?.set(
+            navController.previousBackStackEntry?.savedStateHandle?.set(
                 "patient_register_details",
                 patientRegisterDetails
             )
-            navController.navigate(Screen.PatientRegistrationScreen.route)
+            navController.navigateUp()
         }
     }
 }
@@ -300,13 +327,15 @@ private fun setData(patientRegisterDetails: PatientRegister?, viewModel: Patient
                     viewModel.months.toIntOrNull() ?: 0,
                     viewModel.days.toIntOrNull() ?: 0
                 )
-                Timber.d("manseeyy ${viewModel.dob.toPatientDate()}")
             }
         }
 }
 
 @Composable
-fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDialog: () -> Unit) {
+fun DiscardDialog(
+    closeDialog: () -> Unit,
+    navigateBack: () -> Unit
+) {
     AlertDialog(
         onDismissRequest = {
             closeDialog()
@@ -328,10 +357,7 @@ fun DiscardDialog(navController: NavController, fromHousehold: Boolean, closeDia
         confirmButton = {
             TextButton(
                 onClick = {
-                    closeDialog()
-                    if (fromHousehold)
-                        navController.popBackStack(Screen.AddHouseholdMember.route, false)
-                    else navController.popBackStack(Screen.LandingScreen.route, false)
+                    navigateBack()
                 }) {
                 Text(
                     stringResource(id = R.string.yes_discard),
