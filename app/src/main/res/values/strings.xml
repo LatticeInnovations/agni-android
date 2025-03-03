@@ -420,4 +420,6 @@ include them in the household</string>
     <string name="no_records">No records.</string>
     <string name="no_previous_prescription">No previous prescription</string>
     <string name="same_address_as_source_patient">Same address as source patient</string>
+    <string name="vaccination">Vaccination</string>
+    <string name="vaccination_info">%d upcoming, %d missed, %d taken</string>
 </resources>

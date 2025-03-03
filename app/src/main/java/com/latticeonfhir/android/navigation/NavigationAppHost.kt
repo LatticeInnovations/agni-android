@@ -38,6 +38,7 @@ import com.latticeonfhir.android.ui.vitalsscreen.VitalsScreen
 import com.latticeonfhir.android.ui.vitalsscreen.addvitals.AddVitalsScreen
 import com.latticeonfhir.android.ui.symptomsanddiagnosis.SymptomsAndDiagnosisScreen
 import com.latticeonfhir.android.ui.symptomsanddiagnosis.selectsymptoms.SelectSymptomScreen
+import com.latticeonfhir.android.ui.vaccination.VaccinationScreen
 
 @Composable
 fun NavigationAppHost(navController: NavController, startDest: String) {
@@ -89,5 +90,7 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.DrugDispenseScreen.route) { DrugDispenseScreen(navController = navController) }
         composable(Screen.DispensePrescriptionScreen.route) { DispensePrescriptionScreen(navController = navController) }
         composable(Screen.OTCScreen.route) { OTCScreen(navController = navController) }
+
+        composable(Screen.VaccinationScreen.route) { VaccinationScreen(navController = navController) }
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -321,6 +322,27 @@ private fun CardComposableList(
                 )
                 navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
             }
+        )
+        CardComposable(
+            viewModel,
+            stringResource(id = R.string.vaccination),
+            R.drawable.syringe,
+            stringResource(
+                id = R.string.vaccination_info,
+                viewModel.upcomingVaccine,
+                viewModel.missedVaccine,
+                viewModel.takenVaccine
+            ),
+            onClick = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PATIENT,
+                    viewModel.patient
+                )
+                navController.navigate(Screen.VaccinationScreen.route)
+            }
+        )
+        Spacer(
+            modifier = Modifier.height(76.dp)
         )
     }
 }
