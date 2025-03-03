@@ -39,7 +39,7 @@ jobs:
         run: chmod +x build.gradle
 
       - name: Setup Gradle Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
@@ -48,6 +48,8 @@ jobs:
             ${{ runner.os }}-${{ hashFiles('**/*.gradle*') }}-${{
             hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}-${{
             hashFiles('**/buildSrc/**/*.kt') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
 
       - name: Execute Gradle build
         run: ./gradlew build
