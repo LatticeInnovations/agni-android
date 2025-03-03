@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.main
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -89,6 +90,7 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     fun registerBroadcastReceiver() {
         startSMSRetrieverClient()
         val intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
