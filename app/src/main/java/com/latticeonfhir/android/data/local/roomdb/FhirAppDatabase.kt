@@ -53,6 +53,7 @@ import com.latticeonfhir.android.data.local.roomdb.entities.search.SymDiagSearch
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationRecommendationEntity
 import com.latticeonfhir.android.data.local.roomdb.typeconverters.SymptomDiagnosisTypeConverter
 import com.latticeonfhir.android.data.local.roomdb.typeconverters.TypeConverter
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
@@ -92,6 +93,7 @@ import java.util.UUID
         DispenseDataEntity::class,
         MedicineDispenseListEntity::class,
         StrengthEntity::class,
+        ImmunizationRecommendationEntity::class,
     ],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
     version = 13,

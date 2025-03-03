@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 13,
-    "identityHash": "9eff18245280aad56424ccc7734357e8",
+    "identityHash": "154be1530b472e88d60203bb361e0c97",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -2169,6 +2169,84 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "ImmunizationRecommendationEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `patientFhirId` TEXT NOT NULL, `vaccine` TEXT NOT NULL, `vaccineShortName` TEXT NOT NULL, `vaccineCode` TEXT NOT NULL, `seriesDoses` INTEGER NOT NULL, `doseNumber` INTEGER NOT NULL, `vaccineStartDate` INTEGER NOT NULL, `vaccineEndDate` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "patientFhirId",
+            "columnName": "patientFhirId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vaccine",
+            "columnName": "vaccine",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vaccineShortName",
+            "columnName": "vaccineShortName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vaccineCode",
+            "columnName": "vaccineCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seriesDoses",
+            "columnName": "seriesDoses",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "doseNumber",
+            "columnName": "doseNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vaccineStartDate",
+            "columnName": "vaccineStartDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vaccineEndDate",
+            "columnName": "vaccineEndDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ImmunizationRecommendationEntity_patientFhirId",
+            "unique": false,
+            "columnNames": [
+              "patientFhirId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ImmunizationRecommendationEntity_patientFhirId` ON `${TABLE_NAME}` (`patientFhirId`)"
+          }
+        ],
+        "foreignKeys": []
       }
     ],
     "views": [
@@ -2183,7 +2261,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9eff18245280aad56424ccc7734357e8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '154be1530b472e88d60203bb361e0c97')"
     ]
   }
 }
