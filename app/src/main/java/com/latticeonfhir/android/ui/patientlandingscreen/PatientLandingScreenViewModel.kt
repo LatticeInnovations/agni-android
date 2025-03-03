@@ -51,6 +51,10 @@ class PatientLandingScreenViewModel @Inject constructor(
 
     var selectedIndex by mutableIntStateOf(0)
 
+    var upcomingVaccine by mutableIntStateOf(1)
+    var missedVaccine by mutableIntStateOf(2)
+    var takenVaccine by mutableIntStateOf(3)
+
     private val syncService by lazy { getApplication<FhirApp>().syncService }
 
     private suspend fun syncData() {
