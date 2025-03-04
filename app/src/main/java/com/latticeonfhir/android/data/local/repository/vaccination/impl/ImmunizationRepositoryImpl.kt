@@ -5,7 +5,6 @@ import com.latticeonfhir.android.data.local.repository.vaccination.ImmunizationR
 import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationRecommendationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ManufacturerDao
-import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationFileEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toImmunizationEntity
 import javax.inject.Inject
@@ -37,7 +36,8 @@ class ImmunizationRepositoryImpl @Inject constructor(
             Immunization(
                 id = immunizationEntity.id,
                 vaccineName = immunizationRecommendation.vaccine,
-                vaccineShortName = immunizationRecommendation.vaccineShortName,
+                vaccineSortName = immunizationRecommendation.vaccineShortName,
+                vaccineCode = immunizationRecommendation.vaccineCode,
                 lotNumber = immunizationEntity.lotNumber,
                 takenOn = immunizationEntity.createdOn,
                 expiryDate = immunizationEntity.expiryDate,
