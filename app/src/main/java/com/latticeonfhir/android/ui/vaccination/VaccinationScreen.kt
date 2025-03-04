@@ -103,7 +103,7 @@ fun VaccinationScreen(
                             }
 
                             1 -> {
-                                Text("1")
+                                MissedVaccinationScreen(viewModel)
                             }
 
                             2 -> {
@@ -121,7 +121,7 @@ fun VaccinationScreen(
                 },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 12.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.add_icon),

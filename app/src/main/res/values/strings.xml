@@ -427,4 +427,7 @@ include them in the household</string>
     <string name="completed_vaccine_info">(%d/%d completed)</string>
     <string name="taken_on_date">Taken on %s</string>
     <string name="due_on_date">Due on %s</string>
+    <string name="no_missed_vaccines">No Missed Vaccines</string>
+    <string name="all_vaccines_on_schedule">All vaccines are on schedule.</string>
+    <string name="overdue_count">Overdue (%d)</string>
 </resources>
