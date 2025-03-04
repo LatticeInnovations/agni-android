@@ -18,10 +18,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.MISSED
+import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.TAKEN
 
 @Composable
-fun MissedVaccinationScreen(
+fun TakenVaccinationScreen(
     viewModel: VaccinationViewModel
 ) {
     Column(
@@ -34,22 +34,32 @@ fun MissedVaccinationScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         AgeComposable(viewModel)
-        if (viewModel.missedVaccinesList.isEmpty()) {
+        if (viewModel.takenVaccinesList.isEmpty()) {
             VaccineEmptyScreen(
-                stringResource(R.string.no_missed_vaccines),
-                stringResource(R.string.all_vaccines_on_schedule)
+                stringResource(R.string.no_vaccines_recorded),
+                stringResource(R.string.vaccine_log_info)
             )
         } else {
             Text(
-                text = stringResource(R.string.overdue_count, 4),
+                text = "February 2024",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(start = 16.dp, top = 8.dp)
             )
-            VaccineCard(MISSED)
-            VaccineCard(MISSED)
-            VaccineCard(MISSED)
-            VaccineCard(MISSED)
+            VaccineCard(TAKEN)
+            Text(
+                text = "January 2024",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+            )
+            VaccineCard(TAKEN)
+            VaccineCard(TAKEN)
+            VaccineCard(TAKEN)
+            VaccineCard(TAKEN)
+            VaccineCard(TAKEN)
+            VaccineCard(TAKEN)
+            VaccineCard(TAKEN)
             Spacer(modifier = Modifier.height(84.dp))
         }
     }

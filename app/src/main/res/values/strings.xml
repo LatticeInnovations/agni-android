@@ -430,4 +430,6 @@ include them in the household</string>
     <string name="no_missed_vaccines">No Missed Vaccines</string>
     <string name="all_vaccines_on_schedule">All vaccines are on schedule.</string>
     <string name="overdue_count">Overdue (%d)</string>
+    <string name="no_vaccines_recorded">No Vaccines Recorded</string>
+    <string name="vaccine_log_info">Once you log a vaccination, it will appear here</string>
 </resources>

@@ -18,4 +18,10 @@ class VaccinationViewModel @Inject constructor(
     val tabs = listOf("All", "Missed", "Taken")
 
     var missedVaccinesList by mutableStateOf(listOf(""))
+    var takenVaccinesList by mutableStateOf(listOf(""))
+
+    companion object {
+        const val MISSED = "missed"
+        const val TAKEN = "taken"
+    }
 }
