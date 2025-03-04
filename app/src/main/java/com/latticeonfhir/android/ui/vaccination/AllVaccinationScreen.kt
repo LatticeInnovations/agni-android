@@ -71,6 +71,7 @@ fun AllVaccinationScreen(
         VaccineTimeComposable("6-9 months")
         VaccineTimeComposable("9 months")
         VaccineTimeComposable("12 months")
+        Spacer(modifier = Modifier.height(84.dp))
     }
 }
 

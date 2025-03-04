@@ -16,4 +16,6 @@ class VaccinationViewModel @Inject constructor(
     var patient by mutableStateOf<PatientResponse?>(null)
 
     val tabs = listOf("All", "Missed", "Taken")
+
+    var missedVaccinesList by mutableStateOf(listOf(""))
 }
