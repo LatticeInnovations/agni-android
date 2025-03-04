@@ -99,3 +99,8 @@ val Black = Color(0xFF000000)
 val PartiallyDispensed = Color(0xFFD86F0E)
 val FullyDispensed = Color(0xFF148F27)
 val OTC = Color(0xFF004C4C)
+
+val TakenContainer = Color(0xFFE2FFE7)
+val MissedContainer = Color(0xFFFFF8C3)
+val TakenLabel = Color(0xFF0F6C1F)
+val MissedLabel = Color(0xFF867D19)
