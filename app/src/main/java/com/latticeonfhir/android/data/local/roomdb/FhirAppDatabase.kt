@@ -25,6 +25,9 @@ import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
+import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationRecommendationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ManufacturerDao
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.CVDEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.RiskPredictionCharts
@@ -53,7 +56,10 @@ import com.latticeonfhir.android.data.local.roomdb.entities.search.SymDiagSearch
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationRecommendationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ManufacturerEntity
 import com.latticeonfhir.android.data.local.roomdb.typeconverters.SymptomDiagnosisTypeConverter
 import com.latticeonfhir.android.data.local.roomdb.typeconverters.TypeConverter
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
@@ -94,9 +100,12 @@ import java.util.UUID
         MedicineDispenseListEntity::class,
         StrengthEntity::class,
         ImmunizationRecommendationEntity::class,
+        ImmunizationEntity::class,
+        ImmunizationFileEntity::class,
+        ManufacturerEntity::class
     ],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
-    version = 13,
+    version = 14,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
@@ -109,7 +118,8 @@ import java.util.UUID
         AutoMigration(from = 9, to = 10),
         AutoMigration(from = 10, to = 11),
         AutoMigration(from = 11, to = 12),
-        AutoMigration(from = 12, to = 13)
+        AutoMigration(from = 12, to = 13),
+        AutoMigration(from = 13, to = 14)
     ],
     exportSchema = true
 )
@@ -134,7 +144,9 @@ abstract class FhirAppDatabase : RoomDatabase() {
     abstract fun getSymptomsAndDiagnosisDao(): SymptomsAndDiagnosisDao
     abstract fun getLabTestAndMedDao(): LabTestAndMedDao
     abstract fun getDispenseDao(): DispenseDao
-
+    abstract fun getManufacturerDao(): ManufacturerDao
+    abstract fun getImmunizationDao(): ImmunizationDao
+    abstract fun getImmunizationRecommendationDao(): ImmunizationRecommendationDao
 
     companion object {
         @Volatile

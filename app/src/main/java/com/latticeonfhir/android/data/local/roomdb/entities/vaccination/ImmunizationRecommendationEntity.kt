@@ -7,16 +7,17 @@ import androidx.room.PrimaryKey
 import java.util.Date
 
 @Keep
-@Entity(indices = [Index("patientFhirId")])
+@Entity(indices = [Index("patientId"), Index("vaccineCode")])
 data class ImmunizationRecommendationEntity(
     @PrimaryKey
     val id: String,
-    val patientFhirId: String,
+    val patientId: String,
     val vaccine: String,
     val vaccineShortName: String,
     val vaccineCode: String,
     val seriesDoses: Int,
     val doseNumber: Int,
     val vaccineStartDate: Date,
-    val vaccineEndDate: Date
+    val vaccineEndDate: Date,
+    val vaccineBufferDate: Date
 )
