@@ -5,7 +5,7 @@ import androidx.annotation.Keep
 @Keep
 data class ManufacturerResponse(
     val active: Boolean,
-    val orgId: String,
-    val orgName: String,
+    val manufacturerId: String,
+    val manufacturerName: String,
     val orgType: String
 )
