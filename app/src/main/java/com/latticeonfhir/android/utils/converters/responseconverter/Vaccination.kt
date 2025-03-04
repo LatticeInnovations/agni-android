@@ -15,7 +15,7 @@ object Vaccination {
             expiryDate = this.expiryDate,
             manufacturerId = this.manufacturer.id,
             notes = this.notes,
-            vaccineCode = this.vaccineShortName,
+            vaccineCode = this.vaccineCode,
             immunizationFhirId = null
         )
     }

@@ -12,5 +12,5 @@ data class ImmunizationRecommendation(
     val doseNumber: Int,
     val vaccineStartDate: Date,
     val vaccineEndDate: Date,
-    val takenOn: List<Date>
+    val takenOn: Date
 )

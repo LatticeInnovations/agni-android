@@ -8,7 +8,8 @@ import java.util.Date
 data class Immunization(
     val id: String,
     val vaccineName: String,
-    val vaccineShortName: String,
+    val vaccineSortName: String,
+    val vaccineCode: String,
     val lotNumber: String,
     val takenOn: Date,
     val expiryDate: Date,
