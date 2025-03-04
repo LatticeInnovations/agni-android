@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 object TimeConverter {
 
@@ -445,5 +446,27 @@ object TimeConverter {
     fun String.toDate(format: String): Date {
         val dateFormat = SimpleDateFormat(format, Locale.getDefault())
         return dateFormat.parse(this)!!
+    }
+
+    fun formatAgeInDaysWeeksMonthsYears(birthDate: String): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val birth = sdf.parse(birthDate) ?: return "Invalid Date"
+        val today = Date()
+
+        val diff = today.time - birth.time
+        val days = TimeUnit.MILLISECONDS.toDays(diff).toInt()
+        val weeks = days / 7
+        val remainingDays = days % 7
+        val months = days / 30
+        val completedWeeks = (days % 30) / 7
+        val years = days / 365
+        val completedMonths = (days % 365) / 30
+
+        return when {
+            days <= 14 -> "${days}d"
+            days in 15 until 105 -> "${weeks}wk ${remainingDays}d"
+            days in 105 until 365 -> "${months}mo ${completedWeeks}wk"
+            else -> "${years}yr ${completedMonths}mo"
+        }
     }
 }
