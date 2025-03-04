@@ -40,9 +40,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.theme.MissedContainer
+import com.latticeonfhir.android.ui.theme.MissedContainerDark
 import com.latticeonfhir.android.ui.theme.MissedLabel
+import com.latticeonfhir.android.ui.theme.MissedLabelDark
 import com.latticeonfhir.android.ui.theme.TakenContainer
+import com.latticeonfhir.android.ui.theme.TakenContainerDark
 import com.latticeonfhir.android.ui.theme.TakenLabel
+import com.latticeonfhir.android.ui.theme.TakenLabelDark
 
 @Composable
 fun AllVaccinationScreen(
@@ -145,9 +149,7 @@ private fun VaccinationCard(
                 }
             ),
         shape = RoundedCornerShape(12.dp),
-        color = if (isTaken) TakenContainer
-        else if (isDelayed) MissedContainer
-        else MaterialTheme.colorScheme.surfaceBright
+        color = getColorOfContainer(isTaken, isDelayed)
     ) {
         Column(
             modifier = Modifier
@@ -181,7 +183,8 @@ private fun VaccinationCard(
                 }
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    Icons.AutoMirrored.Filled.KeyboardArrowRight.name
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight.name,
+                    tint = MaterialTheme.colorScheme.outline
                 )
             }
             Spacer(Modifier.height(24.dp))
@@ -190,32 +193,56 @@ private fun VaccinationCard(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 if (isTaken || isDelayed) {
-                    if (isTaken) {
-                        Icon(
-                            painter = painterResource(R.drawable.check_circle),
-                            contentDescription = "CHECK_ICON",
-                            tint = TakenLabel,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    } else {
-                        Icon(
-                            painter = painterResource(R.drawable.schedule),
-                            contentDescription = "MISSED_ICON",
-                            tint = MissedLabel,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
+                    Icon(
+                        painter = if (isTaken) painterResource(R.drawable.check_circle)
+                        else painterResource(R.drawable.schedule),
+                        contentDescription = null,
+                        tint = getColorOfLabel(isTaken, isDelayed),
+                        modifier = Modifier.size(18.dp)
+                    )
                 }
                 Text(
                     text = if (isTaken) stringResource(R.string.taken_on_date, "18 Jan 2024")
                     else if (isDelayed) stringResource(R.string.due_on_date, "18 Jan 2024")
                     else "24 Jan 2024",
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isTaken) TakenLabel
-                    else if (isDelayed) MissedLabel
-                    else MaterialTheme.colorScheme.onSurface
+                    color = getColorOfLabel(isTaken, isDelayed)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun getColorOfContainer(isTaken: Boolean, isDelayed: Boolean): Color {
+    return when (isSystemInDarkTheme()) {
+        true -> {
+            if (isTaken) TakenContainerDark
+            else if (isDelayed) MissedContainerDark
+            else MaterialTheme.colorScheme.surfaceBright
+        }
+
+        false -> {
+            if (isTaken) TakenContainer
+            else if (isDelayed) MissedContainer
+            else MaterialTheme.colorScheme.surfaceBright
+        }
+    }
+}
+
+@Composable
+private fun getColorOfLabel(isTaken: Boolean, isDelayed: Boolean): Color {
+    return when (isSystemInDarkTheme()) {
+        true -> {
+            if (isTaken) TakenLabelDark
+            else if (isDelayed) MissedLabelDark
+            else MaterialTheme.colorScheme.onSurface
+        }
+
+        false -> {
+            if (isTaken) TakenLabel
+            else if (isDelayed) MissedLabel
+            else MaterialTheme.colorScheme.onSurface
         }
     }
 }

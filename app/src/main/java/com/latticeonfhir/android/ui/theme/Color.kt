@@ -104,3 +104,8 @@ val TakenContainer = Color(0xFFE2FFE7)
 val MissedContainer = Color(0xFFFFF8C3)
 val TakenLabel = Color(0xFF0F6C1F)
 val MissedLabel = Color(0xFF867D19)
+
+val TakenContainerDark = Color(0xFF186324)
+val MissedContainerDark = Color(0xFF6A6621)
+val TakenLabelDark = Color(0xFFBCFEC7)
+val MissedLabelDark = Color(0xFFFDFDD6)
