@@ -549,7 +549,7 @@ private fun getColorOfContainer(isDelayed: Boolean): Color {
 }
 
 @Composable
-private fun getColorOfLabel(isDelayed: Boolean): Color {
+fun getColorOfLabel(isDelayed: Boolean): Color {
     return when (isSystemInDarkTheme()) {
         true -> {
             if (isDelayed) MissedLabelDark

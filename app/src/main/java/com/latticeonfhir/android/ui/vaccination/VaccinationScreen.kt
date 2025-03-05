@@ -116,11 +116,11 @@ fun VaccinationScreen(
                             }
 
                             1 -> {
-                                MissedVaccinationScreen(viewModel)
+                                MissedVaccinationScreen(navController, viewModel)
                             }
 
                             2 -> {
-                                TakenVaccinationScreen(viewModel)
+                                TakenVaccinationScreen(navController, viewModel)
                             }
                         }
                     }
@@ -201,7 +201,9 @@ fun VaccineEmptyScreen(
 
 @Composable
 fun VaccineCard(
-    missedOrTaken: String
+    missedOrTaken: String,
+    navController: NavController,
+    patient: PatientResponse
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -217,6 +219,15 @@ fun VaccineCard(
                 indication = null,
                 onClick = {
                     // navigate to add vaccination
+                    if (missedOrTaken == MISSED) {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            PATIENT,
+                            patient
+                        )
+                        navController.navigate(Screen.AddVaccinationScreen.route)
+                    } else {
+                        navController.navigate(Screen.ViewVaccinationScreen.route)
+                    }
                 }
             )
     ) {

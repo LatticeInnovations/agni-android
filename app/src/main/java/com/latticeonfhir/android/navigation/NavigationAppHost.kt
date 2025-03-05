@@ -40,6 +40,7 @@ import com.latticeonfhir.android.ui.symptomsanddiagnosis.SymptomsAndDiagnosisScr
 import com.latticeonfhir.android.ui.symptomsanddiagnosis.selectsymptoms.SelectSymptomScreen
 import com.latticeonfhir.android.ui.vaccination.VaccinationScreen
 import com.latticeonfhir.android.ui.vaccination.add.AddVaccinationScreen
+import com.latticeonfhir.android.ui.vaccination.view.ViewVaccinationScreen
 
 @Composable
 fun NavigationAppHost(navController: NavController, startDest: String) {
@@ -94,5 +95,6 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
 
         composable(Screen.VaccinationScreen.route) { VaccinationScreen(navController = navController) }
         composable(Screen.AddVaccinationScreen.route) { AddVaccinationScreen(navController = navController) }
+        composable(Screen.ViewVaccinationScreen.route) { ViewVaccinationScreen(navController = navController) }
     }
 }
