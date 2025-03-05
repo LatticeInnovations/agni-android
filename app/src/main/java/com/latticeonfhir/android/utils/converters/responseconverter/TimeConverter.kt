@@ -469,4 +469,9 @@ object TimeConverter {
             else -> "${years}yr ${completedMonths}mo"
         }
     }
+
+    internal fun Date.toddMMYYYYString(): String {
+        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+        return outputFormat.format(this)
+    }
 }

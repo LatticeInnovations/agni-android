@@ -45,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.theme.TakenLabel
 import com.latticeonfhir.android.ui.theme.TakenLabelDark
@@ -130,6 +131,11 @@ fun VaccinationScreen(
             FloatingActionButton(
                 onClick = {
                     // navigate to add vaccination screen
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        PATIENT,
+                        viewModel.patient
+                    )
+                    navController.navigate(Screen.AddVaccinationScreen.route)
                 },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.surface,
