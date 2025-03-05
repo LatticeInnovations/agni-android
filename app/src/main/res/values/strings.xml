@@ -458,4 +458,8 @@ include them in the household</string>
     <string name="date_of_expiry_label">Date of expiry:</string>
     <string name="vaccine_manufacturer_label">Vaccine manufacturer:</string>
     <string name="uploaded_certificates">Uploaded certificates</string>
+    <string name="vaccine_time_window_error_message">Vaccine entry is allowed only during the designated time window.</string>
+    <string name="vaccine_time_window_error_message_info">Please record details during that period.</string>
+    <string name="vaccine_previous_dose_error_message_info">Vaccine sequence must be followed.</string>
+    <string name="vaccine_previous_dose_error_message">Please record the previous dose(s) before entering this dose.</string>
 </resources>
