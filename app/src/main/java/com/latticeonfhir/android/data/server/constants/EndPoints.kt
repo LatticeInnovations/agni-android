@@ -12,4 +12,7 @@ object EndPoints {
     const val MEDICAL_RECORD = "DocumentManifest"
     const val MEDICATION_DISPENSE = "MedicationDispense"
     const val DISPENSE_LOG = "DispenseLog"
+    const val IMMUNIZATION = "Immunization"
+    const val IMMUNIZATION_RECOMMENDATION = "ImmunizationRecommendation"
+    const val VACCINE_MANUFACTURER = "vaccine/manufacturer"
 }
