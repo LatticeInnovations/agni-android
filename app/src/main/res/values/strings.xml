@@ -453,4 +453,9 @@ include them in the household</string>
     <string name="yes_delete">Yes, delete</string>
     <string name="confirm_deletion">Confirm deletion</string>
     <string name="confirm_deletion_info">Are you sure you want to delete this</string>
+    <string name="view_vaccination">View vaccination</string>
+    <string name="lot_no_label">Lot number:</string>
+    <string name="date_of_expiry_label">Date of expiry:</string>
+    <string name="vaccine_manufacturer_label">Vaccine manufacturer:</string>
+    <string name="uploaded_certificates">Uploaded certificates</string>
 </resources>
