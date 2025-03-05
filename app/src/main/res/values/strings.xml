@@ -420,4 +420,16 @@ include them in the household</string>
     <string name="no_records">No records.</string>
     <string name="no_previous_prescription">No previous prescription</string>
     <string name="same_address_as_source_patient">Same address as source patient</string>
+    <string name="vaccination">Vaccination</string>
+    <string name="vaccination_info">%d upcoming, %d missed, %d taken</string>
+    <string name="age_string">Age: %s</string>
+    <string name="at_birth">At birth</string>
+    <string name="completed_vaccine_info">(%d/%d completed)</string>
+    <string name="taken_on_date">Taken on %s</string>
+    <string name="due_on_date">Due on %s</string>
+    <string name="no_missed_vaccines">No Missed Vaccines</string>
+    <string name="all_vaccines_on_schedule">All vaccines are on schedule.</string>
+    <string name="overdue_count">Overdue (%d)</string>
+    <string name="no_vaccines_recorded">No Vaccines Recorded</string>
+    <string name="vaccine_log_info">Once you log a vaccination, it will appear here</string>
 </resources>
