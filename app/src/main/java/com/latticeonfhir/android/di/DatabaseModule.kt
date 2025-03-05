@@ -20,6 +20,9 @@ import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
+import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationRecommendationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ManufacturerDao
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import dagger.Module
 import dagger.Provides
@@ -145,5 +148,23 @@ object DatabaseModule {
     @Provides
     fun provideDispenseDao(fhirAppDatabase: FhirAppDatabase): DispenseDao {
         return fhirAppDatabase.getDispenseDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideImmunizationDao(fhirAppDatabase: FhirAppDatabase): ImmunizationDao {
+        return fhirAppDatabase.getImmunizationDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideImmunizationRecommendationDao(fhirAppDatabase: FhirAppDatabase): ImmunizationRecommendationDao {
+        return fhirAppDatabase.getImmunizationRecommendationDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideManufacturerDao(fhirAppDatabase: FhirAppDatabase): ManufacturerDao {
+        return fhirAppDatabase.getManufacturerDao()
     }
 }

@@ -36,6 +36,12 @@ import com.latticeonfhir.android.data.local.repository.vital.VitalRepository
 import com.latticeonfhir.android.data.local.repository.vital.VitalRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.symptomsanddiagnosis.SymDiagRepository
 import com.latticeonfhir.android.data.local.repository.symptomsanddiagnosis.SymDiagRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.vaccination.ImmunizationRecommendationRepository
+import com.latticeonfhir.android.data.local.repository.vaccination.ImmunizationRepository
+import com.latticeonfhir.android.data.local.repository.vaccination.ManufacturerRepository
+import com.latticeonfhir.android.data.local.repository.vaccination.impl.ImmunizationRecommendationRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.vaccination.impl.ImmunizationRepositoryImpl
+import com.latticeonfhir.android.data.local.repository.vaccination.impl.ManufacturerRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
@@ -147,4 +153,16 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideDispenseRepository(dispenseRepositoryImpl: DispenseRepositoryImpl): DispenseRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideImmunizationRepository(immunizationRepositoryImpl: ImmunizationRepositoryImpl): ImmunizationRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideImmunizationRecommendationRepository(immunizationRecommendationRepositoryImpl: ImmunizationRecommendationRepositoryImpl): ImmunizationRecommendationRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideManufacturerRepository(manufacturerRepositoryImpl: ManufacturerRepositoryImpl): ManufacturerRepository
 }

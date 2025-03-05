@@ -1,0 +1,22 @@
+package com.latticeonfhir.android.data.local.roomdb.entities.vaccination
+
+import androidx.annotation.Keep
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.PrimaryKey
+
+@Keep
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = ImmunizationEntity::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("immunizationId")
+        )
+    ]
+)
+data class ImmunizationFileEntity(
+    @PrimaryKey
+    val filename: String,
+    val immunizationId: String
+)
