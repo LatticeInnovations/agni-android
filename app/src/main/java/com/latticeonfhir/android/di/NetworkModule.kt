@@ -14,6 +14,7 @@ import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiServic
 import com.latticeonfhir.android.data.server.api.SignUpApiService
 import com.latticeonfhir.android.data.server.api.VitalApiService
 import com.latticeonfhir.android.data.server.api.SymptomsAndDiagnosisService
+import com.latticeonfhir.android.data.server.api.VaccinationApiService
 import com.latticeonfhir.android.utils.constants.AuthenticationConstants.X_ACCESS_TOKEN
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import dagger.Module
@@ -156,5 +157,11 @@ object NetworkModule {
     @Singleton
     internal fun provideDispenseApiService(retrofit: Retrofit): DispenseApiService {
         return retrofit.create(DispenseApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    internal fun provideVaccinationApiService(retrofit: Retrofit): VaccinationApiService {
+        return retrofit.create(VaccinationApiService::class.java)
     }
 }
