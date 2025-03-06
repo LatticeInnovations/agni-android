@@ -169,9 +169,9 @@ fun AddVaccinationScreen(
                                         .fillMaxWidth(),
                                     trailingIcon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.today_icon),
+                                            painter = painterResource(R.drawable.today_calendar),
                                             "CALENDER_ICON",
-                                            Modifier.size(18.dp)
+                                            Modifier.size(24.dp)
                                         )
                                     },
                                     placeholder = {
