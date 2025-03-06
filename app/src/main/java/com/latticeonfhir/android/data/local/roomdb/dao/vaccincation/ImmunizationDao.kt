@@ -31,4 +31,7 @@ interface ImmunizationDao {
 
     @Query("SELECT createdOn FROM ImmunizationEntity WHERE patientId = :patientId AND vaccineCode = :vaccineCode ORDER BY createdOn")
     suspend fun getVaccineTakenDate(patientId: String, vaccineCode: String): List<Date>
+
+    @Query("UPDATE ImmunizationEntity SET immunizationFhirId = :fhirId WHERE id = :id")
+    suspend fun updateFhirId(id: String, fhirId: String): Int
 }

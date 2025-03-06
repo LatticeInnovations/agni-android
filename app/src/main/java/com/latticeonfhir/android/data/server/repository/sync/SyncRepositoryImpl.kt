@@ -21,6 +21,9 @@ import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
+import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationRecommendationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ManufacturerDao
 import com.latticeonfhir.android.data.server.api.CVDApiService
 import com.latticeonfhir.android.data.server.api.DispenseApiService
 import com.latticeonfhir.android.data.server.api.LabTestAndMedRecordService
@@ -28,6 +31,7 @@ import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
 import com.latticeonfhir.android.data.server.api.SymptomsAndDiagnosisService
+import com.latticeonfhir.android.data.server.api.VaccinationApiService
 import com.latticeonfhir.android.data.server.api.VitalApiService
 import com.latticeonfhir.android.data.server.constants.ConstantValues.COUNT_VALUE
 import com.latticeonfhir.android.data.server.constants.ConstantValues.DEFAULT_MAX_COUNT_VALUE
@@ -63,6 +67,9 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationRecommendationResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ManufacturerResponse
 import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
@@ -88,6 +95,7 @@ class SyncRepositoryImpl @Inject constructor(
     private val symptomsAndDiagnosisService: SymptomsAndDiagnosisService,
     private val labTestAndMedRecordService: LabTestAndMedRecordService,
     private val dispenseApiService: DispenseApiService,
+    private val vaccinationApiService: VaccinationApiService,
     patientDao: PatientDao,
     private val genericDao: GenericDao,
     private val preferenceRepository: PreferenceRepository,
@@ -103,7 +111,10 @@ class SyncRepositoryImpl @Inject constructor(
     symptomsAndDiagnosisDao: SymptomsAndDiagnosisDao,
     labTestAndMedDao: LabTestAndMedDao,
     dispenseDao: DispenseDao,
-    fileUploadDao: FileUploadDao
+    fileUploadDao: FileUploadDao,
+    immunizationRecommendationDao: ImmunizationRecommendationDao,
+    immunizationDao: ImmunizationDao,
+    manufacturerDao: ManufacturerDao
 ) : SyncRepository, SyncRepositoryDatabaseTransactions(
     patientApiService,
     patientDao,
@@ -120,7 +131,10 @@ class SyncRepositoryImpl @Inject constructor(
     labTestAndMedDao,
     dispenseDao,
     fileUploadDao,
-    deleteFileManager
+    deleteFileManager,
+    immunizationRecommendationDao,
+    immunizationDao,
+    manufacturerDao
 ) {
 
     override suspend fun getAndInsertListPatientData(
@@ -143,6 +157,8 @@ class SyncRepositoryImpl @Inject constructor(
                 is ApiContinueResponse -> {
                     //Insert Patient
                     insertPatient(body)
+                    //Insert Immunization Recommendation
+                    getAndInsertImmunizationRecommendation(body.map { it.fhirId!! }.toList())
                     //Call for next batch data
                     getAndInsertListPatientData(offset + COUNT_VALUE)
                 }
@@ -152,6 +168,8 @@ class SyncRepositoryImpl @Inject constructor(
                     preferenceRepository.setLastSyncPatient(Date().time)
                     //Insert Patient
                     insertPatient(body)
+                    //Insert Immunization Recommendation
+                    getAndInsertImmunizationRecommendation(body.map { it.fhirId!! }.toList())
                     this
                 }
 
@@ -712,6 +730,54 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getAndInsertImmunization(): ResponseMapper<Any> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.FHIR_IDS_IMMUNIZATION,
+            syncType = SyncType.POST
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                val immunizationRecommendationResponse = getAndInsertImmunizationRecommendation(listOfGenericEntity.map { it.payload })
+                val immunizationResponse = getAndInsertImmunization(listOfGenericEntity.map { it.payload })
+
+                if (immunizationRecommendationResponse is ApiEndResponse && immunizationResponse is ApiEndResponse) {
+                    insertImmunizationRecommendation(immunizationRecommendationResponse.body)
+                    insertImmunization(immunizationResponse.body)
+                    genericDao.deleteSyncPayload(listOfGenericEntity.map { it.id })
+                    getAndInsertImmunization()
+                }
+                return immunizationResponse
+            }
+        }
+    }
+
+    private suspend fun getAndInsertImmunizationRecommendation(patientIdList: List<String>): ResponseMapper<List<ImmunizationRecommendationResponse>> {
+        val map = mutableMapOf<String, String>()
+        map[PATIENT] = patientIdList.toNoBracketAndNoSpaceString()
+        return ApiResponseConverter.convert(vaccinationApiService.getAllImmunizationRecommendation(map = map))
+    }
+
+    private suspend fun getAndInsertImmunization(patientIdList: List<String>): ResponseMapper<List<ImmunizationResponse>> {
+        val map = mutableMapOf<String, String>()
+        map[PATIENT_ID] = patientIdList.toNoBracketAndNoSpaceString()
+        return ApiResponseConverter.convert(vaccinationApiService.getAllImmunization(map = map))
+    }
+
+    override suspend fun getAndInsertManufacturer(): ResponseMapper<List<ManufacturerResponse>> {
+        val map = mutableMapOf<String, String>()
+        if (preferenceRepository.getLastSyncManufacturerRecord() != 0L) map[LAST_UPDATED] = String.format(
+            GREATER_THAN_BUILDER, preferenceRepository.getLastSyncManufacturerRecord().toTimeStampDate()
+        )
+        
+        return ApiResponseConverter.convert(vaccinationApiService.getAllManufacturers(map))
+            .apply {
+                if (this is ApiEndResponse) {
+                    insertManufacturer(body)
+                    preferenceRepository.setLastSyncManufacturerRecord(Date().time)
+                }
+            }
+    }
+
     override suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
             genericTypeEnum = GenericTypeEnum.PATIENT,
@@ -1066,6 +1132,32 @@ class SyncRepositoryImpl @Inject constructor(
                         }
 
                         else -> this
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun sendImmunizationPostData(): ResponseMapper<List<CreateResponse>> {
+        return genericDao.getSameTypeGenericEntityPayload(
+            genericTypeEnum = GenericTypeEnum.IMMUNIZATION,
+            syncType = SyncType.POST
+        ).let { listOfGenericEntity ->
+            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+            else {
+                ApiResponseConverter.convert(
+                    vaccinationApiService.postImmunization(
+                        listOfGenericEntity.map {
+                            it.payload.fromJson<LinkedTreeMap<*, *>>()
+                                .mapToObject(ImmunizationResponse::class.java)!!
+                        }
+                    )
+                ).apply {
+                    if (this is ApiEndResponse) {
+                        insertImmunizationFhirIds(body, listOfGenericEntity)
+                            .apply {
+                                if (this > 0) sendImmunizationPostData()
+                            }
                     }
                 }
             }
