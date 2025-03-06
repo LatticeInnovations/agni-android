@@ -218,6 +218,9 @@ class SyncService(
                 CoroutineScope(Dispatchers.IO).launch {
                     updateFhirIdInMedical(logout)
                 }
+                CoroutineScope(Dispatchers.IO).launch {
+                    updateFhirIdInImmunization(logout)
+                }
             }
         }
     }
@@ -282,6 +285,11 @@ class SyncService(
     /** Upload Dispense */
     private suspend fun uploadDispense(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(syncRepository.sendDispensePostData(), logout)
+    }
+
+    /** Upload Immunization */
+    private suspend fun uploadImmunization(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendImmunizationPostData(), logout)
     }
 
     /**
@@ -638,6 +646,11 @@ class SyncService(
         genericRepository.updateDispenseFhirId()
         /** Upload Dispense */
         return uploadDispense(logout)
+    }
+
+    private suspend fun updateFhirIdInImmunization(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        genericRepository.updateImmunizationFhirId()
+        return uploadImmunization(logout)
     }
 
     /** Check Session Expiry and Authorization */

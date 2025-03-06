@@ -24,6 +24,7 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
 import com.latticeonfhir.android.utils.builders.GenericEntityPatchBuilder.processPatch
 import com.latticeonfhir.android.utils.constants.Id
 import com.latticeonfhir.android.utils.converters.responseconverter.FHIR.isFhirId
@@ -446,6 +447,22 @@ open class GenericRepositoryDatabaseTransactions(
                         appointmentId = if (!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(
                             existingMap.appointmentId
                         )!! else existingMap.appointmentId
+                    ).toJson()
+                )
+            )
+        }
+    }
+
+    protected suspend fun updateImmunizationFhirIdInGenericEntity(immunizationGenericEntity: GenericEntity) {
+        val existingMap = immunizationGenericEntity.payload.fromJson<MutableMap<String, Any>>()
+            .mapToObject(ImmunizationResponse::class.java)
+
+        if (existingMap != null) {
+            genericDao.insertGenericEntity(
+                immunizationGenericEntity.copy(
+                    payload = existingMap.copy(
+                        patientId = if(!existingMap.patientId.isFhirId()) getPatientFhirIdById(existingMap.patientId)!! else existingMap.patientId,
+                        appointmentId = if(!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(existingMap.appointmentId)!! else existingMap.appointmentId
                     ).toJson()
                 )
             )

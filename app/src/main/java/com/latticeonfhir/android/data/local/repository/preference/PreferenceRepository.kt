@@ -58,6 +58,10 @@ interface PreferenceRepository {
     fun setLastSyncMedicalRecord(long: Long)
     fun getLastSyncMedicalRecord(): Long
 
+    /** Last Sync Manufacturer Record */
+    fun setLastSyncManufacturerRecord(long: Long)
+    fun getLastSyncManufacturerRecord(): Long
+
     /** User Data */
     fun setUserFhirId(userFhirId: String)
     fun getUserFhirId(): String

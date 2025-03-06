@@ -96,6 +96,12 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         PREF_LAST_MEDICAL_RECORD_SYNC_TIME,
         0L
     )
+    override var lastSyncManufacturerRecord by LongPreference(
+        sharedPreferences,
+        PREF_LAST_MEDICAL_RECORD_SYNC_TIME,
+        0L
+    )
+
     override fun clear() {
         sharedPreferences.edit {
             clear()
