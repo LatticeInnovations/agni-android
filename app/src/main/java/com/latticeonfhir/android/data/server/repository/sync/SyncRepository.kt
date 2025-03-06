@@ -42,8 +42,6 @@ interface SyncRepository {
     suspend fun getAndInsertDispense(patientId: String?): ResponseMapper<List<MedicineDispenseResponse>>
     suspend fun getAndInsertOTC(patientId: String?): ResponseMapper<List<DispenseData>>
     suspend fun getAndInsertImmunization(): ResponseMapper<Any>
-//    suspend fun getAndInsertImmunizationRecommendation(patientIdList: List<String>): ResponseMapper<List<ImmunizationRecommendationResponse>>
-//    suspend fun getAndInsertImmunization(patientIdList: List<String>): ResponseMapper<List<ImmunizationResponse>>
     suspend fun getAndInsertManufacturer(): ResponseMapper<List<ManufacturerResponse>>
 
     //POST
