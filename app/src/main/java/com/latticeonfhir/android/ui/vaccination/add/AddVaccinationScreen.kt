@@ -1,5 +1,8 @@
 package com.latticeonfhir.android.ui.vaccination.add
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -137,65 +140,75 @@ fun AddVaccinationScreen(
                         verticalArrangement = Arrangement.spacedBy(22.dp)
                     ) {
                         VaccineDropDown(viewModel)
-                        OutlinedTextField(
-                            value = viewModel.lotNo,
-                            onValueChange = { value ->
-                                if (value.length <= 20) viewModel.lotNo = value
-                            },
-                            label = {
-                                Text(stringResource(R.string.lot_no_mandatory))
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        )
-                        OutlinedTextField(
-                            value = viewModel.dateOfExpiry?.toddMMYYYYString() ?: "",
-                            onValueChange = { },
-                            label = {
-                                Text(stringResource(R.string.date_of_expiry_mandatory))
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            trailingIcon = {
-                                Icon(
-                                    painter = painterResource(R.drawable.today_icon),
-                                    "CALENDER_ICON",
-                                    Modifier.size(18.dp)
+                        AnimatedVisibility(
+                            visible = viewModel.listOfVaccines.contains(viewModel.selectedVaccine),
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(22.dp)
+                            ) {
+                                OutlinedTextField(
+                                    value = viewModel.lotNo,
+                                    onValueChange = { value ->
+                                        if (value.length <= 20) viewModel.lotNo = value
+                                    },
+                                    label = {
+                                        Text(stringResource(R.string.lot_no_mandatory))
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
                                 )
-                            },
-                            placeholder = {
-                                Text(stringResource(R.string.date_format))
-                            },
-                            readOnly = true,
-                            interactionSource = remember {
-                                MutableInteractionSource()
-                            }.also { interactionSource ->
-                                LaunchedEffect(interactionSource) {
-                                    interactionSource.interactions.collect {
-                                        if (it is PressInteraction.Release) {
-                                            viewModel.showDatePicker = true
+                                OutlinedTextField(
+                                    value = viewModel.dateOfExpiry?.toddMMYYYYString() ?: "",
+                                    onValueChange = { },
+                                    label = {
+                                        Text(stringResource(R.string.date_of_expiry_mandatory))
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    trailingIcon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.today_icon),
+                                            "CALENDER_ICON",
+                                            Modifier.size(18.dp)
+                                        )
+                                    },
+                                    placeholder = {
+                                        Text(stringResource(R.string.date_format))
+                                    },
+                                    readOnly = true,
+                                    interactionSource = remember {
+                                        MutableInteractionSource()
+                                    }.also { interactionSource ->
+                                        LaunchedEffect(interactionSource) {
+                                            interactionSource.interactions.collect {
+                                                if (it is PressInteraction.Release) {
+                                                    viewModel.showDatePicker = true
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                                )
+                                ManufacturerDropDown(viewModel)
+                                OutlinedTextField(
+                                    value = viewModel.notes,
+                                    onValueChange = { value ->
+                                        if (value.length <= 100 && value.matches(Regex("^[a-zA-Z0-9 ]*$"))) viewModel.notes =
+                                            value
+                                    },
+                                    label = {
+                                        Text(stringResource(R.string.notes_heading))
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    supportingText = {
+                                        Text(stringResource(R.string.notes_for_adverse_reaction))
+                                    }
+                                )
+                                UploadCertificatesComposable(viewModel)
                             }
-                        )
-                        ManufacturerDropDown(viewModel)
-                        OutlinedTextField(
-                            value = viewModel.notes,
-                            onValueChange = { value ->
-                                if (value.length <= 100 && value.matches(Regex("^[a-zA-Z0-9 ]*$"))) viewModel.notes =
-                                    value
-                            },
-                            label = {
-                                Text(stringResource(R.string.notes_heading))
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            supportingText = {
-                                Text(stringResource(R.string.notes_for_adverse_reaction))
-                            }
-                        )
-                        UploadCertificatesComposable(viewModel)
+                        }
                     }
                 }
             }
@@ -438,16 +451,25 @@ private fun VaccineDropDown(viewModel: AddVaccinationViewModel) {
         OutlinedTextField(
             value = viewModel.selectedVaccine,
             onValueChange = { value ->
-                viewModel.selectedVaccine = value
-                viewModel.listOfVaccines.filter { it.contains(viewModel.selectedVaccine) }
+                if (value.length <= 100) viewModel.selectedVaccine = value
             },
             placeholder = {
                 Text(stringResource(R.string.search_vaccination))
             },
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showDropDown = true },
-            singleLine = true
+                .fillMaxWidth(),
+            singleLine = true,
+            interactionSource = remember {
+                MutableInteractionSource()
+            }.also { interactionSource ->
+                LaunchedEffect(interactionSource) {
+                    interactionSource.interactions.collect {
+                        if (it is PressInteraction.Release) {
+                            showDropDown = true
+                        }
+                    }
+                }
+            }
         )
         DropdownMenu(
             modifier = Modifier
@@ -456,21 +478,23 @@ private fun VaccineDropDown(viewModel: AddVaccinationViewModel) {
             expanded = showDropDown,
             onDismissRequest = { showDropDown = false },
         ) {
-            viewModel.listOfVaccines.forEach { label ->
-                DropdownMenuItem(
-                    onClick = {
-                        showDropDown = false
-                        viewModel.selectedVaccine = label
-                    },
-                    text = {
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                )
-            }
+            viewModel.listOfVaccines
+                .filter { it.contains(viewModel.selectedVaccine) }
+                .forEach { label ->
+                    DropdownMenuItem(
+                        onClick = {
+                            showDropDown = false
+                            viewModel.selectedVaccine = label
+                        },
+                        text = {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    )
+                }
         }
     }
 }
