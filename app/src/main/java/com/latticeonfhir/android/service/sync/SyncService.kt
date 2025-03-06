@@ -78,6 +78,8 @@ class SyncService(
                         uploadLabAndMedPhoto(logout)
                     }, async {
                         patchSymDiag(logout)
+                    }, async {
+                        downloadVaccineManufacturer(logout)
                     }
                 )
             }
@@ -377,6 +379,9 @@ class SyncService(
         )?.apply {
             if (this is ApiEndResponse) {
                 CoroutineScope(Dispatchers.IO).launch {
+                    downloadImmunizationAndRecommendation(logout)
+                }
+                CoroutineScope(Dispatchers.IO).launch {
                     downloadRelation(logout)
                 }
             }
@@ -386,6 +391,11 @@ class SyncService(
     /** Download Relation */
     private suspend fun downloadRelation(logout: (Boolean, String) -> Unit) {
         checkAuthenticationStatus(syncRepository.getAndInsertRelation(), logout)
+    }
+
+    /** Download Appointment*/
+    private suspend fun downloadImmunizationAndRecommendation(logout: (Boolean, String) -> Unit) {
+        checkAuthenticationStatus(syncRepository.getAndInsertImmunization(), logout)
     }
 
     /** Download Schedule */
@@ -490,6 +500,10 @@ class SyncService(
         if (preferenceRepository.getLastMedicineDosageInstructionSyncDate() == 0L) {
             checkAuthenticationStatus(syncRepository.getMedicineTime(), logout)
         }
+    }
+
+    private suspend fun downloadVaccineManufacturer(logout: (Boolean, String) -> Unit) {
+        checkAuthenticationStatus(syncRepository.getAndInsertManufacturer(), logout)
     }
 
     /** Download Patient Last Updated */
