@@ -20,6 +20,7 @@ import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
 import com.latticeonfhir.android.data.server.api.SymptomsAndDiagnosisService
+import com.latticeonfhir.android.data.server.api.VaccinationApiService
 import com.latticeonfhir.android.data.server.api.VitalApiService
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepositoryImpl
@@ -73,6 +74,8 @@ class FhirApp : Application() {
     lateinit var labTestAndMedRecordService: LabTestAndMedRecordService
     @Inject
     lateinit var dispenseApiService: DispenseApiService
+    @Inject
+    lateinit var vaccinationApiService: VaccinationApiService
 
     @Inject
     lateinit var fileUploadApiService: FileUploadApiService
@@ -115,6 +118,7 @@ class FhirApp : Application() {
             symptomsAndDiagnosisService,
             labTestAndMedRecordService,
             dispenseApiService,
+            vaccinationApiService,
             fhirAppDatabase.getPatientDao(),
             fhirAppDatabase.getGenericDao(),
             preferenceRepository,
@@ -130,7 +134,10 @@ class FhirApp : Application() {
             fhirAppDatabase.getSymptomsAndDiagnosisDao(),
             fhirAppDatabase.getLabTestAndMedDao(),
             fhirAppDatabase.getDispenseDao(),
-            fhirAppDatabase.getFileUploadDao()
+            fhirAppDatabase.getFileUploadDao(),
+            fhirAppDatabase.getImmunizationRecommendationDao(),
+            fhirAppDatabase.getImmunizationDao(),
+            fhirAppDatabase.getManufacturerDao()
         )
 
         _fileSyncRepository = FileSyncRepositoryImpl(

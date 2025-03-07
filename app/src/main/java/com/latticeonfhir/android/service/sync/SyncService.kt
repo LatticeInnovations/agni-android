@@ -78,6 +78,8 @@ class SyncService(
                         uploadLabAndMedPhoto(logout)
                     }, async {
                         patchSymDiag(logout)
+                    }, async {
+                        downloadVaccineManufacturer(logout)
                     }
                 )
             }
@@ -218,6 +220,9 @@ class SyncService(
                 CoroutineScope(Dispatchers.IO).launch {
                     updateFhirIdInMedical(logout)
                 }
+                CoroutineScope(Dispatchers.IO).launch {
+                    updateFhirIdInImmunization(logout)
+                }
             }
         }
     }
@@ -282,6 +287,11 @@ class SyncService(
     /** Upload Dispense */
     private suspend fun uploadDispense(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
         return checkAuthenticationStatus(syncRepository.sendDispensePostData(), logout)
+    }
+
+    /** Upload Immunization */
+    private suspend fun uploadImmunization(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.sendImmunizationPostData(), logout)
     }
 
     /**
@@ -369,6 +379,9 @@ class SyncService(
         )?.apply {
             if (this is ApiEndResponse) {
                 CoroutineScope(Dispatchers.IO).launch {
+                    downloadImmunizationAndRecommendation(logout)
+                }
+                CoroutineScope(Dispatchers.IO).launch {
                     downloadRelation(logout)
                 }
             }
@@ -378,6 +391,11 @@ class SyncService(
     /** Download Relation */
     private suspend fun downloadRelation(logout: (Boolean, String) -> Unit) {
         checkAuthenticationStatus(syncRepository.getAndInsertRelation(), logout)
+    }
+
+    /** Download Appointment*/
+    private suspend fun downloadImmunizationAndRecommendation(logout: (Boolean, String) -> Unit) {
+        checkAuthenticationStatus(syncRepository.getAndInsertImmunization(), logout)
     }
 
     /** Download Schedule */
@@ -482,6 +500,10 @@ class SyncService(
         if (preferenceRepository.getLastMedicineDosageInstructionSyncDate() == 0L) {
             checkAuthenticationStatus(syncRepository.getMedicineTime(), logout)
         }
+    }
+
+    private suspend fun downloadVaccineManufacturer(logout: (Boolean, String) -> Unit) {
+        checkAuthenticationStatus(syncRepository.getAndInsertManufacturer(), logout)
     }
 
     /** Download Patient Last Updated */
@@ -638,6 +660,11 @@ class SyncService(
         genericRepository.updateDispenseFhirId()
         /** Upload Dispense */
         return uploadDispense(logout)
+    }
+
+    private suspend fun updateFhirIdInImmunization(logout: (Boolean, String) -> Unit): ResponseMapper<Any>? {
+        genericRepository.updateImmunizationFhirId()
+        return uploadImmunization(logout)
     }
 
     /** Check Session Expiry and Authorization */

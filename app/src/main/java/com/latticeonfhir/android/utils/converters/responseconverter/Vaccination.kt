@@ -2,6 +2,13 @@ package com.latticeonfhir.android.utils.converters.responseconverter
 
 import com.latticeonfhir.android.data.local.model.vaccination.Immunization
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationRecommendationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ManufacturerEntity
+import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationFile
+import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationRecommendationResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ManufacturerResponse
+import java.util.UUID
 
 object Vaccination {
 
@@ -17,6 +24,61 @@ object Vaccination {
             notes = this.notes,
             vaccineCode = this.vaccineCode,
             immunizationFhirId = null
+        )
+    }
+
+    internal fun ImmunizationRecommendationResponse.toImmunizationRecommendationEntity(patientId: String): ImmunizationRecommendationEntity {
+        return ImmunizationRecommendationEntity(
+            id = "${patientId}-${vaccineCode}-${doseNumber}",
+            patientId = patientId,
+            vaccine = vaccine,
+            vaccineShortName = vaccineText,
+            vaccineCode = vaccineCode,
+            seriesDoses = seriesDoses,
+            doseNumber = doseNumber,
+            vaccineStartDate = vaccineStartDate,
+            vaccineEndDate = vaccineEndDate,
+            vaccineBufferDate = vaccineBufferDate
+        )
+    }
+
+    internal fun ImmunizationResponse.toImmunizationEntity(patientId: String, appointmentId: String): ImmunizationEntity {
+        return ImmunizationEntity(
+            id = this.immunizationUuid,
+            appointmentId = appointmentId,
+            patientId = patientId,
+            createdOn = this.createdOn,
+            lotNumber = this.lotNumber,
+            expiryDate = this.expiryDate,
+            manufacturerId = this.manufacturerId,
+            notes = this.notes,
+            vaccineCode = this.vaccineCode,
+            immunizationFhirId = this.immunizationId
+        )
+    }
+
+    internal fun Immunization.toImmunizationResponse(): ImmunizationResponse {
+        return ImmunizationResponse(
+            appointmentId = appointmentId,
+            createdOn = takenOn,
+            expiryDate = expiryDate,
+            immunizationFiles = filename.map { ImmunizationFile(it) },
+            immunizationId = null,
+            immunizationUuid = id,
+            lotNumber = lotNumber,
+            manufacturerId = manufacturer.id,
+            notes = notes,
+            patientId = patientId,
+            vaccineCode = vaccineCode
+        )
+    }
+
+    internal fun ManufacturerResponse.toManufacturerEntity(): ManufacturerEntity {
+        return ManufacturerEntity(
+            id = this.manufacturerId,
+            name = this.manufacturerName,
+            type = this.orgType,
+            active = this.active
         )
     }
 }

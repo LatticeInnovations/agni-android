@@ -17,7 +17,7 @@ import retrofit2.http.QueryMap
 interface VaccinationApiService {
 
     @POST(IMMUNIZATION)
-    suspend fun postImmunization(@Body immunizationResponse: ImmunizationResponse): Response<BaseResponse<CreateResponse>>
+    suspend fun postImmunization(@Body immunizationResponse: List<ImmunizationResponse>): Response<BaseResponse<List<CreateResponse>>>
 
     @GET(IMMUNIZATION)
     suspend fun getAllImmunization(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<ImmunizationResponse>>>
@@ -26,5 +26,5 @@ interface VaccinationApiService {
     suspend fun getAllImmunizationRecommendation(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<ImmunizationRecommendationResponse>>>
 
     @GET(VACCINE_MANUFACTURER)
-    suspend fun getAllManufacturers(): Response<BaseResponse<List<ManufacturerResponse>>>
+    suspend fun getAllManufacturers(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<ManufacturerResponse>>>
 }
