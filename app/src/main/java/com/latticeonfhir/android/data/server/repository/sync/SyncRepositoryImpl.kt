@@ -39,6 +39,7 @@ import com.latticeonfhir.android.data.server.constants.EndPoints
 import com.latticeonfhir.android.data.server.constants.EndPoints.MEDICATION_DISPENSE
 import com.latticeonfhir.android.data.server.constants.EndPoints.MEDICATION_REQUEST
 import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT
+import com.latticeonfhir.android.data.server.constants.EndPoints.PATIENT_IMMUNIZATION_RECOMMENDATION
 import com.latticeonfhir.android.data.server.constants.EndPoints.PRESCRIPTION_FILE
 import com.latticeonfhir.android.data.server.constants.EndPoints.RELATED_PERSON
 import com.latticeonfhir.android.data.server.constants.EndPoints.VITAL
@@ -157,8 +158,6 @@ class SyncRepositoryImpl @Inject constructor(
                 is ApiContinueResponse -> {
                     //Insert Patient
                     insertPatient(body)
-                    //Insert Immunization Recommendation
-                    getAndInsertImmunizationRecommendation(body.map { it.fhirId!! }.toList())
                     //Call for next batch data
                     getAndInsertListPatientData(offset + COUNT_VALUE)
                 }
@@ -753,7 +752,7 @@ class SyncRepositoryImpl @Inject constructor(
 
     private suspend fun getAndInsertImmunizationRecommendation(patientIdList: List<String>): ResponseMapper<List<ImmunizationRecommendationResponse>> {
         val map = mutableMapOf<String, String>()
-        map[PATIENT] = patientIdList.toNoBracketAndNoSpaceString()
+        map[PATIENT_IMMUNIZATION_RECOMMENDATION] = patientIdList.toNoBracketAndNoSpaceString()
         return ApiResponseConverter.convert(vaccinationApiService.getAllImmunizationRecommendation(map = map))
     }
 

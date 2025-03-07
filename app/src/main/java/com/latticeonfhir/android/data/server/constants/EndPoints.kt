@@ -14,5 +14,6 @@ object EndPoints {
     const val DISPENSE_LOG = "DispenseLog"
     const val IMMUNIZATION = "Immunization"
     const val IMMUNIZATION_RECOMMENDATION = "ImmunizationRecommendation"
+    const val PATIENT_IMMUNIZATION_RECOMMENDATION = "patient"
     const val VACCINE_MANUFACTURER = "vaccine/manufacturer"
 }
