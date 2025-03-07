@@ -16,6 +16,9 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationRecommendationResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ManufacturerResponse
 import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 
@@ -38,6 +41,8 @@ interface SyncRepository {
     suspend fun getAndInsertListMedicalRecordData(offset: Int): ResponseMapper<List<MedicalRecordResponse>>
     suspend fun getAndInsertDispense(patientId: String?): ResponseMapper<List<MedicineDispenseResponse>>
     suspend fun getAndInsertOTC(patientId: String?): ResponseMapper<List<DispenseData>>
+    suspend fun getAndInsertImmunization(): ResponseMapper<Any>
+    suspend fun getAndInsertManufacturer(): ResponseMapper<List<ManufacturerResponse>>
 
     //POST
     suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>>
@@ -53,6 +58,7 @@ interface SyncRepository {
     suspend fun sendLabTestPostData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendMedRecordPostData(): ResponseMapper<List<CreateResponse>>
     suspend fun sendDispensePostData(): ResponseMapper<List<CreateResponse>>
+    suspend fun sendImmunizationPostData(): ResponseMapper<List<CreateResponse>>
 
     //PATCH
     suspend fun sendPersonPatchData(): ResponseMapper<List<CreateResponse>>

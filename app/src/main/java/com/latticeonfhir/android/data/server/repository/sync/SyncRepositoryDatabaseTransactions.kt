@@ -20,6 +20,9 @@ import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
+import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationRecommendationDao
+import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ManufacturerDao
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseDataEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
@@ -48,9 +51,15 @@ import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonRe
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationRecommendationResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ManufacturerResponse
 import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters
+import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toImmunizationEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toImmunizationRecommendationEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toManufacturerEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toCVDEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toDispensePrescriptionEntity
@@ -96,7 +105,10 @@ open class SyncRepositoryDatabaseTransactions(
     private val labTestAndMedDao: LabTestAndMedDao,
     private val dispenseDao: DispenseDao,
     private val fileUploadDao: FileUploadDao,
-    private val deleteFileManager: DeleteFileManager
+    private val deleteFileManager: DeleteFileManager,
+    private val immunizationRecommendationDao: ImmunizationRecommendationDao,
+    private val immunizationDao: ImmunizationDao,
+    private val manufacturerDao: ManufacturerDao
 ) {
 
 
@@ -720,5 +732,38 @@ open class SyncRepositoryDatabaseTransactions(
         dispenseDao.insertMedicineDispenseDataList(
             *dispensedMedicationList.toTypedArray()
         )
+    }
+
+    protected suspend fun insertImmunizationRecommendation(body: List<ImmunizationRecommendationResponse>) {
+        immunizationRecommendationDao.insertImmunizationRecommendation(
+            *body.map { immunizationRecommendationResponse ->
+                patientDao.getPatientIdByFhirId(immunizationRecommendationResponse.patientId)!!.let {
+                    immunizationRecommendationResponse.toImmunizationRecommendationEntity(it)
+                }
+            }.toTypedArray()
+        )
+    }
+
+    protected suspend fun insertImmunization(body: List<ImmunizationResponse>) {
+        immunizationDao.insertImmunization(
+            *body.map { immunizationResponse ->
+                val patientId = patientDao.getPatientIdByFhirId(immunizationResponse.patientId)!!
+                val appointmentId = appointmentDao.getAppointmentIdByFhirId(immunizationResponse.appointmentId)
+                immunizationResponse.toImmunizationEntity(patientId, appointmentId)
+            }.toTypedArray()
+        )
+    }
+
+    protected suspend fun insertManufacturer(body: List<ManufacturerResponse>) {
+        manufacturerDao.insertManufacturer(
+            *body.map { it.toManufacturerEntity() }.toTypedArray()
+        )
+    }
+
+    protected suspend fun insertImmunizationFhirIds(body: List<CreateResponse>, listOfGenericEntities: List<GenericEntity>):Int {
+        body.forEach { createResponse ->
+            immunizationDao.updateFhirId(createResponse.id!!, createResponse.fhirId!!)
+        }
+        return deleteGenericEntityData(listOfGenericEntities)
     }
 }
