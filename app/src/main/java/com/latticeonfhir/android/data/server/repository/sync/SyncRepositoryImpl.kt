@@ -167,8 +167,6 @@ class SyncRepositoryImpl @Inject constructor(
                     preferenceRepository.setLastSyncPatient(Date().time)
                     //Insert Patient
                     insertPatient(body)
-                    //Insert Immunization Recommendation
-                    getAndInsertImmunizationRecommendation(body.map { it.fhirId!! }.toList())
                     this
                 }
 
