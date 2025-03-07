@@ -156,6 +156,13 @@ open class SyncRepositoryDatabaseTransactions(
                         payload = patientResponse.fhirId,
                         type = GenericTypeEnum.FHIR_IDS_OTC,
                         syncType = SyncType.POST
+                    ),
+                    GenericEntity(
+                        id = UUID.randomUUID().toString(),
+                        patientId = patientResponse.id,
+                        payload = patientResponse.fhirId,
+                        type = GenericTypeEnum.FHIR_IDS_IMMUNIZATION,
+                        syncType = SyncType.POST
                     )
                 )
             )
