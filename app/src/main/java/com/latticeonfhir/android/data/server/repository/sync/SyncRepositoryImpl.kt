@@ -753,7 +753,7 @@ class SyncRepositoryImpl @Inject constructor(
 
     private suspend fun getAndInsertImmunizationRecommendation(patientIdList: List<String>): ResponseMapper<List<ImmunizationRecommendationResponse>> {
         val map = mutableMapOf<String, String>()
-        map[PATIENT] = patientIdList.toNoBracketAndNoSpaceString()
+        map["patient"] = patientIdList.toNoBracketAndNoSpaceString()
         return ApiResponseConverter.convert(vaccinationApiService.getAllImmunizationRecommendation(map = map))
     }
 

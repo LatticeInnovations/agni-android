@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 14,
-    "identityHash": "b8a79f1901146205d4873a25ee006c65",
+    "identityHash": "037c969c4b705bb67f3a03a5effff29f",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -2409,7 +2409,17 @@
             "filename"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_ImmunizationFileEntity_immunizationId",
+            "unique": false,
+            "columnNames": [
+              "immunizationId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ImmunizationFileEntity_immunizationId` ON `${TABLE_NAME}` (`immunizationId`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "ImmunizationEntity",
@@ -2475,7 +2485,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b8a79f1901146205d4873a25ee006c65')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '037c969c4b705bb67f3a03a5effff29f')"
     ]
   }
 }
