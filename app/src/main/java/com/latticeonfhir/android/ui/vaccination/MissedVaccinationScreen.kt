@@ -17,14 +17,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.MISSED
 
 @Composable
 fun MissedVaccinationScreen(
+    navController: NavController,
     viewModel: VaccinationViewModel
 ) {
-    Column(
+    viewModel.patient?.let { patient ->
+        Column(
         modifier = Modifier
             .fillMaxSize()
             .background(
@@ -33,24 +36,25 @@ fun MissedVaccinationScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        AgeComposable(viewModel)
-        if (viewModel.missedVaccinesList.isEmpty()) {
-            VaccineEmptyScreen(
-                stringResource(R.string.no_missed_vaccines),
-                stringResource(R.string.all_vaccines_on_schedule)
-            )
-        } else {
-            Text(
-                text = stringResource(R.string.overdue_count, 4),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-            VaccineCard(MISSED)
-            VaccineCard(MISSED)
-            VaccineCard(MISSED)
-            VaccineCard(MISSED)
-            Spacer(modifier = Modifier.height(84.dp))
+            AgeComposable(viewModel)
+            if (viewModel.missedVaccinesList.isEmpty()) {
+                VaccineEmptyScreen(
+                    stringResource(R.string.no_missed_vaccines),
+                    stringResource(R.string.all_vaccines_on_schedule)
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.overdue_count, 4),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                VaccineCard(MISSED, navController, patient)
+                VaccineCard(MISSED, navController, patient)
+                VaccineCard(MISSED, navController, patient)
+                VaccineCard(MISSED, navController, patient)
+                Spacer(modifier = Modifier.height(84.dp))
+            }
         }
     }
 }

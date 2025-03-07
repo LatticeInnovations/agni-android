@@ -45,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.theme.TakenLabel
 import com.latticeonfhir.android.ui.theme.TakenLabelDark
@@ -115,11 +116,11 @@ fun VaccinationScreen(
                             }
 
                             1 -> {
-                                MissedVaccinationScreen(viewModel)
+                                MissedVaccinationScreen(navController, viewModel)
                             }
 
                             2 -> {
-                                TakenVaccinationScreen(viewModel)
+                                TakenVaccinationScreen(navController, viewModel)
                             }
                         }
                     }
@@ -130,6 +131,11 @@ fun VaccinationScreen(
             FloatingActionButton(
                 onClick = {
                     // navigate to add vaccination screen
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        PATIENT,
+                        viewModel.patient
+                    )
+                    navController.navigate(Screen.AddVaccinationScreen.route)
                 },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.surface,
@@ -195,7 +201,9 @@ fun VaccineEmptyScreen(
 
 @Composable
 fun VaccineCard(
-    missedOrTaken: String
+    missedOrTaken: String,
+    navController: NavController,
+    patient: PatientResponse
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -211,6 +219,15 @@ fun VaccineCard(
                 indication = null,
                 onClick = {
                     // navigate to add vaccination
+                    if (missedOrTaken == MISSED) {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            PATIENT,
+                            patient
+                        )
+                        navController.navigate(Screen.AddVaccinationScreen.route)
+                    } else {
+                        navController.navigate(Screen.ViewVaccinationScreen.route)
+                    }
                 }
             )
     ) {
