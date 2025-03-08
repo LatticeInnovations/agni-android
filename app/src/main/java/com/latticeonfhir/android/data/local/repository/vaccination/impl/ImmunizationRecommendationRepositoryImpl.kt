@@ -5,6 +5,7 @@ import com.latticeonfhir.android.data.local.repository.vaccination.ImmunizationR
 import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationRecommendationDao
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationRecommendationEntity
+import java.util.Date
 import javax.inject.Inject
 
 class ImmunizationRecommendationRepositoryImpl @Inject constructor(
@@ -26,7 +27,7 @@ class ImmunizationRecommendationRepositoryImpl @Inject constructor(
                         doseNumber = immunizationRecommendationEntity.doseNumber,
                         vaccineStartDate = immunizationRecommendationEntity.vaccineStartDate,
                         vaccineEndDate = immunizationRecommendationEntity.vaccineEndDate,
-                        takenOn = takenOnDates[immunizationRecommendationEntity.doseNumber - 1]
+                        takenOn = takenOnDates.getOrNull(immunizationRecommendationEntity.doseNumber - 1)
                     )
                 }
             }
