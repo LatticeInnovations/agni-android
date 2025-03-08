@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.vaccination
+package com.latticeonfhir.android.ui.vaccination.tabs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -19,7 +19,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.ui.vaccination.AgeComposable
+import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel
 import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.MISSED
+import com.latticeonfhir.android.ui.vaccination.VaccineCard
+import com.latticeonfhir.android.ui.vaccination.VaccineEmptyScreen
 
 @Composable
 fun MissedVaccinationScreen(
@@ -28,31 +32,33 @@ fun MissedVaccinationScreen(
 ) {
     viewModel.patient?.let { patient ->
         Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                color = if (isSystemInDarkTheme()) Color.Black else Color.White
-            )
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    color = if (isSystemInDarkTheme()) Color.Black else Color.White
+                )
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             AgeComposable(viewModel)
-            if (viewModel.missedVaccinesList.isEmpty()) {
+            if (viewModel.missedImmunizationRecommendationList.isEmpty()) {
                 VaccineEmptyScreen(
                     stringResource(R.string.no_missed_vaccines),
                     stringResource(R.string.all_vaccines_on_schedule)
                 )
             } else {
                 Text(
-                    text = stringResource(R.string.overdue_count, 4),
+                    text = stringResource(
+                        R.string.overdue_count,
+                        viewModel.missedImmunizationRecommendationList.count()
+                    ),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
-                VaccineCard(MISSED, navController, patient)
-                VaccineCard(MISSED, navController, patient)
-                VaccineCard(MISSED, navController, patient)
-                VaccineCard(MISSED, navController, patient)
+                viewModel.missedImmunizationRecommendationList.forEach { vaccine ->
+                    VaccineCard(MISSED, navController, patient, vaccine)
+                }
                 Spacer(modifier = Modifier.height(84.dp))
             }
         }

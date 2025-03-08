@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.vaccination
+package com.latticeonfhir.android.ui.vaccination.tabs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -19,7 +19,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.ui.vaccination.AgeComposable
+import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel
 import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.TAKEN
+import com.latticeonfhir.android.ui.vaccination.VaccineCard
+import com.latticeonfhir.android.ui.vaccination.VaccineEmptyScreen
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthAndYear
 
 @Composable
 fun TakenVaccinationScreen(
@@ -37,32 +42,25 @@ fun TakenVaccinationScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             AgeComposable(viewModel)
-            if (viewModel.takenVaccinesList.isEmpty()) {
+            if (viewModel.takenImmunizationRecommendationList.isEmpty()) {
                 VaccineEmptyScreen(
                     stringResource(R.string.no_vaccines_recorded),
                     stringResource(R.string.vaccine_log_info)
                 )
             } else {
-                Text(
-                    text = "February 2024",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
-                )
-                VaccineCard(TAKEN, navController, patient)
-                Text(
-                    text = "January 2024",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
-                )
-                VaccineCard(TAKEN, navController, patient)
-                VaccineCard(TAKEN, navController, patient)
-                VaccineCard(TAKEN, navController, patient)
-                VaccineCard(TAKEN, navController, patient)
-                VaccineCard(TAKEN, navController, patient)
-                VaccineCard(TAKEN, navController, patient)
-                VaccineCard(TAKEN, navController, patient)
+                viewModel.takenImmunizationRecommendationList.groupBy {
+                    it.takenOn!!.toMonthAndYear()
+                }.forEach { (takenOn, listOfVaccine) ->
+                    Text(
+                        text = takenOn,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+                    )
+                    listOfVaccine.forEach { vaccine ->
+                        VaccineCard(TAKEN, navController, patient, vaccine)
+                    }
+                }
                 Spacer(modifier = Modifier.height(84.dp))
             }
         }

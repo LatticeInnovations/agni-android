@@ -44,15 +44,22 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.theme.TakenLabel
 import com.latticeonfhir.android.ui.theme.TakenLabelDark
 import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.MISSED
+import com.latticeonfhir.android.ui.vaccination.tabs.AllVaccinationScreen
+import com.latticeonfhir.android.ui.vaccination.tabs.MissedVaccinationScreen
+import com.latticeonfhir.android.ui.vaccination.tabs.TakenVaccinationScreen
+import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.formatAgeInDaysWeeksMonthsYears
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -74,6 +81,9 @@ fun VaccinationScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     PATIENT
                 )
+            viewModel.patient?.let {
+                viewModel.getImmunizationRecommendationAndImmunizationList(it.id)
+            }
         }
         viewModel.isLaunched = true
     }
@@ -203,7 +213,8 @@ fun VaccineEmptyScreen(
 fun VaccineCard(
     missedOrTaken: String,
     navController: NavController,
-    patient: PatientResponse
+    patient: PatientResponse,
+    vaccine: ImmunizationRecommendation
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -238,7 +249,7 @@ fun VaccineCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "Hepatitis B Vaccine",
+                text = vaccine.name.replaceFirstChar { it.titlecase(Locale.getDefault()) },
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -251,12 +262,12 @@ fun VaccineCard(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        text = "Hep B",
+                        text = vaccine.shortName.replaceFirstChar { it.titlecase(Locale.getDefault()) },
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "1st dose",
+                        text = stringResource(R.string.number_dose, vaccine.doseNumber.getNumberWithOrdinalIndicator()),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -268,7 +279,7 @@ fun VaccineCard(
                 )
             }
             Text(
-                text = "24 Jan 2024",
+                text = vaccine.vaccineStartDate.toPrescriptionDate(),
                 style = MaterialTheme.typography.labelMedium,
                 color = if (missedOrTaken == MISSED) MaterialTheme.colorScheme.error
                 else {
