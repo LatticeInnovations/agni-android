@@ -164,6 +164,11 @@ object TimeConverter {
         return formatter.format(this)
     }
 
+    internal fun Date.toMonthAndYear(): String {
+        val formatter = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+        return formatter.format(this)
+    }
+
     internal fun String.toMonthInteger(): Int {
         val inputFormatter = SimpleDateFormat("MMM", Locale.getDefault())
         val currentMonth = inputFormatter.parse(this)

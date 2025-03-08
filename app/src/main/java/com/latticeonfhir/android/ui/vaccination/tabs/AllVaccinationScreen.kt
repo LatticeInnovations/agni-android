@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.vaccination
+package com.latticeonfhir.android.ui.vaccination.tabs
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -39,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
 import com.latticeonfhir.android.ui.theme.MissedContainer
 import com.latticeonfhir.android.ui.theme.MissedContainerDark
 import com.latticeonfhir.android.ui.theme.MissedLabel
@@ -47,37 +48,45 @@ import com.latticeonfhir.android.ui.theme.TakenContainer
 import com.latticeonfhir.android.ui.theme.TakenContainerDark
 import com.latticeonfhir.android.ui.theme.TakenLabel
 import com.latticeonfhir.android.ui.theme.TakenLabelDark
+import com.latticeonfhir.android.ui.vaccination.AgeComposable
+import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel
+import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.categorizeVaccines
+import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun AllVaccinationScreen(
     viewModel: VaccinationViewModel
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                color = if (isSystemInDarkTheme()) Color.Black else Color.White
-            )
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        AgeComposable(viewModel)
-        VaccineTimeComposable(stringResource(R.string.at_birth))
-        VaccineTimeComposable("6 weeks")
-        VaccineTimeComposable("10 weeks")
-        VaccineTimeComposable("14 weeks")
-        VaccineTimeComposable("6 months")
-        VaccineTimeComposable("7 months")
-        VaccineTimeComposable("6-9 months")
-        VaccineTimeComposable("9 months")
-        VaccineTimeComposable("12 months")
-        Spacer(modifier = Modifier.height(84.dp))
+    viewModel.patient?.let { patient ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    color = if (isSystemInDarkTheme()) Color.Black else Color.White
+                )
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            AgeComposable(viewModel)
+            viewModel.immunizationRecommendationList.categorizeVaccines(
+                dob = patient.birthDate.convertStringToDate()
+            ).forEach { (label, listOfVaccines) ->
+                VaccineTimeComposable(label, listOfVaccines.sortedBy { it.vaccineStartDate })
+            }
+            Spacer(modifier = Modifier.height(84.dp))
+        }
     }
 }
 
 @Composable
 private fun VaccineTimeComposable(
-    label: String
+    label: String,
+    listOfVaccines: List<ImmunizationRecommendation>
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     Column(
@@ -109,7 +118,7 @@ private fun VaccineTimeComposable(
             )
             Spacer(Modifier.weight(1f))
             Text(
-                text = stringResource(R.string.completed_vaccine_info, 2, 3),
+                text = stringResource(R.string.completed_vaccine_info, 0, listOfVaccines.size),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -121,13 +130,16 @@ private fun VaccineTimeComposable(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState()),
-                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Spacer(Modifier.width(16.dp))
-                VaccinationCard(isTaken = true)
-                VaccinationCard()
-                VaccinationCard(isDelayed = true)
+                listOfVaccines.forEach { vaccine ->
+                    VaccinationCard(
+                        vaccine = vaccine,
+                        isTaken = vaccine.takenOn != null,
+                        isDelayed = vaccine.vaccineStartDate.toEndOfDay() < Date().time
+                    )
+                }
                 Spacer(Modifier.width(16.dp))
             }
         }
@@ -136,6 +148,7 @@ private fun VaccineTimeComposable(
 
 @Composable
 private fun VaccinationCard(
+    vaccine: ImmunizationRecommendation,
     isTaken: Boolean = false,
     isDelayed: Boolean = false
 ) {
@@ -156,10 +169,10 @@ private fun VaccinationCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(
-                text = "Bacille Calmette-Guérin",
+                text = vaccine.name.replaceFirstChar { it.titlecase(Locale.getDefault()) },
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -172,12 +185,12 @@ private fun VaccinationCard(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        text = "BCG",
+                        text = vaccine.shortName.replaceFirstChar { it.titlecase(Locale.getDefault()) },
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "1st dose",
+                        text = stringResource(R.string.number_dose, vaccine.doseNumber.getNumberWithOrdinalIndicator()),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -203,9 +216,15 @@ private fun VaccinationCard(
                     )
                 }
                 Text(
-                    text = if (isTaken) stringResource(R.string.taken_on_date, "18 Jan 2024")
-                    else if (isDelayed) stringResource(R.string.due_on_date, "18 Jan 2024")
-                    else "24 Jan 2024",
+                    text = if (isTaken) stringResource(
+                        R.string.taken_on_date,
+                        vaccine.takenOn!!.toPrescriptionDate()
+                    )
+                    else if (isDelayed) stringResource(
+                        R.string.due_on_date,
+                        vaccine.vaccineStartDate.toPrescriptionDate()
+                    )
+                    else vaccine.vaccineStartDate.toPrescriptionDate(),
                     style = MaterialTheme.typography.bodySmall,
                     color = getColorOfLabel(isTaken, isDelayed)
                 )
