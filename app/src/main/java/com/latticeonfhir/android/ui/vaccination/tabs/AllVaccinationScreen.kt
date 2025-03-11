@@ -38,8 +38,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
+import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.theme.MissedContainer
 import com.latticeonfhir.android.ui.theme.MissedContainerDark
 import com.latticeonfhir.android.ui.theme.MissedLabel
@@ -50,6 +52,7 @@ import com.latticeonfhir.android.ui.theme.TakenLabel
 import com.latticeonfhir.android.ui.theme.TakenLabelDark
 import com.latticeonfhir.android.ui.vaccination.AgeComposable
 import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel
+import com.latticeonfhir.android.ui.vaccination.navigateToAddVaccine
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.categorizeVaccines
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
@@ -60,7 +63,8 @@ import java.util.Locale
 
 @Composable
 fun AllVaccinationScreen(
-    viewModel: VaccinationViewModel
+    viewModel: VaccinationViewModel,
+    navController: NavController
 ) {
     viewModel.patient?.let { patient ->
         Column(
@@ -76,7 +80,7 @@ fun AllVaccinationScreen(
             viewModel.immunizationRecommendationList.categorizeVaccines(
                 dob = patient.birthDate.convertStringToDate()
             ).forEach { (label, listOfVaccines) ->
-                VaccineTimeComposable(label, listOfVaccines.sortedBy { it.vaccineStartDate })
+                VaccineTimeComposable(label, listOfVaccines.sortedBy { it.vaccineStartDate }, viewModel, navController)
             }
             Spacer(modifier = Modifier.height(84.dp))
         }
@@ -86,7 +90,9 @@ fun AllVaccinationScreen(
 @Composable
 private fun VaccineTimeComposable(
     label: String,
-    listOfVaccines: List<ImmunizationRecommendation>
+    listOfVaccines: List<ImmunizationRecommendation>,
+    viewModel: VaccinationViewModel,
+    navController: NavController
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     Column(
@@ -137,7 +143,10 @@ private fun VaccineTimeComposable(
                     VaccinationCard(
                         vaccine = vaccine,
                         isTaken = vaccine.takenOn != null,
-                        isDelayed = vaccine.vaccineStartDate.toEndOfDay() < Date().time
+                        isDelayed = vaccine.vaccineStartDate.toEndOfDay() < Date().time,
+                        patient = viewModel.patient!!,
+                        navController = navController,
+                        listOfAllVaccinations = viewModel.immunizationRecommendationList
                     )
                 }
                 Spacer(Modifier.width(16.dp))
@@ -149,17 +158,27 @@ private fun VaccineTimeComposable(
 @Composable
 private fun VaccinationCard(
     vaccine: ImmunizationRecommendation,
-    isTaken: Boolean = false,
-    isDelayed: Boolean = false
+    isTaken: Boolean,
+    isDelayed: Boolean,
+    navController: NavController,
+    patient: PatientResponse,
+    listOfAllVaccinations: List<ImmunizationRecommendation>
 ) {
     Surface(
         modifier = Modifier
-            .width(200.dp)
+            .width(210.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = {
-                    // navigate to vaccination view screen
+                    if (isTaken) {
+                        // navigate to vaccination view screen
+                    } else {
+                        // navigate to add vaccination screen
+                        navigateToAddVaccine(
+                            navController, vaccine, patient, listOfAllVaccinations
+                        )
+                    }
                 }
             ),
         shape = RoundedCornerShape(12.dp),
@@ -182,6 +201,7 @@ private fun VaccinationCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(
+                    modifier = Modifier.weight(0.8f),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
@@ -190,7 +210,10 @@ private fun VaccinationCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = stringResource(R.string.number_dose, vaccine.doseNumber.getNumberWithOrdinalIndicator()),
+                        text = stringResource(
+                            R.string.number_dose,
+                            vaccine.doseNumber.getNumberWithOrdinalIndicator()
+                        ),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -198,7 +221,8 @@ private fun VaccinationCard(
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     Icons.AutoMirrored.Filled.KeyboardArrowRight.name,
-                    tint = MaterialTheme.colorScheme.outline
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.weight(0.2f)
                 )
             }
             Spacer(Modifier.height(24.dp))
