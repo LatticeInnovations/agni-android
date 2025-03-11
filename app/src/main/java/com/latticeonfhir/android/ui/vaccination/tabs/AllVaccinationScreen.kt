@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,9 +57,11 @@ import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel
 import com.latticeonfhir.android.ui.vaccination.navigateToAddVaccine
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.categorizeVaccines
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
+import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.labelToNumberOfWeeks
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.daysBetween
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
@@ -85,8 +88,29 @@ fun AllVaccinationScreen(
             AgeComposable(viewModel)
             viewModel.immunizationRecommendationList.categorizeVaccines(
                 dob = patient.birthDate.convertStringToDate()
-            ).forEach { (label, listOfVaccines) ->
-                VaccineTimeComposable(label, listOfVaccines.sortedBy { it.vaccineStartDate }, viewModel, navController)
+            ).apply {
+                viewModel.index = this.keys.filterList {
+                    labelToNumberOfWeeks(this)!! <= daysBetween(
+                        patient.birthDate.convertStringToDate(),
+                        Date()
+                    ) / 7.0
+                }.size + 2
+            }.onEachIndexed { index, entry ->
+                var isExpanded by rememberSaveable {
+                    mutableStateOf(
+                        index < viewModel.index
+                    )
+                }
+                VaccineTimeComposable(
+                    label = entry.key,
+                    listOfVaccines = entry.value.sortedBy { it.vaccineStartDate },
+                    viewModel = viewModel,
+                    navController = navController,
+                    isExpanded = isExpanded,
+                    toggle = {
+                        isExpanded = !isExpanded
+                    }
+                )
             }
             Spacer(modifier = Modifier.height(84.dp))
         }
@@ -98,10 +122,11 @@ private fun VaccineTimeComposable(
     label: String,
     listOfVaccines: List<ImmunizationRecommendation>,
     viewModel: VaccinationViewModel,
-    navController: NavController
+    navController: NavController,
+    isExpanded: Boolean,
+    toggle: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    var isExpanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -113,7 +138,7 @@ private fun VaccineTimeComposable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = {
-                        isExpanded = !isExpanded
+                        toggle()
                     }
                 ),
             verticalAlignment = Alignment.CenterVertically,
@@ -131,7 +156,11 @@ private fun VaccineTimeComposable(
             )
             Spacer(Modifier.weight(1f))
             Text(
-                text = stringResource(R.string.completed_vaccine_info, listOfVaccines.filterList { takenOn != null }.size, listOfVaccines.size),
+                text = stringResource(
+                    R.string.completed_vaccine_info,
+                    listOfVaccines.filterList { takenOn != null }.size,
+                    listOfVaccines.size
+                ),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -170,7 +199,10 @@ private fun VaccineTimeComposable(
                                     // navigate to add vaccination screen
                                     coroutineScope.launch {
                                         navigateToAddVaccine(
-                                            navController, vaccine, viewModel.patient!!, viewModel.immunizationRecommendationList
+                                            navController,
+                                            vaccine,
+                                            viewModel.patient!!,
+                                            viewModel.immunizationRecommendationList
                                         )
                                     }
                                 } else if (viewModel.isAppointmentCompleted) {

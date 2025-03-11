@@ -37,7 +37,31 @@ object VaccinesUtils {
         }
     }
 
-    internal fun getDateIntervalList(dob: Date): List<Pair<String, Date>>{
+    internal fun labelToNumberOfWeeks(label: String): Int? {
+        return when (label) {
+            "At Birth" -> 0
+            "6 Weeks" -> 6
+            "10 Weeks" -> 10
+            "14 Weeks" -> 14
+            "6 Months" -> 26
+            "7 Months" -> 30
+            "9 Months" -> 39
+            "12 Months" -> 52
+            "13 Months" -> 56
+            "16 Months" -> 69
+            "18 Months" -> 78
+            "24 Months" -> 104
+            "4 Years" -> 208
+            "6 Years" -> 313
+            "9 Years" -> 469
+            "14 Years" -> 730
+            "15 Years" -> 782
+            "18 Years" -> 938
+            else -> null
+        }
+    }
+
+    private fun getDateIntervalList(dob: Date): List<Pair<String, Date>>{
         return listOf(
             "At Birth" to dob,
             "6 Weeks" to addWeeksToDate(dob, 6),
