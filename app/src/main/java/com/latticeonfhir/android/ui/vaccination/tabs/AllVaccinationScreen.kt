@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.theme.MissedContainer
 import com.latticeonfhir.android.ui.theme.MissedContainerDark
 import com.latticeonfhir.android.ui.theme.MissedLabel
@@ -58,6 +58,7 @@ import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWit
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.Locale
 
@@ -94,6 +95,7 @@ private fun VaccineTimeComposable(
     viewModel: VaccinationViewModel,
     navController: NavController
 ) {
+    val coroutineScope = rememberCoroutineScope()
     var isExpanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -144,10 +146,28 @@ private fun VaccineTimeComposable(
                         vaccine = vaccine,
                         isTaken = vaccine.takenOn != null,
                         isDelayed = vaccine.vaccineStartDate.toEndOfDay() < Date().time,
-                        patient = viewModel.patient!!,
-                        navController = navController,
-                        listOfAllVaccinations = viewModel.immunizationRecommendationList
-                    )
+                    ) {
+                        if (vaccine.takenOn != null) {
+                            // navigate to vaccination view screen
+                        } else {
+                            // navigate to add vaccination screen
+                            viewModel.getAppointmentInfo {
+                                if (viewModel.canAddVaccination) {
+                                    // navigate to add vaccination screen
+                                    coroutineScope.launch {
+                                        navigateToAddVaccine(
+                                            navController, vaccine, viewModel.patient!!, viewModel.immunizationRecommendationList
+                                        )
+                                    }
+                                } else if (viewModel.isAppointmentCompleted) {
+                                    viewModel.showAppointmentCompletedDialog = true
+                                } else {
+                                    viewModel.selectedVaccine = vaccine
+                                    viewModel.showAddToQueueDialog = true
+                                }
+                            }
+                        }
+                    }
                 }
                 Spacer(Modifier.width(16.dp))
             }
@@ -160,9 +180,7 @@ private fun VaccinationCard(
     vaccine: ImmunizationRecommendation,
     isTaken: Boolean,
     isDelayed: Boolean,
-    navController: NavController,
-    patient: PatientResponse,
-    listOfAllVaccinations: List<ImmunizationRecommendation>
+    onClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -171,14 +189,7 @@ private fun VaccinationCard(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = {
-                    if (isTaken) {
-                        // navigate to vaccination view screen
-                    } else {
-                        // navigate to add vaccination screen
-                        navigateToAddVaccine(
-                            navController, vaccine, patient, listOfAllVaccinations
-                        )
-                    }
+                    onClick()
                 }
             ),
         shape = RoundedCornerShape(12.dp),
