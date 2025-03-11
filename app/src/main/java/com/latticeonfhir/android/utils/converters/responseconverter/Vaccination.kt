@@ -8,7 +8,6 @@ import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationFile
 import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationRecommendationResponse
 import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
 import com.latticeonfhir.android.data.server.model.vaccination.ManufacturerResponse
-import java.util.UUID
 
 object Vaccination {
 
@@ -20,7 +19,7 @@ object Vaccination {
             createdOn = this.takenOn,
             lotNumber = this.lotNumber,
             expiryDate = this.expiryDate,
-            manufacturerId = this.manufacturer.id,
+            manufacturerId = this.manufacturer?.id,
             notes = this.notes,
             vaccineCode = this.vaccineCode,
             immunizationFhirId = null
@@ -62,11 +61,11 @@ object Vaccination {
             appointmentId = appointmentId,
             createdOn = takenOn,
             expiryDate = expiryDate,
-            immunizationFiles = filename.map { ImmunizationFile(it) },
+            immunizationFiles = filename?.map { ImmunizationFile(it) },
             immunizationId = null,
             immunizationUuid = id,
             lotNumber = lotNumber,
-            manufacturerId = manufacturer.id,
+            manufacturerId = manufacturer?.id,
             notes = notes,
             patientId = patientId,
             vaccineCode = vaccineCode
