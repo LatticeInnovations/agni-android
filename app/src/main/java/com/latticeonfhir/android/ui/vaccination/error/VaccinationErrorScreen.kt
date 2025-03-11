@@ -22,11 +22,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.VaccineErrorTypeEnum
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE_ERROR_TYPE
 
 @Composable
 fun VaccinationErrorScreen(
     navController: NavController
 ) {
+    val errorType =
+        navController.previousBackStackEntry?.savedStateHandle?.get<String>(VACCINE_ERROR_TYPE)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,14 +47,16 @@ fun VaccinationErrorScreen(
         )
         Spacer(Modifier.height(24.dp))
         Text(
-            text = stringResource(R.string.vaccine_previous_dose_error_message),
+            text = if (errorType == VaccineErrorTypeEnum.DOSE.errorType) stringResource(R.string.vaccine_previous_dose_error_message)
+            else stringResource(R.string.vaccine_time_window_error_message),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(12.dp))
         Text(
-            text = stringResource(R.string.vaccine_previous_dose_error_message_info),
+            text = if (errorType == VaccineErrorTypeEnum.DOSE.errorType) stringResource(R.string.vaccine_previous_dose_error_message_info)
+            else stringResource(R.string.vaccine_time_window_error_message_info),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center

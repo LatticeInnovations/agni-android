@@ -484,4 +484,16 @@ object TimeConverter {
         val outputFormat = SimpleDateFormat("dd-MM-yyyy | HH:mm", Locale.getDefault())
         return outputFormat.format(this)
     }
+
+    internal fun daysBetween(date1: Date, date2: Date): Int {
+        val diffInMillis = date2.time - date1.time
+        return TimeUnit.MILLISECONDS.toDays(diffInMillis).toInt()
+    }
+
+    internal fun Date.plusMinusDays(days: Int): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = this
+        calendar.add(Calendar.DATE, days)
+        return calendar.time
+    }
 }

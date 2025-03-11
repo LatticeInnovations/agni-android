@@ -102,8 +102,10 @@ import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.VaccineErrorTypeEnum
 import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.ui.theme.MissedContainer
 import com.latticeonfhir.android.ui.theme.MissedContainerDark
@@ -113,6 +115,10 @@ import com.latticeonfhir.android.ui.vaccination.add.AddVaccinationViewModel.Comp
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.formatBytes
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE_ERROR_TYPE
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.daysBetween
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.plusMinusDays
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toFileDateAndTimeName
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
@@ -233,7 +239,7 @@ fun AddVaccinationScreen(
                             modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
                             verticalArrangement = Arrangement.spacedBy(22.dp)
                         ) {
-                            VaccineDropDown(viewModel)
+                            VaccineDropDown(viewModel, navController)
                             AnimatedVisibility(
                                 visible = viewModel.immunizationRecommendationList.contains(viewModel.selectedVaccine),
                                 enter = fadeIn(),
@@ -609,7 +615,10 @@ private fun ManufacturerDropDown(viewModel: AddVaccinationViewModel) {
 }
 
 @Composable
-private fun VaccineDropDown(viewModel: AddVaccinationViewModel) {
+private fun VaccineDropDown(
+    viewModel: AddVaccinationViewModel,
+    navController: NavController
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -661,20 +670,27 @@ private fun VaccineDropDown(viewModel: AddVaccinationViewModel) {
                     DropdownMenuItem(
                         enabled = !isFullyVaccinated,
                         onClick = {
+                            showDropDown = false
                             val vaccineToBeGiven = vaccine.value.sortedBy { it.vaccineStartDate }
                                 .first { it.takenOn == null }
-//                            val timeRange = if (daysBetween(viewModel.patient!!.birthDate.convertStringToDate(), vaccineToBeGiven.vaccineStartDate) < 90)
-                            showDropDown = false
-                            viewModel.selectedVaccineName =
-                                vaccine.key.replaceFirstChar { it.titlecase(Locale.getDefault()) } + " (" +
-                                        vaccine.value[0].shortName.replaceFirstChar {
-                                            it.titlecase(
-                                                Locale.getDefault()
-                                            )
-                                        } + ")"
-                            viewModel.selectedVaccine =
-                                vaccine.value.sortedBy { it.vaccineStartDate }
-                                    .first { it.takenOn == null }
+                            val timeRange = if (daysBetween(viewModel.patient!!.birthDate.convertStringToDate(), vaccineToBeGiven.vaccineStartDate) <= 90) {
+                                vaccineToBeGiven.vaccineStartDate.plusMinusDays(-3)..vaccineToBeGiven.vaccineEndDate.plusMinusDays(3)
+                            } else {
+                                vaccineToBeGiven.vaccineStartDate.plusMinusDays(-15)..vaccineToBeGiven.vaccineEndDate.plusMinusDays(15)
+                            }
+                            if (Date() in timeRange) {
+                                viewModel.selectedVaccineName =
+                                    vaccine.key.replaceFirstChar { it.titlecase(Locale.getDefault()) } + " (" +
+                                            vaccine.value[0].shortName.replaceFirstChar {
+                                                it.titlecase(
+                                                    Locale.getDefault()
+                                                )
+                                            } + ")"
+                                viewModel.selectedVaccine = vaccineToBeGiven
+                            } else {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(VACCINE_ERROR_TYPE, VaccineErrorTypeEnum.TIME.errorType)
+                                navController.navigate(Screen.VaccinationErrorScreen.route)
+                            }
                         },
                         text = {
                             Column(
