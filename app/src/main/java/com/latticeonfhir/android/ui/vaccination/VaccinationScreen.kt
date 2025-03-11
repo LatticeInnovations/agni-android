@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.enums.VaccineErrorTypeEnum
 import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
@@ -56,9 +57,16 @@ import com.latticeonfhir.android.ui.vaccination.tabs.MissedVaccinationScreen
 import com.latticeonfhir.android.ui.vaccination.tabs.TakenVaccinationScreen
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE_ERROR_TYPE
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.daysBetween
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.formatAgeInDaysWeeksMonthsYears
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.plusMinusDays
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import kotlinx.coroutines.launch
+import okhttp3.internal.filterList
+import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -214,7 +222,8 @@ fun VaccineCard(
     missedOrTaken: String,
     navController: NavController,
     patient: PatientResponse,
-    vaccine: ImmunizationRecommendation
+    vaccine: ImmunizationRecommendation,
+    listOfAllVaccinations: List<ImmunizationRecommendation>
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -231,11 +240,44 @@ fun VaccineCard(
                 onClick = {
                     // navigate to add vaccination
                     if (missedOrTaken == MISSED) {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            PATIENT,
-                            patient
-                        )
-                        navController.navigate(Screen.AddVaccinationScreen.route)
+                        // check for earlier doses
+                        if (listOfAllVaccinations.filterList { name == vaccine.name && doseNumber < vaccine.doseNumber && takenOn == null }
+                                .isNotEmpty()) {
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                VACCINE_ERROR_TYPE, VaccineErrorTypeEnum.DOSE.errorType
+                            )
+                            navController.navigate(Screen.VaccinationErrorScreen.route)
+                        } else {
+                            val timeRange = if (daysBetween(
+                                    patient.birthDate.convertStringToDate(),
+                                    vaccine.vaccineStartDate
+                                ) <= 90
+                            ) {
+                                vaccine.vaccineStartDate.plusMinusDays(-3)..vaccine.vaccineEndDate.plusMinusDays(
+                                    3
+                                )
+                            } else {
+                                vaccine.vaccineStartDate.plusMinusDays(-15)..vaccine.vaccineEndDate.plusMinusDays(
+                                    15
+                                )
+                            }
+                            if (Date() in timeRange) {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    patient
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    VACCINE,
+                                    vaccine
+                                )
+                                navController.navigate(Screen.AddVaccinationScreen.route)
+                            } else {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    VACCINE_ERROR_TYPE, VaccineErrorTypeEnum.TIME.errorType
+                                )
+                                navController.navigate(Screen.VaccinationErrorScreen.route)
+                            }
+                        }
                     } else {
                         navController.navigate(Screen.ViewVaccinationScreen.route)
                     }
@@ -267,7 +309,10 @@ fun VaccineCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = stringResource(R.string.number_dose, vaccine.doseNumber.getNumberWithOrdinalIndicator()),
+                        text = stringResource(
+                            R.string.number_dose,
+                            vaccine.doseNumber.getNumberWithOrdinalIndicator()
+                        ),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

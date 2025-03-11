@@ -115,6 +115,7 @@ import com.latticeonfhir.android.ui.vaccination.add.AddVaccinationViewModel.Comp
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.formatBytes
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE_ERROR_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.daysBetween
@@ -156,7 +157,11 @@ fun AddVaccinationScreen(
                 viewModel.showUploadSheet = false
                 viewModel.displayCamera = true
             } else {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(context as Activity, Manifest.permission.CAMERA)) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        context as Activity,
+                        Manifest.permission.CAMERA
+                    )
+                ) {
                     viewModel.showOpenSettingsDialog = true
                 } else {
                     viewModel.showUploadSheet = false
@@ -173,12 +178,27 @@ fun AddVaccinationScreen(
                     PATIENT
                 )
             viewModel.getImmunizationRecommendationAndManufacturerList(viewModel.patient!!.id)
+            viewModel.selectedVaccine =
+                navController.previousBackStackEntry?.savedStateHandle?.get<ImmunizationRecommendation>(
+                    VACCINE
+                )
+            viewModel.selectedVaccineName =
+                viewModel.selectedVaccine?.let { vaccine ->
+                    vaccine.name.replaceFirstChar { it.titlecase(Locale.getDefault()) } + " (" +
+                            vaccine.shortName.replaceFirstChar {
+                                it.titlecase(
+                                    Locale.getDefault()
+                                )
+                            } + ")"
+                } ?: ""
         }
         viewModel.isLaunched = true
     }
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .navigationBarsPadding())
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding()
+    )
     {
         Scaffold(
             modifier = Modifier
@@ -241,7 +261,9 @@ fun AddVaccinationScreen(
                         ) {
                             VaccineDropDown(viewModel, navController)
                             AnimatedVisibility(
-                                visible = viewModel.immunizationRecommendationList.contains(viewModel.selectedVaccine),
+                                visible = viewModel.immunizationRecommendationList.contains(
+                                    viewModel.selectedVaccine
+                                ),
                                 enter = fadeIn(),
                                 exit = fadeOut()
                             ) {
@@ -357,11 +379,12 @@ fun AddVaccinationScreen(
                             }
                         },
                         confirm = {
-                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                addCategory(Intent.CATEGORY_DEFAULT)
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                data = Uri.fromParts("package", context.packageName, null)
-                            }
+                            val intent =
+                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    addCategory(Intent.CATEGORY_DEFAULT)
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    data = Uri.fromParts("package", context.packageName, null)
+                                }
                             context.startActivity(intent)
                             viewModel.showOpenSettingsDialog = false
                         }
@@ -476,7 +499,7 @@ private fun UploadCertificatesComposable(
             text = stringResource(R.string.upload_certifications_info),
             style = MaterialTheme.typography.bodyMedium,
             color = if (viewModel.isFileError) MaterialTheme.colorScheme.error
-                else MaterialTheme.colorScheme.outline
+            else MaterialTheme.colorScheme.outline
         )
         FilledTonalButton(
             onClick = {
@@ -521,7 +544,9 @@ private fun UploadCertificatesComposable(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        text = Date(file.toFile().name.substringBefore(".").toLong()).toFileDateAndTimeName(),
+                        text = Date(
+                            file.toFile().name.substringBefore(".").toLong()
+                        ).toFileDateAndTimeName(),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -673,10 +698,18 @@ private fun VaccineDropDown(
                             showDropDown = false
                             val vaccineToBeGiven = vaccine.value.sortedBy { it.vaccineStartDate }
                                 .first { it.takenOn == null }
-                            val timeRange = if (daysBetween(viewModel.patient!!.birthDate.convertStringToDate(), vaccineToBeGiven.vaccineStartDate) <= 90) {
-                                vaccineToBeGiven.vaccineStartDate.plusMinusDays(-3)..vaccineToBeGiven.vaccineEndDate.plusMinusDays(3)
+                            val timeRange = if (daysBetween(
+                                    viewModel.patient!!.birthDate.convertStringToDate(),
+                                    vaccineToBeGiven.vaccineStartDate
+                                ) <= 90
+                            ) {
+                                vaccineToBeGiven.vaccineStartDate.plusMinusDays(-3)..vaccineToBeGiven.vaccineEndDate.plusMinusDays(
+                                    3
+                                )
                             } else {
-                                vaccineToBeGiven.vaccineStartDate.plusMinusDays(-15)..vaccineToBeGiven.vaccineEndDate.plusMinusDays(15)
+                                vaccineToBeGiven.vaccineStartDate.plusMinusDays(-15)..vaccineToBeGiven.vaccineEndDate.plusMinusDays(
+                                    15
+                                )
                             }
                             if (Date() in timeRange) {
                                 viewModel.selectedVaccineName =
@@ -688,7 +721,10 @@ private fun VaccineDropDown(
                                             } + ")"
                                 viewModel.selectedVaccine = vaccineToBeGiven
                             } else {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(VACCINE_ERROR_TYPE, VaccineErrorTypeEnum.TIME.errorType)
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    VACCINE_ERROR_TYPE,
+                                    VaccineErrorTypeEnum.TIME.errorType
+                                )
                                 navController.navigate(Screen.VaccinationErrorScreen.route)
                             }
                         },
@@ -895,7 +931,10 @@ private fun ShowFileDeleteDialog(viewModel: AddVaccinationViewModel) {
             TextButton(
                 onClick = {
                     // delete file
-                    FileManager.removeFromInternalStorage(context, viewModel.selectedUriToDelete!!.toFile().name)
+                    FileManager.removeFromInternalStorage(
+                        context,
+                        viewModel.selectedUriToDelete!!.toFile().name
+                    )
                     viewModel.uploadedFileUri.remove(viewModel.selectedUriToDelete)
                     viewModel.selectedUriToDelete = null
                     viewModel.showFileDeleteDialog = false
@@ -1003,9 +1042,11 @@ private fun CameraComposable(
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
     var preview by remember { mutableStateOf<Preview?>(null) }
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .navigationBarsPadding())
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding()
+    )
     {
         Box(
             modifier = Modifier
