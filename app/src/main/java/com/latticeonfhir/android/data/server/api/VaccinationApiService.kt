@@ -16,7 +16,7 @@ import retrofit2.http.QueryMap
 
 interface VaccinationApiService {
 
-    @POST(IMMUNIZATION)
+    @POST("sync/$IMMUNIZATION")
     suspend fun postImmunization(@Body immunizationResponse: List<ImmunizationResponse>): Response<BaseResponse<List<CreateResponse>>>
 
     @GET(IMMUNIZATION)
