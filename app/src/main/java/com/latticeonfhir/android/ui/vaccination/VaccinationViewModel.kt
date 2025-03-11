@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.vaccination
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -54,6 +55,8 @@ class VaccinationViewModel @Inject constructor(
     var showAllSlotsBookedDialog by mutableStateOf(false)
     private val maxNumberOfAppointmentsInADay = 250
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
+
+    var index by mutableIntStateOf(0)
 
     internal fun getAppointmentInfo(
         ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
