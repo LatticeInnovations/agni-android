@@ -850,5 +850,25 @@ open class GenericRepositoryDatabaseTransactions(
         }
     }
 
-
+    protected suspend fun insertImmunizationGenericEntity(
+        immunizationResponse: ImmunizationResponse,
+        immunizationGenericEntity: GenericEntity?,
+        uuid: String
+    ): Long {
+        return if (immunizationGenericEntity != null) {
+            genericDao.insertGenericEntity(
+                immunizationGenericEntity.copy(payload = immunizationResponse.toJson())
+            )[0]
+        } else {
+            genericDao.insertGenericEntity(
+                GenericEntity(
+                    id = uuid,
+                    patientId = immunizationResponse.immunizationUuid,
+                    payload = immunizationResponse.toJson(),
+                    type = GenericTypeEnum.IMMUNIZATION,
+                    syncType = SyncType.POST
+                )
+            )[0]
+        }
+    }
 }
