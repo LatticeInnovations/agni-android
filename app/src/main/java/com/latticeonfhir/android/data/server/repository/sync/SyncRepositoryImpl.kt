@@ -489,6 +489,7 @@ class SyncRepositoryImpl @Inject constructor(
             }
         }
     }
+
     override suspend fun getAndInsertListVitalData(offset: Int): ResponseMapper<List<VitalResponse>> {
         val map = mutableMapOf<String, String>()
         map[COUNT] = COUNT_VALUE.toString()
@@ -523,6 +524,7 @@ class SyncRepositoryImpl @Inject constructor(
             }
         }
     }
+
     override suspend fun getAndInsertListSymptomsAndDiagnosisData(offset: Int): ResponseMapper<List<SymptomsAndDiagnosisResponse>> {
         val map = mutableMapOf<String, String>()
         map[COUNT] = COUNT_VALUE.toString()
@@ -598,9 +600,11 @@ class SyncRepositoryImpl @Inject constructor(
         map[COUNT] = COUNT_VALUE.toString()
         map[OFFSET] = offset.toString()
         map[SORT] = "-$ID"
-        if (preferenceRepository.getLastSyncMedicalRecord() != 0L) map[LAST_UPDATED] = String.format(
-            GREATER_THAN_BUILDER, preferenceRepository.getLastSyncMedicalRecord().toTimeStampDate()
-        )
+        if (preferenceRepository.getLastSyncMedicalRecord() != 0L) map[LAST_UPDATED] =
+            String.format(
+                GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncMedicalRecord().toTimeStampDate()
+            )
 
         ApiResponseConverter.convert(
             labTestAndMedRecordService.getListMedicalRecordData(
@@ -637,8 +641,7 @@ class SyncRepositoryImpl @Inject constructor(
                 if (listOfGenericEntity.isEmpty()) {
                     insertNotDispensedPrescriptions()
                     ApiEmptyResponse()
-                }
-                else {
+                } else {
                     val map = mutableMapOf<String, String>()
                     map[PATIENT_ID] =
                         listOfGenericEntity.map { it.payload }.toNoBracketAndNoSpaceString()
@@ -727,31 +730,50 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAndInsertImmunization(): ResponseMapper<Any> {
-        return genericDao.getSameTypeGenericEntityPayload(
-            genericTypeEnum = GenericTypeEnum.FHIR_IDS_IMMUNIZATION,
-            syncType = SyncType.POST
-        ).let { listOfGenericEntity ->
-            if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
-            else {
-                val immunizationRecommendationResponse = getAndInsertImmunizationRecommendation(listOfGenericEntity.map { it.payload })
-                val immunizationResponse = getAndInsertImmunization(listOfGenericEntity.map { it.payload })
+    override suspend fun getAndInsertImmunization(patientId: String?): ResponseMapper<List<ImmunizationResponse>> {
+        return if (patientId == null) {
+            genericDao.getSameTypeGenericEntityPayload(
+                genericTypeEnum = GenericTypeEnum.FHIR_IDS_IMMUNIZATION,
+                syncType = SyncType.POST
+            ).let { listOfGenericEntity ->
+                if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
+                else {
+                    val immunizationRecommendationResponse =
+                        getAndInsertImmunizationRecommendation(listOfGenericEntity.map { it.payload })
+                    val immunizationResponse =
+                        getAndInsertImmunization(listOfGenericEntity.map { it.payload })
 
-                if (immunizationRecommendationResponse is ApiEndResponse && immunizationResponse is ApiEndResponse) {
-                    insertImmunizationRecommendation(immunizationRecommendationResponse.body)
-                    insertImmunization(immunizationResponse.body)
-                    genericDao.deleteSyncPayload(listOfGenericEntity.map { it.id })
-                    getAndInsertImmunization()
+                    if (immunizationRecommendationResponse is ApiEndResponse && immunizationResponse is ApiEndResponse) {
+                        insertImmunizationRecommendation(immunizationRecommendationResponse.body)
+                        insertImmunization(immunizationResponse.body)
+                        genericDao.deleteSyncPayload(listOfGenericEntity.map { it.id })
+                        getAndInsertImmunization(null)
+                    }
+                    return immunizationResponse
                 }
-                return immunizationResponse
             }
+        } else {
+            val immunizationRecommendationResponse =
+                getAndInsertImmunizationRecommendation(listOf(patientId))
+            val immunizationResponse = getAndInsertImmunization(listOf(patientId))
+
+            if (immunizationRecommendationResponse is ApiEndResponse && immunizationResponse is ApiEndResponse) {
+                insertImmunizationRecommendation(immunizationRecommendationResponse.body)
+                insertImmunization(immunizationResponse.body)
+                getAndInsertImmunization(patientId)
+            }
+            return immunizationResponse
         }
     }
 
     private suspend fun getAndInsertImmunizationRecommendation(patientIdList: List<String>): ResponseMapper<List<ImmunizationRecommendationResponse>> {
         val map = mutableMapOf<String, String>()
         map[PATIENT_IMMUNIZATION_RECOMMENDATION] = patientIdList.toNoBracketAndNoSpaceString()
-        return ApiResponseConverter.convert(vaccinationApiService.getAllImmunizationRecommendation(map = map))
+        return ApiResponseConverter.convert(
+            vaccinationApiService.getAllImmunizationRecommendation(
+                map = map
+            )
+        )
     }
 
     private suspend fun getAndInsertImmunization(patientIdList: List<String>): ResponseMapper<List<ImmunizationResponse>> {
@@ -762,10 +784,12 @@ class SyncRepositoryImpl @Inject constructor(
 
     override suspend fun getAndInsertManufacturer(): ResponseMapper<List<ManufacturerResponse>> {
         val map = mutableMapOf<String, String>()
-        if (preferenceRepository.getLastSyncManufacturerRecord() != 0L) map[LAST_UPDATED] = String.format(
-            GREATER_THAN_BUILDER, preferenceRepository.getLastSyncManufacturerRecord().toTimeStampDate()
-        )
-        
+        if (preferenceRepository.getLastSyncManufacturerRecord() != 0L) map[LAST_UPDATED] =
+            String.format(
+                GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncManufacturerRecord().toTimeStampDate()
+            )
+
         return ApiResponseConverter.convert(vaccinationApiService.getAllManufacturers(map))
             .apply {
                 if (this is ApiEndResponse) {
@@ -848,7 +872,10 @@ class SyncRepositoryImpl @Inject constructor(
                 ).run {
                     when (this) {
                         is ApiEndResponse -> {
-                            insertPrescriptionAndMedicationRequestFhirId(listOfGenericEntity, body).let { deletedRows ->
+                            insertPrescriptionAndMedicationRequestFhirId(
+                                listOfGenericEntity,
+                                body
+                            ).let { deletedRows ->
                                 if (deletedRows > 0) sendFormPrescriptionPostData() else this
                             }
                         }
@@ -879,7 +906,10 @@ class SyncRepositoryImpl @Inject constructor(
                 ).run {
                     when (this) {
                         is ApiEndResponse -> {
-                            insertPhotoPrescriptionFhirId(listOfGenericEntity, body).let { deletedRows ->
+                            insertPhotoPrescriptionFhirId(
+                                listOfGenericEntity,
+                                body
+                            ).let { deletedRows ->
                                 if (deletedRows > 0) sendPhotoPrescriptionPostData() else this
                             }
                         }
@@ -988,6 +1018,7 @@ class SyncRepositoryImpl @Inject constructor(
             }
         }
     }
+
     override suspend fun sendVitalPostData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
             genericTypeEnum = GenericTypeEnum.VITAL, syncType = SyncType.POST
@@ -1336,6 +1367,7 @@ class SyncRepositoryImpl @Inject constructor(
         }
 
     }
+
     override suspend fun sendVitalPatchData(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
             genericTypeEnum = GenericTypeEnum.VITAL, syncType = SyncType.PATCH
@@ -1364,7 +1396,8 @@ class SyncRepositoryImpl @Inject constructor(
 
     override suspend fun deletePrescriptionPhoto(): ResponseMapper<List<CreateResponse>> {
         return genericDao.getSameTypeGenericEntityPayload(
-            genericTypeEnum = GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE, syncType = SyncType.DELETE
+            genericTypeEnum = GenericTypeEnum.PRESCRIPTION_PHOTO_RESPONSE,
+            syncType = SyncType.DELETE
         ).let { listOfGenericEntity ->
             if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
             else {
