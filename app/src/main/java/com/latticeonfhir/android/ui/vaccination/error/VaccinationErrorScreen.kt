@@ -14,6 +14,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,8 +32,11 @@ import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE_
 fun VaccinationErrorScreen(
     navController: NavController
 ) {
-    val errorType =
-        navController.previousBackStackEntry?.savedStateHandle?.get<String>(VACCINE_ERROR_TYPE)
+    val errorType by remember {
+        mutableStateOf(
+            navController.previousBackStackEntry?.savedStateHandle?.get<String>(VACCINE_ERROR_TYPE)
+        )
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()

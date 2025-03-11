@@ -57,7 +57,7 @@ fun MissedVaccinationScreen(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 viewModel.missedImmunizationRecommendationList.forEach { vaccine ->
-                    VaccineCard(MISSED, navController, patient, vaccine)
+                    VaccineCard(MISSED, navController, patient, vaccine, viewModel.immunizationRecommendationList)
                 }
                 Spacer(modifier = Modifier.height(84.dp))
             }

@@ -58,7 +58,7 @@ fun TakenVaccinationScreen(
                         modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                     )
                     listOfVaccine.forEach { vaccine ->
-                        VaccineCard(TAKEN, navController, patient, vaccine)
+                        VaccineCard(TAKEN, navController, patient, vaccine, viewModel.immunizationRecommendationList)
                     }
                 }
                 Spacer(modifier = Modifier.height(84.dp))
