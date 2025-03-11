@@ -16,5 +16,6 @@ data class ImmunizationRecommendation(
     val vaccineStartDate: Date,
     val vaccineEndDate: Date,
     val takenOn: Date?,
-    val vaccineCode: String
+    val vaccineCode: String,
+    val vaccineDueDate: Date
 ) : Parcelable

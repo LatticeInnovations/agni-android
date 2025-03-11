@@ -37,7 +37,8 @@ object Vaccination {
             doseNumber = doseNumber,
             vaccineStartDate = vaccineStartDate,
             vaccineEndDate = vaccineEndDate,
-            vaccineBufferDate = vaccineBufferDate
+            vaccineBufferDate = vaccineBufferDate,
+            vaccineDueDate = vaccineDueDate
         )
     }
 

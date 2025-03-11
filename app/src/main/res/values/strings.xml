@@ -466,4 +466,5 @@ include them in the household</string>
     <string name="fully_vaccinated">Fully vaccinated</string>
     <string name="vaccination_added_successfully">Vaccination added successfully!</string>
     <string name="vaccine_view_name_info">%s(%s) - %s Dose - %s</string>
+    <string name="vaccine_date_range">(%s - %s)</string>
 </resources>
