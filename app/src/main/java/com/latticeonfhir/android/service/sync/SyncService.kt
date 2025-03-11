@@ -379,9 +379,6 @@ class SyncService(
         )?.apply {
             if (this is ApiEndResponse) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    downloadImmunizationAndRecommendation(logout)
-                }
-                CoroutineScope(Dispatchers.IO).launch {
                     downloadRelation(logout)
                 }
             }
@@ -393,9 +390,16 @@ class SyncService(
         checkAuthenticationStatus(syncRepository.getAndInsertRelation(), logout)
     }
 
-    /** Download Appointment*/
-    private suspend fun downloadImmunizationAndRecommendation(logout: (Boolean, String) -> Unit) {
-        checkAuthenticationStatus(syncRepository.getAndInsertImmunization(), logout)
+    /** Download Immunization And Recommendation */
+    private suspend fun downloadImmunizationAndRecommendation(
+        patientId: String?,
+        logout: (Boolean, String) -> Unit
+    ): ResponseMapper<Any>? {
+        return checkAuthenticationStatus(syncRepository.getAndInsertImmunization(patientId), logout)?.apply {
+            if (this is ApiEmptyResponse || this is ApiEndResponse) {
+                downloadPrescriptionPhoto(logout)
+            }
+        }
     }
 
     /** Download Schedule */
@@ -485,7 +489,7 @@ class SyncService(
             logout
         )?.apply {
             if (this is ApiEmptyResponse || this is ApiEndResponse) {
-                downloadPrescriptionPhoto(logout)
+                downloadImmunizationAndRecommendation(patientId, logout)
             }
         }
     }
