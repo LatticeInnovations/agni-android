@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
+import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.theme.MissedContainer
 import com.latticeonfhir.android.ui.theme.MissedContainerDark
 import com.latticeonfhir.android.ui.theme.MissedLabel
@@ -55,10 +56,13 @@ import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel
 import com.latticeonfhir.android.ui.vaccination.navigateToAddVaccine
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.categorizeVaccines
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import kotlinx.coroutines.launch
+import okhttp3.internal.filterList
 import java.util.Date
 import java.util.Locale
 
@@ -126,7 +130,7 @@ private fun VaccineTimeComposable(
             )
             Spacer(Modifier.weight(1f))
             Text(
-                text = stringResource(R.string.completed_vaccine_info, 0, listOfVaccines.size),
+                text = stringResource(R.string.completed_vaccine_info, listOfVaccines.filterList { takenOn != null }.size, listOfVaccines.size),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -149,6 +153,15 @@ private fun VaccineTimeComposable(
                     ) {
                         if (vaccine.takenOn != null) {
                             // navigate to vaccination view screen
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                PATIENT,
+                                viewModel.patient!!
+                            )
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                VACCINE,
+                                vaccine
+                            )
+                            navController.navigate(Screen.ViewVaccinationScreen.route)
                         } else {
                             // navigate to add vaccination screen
                             viewModel.getAppointmentInfo {
