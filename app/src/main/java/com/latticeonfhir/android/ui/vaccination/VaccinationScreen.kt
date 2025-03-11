@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -61,6 +62,7 @@ import com.latticeonfhir.android.ui.vaccination.tabs.TakenVaccinationScreen
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE_ADDED
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE_ERROR_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.daysBetween
@@ -78,6 +80,7 @@ fun VaccinationScreen(
     navController: NavController,
     viewModel: VaccinationViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val pagerState = rememberPagerState(
@@ -86,7 +89,17 @@ fun VaccinationScreen(
     ) {
         viewModel.tabs.size
     }
+    viewModel.isVaccineAdded =
+        navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(VACCINE_ADDED) == true
     LaunchedEffect(viewModel.isLaunched) {
+        if (viewModel.isVaccineAdded) {
+            viewModel.getImmunizationRecommendationAndImmunizationList(viewModel.patient!!.id)
+            viewModel.isVaccineAdded = false
+            navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(VACCINE_ADDED)
+            snackbarHostState.showSnackbar(
+                context.getString(R.string.vaccination_added_successfully)
+            )
+        }
         if (!viewModel.isLaunched) {
             viewModel.patient =
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(

@@ -6,14 +6,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.android.data.local.model.vaccination.Immunization
 import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
+import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
+import com.latticeonfhir.android.data.local.repository.file.DownloadedFileRepository
 import com.latticeonfhir.android.data.local.repository.vaccination.ImmunizationRecommendationRepository
+import com.latticeonfhir.android.data.local.repository.vaccination.ImmunizationRepository
 import com.latticeonfhir.android.data.local.repository.vaccination.ManufacturerRepository
+import com.latticeonfhir.android.data.local.roomdb.entities.file.DownloadedFileEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.file.FileUploadEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ManufacturerEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
+import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -21,7 +35,11 @@ import javax.inject.Inject
 @HiltViewModel
 class AddVaccinationViewModel @Inject constructor(
     private val immunizationRecommendationRepository: ImmunizationRecommendationRepository,
-    private val manufacturerRepository: ManufacturerRepository
+    private val manufacturerRepository: ManufacturerRepository,
+    private val immunizationRepository: ImmunizationRepository,
+    private val appointmentRepository: AppointmentRepository,
+    private val fileSyncRepository: FileSyncRepository,
+    private val downloadedFileRepository: DownloadedFileRepository
 ) : ViewModel() {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
@@ -65,6 +83,54 @@ class AddVaccinationViewModel @Inject constructor(
             immunizationRecommendationList = immunizationRecommendationRepository.getImmunizationRecommendation(patientId)
             manufacturerList = listOf(selectedManufacturer) + manufacturerRepository.getAllManufacturers()
         }
+    }
+
+    internal fun addVaccination(
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+        added: () -> Unit
+    ) {
+        viewModelScope.launch(ioDispatcher) {
+            val appointmentResponseLocal =
+                appointmentRepository.getAppointmentListByDate(Date().toTodayStartDate(), Date().toEndOfDay())
+                    .firstOrNull { appointmentEntity ->
+                        appointmentEntity.patientId == patient!!.id && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
+                    }
+            immunizationRepository.insertImmunization(
+                Immunization(
+                    id = UUIDBuilder.generateUUID(),
+                    vaccineName = selectedVaccine!!.name,
+                    vaccineSortName = selectedVaccine!!.shortName,
+                    vaccineCode = selectedVaccine!!.vaccineCode,
+                    lotNumber = lotNo,
+                    takenOn = Date(),
+                    expiryDate = dateOfExpiry!!,
+                    manufacturer = if (selectedManufacturer.name != "Select") selectedManufacturer else null,
+                    notes = notes.trim().ifBlank { null },
+                    filename = uploadedFileUri.map { it.toFile().name },
+                    patientId = patient!!.id,
+                    appointmentId = appointmentResponseLocal!!.uuid
+                )
+            ).also {
+                uploadedFileUri.map { it.toFile().name }.forEach { filename ->
+                    insertInFileRepositories(filename)
+                }
+                // insert in generic
+            }
+            added()
+        }
+    }
+
+    private suspend fun insertInFileRepositories(filename: String) {
+        fileSyncRepository.insertFile(
+            FileUploadEntity(
+                name = filename
+            )
+        )
+        downloadedFileRepository.insertEntity(
+            DownloadedFileEntity(
+                name = filename
+            )
+        )
     }
 
     companion object {

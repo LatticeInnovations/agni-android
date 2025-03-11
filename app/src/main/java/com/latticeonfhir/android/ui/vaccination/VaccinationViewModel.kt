@@ -36,6 +36,7 @@ class VaccinationViewModel @Inject constructor(
     private val genericRepository: GenericRepository
 ) : ViewModel() {
     var isLaunched by mutableStateOf(false)
+    var isVaccineAdded by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
     var selectedVaccine by mutableStateOf<ImmunizationRecommendation?>(null)
 
