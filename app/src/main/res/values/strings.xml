@@ -462,4 +462,6 @@ include them in the household</string>
     <string name="vaccine_time_window_error_message_info">Please record details during that period.</string>
     <string name="vaccine_previous_dose_error_message_info">Vaccine sequence must be followed.</string>
     <string name="vaccine_previous_dose_error_message">Please record the previous dose(s) before entering this dose.</string>
+    <string name="vaccine_name_with_code">%s (%s)</string>
+    <string name="fully_vaccinated">Fully vaccinated</string>
 </resources>

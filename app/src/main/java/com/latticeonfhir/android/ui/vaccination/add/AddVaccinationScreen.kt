@@ -1,9 +1,25 @@
 package com.latticeonfhir.android.ui.vaccination.add
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -12,21 +28,27 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
@@ -40,6 +62,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -52,28 +76,54 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.zIndex
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.ui.theme.MissedContainer
 import com.latticeonfhir.android.ui.theme.MissedContainerDark
 import com.latticeonfhir.android.ui.theme.MissedLabel
 import com.latticeonfhir.android.ui.theme.MissedLabelDark
+import com.latticeonfhir.android.ui.vaccination.add.AddVaccinationViewModel.Companion.MAX_FILE_SIZE_IN_KB
+import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.formatBytes
+import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toFileDateAndTimeName
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toddMMYYYYString
+import com.latticeonfhir.android.utils.file.FileManager
+import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.io.File
 import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,154 +131,268 @@ fun AddVaccinationScreen(
     navController: NavController,
     viewModel: AddVaccinationViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val pickImageLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let {
+                viewModel.showUploadSheet = false
+                viewModel.isImageCaptured = true
+                viewModel.selectedImageUri = it
+                viewModel.isSelectedFromGallery = true
+            }
+        }
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                viewModel.showUploadSheet = false
+                viewModel.displayCamera = true
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(context as Activity, Manifest.permission.CAMERA)) {
+                    viewModel.showOpenSettingsDialog = true
+                } else {
+                    viewModel.showUploadSheet = false
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
+                    }
+                }
+            }
+        })
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             viewModel.patient =
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     PATIENT
                 )
+            viewModel.getImmunizationRecommendationAndManufacturerList(viewModel.patient!!.id)
         }
         viewModel.isLaunched = true
     }
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .imePadding(),
-        topBar = {
-            TopAppBar(
-                modifier = Modifier.fillMaxWidth(),
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.navigateUp()
-                    }) {
-                        Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
-                    }
-                },
-                title = {
-                    Text(stringResource(R.string.add_vaccination))
-                },
-                actions = {
-                    TextButton(
-                        onClick = {
-                            // save vaccination
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .navigationBarsPadding())
+    {
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding(),
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                TopAppBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            navController.navigateUp()
+                        }) {
+                            Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
                         }
-                    ) {
-                        Text(text = stringResource(R.string.save))
-                    }
-                }
-            )
-        },
-        content = { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .padding(paddingValues)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = if (isSystemInDarkTheme()) Color.Black else Color.White)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    StatusCard()
-                    DateAndDoseRow()
-                    Column(
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
-                        verticalArrangement = Arrangement.spacedBy(22.dp)
-                    ) {
-                        VaccineDropDown(viewModel)
-                        AnimatedVisibility(
-                            visible = viewModel.listOfVaccines.contains(viewModel.selectedVaccine),
-                            enter = fadeIn(),
-                            exit = fadeOut()
+                    },
+                    title = {
+                        Text(stringResource(R.string.add_vaccination))
+                    },
+                    actions = {
+                        TextButton(
+                            onClick = {
+                                // save vaccination
+                            },
+                            enabled = viewModel.lotNo.isNotBlank() && viewModel.dateOfExpiry != null
                         ) {
+                            Text(text = stringResource(R.string.save))
+                        }
+                    }
+                )
+            },
+            content = { paddingValues ->
+                Box(
+                    modifier = Modifier
+                        .padding(paddingValues)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = if (isSystemInDarkTheme()) Color.Black else Color.White)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        AnimatedVisibility(viewModel.selectedVaccine != null) {
                             Column(
-                                verticalArrangement = Arrangement.spacedBy(22.dp)
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                OutlinedTextField(
-                                    value = viewModel.lotNo,
-                                    onValueChange = { value ->
-                                        if (value.length <= 20) viewModel.lotNo = value
-                                    },
-                                    label = {
-                                        Text(stringResource(R.string.lot_no_mandatory))
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                )
-                                OutlinedTextField(
-                                    value = viewModel.dateOfExpiry?.toddMMYYYYString() ?: "",
-                                    onValueChange = { },
-                                    label = {
-                                        Text(stringResource(R.string.date_of_expiry_mandatory))
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
-                                    trailingIcon = {
-                                        Icon(
-                                            painter = painterResource(R.drawable.today_calendar),
-                                            "CALENDER_ICON",
-                                            Modifier.size(24.dp)
-                                        )
-                                    },
-                                    placeholder = {
-                                        Text(stringResource(R.string.date_format))
-                                    },
-                                    readOnly = true,
-                                    interactionSource = remember {
-                                        MutableInteractionSource()
-                                    }.also { interactionSource ->
-                                        LaunchedEffect(interactionSource) {
-                                            interactionSource.interactions.collect {
-                                                if (it is PressInteraction.Release) {
-                                                    viewModel.showDatePicker = true
+                                if (viewModel.selectedVaccine!!.vaccineStartDate != Date(Date().toTodayStartDate()))
+                                    StatusCard(viewModel.selectedVaccine!!)
+                                DateAndDoseRow(viewModel.selectedVaccine!!)
+                            }
+                        }
+                        if (viewModel.selectedVaccine == null) Spacer(Modifier.height(16.dp))
+                        Column(
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                            verticalArrangement = Arrangement.spacedBy(22.dp)
+                        ) {
+                            VaccineDropDown(viewModel)
+                            AnimatedVisibility(
+                                visible = viewModel.immunizationRecommendationList.contains(viewModel.selectedVaccine),
+                                enter = fadeIn(),
+                                exit = fadeOut()
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(22.dp)
+                                ) {
+                                    OutlinedTextField(
+                                        value = viewModel.lotNo,
+                                        onValueChange = { value ->
+                                            if (value.length <= 20) viewModel.lotNo = value
+                                        },
+                                        label = {
+                                            Text(stringResource(R.string.lot_no_mandatory))
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        singleLine = true
+                                    )
+                                    OutlinedTextField(
+                                        value = viewModel.dateOfExpiry?.toddMMYYYYString() ?: "",
+                                        onValueChange = { },
+                                        label = {
+                                            Text(stringResource(R.string.date_of_expiry_mandatory))
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        trailingIcon = {
+                                            Icon(
+                                                painter = painterResource(R.drawable.today_calendar),
+                                                "CALENDER_ICON",
+                                                Modifier.size(24.dp)
+                                            )
+                                        },
+                                        placeholder = {
+                                            Text(stringResource(R.string.date_format))
+                                        },
+                                        readOnly = true,
+                                        interactionSource = remember {
+                                            MutableInteractionSource()
+                                        }.also { interactionSource ->
+                                            LaunchedEffect(interactionSource) {
+                                                interactionSource.interactions.collect {
+                                                    if (it is PressInteraction.Release) {
+                                                        viewModel.showDatePicker = true
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                )
-                                ManufacturerDropDown(viewModel)
-                                OutlinedTextField(
-                                    value = viewModel.notes,
-                                    onValueChange = { value ->
-                                        if (value.length <= 100 && value.matches(Regex("^[a-zA-Z0-9 ]*$"))) viewModel.notes =
-                                            value
-                                    },
-                                    label = {
-                                        Text(stringResource(R.string.notes_heading))
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
-                                    supportingText = {
-                                        Text(stringResource(R.string.notes_for_adverse_reaction))
-                                    }
-                                )
-                                UploadCertificatesComposable(viewModel)
+                                    )
+                                    ManufacturerDropDown(viewModel)
+                                    OutlinedTextField(
+                                        value = viewModel.notes,
+                                        onValueChange = { value ->
+                                            if (value.length <= 100 && value.matches(Regex("^[a-zA-Z0-9 ]*$"))) viewModel.notes =
+                                                value
+                                        },
+                                        label = {
+                                            Text(stringResource(R.string.notes_heading))
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        supportingText = {
+                                            Text(stringResource(R.string.notes_for_adverse_reaction))
+                                        }
+                                    )
+                                    UploadCertificatesComposable(viewModel)
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            if (viewModel.showDatePicker) {
-                DatePickerComposable(viewModel)
+                if (viewModel.showDatePicker) {
+                    DatePickerComposable(viewModel)
+                }
+                if (viewModel.showUploadSheet) {
+                    UploadFileBottomSheet(
+                        viewModel = viewModel,
+                        pickFromGalleryClick = {
+                            pickImageLauncher.launch("image/*")
+                        },
+                        openCamera = {
+                            if (ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.CAMERA
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                // request permission
+                                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+                            } else {
+                                viewModel.showUploadSheet = false
+                                viewModel.displayCamera = true
+                            }
+                        }
+                    )
+                }
+                if (viewModel.showFileDeleteDialog) {
+                    ShowFileDeleteDialog(viewModel)
+                }
+
+                if (viewModel.showOpenSettingsDialog) {
+                    CustomDialog(
+                        canBeDismissed = false,
+                        title = stringResource(id = R.string.permissions_required),
+                        text = stringResource(id = R.string.permissions_required_description),
+                        dismissBtnText = stringResource(id = R.string.cancel),
+                        confirmBtnText = stringResource(id = R.string.go_to_settings),
+                        dismiss = {
+                            viewModel.showOpenSettingsDialog = false
+                            viewModel.showUploadSheet = false
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(context.getString(R.string.please_grant_permission))
+                            }
+                        },
+                        confirm = {
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                addCategory(Intent.CATEGORY_DEFAULT)
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                            context.startActivity(intent)
+                            viewModel.showOpenSettingsDialog = false
+                        }
+                    )
+                }
             }
-            if (viewModel.showUploadSheet) {
-                UploadFileBottomSheet(viewModel)
-            }
-            if (viewModel.showFileDeleteDialog) {
-                ShowFileDeleteDialog(viewModel)
-            }
-        }
-    )
+        )
+    }
+
+    AnimatedVisibility(
+        visible = viewModel.displayCamera,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        CameraComposable(
+            viewModel
+        )
+    }
+
+    AnimatedVisibility(
+        visible = viewModel.isImageCaptured,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        DisplayImage(
+            viewModel
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun UploadFileBottomSheet(viewModel: AddVaccinationViewModel) {
+private fun UploadFileBottomSheet(
+    viewModel: AddVaccinationViewModel,
+    pickFromGalleryClick: () -> Unit,
+    openCamera: () -> Unit
+) {
     ModalBottomSheet(
         onDismissRequest = { viewModel.showUploadSheet = false },
         sheetState = rememberModalBottomSheetState(),
@@ -245,14 +409,14 @@ private fun UploadFileBottomSheet(viewModel: AddVaccinationViewModel) {
                 icon = painterResource(R.drawable.gallery_image),
                 label = stringResource(R.string.upload_from_gallery),
                 onClick = {
-
+                    pickFromGalleryClick()
                 }
             )
             BottomSheetOptionRow(
                 icon = painterResource(R.drawable.camera),
                 label = stringResource(R.string.take_a_picture),
                 onClick = {
-
+                    openCamera()
                 }
             )
         }
@@ -305,11 +469,16 @@ private fun UploadCertificatesComposable(
         Text(
             text = stringResource(R.string.upload_certifications_info),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.outline
+            color = if (viewModel.isFileError) MaterialTheme.colorScheme.error
+                else MaterialTheme.colorScheme.outline
         )
         FilledTonalButton(
             onClick = {
-                viewModel.showUploadSheet = true
+                if (viewModel.uploadedFileUri.size < 10) {
+                    viewModel.showUploadSheet = true
+                } else {
+                    viewModel.isFileError = true
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -321,7 +490,7 @@ private fun UploadCertificatesComposable(
                 Text(stringResource(R.string.upload))
             }
         }
-        viewModel.uploadedFile.forEach { file ->
+        viewModel.uploadedFileUri.forEach { file ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -346,12 +515,12 @@ private fun UploadCertificatesComposable(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        text = file,
+                        text = Date(file.toFile().name.substringBefore(".").toLong()).toFileDateAndTimeName(),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "123 kb",
+                        text = file.toFile().readBytes().size.formatBytes(),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -359,6 +528,7 @@ private fun UploadCertificatesComposable(
                 IconButton(
                     onClick = {
                         // delete dialog
+                        viewModel.selectedUriToDelete = file
                         viewModel.showFileDeleteDialog = true
                     }
                 ) {
@@ -384,7 +554,7 @@ private fun ManufacturerDropDown(viewModel: AddVaccinationViewModel) {
             mutableStateOf(false)
         }
         OutlinedTextField(
-            value = viewModel.selectedManufacturer,
+            value = viewModel.selectedManufacturer.name,
             onValueChange = { },
             label = {
                 Text(stringResource(R.string.vaccine_manufacturer))
@@ -419,15 +589,15 @@ private fun ManufacturerDropDown(viewModel: AddVaccinationViewModel) {
             expanded = showDropDown,
             onDismissRequest = { showDropDown = false },
         ) {
-            viewModel.listOfManufacturer.forEach { label ->
+            viewModel.manufacturerList.forEach { manufacturer ->
                 DropdownMenuItem(
                     onClick = {
                         showDropDown = false
-                        viewModel.selectedManufacturer = label
+                        viewModel.selectedManufacturer = manufacturer
                     },
                     text = {
                         Text(
-                            text = label,
+                            text = manufacturer.name,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -437,7 +607,6 @@ private fun ManufacturerDropDown(viewModel: AddVaccinationViewModel) {
         }
     }
 }
-
 
 @Composable
 private fun VaccineDropDown(viewModel: AddVaccinationViewModel) {
@@ -449,9 +618,9 @@ private fun VaccineDropDown(viewModel: AddVaccinationViewModel) {
             mutableStateOf(false)
         }
         OutlinedTextField(
-            value = viewModel.selectedVaccine,
+            value = viewModel.selectedVaccineName,
             onValueChange = { value ->
-                if (value.length <= 100) viewModel.selectedVaccine = value
+                if (value.length <= 100) viewModel.selectedVaccineName = value
             },
             placeholder = {
                 Text(stringResource(R.string.search_vaccination))
@@ -478,20 +647,62 @@ private fun VaccineDropDown(viewModel: AddVaccinationViewModel) {
             expanded = showDropDown,
             onDismissRequest = { showDropDown = false },
         ) {
-            viewModel.listOfVaccines
-                .filter { it.contains(viewModel.selectedVaccine) }
-                .forEach { label ->
+            viewModel.immunizationRecommendationList
+                .groupBy { it.name }
+                .filter { vaccine ->
+                    stringResource(
+                        R.string.vaccine_name_with_code,
+                        vaccine.key.replaceFirstChar { it.titlecase(Locale.getDefault()) },
+                        vaccine.value[0].shortName.replaceFirstChar { it.titlecase(Locale.getDefault()) }
+                    ).contains(viewModel.selectedVaccineName)
+                }
+                .forEach { vaccine ->
+                    val isFullyVaccinated = vaccine.value.none { it.takenOn == null }
                     DropdownMenuItem(
+                        enabled = !isFullyVaccinated,
                         onClick = {
+                            val vaccineToBeGiven = vaccine.value.sortedBy { it.vaccineStartDate }
+                                .first { it.takenOn == null }
+//                            val timeRange = if (daysBetween(viewModel.patient!!.birthDate.convertStringToDate(), vaccineToBeGiven.vaccineStartDate) < 90)
                             showDropDown = false
-                            viewModel.selectedVaccine = label
+                            viewModel.selectedVaccineName =
+                                vaccine.key.replaceFirstChar { it.titlecase(Locale.getDefault()) } + " (" +
+                                        vaccine.value[0].shortName.replaceFirstChar {
+                                            it.titlecase(
+                                                Locale.getDefault()
+                                            )
+                                        } + ")"
+                            viewModel.selectedVaccine =
+                                vaccine.value.sortedBy { it.vaccineStartDate }
+                                    .first { it.takenOn == null }
                         },
                         text = {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            Column(
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                if (isFullyVaccinated) {
+                                    Text(
+                                        text = stringResource(R.string.fully_vaccinated),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Text(
+                                    text = stringResource(
+                                        R.string.vaccine_name_with_code,
+                                        vaccine.key.replaceFirstChar { it.titlecase(Locale.getDefault()) },
+                                        vaccine.value[0].shortName.replaceFirstChar {
+                                            it.titlecase(
+                                                Locale.getDefault()
+                                            )
+                                        }
+                                    ),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = if (isFullyVaccinated) MaterialTheme.colorScheme.outline
+                                    else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
                     )
                 }
@@ -500,7 +711,9 @@ private fun VaccineDropDown(viewModel: AddVaccinationViewModel) {
 }
 
 @Composable
-private fun DateAndDoseRow() {
+private fun DateAndDoseRow(
+    vaccine: ImmunizationRecommendation
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -523,7 +736,10 @@ private fun DateAndDoseRow() {
             )
         }
         Text(
-            text = stringResource(R.string.number_dose, "2nd"),
+            text = stringResource(
+                R.string.number_dose,
+                vaccine.doseNumber.getNumberWithOrdinalIndicator()
+            ),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -531,8 +747,10 @@ private fun DateAndDoseRow() {
 }
 
 @Composable
-private fun StatusCard() {
-    val isDelayed = false
+private fun StatusCard(
+    vaccine: ImmunizationRecommendation
+) {
+    val isDelayed = vaccine.vaccineStartDate.toEndOfDay() < Date().time
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = getColorOfContainer(isDelayed = isDelayed)
@@ -548,8 +766,14 @@ private fun StatusCard() {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = if (isDelayed) stringResource(R.string.due_on_date, "24 Jan 2024")
-                else stringResource(R.string.upcoming_on_info, "24 Jan 2024"),
+                text = if (isDelayed) stringResource(
+                    R.string.due_on_date,
+                    vaccine.vaccineStartDate.toPrescriptionDate()
+                )
+                else stringResource(
+                    R.string.upcoming_on_info,
+                    vaccine.vaccineStartDate.toPrescriptionDate()
+                ),
                 style = MaterialTheme.typography.bodyLarge,
                 color = getColorOfLabel(isDelayed = isDelayed)
             )
@@ -640,6 +864,7 @@ private fun DatePickerComposable(viewModel: AddVaccinationViewModel) {
 
 @Composable
 private fun ShowFileDeleteDialog(viewModel: AddVaccinationViewModel) {
+    val context = LocalContext.current
     AlertDialog(
         onDismissRequest = {
             viewModel.showFileDeleteDialog = false
@@ -654,6 +879,10 @@ private fun ShowFileDeleteDialog(viewModel: AddVaccinationViewModel) {
             TextButton(
                 onClick = {
                     // delete file
+                    FileManager.removeFromInternalStorage(context, viewModel.selectedUriToDelete!!.toFile().name)
+                    viewModel.uploadedFileUri.remove(viewModel.selectedUriToDelete)
+                    viewModel.selectedUriToDelete = null
+                    viewModel.showFileDeleteDialog = false
                 }
             ) {
                 Text(stringResource(R.string.yes_delete))
@@ -669,4 +898,227 @@ private fun ShowFileDeleteDialog(viewModel: AddVaccinationViewModel) {
             }
         }
     )
+}
+
+@OptIn(ExperimentalCoilApi::class)
+@Composable
+private fun DisplayImage(
+    viewModel: AddVaccinationViewModel
+) {
+    val context = LocalContext.current
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        IconButton(
+            onClick = {
+                if (!viewModel.isSelectedFromGallery) {
+                    FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
+                    viewModel.tempFileName = ""
+                }
+                viewModel.isImageCaptured = false
+                viewModel.selectedImageUri = null
+                viewModel.isSelectedFromGallery = false
+            },
+            modifier = Modifier
+                .zIndex(2f)
+                .padding(8.dp)
+                .statusBarsPadding()
+        ) {
+            Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
+        }
+        Image(
+            painter = rememberImagePainter(viewModel.selectedImageUri),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.Black),
+            contentScale = ContentScale.Fit
+        )
+        Button(
+            onClick = {
+                var uri = viewModel.selectedImageUri
+                if (viewModel.isSelectedFromGallery) {
+                    val fileName = "${Date().time}.jpeg"
+                    val uploadFolder = FileManager.createFolder(context)
+                    FileManager.insertFileToInternalStorage(
+                        uploadFolder,
+                        fileName,
+                        viewModel.selectedImageUri!!.toString(),
+                        context
+                    )
+                    val photoFile = File(
+                        uploadFolder,
+                        fileName
+                    )
+                    uri = Uri.fromFile(photoFile)
+                }
+                if (uri!!.toFile().readBytes().size / 1024 > MAX_FILE_SIZE_IN_KB) {
+                    viewModel.isFileError = true
+                } else {
+                    viewModel.uploadedFileUri.add(uri)
+                }
+                viewModel.displayCamera = false
+                viewModel.isImageCaptured = false
+                viewModel.selectedImageUri = null
+                viewModel.isSelectedFromGallery = false
+            },
+            modifier = Modifier
+                .zIndex(2f)
+                .fillMaxWidth()
+                .padding(16.dp)
+                .navigationBarsPadding()
+                .align(Alignment.BottomCenter)
+        ) {
+            Text(text = stringResource(id = R.string.save))
+        }
+    }
+}
+
+@Composable
+private fun CameraComposable(
+    viewModel: AddVaccinationViewModel
+) {
+    val context = LocalContext.current
+    var hasFlashUnit by remember { mutableStateOf(false) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var camera: Camera? by remember { mutableStateOf(null) }
+    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+    var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
+    var preview by remember { mutableStateOf<Preview?>(null) }
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .navigationBarsPadding())
+    {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .zIndex(2f),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                IconButton(
+                    onClick = {
+                        viewModel.displayCamera = false
+                    }
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(
+                    onClick = {
+                        viewModel.flashOn = !viewModel.flashOn
+                        camera?.cameraControl?.enableTorch(!viewModel.flashOn)
+                    },
+                    enabled = hasFlashUnit
+                ) {
+                    Icon(
+                        if (viewModel.flashOn) painterResource(id = R.drawable.flash_on)
+                        else painterResource(id = R.drawable.flash_off),
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+        key(viewModel.cameraSelector) {
+            AndroidView(
+                factory = { context ->
+                    val previewView = PreviewView(context)
+                    val cameraProvider = cameraProviderFuture.get()
+                    val previewUseCase = Preview.Builder()
+                        .build()
+                        .also {
+                            it.setSurfaceProvider(previewView.surfaceProvider)
+                        }
+                    cameraProviderFuture.addListener({
+                        try {
+                            cameraProvider.unbindAll()
+
+                            imageCapture = ImageCapture.Builder().build()
+                            camera = cameraProvider.bindToLifecycle(
+                                lifecycleOwner,
+                                viewModel.cameraSelector,
+                                previewUseCase,
+                                imageCapture
+                            )
+                            hasFlashUnit = camera?.cameraInfo?.hasFlashUnit() == true
+                        } catch (ex: Exception) {
+                            Timber.e("manseeyy Use case binding failed", ex)
+                        }
+                        preview = previewUseCase
+                    }, ContextCompat.getMainExecutor(context))
+                    previewView
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(2f),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable {
+                            val uploadFolder = FileManager.createFolder(context)
+                            viewModel.tempFileName = "${Date().time}.jpeg"
+                            val photoFile = File(
+                                uploadFolder,
+                                viewModel.tempFileName
+                            )
+
+                            val outputOptions =
+                                ImageCapture.OutputFileOptions.Builder(photoFile).build()
+                            imageCapture?.takePicture(
+                                outputOptions,
+                                ContextCompat.getMainExecutor(context),
+                                object : ImageCapture.OnImageSavedCallback {
+                                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                                        viewModel.flashOn = false
+                                        camera?.cameraControl?.enableTorch(false)
+                                        viewModel.isImageCaptured = true
+                                        viewModel.selectedImageUri =
+                                            output.savedUri ?: Uri.fromFile(photoFile)
+                                    }
+
+                                    override fun onError(exc: ImageCaptureException) {
+                                        onError(exc)
+                                    }
+                                }
+                            )
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(89.dp)
+                            .background(color = Color.Transparent, shape = CircleShape)
+                            .border(width = 4.dp, color = Color.White, shape = CircleShape)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .padding(20.dp)
+                            .size(60.dp)
+                            .background(color = Color.White, shape = CircleShape)
+                    )
+                }
+            }
+        }
+    }
 }

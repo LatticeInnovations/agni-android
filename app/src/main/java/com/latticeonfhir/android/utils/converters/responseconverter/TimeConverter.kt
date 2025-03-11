@@ -476,7 +476,12 @@ object TimeConverter {
     }
 
     internal fun Date.toddMMYYYYString(): String {
-        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        return outputFormat.format(this)
+    }
+
+    internal fun Date.toFileDateAndTimeName(): String {
+        val outputFormat = SimpleDateFormat("dd-MM-yyyy | HH:mm", Locale.getDefault())
         return outputFormat.format(this)
     }
 }
