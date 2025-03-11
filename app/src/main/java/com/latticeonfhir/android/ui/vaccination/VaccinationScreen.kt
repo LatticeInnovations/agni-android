@@ -48,7 +48,10 @@ import com.latticeonfhir.android.data.local.enums.VaccineErrorTypeEnum
 import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.ui.common.TabRowComposable
+import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
+import com.latticeonfhir.android.ui.prescription.photo.view.AppointmentCompletedDialog
 import com.latticeonfhir.android.ui.theme.TakenLabel
 import com.latticeonfhir.android.ui.theme.TakenLabelDark
 import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.MISSED
@@ -148,12 +151,26 @@ fun VaccinationScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    // navigate to add vaccination screen
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        PATIENT,
-                        viewModel.patient
-                    )
-                    navController.navigate(Screen.AddVaccinationScreen.route)
+                    viewModel.getAppointmentInfo {
+                        if (viewModel.canAddVaccination) {
+                            // navigate to add vaccination screen
+                            coroutineScope.launch {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    VACCINE,
+                                    null
+                                )
+                                navController.navigate(Screen.AddVaccinationScreen.route)
+                            }
+                        } else if (viewModel.isAppointmentCompleted) {
+                            viewModel.showAppointmentCompletedDialog = true
+                        } else {
+                            viewModel.showAddToQueueDialog = true
+                        }
+                    }
                 },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.surface,
@@ -167,6 +184,71 @@ fun VaccinationScreen(
             }
         }
     )
+
+    if (viewModel.showAllSlotsBookedDialog) {
+        AllSlotsBookedDialog {
+            viewModel.showAllSlotsBookedDialog = false
+        }
+    }
+
+    if (viewModel.showAddToQueueDialog) {
+        CustomDialog(
+            title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
+                id = R.string.add_to_queue_question
+            ),
+            text = stringResource(id = R.string.add_to_queue_dialog_description),
+            dismissBtnText = stringResource(id = R.string.dismiss),
+            confirmBtnText = if (viewModel.appointment != null) stringResource(id = R.string.mark_arrived) else stringResource(
+                id = R.string.add_to_queue
+            ),
+            dismiss = { viewModel.showAddToQueueDialog = false },
+            confirm = {
+                if (viewModel.appointment != null) {
+                    viewModel.updateStatusToArrived(
+                        viewModel.patient!!,
+                        viewModel.appointment!!
+                    ) {
+                        viewModel.showAddToQueueDialog = false
+                        coroutineScope.launch {
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                PATIENT,
+                                viewModel.patient
+                            )
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                VACCINE,
+                                viewModel.selectedVaccine
+                            )
+                            navController.navigate(Screen.AddVaccinationScreen.route)
+                        }
+                    }
+                } else {
+                    if (viewModel.ifAllSlotsBooked) {
+                        viewModel.showAllSlotsBookedDialog = true
+                    } else {
+                        viewModel.addPatientToQueue(viewModel.patient!!) {
+                            viewModel.showAddToQueueDialog = false
+                            coroutineScope.launch {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    viewModel.patient
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    VACCINE,
+                                    viewModel.selectedVaccine
+                                )
+                                navController.navigate(Screen.AddVaccinationScreen.route)
+                            }
+                        }
+                    }
+                }
+            }
+        )
+    }
+    if (viewModel.showAppointmentCompletedDialog) {
+        AppointmentCompletedDialog {
+            viewModel.showAppointmentCompletedDialog = false
+        }
+    }
 }
 
 @Composable
