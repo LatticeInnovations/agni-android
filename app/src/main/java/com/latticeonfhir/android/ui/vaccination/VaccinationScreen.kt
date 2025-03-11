@@ -333,11 +333,17 @@ fun VaccineCard(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = {
-                    // navigate to add vaccination
                     if (missedOrTaken == MISSED) {
-                        // check for earlier doses
                         navigateToAddVaccine(navController, vaccine, patient, listOfAllVaccinations)
                     } else {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            PATIENT,
+                            patient
+                        )
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            VACCINE,
+                            vaccine
+                        )
                         navController.navigate(Screen.ViewVaccinationScreen.route)
                     }
                 }

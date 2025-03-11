@@ -13,6 +13,30 @@ object VaccinesUtils {
         return calendar.time
     }
 
+    internal fun numberOfWeeksToLabel(weeks: Int): String {
+        return when(weeks) {
+            0 -> "At Birth"
+            6 -> "6 Weeks"
+            10 -> "10 Weeks"
+            14 -> "14 Weeks"
+            26 -> "6 Months"
+            30 -> "7 Months"
+            39 -> "9 Months"
+            52 -> "12 Months"
+            56 -> "13 Months"
+            69 -> "16 Months"
+            78 -> "18 Months"
+            104 -> "24 Months"
+            208 -> "4 Years"
+            313 -> "6 Years"
+            469 -> "9 Years"
+            730 -> "14 Years"
+            782 -> "15 Years"
+            938 -> "18 Years"
+            else -> ""
+        }
+    }
+
     internal fun getDateIntervalList(dob: Date): List<Pair<String, Date>>{
         return listOf(
             "At Birth" to dob,

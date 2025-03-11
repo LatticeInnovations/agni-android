@@ -23,6 +23,9 @@ interface ImmunizationDao {
     @Query("SELECT * FROM ImmunizationEntity WHERE patientId = :patientId")
     suspend fun getImmunizationByPatientId(patientId: String): List<ImmunizationEntity>
 
+    @Query("SELECT * FROM ImmunizationEntity WHERE createdOn = :createdOn")
+    suspend fun getImmunizationByTime(createdOn: Long): ImmunizationEntity
+
     @Query("SELECT * FROM ImmunizationEntity WHERE appointmentId = :appointmentId")
     suspend fun getImmunizationByAppointmentId(appointmentId: String): List<ImmunizationEntity>
 
