@@ -464,4 +464,5 @@ include them in the household</string>
     <string name="vaccine_previous_dose_error_message">Please record the previous dose(s) before entering this dose.</string>
     <string name="vaccine_name_with_code">%s (%s)</string>
     <string name="fully_vaccinated">Fully vaccinated</string>
+    <string name="vaccination_added_successfully">Vaccination added successfully!</string>
 </resources>

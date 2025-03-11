@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Camera
@@ -116,6 +117,7 @@ import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.formatBytes
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE_ADDED
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE_ERROR_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.daysBetween
@@ -194,6 +196,25 @@ fun AddVaccinationScreen(
         }
         viewModel.isLaunched = true
     }
+    BackHandler {
+        if (viewModel.isImageCaptured) {
+            if (!viewModel.isSelectedFromGallery) {
+                FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
+                viewModel.tempFileName = ""
+            }
+            viewModel.isImageCaptured = false
+            viewModel.selectedImageUri = null
+            viewModel.isSelectedFromGallery = false
+        } else if (viewModel.displayCamera)
+            viewModel.displayCamera = false
+        else if (viewModel.showUploadSheet) viewModel.showUploadSheet = false
+        else {
+            viewModel.uploadedFileUri.forEach {
+                FileManager.removeFromInternalStorage(context, it.toFile().name)
+            }
+            navController.navigateUp()
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -213,6 +234,9 @@ fun AddVaccinationScreen(
                     ),
                     navigationIcon = {
                         IconButton(onClick = {
+                            viewModel.uploadedFileUri.forEach {
+                                FileManager.removeFromInternalStorage(context, it.toFile().name)
+                            }
                             navController.navigateUp()
                         }) {
                             Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
@@ -225,6 +249,15 @@ fun AddVaccinationScreen(
                         TextButton(
                             onClick = {
                                 // save vaccination
+                                viewModel.addVaccination {
+                                    coroutineScope.launch {
+                                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                                            VACCINE_ADDED,
+                                            true
+                                        )
+                                        navController.navigateUp()
+                                    }
+                                }
                             },
                             enabled = viewModel.lotNo.isNotBlank() && viewModel.dateOfExpiry != null
                         ) {
