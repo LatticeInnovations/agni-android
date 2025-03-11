@@ -125,6 +125,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toFileDateAndTimeName
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toddMMYYYYString
 import com.latticeonfhir.android.utils.file.FileManager
@@ -840,10 +841,9 @@ private fun StatusCard(
         modifier = Modifier.fillMaxWidth(),
         color = getColorOfContainer(isDelayed = isDelayed)
     ) {
-        Row(
-            modifier = Modifier.padding(18.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        Column (
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
                 text = stringResource(R.string.status_info),
@@ -851,15 +851,16 @@ private fun StatusCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = if (isDelayed) stringResource(
+                text = (if (isDelayed) stringResource(
                     R.string.due_on_date,
-                    vaccine.vaccineStartDate.toPrescriptionDate()
+                    vaccine.vaccineDueDate.toPrescriptionDate()
                 )
                 else stringResource(
                     R.string.upcoming_on_info,
-                    vaccine.vaccineStartDate.toPrescriptionDate()
-                ),
-                style = MaterialTheme.typography.bodyLarge,
+                    vaccine.vaccineDueDate.toPrescriptionDate()
+                ))
+                + " " + stringResource(R.string.vaccine_date_range, vaccine.vaccineStartDate.toSlotDate(), vaccine.vaccineEndDate.toSlotDate()),
+                style = MaterialTheme.typography.labelLarge,
                 color = getColorOfLabel(isDelayed = isDelayed)
             )
         }

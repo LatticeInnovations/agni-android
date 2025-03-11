@@ -61,6 +61,7 @@ import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
 import kotlinx.coroutines.launch
 import okhttp3.internal.filterList
 import java.util.Date
@@ -251,7 +252,6 @@ private fun VaccinationCard(
             }
             Spacer(Modifier.height(24.dp))
             Row(
-                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 if (isTaken || isDelayed) {
@@ -263,19 +263,34 @@ private fun VaccinationCard(
                         modifier = Modifier.size(18.dp)
                     )
                 }
-                Text(
-                    text = if (isTaken) stringResource(
-                        R.string.taken_on_date,
-                        vaccine.takenOn!!.toPrescriptionDate()
+                Column(
+                    modifier = Modifier.padding(top = if (isTaken) 2.dp else 0.dp)
+                ) {
+                    Text(
+                        text = if (isTaken) stringResource(
+                            R.string.taken_on_date,
+                            vaccine.takenOn!!.toPrescriptionDate()
+                        )
+                        else if (isDelayed) stringResource(
+                            R.string.due_on_date,
+                            vaccine.vaccineDueDate.toPrescriptionDate()
+                        )
+                        else vaccine.vaccineDueDate.toPrescriptionDate(),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = getColorOfLabel(isTaken, isDelayed)
                     )
-                    else if (isDelayed) stringResource(
-                        R.string.due_on_date,
-                        vaccine.vaccineStartDate.toPrescriptionDate()
-                    )
-                    else vaccine.vaccineStartDate.toPrescriptionDate(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = getColorOfLabel(isTaken, isDelayed)
-                )
+                    if (!isTaken) {
+                        Text(
+                            text = stringResource(
+                                R.string.vaccine_date_range,
+                                vaccine.vaccineStartDate.toSlotDate(),
+                                vaccine.vaccineEndDate.toSlotDate()
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = getColorOfLabel(false, isDelayed)
+                        )
+                    }
+                }
             }
         }
     }

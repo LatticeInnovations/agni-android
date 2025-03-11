@@ -27,7 +27,8 @@ class ImmunizationRecommendationRepositoryImpl @Inject constructor(
                         vaccineStartDate = immunizationRecommendationEntity.vaccineStartDate,
                         vaccineEndDate = immunizationRecommendationEntity.vaccineEndDate,
                         takenOn = takenOnDates.getOrNull(immunizationRecommendationEntity.doseNumber - 1),
-                        vaccineCode = immunizationRecommendationEntity.vaccineCode
+                        vaccineCode = immunizationRecommendationEntity.vaccineCode,
+                        vaccineDueDate = immunizationRecommendationEntity.vaccineDueDate
                     )
                 }
             }

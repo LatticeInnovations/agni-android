@@ -19,5 +19,6 @@ data class ImmunizationRecommendationEntity(
     val doseNumber: Int,
     val vaccineStartDate: Date,
     val vaccineEndDate: Date,
-    val vaccineBufferDate: Date
+    val vaccineBufferDate: Date,
+    val vaccineDueDate: Date
 )
