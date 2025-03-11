@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.vaccination.view
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -24,6 +25,7 @@ class ViewVaccinationViewModel@Inject constructor(
     var immunization by mutableStateOf<Immunization?>(null)
     var immunizationRecommendation by mutableStateOf<ImmunizationRecommendation?>(null)
     var patient by mutableStateOf<PatientResponse?>(null)
+    var selectedUri by mutableStateOf<Uri?>(null)
 
     fun getImmunizationByTime(
         ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
