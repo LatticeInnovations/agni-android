@@ -130,7 +130,7 @@ fun VaccinationScreen(
                     ) { index ->
                         when (index) {
                             0 -> {
-                                AllVaccinationScreen(viewModel)
+                                AllVaccinationScreen(viewModel, navController)
                             }
 
                             1 -> {
@@ -241,43 +241,7 @@ fun VaccineCard(
                     // navigate to add vaccination
                     if (missedOrTaken == MISSED) {
                         // check for earlier doses
-                        if (listOfAllVaccinations.filterList { name == vaccine.name && doseNumber < vaccine.doseNumber && takenOn == null }
-                                .isNotEmpty()) {
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                VACCINE_ERROR_TYPE, VaccineErrorTypeEnum.DOSE.errorType
-                            )
-                            navController.navigate(Screen.VaccinationErrorScreen.route)
-                        } else {
-                            val timeRange = if (daysBetween(
-                                    patient.birthDate.convertStringToDate(),
-                                    vaccine.vaccineStartDate
-                                ) <= 90
-                            ) {
-                                vaccine.vaccineStartDate.plusMinusDays(-3)..vaccine.vaccineEndDate.plusMinusDays(
-                                    3
-                                )
-                            } else {
-                                vaccine.vaccineStartDate.plusMinusDays(-15)..vaccine.vaccineEndDate.plusMinusDays(
-                                    15
-                                )
-                            }
-                            if (Date() in timeRange) {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PATIENT,
-                                    patient
-                                )
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    VACCINE,
-                                    vaccine
-                                )
-                                navController.navigate(Screen.AddVaccinationScreen.route)
-                            } else {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    VACCINE_ERROR_TYPE, VaccineErrorTypeEnum.TIME.errorType
-                                )
-                                navController.navigate(Screen.VaccinationErrorScreen.route)
-                            }
-                        }
+                        navigateToAddVaccine(navController, vaccine, patient, listOfAllVaccinations)
                     } else {
                         navController.navigate(Screen.ViewVaccinationScreen.route)
                     }
@@ -332,6 +296,51 @@ fun VaccineCard(
                     else TakenLabel
                 }
             )
+        }
+    }
+}
+
+fun navigateToAddVaccine(
+    navController: NavController,
+    vaccine: ImmunizationRecommendation,
+    patient: PatientResponse,
+    listOfAllVaccinations: List<ImmunizationRecommendation>
+) {
+    if (listOfAllVaccinations.filterList { name == vaccine.name && doseNumber < vaccine.doseNumber && takenOn == null }
+            .isNotEmpty()) {
+        navController.currentBackStackEntry?.savedStateHandle?.set(
+            VACCINE_ERROR_TYPE, VaccineErrorTypeEnum.DOSE.errorType
+        )
+        navController.navigate(Screen.VaccinationErrorScreen.route)
+    } else {
+        val timeRange = if (daysBetween(
+                patient.birthDate.convertStringToDate(),
+                vaccine.vaccineStartDate
+            ) <= 90
+        ) {
+            vaccine.vaccineStartDate.plusMinusDays(-3)..vaccine.vaccineEndDate.plusMinusDays(
+                3
+            )
+        } else {
+            vaccine.vaccineStartDate.plusMinusDays(-15)..vaccine.vaccineEndDate.plusMinusDays(
+                15
+            )
+        }
+        if (Date() in timeRange) {
+            navController.currentBackStackEntry?.savedStateHandle?.set(
+                PATIENT,
+                patient
+            )
+            navController.currentBackStackEntry?.savedStateHandle?.set(
+                VACCINE,
+                vaccine
+            )
+            navController.navigate(Screen.AddVaccinationScreen.route)
+        } else {
+            navController.currentBackStackEntry?.savedStateHandle?.set(
+                VACCINE_ERROR_TYPE, VaccineErrorTypeEnum.TIME.errorType
+            )
+            navController.navigate(Screen.VaccinationErrorScreen.route)
         }
     }
 }
