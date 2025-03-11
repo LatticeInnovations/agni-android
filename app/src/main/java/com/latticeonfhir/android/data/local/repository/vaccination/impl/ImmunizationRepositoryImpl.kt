@@ -17,21 +17,27 @@ class ImmunizationRepositoryImpl @Inject constructor(
 
     override suspend fun insertImmunization(immunization: Immunization): List<Long> {
         return immunizationDao.insertImmunization(immunization.toImmunizationEntity()).also {
-            immunizationDao.insertImmunizationFiles(
-                *immunization.filename.map { filename ->
-                    ImmunizationFileEntity(
-                        filename = filename,
-                        immunizationId = immunization.id
-                    )
-                }.toTypedArray()
-            )
+            if (immunization.filename?.isNotEmpty() == true){
+                immunizationDao.insertImmunizationFiles(
+                    *immunization.filename.map { filename ->
+                        ImmunizationFileEntity(
+                            filename = filename,
+                            immunizationId = immunization.id
+                        )
+                    }.toTypedArray()
+                )
+            }
         }
     }
 
     override suspend fun getImmunization(patientId: String): List<Immunization> {
         return immunizationDao.getImmunizationByPatientId(patientId).map { immunizationEntity ->
             val filenames = immunizationDao.getFileNameByImmunizationId(immunizationEntity.id)
-            val manufacturer = manufacturerDao.getManufacturerById(immunizationEntity.manufacturerId)
+            val manufacturer = immunizationEntity.manufacturerId?.let {
+                manufacturerDao.getManufacturerById(
+                    it
+                )
+            }
             val immunizationRecommendation = immunizationRecommendationDao.getImmunizationRecommendationByVaccineCode(immunizationEntity.vaccineCode)
             Immunization(
                 id = immunizationEntity.id,
