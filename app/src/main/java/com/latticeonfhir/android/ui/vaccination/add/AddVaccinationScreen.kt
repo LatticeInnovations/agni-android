@@ -78,6 +78,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -106,6 +107,7 @@ import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.VaccineErrorTypeEnum
 import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
+import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ManufacturerEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.CustomDialog
@@ -269,7 +271,7 @@ fun AddVaccinationScreen(
                                     }
                                 }
                             },
-                            enabled = viewModel.lotNo.isNotBlank() && viewModel.dateOfExpiry != null
+                            enabled = viewModel.lotNo.isNotBlank() && viewModel.dateOfExpiry != null && viewModel.selectedVaccine != null
                         ) {
                             Text(text = stringResource(R.string.save))
                         }
@@ -713,6 +715,16 @@ private fun VaccineDropDown(
                                 vaccine.shortName.lowercase() + ")"
                 }.contains(viewModel.selectedVaccineName.lowercase())) {
                     viewModel.selectedVaccine = null
+                    viewModel.lotNo = ""
+                    viewModel.dateOfExpiry = null
+                    viewModel.selectedManufacturer = ManufacturerEntity(
+                        id = "0",
+                        name = "Select",
+                        type = "empty",
+                        active = false
+                    )
+                    viewModel.notes = ""
+                    viewModel.uploadedFileUri = mutableStateListOf()
                 }
             },
             placeholder = {
