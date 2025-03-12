@@ -467,4 +467,7 @@ include them in the household</string>
     <string name="vaccination_added_successfully">Vaccination added successfully!</string>
     <string name="vaccine_view_name_info">%s(%s) - %s Dose - %s</string>
     <string name="vaccine_date_range">(%s - %s)</string>
+    <string name="confirm_dob_update">Confirm D.O.B. update</string>
+    <string name="confirm_dob_update_description">If you change your DOB, only future vaccine dates will update; taken doses remain unchanged. Do you wish to proceed?</string>
+    <string name="yes_continue">Yes, continue</string>
 </resources>
