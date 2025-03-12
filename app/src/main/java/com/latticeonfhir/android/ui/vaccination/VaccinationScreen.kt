@@ -250,15 +250,12 @@ fun VaccinationScreen(
                     ) {
                         viewModel.showAddToQueueDialog = false
                         coroutineScope.launch {
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                PATIENT,
-                                viewModel.patient
+                            navigateToAddVaccine(
+                                navController,
+                                viewModel.selectedVaccine!!,
+                                viewModel.patient!!,
+                                viewModel.immunizationRecommendationList
                             )
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                VACCINE,
-                                viewModel.selectedVaccine
-                            )
-                            navController.navigate(Screen.AddVaccinationScreen.route)
                         }
                     }
                 } else {
@@ -268,15 +265,12 @@ fun VaccinationScreen(
                         viewModel.addPatientToQueue(viewModel.patient!!) {
                             viewModel.showAddToQueueDialog = false
                             coroutineScope.launch {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PATIENT,
-                                    viewModel.patient
+                                navigateToAddVaccine(
+                                    navController,
+                                    viewModel.selectedVaccine!!,
+                                    viewModel.patient!!,
+                                    viewModel.immunizationRecommendationList
                                 )
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    VACCINE,
-                                    viewModel.selectedVaccine
-                                )
-                                navController.navigate(Screen.AddVaccinationScreen.route)
                             }
                         }
                     }
