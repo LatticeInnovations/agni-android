@@ -760,7 +760,6 @@ class SyncRepositoryImpl @Inject constructor(
             if (immunizationRecommendationResponse is ApiEndResponse && immunizationResponse is ApiEndResponse) {
                 insertImmunizationRecommendation(immunizationRecommendationResponse.body)
                 insertImmunization(immunizationResponse.body)
-                getAndInsertImmunization(patientId)
             }
             return immunizationResponse
         }
