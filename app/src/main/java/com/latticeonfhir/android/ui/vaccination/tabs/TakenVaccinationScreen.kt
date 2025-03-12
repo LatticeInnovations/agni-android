@@ -19,11 +19,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
+import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.vaccination.AgeComposable
 import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel
 import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.TAKEN
 import com.latticeonfhir.android.ui.vaccination.VaccineCard
 import com.latticeonfhir.android.ui.vaccination.VaccineEmptyScreen
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthAndYear
 
 @Composable
@@ -58,7 +61,21 @@ fun TakenVaccinationScreen(
                         modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                     )
                     listOfVaccine.forEach { vaccine ->
-                        VaccineCard(TAKEN, navController, patient, vaccine, viewModel.immunizationRecommendationList)
+                        VaccineCard(
+                            missedOrTaken = TAKEN,
+                            vaccine = vaccine,
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    PATIENT,
+                                    patient
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    VACCINE,
+                                    vaccine
+                                )
+                                navController.navigate(Screen.ViewVaccinationScreen.route)
+                            }
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(84.dp))

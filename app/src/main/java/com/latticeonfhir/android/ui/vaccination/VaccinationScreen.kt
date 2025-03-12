@@ -323,10 +323,8 @@ fun VaccineEmptyScreen(
 @Composable
 fun VaccineCard(
     missedOrTaken: String,
-    navController: NavController,
-    patient: PatientResponse,
     vaccine: ImmunizationRecommendation,
-    listOfAllVaccinations: List<ImmunizationRecommendation>
+    onClick: () -> Unit
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -341,19 +339,7 @@ fun VaccineCard(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = {
-                    if (missedOrTaken == MISSED) {
-                        navigateToAddVaccine(navController, vaccine, patient, listOfAllVaccinations)
-                    } else {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            PATIENT,
-                            patient
-                        )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            VACCINE,
-                            vaccine
-                        )
-                        navController.navigate(Screen.ViewVaccinationScreen.route)
-                    }
+                    onClick()
                 }
             )
     ) {
