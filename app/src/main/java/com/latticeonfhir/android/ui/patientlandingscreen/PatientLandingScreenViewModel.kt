@@ -135,7 +135,7 @@ class PatientLandingScreenViewModel @Inject constructor(
     ) {
         viewModelScope.launch(ioDispatcher) {
             val immunizationRecommendationList = immunizationRecommendationRepository.getImmunizationRecommendation(patientId)
-            missedVaccine = immunizationRecommendationList.filterList { vaccineStartDate < Date() && takenOn == null }.sortedBy { it.vaccineStartDate }.size
+            missedVaccine = immunizationRecommendationList.filterList { vaccineStartDate < Date(Date().toTodayStartDate()) && takenOn == null }.sortedBy { it.vaccineStartDate }.size
             takenVaccine = immunizationRecommendationList.filterList { takenOn != null }.sortedByDescending { it.takenOn }.size
             upcomingVaccine = immunizationRecommendationList.size - missedVaccine - takenVaccine
         }
