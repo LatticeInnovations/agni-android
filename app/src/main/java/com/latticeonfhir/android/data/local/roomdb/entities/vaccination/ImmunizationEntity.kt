@@ -27,8 +27,8 @@ data class ImmunizationEntity(
     val createdOn: Date,
     val lotNumber: String,
     val expiryDate: Date,
-    val manufacturerId: String,
-    val notes: String,
+    val manufacturerId: String?,
+    val notes: String?,
     val vaccineCode: String,
     val immunizationFhirId: String?
 )

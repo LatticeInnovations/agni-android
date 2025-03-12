@@ -72,6 +72,8 @@ class EditBasicInformationViewModel @Inject constructor(
     var genderTemp by mutableStateOf("")
     var birthDate by mutableStateOf("")
 
+    var showDOBWarning by mutableStateOf(false)
+
     var monthsList = mutableStateListOf(
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"

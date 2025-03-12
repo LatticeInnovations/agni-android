@@ -20,6 +20,7 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
 import timber.log.Timber
@@ -415,5 +416,18 @@ class GenericRepositoryImpl @Inject constructor(
             )
         }
 
+    }
+
+    override suspend fun insertImmunization(
+        immunizationResponse: ImmunizationResponse,
+        uuid: String
+    ): Long {
+        return genericDao.getGenericEntityById(
+            patientId = immunizationResponse.immunizationUuid,
+            genericTypeEnum = GenericTypeEnum.IMMUNIZATION,
+            syncType = SyncType.POST
+        ).let { immunizationGenericEntity ->
+            insertImmunizationGenericEntity(immunizationResponse, immunizationGenericEntity, uuid)
+        }
     }
 }

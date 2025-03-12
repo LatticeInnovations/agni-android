@@ -7,6 +7,7 @@ import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.Immunization
 import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ManufacturerDao
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationFileEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toImmunizationEntity
+import java.util.Date
 import javax.inject.Inject
 
 class ImmunizationRepositoryImpl @Inject constructor(
@@ -17,22 +18,31 @@ class ImmunizationRepositoryImpl @Inject constructor(
 
     override suspend fun insertImmunization(immunization: Immunization): List<Long> {
         return immunizationDao.insertImmunization(immunization.toImmunizationEntity()).also {
-            immunizationDao.insertImmunizationFiles(
-                *immunization.filename.map { filename ->
-                    ImmunizationFileEntity(
-                        filename = filename,
-                        immunizationId = immunization.id
-                    )
-                }.toTypedArray()
-            )
+            if (immunization.filename?.isNotEmpty() == true) {
+                immunizationDao.insertImmunizationFiles(
+                    *immunization.filename.map { filename ->
+                        ImmunizationFileEntity(
+                            filename = filename,
+                            immunizationId = immunization.id
+                        )
+                    }.toTypedArray()
+                )
+            }
         }
     }
 
     override suspend fun getImmunization(patientId: String): List<Immunization> {
         return immunizationDao.getImmunizationByPatientId(patientId).map { immunizationEntity ->
             val filenames = immunizationDao.getFileNameByImmunizationId(immunizationEntity.id)
-            val manufacturer = manufacturerDao.getManufacturerById(immunizationEntity.manufacturerId)
-            val immunizationRecommendation = immunizationRecommendationDao.getImmunizationRecommendationByVaccineCode(immunizationEntity.vaccineCode)
+            val manufacturer = immunizationEntity.manufacturerId?.let {
+                manufacturerDao.getManufacturerById(
+                    it
+                )
+            }
+            val immunizationRecommendation =
+                immunizationRecommendationDao.getImmunizationRecommendationByVaccineCode(
+                    immunizationEntity.vaccineCode
+                )
             Immunization(
                 id = immunizationEntity.id,
                 vaccineName = immunizationRecommendation.vaccine,
@@ -48,5 +58,33 @@ class ImmunizationRepositoryImpl @Inject constructor(
                 appointmentId = immunizationEntity.appointmentId
             )
         }
+    }
+
+    override suspend fun getImmunizationByTime(createdOn: Date): Immunization {
+        val immunizationEntity = immunizationDao.getImmunizationByTime(createdOn.time)
+        val filenames = immunizationDao.getFileNameByImmunizationId(immunizationEntity.id)
+        val manufacturer = immunizationEntity.manufacturerId?.let {
+            manufacturerDao.getManufacturerById(
+                it
+            )
+        }
+        val immunizationRecommendation =
+            immunizationRecommendationDao.getImmunizationRecommendationByVaccineCode(
+                immunizationEntity.vaccineCode
+            )
+        return Immunization(
+            id = immunizationEntity.id,
+            vaccineName = immunizationRecommendation.vaccine,
+            vaccineSortName = immunizationRecommendation.vaccineShortName,
+            vaccineCode = immunizationRecommendation.vaccineCode,
+            lotNumber = immunizationEntity.lotNumber,
+            takenOn = immunizationEntity.createdOn,
+            expiryDate = immunizationEntity.expiryDate,
+            manufacturer = manufacturer,
+            notes = immunizationEntity.notes,
+            filename = filenames.map { it.filename },
+            patientId = immunizationEntity.patientId,
+            appointmentId = immunizationEntity.appointmentId
+        )
     }
 }
