@@ -757,12 +757,15 @@ open class SyncRepositoryDatabaseTransactions(
             *body.map { immunizationResponse ->
                 val patientId = patientDao.getPatientIdByFhirId(immunizationResponse.patientId)!!
                 val appointmentId = appointmentDao.getAppointmentIdByFhirId(immunizationResponse.appointmentId)
-                immunizationResponse.toImmunizationFileEntity()?.let { immunizationFiles ->
-                    immunizationDao.insertImmunizationFiles(*immunizationFiles.toTypedArray())
-                }
                 immunizationResponse.toImmunizationEntity(patientId, appointmentId)
             }.toTypedArray()
         )
+
+        body.map { immunizationResponse ->
+            immunizationResponse.toImmunizationFileEntity()?.let { immunizationFiles ->
+                immunizationDao.insertImmunizationFiles(*immunizationFiles.toTypedArray())
+            }
+        }
 
         val listOfGenericEntity = mutableListOf<GenericEntity>()
         body.map { immunizationResponse ->
