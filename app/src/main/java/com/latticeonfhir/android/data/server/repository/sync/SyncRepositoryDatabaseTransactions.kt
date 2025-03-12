@@ -58,6 +58,7 @@ import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters
 import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toImmunizationEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toImmunizationFileEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toImmunizationRecommendationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toManufacturerEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
@@ -756,6 +757,9 @@ open class SyncRepositoryDatabaseTransactions(
             *body.map { immunizationResponse ->
                 val patientId = patientDao.getPatientIdByFhirId(immunizationResponse.patientId)!!
                 val appointmentId = appointmentDao.getAppointmentIdByFhirId(immunizationResponse.appointmentId)
+                immunizationResponse.toImmunizationFileEntity()?.let { immunizationFiles ->
+                    immunizationDao.insertImmunizationFiles(*immunizationFiles.toTypedArray())
+                }
                 immunizationResponse.toImmunizationEntity(patientId, appointmentId)
             }.toTypedArray()
         )
