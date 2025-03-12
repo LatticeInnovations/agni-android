@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -24,12 +25,15 @@ import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel
 import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.MISSED
 import com.latticeonfhir.android.ui.vaccination.VaccineCard
 import com.latticeonfhir.android.ui.vaccination.VaccineEmptyScreen
+import com.latticeonfhir.android.ui.vaccination.navigateToAddVaccine
+import kotlinx.coroutines.launch
 
 @Composable
 fun MissedVaccinationScreen(
     navController: NavController,
     viewModel: VaccinationViewModel
 ) {
+    val coroutineScope = rememberCoroutineScope()
     viewModel.patient?.let { patient ->
         Column(
             modifier = Modifier
@@ -57,7 +61,30 @@ fun MissedVaccinationScreen(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 viewModel.missedImmunizationRecommendationList.forEach { vaccine ->
-                    VaccineCard(MISSED, navController, patient, vaccine, viewModel.immunizationRecommendationList)
+                    VaccineCard(
+                        missedOrTaken = MISSED,
+                        vaccine = vaccine,
+                        onClick = {
+                            viewModel.getAppointmentInfo {
+                                if (viewModel.canAddVaccination) {
+                                    // navigate to add vaccination screen
+                                    coroutineScope.launch {
+                                        navigateToAddVaccine(
+                                            navController,
+                                            vaccine,
+                                            patient,
+                                            viewModel.immunizationRecommendationList
+                                        )
+                                    }
+                                } else if (viewModel.isAppointmentCompleted) {
+                                    viewModel.showAppointmentCompletedDialog = true
+                                } else {
+                                    viewModel.selectedVaccine = vaccine
+                                    viewModel.showAddToQueueDialog = true
+                                }
+                            }
+                        }
+                    )
                 }
                 Spacer(modifier = Modifier.height(84.dp))
             }
