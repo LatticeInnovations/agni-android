@@ -92,6 +92,7 @@ class PatientLandingScreenViewModel @Inject constructor(
                     }
                 }
                 getUploadsCount(patient!!.id)
+                getImmunizationRecommendationList(patient!!.id)
                 syncData()
             }
         }
