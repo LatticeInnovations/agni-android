@@ -199,22 +199,29 @@ fun AddVaccinationScreen(
         viewModel.isLaunched = true
     }
     BackHandler {
-        if (viewModel.isImageCaptured) {
-            if (!viewModel.isSelectedFromGallery) {
-                FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
-                viewModel.tempFileName = ""
+        when (true) {
+            viewModel.isImagePreview -> {
+                viewModel.isImagePreview = false
+                viewModel.selectedImageUri = null
             }
-            viewModel.isImageCaptured = false
-            viewModel.selectedImageUri = null
-            viewModel.isSelectedFromGallery = false
-        } else if (viewModel.displayCamera)
-            viewModel.displayCamera = false
-        else if (viewModel.showUploadSheet) viewModel.showUploadSheet = false
-        else {
-            viewModel.uploadedFileUri.forEach {
-                FileManager.removeFromInternalStorage(context, it.toFile().name)
+            viewModel.isImageCaptured -> {
+                if (!viewModel.isSelectedFromGallery) {
+                    FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
+                    viewModel.tempFileName = ""
+                }
+                viewModel.isImageCaptured = false
+                viewModel.selectedImageUri = null
+                viewModel.isSelectedFromGallery = false
             }
-            navController.navigateUp()
+            viewModel.displayCamera -> viewModel.displayCamera = false
+            else -> {
+                val files = viewModel.uploadedFileUri
+                files.forEach {
+                    viewModel.uploadedFileUri.remove(it)
+                    FileManager.removeFromInternalStorage(context, it.toFile().name)
+                }
+                navController.navigateUp()
+            }
         }
     }
     Box(
@@ -235,7 +242,9 @@ fun AddVaccinationScreen(
                     ),
                     navigationIcon = {
                         IconButton(onClick = {
-                            viewModel.uploadedFileUri.forEach {
+                            val files = viewModel.uploadedFileUri
+                            files.forEach {
+                                viewModel.uploadedFileUri.remove(it)
                                 FileManager.removeFromInternalStorage(context, it.toFile().name)
                             }
                             navController.navigateUp()
@@ -443,7 +452,7 @@ fun AddVaccinationScreen(
     }
 
     AnimatedVisibility(
-        visible = viewModel.isImageCaptured,
+        visible = viewModel.isImageCaptured || viewModel.isImagePreview,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
@@ -560,7 +569,11 @@ private fun UploadCertificatesComposable(
         }
         viewModel.uploadedFileUri.forEach { file ->
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .clickable {
+                        viewModel.isImagePreview = true
+                        viewModel.selectedImageUri = file
+                    },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -1034,71 +1047,80 @@ private fun DisplayImage(
     viewModel: AddVaccinationViewModel
 ) {
     val context = LocalContext.current
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        IconButton(
-            onClick = {
-                if (!viewModel.isSelectedFromGallery) {
-                    FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
-                    viewModel.tempFileName = ""
-                }
-                viewModel.isImageCaptured = false
-                viewModel.selectedImageUri = null
-                viewModel.isSelectedFromGallery = false
-            },
-            modifier = Modifier
-                .zIndex(2f)
-                .padding(8.dp)
-                .statusBarsPadding()
-        ) {
-            Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
-        }
-        Image(
-            painter = rememberImagePainter(viewModel.selectedImageUri),
-            contentDescription = null,
+    if (viewModel.selectedImageUri != null) {
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color.Black),
-            contentScale = ContentScale.Fit
-        )
-        Button(
-            onClick = {
-                var uri = viewModel.selectedImageUri
-                if (viewModel.isSelectedFromGallery) {
-                    val fileName = "${Date().time}.jpeg"
-                    val uploadFolder = FileManager.createFolder(context)
-                    FileManager.insertFileToInternalStorage(
-                        uploadFolder,
-                        fileName,
-                        viewModel.selectedImageUri!!.toString(),
-                        context
-                    )
-                    val photoFile = File(
-                        uploadFolder,
-                        fileName
-                    )
-                    uri = Uri.fromFile(photoFile)
-                }
-                if (uri!!.toFile().readBytes().size / 1024 > MAX_FILE_SIZE_IN_KB) {
-                    viewModel.isFileError = true
-                } else {
-                    viewModel.uploadedFileUri.add(uri)
-                }
-                viewModel.displayCamera = false
-                viewModel.isImageCaptured = false
-                viewModel.selectedImageUri = null
-                viewModel.isSelectedFromGallery = false
-            },
-            modifier = Modifier
-                .zIndex(2f)
-                .fillMaxWidth()
-                .padding(16.dp)
-                .navigationBarsPadding()
-                .align(Alignment.BottomCenter)
         ) {
-            Text(text = stringResource(id = R.string.save))
+            IconButton(
+                onClick = {
+                    if (viewModel.isImagePreview) {
+                        viewModel.isImagePreview = false
+                        viewModel.selectedImageUri = null
+                    } else {
+                        if (!viewModel.isSelectedFromGallery) {
+                            FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
+                            viewModel.tempFileName = ""
+                        }
+                        viewModel.isImageCaptured = false
+                        viewModel.selectedImageUri = null
+                        viewModel.isSelectedFromGallery = false
+                    }
+                },
+                modifier = Modifier
+                    .zIndex(2f)
+                    .padding(8.dp)
+                    .statusBarsPadding()
+            ) {
+                Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
+            }
+            Image(
+                painter = rememberImagePainter(viewModel.selectedImageUri),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color.Black),
+                contentScale = ContentScale.Fit
+            )
+            if (!viewModel.isImagePreview){
+                Button(
+                    onClick = {
+                        var uri = viewModel.selectedImageUri
+                        if (viewModel.isSelectedFromGallery) {
+                            val fileName = "${Date().time}.jpeg"
+                            val uploadFolder = FileManager.createFolder(context)
+                            FileManager.insertFileToInternalStorage(
+                                uploadFolder,
+                                fileName,
+                                viewModel.selectedImageUri!!.toString(),
+                                context
+                            )
+                            val photoFile = File(
+                                uploadFolder,
+                                fileName
+                            )
+                            uri = Uri.fromFile(photoFile)
+                        }
+                        if (uri!!.toFile().readBytes().size / 1024 > MAX_FILE_SIZE_IN_KB) {
+                            viewModel.isFileError = true
+                        } else {
+                            viewModel.uploadedFileUri.add(uri)
+                        }
+                        viewModel.displayCamera = false
+                        viewModel.isImageCaptured = false
+                        viewModel.selectedImageUri = null
+                        viewModel.isSelectedFromGallery = false
+                    },
+                    modifier = Modifier
+                        .zIndex(2f)
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .navigationBarsPadding()
+                        .align(Alignment.BottomCenter)
+                ) {
+                    Text(text = stringResource(id = R.string.save))
+                }
+            }
         }
     }
 }

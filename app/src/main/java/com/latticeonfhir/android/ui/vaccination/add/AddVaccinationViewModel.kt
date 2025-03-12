@@ -85,6 +85,7 @@ class AddVaccinationViewModel @Inject constructor(
     var cameraSelector by mutableStateOf(CameraSelector.DEFAULT_BACK_CAMERA)
     var flashOn by mutableStateOf(false)
     var showOpenSettingsDialog by mutableStateOf(false)
+    var isImagePreview by mutableStateOf(false)
 
     internal fun getImmunizationRecommendationAndManufacturerList(
         patientId: String
