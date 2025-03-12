@@ -164,6 +164,11 @@ object TimeConverter {
         return formatter.format(this)
     }
 
+    internal fun Date.toMonthAndYear(): String {
+        val formatter = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+        return formatter.format(this)
+    }
+
     internal fun String.toMonthInteger(): Int {
         val inputFormatter = SimpleDateFormat("MMM", Locale.getDefault())
         val currentMonth = inputFormatter.parse(this)
@@ -471,7 +476,24 @@ object TimeConverter {
     }
 
     internal fun Date.toddMMYYYYString(): String {
-        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
         return outputFormat.format(this)
+    }
+
+    internal fun Date.toFileDateAndTimeName(): String {
+        val outputFormat = SimpleDateFormat("dd-MM-yyyy | HH:mm", Locale.getDefault())
+        return outputFormat.format(this)
+    }
+
+    internal fun daysBetween(date1: Date, date2: Date): Int {
+        val diffInMillis = date2.time - date1.time
+        return TimeUnit.MILLISECONDS.toDays(diffInMillis).toInt()
+    }
+
+    internal fun Date.plusMinusDays(days: Int): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = this
+        calendar.add(Calendar.DATE, days)
+        return calendar.time
     }
 }

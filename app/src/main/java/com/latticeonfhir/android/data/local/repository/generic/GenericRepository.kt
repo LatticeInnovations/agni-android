@@ -2,8 +2,8 @@ package com.latticeonfhir.android.data.local.repository.generic
 
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
-import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
+import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
@@ -14,6 +14,7 @@ import com.latticeonfhir.android.data.server.model.prescription.prescriptionresp
 import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 
 /**
@@ -141,5 +142,10 @@ interface GenericRepository {
         map: Map<String, Any>,
         uuid: String = UUIDBuilder.generateUUID(),
         typeEnum: GenericTypeEnum
+    ): Long
+
+    suspend fun insertImmunization(
+        immunizationResponse: ImmunizationResponse,
+        uuid: String = UUIDBuilder.generateUUID()
     ): Long
 }

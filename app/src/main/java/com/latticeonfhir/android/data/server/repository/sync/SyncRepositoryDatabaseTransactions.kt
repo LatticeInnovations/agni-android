@@ -759,6 +759,24 @@ open class SyncRepositoryDatabaseTransactions(
                 immunizationResponse.toImmunizationEntity(patientId, appointmentId)
             }.toTypedArray()
         )
+
+        val listOfGenericEntity = mutableListOf<GenericEntity>()
+        body.map { immunizationResponse ->
+            immunizationResponse.immunizationFiles?.forEach { file ->
+                listOfGenericEntity.add(
+                    GenericEntity(
+                        id = UUID.randomUUID().toString(),
+                        patientId = immunizationResponse.immunizationUuid,
+                        payload = file.filename,
+                        type = GenericTypeEnum.PRESCRIPTION_PHOTO,
+                        syncType = SyncType.POST
+                    )
+                )
+            }
+        }
+        genericDao.insertGenericEntity(
+            *listOfGenericEntity.toTypedArray()
+        )
     }
 
     protected suspend fun insertManufacturer(body: List<ManufacturerResponse>) {

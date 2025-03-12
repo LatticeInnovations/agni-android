@@ -97,6 +97,7 @@ fun PatientLandingScreen(
             viewModel.getScheduledAppointmentsCount(id)
             viewModel.getUploadsCount(id)
             viewModel.getLastCVDRisk(id)
+            viewModel.getImmunizationRecommendationList(id)
         }
     }
     BackHandler(enabled = true) {

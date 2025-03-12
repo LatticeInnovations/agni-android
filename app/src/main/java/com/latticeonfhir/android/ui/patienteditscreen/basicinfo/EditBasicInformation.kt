@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -32,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
@@ -255,7 +257,14 @@ fun EditBasicInformation(
         }, floatingActionButton = {
             Button(
                 onClick = {
-                    handleBasicInfoNavigation(viewModel, navController, patientResponse)
+                    if (patientResponse!!.birthDate != if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
+                        else ageToPatientDate(
+                            viewModel.years.toIntOrNull() ?: 0,
+                            viewModel.months.toIntOrNull() ?: 0,
+                            viewModel.days.toIntOrNull() ?: 0
+                        ).toPatientDate()) {
+                        viewModel.showDOBWarning = true
+                    } else handleBasicInfoNavigation(viewModel, navController, patientResponse)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -268,7 +277,36 @@ fun EditBasicInformation(
 
         }
     )
-
+    if (viewModel.showDOBWarning) {
+        AlertDialog(
+            onDismissRequest = { },
+            title = {
+                Text(stringResource(R.string.confirm_dob_update))
+            },
+            text = {
+                Text(stringResource(R.string.confirm_dob_update_description))
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.showDOBWarning = false
+                    }
+                ) {
+                    Text(stringResource(R.string.no_go_back))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        handleBasicInfoNavigation(viewModel, navController, patientResponse)
+                        viewModel.showDOBWarning = false
+                    }
+                ) {
+                    Text(stringResource(R.string.yes_continue))
+                }
+            }
+        )
+    }
 }
 
 fun checkFirstName(viewModel: EditBasicInformationViewModel, it: String) {

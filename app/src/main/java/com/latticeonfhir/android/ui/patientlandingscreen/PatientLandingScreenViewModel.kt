@@ -14,6 +14,7 @@ import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRe
 import com.latticeonfhir.android.data.local.repository.cvd.records.CVDAssessmentRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
+import com.latticeonfhir.android.data.local.repository.vaccination.ImmunizationRecommendationRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.workmanager.utils.Sync
 import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
@@ -21,9 +22,11 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.network.CheckNetwork
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import okhttp3.internal.filterList
 import java.util.Date
 import javax.inject.Inject
 
@@ -33,7 +36,8 @@ class PatientLandingScreenViewModel @Inject constructor(
     private val patientRepository: PatientRepository,
     private val appointmentRepository: AppointmentRepository,
     private val prescriptionRepository: PrescriptionRepository,
-    private val cvdAssessmentRepository: CVDAssessmentRepository
+    private val cvdAssessmentRepository: CVDAssessmentRepository,
+    private val immunizationRecommendationRepository: ImmunizationRecommendationRepository
 ) : BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
@@ -51,9 +55,9 @@ class PatientLandingScreenViewModel @Inject constructor(
 
     var selectedIndex by mutableIntStateOf(0)
 
-    var upcomingVaccine by mutableIntStateOf(1)
-    var missedVaccine by mutableIntStateOf(2)
-    var takenVaccine by mutableIntStateOf(3)
+    var upcomingVaccine by mutableIntStateOf(0)
+    var missedVaccine by mutableIntStateOf(0)
+    var takenVaccine by mutableIntStateOf(0)
 
     private val syncService by lazy { getApplication<FhirApp>().syncService }
 
@@ -121,6 +125,18 @@ class PatientLandingScreenViewModel @Inject constructor(
     internal fun getLastCVDRisk(patientId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             cvdRisk = (cvdAssessmentRepository.getCVDRecord(patientId).firstOrNull()?.risk ?: "").toString()
+        }
+    }
+
+    internal fun getImmunizationRecommendationList(
+        patientId: String,
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        viewModelScope.launch(ioDispatcher) {
+            val immunizationRecommendationList = immunizationRecommendationRepository.getImmunizationRecommendation(patientId)
+            missedVaccine = immunizationRecommendationList.filterList { vaccineStartDate < Date() && takenOn == null }.sortedBy { it.vaccineStartDate }.size
+            takenVaccine = immunizationRecommendationList.filterList { takenOn != null }.sortedByDescending { it.takenOn }.size
+            upcomingVaccine = immunizationRecommendationList.size - missedVaccine - takenVaccine
         }
     }
 }

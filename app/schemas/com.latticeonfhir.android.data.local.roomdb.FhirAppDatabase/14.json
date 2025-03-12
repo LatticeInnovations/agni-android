@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 14,
-    "identityHash": "037c969c4b705bb67f3a03a5effff29f",
+    "identityHash": "4c77d2a2b801562e607a4265907ea3d6",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -2172,7 +2172,7 @@
       },
       {
         "tableName": "ImmunizationRecommendationEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `patientId` TEXT NOT NULL, `vaccine` TEXT NOT NULL, `vaccineShortName` TEXT NOT NULL, `vaccineCode` TEXT NOT NULL, `seriesDoses` INTEGER NOT NULL, `doseNumber` INTEGER NOT NULL, `vaccineStartDate` INTEGER NOT NULL, `vaccineEndDate` INTEGER NOT NULL, `vaccineBufferDate` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `patientId` TEXT NOT NULL, `vaccine` TEXT NOT NULL, `vaccineShortName` TEXT NOT NULL, `vaccineCode` TEXT NOT NULL, `seriesDoses` INTEGER NOT NULL, `doseNumber` INTEGER NOT NULL, `vaccineStartDate` INTEGER NOT NULL, `vaccineEndDate` INTEGER NOT NULL, `vaccineBufferDate` INTEGER NOT NULL, `vaccineDueDate` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -2233,6 +2233,12 @@
             "columnName": "vaccineBufferDate",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "vaccineDueDate",
+            "columnName": "vaccineDueDate",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -2265,7 +2271,7 @@
       },
       {
         "tableName": "ImmunizationEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `appointmentId` TEXT NOT NULL, `patientId` TEXT NOT NULL, `createdOn` INTEGER NOT NULL, `lotNumber` TEXT NOT NULL, `expiryDate` INTEGER NOT NULL, `manufacturerId` TEXT NOT NULL, `notes` TEXT NOT NULL, `vaccineCode` TEXT NOT NULL, `immunizationFhirId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `appointmentId` TEXT NOT NULL, `patientId` TEXT NOT NULL, `createdOn` INTEGER NOT NULL, `lotNumber` TEXT NOT NULL, `expiryDate` INTEGER NOT NULL, `manufacturerId` TEXT, `notes` TEXT, `vaccineCode` TEXT NOT NULL, `immunizationFhirId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2307,13 +2313,13 @@
             "fieldPath": "manufacturerId",
             "columnName": "manufacturerId",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "notes",
             "columnName": "notes",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "vaccineCode",
@@ -2485,7 +2491,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '037c969c4b705bb67f3a03a5effff29f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4c77d2a2b801562e607a4265907ea3d6')"
     ]
   }
 }
