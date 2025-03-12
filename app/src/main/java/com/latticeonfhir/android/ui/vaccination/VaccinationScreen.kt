@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.vaccination
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -110,6 +111,13 @@ fun VaccinationScreen(
             }
         }
         viewModel.isLaunched = true
+    }
+    BackHandler {
+        if (pagerState.currentPage > 0) {
+            coroutineScope.launch {
+                pagerState.animateScrollToPage(0)
+            }
+        } else navController.navigateUp()
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
