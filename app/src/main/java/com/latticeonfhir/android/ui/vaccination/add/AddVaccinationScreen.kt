@@ -547,7 +547,8 @@ private fun UploadCertificatesComposable(
                     viewModel.isFileError = true
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = viewModel.uploadedFileUri.size < 10
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
