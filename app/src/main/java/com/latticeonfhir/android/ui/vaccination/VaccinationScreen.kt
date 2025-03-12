@@ -57,6 +57,7 @@ import com.latticeonfhir.android.ui.prescription.photo.view.AppointmentCompleted
 import com.latticeonfhir.android.ui.theme.TakenLabel
 import com.latticeonfhir.android.ui.theme.TakenLabelDark
 import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.MISSED
+import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.TAKEN
 import com.latticeonfhir.android.ui.vaccination.tabs.AllVaccinationScreen
 import com.latticeonfhir.android.ui.vaccination.tabs.MissedVaccinationScreen
 import com.latticeonfhir.android.ui.vaccination.tabs.TakenVaccinationScreen
@@ -383,7 +384,8 @@ fun VaccineCard(
                 )
             }
             Text(
-                text = vaccine.vaccineStartDate.toPrescriptionDate(),
+                text = if (missedOrTaken == TAKEN) vaccine.takenOn!!.toPrescriptionDate()
+                    else vaccine.vaccineStartDate.toPrescriptionDate(),
                 style = MaterialTheme.typography.labelMedium,
                 color = if (missedOrTaken == MISSED) MaterialTheme.colorScheme.error
                 else {
