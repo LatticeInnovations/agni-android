@@ -298,6 +298,8 @@ fun EditBasicInformation(
             confirmButton = {
                 TextButton(
                     onClick = {
+                        // delete old immunization recommendation
+                        viewModel.clearOldImmunizationRecommendation(patientResponse!!.id)
                         handleBasicInfoNavigation(viewModel, navController, patientResponse)
                         viewModel.showDOBWarning = false
                     }

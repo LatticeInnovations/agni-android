@@ -12,6 +12,7 @@ import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.android.data.local.repository.vaccination.ImmunizationRecommendationRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger
@@ -19,14 +20,17 @@ import com.latticeonfhir.android.utils.regex.AgeRegex
 import com.latticeonfhir.android.utils.regex.DobRegex
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 import javax.inject.Inject
 
 @HiltViewModel
 class EditBasicInformationViewModel @Inject constructor(
     val patientRepository: PatientRepository,
-    val genericRepository: GenericRepository
+    val genericRepository: GenericRepository,
+    val immunizationRecommendationRepository: ImmunizationRecommendationRepository
 ) :
     BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
@@ -297,6 +301,15 @@ class EditBasicInformationViewModel @Inject constructor(
         }
 
 
+    }
+
+    internal fun clearOldImmunizationRecommendation(
+        patientId: String,
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        viewModelScope.launch(ioDispatcher) {
+            immunizationRecommendationRepository.clearImmunizationRecommendationOfPatient(patientId)
+        }
     }
 
 }
