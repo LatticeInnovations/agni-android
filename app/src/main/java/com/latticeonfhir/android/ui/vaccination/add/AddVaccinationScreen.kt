@@ -92,6 +92,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
@@ -220,8 +221,7 @@ fun AddVaccinationScreen(
         modifier = Modifier
             .fillMaxSize()
             .navigationBarsPadding()
-    )
-    {
+    ) {
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
@@ -279,13 +279,17 @@ fun AddVaccinationScreen(
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        AnimatedVisibility(viewModel.selectedVaccine != null) {
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                if (viewModel.selectedVaccine!!.vaccineStartDate != Date(Date().toTodayStartDate()))
-                                    StatusCard(viewModel.selectedVaccine!!)
-                                DateAndDoseRow(viewModel.selectedVaccine!!)
+                        AnimatedVisibility(
+                            viewModel.selectedVaccine != null
+                        ) {
+                            viewModel.selectedVaccine?.let { vaccine ->
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    if (vaccine.vaccineStartDate != Date(Date().toTodayStartDate()))
+                                        StatusCard(vaccine)
+                                    DateAndDoseRow(vaccine)
+                                }
                             }
                         }
                         if (viewModel.selectedVaccine == null) Spacer(Modifier.height(16.dp))
@@ -673,12 +677,13 @@ private fun ManufacturerDropDown(viewModel: AddVaccinationViewModel) {
     }
 }
 
+
 @Composable
 private fun VaccineDropDown(
     viewModel: AddVaccinationViewModel,
     navController: NavController
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
@@ -689,6 +694,12 @@ private fun VaccineDropDown(
             value = viewModel.selectedVaccineName,
             onValueChange = { value ->
                 if (value.length <= 100) viewModel.selectedVaccineName = value
+                if (!viewModel.immunizationRecommendationList.map { vaccine ->
+                        vaccine.name.lowercase() + " (" +
+                                vaccine.shortName.lowercase() + ")"
+                }.contains(viewModel.selectedVaccineName.lowercase())) {
+                    viewModel.selectedVaccine = null
+                }
             },
             placeholder = {
                 Text(stringResource(R.string.search_vaccination))
@@ -708,64 +719,87 @@ private fun VaccineDropDown(
                 }
             }
         )
-        DropdownMenu(
-            modifier = Modifier
-                .fillMaxWidth(0.91f)
-                .heightIn(0.dp, 300.dp),
-            expanded = showDropDown,
-            onDismissRequest = { showDropDown = false },
-        ) {
-            viewModel.immunizationRecommendationList
-                .groupBy { it.name }
-                .filter { vaccine ->
-                    stringResource(
-                        R.string.vaccine_name_with_code,
-                        vaccine.key.replaceFirstChar { it.titlecase(Locale.getDefault()) },
-                        vaccine.value[0].shortName.replaceFirstChar { it.titlecase(Locale.getDefault()) }
-                    ).contains(viewModel.selectedVaccineName)
+        if (showDropDown) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(0.dp, 300.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceBright
+                    )
+                    .verticalScroll(rememberScrollState())
+            ) {
+                if (viewModel.immunizationRecommendationList.groupBy { it.name }
+                        .filter { vaccine ->
+                            stringResource(
+                                R.string.vaccine_name_with_code,
+                                vaccine.key.replaceFirstChar { it.titlecase(Locale.getDefault()) },
+                                vaccine.value[0].shortName.replaceFirstChar { it.titlecase(Locale.getDefault()) }
+                            ).contains(viewModel.selectedVaccineName, ignoreCase = true)
+                        }.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.no_results_found),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        textAlign = TextAlign.Center
+                    )
                 }
-                .forEach { vaccine ->
-                    val isFullyVaccinated = vaccine.value.none { it.takenOn == null }
-                    DropdownMenuItem(
-                        enabled = !isFullyVaccinated,
-                        onClick = {
-                            showDropDown = false
-                            val vaccineToBeGiven = vaccine.value.sortedBy { it.vaccineStartDate }
-                                .first { it.takenOn == null }
-                            val timeRange = if (daysBetween(
-                                    viewModel.patient!!.birthDate.convertStringToDate(),
-                                    vaccineToBeGiven.vaccineStartDate
-                                ) <= 90
-                            ) {
-                                vaccineToBeGiven.vaccineStartDate.plusMinusDays(-3)..vaccineToBeGiven.vaccineEndDate.plusMinusDays(
-                                    3
+                viewModel.immunizationRecommendationList
+                    .groupBy { it.name }
+                    .filter { vaccine ->
+                        stringResource(
+                            R.string.vaccine_name_with_code,
+                            vaccine.key.replaceFirstChar { it.titlecase(Locale.getDefault()) },
+                            vaccine.value[0].shortName.replaceFirstChar { it.titlecase(Locale.getDefault()) }
+                        ).contains(viewModel.selectedVaccineName, ignoreCase = true)
+                    }
+                    .forEach { vaccine ->
+                        val isFullyVaccinated = vaccine.value.none { it.takenOn == null }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    enabled = !isFullyVaccinated,
+                                    onClick = {
+                                        showDropDown = false
+                                        val vaccineToBeGiven =
+                                            vaccine.value.sortedBy { it.vaccineStartDate }
+                                                .first { it.takenOn == null }
+                                        val timeRange = if (daysBetween(
+                                                viewModel.patient!!.birthDate.convertStringToDate(),
+                                                vaccineToBeGiven.vaccineStartDate
+                                            ) <= 90
+                                        ) {
+                                            vaccineToBeGiven.vaccineStartDate.plusMinusDays(-3)..vaccineToBeGiven.vaccineEndDate.plusMinusDays(
+                                                3
+                                            )
+                                        } else {
+                                            vaccineToBeGiven.vaccineStartDate.plusMinusDays(-15)..vaccineToBeGiven.vaccineEndDate.plusMinusDays(
+                                                15
+                                            )
+                                        }
+                                        if (Date() in timeRange) {
+                                            viewModel.selectedVaccineName =
+                                                vaccine.key.replaceFirstChar { it.titlecase(Locale.getDefault()) } + " (" +
+                                                        vaccine.value[0].shortName.replaceFirstChar {
+                                                            it.titlecase(
+                                                                Locale.getDefault()
+                                                            )
+                                                        } + ")"
+                                            viewModel.selectedVaccine = vaccineToBeGiven
+                                        } else {
+                                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                VACCINE_ERROR_TYPE,
+                                                VaccineErrorTypeEnum.TIME.errorType
+                                            )
+                                            navController.navigate(Screen.VaccinationErrorScreen.route)
+                                        }
+                                    }
                                 )
-                            } else {
-                                vaccineToBeGiven.vaccineStartDate.plusMinusDays(-15)..vaccineToBeGiven.vaccineEndDate.plusMinusDays(
-                                    15
-                                )
-                            }
-                            if (Date() in timeRange) {
-                                viewModel.selectedVaccineName =
-                                    vaccine.key.replaceFirstChar { it.titlecase(Locale.getDefault()) } + " (" +
-                                            vaccine.value[0].shortName.replaceFirstChar {
-                                                it.titlecase(
-                                                    Locale.getDefault()
-                                                )
-                                            } + ")"
-                                viewModel.selectedVaccine = vaccineToBeGiven
-                            } else {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    VACCINE_ERROR_TYPE,
-                                    VaccineErrorTypeEnum.TIME.errorType
-                                )
-                                navController.navigate(Screen.VaccinationErrorScreen.route)
-                            }
-                        },
-                        text = {
+                        ) {
                             Column(
-                                modifier = Modifier.padding(vertical = 8.dp),
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                modifier = Modifier.padding(12.dp)
                             ) {
                                 if (isFullyVaccinated) {
                                     Text(
@@ -790,8 +824,9 @@ private fun VaccineDropDown(
                                 )
                             }
                         }
-                    )
-                }
+                    }
+
+            }
         }
     }
 }
@@ -841,7 +876,7 @@ private fun StatusCard(
         modifier = Modifier.fillMaxWidth(),
         color = getColorOfContainer(isDelayed = isDelayed)
     ) {
-        Column (
+        Column(
             modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -858,8 +893,11 @@ private fun StatusCard(
                 else stringResource(
                     R.string.upcoming_on_info,
                     vaccine.vaccineDueDate.toPrescriptionDate()
-                ))
-                + " " + stringResource(R.string.vaccine_date_range, vaccine.vaccineStartDate.toSlotDate(), vaccine.vaccineEndDate.toSlotDate()),
+                ))+ " " + stringResource(
+                    R.string.vaccine_date_range,
+                    vaccine.vaccineStartDate.toSlotDate(),
+                    vaccine.vaccineEndDate.toSlotDate()
+                ),
                 style = MaterialTheme.typography.labelLarge,
                 color = getColorOfLabel(isDelayed = isDelayed)
             )
