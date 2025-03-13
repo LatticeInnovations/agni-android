@@ -239,7 +239,7 @@ fun ViewVaccinationScreen(
                                     immunization.notes?.let {
                                         LabelAndDetail(
                                             stringResource(
-                                                R.string.notes_dispense
+                                                R.string.notes_colon
                                             ), it
                                         )
                                     }
