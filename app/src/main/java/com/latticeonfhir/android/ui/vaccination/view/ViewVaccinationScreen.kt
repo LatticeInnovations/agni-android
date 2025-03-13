@@ -148,7 +148,7 @@ fun ViewVaccinationScreen(
                             ) {
                                 Surface(
                                     modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(12.dp),
+                                    shape = RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp),
                                     color = if (isSystemInDarkTheme()) TakenContainerDark else TakenContainer
                                 ) {
                                     Row(
@@ -239,7 +239,7 @@ fun ViewVaccinationScreen(
                                     immunization.notes?.let {
                                         LabelAndDetail(
                                             stringResource(
-                                                R.string.notes_dispense
+                                                R.string.notes_colon
                                             ), it
                                         )
                                     }

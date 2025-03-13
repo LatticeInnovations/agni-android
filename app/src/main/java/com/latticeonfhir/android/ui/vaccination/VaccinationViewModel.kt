@@ -135,7 +135,7 @@ class VaccinationViewModel @Inject constructor(
     ) {
         viewModelScope.launch(ioDispatcher) {
             immunizationRecommendationList = immunizationRecommendationRepository.getImmunizationRecommendation(patientId)
-            missedImmunizationRecommendationList = immunizationRecommendationList.filterList { vaccineStartDate < Date() && takenOn == null }.sortedBy { it.vaccineStartDate }
+            missedImmunizationRecommendationList = immunizationRecommendationList.filterList { vaccineStartDate < Date(Date().toTodayStartDate()) && takenOn == null }.sortedBy { it.vaccineStartDate }
             takenImmunizationRecommendationList = immunizationRecommendationList.filterList { takenOn != null }.sortedByDescending { it.takenOn }
         }
     }
