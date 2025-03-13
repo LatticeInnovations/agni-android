@@ -468,10 +468,10 @@ object TimeConverter {
         val completedMonths = (days % 365) / 30
 
         return when {
-            days <= 14 -> "${days}d"
-            days in 15 until 105 -> "${weeks}wk ${remainingDays}d"
-            days in 105 until 365 -> "${months}mo ${completedWeeks}wk"
-            else -> "${years}yr ${completedMonths}mo"
+            days <= 14 -> "$days day"
+            days in 15 until 105 -> "$weeks week $remainingDays day"
+            days in 105 until 365 -> "$months month $completedWeeks week"
+            else -> "$years year $completedMonths month"
         }
     }
 

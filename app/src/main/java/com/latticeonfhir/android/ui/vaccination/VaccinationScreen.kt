@@ -3,6 +3,7 @@ package com.latticeonfhir.android.ui.vaccination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -38,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -143,27 +145,41 @@ fun VaccinationScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         content = { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    TabRowComposable(
-                        viewModel.tabs,
-                        pagerState
-                    ) { index ->
-                        coroutineScope.launch { pagerState.animateScrollToPage(index) }
+                if(viewModel.immunizationRecommendationList.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = if (isSystemInDarkTheme()) Color.Black else Color.White),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        VaccineEmptyScreen(
+                            stringResource(R.string.fetching_immunization_recommendations),
+                            stringResource(R.string.fetching_immunization_recommendations_info)
+                        )
                     }
-                    HorizontalPager(
-                        state = pagerState
-                    ) { index ->
-                        when (index) {
-                            0 -> {
-                                AllVaccinationScreen(viewModel, navController)
-                            }
+                } else {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        TabRowComposable(
+                            viewModel.tabs,
+                            pagerState
+                        ) { index ->
+                            coroutineScope.launch { pagerState.animateScrollToPage(index) }
+                        }
+                        HorizontalPager(
+                            state = pagerState
+                        ) { index ->
+                            when (index) {
+                                0 -> {
+                                    AllVaccinationScreen(viewModel, navController)
+                                }
 
-                            1 -> {
-                                MissedVaccinationScreen(navController, viewModel)
-                            }
+                                1 -> {
+                                    MissedVaccinationScreen(navController, viewModel)
+                                }
 
-                            2 -> {
-                                TakenVaccinationScreen(navController, viewModel)
+                                2 -> {
+                                    TakenVaccinationScreen(navController, viewModel)
+                                }
                             }
                         }
                     }
@@ -171,38 +187,40 @@ fun VaccinationScreen(
             }
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    viewModel.getAppointmentInfo {
-                        if (viewModel.canAddVaccination) {
-                            // navigate to add vaccination screen
-                            coroutineScope.launch {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PATIENT,
-                                    viewModel.patient
-                                )
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    VACCINE,
-                                    null
-                                )
-                                navController.navigate(Screen.AddVaccinationScreen.route)
+            if(viewModel.immunizationRecommendationList.isNotEmpty()) {
+                FloatingActionButton(
+                    onClick = {
+                        viewModel.getAppointmentInfo {
+                            if (viewModel.canAddVaccination) {
+                                // navigate to add vaccination screen
+                                coroutineScope.launch {
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        PATIENT,
+                                        viewModel.patient
+                                    )
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        VACCINE,
+                                        null
+                                    )
+                                    navController.navigate(Screen.AddVaccinationScreen.route)
+                                }
+                            } else if (viewModel.isAppointmentCompleted) {
+                                viewModel.showAppointmentCompletedDialog = true
+                            } else {
+                                viewModel.showAddToQueueDialog = true
                             }
-                        } else if (viewModel.isAppointmentCompleted) {
-                            viewModel.showAppointmentCompletedDialog = true
-                        } else {
-                            viewModel.showAddToQueueDialog = true
                         }
-                    }
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.padding(bottom = 12.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.add_icon),
-                    contentDescription = null,
-                    Modifier.size(24.dp)
-                )
+                    },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.add_icon),
+                        contentDescription = null,
+                        Modifier.size(24.dp)
+                    )
+                }
             }
         }
     )
@@ -232,15 +250,12 @@ fun VaccinationScreen(
                     ) {
                         viewModel.showAddToQueueDialog = false
                         coroutineScope.launch {
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                PATIENT,
-                                viewModel.patient
+                            navigateToAddVaccine(
+                                navController,
+                                viewModel.selectedVaccine!!,
+                                viewModel.patient!!,
+                                viewModel.immunizationRecommendationList
                             )
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                VACCINE,
-                                viewModel.selectedVaccine
-                            )
-                            navController.navigate(Screen.AddVaccinationScreen.route)
                         }
                     }
                 } else {
@@ -250,15 +265,12 @@ fun VaccinationScreen(
                         viewModel.addPatientToQueue(viewModel.patient!!) {
                             viewModel.showAddToQueueDialog = false
                             coroutineScope.launch {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    PATIENT,
-                                    viewModel.patient
+                                navigateToAddVaccine(
+                                    navController,
+                                    viewModel.selectedVaccine!!,
+                                    viewModel.patient!!,
+                                    viewModel.immunizationRecommendationList
                                 )
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    VACCINE,
-                                    viewModel.selectedVaccine
-                                )
-                                navController.navigate(Screen.AddVaccinationScreen.route)
                             }
                         }
                     }

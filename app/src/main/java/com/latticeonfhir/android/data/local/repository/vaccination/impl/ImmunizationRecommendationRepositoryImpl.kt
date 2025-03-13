@@ -33,4 +33,8 @@ class ImmunizationRecommendationRepositoryImpl @Inject constructor(
                 }
             }
     }
+
+    override suspend fun clearImmunizationRecommendationOfPatient(patientId: String): Int {
+        return immunizationRecommendationDao.clearImmunizationRecommendationOfPatient(patientId)
+    }
 }

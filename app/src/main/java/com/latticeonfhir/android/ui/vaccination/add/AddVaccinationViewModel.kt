@@ -112,7 +112,7 @@ class AddVaccinationViewModel @Inject constructor(
                         appointmentEntity.patientId == patient!!.id && appointmentEntity.status != AppointmentStatusEnum.CANCELLED.value
                     }
             val takenOn = Date()
-            var immunization = Immunization(
+            val immunization = Immunization(
                 id = UUIDBuilder.generateUUID(),
                 vaccineName = selectedVaccine!!.name,
                 vaccineSortName = selectedVaccine!!.shortName,

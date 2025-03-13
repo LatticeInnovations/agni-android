@@ -19,4 +19,7 @@ interface ImmunizationRecommendationDao {
 
     @Query("SELECT * FROM ImmunizationRecommendationEntity WHERE vaccineCode = :vaccineCode LIMIT 1")
     suspend fun getImmunizationRecommendationByVaccineCode(vaccineCode: String): ImmunizationRecommendationEntity
+
+    @Query("DELETE FROM ImmunizationRecommendationEntity WHERE patientId = :patientId")
+    suspend fun clearImmunizationRecommendationOfPatient(patientId: String): Int
 }
