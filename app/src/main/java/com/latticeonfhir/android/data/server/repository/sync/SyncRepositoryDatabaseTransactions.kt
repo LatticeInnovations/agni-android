@@ -58,6 +58,7 @@ import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters
 import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toImmunizationEntity
+import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toImmunizationFileEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toImmunizationRecommendationEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toManufacturerEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
@@ -759,6 +760,12 @@ open class SyncRepositoryDatabaseTransactions(
                 immunizationResponse.toImmunizationEntity(patientId, appointmentId)
             }.toTypedArray()
         )
+
+        body.map { immunizationResponse ->
+            immunizationResponse.toImmunizationFileEntity()?.let { immunizationFiles ->
+                immunizationDao.insertImmunizationFiles(*immunizationFiles.toTypedArray())
+            }
+        }
 
         val listOfGenericEntity = mutableListOf<GenericEntity>()
         body.map { immunizationResponse ->
