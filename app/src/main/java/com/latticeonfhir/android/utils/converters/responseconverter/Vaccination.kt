@@ -2,6 +2,7 @@ package com.latticeonfhir.android.utils.converters.responseconverter
 
 import com.latticeonfhir.android.data.local.model.vaccination.Immunization
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationRecommendationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ManufacturerEntity
 import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationFile
@@ -55,6 +56,15 @@ object Vaccination {
             vaccineCode = this.vaccineCode,
             immunizationFhirId = this.immunizationId
         )
+    }
+
+    internal fun ImmunizationResponse.toImmunizationFileEntity(): List<ImmunizationFileEntity>? {
+        return this.immunizationFiles?.map { immunizationFile ->
+            ImmunizationFileEntity(
+                filename = immunizationFile.filename,
+                immunizationId = this.immunizationUuid
+            )
+        }
     }
 
     internal fun Immunization.toImmunizationResponse(): ImmunizationResponse {
