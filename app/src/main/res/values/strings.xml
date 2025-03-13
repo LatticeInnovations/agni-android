@@ -402,6 +402,7 @@ include them in the household</string>
     <string name="notes_label">Notes*</string>
     <string name="edit_qty_error_message">Quantity should be less than quantity prescribed</string>
     <string name="notes_dispense">Notes: %s</string>
+    <string name="notes_colon">Notes:</string>
     <string name="previous_dispense">Previous dispense</string>
     <string name="dispensed_on">Dispensed on: %s</string>
     <string name="modified_prescription">Modified prescription</string>
