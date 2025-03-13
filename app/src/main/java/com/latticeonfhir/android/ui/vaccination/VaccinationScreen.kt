@@ -207,6 +207,7 @@ fun VaccinationScreen(
                             } else if (viewModel.isAppointmentCompleted) {
                                 viewModel.showAppointmentCompletedDialog = true
                             } else {
+                                viewModel.selectedVaccine = null
                                 viewModel.showAddToQueueDialog = true
                             }
                         }
@@ -250,12 +251,26 @@ fun VaccinationScreen(
                     ) {
                         viewModel.showAddToQueueDialog = false
                         coroutineScope.launch {
-                            navigateToAddVaccine(
-                                navController,
-                                viewModel.selectedVaccine!!,
-                                viewModel.patient!!,
-                                viewModel.immunizationRecommendationList
-                            )
+                            if (viewModel.selectedVaccine == null) {
+                                coroutineScope.launch {
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        PATIENT,
+                                        viewModel.patient
+                                    )
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        VACCINE,
+                                        null
+                                    )
+                                    navController.navigate(Screen.AddVaccinationScreen.route)
+                                }
+                            } else {
+                                navigateToAddVaccine(
+                                    navController,
+                                    viewModel.selectedVaccine!!,
+                                    viewModel.patient!!,
+                                    viewModel.immunizationRecommendationList
+                                )
+                            }
                         }
                     }
                 } else {
@@ -265,12 +280,26 @@ fun VaccinationScreen(
                         viewModel.addPatientToQueue(viewModel.patient!!) {
                             viewModel.showAddToQueueDialog = false
                             coroutineScope.launch {
-                                navigateToAddVaccine(
-                                    navController,
-                                    viewModel.selectedVaccine!!,
-                                    viewModel.patient!!,
-                                    viewModel.immunizationRecommendationList
-                                )
+                                if (viewModel.selectedVaccine == null) {
+                                    coroutineScope.launch {
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            PATIENT,
+                                            viewModel.patient
+                                        )
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            VACCINE,
+                                            null
+                                        )
+                                        navController.navigate(Screen.AddVaccinationScreen.route)
+                                    }
+                                } else {
+                                    navigateToAddVaccine(
+                                        navController,
+                                        viewModel.selectedVaccine!!,
+                                        viewModel.patient!!,
+                                        viewModel.immunizationRecommendationList
+                                    )
+                                }
                             }
                         }
                     }
