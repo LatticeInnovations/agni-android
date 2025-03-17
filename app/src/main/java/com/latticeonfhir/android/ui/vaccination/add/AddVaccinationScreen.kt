@@ -331,7 +331,10 @@ fun AddVaccinationScreen(
                                         },
                                         modifier = Modifier
                                             .fillMaxWidth(),
-                                        singleLine = true
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(
+                                            capitalization = KeyboardCapitalization.Characters
+                                        )
                                     )
                                     OutlinedTextField(
                                         value = viewModel.dateOfExpiry?.toddMMYYYYString() ?: "",
