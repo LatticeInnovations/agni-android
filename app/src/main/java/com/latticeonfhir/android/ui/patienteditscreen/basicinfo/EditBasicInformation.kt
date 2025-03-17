@@ -202,6 +202,9 @@ fun EditBasicInformation(
                             viewModel.days = ""
                             viewModel.months = ""
                             viewModel.years = ""
+                            viewModel.isAgeDaysValid = false
+                            viewModel.isAgeMonthsValid = false
+                            viewModel.isAgeYearsValid = false
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         CustomFilterChip(viewModel.dobAgeSelector, "age", "Age") {
@@ -214,12 +217,6 @@ fun EditBasicInformation(
                     if (viewModel.dobAgeSelector == "dob") {
                         DobTextField(viewModel)
                     } else {
-                        viewModel.days = ""
-                        viewModel.months = ""
-                        viewModel.years = ""
-                        viewModel.isAgeDaysValid = false
-                        viewModel.isAgeMonthsValid = false
-                        viewModel.isAgeYearsValid = false
                         AgeTextField(viewModel)
                     }
                     Spacer(modifier = Modifier.height(20.dp))
@@ -257,14 +254,16 @@ fun EditBasicInformation(
         }, floatingActionButton = {
             Button(
                 onClick = {
-                    if (patientResponse!!.birthDate != if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
-                        else ageToPatientDate(
-                            viewModel.years.toIntOrNull() ?: 0,
-                            viewModel.months.toIntOrNull() ?: 0,
-                            viewModel.days.toIntOrNull() ?: 0
-                        ).toPatientDate()) {
+                    val birthDate = if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
+                    else ageToPatientDate(
+                        viewModel.years.toIntOrNull() ?: 0,
+                        viewModel.months.toIntOrNull() ?: 0,
+                        viewModel.days.toIntOrNull() ?: 0
+                    ).toPatientDate()
+                    if (patientResponse!!.birthDate != birthDate) {
                         viewModel.showDOBWarning = true
-                    } else handleBasicInfoNavigation(viewModel, navController, patientResponse)
+                    } else
+                        handleBasicInfoNavigation(viewModel, navController, patientResponse)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
