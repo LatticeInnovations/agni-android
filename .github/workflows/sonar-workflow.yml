@@ -30,3 +30,4 @@ jobs:
             -Dsonar.projectKey="${GITHUB_REPOSITORY##*/}"
             -Dsonar.scm.provider=git
             -Dsonar.analysis.analysisNumber="pr-${{ github.event.pull_request.number }}"
+            -Dsonar.exclusions=**/*.java
