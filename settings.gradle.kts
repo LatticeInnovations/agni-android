@@ -1,4 +1,7 @@
+import java.net.URI
+
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         gradlePluginPortal()
         google()
@@ -6,15 +9,15 @@ pluginManagement {
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
         google()
         mavenCentral()
         flatDir {
-            dirs 'app/libs'
+            dirs = setOf(File("app/libs"))
         }
-        maven { url 'https://jitpack.io' }
+        maven { url = URI("https://jitpack.io") }
     }
 }
 rootProject.name = "FHIR-Android"
-include ':app'
+include(":app")
