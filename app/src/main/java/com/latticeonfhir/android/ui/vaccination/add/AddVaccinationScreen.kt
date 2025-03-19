@@ -208,6 +208,7 @@ fun AddVaccinationScreen(
                 viewModel.isImagePreview = false
                 viewModel.selectedImageUri = null
             }
+
             viewModel.isImageCaptured -> {
                 if (!viewModel.isSelectedFromGallery) {
                     FileManager.removeFromInternalStorage(context, viewModel.tempFileName)
@@ -217,9 +218,10 @@ fun AddVaccinationScreen(
                 viewModel.selectedImageUri = null
                 viewModel.isSelectedFromGallery = false
             }
+
             viewModel.displayCamera -> viewModel.displayCamera = false
             else -> {
-                val files = viewModel.uploadedFileUri
+                val files = viewModel.uploadedFileUri.toList()
                 files.forEach {
                     viewModel.uploadedFileUri.remove(it)
                     FileManager.removeFromInternalStorage(context, it.toFile().name)
@@ -246,7 +248,7 @@ fun AddVaccinationScreen(
                     ),
                     navigationIcon = {
                         IconButton(onClick = {
-                            val files = viewModel.uploadedFileUri
+                            val files = viewModel.uploadedFileUri.toList()
                             files.forEach {
                                 viewModel.uploadedFileUri.remove(it)
                                 FileManager.removeFromInternalStorage(context, it.toFile().name)
@@ -560,11 +562,8 @@ private fun UploadCertificatesComposable(
         )
         FilledTonalButton(
             onClick = {
-                if (viewModel.uploadedFileUri.size < 10) {
-                    viewModel.showUploadSheet = true
-                } else {
-                    viewModel.isFileError = true
-                }
+                viewModel.isFileError = false
+                viewModel.showUploadSheet = true
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = viewModel.uploadedFileUri.size < 10
@@ -579,7 +578,8 @@ private fun UploadCertificatesComposable(
         }
         viewModel.uploadedFileUri.forEach { file ->
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .clickable {
                         viewModel.isImagePreview = true
                         viewModel.selectedImageUri = file
@@ -721,7 +721,7 @@ private fun VaccineDropDown(
                 if (!viewModel.immunizationRecommendationList.map { vaccine ->
                         vaccine.name.lowercase() + " (" +
                                 vaccine.shortName.lowercase() + ")"
-                }.contains(viewModel.selectedVaccineName.lowercase())) {
+                    }.contains(viewModel.selectedVaccineName.lowercase())) {
                     viewModel.selectedVaccine = null
                     viewModel.lotNo = ""
                     viewModel.dateOfExpiry = null
@@ -927,7 +927,7 @@ private fun StatusCard(
                 else stringResource(
                     R.string.upcoming_on_info,
                     vaccine.vaccineDueDate.toPrescriptionDate()
-                ))+ " " + stringResource(
+                )) + " " + stringResource(
                     R.string.vaccine_date_range,
                     vaccine.vaccineStartDate.toSlotDate(),
                     vaccine.vaccineEndDate.toSlotDate()
@@ -1102,7 +1102,7 @@ private fun DisplayImage(
                     .background(color = Color.Black),
                 contentScale = ContentScale.Fit
             )
-            if (!viewModel.isImagePreview){
+            if (!viewModel.isImagePreview) {
                 Button(
                     onClick = {
                         var uri = viewModel.selectedImageUri
