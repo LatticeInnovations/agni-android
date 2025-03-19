@@ -36,7 +36,7 @@ jobs:
           GOOGLE_SERVICES_PASSPHRASE: ${{ secrets.GOOGLE_SERVICES_PASSPHRASE }}
 
       - name: Grant rights
-        run: chmod +x build.gradle
+        run: chmod +x build.gradle.kts
 
       - name: Setup Gradle Cache
         uses: actions/cache@v3
