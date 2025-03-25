@@ -23,7 +23,7 @@ import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
 import com.latticeonfhir.android.base.activity.BaseActivity
 import com.latticeonfhir.android.navigation.NavigationAppHost
-import com.latticeonfhir.android.ui.theme.FHIRAndroidTheme
+import com.latticeonfhir.android.theme.FHIRAndroidTheme
 import com.latticeonfhir.android.utils.network.ConnectivityObserver
 import com.latticeonfhir.android.utils.network.NetworkConnectivityObserver
 import com.latticeonfhir.android.utils.regex.OtpRegex.otpPattern

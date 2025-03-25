@@ -12,7 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +30,7 @@ import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.AddressComposable
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.ui.theme.Neutral40
+import com.latticeonfhir.android.theme.Neutral40
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,7 +90,7 @@ fun PatientRegistrationStepThree(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides false) {
                     Checkbox(
                         checked = viewModel.checkedState,
                         onCheckedChange = { value ->

@@ -1,8 +1,7 @@
-package com.latticeonfhir.android.ui.theme
+package com.latticeonfhir.android.theme
 
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import com.latticeonfhir.android.R
 
 val Roboto = FontFamily(
     Font(R.font.roboto_regular)

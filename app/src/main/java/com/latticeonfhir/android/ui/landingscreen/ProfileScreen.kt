@@ -57,8 +57,8 @@ import com.latticeonfhir.android.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.ButtonLoader
 import com.latticeonfhir.android.ui.main.MainActivity
-import com.latticeonfhir.android.ui.theme.Primary10
-import com.latticeonfhir.android.ui.theme.SyncFailedColor
+import com.latticeonfhir.android.theme.Primary10
+import com.latticeonfhir.android.theme.SyncFailedColor
 import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
 import kotlinx.coroutines.CoroutineScope
