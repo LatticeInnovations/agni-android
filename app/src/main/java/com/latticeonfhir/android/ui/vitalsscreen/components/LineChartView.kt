@@ -55,7 +55,7 @@ fun LineChartView(
 
     val gridLineColor = MaterialTheme.colorScheme.primary.toArgb()
     val fastingColor = MaterialTheme.colorScheme.primary.toArgb()
-    val randomColor = com.latticeonfhir.android.theme.VitalLabel.toArgb()
+    val randomColor = VitalLabel.toArgb()
     AndroidView(
         factory = { ctx ->
             LineChart(ctx)
@@ -236,7 +236,7 @@ fun LineChartViewGlucose(
 
     val gridLineColor = MaterialTheme.colorScheme.primary.toArgb()
     val fastingColor = MaterialTheme.colorScheme.primary.toArgb()
-    val randomColor = com.latticeonfhir.android.theme.VitalLabel.toArgb()
+    val randomColor = VitalLabel.toArgb()
     AndroidView(
         factory = { ctx ->
             LineChart(ctx)
