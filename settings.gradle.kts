@@ -1,5 +1,8 @@
 import java.net.URI
 
+include(":theme")
+
+
 pluginManagement {
     includeBuild("build-logic")
     repositories {
@@ -20,4 +23,7 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "FHIR-Android"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
+include(":theme")

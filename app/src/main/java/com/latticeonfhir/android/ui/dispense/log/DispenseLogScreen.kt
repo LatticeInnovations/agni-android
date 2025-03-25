@@ -29,7 +29,7 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.DispenseCategoryEnum
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensedPrescriptionInfo
 import com.latticeonfhir.android.ui.dispense.DrugDispenseViewModel
-import com.latticeonfhir.android.ui.theme.OTC
+import com.latticeonfhir.android.theme.OTC
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 
 @Composable

@@ -23,7 +23,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.latticeonfhir.android.ui.theme.VitalLabel
+import com.latticeonfhir.android.theme.VitalLabel
 import timber.log.Timber
 
 
@@ -55,7 +55,7 @@ fun LineChartView(
 
     val gridLineColor = MaterialTheme.colorScheme.primary.toArgb()
     val fastingColor = MaterialTheme.colorScheme.primary.toArgb()
-    val randomColor = VitalLabel.toArgb()
+    val randomColor = com.latticeonfhir.android.theme.VitalLabel.toArgb()
     AndroidView(
         factory = { ctx ->
             LineChart(ctx)
@@ -236,7 +236,7 @@ fun LineChartViewGlucose(
 
     val gridLineColor = MaterialTheme.colorScheme.primary.toArgb()
     val fastingColor = MaterialTheme.colorScheme.primary.toArgb()
-    val randomColor = VitalLabel.toArgb()
+    val randomColor = com.latticeonfhir.android.theme.VitalLabel.toArgb()
     AndroidView(
         factory = { ctx ->
             LineChart(ctx)

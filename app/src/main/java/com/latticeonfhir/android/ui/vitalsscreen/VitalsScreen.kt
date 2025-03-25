@@ -42,6 +42,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -71,7 +72,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
-import com.latticeonfhir.android.ui.theme.VitalLabel
+import com.latticeonfhir.android.theme.VitalLabel
 import com.latticeonfhir.android.ui.vitalsscreen.components.CustomChip
 import com.latticeonfhir.android.ui.vitalsscreen.components.LineChartView
 import com.latticeonfhir.android.ui.vitalsscreen.components.LineChartViewGlucose
@@ -114,9 +115,9 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
         snackbarHost = { SnackbarHost(snackBarHostState) },
         topBar = {
         TopAppBar(modifier = Modifier.fillMaxWidth(),
-            colors = TopAppBarDefaults.largeTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
+            colors = topAppBarColors(
+        containerColor = MaterialTheme.colorScheme.surface
+        ),
             navigationIcon = {
                 IconButton(onClick = {
                     navController.navigateUp()
@@ -546,7 +547,9 @@ fun ShowTrendGraphCard(
         AnimatedVisibility(vitalsViewModel.isGlucoseSelected) {
             GraphLegendGroup(
                 legendList = listOf(
-                    Pair(BGEnum.RANDOM.value.capitalizeFirstLetter(), VitalLabel),
+                    Pair(BGEnum.RANDOM.value.capitalizeFirstLetter(),
+                        VitalLabel
+                    ),
                     Pair(
                         BGEnum.FASTING.value.capitalizeFirstLetter(),
                         MaterialTheme.colorScheme.primary
@@ -559,7 +562,9 @@ fun ShowTrendGraphCard(
         AnimatedVisibility(vitalsViewModel.isBPSelected) {
             GraphLegendGroup(
                 legendList = listOf(
-                    Pair(stringResource(id = R.string.systolic), VitalLabel),
+                    Pair(stringResource(id = R.string.systolic),
+                        VitalLabel
+                    ),
                     Pair(stringResource(id = R.string.diastolic), MaterialTheme.colorScheme.primary)
 
                 )

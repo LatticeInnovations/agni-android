@@ -56,8 +56,8 @@ import com.latticeonfhir.android.ui.common.CustomDialog
 import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.ui.prescription.photo.view.AppointmentCompletedDialog
-import com.latticeonfhir.android.ui.theme.TakenLabel
-import com.latticeonfhir.android.ui.theme.TakenLabelDark
+import com.latticeonfhir.android.theme.TakenLabel
+import com.latticeonfhir.android.theme.TakenLabelDark
 import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.MISSED
 import com.latticeonfhir.android.ui.vaccination.VaccinationViewModel.Companion.TAKEN
 import com.latticeonfhir.android.ui.vaccination.tabs.AllVaccinationScreen

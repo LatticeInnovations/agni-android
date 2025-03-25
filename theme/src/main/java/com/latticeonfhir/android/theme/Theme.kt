@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.theme
+package com.latticeonfhir.android.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

@@ -113,10 +113,10 @@ import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.Manufact
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.CustomDialog
-import com.latticeonfhir.android.ui.theme.MissedContainer
-import com.latticeonfhir.android.ui.theme.MissedContainerDark
-import com.latticeonfhir.android.ui.theme.MissedLabel
-import com.latticeonfhir.android.ui.theme.MissedLabelDark
+import com.latticeonfhir.android.theme.MissedContainer
+import com.latticeonfhir.android.theme.MissedContainerDark
+import com.latticeonfhir.android.theme.MissedLabel
+import com.latticeonfhir.android.theme.MissedLabelDark
 import com.latticeonfhir.android.ui.vaccination.add.AddVaccinationViewModel.Companion.MAX_FILE_SIZE_IN_KB
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.formatBytes
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
