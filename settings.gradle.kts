@@ -1,8 +1,5 @@
 import java.net.URI
 
-include(":theme")
-
-
 pluginManagement {
     includeBuild("build-logic")
     repositories {
