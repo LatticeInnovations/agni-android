@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.theme
+package com.latticeonfhir.android.theme
 
 import androidx.compose.ui.graphics.Color
 

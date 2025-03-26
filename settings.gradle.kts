@@ -20,4 +20,7 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "FHIR-Android"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
+include(":theme")

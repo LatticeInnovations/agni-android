@@ -56,7 +56,7 @@ import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.DiscardAllRelationDialog
-import com.latticeonfhir.android.ui.theme.Neutral40
+import com.latticeonfhir.android.theme.Neutral40
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationFromRelationEnum

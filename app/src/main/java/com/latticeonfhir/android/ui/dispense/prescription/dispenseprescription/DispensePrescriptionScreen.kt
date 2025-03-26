@@ -58,7 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.DispenseStatusEnum
-import com.latticeonfhir.android.ui.theme.FullyDispensed
+import com.latticeonfhir.android.theme.FullyDispensed
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
 import kotlinx.coroutines.launch
