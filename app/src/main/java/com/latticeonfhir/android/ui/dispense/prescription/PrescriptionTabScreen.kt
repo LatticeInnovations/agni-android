@@ -37,8 +37,8 @@ import com.latticeonfhir.android.data.local.enums.DispenseStatusEnum.Companion.c
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseAndPrescriptionRelation
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.dispense.DrugDispenseViewModel
-import com.latticeonfhir.android.ui.theme.FullyDispensed
-import com.latticeonfhir.android.ui.theme.PartiallyDispensed
+import com.latticeonfhir.android.theme.FullyDispensed
+import com.latticeonfhir.android.theme.PartiallyDispensed
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

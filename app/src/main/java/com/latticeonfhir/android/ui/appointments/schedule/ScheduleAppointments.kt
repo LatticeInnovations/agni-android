@@ -59,7 +59,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.NonLazyGrid
 import com.latticeonfhir.android.ui.common.WeekDaysComposable
-import com.latticeonfhir.android.ui.theme.Green
+import com.latticeonfhir.android.theme.Green
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SCHEDULED
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate

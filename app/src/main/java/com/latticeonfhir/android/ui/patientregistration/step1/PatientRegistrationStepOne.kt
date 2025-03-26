@@ -46,7 +46,7 @@ import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.ui.theme.Neutral40
+import com.latticeonfhir.android.theme.Neutral40
 import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList.getMonthsList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isDOBValid
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger

@@ -36,8 +36,8 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.ui.cvd.CVDRiskAssessmentViewModel
-import com.latticeonfhir.android.ui.theme.Black
-import com.latticeonfhir.android.ui.theme.White
+import com.latticeonfhir.android.theme.Black
+import com.latticeonfhir.android.theme.White
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.formatDateToDayMonth
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toddMMMyyyy
 import kotlin.math.ceil
