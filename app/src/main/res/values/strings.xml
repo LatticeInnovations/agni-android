@@ -85,16 +85,6 @@ include them in the household</string>
     <string name="name_label">Name</string>
     <string name="role_label">Role</string>
     <string name="phone_number_label">Phone No.</string>
-
-    <string name="enter_otp_helping_text">Enter the OTP we sent to</string>
-    <string name="resend_otp">Resend OTP</string>
-    <string name="no_internet_error_msg">Please connect to internet and try again</string>
-    <string name="verify">Verify</string>
-
-    <string name="login_helper_text">Login with phone number or email address</string>
-    <string name="signup_helper_text_title">Sign up with phone number or email address</string>
-    <string name="signup_helper_text">Please provide username and clinic name</string>
-    <string name="send_me_otp">Send me OTP</string>
     <string name="advanced_search">Advanced Search</string>
     <string name="search">Search</string>
     <string name="search_helper_text">Search using any of the field below</string>
@@ -138,8 +128,6 @@ include them in the household</string>
     <string name="error_msg_1_to_31_days">Enter valid day between 1 and 31.</string>
     <string name="error_msg_1_to_29_days">Enter valid day between 1 and 29.</string>
     <string name="year_error_msg">Enter valid year between 1900 and %s</string>
-    <string name="enter_your_name">Enter your name</string>
-    <string name="enter_your_clinic_name">Enter your clinic name</string>
 
     <string name="age_days">Days</string>
     <string name="age_months">Months</string>
@@ -149,7 +137,6 @@ include them in the household</string>
     <string name="age_days_error_msg">Enter valid input between 1 and 30.</string>
 
     <string name="enter_phone_number">Enter Phone Number</string>
-    <string name="enter_phone_number_or_email">Enter phone number or email</string>
     <string name="phone_number_error_msg">Enter Valid Input</string>
 
     <string name="passport_id_error_msg">Enter valid Passport ID (eg., A1098765)</string>
@@ -165,9 +152,6 @@ include them in the household</string>
     <string name="med_info">%d %s %s %s\nDuration : %d days , Qty : %d %s</string>
     <string name="notes">\nNote: %s</string>
     <string name="timing">, %s</string>
-
-    <string name="different_user_login_dialog_title">Log in as a different user ?</string>
-    <string name="different_user_login_dialog_description">Logging in as a different user will remove all existing data associated with the current user. This action cannot be undone. Continue?</string>
     <string name="yes_proceed">Yes, proceed</string>
 
     <string name="appointments">Appointments</string>
@@ -248,8 +232,6 @@ include them in the household</string>
     <string name="delete_account">Delete account</string>
     <string name="delete">Delete</string>
     <string name="delete_account_dialog_description">Are you sure you want to delete your account. Deleting your account will remove all of your information from our database.</string>
-    <string name="do_not_have_an_account">Don’t have an account?</string>
-    <string name="sign_up">Sign-up</string>
     <string name="cvd_risk_assessment">CVD risk assessment</string>
     <string name="predict">Predict</string>
     <string name="age">Age:</string>

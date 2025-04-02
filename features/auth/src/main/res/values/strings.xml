@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_helper_text">Login with phone number or email address</string>
+    <string name="signup_helper_text_title">Sign up with phone number or email address</string>
+    <string name="signup_helper_text">Please provide username and clinic name</string>
+    <string name="send_me_otp">Send me OTP</string>
+
+    <string name="enter_otp_helping_text">Enter the OTP we sent to</string>
+    <string name="resend_otp">Resend OTP</string>
+    <string name="no_internet_error_msg">Please connect to internet and try again</string>
+    <string name="verify">Verify</string>
+    <string name="submit">Submit</string>
+    <string name="enter_phone_number_or_email">Enter phone number or email</string>
+
+    <string name="do_not_have_an_account">Don’t have an account?</string>
+    <string name="sign_up">Sign-up</string>
+
+    <string name="different_user_login_dialog_title">Log in as a different user ?</string>
+    <string name="different_user_login_dialog_description">Logging in as a different user will remove all existing data associated with the current user. This action cannot be undone. Continue?</string>
+    <string name="yes_proceed">Yes, proceed</string>
+    <string name="no_go_back">No, go back</string>
+
+    <string name="enter_your_name">Enter your name</string>
+    <string name="enter_your_clinic_name">Enter your clinic name</string>
+</resources>
