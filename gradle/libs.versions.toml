@@ -63,6 +63,9 @@ turbine = "1.2.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 material = "1.12.0"
+runtimeAndroid = "1.7.8"
+navigationRuntimeAndroid = "2.9.0-alpha08"
+material3Android = "1.3.1"
 
 [bundles]
 androidx-compose-ui-test = ["androidx-compose-ui-test", "androidx-compose-ui-testManifest"]
@@ -168,6 +171,9 @@ room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", vers
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-runtime-android = { group = "androidx.compose.runtime", name = "runtime-android", version.ref = "runtimeAndroid" }
+androidx-navigation-runtime-android = { group = "androidx.navigation", name = "navigation-runtime-android", version.ref = "navigationRuntimeAndroid" }
+androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
