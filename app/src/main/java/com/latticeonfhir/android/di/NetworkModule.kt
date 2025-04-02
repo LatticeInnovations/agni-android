@@ -3,7 +3,7 @@ package com.latticeonfhir.android.di
 import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.android.FhirApp.Companion.gson
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
-import com.latticeonfhir.android.data.server.api.AuthenticationApiService
+import com.latticeonfhir.android.auth.data.server.api.AuthenticationApiService
 import com.latticeonfhir.android.data.server.api.CVDApiService
 import com.latticeonfhir.android.data.server.api.DispenseApiService
 import com.latticeonfhir.android.data.server.api.FileUploadApiService
@@ -11,11 +11,11 @@ import com.latticeonfhir.android.data.server.api.LabTestAndMedRecordService
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.android.data.server.api.PrescriptionApiService
 import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
-import com.latticeonfhir.android.data.server.api.SignUpApiService
+import com.latticeonfhir.android.auth.data.server.api.SignUpApiService
 import com.latticeonfhir.android.data.server.api.VitalApiService
 import com.latticeonfhir.android.data.server.api.SymptomsAndDiagnosisService
 import com.latticeonfhir.android.data.server.api.VaccinationApiService
-import com.latticeonfhir.android.utils.constants.AuthenticationConstants.X_ACCESS_TOKEN
+import com.latticeonfhir.android.auth.utils.contants.AuthenticationConstants.X_ACCESS_TOKEN
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import dagger.Module
 import dagger.Provides
@@ -102,12 +102,6 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAuthenticationApiService(retrofit: Retrofit): AuthenticationApiService {
-        return retrofit.create(AuthenticationApiService::class.java)
-    }
-
-    @Provides
-    @Singleton
     fun providePrescriptionApiService(retrofit: Retrofit): PrescriptionApiService {
         return retrofit.create(PrescriptionApiService::class.java)
     }
@@ -122,12 +116,6 @@ object NetworkModule {
     @Singleton
     internal fun provideFileUploadApiService(retrofit: Retrofit): FileUploadApiService {
         return retrofit.create(FileUploadApiService::class.java)
-    }
-
-    @Provides
-    @Singleton
-    internal fun provideSignUpApiService(retrofit: Retrofit): SignUpApiService {
-        return retrofit.create(SignUpApiService::class.java)
     }
 
     @Provides

@@ -6,10 +6,9 @@ import com.latticeonfhir.android.auth.data.server.model.authentication.Otp
 import com.latticeonfhir.android.auth.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.auth.data.server.model.user.UserResponse
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.server.api.AuthenticationApiService
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
+import com.latticeonfhir.android.auth.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import javax.inject.Inject
 
