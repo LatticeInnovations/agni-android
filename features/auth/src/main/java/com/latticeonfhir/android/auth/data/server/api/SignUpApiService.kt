@@ -1,11 +1,11 @@
-package com.latticeonfhir.android.data.server.api
+package com.latticeonfhir.android.auth.data.server.api
 
-import com.latticeonfhir.android.base.server.BaseResponse
-import com.latticeonfhir.android.data.server.model.authentication.Login
-import com.latticeonfhir.android.data.server.model.authentication.Otp
-import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
-import com.latticeonfhir.android.data.server.model.register.Register
-import com.latticeonfhir.android.utils.constants.AuthenticationConstants.X_ACCESS_TOKEN
+import com.latticeonfhir.android.auth.data.server.model.BaseResponse
+import com.latticeonfhir.android.auth.data.server.model.authentication.Login
+import com.latticeonfhir.android.auth.data.server.model.authentication.Otp
+import com.latticeonfhir.android.auth.data.server.model.authentication.TokenResponse
+import com.latticeonfhir.android.auth.data.server.model.register.Register
+import com.latticeonfhir.android.auth.utils.contants.AuthenticationConstants.X_ACCESS_TOKEN
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header

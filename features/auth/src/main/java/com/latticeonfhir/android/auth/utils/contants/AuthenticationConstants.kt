@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.constants
+package com.latticeonfhir.android.auth.utils.contants
 
 object AuthenticationConstants {
 

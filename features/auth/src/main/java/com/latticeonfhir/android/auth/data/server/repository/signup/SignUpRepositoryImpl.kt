@@ -1,15 +1,15 @@
 package com.latticeonfhir.android.auth.data.server.repository.signup
 
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.server.api.SignUpApiService
-import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
-import com.latticeonfhir.android.data.server.model.authentication.Login
-import com.latticeonfhir.android.data.server.model.authentication.Otp
-import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
-import com.latticeonfhir.android.data.server.model.register.Register
+import com.latticeonfhir.android.auth.data.server.api.SignUpApiService
+import com.latticeonfhir.android.auth.data.server.model.authentication.Login
+import com.latticeonfhir.android.auth.data.server.model.authentication.Otp
+import com.latticeonfhir.android.auth.data.server.model.authentication.TokenResponse
+import com.latticeonfhir.android.auth.data.server.model.register.Register
 import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepository
+import com.latticeonfhir.android.auth.utils.converters.server.responsemapper.ApiResponseConverter
+import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import javax.inject.Inject
 
