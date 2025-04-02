@@ -6,13 +6,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
+import com.latticeonfhir.android.auth.data.server.model.authentication.TokenResponse
+import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepository
+import com.latticeonfhir.android.auth.data.server.repository.signup.SignUpRepository
+import com.latticeonfhir.android.auth.utils.contants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
 import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
-import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
-import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
-import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
-import com.latticeonfhir.android.utils.constants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
@@ -27,7 +27,7 @@ class OtpViewModel @Inject constructor(
     application: Application,
     private val authenticationRepository: AuthenticationRepository,
     private val signUpRepository: SignUpRepository
-) : BaseAndroidViewModel(application) {
+) : AndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     val otpValues = List(6) { mutableStateOf("") }
     val focusRequesters = List(6) { FocusRequester() }
