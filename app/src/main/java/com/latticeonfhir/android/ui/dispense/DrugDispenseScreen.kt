@@ -35,8 +35,8 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.DispenseCategoryEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.CustomDialog
-import com.latticeonfhir.android.ui.common.TabRowComposable
+import com.latticeonfhir.android.ui.CustomDialog
+import com.latticeonfhir.android.ui.TabRowComposable
 import com.latticeonfhir.android.ui.dispense.log.DispenseLogScreen
 import com.latticeonfhir.android.ui.dispense.prescription.PrescriptionTabScreen
 import com.latticeonfhir.android.ui.dispense.prescription.ViewRXScreen
@@ -142,7 +142,7 @@ fun DrugDispenseScreen(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    TabRowComposable(
+                    com.latticeonfhir.android.ui.TabRowComposable(
                         viewModel.tabs,
                         pagerState
                     ) { index ->
@@ -177,7 +177,7 @@ fun DrugDispenseScreen(
         }
     }
     if (viewModel.showAddToQueueDialog) {
-        CustomDialog(
+        com.latticeonfhir.android.ui.CustomDialog(
             title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
                 id = R.string.add_to_queue_question
             ),
@@ -194,7 +194,7 @@ fun DrugDispenseScreen(
                         viewModel.appointment!!,
                         updated = {
                             viewModel.showAddToQueueDialog = false
-                            if (viewModel.categoryClicked == DispenseCategoryEnum.PRESCRIBED.value){
+                            if (viewModel.categoryClicked == DispenseCategoryEnum.PRESCRIBED.value) {
                                 coroutineScope.launch {
                                     navController.currentBackStackEntry?.savedStateHandle?.set(
                                         "prescription_id",
@@ -221,7 +221,7 @@ fun DrugDispenseScreen(
                             viewModel.patient!!,
                             addedToQueue = {
                                 viewModel.showAddToQueueDialog = false
-                                if (viewModel.categoryClicked == DispenseCategoryEnum.PRESCRIBED.value){
+                                if (viewModel.categoryClicked == DispenseCategoryEnum.PRESCRIBED.value) {
                                     coroutineScope.launch {
                                         navController.currentBackStackEntry?.savedStateHandle?.set(
                                             "prescription_id",
