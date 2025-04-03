@@ -29,7 +29,7 @@ import com.latticeonfhir.android.ui.common.IdLength
 import com.latticeonfhir.android.ui.common.IdSelectionChip
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.ui.theme.Neutral40
+import com.latticeonfhir.android.theme.Neutral40
 
 @Composable
 fun PatientRegistrationStepTwo(

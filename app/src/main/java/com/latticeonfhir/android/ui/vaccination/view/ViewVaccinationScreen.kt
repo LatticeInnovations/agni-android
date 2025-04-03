@@ -65,10 +65,10 @@ import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.theme.TakenContainer
-import com.latticeonfhir.android.ui.theme.TakenContainerDark
-import com.latticeonfhir.android.ui.theme.TakenLabel
-import com.latticeonfhir.android.ui.theme.TakenLabelDark
+import com.latticeonfhir.android.theme.TakenContainer
+import com.latticeonfhir.android.theme.TakenContainerDark
+import com.latticeonfhir.android.theme.TakenLabel
+import com.latticeonfhir.android.theme.TakenLabelDark
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.formatBytes
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
 import com.latticeonfhir.android.ui.vaccination.utils.VaccinesUtils.numberOfWeeksToLabel

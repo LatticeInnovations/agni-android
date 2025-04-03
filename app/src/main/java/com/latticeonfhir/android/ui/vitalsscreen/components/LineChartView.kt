@@ -23,7 +23,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.latticeonfhir.android.ui.theme.VitalLabel
+import com.latticeonfhir.android.theme.VitalLabel
 import timber.log.Timber
 
 

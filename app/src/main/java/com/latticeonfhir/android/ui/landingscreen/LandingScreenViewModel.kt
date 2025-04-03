@@ -31,8 +31,8 @@ import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.RiskPredictionCharts
 import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
-import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
+import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepository
+import com.latticeonfhir.android.auth.data.server.repository.signup.SignUpRepository
 import com.latticeonfhir.android.service.sync.SyncService
 import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.android.service.workmanager.utils.Delay
@@ -40,8 +40,6 @@ import com.latticeonfhir.android.service.workmanager.utils.Sync
 import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.android.utils.common.Queries.getSearchListWithLastVisited
 import com.latticeonfhir.android.utils.constants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.calculateMinutesToOneThirty
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toLastSyncTime
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse

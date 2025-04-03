@@ -1,8 +1,8 @@
 package com.latticeonfhir.android.service.authentication
 
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
-import com.latticeonfhir.android.utils.constants.AuthenticationConstants.BEARER_TOKEN_BUILDER
-import com.latticeonfhir.android.utils.constants.AuthenticationConstants.X_ACCESS_TOKEN
+import com.latticeonfhir.android.auth.utils.contants.AuthenticationConstants.BEARER_TOKEN_BUILDER
+import com.latticeonfhir.android.auth.utils.contants.AuthenticationConstants.X_ACCESS_TOKEN
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
