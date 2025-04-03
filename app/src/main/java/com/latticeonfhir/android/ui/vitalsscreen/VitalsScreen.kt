@@ -41,7 +41,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -70,7 +69,7 @@ import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.CustomDialog
+import com.latticeonfhir.android.ui.CustomDialog
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.theme.VitalLabel
 import com.latticeonfhir.android.ui.vitalsscreen.components.CustomChip
@@ -313,7 +312,9 @@ private fun ShowDialogs(
     vitalsViewModel: VitalsViewModel, navController: NavController, scope: CoroutineScope
 ) {
     if (vitalsViewModel.showAddToQueueDialog) {
-        CustomDialog(title = if (vitalsViewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
+        com.latticeonfhir.android.ui.CustomDialog(title = if (vitalsViewModel.appointment != null) stringResource(
+            id = R.string.patient_arrived_question
+        ) else stringResource(
             id = R.string.add_to_queue_question
         ),
             text = stringResource(id = R.string.add_to_queue_vital_dialog_description),

@@ -9,7 +9,7 @@ import com.latticeonfhir.android.auth.navigation.authNavGraph
 import com.latticeonfhir.android.auth.navigation.authRoute
 import com.latticeonfhir.android.ui.appointments.AppointmentsScreen
 import com.latticeonfhir.android.ui.appointments.schedule.ScheduleAppointments
-import com.latticeonfhir.android.ui.cvd.CVDRiskAssessmentScreen
+import com.latticeonfhir.android.cvd.ui.CVDRiskAssessmentScreen
 import com.latticeonfhir.android.ui.dispense.DrugDispenseScreen
 import com.latticeonfhir.android.ui.dispense.otc.OTCScreen
 import com.latticeonfhir.android.ui.dispense.prescription.dispenseprescription.DispensePrescriptionScreen
@@ -92,7 +92,11 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
                 navController = navController
             )
         }
-        composable(Screen.CVDRiskAssessmentScreen.route) { CVDRiskAssessmentScreen(navController) }
+        composable(Screen.CVDRiskAssessmentScreen.route) {
+            com.latticeonfhir.android.cvd.ui.CVDRiskAssessmentScreen(
+                navController
+            )
+        }
         composable(Screen.VitalsScreen.route) { VitalsScreen(navController = navController) }
         composable(Screen.AddVitalsScreen.route) { AddVitalsScreen(navController = navController) }
 

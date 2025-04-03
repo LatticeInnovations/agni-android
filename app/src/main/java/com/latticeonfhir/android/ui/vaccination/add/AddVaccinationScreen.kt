@@ -112,7 +112,7 @@ import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecomm
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ManufacturerEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.CustomDialog
+import com.latticeonfhir.android.ui.CustomDialog
 import com.latticeonfhir.android.theme.MissedContainer
 import com.latticeonfhir.android.theme.MissedContainerDark
 import com.latticeonfhir.android.theme.MissedLabel
@@ -424,7 +424,7 @@ fun AddVaccinationScreen(
                 }
 
                 if (viewModel.showOpenSettingsDialog) {
-                    CustomDialog(
+                    com.latticeonfhir.android.ui.CustomDialog(
                         canBeDismissed = false,
                         title = stringResource(id = R.string.permissions_required),
                         text = stringResource(id = R.string.permissions_required_description),

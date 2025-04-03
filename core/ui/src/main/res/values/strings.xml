@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="all_slots_booked">All slots booked</string>
+    <string name="all_slots_booked_desc">Sorry, all appointment slots for today are booked.</string>
+    <string name="okay">Okay</string>
+    <string name="appointment_completed">Appointment for today is completed.</string>
+    <string name="dismiss">Dismiss</string>
+</resources>
