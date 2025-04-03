@@ -387,6 +387,10 @@ android {
 }
 
 dependencies {
+    implementation(projects.theme)
+    implementation(projects.app)
+    implementation(projects.features.auth)
+
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material3.adaptive)

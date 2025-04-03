@@ -23,7 +23,11 @@ dependencyResolutionManagement {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "FHIR-Android"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
 include(":core:model")
 include(":core:database")
 include(":core")
+include(":theme")
+include(":features:auth")

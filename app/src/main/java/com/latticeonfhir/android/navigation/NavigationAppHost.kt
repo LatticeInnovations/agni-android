@@ -5,6 +5,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.latticeonfhir.android.auth.navigation.authNavGraph
+import com.latticeonfhir.android.auth.navigation.authRoute
 import com.latticeonfhir.android.ui.appointments.AppointmentsScreen
 import com.latticeonfhir.android.ui.appointments.schedule.ScheduleAppointments
 import com.latticeonfhir.android.ui.cvd.CVDRiskAssessmentScreen
@@ -18,8 +20,6 @@ import com.latticeonfhir.android.ui.householdmember.searchresult.SearchResult
 import com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.upload.PhotoUploadScreen
 import com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.view.PhotoViewScreen
 import com.latticeonfhir.android.ui.landingscreen.LandingScreen
-import com.latticeonfhir.android.ui.login.OtpScreen
-import com.latticeonfhir.android.ui.login.PhoneEmailScreen
 import com.latticeonfhir.android.ui.patienteditscreen.address.EditPatientAddress
 import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.EditBasicInformation
 import com.latticeonfhir.android.ui.patienteditscreen.identification.EditIdentification
@@ -32,24 +32,35 @@ import com.latticeonfhir.android.ui.prescription.PrescriptionScreen
 import com.latticeonfhir.android.ui.prescription.photo.upload.PrescriptionPhotoUploadScreen
 import com.latticeonfhir.android.ui.prescription.photo.view.PrescriptionPhotoViewScreen
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
-import com.latticeonfhir.android.ui.signup.SignUpPhoneEmailScreen
-import com.latticeonfhir.android.ui.signup.SignUpScreen
-import com.latticeonfhir.android.ui.vitalsscreen.VitalsScreen
-import com.latticeonfhir.android.ui.vitalsscreen.addvitals.AddVitalsScreen
 import com.latticeonfhir.android.ui.symptomsanddiagnosis.SymptomsAndDiagnosisScreen
 import com.latticeonfhir.android.ui.symptomsanddiagnosis.selectsymptoms.SelectSymptomScreen
-import com.latticeonfhir.android.ui.vaccination.error.VaccinationErrorScreen
 import com.latticeonfhir.android.ui.vaccination.VaccinationScreen
 import com.latticeonfhir.android.ui.vaccination.add.AddVaccinationScreen
+import com.latticeonfhir.android.ui.vaccination.error.VaccinationErrorScreen
 import com.latticeonfhir.android.ui.vaccination.view.ViewVaccinationScreen
+import com.latticeonfhir.android.ui.vitalsscreen.VitalsScreen
+import com.latticeonfhir.android.ui.vitalsscreen.addvitals.AddVitalsScreen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun NavigationAppHost(navController: NavController, startDest: String) {
     NavHost(navController = navController as NavHostController, startDestination = startDest) {
-        composable(Screen.PhoneEmailScreen.route) { PhoneEmailScreen(navController) }
-        composable(Screen.SignUpPhoneEmailScreen.route) { SignUpPhoneEmailScreen(navController) }
-        composable(Screen.SignUpScreen.route) { SignUpScreen(navController = navController) }
-        composable(Screen.OtpScreen.route) { OtpScreen(navController) }
+        authNavGraph(
+            navController = navController,
+            onAuthSuccess = {
+                CoroutineScope(Dispatchers.Main).launch {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "loggedIn",
+                        true
+                    )
+                    navController.navigate(Screen.LandingScreen.route) {
+                        popUpTo(authRoute)
+                    }
+                }
+            },
+        )
         composable(Screen.LandingScreen.route) { LandingScreen(navController = navController) }
         composable(Screen.SearchPatientScreen.route) { SearchPatient(navController = navController) }
         composable(Screen.PatientRegistrationScreen.route) { PatientRegistration(navController = navController) }

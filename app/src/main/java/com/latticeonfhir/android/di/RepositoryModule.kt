@@ -42,12 +42,12 @@ import com.latticeonfhir.android.data.local.repository.vaccination.ManufacturerR
 import com.latticeonfhir.android.data.local.repository.vaccination.impl.ImmunizationRecommendationRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.vaccination.impl.ImmunizationRepositoryImpl
 import com.latticeonfhir.android.data.local.repository.vaccination.impl.ManufacturerRepositoryImpl
-import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepository
-import com.latticeonfhir.android.data.server.repository.authentication.AuthenticationRepositoryImpl
+import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepository
+import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepositoryImpl
-import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
-import com.latticeonfhir.android.data.server.repository.signup.SignUpRepositoryImpl
+import com.latticeonfhir.android.auth.data.server.repository.signup.SignUpRepository
+import com.latticeonfhir.android.auth.data.server.repository.signup.SignUpRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
 import com.latticeonfhir.android.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepositoryImpl
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
