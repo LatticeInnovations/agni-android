@@ -45,6 +45,10 @@ class AndroidRoomConventionPlugin : Plugin<Project> {
                 "implementation"(libs.findLibrary("room.runtime").get())
                 "implementation"(libs.findLibrary("room.ktx").get())
                 "ksp"(libs.findLibrary("room.compiler").get())
+
+                //SQL Cipher
+                "implementation"(libs.findLibrary("sqlcipher").get())
+                "implementation"(libs.findLibrary("sqlite").get())
             }
         }
     }

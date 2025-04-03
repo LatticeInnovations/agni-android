@@ -19,5 +19,11 @@ dependencyResolutionManagement {
         maven { url = URI("https://jitpack.io") }
     }
 }
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 rootProject.name = "FHIR-Android"
 include(":app")
+include(":core:model")
+include(":core:database")
+include(":core")
