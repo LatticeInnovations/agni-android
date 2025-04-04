@@ -39,7 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.common.TabRowComposable
+import com.latticeonfhir.android.ui.TabRowComposable
 import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants
@@ -138,7 +138,7 @@ fun AppointmentsScreen(
         content = {
             Box(modifier = Modifier.padding(it)) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    TabRowComposable(
+                    com.latticeonfhir.android.ui.TabRowComposable(
                         viewModel.tabs,
                         pagerState
                     ) { index ->
