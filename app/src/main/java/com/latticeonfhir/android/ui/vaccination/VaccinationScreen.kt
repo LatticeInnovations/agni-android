@@ -52,8 +52,8 @@ import com.latticeonfhir.android.data.local.enums.VaccineErrorTypeEnum
 import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.CustomDialog
-import com.latticeonfhir.android.ui.common.TabRowComposable
+import com.latticeonfhir.android.ui.CustomDialog
+import com.latticeonfhir.android.ui.TabRowComposable
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.ui.prescription.photo.view.AppointmentCompletedDialog
 import com.latticeonfhir.android.theme.TakenLabel
@@ -159,7 +159,7 @@ fun VaccinationScreen(
                     }
                 } else {
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        TabRowComposable(
+                        com.latticeonfhir.android.ui.TabRowComposable(
                             viewModel.tabs,
                             pagerState
                         ) { index ->
@@ -233,7 +233,7 @@ fun VaccinationScreen(
     }
 
     if (viewModel.showAddToQueueDialog) {
-        CustomDialog(
+        com.latticeonfhir.android.ui.CustomDialog(
             title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
                 id = R.string.add_to_queue_question
             ),

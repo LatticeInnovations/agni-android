@@ -48,7 +48,7 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.TabRowComposable
+import com.latticeonfhir.android.ui.TabRowComposable
 import com.latticeonfhir.android.ui.householdmember.members.MembersScreen
 import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
@@ -131,7 +131,7 @@ fun HouseholdMembersScreen(
         content = {
             Box(modifier = Modifier.padding(it)) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    TabRowComposable(
+                    com.latticeonfhir.android.ui.TabRowComposable(
                         viewModel.tabs,
                         pagerState
                     ) { index ->

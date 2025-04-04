@@ -46,7 +46,7 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.CustomDialog
+import com.latticeonfhir.android.ui.CustomDialog
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.ui.symptomsanddiagnosis.components.SymptomsAndDiagnosisCard
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
@@ -216,7 +216,9 @@ fun ShowDialogs(
     viewModel: SymptomsAndDiagnosisViewModel, navController: NavController, scope: CoroutineScope
 ) {
     if (viewModel.showAddToQueueDialog) {
-        CustomDialog(title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
+        com.latticeonfhir.android.ui.CustomDialog(title = if (viewModel.appointment != null) stringResource(
+            id = R.string.patient_arrived_question
+        ) else stringResource(
             id = R.string.add_to_queue_question
         ),
             text = stringResource(id = R.string.add_to_queue_vital_dialog_description),

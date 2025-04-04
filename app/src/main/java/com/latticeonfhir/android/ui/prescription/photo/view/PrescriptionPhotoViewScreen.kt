@@ -114,7 +114,7 @@ import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhoto
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.CustomDialog
+import com.latticeonfhir.android.ui.CustomDialog
 import com.latticeonfhir.android.ui.common.DisplaySyncStatus
 import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.android.ui.main.MainActivity
@@ -335,7 +335,7 @@ fun PrescriptionPhotoViewScreen(
         }
     )
     if (viewModel.showDeleteDialog) {
-        CustomDialog(
+        com.latticeonfhir.android.ui.CustomDialog(
             title = stringResource(id = R.string.discard_prescription),
             text = stringResource(id = R.string.discard_prescription_description),
             dismissBtnText = stringResource(id = R.string.no_go_back),
@@ -392,7 +392,7 @@ fun PrescriptionPhotoViewScreen(
         )
     }
     if (viewModel.showAddToQueueDialog) {
-        CustomDialog(
+        com.latticeonfhir.android.ui.CustomDialog(
             title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
                 id = R.string.add_to_queue_question
             ),
@@ -430,7 +430,7 @@ fun PrescriptionPhotoViewScreen(
         }
     }
     if (viewModel.showOpenSettingsDialog) {
-        CustomDialog(
+        com.latticeonfhir.android.ui.CustomDialog(
             canBeDismissed = false,
             title = stringResource(id = R.string.permissions_required),
             text = stringResource(id = R.string.permissions_required_description),

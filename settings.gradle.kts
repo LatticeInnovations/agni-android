@@ -1,5 +1,14 @@
 import java.net.URI
 
+include(":core:utils")
+
+
+include(":core:ui")
+
+
+include(":features:cvd")
+
+
 pluginManagement {
     includeBuild("build-logic")
     repositories {
