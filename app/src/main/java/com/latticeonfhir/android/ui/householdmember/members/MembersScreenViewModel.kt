@@ -19,7 +19,7 @@ import javax.inject.Inject
 class MembersScreenViewModel @Inject constructor(
     private val relationRepository: RelationRepository,
     private val patientRepository: PatientRepository
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var loading by mutableStateOf(true)
     var relationsList by mutableStateOf(listOf<RelationEntity>())
     private var relativesIdList = mutableSetOf<String>()

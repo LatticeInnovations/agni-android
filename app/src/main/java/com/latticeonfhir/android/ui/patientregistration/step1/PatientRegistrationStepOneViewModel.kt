@@ -10,7 +10,7 @@ import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger
 
-class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObserver {
+class PatientRegistrationStepOneViewModel : com.latticeonfhir.android.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
     internal var isLaunched by mutableStateOf(false)
 
     internal val onlyNumbers = Regex("^\\d+\$")

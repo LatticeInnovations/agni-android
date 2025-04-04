@@ -23,7 +23,7 @@ import javax.inject.Inject
 class ConnectPatientViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val relationRepository: RelationRepository
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var discardAllRelationDialog by mutableStateOf(false)

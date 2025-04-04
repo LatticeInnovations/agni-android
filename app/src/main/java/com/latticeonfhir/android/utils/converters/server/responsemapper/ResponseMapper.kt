@@ -17,16 +17,16 @@ sealed class ResponseMapper<out T> {
         }
 
         fun <T> create(
-            response: Response<BaseResponse<T>>,
+            response: Response<com.latticeonfhir.android.base.server.BaseResponse<T>>,
             paginated: Boolean
         ): ResponseMapper<T> {
             return if (response.isSuccessful) {
                 mapData(response, paginated)
             } else {
                 val gson = GsonBuilder().setPrettyPrinting().create()
-                val collectionType = object : TypeToken<BaseResponse<T?>>() {}.type
+                val collectionType = object : TypeToken<com.latticeonfhir.android.base.server.BaseResponse<T?>>() {}.type
                 try {
-                    val data: BaseResponse<Any?> =
+                    val data: com.latticeonfhir.android.base.server.BaseResponse<Any?> =
                         gson.fromJson(response.errorBody()?.string(), collectionType)
                     ApiErrorResponse(response.code(), data.message)
                 } catch (e: JsonSyntaxException) {
@@ -37,7 +37,7 @@ sealed class ResponseMapper<out T> {
         }
 
         private fun <T> mapData(
-            response: Response<BaseResponse<T>>,
+            response: Response<com.latticeonfhir.android.base.server.BaseResponse<T>>,
             paginated: Boolean
         ): ResponseMapper<T> {
             return if (response.body()?.status != 0) {

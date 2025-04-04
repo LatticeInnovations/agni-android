@@ -19,28 +19,28 @@ interface LabTestAndMedRecordService {
     suspend fun getListData(
         @Path("endPoint") endPoint: String,
         @QueryMap(encoded = true) map: Map<String, String>?
-    ): Response<BaseResponse<List<LabTestResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<LabTestResponse>>>
 
     @GET("{endPoint}")
     suspend fun getListMedicalRecordData(
         @Path("endPoint") endPoint: String, @QueryMap(encoded = true) map: Map<String, String>?
-    ): Response<BaseResponse<List<MedicalRecordResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<MedicalRecordResponse>>>
 
     @POST("sync/{endPoint}")
     @JvmSuppressWildcards
     suspend fun createData(
         @Path("endPoint") endPoint: String,
         @Body labOrMed: List<Any>
-    ): Response<BaseResponse<List<CreateResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 
     @PATCH("sync/DocumentReference")
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
         @Body patchLogs: List<Map<String, Any>>
-    ): Response<BaseResponse<List<CreateResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 
     @HTTP(method = "DELETE", path = "sync/{endPoint}", hasBody = true)
     @JvmSuppressWildcards
     suspend fun deleteLabOrMedicalRecordPhoto(
-        @Path("endPoint") endPoint: String,@Body patchLogs: List<Any>): Response<BaseResponse<List<CreateResponse>>>
+        @Path("endPoint") endPoint: String,@Body patchLogs: List<Any>): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 }

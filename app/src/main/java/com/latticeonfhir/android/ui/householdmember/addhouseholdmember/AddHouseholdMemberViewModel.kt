@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddHouseholdMemberViewModel @Inject constructor(
     private val searchRepository: SearchRepository
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
 

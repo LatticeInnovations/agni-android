@@ -45,7 +45,7 @@ class PrescriptionPhotoUploadViewModel @Inject constructor(
     private val downloadedFileRepository: DownloadedFileRepository,
     private val scheduleRepository: ScheduleRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
-) : BaseAndroidViewModel(application) {
+) : com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel(application) {
 
     var patient: PatientResponse? by mutableStateOf(null)
     var isLaunched by mutableStateOf(false)

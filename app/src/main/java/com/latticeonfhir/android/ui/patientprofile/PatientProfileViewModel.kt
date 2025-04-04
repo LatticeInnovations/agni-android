@@ -14,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PatientProfileViewModel @Inject constructor(
     private val patientRepository: PatientRepository
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
 
     internal var isLaunched by mutableStateOf(false)
     internal var id by mutableStateOf("")

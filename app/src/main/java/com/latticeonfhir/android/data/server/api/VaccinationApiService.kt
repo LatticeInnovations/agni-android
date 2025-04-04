@@ -17,14 +17,14 @@ import retrofit2.http.QueryMap
 interface VaccinationApiService {
 
     @POST("sync/$IMMUNIZATION")
-    suspend fun postImmunization(@Body immunizationResponse: List<ImmunizationResponse>): Response<BaseResponse<List<CreateResponse>>>
+    suspend fun postImmunization(@Body immunizationResponse: List<ImmunizationResponse>): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 
     @GET(IMMUNIZATION)
-    suspend fun getAllImmunization(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<ImmunizationResponse>>>
+    suspend fun getAllImmunization(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<ImmunizationResponse>>>
 
     @GET(IMMUNIZATION_RECOMMENDATION)
-    suspend fun getAllImmunizationRecommendation(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<ImmunizationRecommendationResponse>>>
+    suspend fun getAllImmunizationRecommendation(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<ImmunizationRecommendationResponse>>>
 
     @GET(VACCINE_MANUFACTURER)
-    suspend fun getAllManufacturers(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<ManufacturerResponse>>>
+    suspend fun getAllManufacturers(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<ManufacturerResponse>>>
 }

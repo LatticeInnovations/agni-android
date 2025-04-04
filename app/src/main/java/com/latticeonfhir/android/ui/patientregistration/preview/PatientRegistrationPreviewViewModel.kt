@@ -29,7 +29,7 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     private val identifierRepository: IdentifierRepository,
     private val relationRepository: RelationRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var patientResponse by mutableStateOf<PatientResponse?>(null)
 

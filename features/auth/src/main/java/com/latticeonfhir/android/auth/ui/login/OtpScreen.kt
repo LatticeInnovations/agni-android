@@ -48,10 +48,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.auth.R
 import com.latticeonfhir.android.auth.navigation.Screen
-import com.latticeonfhir.android.auth.ui.common.ButtonLoader
-import com.latticeonfhir.android.auth.utils.regex.OnlyNumberRegex.onlyNumbers
 import com.latticeonfhir.android.ui.main.MainActivity
 import com.latticeonfhir.android.utils.network.CheckNetwork
+import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -232,7 +231,7 @@ fun OtpScreen(
                             .fillMaxWidth()
                             .testTag("BUTTON")
                     ) {
-                        if (viewModel.isVerifying) ButtonLoader()
+                        if (viewModel.isVerifying) com.latticeonfhir.android.ui.ButtonLoader()
                         else {
                             Text(
                                 text = stringResource(id = R.string.verify)
@@ -310,7 +309,7 @@ fun ResendButton(
 ) {
     if (viewModel.isResending) {
         Spacer(modifier = Modifier.height(15.dp))
-        ButtonLoader()
+        com.latticeonfhir.android.ui.ButtonLoader()
         Spacer(modifier = Modifier.height(15.dp))
     } else TextButton(
         onClick = {

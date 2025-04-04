@@ -35,7 +35,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.auth.R
 import com.latticeonfhir.android.auth.navigation.Screen
-import com.latticeonfhir.android.auth.ui.common.ButtonLoader
 import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -93,7 +92,7 @@ fun PhoneEmailScreen(
                             .testTag("BUTTON")
                     ) {
                         if (!viewModel.isAuthenticating) Text(text = stringResource(id = R.string.send_me_otp))
-                        else ButtonLoader()
+                        else com.latticeonfhir.android.ui.ButtonLoader()
                     }
                     if (viewModel.signUpButtonIsVisible) {
                         Row(

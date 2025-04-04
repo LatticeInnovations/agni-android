@@ -8,7 +8,7 @@ import com.latticeonfhir.android.auth.data.server.model.user.UserResponse
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.auth.utils.converters.server.responsemapper.ApiResponseConverter
+import com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import javax.inject.Inject
 
@@ -18,7 +18,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
 ) : AuthenticationRepository {
 
     override suspend fun login(userContact: String): ResponseMapper<String?> {
-        return ApiResponseConverter.convert(
+        return com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter.convert(
             authenticationApiService.login(
                 Login(
                     userContact = userContact
@@ -28,7 +28,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun validateOtp(userContact: String, otp: Int): ResponseMapper<TokenResponse> {
-        return ApiResponseConverter.convert(
+        return com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter.convert(
             authenticationApiService.validateOtp(
                 Otp(
                     userContact = userContact,
@@ -44,7 +44,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getUserDetails(): ResponseMapper<UserResponse> {
-        return ApiResponseConverter.convert(
+        return com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter.convert(
             authenticationApiService.getUserDetails()
         ).apply {
             if (this is ApiEndResponse) {
@@ -68,7 +68,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     override suspend fun deleteAccount(tempToken: String): ResponseMapper<String?> {
         val deleteUserResponse = authenticationApiService.deleteUserDetails(tempToken)
-        return ApiResponseConverter.convert(
+        return com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter.convert(
             deleteUserResponse
         ).run {
             if (this is ApiEmptyResponse) {

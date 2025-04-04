@@ -27,7 +27,7 @@ class SuggestionsScreenViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val relationRepository: RelationRepository,
     private val patientDao: PatientDao
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var loading by mutableStateOf(true)
     var membersList by mutableStateOf(listOf<PatientResponse>())
 

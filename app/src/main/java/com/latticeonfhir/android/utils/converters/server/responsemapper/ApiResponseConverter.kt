@@ -6,7 +6,7 @@ import retrofit2.Response
 object ApiResponseConverter {
 
     fun <T> convert(
-        response: Response<BaseResponse<T>>,
+        response: Response<com.latticeonfhir.android.base.server.BaseResponse<T>>,
         paginated: Boolean = false
     ): ResponseMapper<T> {
         return ResponseMapper.create(response, paginated)
