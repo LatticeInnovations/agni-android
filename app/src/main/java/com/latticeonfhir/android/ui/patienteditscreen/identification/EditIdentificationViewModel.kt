@@ -28,7 +28,7 @@ class EditIdentificationViewModel @Inject constructor(
     private val patientRepository: PatientRepository,
     private val genericRepository: GenericRepository,
     private val identifierRepository: IdentifierRepository
-) : BaseViewModel(), DefaultLifecycleObserver {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
 

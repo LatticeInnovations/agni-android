@@ -50,7 +50,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     private val scheduleRepository: ScheduleRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository,
     private val preferenceRepository: PreferenceRepository
-) : BaseAndroidViewModel(application) {
+) : com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
     var isFabSelected by mutableStateOf(false)

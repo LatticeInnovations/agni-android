@@ -71,7 +71,7 @@ class LandingScreenViewModel @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
     private val fhirAppDatabase: FhirAppDatabase,
     private val riskPredictionChartRepository: RiskPredictionChartRepository
-) : BaseAndroidViewModel(application) {
+) : com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
     private val syncService: SyncService by lazy { (application as FhirApp).syncService }

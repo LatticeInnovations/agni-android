@@ -43,7 +43,7 @@ class AddVitalsViewModel @Inject constructor(
     private val scheduleRepository: ScheduleRepository,
     private val preferenceRepository: PreferenceRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository,
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
     var vitalLocal by mutableStateOf<VitalLocal?>(null)

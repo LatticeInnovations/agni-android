@@ -17,17 +17,17 @@ interface VitalApiService {
     suspend fun getListData(
         @Path("endPoint") endPoint: String,
         @QueryMap(encoded = true) map: Map<String, String>?
-    ): Response<BaseResponse<List<VitalResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<VitalResponse>>>
 
     @POST("sync/{endPoint}")
     suspend fun createData(
         @Path("endPoint") endPoint: String, @Body vitals: List<VitalLocal>
-    ): Response<BaseResponse<List<CreateResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 
     @PATCH("sync/{endPoint}")
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
         @Path("endPoint") endPoint: String,
         @Body patchLogs: List<Map<String, Any>>
-    ): Response<BaseResponse<List<CreateResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 }

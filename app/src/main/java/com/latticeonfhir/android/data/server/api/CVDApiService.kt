@@ -14,16 +14,16 @@ import retrofit2.http.QueryMap
 interface CVDApiService {
 
     @POST("sync/CVD")
-    suspend fun createCVD(@Body cvdResponse: List<CVDResponse>): Response<BaseResponse<List<CreateResponse>>>
+    suspend fun createCVD(@Body cvdResponse: List<CVDResponse>): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 
     @GET("CVD")
     suspend fun getCVD(
         @QueryMap(encoded = true) map: Map<String, String>?
-    ): Response<BaseResponse<List<CVDResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CVDResponse>>>
 
     @PATCH("sync/CVD")
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
         @Body patchLogs: List<Map<String, Any>>
-    ): Response<BaseResponse<List<CreateResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 }
