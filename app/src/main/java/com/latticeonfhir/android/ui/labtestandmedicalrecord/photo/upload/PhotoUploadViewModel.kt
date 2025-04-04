@@ -53,7 +53,7 @@ class PhotoUploadViewModel @Inject constructor(
     private val scheduleRepository: ScheduleRepository,
     private val preferenceRepository: PreferenceRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository,
-) : BaseAndroidViewModel(application) {
+) : com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel(application) {
 
     var patient: PatientResponse? by mutableStateOf(null)
     var isLaunched by mutableStateOf(false)

@@ -44,7 +44,7 @@ class QueueViewModel @Inject constructor(
     private val scheduleRepository: ScheduleRepository,
     private val genericRepository: GenericRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
-) : BaseAndroidViewModel(application) {
+) : com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel(application) {
 
     // queue screen
     var isLaunched by mutableStateOf(false)

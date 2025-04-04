@@ -7,9 +7,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.latticeonfhir.android.auth.navigation.authNavGraph
 import com.latticeonfhir.android.auth.navigation.authRoute
+import com.latticeonfhir.android.cvd.ui.CVDRiskAssessmentScreen
+import com.latticeonfhir.android.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
 import com.latticeonfhir.android.ui.appointments.AppointmentsScreen
 import com.latticeonfhir.android.ui.appointments.schedule.ScheduleAppointments
-import com.latticeonfhir.android.cvd.ui.CVDRiskAssessmentScreen
 import com.latticeonfhir.android.ui.dispense.DrugDispenseScreen
 import com.latticeonfhir.android.ui.dispense.otc.OTCScreen
 import com.latticeonfhir.android.ui.dispense.prescription.dispenseprescription.DispensePrescriptionScreen
@@ -32,8 +33,6 @@ import com.latticeonfhir.android.ui.prescription.PrescriptionScreen
 import com.latticeonfhir.android.ui.prescription.photo.upload.PrescriptionPhotoUploadScreen
 import com.latticeonfhir.android.ui.prescription.photo.view.PrescriptionPhotoViewScreen
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
-import com.latticeonfhir.android.ui.symptomsanddiagnosis.SymptomsAndDiagnosisScreen
-import com.latticeonfhir.android.ui.symptomsanddiagnosis.selectsymptoms.SelectSymptomScreen
 import com.latticeonfhir.android.ui.vaccination.VaccinationScreen
 import com.latticeonfhir.android.ui.vaccination.add.AddVaccinationScreen
 import com.latticeonfhir.android.ui.vaccination.error.VaccinationErrorScreen
@@ -100,8 +99,8 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.VitalsScreen.route) { VitalsScreen(navController = navController) }
         composable(Screen.AddVitalsScreen.route) { AddVitalsScreen(navController = navController) }
 
-        composable(Screen.SymptomsAndDiagnosisScreen.route) { SymptomsAndDiagnosisScreen(navController = navController) }
-        composable(Screen.AddSymptomsScreen.route) { SelectSymptomScreen(navController = navController) }
+        symptomsAndDiagnosisNavGraph(navController)
+
         composable(Screen.LabAndMedPhotoUploadScreen.route) { PhotoUploadScreen(navController = navController) }
         composable(Screen.LabAndMedRecordPhotoViewScreen.route) { PhotoViewScreen(navController = navController) }
 

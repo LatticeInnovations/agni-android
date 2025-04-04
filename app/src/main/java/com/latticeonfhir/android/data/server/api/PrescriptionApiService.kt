@@ -19,26 +19,26 @@ import retrofit2.http.QueryMap
 interface PrescriptionApiService {
 
     @GET("Medication")
-    suspend fun getAllMedications(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<MedicationResponse>>>
+    suspend fun getAllMedications(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<MedicationResponse>>>
 
     @POST("sync/{endPoint}")
     suspend fun postPrescriptionRelatedData(
         @Path("endPoint") endPoint: String,
         @Body prescriptionData: List<Any>
-    ): Response<BaseResponse<List<CreateResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 
     @GET("MedicationRequest")
-    suspend fun getPastPrescription(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<PrescriptionResponse>>>
+    suspend fun getPastPrescription(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<PrescriptionResponse>>>
 
     @GET("PrescriptionFile")
-    suspend fun getPastPhotoPrescription(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<PrescriptionPhotoResponse>>>
+    suspend fun getPastPhotoPrescription(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<PrescriptionPhotoResponse>>>
 
     @GET("sct/medTime")
-    suspend fun getMedicineTime(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<MedicineTimeResponse>>>
+    suspend fun getMedicineTime(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<MedicineTimeResponse>>>
 
     @PATCH("sync/DocumentReference")
-    suspend fun patchListOfChanges(@Body patchLogs: List<Any>): Response<BaseResponse<List<CreateResponse>>>
+    suspend fun patchListOfChanges(@Body patchLogs: List<Any>): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 
     @HTTP(method = "DELETE", path = "sync/PrescriptionFile", hasBody = true)
-    suspend fun deletePrescriptionPhoto(@Body patchLogs: List<Any>): Response<BaseResponse<List<CreateResponse>>>
+    suspend fun deletePrescriptionPhoto(@Body patchLogs: List<Any>): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 }

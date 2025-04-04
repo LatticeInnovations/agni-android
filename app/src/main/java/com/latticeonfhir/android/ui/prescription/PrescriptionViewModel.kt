@@ -48,7 +48,7 @@ class PrescriptionViewModel @Inject constructor(
     private val dispenseRepository: DispenseRepository,
     private val scheduleRepository: ScheduleRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var isSearching by mutableStateOf(false)

@@ -82,7 +82,7 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.auth.utils.converters.server.responsemapper.ApiResponseConverter
+import com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter
 import java.util.Date
 import java.util.UUID
 
@@ -227,7 +227,7 @@ private suspend fun getRelativeId(
     patientApiService: PatientApiService
 ): String {
     var relativeId = ""
-    ApiResponseConverter.convert(
+    com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter.convert(
         patientApiService.getListData(
             PATIENT,
             mapOf(Pair(QueryParameters.ID, relativeFhirId))

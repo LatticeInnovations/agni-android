@@ -17,28 +17,28 @@ import retrofit2.http.QueryMap
 interface SymptomsAndDiagnosisService {
 
     @GET("ValueSet?name=symptomsList")
-    suspend fun getSymptoms(): Response<BaseResponse<List<Symptoms>>>
+    suspend fun getSymptoms(): Response<com.latticeonfhir.android.base.server.BaseResponse<List<Symptoms>>>
 
     @GET("ValueSet?name=diagnosisList")
-    suspend fun getDiagnosis(): Response<BaseResponse<List<Diagnosis>>>
+    suspend fun getDiagnosis(): Response<com.latticeonfhir.android.base.server.BaseResponse<List<Diagnosis>>>
 
     @GET("{endPoint}")
     suspend fun getListData(
         @Path("endPoint") endPoint: String,
         @QueryMap(encoded = true) map: Map<String, String>?
-    ): Response<BaseResponse<List<SymptomsAndDiagnosisResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<SymptomsAndDiagnosisResponse>>>
 
     @POST("sync/{endPoint}")
     suspend fun createData(
         @Path("endPoint") endPoint: String,
         @Body symDiag: List<SymptomsAndDiagnosisData>
-    ): Response<BaseResponse<List<CreateResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 
     @PATCH("sync/{endPoint}")
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
         @Path("endPoint") endPoint: String,
         @Body patchLogs: List<Map<String, Any>>
-    ): Response<BaseResponse<List<CreateResponse>>>
+    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 
 }

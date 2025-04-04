@@ -15,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FillDetailsViewModel @Inject constructor(
     private val medicationRepository: MedicationRepository
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var formulationsList by mutableStateOf(listOf<MedicationResponse>())
     var medSelected by mutableStateOf("")

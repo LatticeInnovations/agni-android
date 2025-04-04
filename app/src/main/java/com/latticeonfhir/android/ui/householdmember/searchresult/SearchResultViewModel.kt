@@ -30,7 +30,7 @@ class SearchResultViewModel @Inject constructor(
     private val searchRepository: SearchRepository,
     private val relationRepository: RelationRepository,
     private val appointmentRepository: AppointmentRepository
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var patientFrom by mutableStateOf<PatientResponse?>(null)

@@ -38,7 +38,7 @@ class PatientLandingScreenViewModel @Inject constructor(
     private val prescriptionRepository: PrescriptionRepository,
     private val cvdAssessmentRepository: CVDAssessmentRepository,
     private val immunizationRecommendationRepository: ImmunizationRecommendationRepository
-) : BaseAndroidViewModel(application) {
+) : com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
 

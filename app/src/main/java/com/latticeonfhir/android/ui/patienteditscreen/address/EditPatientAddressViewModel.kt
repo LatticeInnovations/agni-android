@@ -21,7 +21,7 @@ import javax.inject.Inject
 class EditPatientAddressViewModel @Inject constructor(
     val patientRepository: PatientRepository,
     val genericRepository: GenericRepository
-) : BaseViewModel(), DefaultLifecycleObserver {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
 
