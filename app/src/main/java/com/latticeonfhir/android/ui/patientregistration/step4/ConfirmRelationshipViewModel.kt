@@ -23,7 +23,7 @@ class ConfirmRelationshipViewModel @Inject constructor(
     private val relationRepository: RelationRepository,
     private val patientRepository: PatientRepository,
     private val genericRepository: GenericRepository
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var discardAllRelationDialog by mutableStateOf(false)

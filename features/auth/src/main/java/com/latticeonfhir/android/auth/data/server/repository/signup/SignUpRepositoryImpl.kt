@@ -6,7 +6,7 @@ import com.latticeonfhir.android.auth.data.server.model.authentication.Otp
 import com.latticeonfhir.android.auth.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.auth.data.server.model.register.Register
 import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepository
-import com.latticeonfhir.android.auth.utils.converters.server.responsemapper.ApiResponseConverter
+import com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
@@ -23,7 +23,7 @@ class SignUpRepositoryImpl @Inject constructor(
         userContact: String,
         type: RegisterTypeEnum
     ): ResponseMapper<String?> {
-        return ApiResponseConverter.convert(
+        return com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter.convert(
             signUpApiService.verification(
                 login = Login(
                     userContact = userContact,
@@ -38,7 +38,7 @@ class SignUpRepositoryImpl @Inject constructor(
         otp: Int,
         type: RegisterTypeEnum
     ): ResponseMapper<TokenResponse> {
-        return ApiResponseConverter.convert(
+        return com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter.convert(
             signUpApiService.verificationOtp(
                 otp = Otp(
                     userContact = userContact,
@@ -53,7 +53,7 @@ class SignUpRepositoryImpl @Inject constructor(
         register: Register,
         tempAuthToken: String
     ): ResponseMapper<TokenResponse> {
-        return ApiResponseConverter.convert(
+        return com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter.convert(
             signUpApiService.register(tempAuthToken, register)
         ).apply {
             if (this is ApiEndResponse) {

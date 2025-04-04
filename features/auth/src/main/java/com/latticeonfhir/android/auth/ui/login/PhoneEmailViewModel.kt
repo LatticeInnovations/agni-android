@@ -3,7 +3,10 @@ package com.latticeonfhir.android.auth.ui.login
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepository
+import com.latticeonfhir.android.auth.utils.contants.ErrorConstants.USER_DOES_NOT_EXIST
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
@@ -23,7 +26,7 @@ class PhoneEmailViewModel @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
     private val preferenceRepository: PreferenceRepository,
     private val fhirAppDatabase: FhirAppDatabase
-) : BaseViewModel() {
+) : ViewModel() {
     var isLaunched by mutableStateOf(false)
     var inputValue by mutableStateOf("")
     private var isInputInvalid by mutableStateOf(true)

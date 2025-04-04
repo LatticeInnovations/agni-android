@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 
-class HouseholdMemberViewModel : BaseViewModel() {
+class HouseholdMemberViewModel : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     val tabs = listOf("Members", "Suggestions")

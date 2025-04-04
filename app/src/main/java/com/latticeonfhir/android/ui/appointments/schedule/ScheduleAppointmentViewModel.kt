@@ -41,7 +41,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
     private val preferenceRepository: PreferenceRepository,
     private val genericRepository: GenericRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var showDatePicker by mutableStateOf(false)
     var selectedDate by mutableStateOf(Date().tomorrow())

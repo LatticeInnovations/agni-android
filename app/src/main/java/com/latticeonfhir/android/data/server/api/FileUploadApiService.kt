@@ -21,5 +21,5 @@ interface FileUploadApiService {
 
     @Multipart
     @POST("upload/file")
-    suspend fun uploadFile(@Part file: List<MultipartBody.Part>): Response<BaseResponse<FilesResponse>>
+    suspend fun uploadFile(@Part file: List<MultipartBody.Part>): Response<com.latticeonfhir.android.base.server.BaseResponse<FilesResponse>>
 }

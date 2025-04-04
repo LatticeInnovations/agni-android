@@ -1,5 +1,11 @@
 import java.net.URI
 
+include(":core:base")
+
+
+include(":features:symptomsanddiagnosis")
+
+
 include(":core:utils")
 
 

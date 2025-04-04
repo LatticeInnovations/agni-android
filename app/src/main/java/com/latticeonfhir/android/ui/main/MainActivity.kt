@@ -32,7 +32,7 @@ import timber.log.Timber
 import java.util.regex.Pattern
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity() {
+class MainActivity : com.latticeonfhir.android.base.activity.BaseActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
     var otp by mutableStateOf("")

@@ -30,7 +30,7 @@ class AppointmentsScreenViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val scheduleRepository: ScheduleRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
-) : BaseViewModel() {
+) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var patient by mutableStateOf<PatientResponse?>(null)

@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 
-class PatientRegistrationStepTwoViewModel : BaseViewModel(), DefaultLifecycleObserver {
+class PatientRegistrationStepTwoViewModel : com.latticeonfhir.android.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
 
     val maxPassportIdLength = 8

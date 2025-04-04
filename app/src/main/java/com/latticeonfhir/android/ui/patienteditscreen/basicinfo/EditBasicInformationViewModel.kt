@@ -31,7 +31,7 @@ class EditBasicInformationViewModel @Inject constructor(
     val genericRepository: GenericRepository,
     val immunizationRecommendationRepository: ImmunizationRecommendationRepository
 ) :
-    BaseViewModel(), DefaultLifecycleObserver {
+    com.latticeonfhir.android.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
 

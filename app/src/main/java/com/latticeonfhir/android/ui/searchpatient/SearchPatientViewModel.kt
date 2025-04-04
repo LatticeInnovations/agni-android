@@ -11,7 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchPatientViewModel @Inject constructor() : BaseViewModel() {
+class SearchPatientViewModel @Inject constructor() : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
     val onlyNumbers = Regex("^\\d+\$")
     var isLaunched by mutableStateOf(false)
     var fromHouseholdMember by mutableStateOf(false)

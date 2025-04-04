@@ -409,6 +409,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.guava)
     implementation(libs.coil.kt)
     implementation(libs.kotlinx.serialization.json)
+    implementation(project(":features:symptomsanddiagnosis"))
 
     ksp(libs.hilt.compiler)
 
