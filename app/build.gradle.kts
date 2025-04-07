@@ -390,6 +390,8 @@ dependencies {
     implementation(projects.theme)
     implementation(projects.app)
     implementation(projects.features.auth)
+    implementation(projects.features.symptomsanddiagnosis)
+    implementation(projects.features.vaccination)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -409,7 +411,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.guava)
     implementation(libs.coil.kt)
     implementation(libs.kotlinx.serialization.json)
-    implementation(project(":features:symptomsanddiagnosis"))
 
     ksp(libs.hilt.compiler)
 

@@ -33,12 +33,9 @@ import com.latticeonfhir.android.ui.prescription.PrescriptionScreen
 import com.latticeonfhir.android.ui.prescription.photo.upload.PrescriptionPhotoUploadScreen
 import com.latticeonfhir.android.ui.prescription.photo.view.PrescriptionPhotoViewScreen
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
-import com.latticeonfhir.android.ui.vaccination.VaccinationScreen
-import com.latticeonfhir.android.ui.vaccination.add.AddVaccinationScreen
-import com.latticeonfhir.android.ui.vaccination.error.VaccinationErrorScreen
-import com.latticeonfhir.android.ui.vaccination.view.ViewVaccinationScreen
 import com.latticeonfhir.android.ui.vitalsscreen.VitalsScreen
 import com.latticeonfhir.android.ui.vitalsscreen.addvitals.AddVitalsScreen
+import com.latticeonfhir.android.vaccination.navigation.vaccinationNavGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -108,9 +105,6 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.DispensePrescriptionScreen.route) { DispensePrescriptionScreen(navController = navController) }
         composable(Screen.OTCScreen.route) { OTCScreen(navController = navController) }
 
-        composable(Screen.VaccinationScreen.route) { VaccinationScreen(navController = navController) }
-        composable(Screen.AddVaccinationScreen.route) { AddVaccinationScreen(navController = navController) }
-        composable(Screen.ViewVaccinationScreen.route) { ViewVaccinationScreen(navController = navController) }
-        composable(Screen.VaccinationErrorScreen.route) { VaccinationErrorScreen(navController = navController) }
+        vaccinationNavGraph(navController)
     }
 }
