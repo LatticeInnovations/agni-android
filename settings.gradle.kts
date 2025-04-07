@@ -1,20 +1,5 @@
 import java.net.URI
 
-include(":core:base")
-
-
-include(":features:symptomsanddiagnosis")
-
-
-include(":core:utils")
-
-
-include(":core:ui")
-
-
-include(":features:cvd")
-
-
 pluginManagement {
     includeBuild("build-logic")
     repositories {
@@ -43,6 +28,12 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
 include(":core:model")
 include(":core:database")
+include(":core:sharedpreference")
 include(":core")
+include(":core:base")
+include(":features:symptomsanddiagnosis")
+include(":core:utils")
+include(":core:ui")
+include(":features:cvd")
 include(":theme")
 include(":features:auth")

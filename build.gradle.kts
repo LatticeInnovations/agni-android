@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.compose) apply false
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.dependencyGuard) apply false
     alias(libs.plugins.firebase.crashlytics) apply false
     alias(libs.plugins.firebase.perf) apply false
@@ -17,7 +18,6 @@ plugins {
     alias(libs.plugins.room) apply false
     alias(libs.plugins.module.graph) apply true // Plugin applied to allow module graph generation
     alias(libs.plugins.sonarqube) apply false
-    alias(libs.plugins.kotlin.android) apply false
 }
 
 //sonar {
