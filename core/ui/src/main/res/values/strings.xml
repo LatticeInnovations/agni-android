@@ -5,4 +5,11 @@
     <string name="okay">Okay</string>
     <string name="appointment_completed">Appointment for today is completed.</string>
     <string name="dismiss">Dismiss</string>
+
+    <string name="add_to_queue">Add to queue</string>
+    <string name="add_to_queue_question">Add to queue?</string>
+    <string name="patient_arrived">Patient arrived</string>
+    <string name="patient_arrived_question">Patient arrived?</string>
+    <string name="mark_arrived">Mark arrived</string>
+    <string name="add_to_queue_dialog_description">To perform this action, the patient has to be in today’s queue.</string>
 </resources>
