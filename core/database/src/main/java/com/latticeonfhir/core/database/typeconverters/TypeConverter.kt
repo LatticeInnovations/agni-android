@@ -1,7 +1,7 @@
 package com.latticeonfhir.core.database.typeconverters
 
 import androidx.room.TypeConverter
-import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.core.model.enums.RelationEnum
 import java.util.Date
 
 class TypeConverter {
