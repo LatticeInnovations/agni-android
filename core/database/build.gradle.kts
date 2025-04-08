@@ -5,8 +5,6 @@ plugins {
     alias(libs.plugins.latticeonfhir.hilt)
 }
 
-//group = "com.latticeonfhir.core.database"
-
 android {
     namespace = "com.latticeonfhir.core.database"
 }
@@ -15,6 +13,7 @@ dependencies {
     api(projects.core.model)
 
     implementation(libs.kotlinx.datetime)
+    implementation(libs.google.gson)
 
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)
