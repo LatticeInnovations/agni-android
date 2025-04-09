@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.landingscreen
+package com.latticeonfhir.core.ui.landingscreen
 
 import android.app.Activity
 import androidx.compose.animation.animateContentSize
@@ -50,17 +50,17 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.BuildConfig
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
-import com.latticeonfhir.android.data.local.enums.WorkerStatus
-import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.core.BuildConfig
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.local.enums.SyncStatusMessageEnum
+import com.latticeonfhir.core.data.local.enums.WorkerStatus
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.android.ui.common.ButtonLoader
-import com.latticeonfhir.android.ui.main.MainActivity
-import com.latticeonfhir.android.theme.Primary10
-import com.latticeonfhir.android.theme.SyncFailedColor
-import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
-import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
+import com.latticeonfhir.core.ui.main.MainActivity
+import com.latticeonfhir.core.theme.Primary10
+import com.latticeonfhir.core.theme.SyncFailedColor
+import com.latticeonfhir.core.utils.network.CheckNetwork.isInternetAvailable
+import com.latticeonfhir.core.utils.regex.OnlyNumberRegex.onlyNumbers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

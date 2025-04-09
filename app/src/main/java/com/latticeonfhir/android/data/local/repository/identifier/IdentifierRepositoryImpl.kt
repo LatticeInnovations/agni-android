@@ -1,9 +1,9 @@
 package com.latticeonfhir.android.data.local.repository.identifier
 
-import com.latticeonfhir.android.data.local.roomdb.dao.IdentifierDao
+import com.latticeonfhir.core.data.local.roomdb.dao.IdentifierDao
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.converters.responseconverter.toIdentifierEntity
+import com.latticeonfhir.core.utils.converters.responseconverter.toIdentifierEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
 import javax.inject.Inject
 

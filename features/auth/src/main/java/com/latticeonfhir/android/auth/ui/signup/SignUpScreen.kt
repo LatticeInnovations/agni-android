@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.auth.ui.signup
+package com.latticeonfhir.core.auth.ui.signup
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.auth.R
-import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
+import com.latticeonfhir.core.utils.network.CheckNetwork.isInternetAvailable
 import kotlinx.coroutines.launch
 
 @Composable

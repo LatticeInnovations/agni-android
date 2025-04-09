@@ -1,14 +1,14 @@
 package com.latticeonfhir.android.utils.converters.responseconverter
 
 import com.latticeonfhir.android.data.local.model.vaccination.Immunization
-import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.vaccination.ImmunizationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationRecommendationEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ManufacturerEntity
-import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationFile
+import com.latticeonfhir.core.data.local.roomdb.entities.vaccination.ManufacturerEntity
+import com.latticeonfhir.core.data.server.model.vaccination.ImmunizationFile
 import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationRecommendationResponse
-import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
-import com.latticeonfhir.android.data.server.model.vaccination.ManufacturerResponse
+import com.latticeonfhir.core.data.server.model.vaccination.ImmunizationResponse
+import com.latticeonfhir.core.data.server.model.vaccination.ManufacturerResponse
 
 object Vaccination {
 

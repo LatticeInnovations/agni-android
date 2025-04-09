@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.vaccination.ui.view
+package com.latticeonfhir.core.vaccination.ui.view
 
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.data.local.model.vaccination.Immunization
+import com.latticeonfhir.core.data.local.model.vaccination.Immunization
 import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
-import com.latticeonfhir.android.data.local.repository.vaccination.ImmunizationRepository
+import com.latticeonfhir.core.data.local.repository.vaccination.ImmunizationRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher

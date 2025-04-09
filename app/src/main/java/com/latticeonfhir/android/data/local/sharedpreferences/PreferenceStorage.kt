@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.sharedpreferences
+package com.latticeonfhir.core.data.local.sharedpreferences
 
 interface PreferenceStorage {
 

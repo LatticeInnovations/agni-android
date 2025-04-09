@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.patientregistration.step3
+package com.latticeonfhir.core.ui.patientregistration.step3
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,9 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.AddressComposable
-import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
+import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.ui.common.AddressComposable
+import com.latticeonfhir.core.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.theme.Neutral40
 import java.util.Locale

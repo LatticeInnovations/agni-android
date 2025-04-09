@@ -1,11 +1,11 @@
-package com.latticeonfhir.android.data.local.repository.vaccination.impl
+package com.latticeonfhir.core.data.local.repository.vaccination.impl
 
-import com.latticeonfhir.android.data.local.model.vaccination.Immunization
-import com.latticeonfhir.android.data.local.repository.vaccination.ImmunizationRepository
-import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationDao
+import com.latticeonfhir.core.data.local.model.vaccination.Immunization
+import com.latticeonfhir.core.data.local.repository.vaccination.ImmunizationRepository
+import com.latticeonfhir.core.data.local.roomdb.dao.vaccincation.ImmunizationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationRecommendationDao
-import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ManufacturerDao
-import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationFileEntity
+import com.latticeonfhir.core.data.local.roomdb.dao.vaccincation.ManufacturerDao
+import com.latticeonfhir.core.data.local.roomdb.entities.vaccination.ImmunizationFileEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.Vaccination.toImmunizationEntity
 import java.util.Date
 import javax.inject.Inject

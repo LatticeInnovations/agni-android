@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.auth.ui.login
+package com.latticeonfhir.core.auth.ui.login
 
 import android.app.Application
 import androidx.compose.runtime.getValue
@@ -11,10 +11,10 @@ import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.auth.data.server.model.authentication.TokenResponse
 import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.android.auth.data.server.repository.signup.SignUpRepository
-import com.latticeonfhir.android.auth.utils.contants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
+import com.latticeonfhir.core.auth.utils.contants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
 import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiEmptyResponse
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import dagger.hilt.android.lifecycle.HiltViewModel

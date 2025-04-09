@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.upload
+package com.latticeonfhir.core.ui.labtestandmedicalrecord.photo.upload
 
 import android.app.Application
 import android.net.Uri
@@ -9,32 +9,32 @@ import androidx.compose.runtime.setValue
 import androidx.core.net.toFile
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
-import com.latticeonfhir.android.data.local.enums.PhotoUploadTypeEnum
-import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.data.local.model.labtest.LabTestPhotoResponseLocal
+import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.data.local.enums.GenericTypeEnum
+import com.latticeonfhir.core.data.local.enums.PhotoUploadTypeEnum
+import com.latticeonfhir.core.data.local.model.appointment.AppointmentResponseLocal
+import com.latticeonfhir.core.data.local.model.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.android.data.local.repository.file.DownloadedFileRepository
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.labtest.LabTestRepository
-import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.android.data.local.roomdb.entities.file.DownloadedFileEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.file.FileUploadEntity
+import com.latticeonfhir.core.data.local.repository.file.DownloadedFileRepository
+import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.core.data.local.repository.labtest.LabTestRepository
+import com.latticeonfhir.core.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
+import com.latticeonfhir.core.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.core.data.local.repository.schedule.ScheduleRepository
+import com.latticeonfhir.core.data.local.roomdb.entities.file.DownloadedFileEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.file.FileUploadEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.File
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.common.Queries
+import com.latticeonfhir.core.utils.builders.UUIDBuilder
+import com.latticeonfhir.core.utils.common.Queries
 import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
-import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
-import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants
-import com.latticeonfhir.android.utils.converters.responseconverter.LabAndMedConverter.createGenericMap
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
+import com.latticeonfhir.core.utils.constants.LabTestAndMedConstants
+import com.latticeonfhir.core.utils.converters.responseconverter.LabAndMedConverter.createGenericMap
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.file.BitmapUtils.compressImage
+import com.latticeonfhir.core.utils.file.BitmapUtils.compressImage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +53,7 @@ class PhotoUploadViewModel @Inject constructor(
     private val scheduleRepository: ScheduleRepository,
     private val preferenceRepository: PreferenceRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository,
-) : com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel(application) {
+) : com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel(application) {
 
     var patient: PatientResponse? by mutableStateOf(null)
     var isLaunched by mutableStateOf(false)

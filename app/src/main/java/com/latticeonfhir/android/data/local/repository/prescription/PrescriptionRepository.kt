@@ -1,7 +1,7 @@
-package com.latticeonfhir.android.data.local.repository.prescription
+package com.latticeonfhir.core.data.local.repository.prescription
 
-import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
-import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
+import com.latticeonfhir.core.data.local.model.prescription.PrescriptionPhotoResponseLocal
+import com.latticeonfhir.core.data.local.model.prescription.PrescriptionResponseLocal
 
 interface PrescriptionRepository {
 

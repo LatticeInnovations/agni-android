@@ -1,9 +1,9 @@
-package com.latticeonfhir.android.data.server.api
+package com.latticeonfhir.core.data.server.api
 
 import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordResponse
 import com.latticeonfhir.android.base.server.BaseResponse
-import com.latticeonfhir.android.data.server.model.create.CreateResponse
-import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
+import com.latticeonfhir.core.data.server.model.create.CreateResponse
+import com.latticeonfhir.core.data.server.model.labormed.labtest.LabTestResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -19,7 +19,7 @@ interface LabTestAndMedRecordService {
     suspend fun getListData(
         @Path("endPoint") endPoint: String,
         @QueryMap(encoded = true) map: Map<String, String>?
-    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<LabTestResponse>>>
+    ): Response<com.latticeonfhir.core.base.server.BaseResponse<List<LabTestResponse>>>
 
     @GET("{endPoint}")
     suspend fun getListMedicalRecordData(
@@ -37,10 +37,10 @@ interface LabTestAndMedRecordService {
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
         @Body patchLogs: List<Map<String, Any>>
-    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
+    ): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
 
     @HTTP(method = "DELETE", path = "sync/{endPoint}", hasBody = true)
     @JvmSuppressWildcards
     suspend fun deleteLabOrMedicalRecordPhoto(
-        @Path("endPoint") endPoint: String,@Body patchLogs: List<Any>): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
+        @Path("endPoint") endPoint: String,@Body patchLogs: List<Any>): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
 }

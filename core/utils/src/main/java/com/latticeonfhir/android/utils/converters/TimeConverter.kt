@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.converters
+package com.latticeonfhir.core.utils.converters
 
 import java.text.SimpleDateFormat
 import java.util.Calendar

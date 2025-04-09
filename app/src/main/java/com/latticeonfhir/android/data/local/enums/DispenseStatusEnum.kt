@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.enums
+package com.latticeonfhir.core.data.local.enums
 
 enum class DispenseStatusEnum(val display: String, val code: String) {
     NOT_DISPENSED("Not dispensed", "not-dispensed"),

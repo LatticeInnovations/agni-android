@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.model.relation
+package com.latticeonfhir.core.data.local.model.relation
 
 import androidx.annotation.Keep
 

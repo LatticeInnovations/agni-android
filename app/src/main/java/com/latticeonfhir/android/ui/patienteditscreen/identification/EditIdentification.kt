@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.patienteditscreen.identification
+package com.latticeonfhir.core.ui.patienteditscreen.identification
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -42,12 +42,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.common.CustomTextField
-import com.latticeonfhir.android.ui.common.IdLength
-import com.latticeonfhir.android.ui.common.IdSelectionChip
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.ui.common.CustomTextField
+import com.latticeonfhir.core.ui.common.IdLength
+import com.latticeonfhir.core.ui.common.IdSelectionChip
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
 import kotlinx.coroutines.launch
 import timber.log.Timber

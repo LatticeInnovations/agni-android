@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.model.dispense
+package com.latticeonfhir.core.data.local.model.dispense
 
 import androidx.annotation.Keep
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView

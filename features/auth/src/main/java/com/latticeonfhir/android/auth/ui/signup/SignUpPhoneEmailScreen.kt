@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.auth.ui.signup
+package com.latticeonfhir.core.auth.ui.signup
 
 import android.app.Activity
 import androidx.compose.foundation.layout.Box
@@ -25,8 +25,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.auth.R
-import com.latticeonfhir.android.auth.navigation.Screen
+import com.latticeonfhir.core.auth.R
+import com.latticeonfhir.core.auth.navigation.Screen
 import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,7 +80,7 @@ fun SignUpPhoneEmailScreen(
                             .testTag("BUTTON")
                     ) {
                         if (!viewModel.isAuthenticating) Text(text = stringResource(id = R.string.submit))
-                        else com.latticeonfhir.android.ui.ButtonLoader()
+                        else com.latticeonfhir.core.ui.ButtonLoader()
                     }
                 }
             }

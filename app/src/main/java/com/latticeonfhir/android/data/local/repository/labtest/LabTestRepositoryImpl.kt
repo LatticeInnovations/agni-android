@@ -1,15 +1,15 @@
 package com.latticeonfhir.android.data.local.repository.labtest
 
-import com.latticeonfhir.android.data.local.model.labtest.LabTestLocal
+import com.latticeonfhir.core.data.local.model.labtest.LabTestLocal
 import com.latticeonfhir.android.data.local.model.labtest.LabTestPhotoResponseLocal
-import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
+import com.latticeonfhir.core.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.FileUploadDao
-import com.latticeonfhir.android.data.local.roomdb.dao.LabTestAndMedDao
+import com.latticeonfhir.core.data.local.roomdb.dao.LabTestAndMedDao
 import com.latticeonfhir.android.data.server.model.prescription.photo.File
-import com.latticeonfhir.android.utils.converters.responseconverter.toFilesList
+import com.latticeonfhir.core.utils.converters.responseconverter.toFilesList
 import com.latticeonfhir.android.utils.converters.responseconverter.toLabTestAndMedEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toLabTestLocal
-import com.latticeonfhir.android.utils.converters.responseconverter.toLabTestPhotoResponseLocal
+import com.latticeonfhir.core.utils.converters.responseconverter.toLabTestLocal
+import com.latticeonfhir.core.utils.converters.responseconverter.toLabTestPhotoResponseLocal
 import com.latticeonfhir.android.utils.converters.responseconverter.toListOfLabTestPhotoEntity
 import javax.inject.Inject
 

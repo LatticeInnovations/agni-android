@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.model.vaccination
+package com.latticeonfhir.core.data.server.model.vaccination
 
 import androidx.annotation.Keep
 import java.util.Date

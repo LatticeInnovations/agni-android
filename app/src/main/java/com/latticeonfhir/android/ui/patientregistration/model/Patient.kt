@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.patientregistration.model
+package com.latticeonfhir.core.ui.patientregistration.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

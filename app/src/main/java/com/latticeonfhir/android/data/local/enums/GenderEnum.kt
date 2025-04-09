@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.enums
+package com.latticeonfhir.core.data.local.enums
 
 enum class GenderEnum(val number: Int, val value: String) {
     MALE(0, "male"),

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.network
+package com.latticeonfhir.core.utils.network
 
 import kotlinx.coroutines.flow.Flow
 

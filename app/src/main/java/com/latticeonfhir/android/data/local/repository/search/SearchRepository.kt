@@ -1,12 +1,12 @@
-package com.latticeonfhir.android.data.local.repository.search
+package com.latticeonfhir.core.data.local.repository.search
 
 import androidx.paging.PagingData
-import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
+import com.latticeonfhir.core.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.model.pagination.PaginationResponse
-import com.latticeonfhir.android.data.local.model.search.SearchParameters
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
-import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.data.local.model.search.SearchParameters
+import com.latticeonfhir.core.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
+import com.latticeonfhir.core.data.server.model.patient.PatientAddressResponse
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 import java.util.LinkedList

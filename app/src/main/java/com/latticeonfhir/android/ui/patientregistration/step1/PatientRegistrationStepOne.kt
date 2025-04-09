@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.patientregistration.step1
+package com.latticeonfhir.core.ui.patientregistration.step1
 
 import android.util.Patterns
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -44,14 +44,14 @@ import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
-import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.theme.Neutral40
-import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList.getMonthsList
+import com.latticeonfhir.core.ui.patientregistration.PatientRegistrationViewModel
+import com.latticeonfhir.core.ui.patientregistration.model.PatientRegister
+import com.latticeonfhir.core.theme.Neutral40
+import com.latticeonfhir.core.utils.converters.responseconverter.MonthsList.getMonthsList
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isDOBValid
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger
-import com.latticeonfhir.android.utils.regex.NameRegex.nameRegex
-import com.latticeonfhir.android.utils.regex.PhoneNumberRegex.phoneNumberRegex
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toMonthInteger
+import com.latticeonfhir.core.utils.regex.NameRegex.nameRegex
+import com.latticeonfhir.core.utils.regex.PhoneNumberRegex.phoneNumberRegex
 import java.util.Locale
 
 @Composable

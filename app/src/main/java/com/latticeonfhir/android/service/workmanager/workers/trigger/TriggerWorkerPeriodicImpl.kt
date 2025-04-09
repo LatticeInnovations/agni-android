@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.service.workmanager.workers.trigger
+package com.latticeonfhir.core.service.workmanager.workers.trigger
 
 import android.content.Context
 import androidx.work.WorkerParameters

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.latticeonfhir.android.service.workmanager.utils
+package com.latticeonfhir.core.service.workmanager.utils
 
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints

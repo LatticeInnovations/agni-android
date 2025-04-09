@@ -1,10 +1,10 @@
-package com.latticeonfhir.android.utils.converters.server.responsemapper
+package com.latticeonfhir.core.utils.converters.server.responsemapper
 
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
-import com.latticeonfhir.android.base.server.BaseResponse
-import com.latticeonfhir.android.utils.constants.ErrorConstants.SERVER_ERROR
+import com.latticeonfhir.core.base.server.BaseResponse
+import com.latticeonfhir.core.utils.constants.ErrorConstants.SERVER_ERROR
 import retrofit2.Response
 import timber.log.Timber
 
@@ -17,7 +17,7 @@ sealed class ResponseMapper<out T> {
         }
 
         fun <T> create(
-            response: Response<com.latticeonfhir.android.base.server.BaseResponse<T>>,
+            response: Response<com.latticeonfhir.core.base.server.BaseResponse<T>>,
             paginated: Boolean
         ): ResponseMapper<T> {
             return if (response.isSuccessful) {
@@ -26,7 +26,7 @@ sealed class ResponseMapper<out T> {
                 val gson = GsonBuilder().setPrettyPrinting().create()
                 val collectionType = object : TypeToken<com.latticeonfhir.android.base.server.BaseResponse<T?>>() {}.type
                 try {
-                    val data: com.latticeonfhir.android.base.server.BaseResponse<Any?> =
+                    val data: com.latticeonfhir.core.base.server.BaseResponse<Any?> =
                         gson.fromJson(response.errorBody()?.string(), collectionType)
                     ApiErrorResponse(response.code(), data.message)
                 } catch (e: JsonSyntaxException) {
@@ -37,7 +37,7 @@ sealed class ResponseMapper<out T> {
         }
 
         private fun <T> mapData(
-            response: Response<com.latticeonfhir.android.base.server.BaseResponse<T>>,
+            response: Response<com.latticeonfhir.core.base.server.BaseResponse<T>>,
             paginated: Boolean
         ): ResponseMapper<T> {
             return if (response.body()?.status != 0) {

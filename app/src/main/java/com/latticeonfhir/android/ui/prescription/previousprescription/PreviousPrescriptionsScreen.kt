@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.prescription.previousprescription
+package com.latticeonfhir.core.ui.prescription.previousprescription
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
@@ -36,15 +36,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.data.local.model.prescription.medication.MedicationResponseWithMedication
+import com.latticeonfhir.core.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
+import com.latticeonfhir.core.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
-import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
+import com.latticeonfhir.core.utils.builders.UUIDBuilder
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.core.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

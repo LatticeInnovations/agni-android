@@ -1,18 +1,18 @@
-package com.latticeonfhir.android.service.sync
+package com.latticeonfhir.core.service.sync
 
 import android.content.Context
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.core.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
-import com.latticeonfhir.android.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
+import com.latticeonfhir.core.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
-import com.latticeonfhir.android.utils.network.CheckNetwork
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiErrorResponse
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.core.utils.network.CheckNetwork
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers

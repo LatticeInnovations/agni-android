@@ -1,16 +1,16 @@
-package com.latticeonfhir.android.data.local.roomdb.dao
+package com.latticeonfhir.core.data.local.roomdb.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.search.SymDiagSearchEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsEntity
+import com.latticeonfhir.core.data.local.enums.SearchTypeEnum
+import com.latticeonfhir.core.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.search.SearchHistoryEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.search.SymDiagSearchEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsEntity
 
 @Dao
 interface SearchDao {

@@ -6,11 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
-import com.latticeonfhir.android.data.server.repository.signup.SignUpRepository
+import com.latticeonfhir.core.data.server.repository.signup.SignUpRepository
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
-import com.latticeonfhir.android.utils.regex.EmailRegex
-import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiErrorResponse
+import com.latticeonfhir.core.utils.regex.EmailRegex
+import com.latticeonfhir.core.utils.regex.OnlyNumberRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

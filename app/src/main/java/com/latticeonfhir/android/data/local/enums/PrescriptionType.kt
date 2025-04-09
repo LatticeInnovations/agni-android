@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.enums
+package com.latticeonfhir.core.data.local.enums
 
 enum class PrescriptionType(val type: String) {
     PHOTO("photo"),

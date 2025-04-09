@@ -1,8 +1,8 @@
-package com.latticeonfhir.android.data.local.repository.relation
+package com.latticeonfhir.core.data.local.repository.relation
 
 import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
-import com.latticeonfhir.android.data.local.roomdb.views.RelationView
+import com.latticeonfhir.core.data.local.roomdb.entities.relation.RelationEntity
+import com.latticeonfhir.core.data.local.roomdb.views.RelationView
 
 interface RelationRepository {
 

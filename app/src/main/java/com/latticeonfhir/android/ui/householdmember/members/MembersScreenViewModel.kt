@@ -5,9 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.model.patient.PatientResponseWithRelation
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
+import com.latticeonfhir.core.data.local.model.patient.PatientResponseWithRelation
+import com.latticeonfhir.core.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.core.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +19,7 @@ import javax.inject.Inject
 class MembersScreenViewModel @Inject constructor(
     private val relationRepository: RelationRepository,
     private val patientRepository: PatientRepository
-) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
+) : com.latticeonfhir.core.base.viewmodel.BaseViewModel() {
     var loading by mutableStateOf(true)
     var relationsList by mutableStateOf(listOf<RelationEntity>())
     private var relativesIdList = mutableSetOf<String>()

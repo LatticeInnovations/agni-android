@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.repository.patient
+package com.latticeonfhir.core.data.local.repository.patient
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
@@ -7,10 +7,10 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.liveData
 import androidx.paging.map
-import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.constants.Paging.PAGE_SIZE
-import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
+import com.latticeonfhir.core.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.utils.constants.Paging.PAGE_SIZE
+import com.latticeonfhir.core.utils.converters.responseconverter.toPatientEntity
 import com.latticeonfhir.android.utils.converters.responseconverter.toPatientResponse
 import javax.inject.Inject
 

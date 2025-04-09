@@ -1,23 +1,23 @@
-package com.latticeonfhir.android.service.workmanager.workers.status.completed
+package com.latticeonfhir.core.service.workmanager.workers.status.completed
 
 import android.content.Context
 import androidx.work.WorkerParameters
-import com.latticeonfhir.android.FhirApp
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
+import com.latticeonfhir.core.FhirApp
+import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
-import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.constants.Id
+import com.latticeonfhir.core.data.local.roomdb.entities.appointment.AppointmentEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.generic.GenericEntity
+import com.latticeonfhir.core.service.workmanager.workers.base.SyncWorker
+import com.latticeonfhir.core.utils.builders.UUIDBuilder
+import com.latticeonfhir.core.utils.constants.Id
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.yesterday
-import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentResponse
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.yesterday
+import com.latticeonfhir.core.utils.converters.responseconverter.toAppointmentResponse
 import java.util.Date
 
 abstract class AppointmentCompletedStatusUpdateWorker(

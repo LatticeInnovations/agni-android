@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils
+package com.latticeonfhir.core.utils
 
 import org.junit.Test
 

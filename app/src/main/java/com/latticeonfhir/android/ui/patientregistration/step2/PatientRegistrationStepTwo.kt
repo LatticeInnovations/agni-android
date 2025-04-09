@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.patientregistration.step2
+package com.latticeonfhir.core.ui.patientregistration.step2
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -23,13 +23,13 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.ui.common.CustomTextField
-import com.latticeonfhir.android.ui.common.IdLength
-import com.latticeonfhir.android.ui.common.IdSelectionChip
-import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.theme.Neutral40
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.ui.common.CustomTextField
+import com.latticeonfhir.core.ui.common.IdLength
+import com.latticeonfhir.core.ui.common.IdSelectionChip
+import com.latticeonfhir.core.ui.patientregistration.PatientRegistrationViewModel
+import com.latticeonfhir.core.ui.patientregistration.model.PatientRegister
+import com.latticeonfhir.core.theme.Neutral40
 
 @Composable
 fun PatientRegistrationStepTwo(

@@ -1,7 +1,7 @@
-package com.latticeonfhir.android.data.local.repository.file
+package com.latticeonfhir.core.data.local.repository.file
 
-import com.latticeonfhir.android.data.local.roomdb.dao.DownloadedFileDao
-import com.latticeonfhir.android.data.local.roomdb.entities.file.DownloadedFileEntity
+import com.latticeonfhir.core.data.local.roomdb.dao.DownloadedFileDao
+import com.latticeonfhir.core.data.local.roomdb.entities.file.DownloadedFileEntity
 import javax.inject.Inject
 
 class DownloadedFileRepositoryImpl @Inject constructor(

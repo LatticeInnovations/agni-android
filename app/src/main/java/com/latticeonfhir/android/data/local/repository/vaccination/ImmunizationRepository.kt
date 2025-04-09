@@ -1,6 +1,6 @@
-package com.latticeonfhir.android.data.local.repository.vaccination
+package com.latticeonfhir.core.data.local.repository.vaccination
 
-import com.latticeonfhir.android.data.local.model.vaccination.Immunization
+import com.latticeonfhir.core.data.local.model.vaccination.Immunization
 import java.util.Date
 
 interface ImmunizationRepository {

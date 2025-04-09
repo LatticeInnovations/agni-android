@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.prescription.photo.upload
+package com.latticeonfhir.core.ui.prescription.photo.upload
 
 import android.content.ContentUris
 import android.content.Context
@@ -75,12 +75,12 @@ import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.common.ScreenLoader
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.ui.common.ScreenLoader
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.file.FileManager
+import com.latticeonfhir.core.utils.file.FileManager
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File

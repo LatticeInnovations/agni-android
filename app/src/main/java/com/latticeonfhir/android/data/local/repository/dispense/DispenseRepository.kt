@@ -1,10 +1,10 @@
-package com.latticeonfhir.android.data.local.repository.dispense
+package com.latticeonfhir.core.data.local.repository.dispense
 
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseAndPrescriptionRelation
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseDataEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensedPrescriptionInfo
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispenseAndPrescriptionRelation
+import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispenseDataEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispensedPrescriptionInfo
+import com.latticeonfhir.core.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
 
 interface DispenseRepository {
     suspend fun insertPrescriptionDispenseData(dispensePrescriptionEntity: DispensePrescriptionEntity): List<Long>

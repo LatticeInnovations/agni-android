@@ -6,11 +6,11 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.latticeonfhir.android.data.local.enums.PrescriptionType
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
+import com.latticeonfhir.core.data.local.enums.PrescriptionType
+import com.latticeonfhir.core.data.local.roomdb.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionAndFileEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.prescription.PrescriptionEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.prescription.photo.PrescriptionAndFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
 
 @Dao

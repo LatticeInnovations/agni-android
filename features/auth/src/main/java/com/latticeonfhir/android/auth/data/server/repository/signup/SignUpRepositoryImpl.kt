@@ -2,15 +2,15 @@ package com.latticeonfhir.android.auth.data.server.repository.signup
 
 import com.latticeonfhir.android.auth.data.server.api.SignUpApiService
 import com.latticeonfhir.android.auth.data.server.model.authentication.Login
-import com.latticeonfhir.android.auth.data.server.model.authentication.Otp
+import com.latticeonfhir.core.auth.data.server.model.authentication.Otp
 import com.latticeonfhir.android.auth.data.server.model.authentication.TokenResponse
-import com.latticeonfhir.android.auth.data.server.model.register.Register
-import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepository
-import com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter
+import com.latticeonfhir.core.auth.data.server.model.register.Register
+import com.latticeonfhir.core.auth.data.server.repository.authentication.AuthenticationRepository
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.core.data.server.enums.RegisterTypeEnum
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiEndResponse
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ResponseMapper
 import javax.inject.Inject
 
 class SignUpRepositoryImpl @Inject constructor(
@@ -23,7 +23,7 @@ class SignUpRepositoryImpl @Inject constructor(
         userContact: String,
         type: RegisterTypeEnum
     ): ResponseMapper<String?> {
-        return com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter.convert(
+        return com.latticeonfhir.core.utils.converters.responsemapper.ApiResponseConverter.convert(
             signUpApiService.verification(
                 login = Login(
                     userContact = userContact,
@@ -38,7 +38,7 @@ class SignUpRepositoryImpl @Inject constructor(
         otp: Int,
         type: RegisterTypeEnum
     ): ResponseMapper<TokenResponse> {
-        return com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter.convert(
+        return com.latticeonfhir.core.utils.converters.responsemapper.ApiResponseConverter.convert(
             signUpApiService.verificationOtp(
                 otp = Otp(
                     userContact = userContact,

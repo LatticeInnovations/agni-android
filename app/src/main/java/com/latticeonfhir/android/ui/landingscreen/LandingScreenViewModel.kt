@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.landingscreen
+package com.latticeonfhir.core.ui.landingscreen
 
 import android.app.Application
 import android.app.job.JobScheduler
@@ -15,35 +15,35 @@ import androidx.paging.map
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.await
-import com.latticeonfhir.android.FhirApp
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
-import com.latticeonfhir.android.data.local.enums.LastVisit
-import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
-import com.latticeonfhir.android.data.local.enums.WorkerStatus
-import com.latticeonfhir.android.data.local.model.search.SearchParameters
-import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.android.data.local.repository.cvd.chart.RiskPredictionChartRepository
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.local.repository.search.SearchRepository
+import com.latticeonfhir.core.FhirApp
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel
+import com.latticeonfhir.core.data.local.enums.LastVisit
+import com.latticeonfhir.core.data.local.enums.SyncStatusMessageEnum
+import com.latticeonfhir.core.data.local.enums.WorkerStatus
+import com.latticeonfhir.core.data.local.model.search.SearchParameters
+import com.latticeonfhir.core.data.local.repository.appointment.AppointmentRepository
+import com.latticeonfhir.core.data.local.repository.cvd.chart.RiskPredictionChartRepository
+import com.latticeonfhir.core.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.core.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.core.data.local.repository.search.SearchRepository
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
 import com.latticeonfhir.android.data.local.roomdb.entities.cvd.RiskPredictionCharts
-import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
+import com.latticeonfhir.core.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepository
-import com.latticeonfhir.android.auth.data.server.repository.signup.SignUpRepository
+import com.latticeonfhir.core.auth.data.server.repository.authentication.AuthenticationRepository
+import com.latticeonfhir.core.auth.data.server.repository.signup.SignUpRepository
 import com.latticeonfhir.android.service.sync.SyncService
-import com.latticeonfhir.android.service.workmanager.request.WorkRequestBuilders
-import com.latticeonfhir.android.service.workmanager.utils.Delay
+import com.latticeonfhir.core.service.workmanager.request.WorkRequestBuilders
+import com.latticeonfhir.core.service.workmanager.utils.Delay
 import com.latticeonfhir.android.service.workmanager.utils.Sync
-import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
+import com.latticeonfhir.core.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.android.utils.common.Queries.getSearchListWithLastVisited
-import com.latticeonfhir.android.utils.constants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
+import com.latticeonfhir.core.utils.constants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
-import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiErrorResponse
+import com.latticeonfhir.core.utils.network.CheckNetwork.isInternetAvailable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,7 +71,7 @@ class LandingScreenViewModel @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
     private val fhirAppDatabase: FhirAppDatabase,
     private val riskPredictionChartRepository: RiskPredictionChartRepository
-) : com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel(application) {
+) : com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
     private val syncService: SyncService by lazy { (application as FhirApp).syncService }

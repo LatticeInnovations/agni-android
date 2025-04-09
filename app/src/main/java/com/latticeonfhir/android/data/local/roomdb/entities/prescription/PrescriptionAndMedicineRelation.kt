@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.roomdb.entities.prescription
+package com.latticeonfhir.core.data.local.roomdb.entities.prescription
 
 import androidx.annotation.Keep
 import androidx.room.Embedded

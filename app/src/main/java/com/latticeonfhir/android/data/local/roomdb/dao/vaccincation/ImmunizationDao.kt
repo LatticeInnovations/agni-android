@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.roomdb.dao.vaccincation
+package com.latticeonfhir.core.data.local.roomdb.dao.vaccincation
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationFileEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.vaccination.ImmunizationFileEntity
 import java.util.Date
 
 @Dao

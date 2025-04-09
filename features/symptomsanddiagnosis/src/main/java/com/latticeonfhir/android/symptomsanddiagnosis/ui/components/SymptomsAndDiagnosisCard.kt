@@ -29,10 +29,10 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
-import com.latticeonfhir.android.symptomsanddiagnosis.R
-import com.latticeonfhir.android.utils.converters.TimeConverter.convertDateFormat
-import com.latticeonfhir.android.utils.converters.TimeConverter.convertedDate
+import com.latticeonfhir.core.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
+import com.latticeonfhir.core.symptomsanddiagnosis.R
+import com.latticeonfhir.core.utils.converters.TimeConverter.convertDateFormat
+import com.latticeonfhir.core.utils.converters.TimeConverter.convertedDate
 
 @Composable
 fun SymptomsAndDiagnosisCard(item: SymptomsAndDiagnosisLocal) {

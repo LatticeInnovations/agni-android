@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.data.local.repository.vaccination
 
-import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ManufacturerEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.vaccination.ManufacturerEntity
 
 interface ManufacturerRepository {
 

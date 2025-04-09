@@ -9,8 +9,8 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import com.latticeonfhir.android.BuildConfig
-import com.latticeonfhir.android.utils.R
-import com.latticeonfhir.android.utils.file.FileManager.createFolder
+import com.latticeonfhir.core.utils.R
+import com.latticeonfhir.core.utils.file.FileManager.createFolder
 import timber.log.Timber
 import java.io.File
 import java.io.IOException

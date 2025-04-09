@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.model.prescription.medication
+package com.latticeonfhir.core.data.local.model.prescription.medication
 
 import androidx.annotation.Keep
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication

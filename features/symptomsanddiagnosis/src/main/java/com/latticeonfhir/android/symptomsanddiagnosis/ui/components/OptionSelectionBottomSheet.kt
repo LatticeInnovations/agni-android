@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.symptomsanddiagnosis.ui.components
+package com.latticeonfhir.core.symptomsanddiagnosis.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background

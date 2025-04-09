@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.householdmember
+package com.latticeonfhir.core.ui.householdmember
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf

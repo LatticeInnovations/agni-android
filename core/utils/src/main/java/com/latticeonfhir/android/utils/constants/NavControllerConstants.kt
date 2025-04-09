@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.constants
+package com.latticeonfhir.core.utils.constants
 
 object NavControllerConstants {
     const val PATIENT = "patient"

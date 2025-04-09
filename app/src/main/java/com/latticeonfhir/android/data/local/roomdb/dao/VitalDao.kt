@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.latticeonfhir.android.data.local.roomdb.entities.vitals.VitalEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.vitals.VitalEntity
 
 @Dao
 interface VitalDao {

@@ -1,9 +1,9 @@
-package com.latticeonfhir.android.data.local.repository.schedule
+package com.latticeonfhir.core.data.local.repository.schedule
 
-import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
+import com.latticeonfhir.core.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.utils.converters.responseconverter.toScheduleEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toScheduleResponse
+import com.latticeonfhir.core.utils.converters.responseconverter.toScheduleEntity
+import com.latticeonfhir.core.utils.converters.responseconverter.toScheduleResponse
 import javax.inject.Inject
 
 class ScheduleRepositoryImpl @Inject constructor(private val scheduleDao: ScheduleDao) :
