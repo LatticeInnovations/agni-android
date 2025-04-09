@@ -1,5 +1,8 @@
 import java.net.URI
 
+include(":features:prescription")
+
+
 include(":features:vaccination")
 
 
