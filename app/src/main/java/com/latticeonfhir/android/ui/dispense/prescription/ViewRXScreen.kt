@@ -57,7 +57,7 @@ fun ViewRXScreen(
                     Box(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
-                        MedicineDetails(
+                        com.latticeonfhir.android.prescription.ui.previousprescription.MedicineDetails(
                             medName = directionAndMedication.medicationEntity.medName,
                             details = getMedInfo(
                                 duration = directionAndMedication.prescriptionDirectionsEntity.duration,

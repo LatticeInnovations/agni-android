@@ -392,6 +392,7 @@ dependencies {
     implementation(projects.features.auth)
     implementation(projects.features.symptomsanddiagnosis)
     implementation(projects.features.vaccination)
+    implementation(projects.features.prescription)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
