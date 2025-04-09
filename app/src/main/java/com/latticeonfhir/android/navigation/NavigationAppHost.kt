@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import com.latticeonfhir.android.auth.navigation.authNavGraph
 import com.latticeonfhir.android.auth.navigation.authRoute
 import com.latticeonfhir.android.cvd.ui.CVDRiskAssessmentScreen
+import com.latticeonfhir.android.prescription.navigation.prescriptionNavGraph
 import com.latticeonfhir.android.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
 import com.latticeonfhir.android.ui.appointments.AppointmentsScreen
 import com.latticeonfhir.android.ui.appointments.schedule.ScheduleAppointments
@@ -29,9 +30,9 @@ import com.latticeonfhir.android.ui.patientprofile.PatientProfile
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreview
 import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationship
-import com.latticeonfhir.android.ui.prescription.PrescriptionScreen
-import com.latticeonfhir.android.ui.prescription.photo.upload.PrescriptionPhotoUploadScreen
-import com.latticeonfhir.android.ui.prescription.photo.view.PrescriptionPhotoViewScreen
+import com.latticeonfhir.android.prescription.ui.PrescriptionScreen
+import com.latticeonfhir.android.prescription.ui.photo.upload.PrescriptionPhotoUploadScreen
+import com.latticeonfhir.android.prescription.ui.photo.view.PrescriptionPhotoViewScreen
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 import com.latticeonfhir.android.ui.vitalsscreen.VitalsScreen
 import com.latticeonfhir.android.ui.vitalsscreen.addvitals.AddVitalsScreen
@@ -71,23 +72,15 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.ConfirmRelationship.route) { ConfirmRelationship(navController = navController) }
         composable(Screen.SearchResult.route) { SearchResult(navController = navController) }
         composable(Screen.ConnectPatient.route) { ConnectPatient(navController = navController) }
-        composable(Screen.Prescription.route) { PrescriptionScreen(navController = navController) }
         composable(Screen.PatientProfile.route) { PatientProfile(navController = navController) }
         composable(Screen.EditBasicInfo.route) { EditBasicInformation(navController = navController) }
         composable(Screen.EditIdentification.route) { EditIdentification(navController = navController) }
         composable(Screen.EditAddress.route) { EditPatientAddress(navController = navController) }
         composable(Screen.Appointments.route) { AppointmentsScreen(navController = navController) }
         composable(Screen.ScheduleAppointments.route) { ScheduleAppointments(navController = navController) }
-        composable(Screen.PrescriptionPhotoUploadScreen.route) {
-            PrescriptionPhotoUploadScreen(
-                navController = navController
-            )
-        }
-        composable(Screen.PrescriptionPhotoViewScreen.route) {
-            PrescriptionPhotoViewScreen(
-                navController = navController
-            )
-        }
+
+        prescriptionNavGraph(navController)
+
         composable(Screen.CVDRiskAssessmentScreen.route) {
             com.latticeonfhir.android.cvd.ui.CVDRiskAssessmentScreen(
                 navController

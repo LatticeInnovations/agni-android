@@ -41,7 +41,7 @@ import com.latticeonfhir.android.ui.dispense.log.DispenseLogScreen
 import com.latticeonfhir.android.ui.dispense.prescription.PrescriptionTabScreen
 import com.latticeonfhir.android.ui.dispense.prescription.ViewRXScreen
 import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
-import com.latticeonfhir.android.ui.prescription.photo.view.AppointmentCompletedDialog
+import com.latticeonfhir.android.prescription.ui.photo.view.AppointmentCompletedDialog
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.OTC_DISPENSED
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import kotlinx.coroutines.launch
@@ -251,7 +251,7 @@ fun DrugDispenseScreen(
         }
     }
     if (viewModel.showAppointmentCompletedDialog) {
-        AppointmentCompletedDialog {
+        com.latticeonfhir.android.prescription.ui.photo.view.AppointmentCompletedDialog {
             viewModel.showAppointmentCompletedDialog = false
         }
     }

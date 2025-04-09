@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.dispense.DrugDispenseViewModel
-import com.latticeonfhir.android.ui.prescription.previousprescription.MedicineDetails
+import com.latticeonfhir.android.prescription.ui.previousprescription.MedicineDetails
 import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,7 +57,7 @@ fun ViewRXScreen(
                     Box(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
-                        MedicineDetails(
+                        com.latticeonfhir.android.prescription.ui.previousprescription.MedicineDetails(
                             medName = directionAndMedication.medicationEntity.medName,
                             details = getMedInfo(
                                 duration = directionAndMedication.prescriptionDirectionsEntity.duration,
