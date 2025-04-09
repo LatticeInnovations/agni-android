@@ -71,23 +71,15 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.ConfirmRelationship.route) { ConfirmRelationship(navController = navController) }
         composable(Screen.SearchResult.route) { SearchResult(navController = navController) }
         composable(Screen.ConnectPatient.route) { ConnectPatient(navController = navController) }
-        composable(Screen.Prescription.route) { PrescriptionScreen(navController = navController) }
         composable(Screen.PatientProfile.route) { PatientProfile(navController = navController) }
         composable(Screen.EditBasicInfo.route) { EditBasicInformation(navController = navController) }
         composable(Screen.EditIdentification.route) { EditIdentification(navController = navController) }
         composable(Screen.EditAddress.route) { EditPatientAddress(navController = navController) }
         composable(Screen.Appointments.route) { AppointmentsScreen(navController = navController) }
         composable(Screen.ScheduleAppointments.route) { ScheduleAppointments(navController = navController) }
-        composable(Screen.PrescriptionPhotoUploadScreen.route) {
-            PrescriptionPhotoUploadScreen(
-                navController = navController
-            )
-        }
-        composable(Screen.PrescriptionPhotoViewScreen.route) {
-            PrescriptionPhotoViewScreen(
-                navController = navController
-            )
-        }
+
+        prescriptionNavGraph(navController)
+
         composable(Screen.CVDRiskAssessmentScreen.route) {
             com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentScreen(
                 navController

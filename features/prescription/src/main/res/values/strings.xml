@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_a_new_prescription">Add a new prescription</string>
+    <string name="upload_a_prescription">Upload a prescription</string>
+    <string name="fill_prescription">Fill prescription</string>
+    <string name="prescription">Prescription</string>
+    <string name="prescriptions">Prescriptions</string>
+    <string name="discard_medications_dialog_title">Discard medications ?</string>
+    <string name="discard_medications_dialog_description">Are you sure you want to discard all medications ?</string>
+    <string name="yes_discard">Yes, discard</string>
+    <string name="no_go_back">No, go back</string>
+    <string name="clear_all">Clear all</string>
+    <string name="prescribed_successfully">Prescribed successfully</string>
+    <string name="re_prescribed_successfully">Re-prescribed successfully</string>
+    <string name="prescribe">Prescribe</string>
+    <string name="fill_details">Fill details</string>
+    <string name="done">Done</string>
+    <string name="active_ingredient">Active ingredient</string>
+    <string name="formulations">Formulations</string>
+    <string name="qty_per_dose">Qty per dose</string>
+    <string name="ml">ml</string>
+    <string name="dose_per_day">dose per day</string>
+    <string name="frequency">Frequency</string>
+    <string name="timing_optional">Timing (optional)</string>
+    <string name="duration_days">Duration (days) *</string>
+    <string name="duration_error_msg">Max. limit is 180 days</string>
+    <string name="quantity_prescribed">Quantity prescribed</string>
+    <string name="notes_optional">Notes (optional)</string>
+    <string name="match_found">%s matches found</string>
+    <string name="freq_dose_per_day">%d dose per day</string>
+    <string name="med_info">%d %s %s %s\nDuration : %d days , Qty : %d %s</string>
+    <string name="notes">\nNote: %s</string>
+    <string name="timing">, %s</string>
+    <string name="no_results_found">No results found</string>
+    <string name="please_add_patient_to_queue">Please add patient to the queue to start prescription</string>
+    <string name="prescription_already_exists_for_today">Prescription already exists for today</string>
+    <string name="save">Save</string>
+    <string name="no_previous_prescription">No previous prescription</string>
+    <string name="discard_prescription">Discard prescription ?</string>
+    <string name="discard_prescription_description">Are you sure you want to discard the prescription ?</string>
+
+    <string name="permissions_required">Permission required</string>
+    <string name="permissions_required_description">To continue, this app needs access to your camera and storage. Please allow these permissions from the settings app.</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="cancel">Cancel</string>
+    <string name="please_grant_permission">Please grant permission.</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="add_notes_here">Add your notes here</string>
+</resources>
