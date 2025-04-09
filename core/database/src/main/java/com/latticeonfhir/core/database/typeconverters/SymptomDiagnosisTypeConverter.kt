@@ -1,7 +1,6 @@
 package com.latticeonfhir.core.database.typeconverters
 
 import androidx.room.TypeConverter
-import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
