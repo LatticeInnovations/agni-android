@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.paging
+package com.latticeonfhir.core.utils.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState

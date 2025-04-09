@@ -1,6 +1,6 @@
-package com.latticeonfhir.android.utils.converters.responseconverter
+package com.latticeonfhir.core.utils.converters.responseconverter
 
-import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
+import com.latticeonfhir.core.data.server.model.patient.PatientAddressResponse
 
 object AddressConverter {
     internal fun getAddress(addressResponse: PatientAddressResponse): String {

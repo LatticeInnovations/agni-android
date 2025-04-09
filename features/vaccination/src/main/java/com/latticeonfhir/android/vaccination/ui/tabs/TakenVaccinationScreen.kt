@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.vaccination.ui.tabs
+package com.latticeonfhir.core.vaccination.ui.tabs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -18,14 +18,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE
-import com.latticeonfhir.android.vaccination.R
-import com.latticeonfhir.android.vaccination.navigation.Screen
-import com.latticeonfhir.android.vaccination.ui.AgeComposable
-import com.latticeonfhir.android.vaccination.ui.VaccinationViewModel
+import com.latticeonfhir.core.vaccination.R
+import com.latticeonfhir.core.vaccination.navigation.Screen
+import com.latticeonfhir.core.vaccination.ui.AgeComposable
+import com.latticeonfhir.core.vaccination.ui.VaccinationViewModel
 import com.latticeonfhir.android.vaccination.ui.VaccinationViewModel.Companion.TAKEN
-import com.latticeonfhir.android.vaccination.ui.VaccineCard
+import com.latticeonfhir.core.vaccination.ui.VaccineCard
 import com.latticeonfhir.android.vaccination.ui.VaccineEmptyScreen
 
 @Composable

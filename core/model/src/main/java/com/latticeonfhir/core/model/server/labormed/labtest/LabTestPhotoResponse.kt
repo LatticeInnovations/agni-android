@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.model.labormed.labtest
+package com.latticeonfhir.core.data.server.model.labormed.labtest
 
 import androidx.annotation.Keep
 import com.latticeonfhir.android.data.server.model.prescription.photo.File

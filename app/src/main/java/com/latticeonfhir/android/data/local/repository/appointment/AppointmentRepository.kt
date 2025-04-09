@@ -1,7 +1,7 @@
-package com.latticeonfhir.android.data.local.repository.appointment
+package com.latticeonfhir.core.data.local.repository.appointment
 
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.appointment.AppointmentEntity
 
 interface AppointmentRepository {
     suspend fun getAppointmentListByDate(

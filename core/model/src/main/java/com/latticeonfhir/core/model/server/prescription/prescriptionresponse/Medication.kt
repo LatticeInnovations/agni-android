@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse
+package com.latticeonfhir.core.data.server.model.prescription.prescriptionresponse
 
 import androidx.annotation.Keep
 

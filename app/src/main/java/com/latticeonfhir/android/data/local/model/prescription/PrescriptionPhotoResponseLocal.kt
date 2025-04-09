@@ -1,7 +1,7 @@
 package com.latticeonfhir.android.data.local.model.prescription
 
 import androidx.annotation.Keep
-import com.latticeonfhir.android.data.server.model.prescription.photo.File
+import com.latticeonfhir.core.data.server.model.prescription.photo.File
 import java.util.Date
 
 @Keep

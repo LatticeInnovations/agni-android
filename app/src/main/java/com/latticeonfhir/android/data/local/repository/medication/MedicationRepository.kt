@@ -1,7 +1,7 @@
-package com.latticeonfhir.android.data.local.repository.medication
+package com.latticeonfhir.core.data.local.repository.medication
 
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationStrengthRelation
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.medication.MedicationStrengthRelation
+import com.latticeonfhir.core.data.local.roomdb.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
 
 interface MedicationRepository {

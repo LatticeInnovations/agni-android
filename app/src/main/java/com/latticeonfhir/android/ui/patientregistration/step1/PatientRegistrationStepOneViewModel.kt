@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.patientregistration.step1
+package com.latticeonfhir.core.ui.patientregistration.step1
 
 import android.util.Patterns
 import androidx.compose.runtime.getValue
@@ -6,11 +6,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
-import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toMonthInteger
 
-class PatientRegistrationStepOneViewModel : com.latticeonfhir.android.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
+class PatientRegistrationStepOneViewModel : com.latticeonfhir.core.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
     internal var isLaunched by mutableStateOf(false)
 
     internal val onlyNumbers = Regex("^\\d+\$")

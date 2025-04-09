@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.dispense.log
+package com.latticeonfhir.core.ui.dispense.log
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -25,11 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.enums.DispenseCategoryEnum
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensedPrescriptionInfo
-import com.latticeonfhir.android.ui.dispense.DrugDispenseViewModel
-import com.latticeonfhir.android.theme.OTC
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.local.enums.DispenseCategoryEnum
+import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispensedPrescriptionInfo
+import com.latticeonfhir.core.ui.dispense.DrugDispenseViewModel
+import com.latticeonfhir.core.theme.OTC
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 
 @Composable

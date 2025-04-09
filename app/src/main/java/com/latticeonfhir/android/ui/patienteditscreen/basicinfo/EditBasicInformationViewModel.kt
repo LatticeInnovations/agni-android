@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.patienteditscreen.basicinfo
+package com.latticeonfhir.core.ui.patienteditscreen.basicinfo
 
 import android.util.Patterns
 import androidx.compose.runtime.getValue
@@ -7,18 +7,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.data.local.enums.ChangeTypeEnum
+import com.latticeonfhir.core.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.repository.vaccination.ImmunizationRecommendationRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter
+import com.latticeonfhir.core.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.core.data.local.repository.vaccination.ImmunizationRecommendationRepository
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger
-import com.latticeonfhir.android.utils.regex.AgeRegex
-import com.latticeonfhir.android.utils.regex.DobRegex
-import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
+import com.latticeonfhir.core.utils.regex.AgeRegex
+import com.latticeonfhir.core.utils.regex.DobRegex
+import com.latticeonfhir.core.utils.regex.OnlyNumberRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

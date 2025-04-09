@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.common
+package com.latticeonfhir.core.ui.common
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -19,7 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
+import com.latticeonfhir.core.utils.converters.responseconverter.RelationshipList
 
 @Composable
 fun RelationsDropDown(

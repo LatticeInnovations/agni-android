@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.prescription.filldetails
+package com.latticeonfhir.core.ui.prescription.filldetails
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -52,12 +52,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.latticeonfhir.android.R
+import com.latticeonfhir.core.R
 import com.latticeonfhir.android.data.local.model.prescription.medication.MedicationResponseWithMedication
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.Medication
+import com.latticeonfhir.core.data.server.model.prescription.prescriptionresponse.Medication
 import com.latticeonfhir.android.ui.prescription.PrescriptionViewModel
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.regex.OnlyNumberRegex
+import com.latticeonfhir.core.utils.builders.UUIDBuilder
+import com.latticeonfhir.core.utils.regex.OnlyNumberRegex
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)

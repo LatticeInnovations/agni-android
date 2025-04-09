@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.latticeonfhir.android.service.workmanager.utils
+package com.latticeonfhir.core.service.workmanager.utils
 
 import android.content.Context
 import androidx.lifecycle.asFlow
@@ -26,7 +26,7 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.latticeonfhir.android.service.workmanager.workers.base.SyncWorker
+import com.latticeonfhir.core.service.workmanager.workers.base.SyncWorker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 

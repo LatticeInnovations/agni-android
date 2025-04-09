@@ -7,9 +7,9 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseAndPrescriptionRelation
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseDataEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensedPrescriptionInfo
+import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispenseDataEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispensedPrescriptionInfo
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
 
 @Dao

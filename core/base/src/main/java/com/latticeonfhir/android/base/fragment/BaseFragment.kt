@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.base.fragment
+package com.latticeonfhir.core.base.fragment
 
 import androidx.fragment.app.Fragment
 

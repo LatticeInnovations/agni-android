@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.dispense.prescription
+package com.latticeonfhir.core.ui.dispense.prescription
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,10 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.ui.dispense.DrugDispenseViewModel
-import com.latticeonfhir.android.ui.prescription.previousprescription.MedicineDetails
-import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.ui.dispense.DrugDispenseViewModel
+import com.latticeonfhir.core.ui.prescription.previousprescription.MedicineDetails
+import com.latticeonfhir.core.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

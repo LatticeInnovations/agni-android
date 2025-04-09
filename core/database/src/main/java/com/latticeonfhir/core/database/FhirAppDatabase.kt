@@ -6,7 +6,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.latticeonfhir.android.BuildConfig
+import com.latticeonfhir.core.BuildConfig
 import com.latticeonfhir.core.database.dao.AppointmentDao
 import com.latticeonfhir.core.database.dao.CVDDao
 import com.latticeonfhir.core.database.dao.DispenseDao
@@ -64,7 +64,7 @@ import com.latticeonfhir.core.database.typeconverters.SymptomDiagnosisTypeConver
 import com.latticeonfhir.core.database.typeconverters.TypeConverter
 import com.latticeonfhir.core.database.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.core.database.views.RelationView
-import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
+import com.latticeonfhir.core.data.local.sharedpreferences.PreferenceStorage
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
 import java.util.UUID

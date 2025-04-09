@@ -1,7 +1,7 @@
-package com.latticeonfhir.android.auth.data.server.model.authentication
+package com.latticeonfhir.core.auth.data.server.model.authentication
 
 import androidx.annotation.Keep
-import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
+import com.latticeonfhir.core.data.server.enums.RegisterTypeEnum
 
 @Keep
 data class Login(

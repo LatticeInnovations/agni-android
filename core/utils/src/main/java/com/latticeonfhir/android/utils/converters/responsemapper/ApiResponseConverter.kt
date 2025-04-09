@@ -1,7 +1,7 @@
 package com.latticeonfhir.android.utils.converters.responsemapper
 
-import com.latticeonfhir.android.auth.data.server.model.BaseResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.core.auth.data.server.model.BaseResponse
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ResponseMapper
 import retrofit2.Response
 
 object ApiResponseConverter {

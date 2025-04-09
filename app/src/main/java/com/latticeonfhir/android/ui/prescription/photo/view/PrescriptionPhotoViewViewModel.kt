@@ -1,34 +1,34 @@
-package com.latticeonfhir.android.ui.prescription.photo.view
+package com.latticeonfhir.core.ui.prescription.photo.view
 
 import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.FhirApp
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.FhirApp
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel
+import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
-import com.latticeonfhir.android.data.local.enums.PrescriptionType
-import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
-import com.latticeonfhir.android.data.local.enums.SyncType
-import com.latticeonfhir.android.data.local.enums.WorkerStatus
-import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
+import com.latticeonfhir.core.data.local.enums.PrescriptionType
+import com.latticeonfhir.core.data.local.enums.SyncStatusMessageEnum
+import com.latticeonfhir.core.data.local.enums.SyncType
+import com.latticeonfhir.core.data.local.enums.WorkerStatus
+import com.latticeonfhir.core.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
-import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoPatch
-import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
-import com.latticeonfhir.android.ui.prescription.model.PrescriptionFormAndPhoto
+import com.latticeonfhir.core.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.core.data.local.repository.prescription.PrescriptionRepository
+import com.latticeonfhir.core.data.local.repository.schedule.ScheduleRepository
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.data.server.model.prescription.photo.PrescriptionPhotoPatch
+import com.latticeonfhir.core.data.server.model.prescription.photo.PrescriptionPhotoResponse
+import com.latticeonfhir.core.ui.prescription.model.PrescriptionFormAndPhoto
 import com.latticeonfhir.android.utils.common.Queries
-import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -50,7 +50,7 @@ class PrescriptionPhotoViewViewModel @Inject constructor(
     private val scheduleRepository: ScheduleRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository,
     private val preferenceRepository: PreferenceRepository
-) : com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel(application) {
+) : com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
     var isFabSelected by mutableStateOf(false)

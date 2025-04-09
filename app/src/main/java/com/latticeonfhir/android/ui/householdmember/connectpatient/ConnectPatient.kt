@@ -62,18 +62,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.relation.Relation
+import com.latticeonfhir.core.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.android.ui.common.DiscardAllRelationDialog
 import com.latticeonfhir.android.ui.common.RelationDialogContent
 import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import com.latticeonfhir.core.utils.converters.responseconverter.RelationshipList
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)

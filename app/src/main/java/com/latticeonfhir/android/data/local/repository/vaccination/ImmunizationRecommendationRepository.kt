@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.data.local.repository.vaccination
 
-import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
+import com.latticeonfhir.core.data.local.model.vaccination.ImmunizationRecommendation
 
 interface ImmunizationRecommendationRepository {
 

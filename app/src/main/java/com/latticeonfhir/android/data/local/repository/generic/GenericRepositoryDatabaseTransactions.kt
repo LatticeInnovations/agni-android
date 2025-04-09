@@ -1,36 +1,36 @@
-package com.latticeonfhir.android.data.local.repository.generic
+package com.latticeonfhir.core.data.local.repository.generic
 
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
-import com.latticeonfhir.android.data.local.enums.SyncType
-import com.latticeonfhir.android.data.local.model.patch.AppointmentPatchRequest
-import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
+import com.latticeonfhir.core.data.local.enums.SyncType
+import com.latticeonfhir.core.data.local.model.patch.AppointmentPatchRequest
+import com.latticeonfhir.core.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
-import com.latticeonfhir.android.data.local.model.vital.VitalLocal
+import com.latticeonfhir.core.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
 import com.latticeonfhir.android.data.local.roomdb.dao.GenericDao
-import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
-import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao
-import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
-import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
-import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.core.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.core.data.local.roomdb.dao.PrescriptionDao
+import com.latticeonfhir.core.data.local.roomdb.dao.ScheduleDao
+import com.latticeonfhir.core.data.local.roomdb.entities.generic.GenericEntity
+import com.latticeonfhir.core.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestRequest
-import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordRequest
+import com.latticeonfhir.core.data.server.model.labormed.medicalrecord.MedicalRecordRequest
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoPatch
 import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
+import com.latticeonfhir.core.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
+import com.latticeonfhir.core.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
-import com.latticeonfhir.android.utils.builders.GenericEntityPatchBuilder.processPatch
-import com.latticeonfhir.android.utils.constants.Id
-import com.latticeonfhir.android.utils.converters.responseconverter.FHIR.isFhirId
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.mapToObject
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
+import com.latticeonfhir.core.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.core.data.server.model.vaccination.ImmunizationResponse
+import com.latticeonfhir.core.utils.builders.GenericEntityPatchBuilder.processPatch
+import com.latticeonfhir.core.utils.constants.Id
+import com.latticeonfhir.core.utils.converters.responseconverter.FHIR.isFhirId
+import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.fromJson
+import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.mapToObject
+import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.toJson
 
 open class GenericRepositoryDatabaseTransactions(
     private val genericDao: GenericDao,

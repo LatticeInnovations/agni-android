@@ -1,10 +1,10 @@
-package com.latticeonfhir.android.di
+package com.latticeonfhir.core.di
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
-import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
+import com.latticeonfhir.core.data.local.sharedpreferences.PreferenceStorage
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorageImpl
 import dagger.Module
 import dagger.Provides

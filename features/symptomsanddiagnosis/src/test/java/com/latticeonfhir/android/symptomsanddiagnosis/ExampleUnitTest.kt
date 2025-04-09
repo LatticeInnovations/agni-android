@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.symptomsanddiagnosis
+package com.latticeonfhir.core.symptomsanddiagnosis
 
 import org.junit.Test
 

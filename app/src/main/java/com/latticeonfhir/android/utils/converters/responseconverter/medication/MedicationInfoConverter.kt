@@ -1,8 +1,8 @@
-package com.latticeonfhir.android.utils.converters.responseconverter.medication
+package com.latticeonfhir.core.utils.converters.responseconverter.medication
 
 import android.content.Context
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.enums.MedFrequencyEnum
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.local.enums.MedFrequencyEnum
 
 object MedicationInfoConverter {
     internal fun getMedInfo(

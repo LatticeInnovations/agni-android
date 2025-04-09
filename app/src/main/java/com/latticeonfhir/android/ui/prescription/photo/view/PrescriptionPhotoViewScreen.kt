@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.prescription.photo.view
+package com.latticeonfhir.core.ui.prescription.photo.view
 
 import android.Manifest
 import android.content.Context
@@ -108,26 +108,26 @@ import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.enums.PrescriptionType
-import com.latticeonfhir.android.data.local.enums.WorkerStatus
+import com.latticeonfhir.core.data.local.enums.PrescriptionType
+import com.latticeonfhir.core.data.local.enums.WorkerStatus
 import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
-import com.latticeonfhir.android.data.local.model.prescription.PrescriptionResponseLocal
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.CustomDialog
-import com.latticeonfhir.android.ui.common.DisplaySyncStatus
-import com.latticeonfhir.android.ui.common.Loader
-import com.latticeonfhir.android.ui.main.MainActivity
-import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
-import com.latticeonfhir.android.utils.constants.NavControllerConstants
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isToday
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.isYesterday
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toDayFullMonthYear
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionNavDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionTime
-import com.latticeonfhir.android.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
-import com.latticeonfhir.android.utils.file.FileManager
+import com.latticeonfhir.core.data.local.model.prescription.PrescriptionResponseLocal
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.ui.CustomDialog
+import com.latticeonfhir.core.ui.common.DisplaySyncStatus
+import com.latticeonfhir.core.ui.common.Loader
+import com.latticeonfhir.core.ui.main.MainActivity
+import com.latticeonfhir.core.ui.patientlandingscreen.AllSlotsBookedDialog
+import com.latticeonfhir.core.utils.constants.NavControllerConstants
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.isToday
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.isYesterday
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toDate
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toDayFullMonthYear
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toPrescriptionNavDate
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toPrescriptionTime
+import com.latticeonfhir.core.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
+import com.latticeonfhir.core.utils.file.FileManager
 import com.latticeonfhir.android.utils.file.FileManager.getUriFromFileName
 import com.latticeonfhir.android.utils.file.FileManager.shareImageToOtherApps
 import com.latticeonfhir.android.utils.network.ConnectivityObserver
@@ -335,7 +335,7 @@ fun PrescriptionPhotoViewScreen(
         }
     )
     if (viewModel.showDeleteDialog) {
-        com.latticeonfhir.android.ui.CustomDialog(
+        com.latticeonfhir.core.ui.CustomDialog(
             title = stringResource(id = R.string.discard_prescription),
             text = stringResource(id = R.string.discard_prescription_description),
             dismissBtnText = stringResource(id = R.string.no_go_back),
@@ -430,7 +430,7 @@ fun PrescriptionPhotoViewScreen(
         }
     }
     if (viewModel.showOpenSettingsDialog) {
-        com.latticeonfhir.android.ui.CustomDialog(
+        com.latticeonfhir.core.ui.CustomDialog(
             canBeDismissed = false,
             title = stringResource(id = R.string.permissions_required),
             text = stringResource(id = R.string.permissions_required_description),

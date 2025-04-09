@@ -1,21 +1,21 @@
-package com.latticeonfhir.android.ui.patientregistration.preview
+package com.latticeonfhir.core.ui.patientregistration.preview
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.data.local.model.relation.Relation
+import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
-import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.core.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
+import com.latticeonfhir.core.data.local.repository.relation.RelationRepository
+import com.latticeonfhir.core.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.core.data.server.model.patient.PatientLastUpdatedResponse
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
+import com.latticeonfhir.core.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,7 +29,7 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     private val identifierRepository: IdentifierRepository,
     private val relationRepository: RelationRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
-) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
+) : com.latticeonfhir.core.base.viewmodel.BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var patientResponse by mutableStateOf<PatientResponse?>(null)
 

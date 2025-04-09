@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.vitalsscreen.addvitals
+package com.latticeonfhir.core.ui.vitalsscreen.addvitals
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
@@ -58,17 +58,17 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.common.CustomTextField
-import com.latticeonfhir.android.ui.vitalsscreen.components.CustomChip
-import com.latticeonfhir.android.ui.vitalsscreen.components.OptionFilterBottomSheet
+import com.latticeonfhir.core.ui.common.CustomTextField
+import com.latticeonfhir.core.ui.vitalsscreen.components.CustomChip
+import com.latticeonfhir.core.ui.vitalsscreen.components.OptionFilterBottomSheet
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.android.utils.constants.VitalConstants
+import com.latticeonfhir.core.utils.constants.VitalConstants
 import com.latticeonfhir.android.utils.constants.VitalConstants.VITAL_UPDATE_OR_ADD
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
-import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbersWithDecimal
+import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.toJson
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.utils.regex.OnlyNumberRegex.onlyNumbers
+import com.latticeonfhir.core.utils.regex.OnlyNumberRegex.onlyNumbersWithDecimal
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber

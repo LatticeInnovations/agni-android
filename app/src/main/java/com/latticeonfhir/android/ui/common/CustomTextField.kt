@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.common
+package com.latticeonfhir.core.ui.common
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
@@ -12,7 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import com.latticeonfhir.android.R
+import com.latticeonfhir.core.R
 
 @Composable
 fun CustomTextField(

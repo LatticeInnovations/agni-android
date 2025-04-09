@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.repository.patient.lastupdated
+package com.latticeonfhir.core.data.local.repository.patient.lastupdated
 
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
 

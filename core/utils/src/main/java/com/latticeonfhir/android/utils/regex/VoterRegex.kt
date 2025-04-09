@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.regex
+package com.latticeonfhir.core.utils.regex
 
 object VoterRegex {
     val voterPattern = Regex("^[A-Za-z]{3}[0-9]{7}$")

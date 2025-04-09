@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.roomdb.dao
+package com.latticeonfhir.core.data.local.roomdb.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,9 +6,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.LabTestAndMedEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.labtestandmedrecord.LabTestAndMedEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndFileEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
 
 @Dao
 interface LabTestAndMedDao {

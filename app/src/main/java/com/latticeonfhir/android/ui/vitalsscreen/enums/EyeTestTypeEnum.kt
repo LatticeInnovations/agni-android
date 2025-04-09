@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.vitalsscreen.enums
+package com.latticeonfhir.core.ui.vitalsscreen.enums
 
 enum class EyeTestTypeEnum(val value: String) {
     WITHOUT_GLASSES("1"),

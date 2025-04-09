@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.enums
+package com.latticeonfhir.core.data.server.enums
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName

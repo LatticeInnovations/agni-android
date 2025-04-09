@@ -1,11 +1,11 @@
-package com.latticeonfhir.android.data.local.roomdb.dao
+package com.latticeonfhir.core.data.local.roomdb.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Transaction
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.patient.IdentifierEntity
 
 @Dao
 interface IdentifierDao {

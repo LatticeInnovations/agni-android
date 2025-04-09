@@ -1,18 +1,18 @@
-package com.latticeonfhir.android.data.server.repository.symptomsanddiagnosis
+package com.latticeonfhir.core.data.server.repository.symptomsanddiagnosis
 
-import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
+import com.latticeonfhir.core.data.local.roomdb.dao.SymptomsAndDiagnosisDao
 import com.latticeonfhir.android.data.server.api.SymptomsAndDiagnosisService
-import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.Diagnosis
+import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.Diagnosis
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.Symptoms
 import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
-import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsItem
-import com.latticeonfhir.android.utils.converters.responseconverter.toDiagnosis
-import com.latticeonfhir.android.utils.converters.responseconverter.toDiagnosisEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toSymptoms
-import com.latticeonfhir.android.utils.converters.responseconverter.toSymptomsEntity
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsItem
+import com.latticeonfhir.core.utils.converters.responseconverter.toDiagnosis
+import com.latticeonfhir.core.utils.converters.responseconverter.toDiagnosisEntity
+import com.latticeonfhir.core.utils.converters.responseconverter.toSymptoms
+import com.latticeonfhir.core.utils.converters.responseconverter.toSymptomsEntity
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiEndResponse
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiResponseConverter
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ResponseMapper
 import javax.inject.Inject
 
 class SymptomsAndDiagnosisRepositoryImpl @Inject constructor(

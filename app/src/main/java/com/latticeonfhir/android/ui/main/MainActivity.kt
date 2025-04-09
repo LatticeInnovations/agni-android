@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.main
+package com.latticeonfhir.core.ui.main
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -25,14 +25,14 @@ import com.latticeonfhir.android.base.activity.BaseActivity
 import com.latticeonfhir.android.navigation.NavigationAppHost
 import com.latticeonfhir.android.theme.FHIRAndroidTheme
 import com.latticeonfhir.android.utils.network.ConnectivityObserver
-import com.latticeonfhir.android.utils.network.NetworkConnectivityObserver
+import com.latticeonfhir.core.utils.network.NetworkConnectivityObserver
 import com.latticeonfhir.android.utils.regex.OtpRegex.otpPattern
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.util.regex.Pattern
 
 @AndroidEntryPoint
-class MainActivity : com.latticeonfhir.android.base.activity.BaseActivity() {
+class MainActivity : com.latticeonfhir.core.base.activity.BaseActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
     var otp by mutableStateOf("")

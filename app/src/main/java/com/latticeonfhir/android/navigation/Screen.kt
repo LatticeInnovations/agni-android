@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.navigation
+package com.latticeonfhir.core.navigation
 
 import com.latticeonfhir.android.auth.navigation.authRoute
 

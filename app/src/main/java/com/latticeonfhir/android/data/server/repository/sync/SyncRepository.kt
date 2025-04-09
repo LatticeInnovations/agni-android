@@ -1,25 +1,25 @@
-package com.latticeonfhir.android.data.server.repository.sync
+package com.latticeonfhir.core.data.server.repository.sync
 
 import com.latticeonfhir.android.data.server.model.create.CreateResponse
-import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
-import com.latticeonfhir.android.data.server.model.dispense.response.DispenseData
-import com.latticeonfhir.android.data.server.model.dispense.response.MedicineDispenseResponse
-import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
-import com.latticeonfhir.android.data.server.model.labormed.medicalrecord.MedicalRecordResponse
+import com.latticeonfhir.core.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.core.data.server.model.dispense.response.DispenseData
+import com.latticeonfhir.core.data.server.model.dispense.response.MedicineDispenseResponse
+import com.latticeonfhir.core.data.server.model.labormed.labtest.LabTestResponse
+import com.latticeonfhir.core.data.server.model.labormed.medicalrecord.MedicalRecordResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
-import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
-import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
-import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.data.server.model.prescription.medication.MedicationResponse
+import com.latticeonfhir.core.data.server.model.prescription.medication.MedicineTimeResponse
+import com.latticeonfhir.core.data.server.model.prescription.photo.PrescriptionPhotoResponse
+import com.latticeonfhir.core.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
+import com.latticeonfhir.core.data.server.model.relatedperson.RelatedPersonResponse
+import com.latticeonfhir.core.data.server.model.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
-import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
-import com.latticeonfhir.android.data.server.model.vaccination.ManufacturerResponse
-import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
+import com.latticeonfhir.core.data.server.model.vaccination.ImmunizationResponse
+import com.latticeonfhir.core.data.server.model.vaccination.ManufacturerResponse
+import com.latticeonfhir.core.data.server.model.vitals.VitalResponse
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ResponseMapper
 
 interface SyncRepository {
 

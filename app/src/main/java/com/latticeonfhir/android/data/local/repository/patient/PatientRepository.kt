@@ -1,8 +1,8 @@
-package com.latticeonfhir.android.data.local.repository.patient
+package com.latticeonfhir.core.data.local.repository.patient
 
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
 
 interface PatientRepository {
 

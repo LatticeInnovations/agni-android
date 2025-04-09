@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.enums
+package com.latticeonfhir.core.data.local.enums
 
 enum class AppointmentStatusEnum(val value: String, val label: String) {
     ARRIVED("arrived", "Arrived"),

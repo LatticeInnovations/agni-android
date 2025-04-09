@@ -37,13 +37,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.TabRowComposable
-import com.latticeonfhir.android.ui.common.appointmentsfab.AppointmentsFab
-import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
-import com.latticeonfhir.android.utils.constants.NavControllerConstants
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
+import com.latticeonfhir.core.ui.common.appointmentsfab.AppointmentsFab
+import com.latticeonfhir.core.ui.patientlandingscreen.AllSlotsBookedDialog
+import com.latticeonfhir.core.utils.constants.NavControllerConstants
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
