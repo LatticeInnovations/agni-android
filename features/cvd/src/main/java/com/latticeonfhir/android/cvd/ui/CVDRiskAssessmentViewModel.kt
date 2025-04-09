@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.android.cvd.data.server.model.CVDResponse
-import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
+import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.cvd.chart.RiskPredictionChartRepository
 import com.latticeonfhir.android.data.local.repository.cvd.records.CVDAssessmentRepository

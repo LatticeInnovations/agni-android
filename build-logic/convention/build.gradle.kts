@@ -98,6 +98,10 @@ gradlePlugin {
             id = libs.plugins.latticeonfhir.android.room.get().pluginId
             implementationClass = "AndroidRoomConventionPlugin"
         }
+        register("androidSharedPreference") {
+            id = libs.plugins.latticeonfhir.android.sharedpreference.get().pluginId
+            implementationClass = "AndroidSharedPreferenceConventionPlugin"
+        }
         register("androidFirebase") {
             id = libs.plugins.latticeonfhir.android.application.firebase.get().pluginId
             implementationClass = "AndroidApplicationFirebaseConventionPlugin"
