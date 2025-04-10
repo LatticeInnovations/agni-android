@@ -1,17 +1,17 @@
-package com.latticeonfhir.android.ui.patienteditscreen.address
+package com.latticeonfhir.core.ui.patienteditscreen.address
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.patientregistration.step3.Address
+import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.core.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class EditPatientAddressViewModel @Inject constructor(
     val patientRepository: PatientRepository,
     val genericRepository: GenericRepository
-) : com.latticeonfhir.android.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
+) : com.latticeonfhir.core.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
 

@@ -1,13 +1,13 @@
-package com.latticeonfhir.android.vaccination.navigation
+package com.latticeonfhir.core.vaccination.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.latticeonfhir.android.vaccination.ui.VaccinationScreen
-import com.latticeonfhir.android.vaccination.ui.add.AddVaccinationScreen
-import com.latticeonfhir.android.vaccination.ui.error.VaccinationErrorScreen
-import com.latticeonfhir.android.vaccination.ui.view.ViewVaccinationScreen
+import com.latticeonfhir.core.vaccination.ui.VaccinationScreen
+import com.latticeonfhir.core.vaccination.ui.add.AddVaccinationScreen
+import com.latticeonfhir.core.vaccination.ui.error.VaccinationErrorScreen
+import com.latticeonfhir.core.vaccination.ui.view.ViewVaccinationScreen
 
 fun NavGraphBuilder.vaccinationNavGraph(
     navController: NavController

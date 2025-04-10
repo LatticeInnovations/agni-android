@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.common
+package com.latticeonfhir.core.ui.common
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,13 +27,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonth
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toMonth
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearPast
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toOneYearPast
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toYear
 import java.util.Date
 
 

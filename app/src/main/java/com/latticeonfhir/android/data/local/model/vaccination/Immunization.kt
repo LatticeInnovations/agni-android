@@ -1,7 +1,7 @@
-package com.latticeonfhir.android.data.local.model.vaccination
+package com.latticeonfhir.core.data.local.model.vaccination
 
 import androidx.annotation.Keep
-import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ManufacturerEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.vaccination.ManufacturerEntity
 import java.util.Date
 
 @Keep

@@ -4,9 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.core.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -14,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PatientProfileViewModel @Inject constructor(
     private val patientRepository: PatientRepository
-) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
+) : com.latticeonfhir.core.base.viewmodel.BaseViewModel() {
 
     internal var isLaunched by mutableStateOf(false)
     internal var id by mutableStateOf("")

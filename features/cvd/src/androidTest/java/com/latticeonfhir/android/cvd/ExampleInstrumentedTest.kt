@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.cvd
+package com.latticeonfhir.core.cvd
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

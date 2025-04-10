@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.model.prescription.photo
+package com.latticeonfhir.core.data.server.model.prescription.photo
 
 import androidx.annotation.Keep
 

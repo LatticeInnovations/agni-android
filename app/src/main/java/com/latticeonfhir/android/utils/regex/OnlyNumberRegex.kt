@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.regex
+package com.latticeonfhir.core.utils.regex
 
 object OnlyNumberRegex {
     val onlyNumbers = Regex("^\\d+\$")

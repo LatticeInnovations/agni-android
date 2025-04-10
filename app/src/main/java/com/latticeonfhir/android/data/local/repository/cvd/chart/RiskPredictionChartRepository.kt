@@ -1,6 +1,6 @@
-package com.latticeonfhir.android.data.local.repository.cvd.chart
+package com.latticeonfhir.core.data.local.repository.cvd.chart
 
-import com.latticeonfhir.android.data.local.roomdb.entities.cvd.RiskPredictionCharts
+import com.latticeonfhir.core.data.local.roomdb.entities.cvd.RiskPredictionCharts
 
 interface RiskPredictionChartRepository {
     suspend fun insertRecords(vararg riskPredictionCharts: RiskPredictionCharts): List<Long>

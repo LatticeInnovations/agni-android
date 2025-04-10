@@ -2,7 +2,7 @@ package com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosi
 
 import android.os.Parcelable
 import androidx.annotation.Keep
-import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
+import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
 import kotlinx.parcelize.Parcelize
 import java.util.Date
 

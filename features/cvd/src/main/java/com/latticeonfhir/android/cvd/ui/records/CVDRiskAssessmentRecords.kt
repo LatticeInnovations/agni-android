@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.cvd.ui.records
+package com.latticeonfhir.core.cvd.ui.records
 
 import android.graphics.Color
 import android.graphics.DashPathEffect
@@ -34,12 +34,12 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.latticeonfhir.android.cvd.R
-import com.latticeonfhir.android.cvd.data.server.model.CVDResponse
-import com.latticeonfhir.android.cvd.ui.CVDRiskAssessmentViewModel
+import com.latticeonfhir.core.cvd.data.server.model.CVDResponse
+import com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentViewModel
 import com.latticeonfhir.android.theme.Black
 import com.latticeonfhir.android.theme.White
-import com.latticeonfhir.android.utils.converters.TimeConverter.formatDateToDayMonth
-import com.latticeonfhir.android.utils.converters.TimeConverter.toddMMMyyyy
+import com.latticeonfhir.core.utils.converters.TimeConverter.formatDateToDayMonth
+import com.latticeonfhir.core.utils.converters.TimeConverter.toddMMMyyyy
 import kotlin.math.ceil
 
 @Composable

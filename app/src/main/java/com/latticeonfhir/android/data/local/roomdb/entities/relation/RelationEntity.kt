@@ -5,8 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.latticeonfhir.android.data.local.enums.RelationEnum
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
+import com.latticeonfhir.core.data.local.enums.RelationEnum
+import com.latticeonfhir.core.data.local.roomdb.entities.patient.PatientEntity
 
 @Keep
 @Entity(

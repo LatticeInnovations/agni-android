@@ -1,17 +1,17 @@
-package com.latticeonfhir.android.ui.searchpatient
+package com.latticeonfhir.core.ui.searchpatient
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.enums.LastVisit.Companion.getLastVisitList
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.patientregistration.step3.Address
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchPatientViewModel @Inject constructor() : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
+class SearchPatientViewModel @Inject constructor() : com.latticeonfhir.core.base.viewmodel.BaseViewModel() {
     val onlyNumbers = Regex("^\\d+\$")
     var isLaunched by mutableStateOf(false)
     var fromHouseholdMember by mutableStateOf(false)

@@ -1,10 +1,10 @@
-package com.latticeonfhir.android.data.local.roomdb.entities.dispense
+package com.latticeonfhir.core.data.local.roomdb.entities.dispense
 
 import androidx.annotation.Keep
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
-import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
+import com.latticeonfhir.core.data.local.roomdb.entities.prescription.PrescriptionEntity
+import com.latticeonfhir.core.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
 
 @Keep
 data class DispenseAndPrescriptionRelation(

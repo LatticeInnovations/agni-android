@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.network
+package com.latticeonfhir.core.utils.network
 
 import android.content.Context
 import android.net.ConnectivityManager

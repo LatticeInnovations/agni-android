@@ -5,10 +5,10 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationStrengthRelation
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.StrengthEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.medication.MedicationEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.medication.MedicationStrengthRelation
+import com.latticeonfhir.core.data.local.roomdb.entities.medication.MedicineTimingEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.medication.StrengthEntity
 
 @Dao
 interface MedicationDao {

@@ -1,9 +1,9 @@
-package com.latticeonfhir.android.data.local.repository.medication
+package com.latticeonfhir.core.data.local.repository.medication
 
 import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationStrengthRelation
 import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicineTimingEntity
-import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
+import com.latticeonfhir.core.data.server.model.prescription.medication.MedicationResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.toMedicationResponse
 import javax.inject.Inject
 

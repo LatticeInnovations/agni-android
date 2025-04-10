@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.appointments
+package com.latticeonfhir.core.ui.appointments
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,11 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter.getFullName
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter.getFullName
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 
 @Composable
 fun CancelAppointmentDialog(

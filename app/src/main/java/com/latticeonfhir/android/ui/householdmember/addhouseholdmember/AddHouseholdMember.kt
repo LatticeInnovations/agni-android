@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.householdmember.addhouseholdmember
+package com.latticeonfhir.core.ui.householdmember.addhouseholdmember
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -45,10 +45,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
+import com.latticeonfhir.core.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import kotlinx.coroutines.launch
 

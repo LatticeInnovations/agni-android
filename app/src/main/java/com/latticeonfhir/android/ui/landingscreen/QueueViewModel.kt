@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.landingscreen
+package com.latticeonfhir.core.ui.landingscreen
 
 import android.app.Application
 import androidx.compose.runtime.getValue
@@ -7,26 +7,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
-import com.latticeonfhir.android.FhirApp
+import com.latticeonfhir.core.FhirApp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
+import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
+import com.latticeonfhir.core.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
+import com.latticeonfhir.core.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
-import com.latticeonfhir.android.service.workmanager.utils.Sync.getWorkerInfo
-import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
+import com.latticeonfhir.core.data.server.model.patient.PatientLastUpdatedResponse
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.data.server.model.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.core.service.workmanager.utils.Sync.getWorkerInfo
+import com.latticeonfhir.core.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +44,7 @@ class QueueViewModel @Inject constructor(
     private val scheduleRepository: ScheduleRepository,
     private val genericRepository: GenericRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
-) : com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel(application) {
+) : com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel(application) {
 
     // queue screen
     var isLaunched by mutableStateOf(false)

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.model.prescription
+package com.latticeonfhir.core.data.local.model.prescription
 
 import androidx.annotation.Keep
 import java.util.Date

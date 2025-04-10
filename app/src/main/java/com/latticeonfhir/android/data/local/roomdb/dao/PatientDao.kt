@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.roomdb.dao
+package com.latticeonfhir.core.data.local.roomdb.dao
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
@@ -8,8 +8,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.patient.PatientEntity
 
 @Dao
 interface PatientDao {

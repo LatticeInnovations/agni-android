@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.appointments
+package com.latticeonfhir.core.ui.appointments
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
@@ -18,21 +18,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.theme.ArrivedContainer
+import com.latticeonfhir.core.theme.ArrivedContainer
 import com.latticeonfhir.android.theme.ArrivedLabel
 import com.latticeonfhir.android.theme.CancelledContainer
 import com.latticeonfhir.android.theme.CancelledLabel
-import com.latticeonfhir.android.theme.CompletedContainer
-import com.latticeonfhir.android.theme.CompletedLabel
-import com.latticeonfhir.android.theme.InProgressContainer
-import com.latticeonfhir.android.theme.InProgressLabel
-import com.latticeonfhir.android.theme.NoShowContainer
+import com.latticeonfhir.core.theme.CompletedContainer
+import com.latticeonfhir.core.theme.CompletedLabel
+import com.latticeonfhir.core.theme.InProgressContainer
+import com.latticeonfhir.core.theme.InProgressLabel
+import com.latticeonfhir.core.theme.NoShowContainer
 import com.latticeonfhir.android.theme.NoShowLabel
-import com.latticeonfhir.android.theme.TodayScheduledContainer
-import com.latticeonfhir.android.theme.TodayScheduledLabel
-import com.latticeonfhir.android.theme.WalkInContainer
-import com.latticeonfhir.android.theme.WalkInLabel
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAppointmentDate
+import com.latticeonfhir.core.theme.TodayScheduledContainer
+import com.latticeonfhir.core.theme.TodayScheduledLabel
+import com.latticeonfhir.core.theme.WalkInContainer
+import com.latticeonfhir.core.theme.WalkInLabel
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 
 @Composable
 fun PastAppointments(viewModel: AppointmentsScreenViewModel) {

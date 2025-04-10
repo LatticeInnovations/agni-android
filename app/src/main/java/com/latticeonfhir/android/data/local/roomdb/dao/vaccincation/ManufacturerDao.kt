@@ -1,11 +1,11 @@
-package com.latticeonfhir.android.data.local.roomdb.dao.vaccincation
+package com.latticeonfhir.core.data.local.roomdb.dao.vaccincation
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ManufacturerEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.vaccination.ManufacturerEntity
 
 @Dao
 interface ManufacturerDao {

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.householdmember.searchresult
+package com.latticeonfhir.core.ui.householdmember.searchresult
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -35,15 +35,15 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.search.SearchParameters
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.local.model.search.SearchParameters
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.android.ui.common.Loader
-import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import com.latticeonfhir.core.utils.converters.responseconverter.AddressConverter
+import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAge
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTimeInMilli
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

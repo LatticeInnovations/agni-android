@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.model.vaccination
+package com.latticeonfhir.core.data.local.model.vaccination
 
 import android.os.Parcelable
 import androidx.annotation.Keep

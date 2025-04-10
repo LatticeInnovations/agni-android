@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.cvd.ui.form
+package com.latticeonfhir.core.cvd.ui.form
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
@@ -32,10 +32,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.cvd.R
-import com.latticeonfhir.android.cvd.ui.CVDRiskAssessmentViewModel
+import com.latticeonfhir.core.cvd.R
+import com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentViewModel
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
-import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbersWithDecimal
+import com.latticeonfhir.core.utils.regex.OnlyNumberRegex.onlyNumbersWithDecimal
 import com.latticeonfhir.core.model.enums.YesNoEnum
 
 @Composable

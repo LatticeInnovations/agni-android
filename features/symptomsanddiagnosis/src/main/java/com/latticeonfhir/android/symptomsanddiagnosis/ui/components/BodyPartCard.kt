@@ -19,7 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.symptomsanddiagnosis.R
+import com.latticeonfhir.core.symptomsanddiagnosis.R
 
 @Composable
 fun BodyPartCard(title: String, index: Int, lastIndex: Int,onClick:()->Unit) {

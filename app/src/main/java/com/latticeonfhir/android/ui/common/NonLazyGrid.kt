@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.common
+package com.latticeonfhir.core.ui.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

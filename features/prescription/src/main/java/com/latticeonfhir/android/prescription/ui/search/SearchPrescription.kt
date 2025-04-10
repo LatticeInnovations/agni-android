@@ -35,8 +35,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.prescription.R
-import com.latticeonfhir.android.prescription.ui.PrescriptionViewModel
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.ui.prescription.PrescriptionViewModel
 import com.latticeonfhir.android.utils.regex.OnlyAlphabetRegex.onlyAlphabets
 
 @Composable

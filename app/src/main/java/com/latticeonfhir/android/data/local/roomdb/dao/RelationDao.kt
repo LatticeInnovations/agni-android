@@ -1,12 +1,12 @@
-package com.latticeonfhir.android.data.local.roomdb.dao
+package com.latticeonfhir.core.data.local.roomdb.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.latticeonfhir.android.data.local.enums.RelationEnum
-import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
+import com.latticeonfhir.core.data.local.enums.RelationEnum
+import com.latticeonfhir.core.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 
 @Dao

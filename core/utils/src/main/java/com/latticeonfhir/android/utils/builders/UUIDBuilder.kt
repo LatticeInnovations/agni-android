@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.builders
+package com.latticeonfhir.core.utils.builders
 
 import java.util.UUID
 

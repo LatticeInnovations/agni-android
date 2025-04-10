@@ -1,9 +1,9 @@
-package com.latticeonfhir.android.data.local.roomdb.entities.search
+package com.latticeonfhir.core.data.local.roomdb.entities.search
 
 import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
+import com.latticeonfhir.core.data.local.enums.SearchTypeEnum
 import java.util.Date
 
 @Entity

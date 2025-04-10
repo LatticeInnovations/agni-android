@@ -1,15 +1,15 @@
-package com.latticeonfhir.android.service.workmanager.request
+package com.latticeonfhir.core.service.workmanager.request
 
 import android.content.Context
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import com.latticeonfhir.android.service.workmanager.utils.Delay
-import com.latticeonfhir.android.service.workmanager.utils.InitialDelay
-import com.latticeonfhir.android.service.workmanager.utils.PeriodicSyncConfiguration
-import com.latticeonfhir.android.service.workmanager.utils.RepeatInterval
-import com.latticeonfhir.android.service.workmanager.utils.Sync
-import com.latticeonfhir.android.service.workmanager.workers.status.completed.AppointmentCompletedStatusUpdateWorkerImpl
-import com.latticeonfhir.android.service.workmanager.workers.status.noshow.AppointmentNoShowStatusUpdateWorkerImpl
+import com.latticeonfhir.core.service.workmanager.utils.InitialDelay
+import com.latticeonfhir.core.service.workmanager.utils.PeriodicSyncConfiguration
+import com.latticeonfhir.core.service.workmanager.utils.RepeatInterval
+import com.latticeonfhir.core.service.workmanager.utils.Sync
+import com.latticeonfhir.core.service.workmanager.workers.status.completed.AppointmentCompletedStatusUpdateWorkerImpl
+import com.latticeonfhir.core.service.workmanager.workers.status.noshow.AppointmentNoShowStatusUpdateWorkerImpl
 import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect

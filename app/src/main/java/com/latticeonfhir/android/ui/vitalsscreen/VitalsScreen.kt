@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.vitalsscreen
+package com.latticeonfhir.core.ui.vitalsscreen
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
@@ -64,33 +64,33 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.github.mikephil.charting.data.Entry
-import com.latticeonfhir.android.R
+import com.latticeonfhir.core.R
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
-import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.CustomDialog
-import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
+import com.latticeonfhir.core.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.ui.CustomDialog
+import com.latticeonfhir.core.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.android.theme.VitalLabel
-import com.latticeonfhir.android.ui.vitalsscreen.components.CustomChip
-import com.latticeonfhir.android.ui.vitalsscreen.components.LineChartView
+import com.latticeonfhir.core.ui.vitalsscreen.components.CustomChip
+import com.latticeonfhir.core.ui.vitalsscreen.components.LineChartView
 import com.latticeonfhir.android.ui.vitalsscreen.components.LineChartViewGlucose
-import com.latticeonfhir.android.ui.vitalsscreen.components.SegmentedButtonForVital
-import com.latticeonfhir.android.ui.vitalsscreen.enums.BGEnum
-import com.latticeonfhir.android.ui.vitalsscreen.enums.TemperatureEnum
+import com.latticeonfhir.core.ui.vitalsscreen.components.SegmentedButtonForVital
+import com.latticeonfhir.core.ui.vitalsscreen.enums.BGEnum
+import com.latticeonfhir.core.ui.vitalsscreen.enums.TemperatureEnum
 import com.latticeonfhir.android.ui.vitalsscreen.enums.VitalsEyeEnum
 import com.latticeonfhir.android.ui.vitalsscreen.enums.VitalsTrendEnum
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.VitalConstants.ALL
-import com.latticeonfhir.android.utils.constants.VitalConstants.CVD_RECORD
-import com.latticeonfhir.android.utils.constants.VitalConstants.LIST_TYPE_CVD
-import com.latticeonfhir.android.utils.constants.VitalConstants.LIST_TYPE_VITAL
-import com.latticeonfhir.android.utils.constants.VitalConstants.VITAL_UPDATE_OR_ADD
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
+import com.latticeonfhir.core.utils.constants.VitalConstants.CVD_RECORD
+import com.latticeonfhir.core.utils.constants.VitalConstants.LIST_TYPE_CVD
+import com.latticeonfhir.core.utils.constants.VitalConstants.LIST_TYPE_VITAL
+import com.latticeonfhir.core.utils.constants.VitalConstants.VITAL_UPDATE_OR_ADD
+import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertDateFormat
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertedDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.formatDateToDayMonth
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.convertedDate
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.formatDateToDayMonth
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -312,7 +312,7 @@ private fun ShowDialogs(
     vitalsViewModel: VitalsViewModel, navController: NavController, scope: CoroutineScope
 ) {
     if (vitalsViewModel.showAddToQueueDialog) {
-        com.latticeonfhir.android.ui.CustomDialog(title = if (vitalsViewModel.appointment != null) stringResource(
+        com.latticeonfhir.core.ui.CustomDialog(title = if (vitalsViewModel.appointment != null) stringResource(
             id = R.string.patient_arrived_question
         ) else stringResource(
             id = R.string.add_to_queue_question

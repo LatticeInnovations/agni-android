@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.patientlandingscreen
+package com.latticeonfhir.core.ui.patientlandingscreen
 
 import android.app.Application
 import androidx.compose.runtime.getValue
@@ -7,20 +7,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
-import com.latticeonfhir.android.FhirApp
-import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
+import com.latticeonfhir.core.FhirApp
+import com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel
+import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.cvd.records.CVDAssessmentRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.local.repository.prescription.PrescriptionRepository
 import com.latticeonfhir.android.data.local.repository.vaccination.ImmunizationRecommendationRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.service.workmanager.utils.Sync
-import com.latticeonfhir.android.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.network.CheckNetwork
+import com.latticeonfhir.core.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.utils.network.CheckNetwork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

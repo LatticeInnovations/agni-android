@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.model.cvd
+package com.latticeonfhir.core.data.server.model.cvd
 
 import androidx.annotation.Keep
 import java.util.Date

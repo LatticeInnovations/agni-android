@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.repository.preference
+package com.latticeonfhir.core.data.local.repository.preference
 
 interface PreferenceRepository {
 

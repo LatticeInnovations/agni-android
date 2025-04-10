@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis
+package com.latticeonfhir.core.data.local.roomdb.entities.symptomsanddiagnosis
 
 import androidx.annotation.Keep
 import androidx.room.Entity

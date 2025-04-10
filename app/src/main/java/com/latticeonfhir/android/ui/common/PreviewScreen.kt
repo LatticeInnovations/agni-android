@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.common
+package com.latticeonfhir.core.ui.common
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -26,11 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.constants.IdentificationConstants
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.utils.constants.IdentificationConstants
+import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
 import java.util.Locale
 
 @Composable

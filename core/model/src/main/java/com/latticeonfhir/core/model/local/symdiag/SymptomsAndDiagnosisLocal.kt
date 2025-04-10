@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.model.symdiag
+package com.latticeonfhir.core.data.local.model.symdiag
 
 import androidx.annotation.Keep
 import java.util.Date

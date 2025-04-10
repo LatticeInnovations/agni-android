@@ -1,9 +1,9 @@
 package com.latticeonfhir.android.data.local.repository.symptomsanddiagnosis
 
-import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
-import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
+import com.latticeonfhir.core.data.local.roomdb.dao.SymptomsAndDiagnosisDao
+import com.latticeonfhir.core.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
 import com.latticeonfhir.android.utils.converters.responseconverter.toSymptomsAndDiagnosisEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toSymptomsAndDiagnosisLocal
+import com.latticeonfhir.core.utils.converters.responseconverter.toSymptomsAndDiagnosisLocal
 import javax.inject.Inject
 
 class SymDiagRepositoryImpl @Inject constructor(private val dao: SymptomsAndDiagnosisDao) :

@@ -1,10 +1,10 @@
-package com.latticeonfhir.android.data.local.roomdb.entities.dispense
+package com.latticeonfhir.core.data.local.roomdb.entities.dispense
 
 import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.medication.MedicationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
 import java.util.Date
 

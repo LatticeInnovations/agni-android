@@ -1,8 +1,8 @@
-package com.latticeonfhir.android.utils.converters.responseconverter
+package com.latticeonfhir.core.utils.converters.responseconverter
 
-import com.latticeonfhir.android.data.server.model.prescription.photo.File
-import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants
-import com.latticeonfhir.android.utils.constants.LabTestAndMedConstants.DOC_ID
+import com.latticeonfhir.core.data.server.model.prescription.photo.File
+import com.latticeonfhir.core.utils.constants.LabTestAndMedConstants
+import com.latticeonfhir.core.utils.constants.LabTestAndMedConstants.DOC_ID
 import java.util.Date
 
 object LabAndMedConverter {

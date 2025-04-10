@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.roomdb.dao
+package com.latticeonfhir.core.data.local.roomdb.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -6,9 +6,9 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsEntity
 
 @Dao
 interface SymptomsAndDiagnosisDao {

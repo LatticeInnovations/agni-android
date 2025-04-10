@@ -1,42 +1,41 @@
-package com.latticeonfhir.android.navigation
+package com.latticeonfhir.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.latticeonfhir.android.auth.navigation.authNavGraph
-import com.latticeonfhir.android.auth.navigation.authRoute
-import com.latticeonfhir.android.cvd.ui.CVDRiskAssessmentScreen
-import com.latticeonfhir.android.prescription.navigation.prescriptionNavGraph
-import com.latticeonfhir.android.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
-import com.latticeonfhir.android.ui.appointments.AppointmentsScreen
-import com.latticeonfhir.android.ui.appointments.schedule.ScheduleAppointments
-import com.latticeonfhir.android.ui.dispense.DrugDispenseScreen
+import com.latticeonfhir.core.auth.navigation.authNavGraph
+import com.latticeonfhir.core.auth.navigation.authRoute
+import com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentScreen
+import com.latticeonfhir.core.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
+import com.latticeonfhir.core.ui.appointments.AppointmentsScreen
+import com.latticeonfhir.core.ui.appointments.schedule.ScheduleAppointments
+import com.latticeonfhir.core.ui.dispense.DrugDispenseScreen
 import com.latticeonfhir.android.ui.dispense.otc.OTCScreen
 import com.latticeonfhir.android.ui.dispense.prescription.dispenseprescription.DispensePrescriptionScreen
-import com.latticeonfhir.android.ui.householdmember.HouseholdMembersScreen
-import com.latticeonfhir.android.ui.householdmember.addhouseholdmember.AddHouseholdMember
+import com.latticeonfhir.core.ui.householdmember.HouseholdMembersScreen
+import com.latticeonfhir.core.ui.householdmember.addhouseholdmember.AddHouseholdMember
 import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatient
 import com.latticeonfhir.android.ui.householdmember.searchresult.SearchResult
 import com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.upload.PhotoUploadScreen
-import com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.view.PhotoViewScreen
-import com.latticeonfhir.android.ui.landingscreen.LandingScreen
-import com.latticeonfhir.android.ui.patienteditscreen.address.EditPatientAddress
+import com.latticeonfhir.core.ui.labtestandmedicalrecord.photo.view.PhotoViewScreen
+import com.latticeonfhir.core.ui.landingscreen.LandingScreen
+import com.latticeonfhir.core.ui.patienteditscreen.address.EditPatientAddress
 import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.EditBasicInformation
-import com.latticeonfhir.android.ui.patienteditscreen.identification.EditIdentification
+import com.latticeonfhir.core.ui.patienteditscreen.identification.EditIdentification
 import com.latticeonfhir.android.ui.patientlandingscreen.PatientLandingScreen
-import com.latticeonfhir.android.ui.patientprofile.PatientProfile
+import com.latticeonfhir.core.ui.patientprofile.PatientProfile
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
-import com.latticeonfhir.android.ui.patientregistration.preview.PatientRegistrationPreview
-import com.latticeonfhir.android.ui.patientregistration.step4.ConfirmRelationship
-import com.latticeonfhir.android.prescription.ui.PrescriptionScreen
-import com.latticeonfhir.android.prescription.ui.photo.upload.PrescriptionPhotoUploadScreen
-import com.latticeonfhir.android.prescription.ui.photo.view.PrescriptionPhotoViewScreen
+import com.latticeonfhir.core.ui.patientregistration.preview.PatientRegistrationPreview
+import com.latticeonfhir.core.ui.patientregistration.step4.ConfirmRelationship
+import com.latticeonfhir.core.ui.prescription.PrescriptionScreen
+import com.latticeonfhir.core.ui.prescription.photo.upload.PrescriptionPhotoUploadScreen
+import com.latticeonfhir.android.ui.prescription.photo.view.PrescriptionPhotoViewScreen
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
-import com.latticeonfhir.android.ui.vitalsscreen.VitalsScreen
-import com.latticeonfhir.android.ui.vitalsscreen.addvitals.AddVitalsScreen
-import com.latticeonfhir.android.vaccination.navigation.vaccinationNavGraph
+import com.latticeonfhir.core.ui.vitalsscreen.VitalsScreen
+import com.latticeonfhir.core.ui.vitalsscreen.addvitals.AddVitalsScreen
+import com.latticeonfhir.core.vaccination.navigation.vaccinationNavGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -82,7 +81,7 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         prescriptionNavGraph(navController)
 
         composable(Screen.CVDRiskAssessmentScreen.route) {
-            com.latticeonfhir.android.cvd.ui.CVDRiskAssessmentScreen(
+            com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentScreen(
                 navController
             )
         }

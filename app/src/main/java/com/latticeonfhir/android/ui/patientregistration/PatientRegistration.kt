@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.patientregistration
+package com.latticeonfhir.core.ui.patientregistration
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -38,12 +38,12 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.RelationDialogContent
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.ui.patientregistration.preview.DiscardDialog
+import com.latticeonfhir.core.ui.patientregistration.model.PatientRegister
+import com.latticeonfhir.core.ui.patientregistration.preview.DiscardDialog
 import com.latticeonfhir.android.ui.patientregistration.step1.PatientRegistrationStepOne
 import com.latticeonfhir.android.ui.patientregistration.step2.PatientRegistrationStepTwo
-import com.latticeonfhir.android.ui.patientregistration.step3.PatientRegistrationStepThree
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.core.ui.patientregistration.step3.PatientRegistrationStepThree
+import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

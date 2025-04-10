@@ -1,10 +1,10 @@
-package com.latticeonfhir.android.data.server.api
+package com.latticeonfhir.core.data.server.api
 
 import com.latticeonfhir.android.base.server.BaseResponse
-import com.latticeonfhir.android.data.server.model.create.CreateResponse
-import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
-import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
-import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
+import com.latticeonfhir.core.data.server.model.create.CreateResponse
+import com.latticeonfhir.core.data.server.model.prescription.medication.MedicationResponse
+import com.latticeonfhir.core.data.server.model.prescription.medication.MedicineTimeResponse
+import com.latticeonfhir.core.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -19,13 +19,13 @@ import retrofit2.http.QueryMap
 interface PrescriptionApiService {
 
     @GET("Medication")
-    suspend fun getAllMedications(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<MedicationResponse>>>
+    suspend fun getAllMedications(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.core.base.server.BaseResponse<List<MedicationResponse>>>
 
     @POST("sync/{endPoint}")
     suspend fun postPrescriptionRelatedData(
         @Path("endPoint") endPoint: String,
         @Body prescriptionData: List<Any>
-    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
+    ): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
 
     @GET("MedicationRequest")
     suspend fun getPastPrescription(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<PrescriptionResponse>>>
@@ -34,11 +34,11 @@ interface PrescriptionApiService {
     suspend fun getPastPhotoPrescription(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<PrescriptionPhotoResponse>>>
 
     @GET("sct/medTime")
-    suspend fun getMedicineTime(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<MedicineTimeResponse>>>
+    suspend fun getMedicineTime(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.core.base.server.BaseResponse<List<MedicineTimeResponse>>>
 
     @PATCH("sync/DocumentReference")
-    suspend fun patchListOfChanges(@Body patchLogs: List<Any>): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
+    suspend fun patchListOfChanges(@Body patchLogs: List<Any>): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
 
     @HTTP(method = "DELETE", path = "sync/PrescriptionFile", hasBody = true)
-    suspend fun deletePrescriptionPhoto(@Body patchLogs: List<Any>): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
+    suspend fun deletePrescriptionPhoto(@Body patchLogs: List<Any>): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
 }

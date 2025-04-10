@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.landingscreen
+package com.latticeonfhir.core.ui.landingscreen
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
@@ -73,16 +73,16 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum.Companion.fromLabel
+import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum.Companion.fromLabel
 import com.latticeonfhir.android.data.local.model.search.SearchParameters
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.BottomNavBar
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.ADD_TO_QUEUE
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.ADD_TO_QUEUE
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT_ARRIVED
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.to14DaysWeek
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toSlotDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toYear
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.to14DaysWeek
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toSlotDate
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toYear
 import kotlinx.coroutines.launch
 import java.util.Date
 

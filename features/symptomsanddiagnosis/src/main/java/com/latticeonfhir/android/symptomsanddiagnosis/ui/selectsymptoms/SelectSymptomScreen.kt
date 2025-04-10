@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.symptomsanddiagnosis.ui.selectsymptoms
+package com.latticeonfhir.core.symptomsanddiagnosis.ui.selectsymptoms
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
@@ -60,17 +60,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.symptomsanddiagnosis.R
-import com.latticeonfhir.android.symptomsanddiagnosis.ui.addSymptomsanddiagnosis.AddSymptomsAndDiagnosisViewModel
+import com.latticeonfhir.core.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.symptomsanddiagnosis.R
+import com.latticeonfhir.core.symptomsanddiagnosis.ui.addSymptomsanddiagnosis.AddSymptomsAndDiagnosisViewModel
 import com.latticeonfhir.android.symptomsanddiagnosis.ui.addSymptomsanddiagnosis.AddSymptomsScreen
-import com.latticeonfhir.android.symptomsanddiagnosis.ui.addSymptomsanddiagnosis.SearchSymptomsAndDiagnosis
-import com.latticeonfhir.android.symptomsanddiagnosis.ui.components.SymptomsCustomChip
-import com.latticeonfhir.android.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG
-import com.latticeonfhir.android.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG_UPDATE_OR_ADD
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.android.utils.converters.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.symptomsanddiagnosis.ui.addSymptomsanddiagnosis.SearchSymptomsAndDiagnosis
+import com.latticeonfhir.core.symptomsanddiagnosis.ui.components.SymptomsCustomChip
+import com.latticeonfhir.core.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG
+import com.latticeonfhir.core.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG_UPDATE_OR_ADD
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.android.utils.converters.TimeConverter.toTodayStartDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

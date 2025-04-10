@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.file
+package com.latticeonfhir.core.utils.file
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -8,7 +8,7 @@ import android.net.Uri
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
-import com.latticeonfhir.android.utils.file.FileManager.createFolder
+import com.latticeonfhir.core.utils.file.FileManager.createFolder
 import com.latticeonfhir.android.utils.file.FileManager.removeFromInternalStorage
 import java.io.ByteArrayOutputStream
 import java.io.File

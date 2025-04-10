@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.auth.data.server.model.register
+package com.latticeonfhir.core.auth.data.server.model.register
 
 import androidx.annotation.Keep
 

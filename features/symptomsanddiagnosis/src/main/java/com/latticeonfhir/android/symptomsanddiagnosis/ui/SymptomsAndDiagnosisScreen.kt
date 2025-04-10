@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.symptomsanddiagnosis.ui
+package com.latticeonfhir.core.symptomsanddiagnosis.ui
 
 import android.content.Context
 import androidx.compose.foundation.background
@@ -43,18 +43,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.symptomsanddiagnosis.R
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.symptomsanddiagnosis.R
 import com.latticeonfhir.android.symptomsanddiagnosis.navigation.Screen
 import com.latticeonfhir.android.symptomsanddiagnosis.ui.components.SymptomsAndDiagnosisCard
-import com.latticeonfhir.android.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants
-import com.latticeonfhir.android.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG_UPDATE_OR_ADD
-import com.latticeonfhir.android.ui.AllSlotsBookedDialog
-import com.latticeonfhir.android.ui.CustomDialog
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.android.utils.converters.TimeConverter.toEndOfDay
-import com.latticeonfhir.android.utils.converters.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.network.CheckNetwork
+import com.latticeonfhir.core.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants
+import com.latticeonfhir.core.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG_UPDATE_OR_ADD
+import com.latticeonfhir.core.ui.AllSlotsBookedDialog
+import com.latticeonfhir.core.ui.CustomDialog
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.utils.network.CheckNetwork
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Date

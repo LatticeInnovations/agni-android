@@ -2,7 +2,7 @@ package com.latticeonfhir.android.service.workmanager.workers.status.completed
 
 import android.content.Context
 import androidx.work.WorkerParameters
-import com.latticeonfhir.android.FhirApp
+import com.latticeonfhir.core.FhirApp
 
 class AppointmentCompletedStatusUpdateWorkerImpl(
     context: Context,

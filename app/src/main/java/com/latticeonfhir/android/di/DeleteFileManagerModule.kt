@@ -1,7 +1,7 @@
-package com.latticeonfhir.android.di
+package com.latticeonfhir.core.di
 
 import android.content.Context
-import com.latticeonfhir.android.utils.file.DeleteFileManager
+import com.latticeonfhir.core.utils.file.DeleteFileManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
