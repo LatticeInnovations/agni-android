@@ -1,6 +1,6 @@
-package com.latticeonfhir.android.data.local.repository.schedule
+package com.latticeonfhir.core.data.local.repository.schedule
 
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.core.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 
 interface ScheduleRepository {
     suspend fun getBookedSlotsCount(startTime: Long): Int

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.vaccination.ui.view
+package com.latticeonfhir.core.vaccination.ui.view
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -63,20 +63,20 @@ import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.theme.TakenContainer
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.theme.TakenContainer
 import com.latticeonfhir.android.theme.TakenContainerDark
 import com.latticeonfhir.android.theme.TakenLabel
-import com.latticeonfhir.android.theme.TakenLabelDark
+import com.latticeonfhir.core.theme.TakenLabelDark
 import com.latticeonfhir.android.vaccination.utils.VaccinesUtils.formatBytes
-import com.latticeonfhir.android.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
-import com.latticeonfhir.android.vaccination.utils.VaccinesUtils.numberOfWeeksToLabel
+import com.latticeonfhir.core.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
+import com.latticeonfhir.core.vaccination.utils.VaccinesUtils.numberOfWeeksToLabel
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.VACCINE
 import com.latticeonfhir.android.utils.converters.TimeConverter.daysBetween
-import com.latticeonfhir.android.utils.converters.TimeConverter.toPrescriptionNavDate
-import com.latticeonfhir.android.utils.file.FileManager.getUriFromFileName
-import com.latticeonfhir.android.vaccination.R
+import com.latticeonfhir.core.utils.converters.TimeConverter.toPrescriptionNavDate
+import com.latticeonfhir.core.utils.file.FileManager.getUriFromFileName
+import com.latticeonfhir.core.vaccination.R
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.searchpatient
+package com.latticeonfhir.core.ui.searchpatient
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -39,11 +39,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.enums.GenderEnum
-import com.latticeonfhir.android.data.local.enums.LastVisit.Companion.getLastVisitList
-import com.latticeonfhir.android.ui.common.AddressComposable
-import com.latticeonfhir.android.ui.common.CustomFilterChip
-import com.latticeonfhir.android.ui.common.CustomTextField
+import com.latticeonfhir.core.data.local.enums.GenderEnum
+import com.latticeonfhir.core.data.local.enums.LastVisit.Companion.getLastVisitList
+import com.latticeonfhir.core.ui.common.AddressComposable
+import com.latticeonfhir.core.ui.common.CustomFilterChip
+import com.latticeonfhir.core.ui.common.CustomTextField
 
 @Composable
 fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {

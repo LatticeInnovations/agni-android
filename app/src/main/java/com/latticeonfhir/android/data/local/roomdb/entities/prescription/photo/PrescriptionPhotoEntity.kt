@@ -1,10 +1,10 @@
-package com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo
+package com.latticeonfhir.core.data.local.roomdb.entities.prescription.photo
 
 import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.latticeonfhir.android.data.local.roomdb.entities.prescription.PrescriptionEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.prescription.PrescriptionEntity
 
 @Keep
 @Entity(

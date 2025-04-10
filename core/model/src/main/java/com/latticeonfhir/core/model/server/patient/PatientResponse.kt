@@ -1,7 +1,9 @@
-package com.latticeonfhir.android.data.server.model.patient
+package com.latticeonfhir.core.model.server.patient
 
 import android.os.Parcelable
 import androidx.annotation.Keep
+import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
+import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import kotlinx.parcelize.Parcelize
 
 @Keep

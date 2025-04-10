@@ -2,8 +2,8 @@ package com.latticeonfhir.android.data.local.repository.vital
 
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
-import com.latticeonfhir.android.utils.converters.responseconverter.toVitalEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toVitalLocal
+import com.latticeonfhir.core.utils.converters.responseconverter.toVitalEntity
+import com.latticeonfhir.core.utils.converters.responseconverter.toVitalLocal
 import javax.inject.Inject
 
 class VitalRepositoryImpl @Inject constructor(private val vitalDao: VitalDao) : VitalRepository {

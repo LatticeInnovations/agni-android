@@ -1,20 +1,20 @@
-package com.latticeonfhir.android.ui.householdmember.suggestions
+package com.latticeonfhir.core.ui.householdmember.suggestions
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.data.local.model.relation.Relation
+import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.relation.RelationRepository
 import com.latticeonfhir.android.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.core.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
+import com.latticeonfhir.core.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.relatedperson.Relationship
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
+import com.latticeonfhir.core.utils.builders.UUIDBuilder
+import com.latticeonfhir.core.utils.converters.responseconverter.RelationConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.toRelationEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +27,7 @@ class SuggestionsScreenViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val relationRepository: RelationRepository,
     private val patientDao: PatientDao
-) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
+) : com.latticeonfhir.core.base.viewmodel.BaseViewModel() {
     var loading by mutableStateOf(true)
     var membersList by mutableStateOf(listOf<PatientResponse>())
 

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.common
+package com.latticeonfhir.core.ui.common
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -32,9 +32,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.R
+import com.latticeonfhir.core.R
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
-import com.latticeonfhir.android.utils.converters.responseconverter.States
+import com.latticeonfhir.core.utils.converters.responseconverter.States
 
 @Composable
 fun AddressComposable(label: String?, address: Address, isSearching: Boolean = false) {

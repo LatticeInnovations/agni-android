@@ -1,20 +1,20 @@
-package com.latticeonfhir.android.data.local.repository.generic
+package com.latticeonfhir.core.data.local.repository.generic
 
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
-import com.latticeonfhir.android.data.local.enums.SyncType
-import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
-import com.latticeonfhir.android.data.local.model.vital.VitalLocal
-import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.core.data.local.enums.GenericTypeEnum
+import com.latticeonfhir.core.data.local.enums.SyncType
+import com.latticeonfhir.core.data.local.model.symdiag.SymptomsAndDiagnosisData
+import com.latticeonfhir.core.data.local.model.vital.VitalLocal
+import com.latticeonfhir.core.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
-import com.latticeonfhir.android.data.server.model.patient.PatientLastUpdatedResponse
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoPatch
-import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
+import com.latticeonfhir.core.data.server.model.patient.PatientLastUpdatedResponse
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.data.server.model.prescription.photo.PrescriptionPhotoPatch
+import com.latticeonfhir.core.data.server.model.prescription.photo.PrescriptionPhotoResponse
 import com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
+import com.latticeonfhir.core.data.server.model.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
+import com.latticeonfhir.core.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.core.data.server.model.vaccination.ImmunizationResponse
 import com.latticeonfhir.android.utils.builders.UUIDBuilder
 
 /**

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.base.server
+package com.latticeonfhir.core.base.server
 
 import androidx.annotation.Keep
 

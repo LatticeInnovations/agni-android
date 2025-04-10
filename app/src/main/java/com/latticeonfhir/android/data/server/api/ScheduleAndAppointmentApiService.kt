@@ -1,9 +1,9 @@
 package com.latticeonfhir.android.data.server.api
 
-import com.latticeonfhir.android.base.server.BaseResponse
-import com.latticeonfhir.android.data.server.model.create.CreateResponse
+import com.latticeonfhir.core.base.server.BaseResponse
+import com.latticeonfhir.core.data.server.model.create.CreateResponse
 import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.core.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -18,7 +18,7 @@ interface ScheduleAndAppointmentApiService {
     suspend fun getScheduleList(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<ScheduleResponse>>>
 
     @POST("sync/Schedule")
-    suspend fun postScheduleData(@Body scheduleResponses: List<Any>): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
+    suspend fun postScheduleData(@Body scheduleResponses: List<Any>): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
 
     @GET("Appointment")
     suspend fun getAppointmentList(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<AppointmentResponse>>>

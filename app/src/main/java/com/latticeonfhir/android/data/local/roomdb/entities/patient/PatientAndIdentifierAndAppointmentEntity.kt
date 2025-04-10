@@ -1,7 +1,7 @@
-package com.latticeonfhir.android.data.local.roomdb.entities.patient
+package com.latticeonfhir.core.data.local.roomdb.entities.patient
 
 import androidx.annotation.Keep
-import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.appointment.AppointmentEntity
 
 @Keep
 data class PatientAndIdentifierAndAppointmentEntity(

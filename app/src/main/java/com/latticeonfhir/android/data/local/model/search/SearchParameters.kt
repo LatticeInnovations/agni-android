@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.model.search
+package com.latticeonfhir.core.data.local.model.search
 
 import android.os.Parcelable
 import androidx.annotation.Keep

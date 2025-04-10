@@ -1,21 +1,21 @@
-package com.latticeonfhir.android.ui.patienteditscreen.identification
+package com.latticeonfhir.core.ui.patienteditscreen.identification
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.ChangeTypeEnum
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
-import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
+import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
+import com.latticeonfhir.core.data.local.repository.identifier.IdentifierRepository
+import com.latticeonfhir.core.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
-import com.latticeonfhir.android.utils.regex.PassportRegex
+import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.toJson
+import com.latticeonfhir.core.utils.regex.PassportRegex
 import com.latticeonfhir.android.utils.regex.VoterRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +28,7 @@ class EditIdentificationViewModel @Inject constructor(
     private val patientRepository: PatientRepository,
     private val genericRepository: GenericRepository,
     private val identifierRepository: IdentifierRepository
-) : com.latticeonfhir.android.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
+) : com.latticeonfhir.core.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
 

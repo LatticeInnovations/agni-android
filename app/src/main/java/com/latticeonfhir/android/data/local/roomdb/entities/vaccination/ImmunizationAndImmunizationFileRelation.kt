@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.roomdb.entities.vaccination
+package com.latticeonfhir.core.data.local.roomdb.entities.vaccination
 
 import androidx.annotation.Keep
 import androidx.room.Embedded

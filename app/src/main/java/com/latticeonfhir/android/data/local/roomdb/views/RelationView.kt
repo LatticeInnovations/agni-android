@@ -2,7 +2,7 @@ package com.latticeonfhir.android.data.local.roomdb.views
 
 import androidx.annotation.Keep
 import androidx.room.DatabaseView
-import com.latticeonfhir.android.data.local.enums.RelationEnum
+import com.latticeonfhir.core.data.local.enums.RelationEnum
 
 @Keep
 @DatabaseView(

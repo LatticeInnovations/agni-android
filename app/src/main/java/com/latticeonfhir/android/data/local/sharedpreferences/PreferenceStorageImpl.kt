@@ -1,9 +1,9 @@
-package com.latticeonfhir.android.data.local.sharedpreferences
+package com.latticeonfhir.core.data.local.sharedpreferences
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.latticeonfhir.android.utils.sharedpreference.LongPreference
-import com.latticeonfhir.android.utils.sharedpreference.StringPreference
+import com.latticeonfhir.core.utils.sharedpreference.LongPreference
+import com.latticeonfhir.core.utils.sharedpreference.StringPreference
 
 class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : PreferenceStorage {
 

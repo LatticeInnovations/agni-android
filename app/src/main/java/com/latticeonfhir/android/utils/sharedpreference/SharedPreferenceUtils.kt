@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.sharedpreference
+package com.latticeonfhir.core.utils.sharedpreference
 
 import android.content.SharedPreferences
 import androidx.annotation.WorkerThread

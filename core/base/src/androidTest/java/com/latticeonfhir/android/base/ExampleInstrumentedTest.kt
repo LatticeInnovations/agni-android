@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.base
+package com.latticeonfhir.core.base
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

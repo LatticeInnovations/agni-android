@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.utils.file
+package com.latticeonfhir.core.utils.file
 
 import okhttp3.ResponseBody
 import java.io.File

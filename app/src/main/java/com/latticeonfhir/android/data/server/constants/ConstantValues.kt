@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.constants
+package com.latticeonfhir.core.data.server.constants
 
 object ConstantValues {
 

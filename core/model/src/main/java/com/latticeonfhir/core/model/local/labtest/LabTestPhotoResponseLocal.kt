@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.model.labtest
+package com.latticeonfhir.core.data.local.model.labtest
 
 import androidx.annotation.Keep
 import com.latticeonfhir.android.data.server.model.prescription.photo.File

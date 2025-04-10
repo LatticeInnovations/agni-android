@@ -6,8 +6,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.patient.PatientEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.schedule.ScheduleEntity
 import java.util.Date
 
 @Keep

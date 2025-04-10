@@ -58,10 +58,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
-import com.latticeonfhir.android.symptomsanddiagnosis.R
-import com.latticeonfhir.android.symptomsanddiagnosis.ui.components.BodyPartCard
-import com.latticeonfhir.android.symptomsanddiagnosis.ui.components.BottomSheetLayout
+import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
+import com.latticeonfhir.core.symptomsanddiagnosis.R
+import com.latticeonfhir.core.symptomsanddiagnosis.ui.components.BodyPartCard
+import com.latticeonfhir.core.symptomsanddiagnosis.ui.components.BottomSheetLayout
 import com.latticeonfhir.android.symptomsanddiagnosis.ui.components.SymptomsCustomChip
 import com.latticeonfhir.android.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG_UPDATE_OR_ADD
 import kotlinx.coroutines.CoroutineScope

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.vaccination.navigation
+package com.latticeonfhir.core.vaccination.navigation
 
 const val vaccinationRoute = "vaccination"
 

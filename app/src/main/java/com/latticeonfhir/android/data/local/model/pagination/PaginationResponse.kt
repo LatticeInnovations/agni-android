@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.model.pagination
+package com.latticeonfhir.core.data.local.model.pagination
 
 import androidx.annotation.Keep
 

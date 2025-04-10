@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.model.relatedperson
+package com.latticeonfhir.core.data.server.model.relatedperson
 
 import android.os.Parcelable
 import androidx.annotation.Keep

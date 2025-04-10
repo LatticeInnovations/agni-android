@@ -44,10 +44,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
+import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
 import com.latticeonfhir.android.symptomsanddiagnosis.R
 import com.latticeonfhir.android.symptomsanddiagnosis.ui.addSymptomsanddiagnosis.AddSymptomsAndDiagnosisViewModel
-import com.latticeonfhir.android.symptomsanddiagnosis.ui.addSymptomsanddiagnosis.handleNavigate
+import com.latticeonfhir.core.symptomsanddiagnosis.ui.addSymptomsanddiagnosis.handleNavigate
 
 @Composable
 fun BottomNavLayout(viewModel: AddSymptomsAndDiagnosisViewModel, navController: NavController) {

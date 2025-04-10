@@ -1,9 +1,9 @@
 package com.latticeonfhir.android.auth.data.server.repository.signup
 
-import com.latticeonfhir.android.auth.data.server.model.authentication.TokenResponse
-import com.latticeonfhir.android.auth.data.server.model.register.Register
+import com.latticeonfhir.core.auth.data.server.model.authentication.TokenResponse
+import com.latticeonfhir.core.auth.data.server.model.register.Register
 import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.core.utils.converters.server.responsemapper.ResponseMapper
 
 interface SignUpRepository {
 

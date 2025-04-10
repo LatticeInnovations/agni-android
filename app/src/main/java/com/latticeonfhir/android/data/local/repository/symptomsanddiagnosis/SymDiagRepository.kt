@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.data.local.repository.symptomsanddiagnosis
 
-import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
+import com.latticeonfhir.core.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
 
 interface SymDiagRepository {
 

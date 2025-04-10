@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.dispense.otc
+package com.latticeonfhir.core.ui.dispense.otc
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -38,9 +38,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.OTC_DISPENSED
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.OTC_DISPENSED
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
 import kotlinx.coroutines.launch

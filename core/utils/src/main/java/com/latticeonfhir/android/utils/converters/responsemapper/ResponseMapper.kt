@@ -3,8 +3,8 @@ package com.latticeonfhir.android.utils.converters.server.responsemapper
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
-import com.latticeonfhir.android.base.server.BaseResponse
-import com.latticeonfhir.android.utils.constants.ErrorConstants.SERVER_ERROR
+import com.latticeonfhir.core.base.server.BaseResponse
+import com.latticeonfhir.core.utils.constants.ErrorConstants.SERVER_ERROR
 import retrofit2.Response
 import timber.log.Timber
 

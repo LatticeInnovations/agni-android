@@ -1,10 +1,10 @@
-package com.latticeonfhir.android.data.local.roomdb.dao
+package com.latticeonfhir.core.data.local.roomdb.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.latticeonfhir.android.data.local.roomdb.entities.cvd.RiskPredictionCharts
+import com.latticeonfhir.core.data.local.roomdb.entities.cvd.RiskPredictionCharts
 
 @Dao
 interface RiskPredictionDao {

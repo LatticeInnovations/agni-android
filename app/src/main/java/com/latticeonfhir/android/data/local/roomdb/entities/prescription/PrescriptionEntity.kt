@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.roomdb.entities.prescription
+package com.latticeonfhir.core.data.local.roomdb.entities.prescription
 
 import androidx.annotation.Keep
 import androidx.room.ColumnInfo
@@ -6,7 +6,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
+import com.latticeonfhir.core.data.local.roomdb.entities.patient.PatientEntity
 import java.util.Date
 
 @Keep

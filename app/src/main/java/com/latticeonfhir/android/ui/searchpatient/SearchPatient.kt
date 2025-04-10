@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.searchpatient
+package com.latticeonfhir.core.ui.searchpatient
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,9 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.search.SearchParameters
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.core.data.local.model.search.SearchParameters
+import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

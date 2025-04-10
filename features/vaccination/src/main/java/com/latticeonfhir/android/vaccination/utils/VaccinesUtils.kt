@@ -1,6 +1,6 @@
 package com.latticeonfhir.android.vaccination.utils
 
-import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
+import com.latticeonfhir.core.data.local.model.vaccination.ImmunizationRecommendation
 import java.util.Calendar
 import java.util.Date
 

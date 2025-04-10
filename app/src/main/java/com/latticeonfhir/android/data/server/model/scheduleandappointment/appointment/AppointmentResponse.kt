@@ -1,9 +1,9 @@
-package com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment
+package com.latticeonfhir.core.data.server.model.scheduleandappointment.appointment
 
 import android.os.Parcelable
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.Slot
+import com.latticeonfhir.core.data.server.model.scheduleandappointment.Slot
 import kotlinx.parcelize.Parcelize
 import java.util.Date
 

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.patienteditscreen.basicinfo
+package com.latticeonfhir.core.ui.patienteditscreen.basicinfo
 
 import android.util.Patterns
 import androidx.activity.compose.BackHandler
@@ -58,17 +58,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.R
+import com.latticeonfhir.core.R
 import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.common.CustomFilterChip
-import com.latticeonfhir.android.ui.common.CustomTextField
-import com.latticeonfhir.android.utils.converters.responseconverter.MonthsList
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter
+import com.latticeonfhir.core.ui.common.CustomFilterChip
+import com.latticeonfhir.core.ui.common.CustomTextField
+import com.latticeonfhir.core.utils.converters.responseconverter.MonthsList
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
-import com.latticeonfhir.android.utils.regex.NameRegex.nameRegex
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toPatientDate
+import com.latticeonfhir.core.utils.regex.NameRegex.nameRegex
 import com.latticeonfhir.android.utils.regex.PhoneNumberRegex.phoneNumberRegex
 import kotlinx.coroutines.launch
 

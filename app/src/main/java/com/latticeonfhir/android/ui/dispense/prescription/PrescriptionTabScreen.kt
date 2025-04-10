@@ -30,16 +30,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.enums.DispenseCategoryEnum
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.local.enums.DispenseCategoryEnum
 import com.latticeonfhir.android.data.local.enums.DispenseStatusEnum
-import com.latticeonfhir.android.data.local.enums.DispenseStatusEnum.Companion.codeToDisplay
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseAndPrescriptionRelation
-import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.core.data.local.enums.DispenseStatusEnum.Companion.codeToDisplay
+import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispenseAndPrescriptionRelation
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.android.ui.dispense.DrugDispenseViewModel
-import com.latticeonfhir.android.theme.FullyDispensed
-import com.latticeonfhir.android.theme.PartiallyDispensed
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.core.theme.FullyDispensed
+import com.latticeonfhir.core.theme.PartiallyDispensed
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

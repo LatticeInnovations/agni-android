@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.model.vital
+package com.latticeonfhir.core.data.local.model.vital
 
 import android.os.Parcelable
 import androidx.annotation.Keep

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.symptomsanddiagnosis.utils.converters
+package com.latticeonfhir.core.symptomsanddiagnosis.utils.converters
 
 object SymDiagConverter {
     fun String.splitString(): Pair<String, String> {

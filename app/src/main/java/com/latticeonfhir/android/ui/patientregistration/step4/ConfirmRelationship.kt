@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.patientregistration.step4
+package com.latticeonfhir.core.ui.patientregistration.step4
 
 import android.content.Context
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -51,16 +51,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.R
-import com.latticeonfhir.android.data.local.model.relation.Relation
+import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
-import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.DiscardAllRelationDialog
-import com.latticeonfhir.android.theme.Neutral40
+import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.ui.common.DiscardAllRelationDialog
+import com.latticeonfhir.core.theme.Neutral40
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationFromRelationEnum
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationshipList
+import com.latticeonfhir.core.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
+import com.latticeonfhir.core.utils.converters.responseconverter.RelationConverter.getRelationFromRelationEnum
+import com.latticeonfhir.core.utils.converters.responseconverter.RelationshipList
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,8 +1,8 @@
-package com.latticeonfhir.android.auth.di
+package com.latticeonfhir.core.auth.di
 
-import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepository
-import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepositoryImpl
-import com.latticeonfhir.android.auth.data.server.repository.signup.SignUpRepository
+import com.latticeonfhir.core.auth.data.server.repository.authentication.AuthenticationRepository
+import com.latticeonfhir.core.auth.data.server.repository.authentication.AuthenticationRepositoryImpl
+import com.latticeonfhir.core.auth.data.server.repository.signup.SignUpRepository
 import com.latticeonfhir.android.auth.data.server.repository.signup.SignUpRepositoryImpl
 import dagger.Binds
 import dagger.Module

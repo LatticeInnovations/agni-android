@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.local.repository.preference
+package com.latticeonfhir.core.data.local.repository.preference
 
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
 import javax.inject.Inject

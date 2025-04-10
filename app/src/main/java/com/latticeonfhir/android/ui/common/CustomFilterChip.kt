@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.common
+package com.latticeonfhir.core.ui.common
 
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults

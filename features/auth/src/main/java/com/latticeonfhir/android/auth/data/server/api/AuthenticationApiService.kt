@@ -1,11 +1,11 @@
-package com.latticeonfhir.android.auth.data.server.api
+package com.latticeonfhir.core.auth.data.server.api
 
 import com.latticeonfhir.android.auth.data.server.model.BaseResponse
-import com.latticeonfhir.android.auth.data.server.model.authentication.Login
-import com.latticeonfhir.android.auth.data.server.model.authentication.Otp
-import com.latticeonfhir.android.auth.data.server.model.authentication.TokenResponse
-import com.latticeonfhir.android.auth.data.server.model.user.UserResponse
-import com.latticeonfhir.android.auth.utils.contants.AuthenticationConstants.TEMP_TOKEN
+import com.latticeonfhir.core.auth.data.server.model.authentication.Login
+import com.latticeonfhir.core.auth.data.server.model.authentication.Otp
+import com.latticeonfhir.core.auth.data.server.model.authentication.TokenResponse
+import com.latticeonfhir.core.auth.data.server.model.user.UserResponse
+import com.latticeonfhir.core.auth.utils.contants.AuthenticationConstants.TEMP_TOKEN
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE

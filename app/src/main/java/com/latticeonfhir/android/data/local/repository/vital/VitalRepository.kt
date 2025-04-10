@@ -1,6 +1,6 @@
-package com.latticeonfhir.android.data.local.repository.vital
+package com.latticeonfhir.core.data.local.repository.vital
 
-import com.latticeonfhir.android.data.local.model.vital.VitalLocal
+import com.latticeonfhir.core.data.local.model.vital.VitalLocal
 
 interface VitalRepository {
 

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.auth
+package com.latticeonfhir.core.auth
 
 import org.junit.Test
 

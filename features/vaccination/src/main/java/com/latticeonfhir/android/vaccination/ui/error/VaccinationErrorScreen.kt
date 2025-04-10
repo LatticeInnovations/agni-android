@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.vaccination.ui.error
+package com.latticeonfhir.core.vaccination.ui.error
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,9 +24,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE_ERROR_TYPE
-import com.latticeonfhir.android.vaccination.R
-import com.latticeonfhir.android.vaccination.data.enums.VaccineErrorTypeEnum
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.VACCINE_ERROR_TYPE
+import com.latticeonfhir.core.vaccination.R
+import com.latticeonfhir.core.vaccination.data.enums.VaccineErrorTypeEnum
 
 @Composable
 fun VaccinationErrorScreen(

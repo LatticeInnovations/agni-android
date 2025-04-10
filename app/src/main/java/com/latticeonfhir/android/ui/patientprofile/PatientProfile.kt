@@ -23,11 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.PreviewScreen
-import com.latticeonfhir.android.utils.constants.IdentificationConstants.PASSPORT_TYPE
-import com.latticeonfhir.android.utils.constants.IdentificationConstants.PATIENT_ID_TYPE
-import com.latticeonfhir.android.utils.constants.IdentificationConstants.VOTER_ID_TYPE
+import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.ui.common.PreviewScreen
+import com.latticeonfhir.core.utils.constants.IdentificationConstants.PASSPORT_TYPE
+import com.latticeonfhir.core.utils.constants.IdentificationConstants.PATIENT_ID_TYPE
+import com.latticeonfhir.core.utils.constants.IdentificationConstants.VOTER_ID_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

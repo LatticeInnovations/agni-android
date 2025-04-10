@@ -1,13 +1,13 @@
-package com.latticeonfhir.android.auth.navigation
+package com.latticeonfhir.core.auth.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.latticeonfhir.android.auth.ui.login.OtpScreen
-import com.latticeonfhir.android.auth.ui.login.PhoneEmailScreen
+import com.latticeonfhir.core.auth.ui.login.OtpScreen
+import com.latticeonfhir.core.auth.ui.login.PhoneEmailScreen
 import com.latticeonfhir.android.auth.ui.signup.SignUpPhoneEmailScreen
-import com.latticeonfhir.android.auth.ui.signup.SignUpScreen
+import com.latticeonfhir.core.auth.ui.signup.SignUpScreen
 
 
 fun NavGraphBuilder.authNavGraph(

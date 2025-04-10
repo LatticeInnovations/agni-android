@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.prescription.ui.quickselect
+package com.latticeonfhir.core.ui.prescription.quickselect
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.latticeonfhir.android.prescription.ui.PrescriptionViewModel
+import com.latticeonfhir.core.ui.prescription.PrescriptionViewModel
 import java.util.Locale
 
 @Composable

@@ -24,9 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.prescription.R
-import com.latticeonfhir.android.prescription.ui.PrescriptionViewModel
-import com.latticeonfhir.android.prescription.ui.quickselect.CompoundRow
+import com.latticeonfhir.android.R
+import com.latticeonfhir.core.ui.prescription.PrescriptionViewModel
+import com.latticeonfhir.core.ui.prescription.quickselect.CompoundRow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,7 +1,7 @@
-package com.latticeonfhir.android.data.local.repository.cvd.chart
+package com.latticeonfhir.core.data.local.repository.cvd.chart
 
 import com.latticeonfhir.android.data.local.roomdb.dao.RiskPredictionDao
-import com.latticeonfhir.android.data.local.roomdb.entities.cvd.RiskPredictionCharts
+import com.latticeonfhir.core.data.local.roomdb.entities.cvd.RiskPredictionCharts
 import javax.inject.Inject
 
 class RiskPredictionChartRepositoryImpl @Inject constructor(

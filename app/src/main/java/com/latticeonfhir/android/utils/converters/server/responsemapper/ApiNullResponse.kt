@@ -1,3 +1,3 @@
-package com.latticeonfhir.android.utils.converters.server.responsemapper
+package com.latticeonfhir.core.utils.converters.server.responsemapper
 
 object ApiNullResponse : ResponseMapper<Nothing>()

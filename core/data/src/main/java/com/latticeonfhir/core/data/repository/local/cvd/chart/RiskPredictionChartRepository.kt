@@ -1,0 +1,8 @@
+package com.latticeonfhir.core.data.repository.local.cvd.chart
+
+import com.latticeonfhir.core.database.entities.cvd.RiskPredictionCharts
+
+interface RiskPredictionChartRepository {
+    suspend fun insertRecords(vararg riskPredictionCharts: RiskPredictionCharts): List<Long>
+    suspend fun getRiskLevels(sex:String , tobaccoStatus : Int,age :Int, sys:Int , cholesterol:Double?, bmi:Double?,diabetes : Int): String
+}
