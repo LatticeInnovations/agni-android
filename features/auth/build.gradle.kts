@@ -35,6 +35,7 @@ android {
 dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.utils)
+    implementation(projects.core.network)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -47,6 +48,4 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
     implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.retrofit.core)
-    implementation(libs.retrofit.kotlin.serialization)
 }
