@@ -12,7 +12,7 @@ import com.latticeonfhir.core.data.local.roomdb.dao.PatientDao
 import com.latticeonfhir.core.data.local.roomdb.dao.PrescriptionDao
 import com.latticeonfhir.core.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.core.data.local.roomdb.entities.generic.GenericEntity
-import com.latticeonfhir.core.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.core.model.server.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.core.data.server.model.labormed.labtest.LabTestRequest
 import com.latticeonfhir.core.data.server.model.labormed.medicalrecord.MedicalRecordRequest

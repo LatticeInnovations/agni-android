@@ -1,7 +1,7 @@
-package com.latticeonfhir.core.data.server.model.labormed.labtest
+package com.latticeonfhir.core.model.server.labormed.labtest
 
 import androidx.annotation.Keep
-import com.latticeonfhir.core.data.server.model.labormed.Document
+import com.latticeonfhir.core.model.server.labormed.Document
 
 @Keep
 data class DiagnosticReport(

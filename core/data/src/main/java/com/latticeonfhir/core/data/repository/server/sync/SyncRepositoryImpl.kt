@@ -52,7 +52,7 @@ import com.latticeonfhir.core.data.server.constants.QueryParameters.ORG_ID
 import com.latticeonfhir.core.data.server.constants.QueryParameters.PATIENT_ID
 import com.latticeonfhir.android.data.server.constants.QueryParameters.SORT
 import com.latticeonfhir.core.data.server.model.create.CreateResponse
-import com.latticeonfhir.core.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.core.model.server.cvd.CVDResponse
 import com.latticeonfhir.core.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.core.data.server.model.dispense.response.DispenseData
 import com.latticeonfhir.core.data.server.model.dispense.response.MedicineDispenseResponse
@@ -70,7 +70,7 @@ import com.latticeonfhir.android.data.server.model.scheduleandappointment.schedu
 import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
 import com.latticeonfhir.core.data.server.model.vaccination.ImmunizationRecommendationResponse
 import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
-import com.latticeonfhir.android.data.server.model.vaccination.ManufacturerResponse
+import com.latticeonfhir.core.model.server.vaccination.ManufacturerResponse
 import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.mapToObject
