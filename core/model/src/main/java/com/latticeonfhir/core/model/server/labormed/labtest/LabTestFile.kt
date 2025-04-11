@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.model.labormed.labtest
+package com.latticeonfhir.core.model.server.labormed.labtest
 
 import androidx.annotation.Keep
 

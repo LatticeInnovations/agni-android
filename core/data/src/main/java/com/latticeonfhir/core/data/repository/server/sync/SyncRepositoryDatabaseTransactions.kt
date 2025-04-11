@@ -34,7 +34,7 @@ import com.latticeonfhir.core.data.local.roomdb.entities.prescription.photo.Pres
 import com.latticeonfhir.core.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.server.api.PatientApiService
 import com.latticeonfhir.core.data.server.model.create.CreateResponse
-import com.latticeonfhir.core.data.server.model.create.LabDocumentIdResponse
+import com.latticeonfhir.core.model.server.create.LabDocumentIdResponse
 import com.latticeonfhir.android.data.server.model.create.MedDocumentIdResponse
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.dispense.response.DispenseData
@@ -53,7 +53,7 @@ import com.latticeonfhir.core.data.server.model.scheduleandappointment.schedule.
 import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
 import com.latticeonfhir.core.data.server.model.vaccination.ImmunizationRecommendationResponse
 import com.latticeonfhir.core.data.server.model.vaccination.ImmunizationResponse
-import com.latticeonfhir.android.data.server.model.vaccination.ManufacturerResponse
+import com.latticeonfhir.core.model.server.vaccination.ManufacturerResponse
 import com.latticeonfhir.core.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.core.utils.constants.ErrorConstants
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters

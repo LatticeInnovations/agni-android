@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.data.server.model.create
+package com.latticeonfhir.core.model.server.create
 
 import androidx.annotation.Keep
 

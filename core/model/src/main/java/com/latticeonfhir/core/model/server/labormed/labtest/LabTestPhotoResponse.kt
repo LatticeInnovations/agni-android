@@ -1,7 +1,7 @@
-package com.latticeonfhir.core.data.server.model.labormed.labtest
+package com.latticeonfhir.core.model.server.labormed.labtest
 
 import androidx.annotation.Keep
-import com.latticeonfhir.android.data.server.model.prescription.photo.File
+import com.latticeonfhir.core.model.server.prescription.photo.File
 import java.util.Date
 
 @Keep

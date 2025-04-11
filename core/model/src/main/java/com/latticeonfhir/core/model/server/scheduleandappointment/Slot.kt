@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.data.server.model.scheduleandappointment
+package com.latticeonfhir.core.model.server.scheduleandappointment
 
 import android.os.Parcelable
 import androidx.annotation.Keep
