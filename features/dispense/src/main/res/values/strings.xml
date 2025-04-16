@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="otc">OTC</string>
+    <string name="view_rx">View Rx</string>
+    <string name="dispense">Dispense</string>
+    <string name="prescribed_on">Prescribed on %s</string>
+    <string name="add_note">Add note</string>
+    <string name="dispense_notes">Dispense Notes : %s</string>
+    <string name="edit_note">Edit note</string>
+    <string name="edit_medicine">Edit medicine</string>
+    <string name="notes_label">Notes*</string>
+    <string name="edit_qty_error_message">Quantity should be less than quantity prescribed</string>
+    <string name="notes_dispense">Notes: %s</string>
+    <string name="notes_colon">Notes:</string>
+    <string name="previous_dispense">Previous dispense</string>
+    <string name="dispensed_on">Dispensed on: %s</string>
+    <string name="modified_prescription">Modified prescription</string>
+    <string name="prescribed">Prescribed</string>
+    <string name="see_details">See details</string>
+    <string name="no_prescription_found">No prescription found</string>
+    <string name="no_dispense_records">No dispense records found</string>
+    <string name="medicine_name">Medicine name*</string>
+    <string name="drugs_dispense_heading">Drug dispense</string>
+    <string name="otc_quantity_error_message">Range 1–50</string>
+    <string name="quantity_dispensed_info">Quantity dispensed: %d</string>
+    <string name="quantity_prescribed_info">Quantity prescribed: %d</string>
+    <string name="qty_to_dispense">Qty. to dispense*</string>
+    <string name="drugs_dispense">Drug Dispense</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="no_records">No records.</string>
+    <string name="no_previous_prescription">No previous prescription</string>
+    <string name="done">Done</string>
+    <string name="formulations">Formulations</string>
+    <string name="quantity_prescribed">Quantity prescribed</string>
+    <string name="notes_optional">Notes (optional)</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+</resources>

@@ -1,40 +1,39 @@
-package com.latticeonfhir.core.ui.dispense.prescription.dispenseprescription
+package com.latticeonfhir.features.dispense.ui.prescription.dispenseprescription
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.core.data.local.enums.DispenseCategoryEnum
-import com.latticeonfhir.android.data.local.enums.DispenseStatusEnum
-import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.data.local.model.dispense.DispenseModifiedInfo
-import com.latticeonfhir.core.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.core.data.local.repository.dispense.DispenseRepository
-import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.core.data.local.repository.medication.MedicationRepository
-import com.latticeonfhir.core.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.core.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.core.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispenseAndPrescriptionRelation
-import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispenseDataEntity
-import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispensedPrescriptionInfo
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
-import com.latticeonfhir.core.data.local.roomdb.entities.medication.MedicationStrengthRelation
-import com.latticeonfhir.core.data.server.model.dispense.request.MedicineDispenseRequest
+import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.core.data.server.model.dispense.request.MedicineDispensed
-import com.latticeonfhir.android.utils.builders.UUIDBuilder
-import com.latticeonfhir.android.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
-import com.latticeonfhir.android.utils.common.Queries.updatePatientLastUpdated
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.data.local.model.dispense.DispenseModifiedInfo
+import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
+import com.latticeonfhir.core.data.repository.local.dispense.DispenseRepository
+import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
+import com.latticeonfhir.core.data.repository.local.medication.MedicationRepository
+import com.latticeonfhir.core.data.repository.local.patient.PatientRepository
+import com.latticeonfhir.core.data.repository.local.patient.lastupdated.PatientLastUpdatedRepository
+import com.latticeonfhir.core.data.repository.local.schedule.ScheduleRepository
+import com.latticeonfhir.core.database.entities.dispense.DispenseAndPrescriptionRelation
+import com.latticeonfhir.core.database.entities.dispense.DispenseDataEntity
+import com.latticeonfhir.core.database.entities.dispense.DispensePrescriptionEntity
+import com.latticeonfhir.core.database.entities.dispense.DispensedPrescriptionInfo
+import com.latticeonfhir.core.database.entities.dispense.MedicineDispenseListEntity
+import com.latticeonfhir.core.database.entities.medication.MedicationStrengthRelation
+import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.model.enums.DispenseStatusEnum
+import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
+import com.latticeonfhir.core.utils.builders.UUIDBuilder
+import com.latticeonfhir.core.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
+import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
+import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
+import com.latticeonfhir.features.dispense.data.enums.DispenseCategoryEnum
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
@@ -220,7 +219,6 @@ class DispensePrescriptionViewModel @Inject constructor(
                 qtyLeft -= qtyToBeDispensed
             }
         }
-        Timber.d("manseeyy $medicationList")
         medicationList.forEach {
             if (it.qtyLeft > 0) return DispenseStatusEnum.PARTIALLY_DISPENSED.code
         }

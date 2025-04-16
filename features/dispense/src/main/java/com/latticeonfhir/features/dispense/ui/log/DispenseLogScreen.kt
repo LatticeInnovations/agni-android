@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.dispense.log
+package com.latticeonfhir.features.dispense.ui.log
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -25,12 +25,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.core.R
-import com.latticeonfhir.core.data.local.enums.DispenseCategoryEnum
-import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispensedPrescriptionInfo
-import com.latticeonfhir.core.ui.dispense.DrugDispenseViewModel
+import com.latticeonfhir.core.database.entities.dispense.DispensedPrescriptionInfo
+import com.latticeonfhir.core.model.enums.DispenseCategoryEnum
 import com.latticeonfhir.core.theme.OTC
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.core.utils.converters.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.features.dispense.R
+import com.latticeonfhir.features.dispense.ui.DrugDispenseViewModel
 
 @Composable
 fun DispenseLogScreen(
@@ -109,7 +109,7 @@ private fun DispenseLogCard(
                     Text(
                         text = stringResource(
                             R.string.notes_dispense,
-                            dispensedPrescriptionInfo.dispenseDataEntity.note
+                            dispensedPrescriptionInfo.dispenseDataEntity.note!!
                         ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -152,7 +152,7 @@ private fun DispenseLogCard(
                                     Text(
                                         text = stringResource(
                                             R.string.notes_dispense,
-                                            medicine.medNote
+                                            medicine.medNote!!
                                         ),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -235,7 +235,7 @@ private fun DispenseLogCard(
                                 Text(
                                     text = stringResource(
                                         R.string.notes_dispense,
-                                        medicine.medNote
+                                        medicine.medNote!!
                                     ),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
