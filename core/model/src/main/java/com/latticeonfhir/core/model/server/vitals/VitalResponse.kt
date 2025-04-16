@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.data.server.model.vitals
+package com.latticeonfhir.core.model.server.vitals
 
 import androidx.annotation.Keep
 

@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.data.server.model.symptomsanddiagnosis
+package com.latticeonfhir.core.model.server.symptomsanddiagnosis
 
 import androidx.annotation.Keep
 

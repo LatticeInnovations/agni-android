@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.data.server.model.vaccination
+package com.latticeonfhir.core.model.server.vaccination
 
 import androidx.annotation.Keep
 

@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.model.prescription.prescriptionresponse
+package com.latticeonfhir.core.model.server.prescription.prescriptionresponse
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName

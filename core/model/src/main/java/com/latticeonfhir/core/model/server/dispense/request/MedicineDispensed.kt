@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.data.server.model.dispense.request
+package com.latticeonfhir.core.model.server.dispense.request
 
 import androidx.annotation.Keep
 
