@@ -1,7 +1,7 @@
-package com.latticeonfhir.core.data.server.model.dispense.response
+package com.latticeonfhir.core.model.server.dispense.response
 
 import androidx.annotation.Keep
-import com.latticeonfhir.core.data.server.model.prescription.medication.Strength
+import com.latticeonfhir.core.model.server.prescription.medication.Strength
 
 @Keep
 data class DispensedMedication(

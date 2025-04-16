@@ -1,6 +1,8 @@
-package com.latticeonfhir.android.data.server.model.create
+package com.latticeonfhir.core.model.server.create
 
 import androidx.annotation.Keep
+import com.latticeonfhir.core.model.server.create.MedDispenseIdResponse
+import com.latticeonfhir.core.model.server.create.MedReqIdResponse
 
 @Keep
 data class CreateResponse(

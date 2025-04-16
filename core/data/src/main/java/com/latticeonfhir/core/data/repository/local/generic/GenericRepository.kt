@@ -4,7 +4,7 @@ import com.latticeonfhir.core.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.core.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.core.data.local.model.vital.VitalLocal
-import com.latticeonfhir.core.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.core.model.server.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.core.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.core.model.server.patient.PatientResponse

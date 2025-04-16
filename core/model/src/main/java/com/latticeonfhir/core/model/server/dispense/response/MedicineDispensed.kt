@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.data.server.model.dispense.response
+package com.latticeonfhir.core.model.server.dispense.response
 
 import androidx.annotation.Keep
 import java.util.Date

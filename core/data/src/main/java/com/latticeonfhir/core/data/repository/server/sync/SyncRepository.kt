@@ -1,7 +1,7 @@
 package com.latticeonfhir.android.data.server.repository.sync
 
 import com.latticeonfhir.core.data.server.model.create.CreateResponse
-import com.latticeonfhir.core.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.core.model.server.cvd.CVDResponse
 import com.latticeonfhir.android.data.server.model.dispense.response.DispenseData
 import com.latticeonfhir.core.data.server.model.dispense.response.MedicineDispenseResponse
 import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
@@ -17,7 +17,7 @@ import com.latticeonfhir.core.data.server.model.scheduleandappointment.appointme
 import com.latticeonfhir.core.data.server.model.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
 import com.latticeonfhir.android.data.server.model.vaccination.ImmunizationResponse
-import com.latticeonfhir.android.data.server.model.vaccination.ManufacturerResponse
+import com.latticeonfhir.core.model.server.vaccination.ManufacturerResponse
 import com.latticeonfhir.core.data.server.model.vitals.VitalResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 
