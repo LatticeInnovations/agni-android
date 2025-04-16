@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.dispense.otc
+package com.latticeonfhir.features.dispense.ui.otc
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -38,11 +38,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.R
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.core.utils.constants.NavControllerConstants.OTC_DISPENSED
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.core.utils.regex.OnlyNumberRegex.onlyNumbers
+import com.latticeonfhir.features.dispense.R
+import com.latticeonfhir.features.dispense.utils.constants.NavControllerConstants.OTC_DISPENSED
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

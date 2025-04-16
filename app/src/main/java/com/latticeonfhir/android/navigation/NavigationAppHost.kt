@@ -11,9 +11,10 @@ import com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentScreen
 import com.latticeonfhir.core.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
 import com.latticeonfhir.core.ui.appointments.AppointmentsScreen
 import com.latticeonfhir.core.ui.appointments.schedule.ScheduleAppointments
-import com.latticeonfhir.core.ui.dispense.DrugDispenseScreen
+import com.latticeonfhir.android.dispense.ui.DrugDispenseScreen
 import com.latticeonfhir.android.ui.dispense.otc.OTCScreen
-import com.latticeonfhir.android.ui.dispense.prescription.dispenseprescription.DispensePrescriptionScreen
+import com.latticeonfhir.android.dispense.ui.prescription.dispenseprescription.DispensePrescriptionScreen
+import com.latticeonfhir.android.prescription.navigation.prescriptionNavGraph
 import com.latticeonfhir.core.ui.householdmember.HouseholdMembersScreen
 import com.latticeonfhir.core.ui.householdmember.addhouseholdmember.AddHouseholdMember
 import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatient
@@ -29,13 +30,11 @@ import com.latticeonfhir.core.ui.patientprofile.PatientProfile
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.core.ui.patientregistration.preview.PatientRegistrationPreview
 import com.latticeonfhir.core.ui.patientregistration.step4.ConfirmRelationship
-import com.latticeonfhir.core.ui.prescription.PrescriptionScreen
-import com.latticeonfhir.core.ui.prescription.photo.upload.PrescriptionPhotoUploadScreen
-import com.latticeonfhir.android.ui.prescription.photo.view.PrescriptionPhotoViewScreen
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 import com.latticeonfhir.core.ui.vitalsscreen.VitalsScreen
 import com.latticeonfhir.core.ui.vitalsscreen.addvitals.AddVitalsScreen
 import com.latticeonfhir.core.vaccination.navigation.vaccinationNavGraph
+import com.latticeonfhir.features.dispense.navigation.dispenseNavGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -93,10 +92,7 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.LabAndMedPhotoUploadScreen.route) { PhotoUploadScreen(navController = navController) }
         composable(Screen.LabAndMedRecordPhotoViewScreen.route) { PhotoViewScreen(navController = navController) }
 
-        composable(Screen.DrugDispenseScreen.route) { DrugDispenseScreen(navController = navController) }
-        composable(Screen.DispensePrescriptionScreen.route) { DispensePrescriptionScreen(navController = navController) }
-        composable(Screen.OTCScreen.route) { OTCScreen(navController = navController) }
-
+        dispenseNavGraph(navController)
         vaccinationNavGraph(navController)
     }
 }

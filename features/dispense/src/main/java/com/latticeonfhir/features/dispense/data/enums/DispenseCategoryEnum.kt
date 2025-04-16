@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.data.local.enums
+package com.latticeonfhir.features.dispense.data.enums
 
 enum class DispenseCategoryEnum(val value: String) {
     PRESCRIBED("prescribed"),
