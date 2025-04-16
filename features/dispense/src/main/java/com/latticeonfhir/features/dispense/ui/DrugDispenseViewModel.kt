@@ -1,26 +1,26 @@
-package com.latticeonfhir.android.ui.dispense
+package com.latticeonfhir.features.dispense.ui
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.core.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.core.data.local.repository.dispense.DispenseRepository
-import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
-import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.core.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispenseAndPrescriptionRelation
-import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispensedPrescriptionInfo
-import com.latticeonfhir.android.data.local.roomdb.entities.medication.MedicationStrengthRelation
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.utils.common.Queries
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
+import com.latticeonfhir.core.data.repository.local.dispense.DispenseRepository
+import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
+import com.latticeonfhir.core.data.repository.local.medication.MedicationRepository
+import com.latticeonfhir.core.data.repository.local.patient.lastupdated.PatientLastUpdatedRepository
+import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepository
+import com.latticeonfhir.core.data.repository.local.schedule.ScheduleRepository
+import com.latticeonfhir.core.database.entities.dispense.DispenseAndPrescriptionRelation
+import com.latticeonfhir.core.database.entities.dispense.DispensedPrescriptionInfo
+import com.latticeonfhir.core.database.entities.medication.MedicationStrengthRelation
+import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.utils.common.Queries
+import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +37,7 @@ class DrugDispenseViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val scheduleRepository: ScheduleRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
-) : ViewModel() {
+) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
     val tabs = listOf("Prescription", "Dispense log")

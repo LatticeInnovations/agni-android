@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.dispense.prescription
+package com.latticeonfhir.features.dispense.ui.prescription
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -30,16 +30,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.latticeonfhir.core.R
-import com.latticeonfhir.core.data.local.enums.DispenseCategoryEnum
-import com.latticeonfhir.android.data.local.enums.DispenseStatusEnum
-import com.latticeonfhir.core.data.local.enums.DispenseStatusEnum.Companion.codeToDisplay
-import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispenseAndPrescriptionRelation
-import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.android.ui.dispense.DrugDispenseViewModel
+import com.latticeonfhir.core.database.entities.dispense.DispenseAndPrescriptionRelation
+import com.latticeonfhir.core.model.enums.DispenseStatusEnum
+import com.latticeonfhir.core.model.enums.DispenseStatusEnum.Companion.codeToDisplay
 import com.latticeonfhir.core.theme.FullyDispensed
 import com.latticeonfhir.core.theme.PartiallyDispensed
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.core.utils.converters.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.features.dispense.R
+import com.latticeonfhir.features.dispense.data.enums.DispenseCategoryEnum
+import com.latticeonfhir.features.dispense.navigation.Screen
+import com.latticeonfhir.features.dispense.ui.DrugDispenseViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

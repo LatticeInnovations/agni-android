@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.dispense.prescription.dispenseprescription
+package com.latticeonfhir.features.dispense.ui.prescription.dispenseprescription
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -56,11 +56,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.R
-import com.latticeonfhir.core.data.local.enums.DispenseStatusEnum
-import com.latticeonfhir.android.theme.FullyDispensed
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toPrescriptionDate
-import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
+import com.latticeonfhir.core.model.enums.DispenseStatusEnum
+import com.latticeonfhir.core.theme.FullyDispensed
+import com.latticeonfhir.core.utils.converters.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.core.utils.regex.OnlyNumberRegex.onlyNumbers
+import com.latticeonfhir.features.dispense.R
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
