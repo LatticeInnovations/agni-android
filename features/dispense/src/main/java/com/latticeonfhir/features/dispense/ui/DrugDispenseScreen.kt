@@ -1,10 +1,9 @@
-package com.latticeonfhir.core.ui.dispense
+package com.latticeonfhir.features.dispense.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,22 +30,22 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.R
-import com.latticeonfhir.core.data.local.enums.DispenseCategoryEnum
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.core.ui.CustomDialog
 import com.latticeonfhir.android.ui.TabRowComposable
-import com.latticeonfhir.android.ui.dispense.log.DispenseLogScreen
-import com.latticeonfhir.core.ui.dispense.prescription.PrescriptionTabScreen
-import com.latticeonfhir.android.ui.dispense.prescription.ViewRXScreen
-import com.latticeonfhir.android.ui.patientlandingscreen.AllSlotsBookedDialog
-import com.latticeonfhir.core.ui.prescription.photo.view.AppointmentCompletedDialog
-import com.latticeonfhir.core.utils.constants.NavControllerConstants.OTC_DISPENSED
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.ui.AddToQueueDialog
+import com.latticeonfhir.core.ui.AllSlotsBookedDialog
+import com.latticeonfhir.core.ui.AppointmentCompletedDialog
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.features.dispense.R
+import com.latticeonfhir.features.dispense.data.enums.DispenseCategoryEnum
+import com.latticeonfhir.features.dispense.navigation.Screen
+import com.latticeonfhir.features.dispense.ui.log.DispenseLogScreen
+import com.latticeonfhir.features.dispense.ui.prescription.PrescriptionTabScreen
+import com.latticeonfhir.features.dispense.ui.prescription.ViewRXScreen
+import com.latticeonfhir.features.dispense.utils.constants.NavControllerConstants.OTC_DISPENSED
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrugDispenseScreen(
     navController: NavController,
@@ -142,7 +141,7 @@ fun DrugDispenseScreen(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    com.latticeonfhir.core.ui.TabRowComposable(
+                    TabRowComposable(
                         viewModel.tabs,
                         pagerState
                     ) { index ->
@@ -177,15 +176,8 @@ fun DrugDispenseScreen(
         }
     }
     if (viewModel.showAddToQueueDialog) {
-        com.latticeonfhir.core.ui.CustomDialog(
-            title = if (viewModel.appointment != null) stringResource(id = R.string.patient_arrived_question) else stringResource(
-                id = R.string.add_to_queue_question
-            ),
-            text = stringResource(id = R.string.add_to_queue_assessment_dialog_description),
-            dismissBtnText = stringResource(id = R.string.dismiss),
-            confirmBtnText = if (viewModel.appointment != null) stringResource(id = R.string.mark_arrived) else stringResource(
-                id = R.string.add_to_queue
-            ),
+        AddToQueueDialog(
+            appointment = viewModel.appointment,
             dismiss = { viewModel.showAddToQueueDialog = false },
             confirm = {
                 if (viewModel.appointment != null) {

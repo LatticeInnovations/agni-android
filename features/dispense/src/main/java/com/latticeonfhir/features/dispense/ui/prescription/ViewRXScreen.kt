@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.dispense.prescription
+package com.latticeonfhir.features.dispense.ui.prescription
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,10 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.core.R
-import com.latticeonfhir.core.ui.dispense.DrugDispenseViewModel
-import com.latticeonfhir.core.ui.prescription.previousprescription.MedicineDetails
-import com.latticeonfhir.core.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
+import com.latticeonfhir.android.ui.MedicineDetails
+import com.latticeonfhir.android.utils.converters.MedicationInfoConverter.getMedInfo
+import com.latticeonfhir.features.dispense.R
+import com.latticeonfhir.features.dispense.ui.DrugDispenseViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,7 +57,7 @@ fun ViewRXScreen(
                     Box(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
-                        com.latticeonfhir.android.prescription.ui.previousprescription.MedicineDetails(
+                        MedicineDetails(
                             medName = directionAndMedication.medicationEntity.medName,
                             details = getMedInfo(
                                 duration = directionAndMedication.prescriptionDirectionsEntity.duration,
