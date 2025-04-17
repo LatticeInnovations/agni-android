@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.utils.converters.gson;
+package com.latticeonfhir.core.network.utils.gson;
 
 import androidx.annotation.NonNull;
 
