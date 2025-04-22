@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.auth.data.server.api
+package com.latticeonfhir.android.auth.data.server.api
 
 import com.latticeonfhir.android.auth.data.server.model.BaseResponse
 import com.latticeonfhir.core.auth.data.server.model.authentication.Login

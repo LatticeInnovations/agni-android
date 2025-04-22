@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.data.server.api
 
-import com.latticeonfhir.core.base.server.BaseResponse
+import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.android.data.server.constants.EndPoints.IMMUNIZATION
 import com.latticeonfhir.android.data.server.constants.EndPoints.IMMUNIZATION_RECOMMENDATION
 import com.latticeonfhir.core.data.server.constants.EndPoints.VACCINE_MANUFACTURER
@@ -17,7 +17,7 @@ import retrofit2.http.QueryMap
 interface VaccinationApiService {
 
     @POST("sync/$IMMUNIZATION")
-    suspend fun postImmunization(@Body immunizationResponse: List<ImmunizationResponse>): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
+    suspend fun postImmunization(@Body immunizationResponse: List<ImmunizationResponse>): Response<BaseResponse<List<CreateResponse>>>
 
     @GET(IMMUNIZATION)
     suspend fun getAllImmunization(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<ImmunizationResponse>>>
@@ -26,5 +26,5 @@ interface VaccinationApiService {
     suspend fun getAllImmunizationRecommendation(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<ImmunizationRecommendationResponse>>>
 
     @GET(VACCINE_MANUFACTURER)
-    suspend fun getAllManufacturers(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.core.base.server.BaseResponse<List<ManufacturerResponse>>>
+    suspend fun getAllManufacturers(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<ManufacturerResponse>>>
 }

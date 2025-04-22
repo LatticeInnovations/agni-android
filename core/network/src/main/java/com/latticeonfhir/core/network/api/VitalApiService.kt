@@ -17,7 +17,7 @@ interface VitalApiService {
     suspend fun getListData(
         @Path("endPoint") endPoint: String,
         @QueryMap(encoded = true) map: Map<String, String>?
-    ): Response<com.latticeonfhir.core.base.server.BaseResponse<List<VitalResponse>>>
+    ): Response<BaseResponse<List<VitalResponse>>>
 
     @POST("sync/{endPoint}")
     suspend fun createData(
@@ -29,5 +29,5 @@ interface VitalApiService {
     suspend fun patchListOfChanges(
         @Path("endPoint") endPoint: String,
         @Body patchLogs: List<Map<String, Any>>
-    ): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
+    ): Response<BaseResponse<List<CreateResponse>>>
 }

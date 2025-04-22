@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.network.api
 
-import com.latticeonfhir.core.base.server.BaseResponse
+import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.core.model.server.create.CreateResponse
 import com.latticeonfhir.core.model.server.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.core.model.server.scheduleandappointment.schedule.ScheduleResponse
@@ -18,7 +18,7 @@ interface ScheduleAndAppointmentApiService {
     suspend fun getScheduleList(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<ScheduleResponse>>>
 
     @POST("sync/Schedule")
-    suspend fun postScheduleData(@Body scheduleResponses: List<Any>): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
+    suspend fun postScheduleData(@Body scheduleResponses: List<Any>): Response<BaseResponse<List<CreateResponse>>>
 
     @GET("Appointment")
     suspend fun getAppointmentList(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<AppointmentResponse>>>

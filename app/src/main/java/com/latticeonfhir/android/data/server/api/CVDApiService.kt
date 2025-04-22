@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.data.server.api
 
-import com.latticeonfhir.core.base.server.BaseResponse
+import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.core.data.server.model.create.CreateResponse
 import com.latticeonfhir.core.data.server.model.cvd.CVDResponse
 import retrofit2.Response
@@ -25,5 +25,5 @@ interface CVDApiService {
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
         @Body patchLogs: List<Map<String, Any>>
-    ): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
+    ): Response<BaseResponse<List<CreateResponse>>>
 }

@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.network.api
 
-import com.latticeonfhir.core.base.server.BaseResponse
+import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.core.model.server.create.CreateResponse
 import com.latticeonfhir.core.model.server.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.core.model.server.patient.PatientResponse
@@ -20,7 +20,7 @@ interface PatientApiService {
     suspend fun getListData(
         @Path("endPoint") endPoint: String,
         @QueryMap(encoded = true) map: Map<String, String>?
-    ): Response<com.latticeonfhir.core.base.server.BaseResponse<List<PatientResponse>>>
+    ): Response<BaseResponse<List<PatientResponse>>>
 
     @POST("sync/{endPoint}")
     suspend fun createData(

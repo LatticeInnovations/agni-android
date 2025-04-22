@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.data.server.api
 
-import com.latticeonfhir.core.base.server.BaseResponse
+import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.core.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.core.data.server.model.create.CreateResponse
 import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.Diagnosis
@@ -26,19 +26,19 @@ interface SymptomsAndDiagnosisService {
     suspend fun getListData(
         @Path("endPoint") endPoint: String,
         @QueryMap(encoded = true) map: Map<String, String>?
-    ): Response<com.latticeonfhir.core.base.server.BaseResponse<List<SymptomsAndDiagnosisResponse>>>
+    ): Response<BaseResponse<List<SymptomsAndDiagnosisResponse>>>
 
     @POST("sync/{endPoint}")
     suspend fun createData(
         @Path("endPoint") endPoint: String,
         @Body symDiag: List<SymptomsAndDiagnosisData>
-    ): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
+    ): Response<BaseResponse<List<CreateResponse>>>
 
     @PATCH("sync/{endPoint}")
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
         @Path("endPoint") endPoint: String,
         @Body patchLogs: List<Map<String, Any>>
-    ): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
+    ): Response<BaseResponse<List<CreateResponse>>>
 
 }

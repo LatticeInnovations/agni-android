@@ -9,7 +9,7 @@ import com.latticeonfhir.core.auth.data.server.repository.authentication.Authent
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.core.data.server.enums.RegisterTypeEnum
-import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiEndResponse
+import com.latticeonfhir.android.utils.converters.responsemapper.ApiEndResponse
 import com.latticeonfhir.core.utils.converters.server.responsemapper.ResponseMapper
 import javax.inject.Inject
 
