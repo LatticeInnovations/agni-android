@@ -1,5 +1,8 @@
 import java.net.URI
 
+include(":core:network")
+
+
 include(":core:data")
 
 
