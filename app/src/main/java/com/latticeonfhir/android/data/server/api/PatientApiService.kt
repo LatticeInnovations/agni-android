@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.data.server.api
 
-import com.latticeonfhir.core.base.server.BaseResponse
+import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.core.data.server.model.create.CreateResponse
 import com.latticeonfhir.core.data.server.model.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.core.data.server.model.patient.PatientResponse
@@ -20,7 +20,7 @@ interface PatientApiService {
     suspend fun getListData(
         @Path("endPoint") endPoint: String,
         @QueryMap(encoded = true) map: Map<String, String>?
-    ): Response<com.latticeonfhir.core.base.server.BaseResponse<List<PatientResponse>>>
+    ): Response<BaseResponse<List<PatientResponse>>>
 
     @POST("sync/{endPoint}")
     suspend fun createData(
@@ -39,7 +39,7 @@ interface PatientApiService {
     suspend fun patchListOfChanges(
         @Path("endPoint") endPoint: String,
         @Body patchLogs: List<Map<String, Any>>
-    ): Response<com.latticeonfhir.core.base.server.BaseResponse<List<CreateResponse>>>
+    ): Response<BaseResponse<List<CreateResponse>>>
 
     @GET("{endPoint}")
     suspend fun getRelationData(
@@ -53,5 +53,5 @@ interface PatientApiService {
     ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
 
     @GET("timestamp")
-    suspend fun getPatientLastUpdatedData(): Response<com.latticeonfhir.core.base.server.BaseResponse<List<PatientLastUpdatedResponse>>>
+    suspend fun getPatientLastUpdatedData(): Response<BaseResponse<List<PatientLastUpdatedResponse>>>
 }

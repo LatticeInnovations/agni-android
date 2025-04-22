@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.auth.di
 
-import com.latticeonfhir.core.auth.data.server.api.AuthenticationApiService
+import com.latticeonfhir.android.auth.data.server.api.AuthenticationApiService
 import com.latticeonfhir.android.auth.data.server.api.SignUpApiService
 import dagger.Module
 import dagger.Provides

@@ -81,8 +81,7 @@ import com.latticeonfhir.core.utils.converters.responseconverter.RelationConvert
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertStringToDate
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTimeInMilli
-import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter
+import com.latticeonfhir.android.utils.converters.responsemapper.ApiEndResponse
 import java.util.Date
 import java.util.UUID
 
