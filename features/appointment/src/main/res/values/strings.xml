@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="appointments">Appointments</string>
+    <string name="appointments_scheduled">%d upcoming, %d past</string>
+    <string name="schedule_appointment">Schedule appointment</string>
+    <string name="reschedule_appointment">Reschedule appointment</string>
+    <string name="add_to_queue">Add to queue</string>
+    <string name="add_to_queue_question">Add to queue?</string>
+    <string name="patient_arrived">Patient arrived</string>
+    <string name="patient_arrived_question">Patient arrived?</string>
+    <string name="mark_arrived">Mark arrived</string>
+    <string name="cancel">Cancel</string>
+    <string name="reschedule">Reschedule</string>
+    <string name="no_past_appointments">No past appointments</string>
+    <string name="no_upcoming_appointments">No upcoming appointments</string>
+    <string name="cancel_appointment">Cancel appointment ?</string>
+    <string name="yes_i_want_to_cancel">Yes, I want to cancel</string>
+    <string name="today">Today</string>
+    <string name="morning_slots">Morning slots</string>
+    <string name="afternoon_slots">Afternoon slots</string>
+    <string name="evening_slots">Evening slots</string>
+    <string name="current_appointment">Current appointment:</string>
+    <string name="appointment_exists">Appointment for this date already exists.</string>
+    <string name="confirm_appointment">Confirm appointment</string>
+    <string name="no_go_back">No, go back</string>
+    <string name="appointment_rescheduled">Appointment rescheduled</string>
+    <string name="appointment_scheduled">Appointment scheduled</string>
+    <string name="appointment_cancelled">Appointment cancelled</string>
+</resources>

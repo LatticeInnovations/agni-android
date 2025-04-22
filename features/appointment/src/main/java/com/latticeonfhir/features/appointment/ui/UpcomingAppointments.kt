@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.appointments
+package com.latticeonfhir.features.appointment.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -13,7 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,13 +25,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.latticeonfhir.android.R
-import com.latticeonfhir.core.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.APPOINTMENT_SELECTED
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.IF_RESCHEDULING
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAppointmentDate
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.features.appointment.R
+import com.latticeonfhir.features.appointment.navigation.Screen
 
 @Composable
 fun UpcomingAppointments(navController: NavController, viewModel: AppointmentsScreenViewModel) {
@@ -84,7 +83,7 @@ fun UpcomingAppointmentCard(
                 )
                 .testTag("APPOINTMENT_DATE_AND_TIME")
         )
-        Divider(
+        HorizontalDivider(
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant
         )

@@ -1,6 +1,7 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.latticeonfhir.android.library)
+    alias(libs.plugins.latticeonfhir.android.library.jacoco)
+    alias(libs.plugins.latticeonfhir.hilt)
 }
 
 android {
@@ -33,8 +34,9 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.model)
-    implementation(projects.theme)
+    api(projects.core.model)
+    api(projects.core.utils)
+    api(projects.theme)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -44,4 +46,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
+    implementation(libs.androidx.compose.material.iconsExtended)
 }
