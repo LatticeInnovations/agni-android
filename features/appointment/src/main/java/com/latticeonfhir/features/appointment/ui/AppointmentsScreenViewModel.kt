@@ -1,23 +1,23 @@
-package com.latticeonfhir.core.ui.appointments
+package com.latticeonfhir.features.appointment.ui
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.core.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.core.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.core.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.core.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.core.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.core.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.core.data.server.model.patient.PatientLastUpdatedResponse
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.scheduleandappointment.appointment.AppointmentResponse
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
+import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
+import com.latticeonfhir.core.data.repository.local.patient.lastupdated.PatientLastUpdatedRepository
+import com.latticeonfhir.core.data.repository.local.schedule.ScheduleRepository
+import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.model.enums.ChangeTypeEnum
+import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
+import com.latticeonfhir.core.model.server.patient.PatientLastUpdatedResponse
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.model.server.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,7 +30,7 @@ class AppointmentsScreenViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val scheduleRepository: ScheduleRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
-) : com.latticeonfhir.core.base.viewmodel.BaseViewModel() {
+) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var patient by mutableStateOf<PatientResponse?>(null)

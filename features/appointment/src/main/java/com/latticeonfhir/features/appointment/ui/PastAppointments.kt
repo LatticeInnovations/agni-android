@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.appointments
+package com.latticeonfhir.features.appointment.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
@@ -16,23 +16,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
+import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
 import com.latticeonfhir.core.theme.ArrivedContainer
-import com.latticeonfhir.android.theme.ArrivedLabel
-import com.latticeonfhir.android.theme.CancelledContainer
-import com.latticeonfhir.android.theme.CancelledLabel
+import com.latticeonfhir.core.theme.ArrivedLabel
+import com.latticeonfhir.core.theme.CancelledContainer
+import com.latticeonfhir.core.theme.CancelledLabel
 import com.latticeonfhir.core.theme.CompletedContainer
 import com.latticeonfhir.core.theme.CompletedLabel
 import com.latticeonfhir.core.theme.InProgressContainer
 import com.latticeonfhir.core.theme.InProgressLabel
 import com.latticeonfhir.core.theme.NoShowContainer
-import com.latticeonfhir.android.theme.NoShowLabel
+import com.latticeonfhir.core.theme.NoShowLabel
 import com.latticeonfhir.core.theme.TodayScheduledContainer
 import com.latticeonfhir.core.theme.TodayScheduledLabel
 import com.latticeonfhir.core.theme.WalkInContainer
 import com.latticeonfhir.core.theme.WalkInLabel
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAppointmentDate
 
 @Composable
 fun PastAppointments(viewModel: AppointmentsScreenViewModel) {

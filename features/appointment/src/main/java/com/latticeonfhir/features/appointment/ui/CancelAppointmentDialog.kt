@@ -1,10 +1,10 @@
-package com.latticeonfhir.core.ui.appointments
+package com.latticeonfhir.features.appointment.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -13,11 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.core.R
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.utils.converters.TimeConverter.toAge
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTimeInMilli
 import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter.getFullName
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import com.latticeonfhir.features.appointment.R
 
 @Composable
 fun CancelAppointmentDialog(
@@ -59,7 +59,7 @@ fun CancelAppointmentDialog(
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Divider(
+                HorizontalDivider(
                     thickness = 1.dp,
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
