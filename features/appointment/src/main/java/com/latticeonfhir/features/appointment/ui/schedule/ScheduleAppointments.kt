@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.appointments.schedule
+package com.latticeonfhir.features.appointment.ui.schedule
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -53,22 +53,21 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.R
-import com.latticeonfhir.core.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.core.ui.common.NonLazyGrid
-import com.latticeonfhir.core.ui.common.WeekDaysComposable
+import com.latticeonfhir.android.ui.NonLazyGrid
+import com.latticeonfhir.android.ui.WeekDaysComposable
+import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.theme.Green
 import com.latticeonfhir.core.utils.constants.NavControllerConstants
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SCHEDULED
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAppointmentDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toCurrentTimeInMillis
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toOneYearFuture
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toSlotDate
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toWeekList
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.tomorrow
+import com.latticeonfhir.core.utils.converters.TimeConverter.toCurrentTimeInMillis
+import com.latticeonfhir.core.utils.converters.TimeConverter.toOneYearFuture
+import com.latticeonfhir.core.utils.converters.TimeConverter.toSlotDate
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.utils.converters.TimeConverter.tomorrow
+import com.latticeonfhir.features.appointment.R
+import com.latticeonfhir.features.appointment.navigation.Screen
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -96,7 +95,7 @@ fun ScheduleAppointments(
             }
             viewModel.patient =
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
+                    PATIENT
                 )
         }
         viewModel.isLaunched = true

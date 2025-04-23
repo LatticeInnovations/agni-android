@@ -63,7 +63,7 @@ import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum.Companion.f
 import com.latticeonfhir.android.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.core.data.server.model.patient.PatientResponse
 import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.core.ui.appointments.CancelAppointmentDialog
+import com.latticeonfhir.features.appointment.ui.CancelAppointmentDialog
 import com.latticeonfhir.android.ui.common.WeekDaysComposable
 import com.latticeonfhir.core.theme.ArrivedContainer
 import com.latticeonfhir.core.theme.ArrivedLabel
@@ -452,7 +452,7 @@ fun QueueScreen(
         }
     }
     if (viewModel.showCancelAppointmentDialog) {
-        CancelAppointmentDialog(
+        com.latticeonfhir.features.appointment.ui.CancelAppointmentDialog(
             patient = viewModel.patientSelected!!,
             dateAndTime = viewModel.appointmentSelected?.slot?.start?.toAppointmentDate()!!
         ) { cancel ->
