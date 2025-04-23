@@ -1,9 +1,6 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
-
-package com.latticeonfhir.android.ui.appointments
+package com.latticeonfhir.features.appointment.ui
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,17 +34,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.R
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.TabRowComposable
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.ui.AllSlotsBookedDialog
 import com.latticeonfhir.core.ui.common.appointmentsfab.AppointmentsFab
-import com.latticeonfhir.core.ui.patientlandingscreen.AllSlotsBookedDialog
-import com.latticeonfhir.core.utils.constants.NavControllerConstants
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAppointmentDate
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.RESCHEDULED
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.SCHEDULED
+import com.latticeonfhir.core.utils.converters.TimeConverter.toAppointmentDate
+import com.latticeonfhir.features.appointment.R
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppointmentsScreen(
     navController: NavController,
@@ -63,10 +61,10 @@ fun AppointmentsScreen(
         if (viewModel.pastAppointmentsList.isEmpty()) 1 else viewModel.tabs.size
     }
     viewModel.rescheduled = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
-        NavControllerConstants.RESCHEDULED
+        RESCHEDULED
     ) == true
     viewModel.scheduled = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
-        NavControllerConstants.SCHEDULED
+        SCHEDULED
     ) == true
 
     BackHandler(enabled = true) {
@@ -83,7 +81,7 @@ fun AppointmentsScreen(
         if (!viewModel.isLaunched) {
             viewModel.patient =
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
-                    "patient"
+                    PATIENT
                 )
         }
         viewModel.isLaunched = true
@@ -99,7 +97,7 @@ fun AppointmentsScreen(
                 )
             }
             navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(
-                NavControllerConstants.RESCHEDULED
+                RESCHEDULED
             )
         }
         if (viewModel.scheduled) {
@@ -109,7 +107,7 @@ fun AppointmentsScreen(
                 )
             }
             navController.previousBackStackEntry?.savedStateHandle?.remove<Boolean>(
-                NavControllerConstants.SCHEDULED
+                SCHEDULED
             )
         }
     }
@@ -138,7 +136,7 @@ fun AppointmentsScreen(
         content = {
             Box(modifier = Modifier.padding(it)) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    com.latticeonfhir.android.ui.TabRowComposable(
+                    TabRowComposable(
                         viewModel.tabs,
                         pagerState
                     ) { index ->
@@ -176,7 +174,6 @@ fun AppointmentsScreen(
                         ) { cancel ->
                             if (cancel) {
                                 viewModel.cancelAppointment {
-                                    Timber.d("manseeyy appointment cancelled")
                                     viewModel.getAppointmentsList(viewModel.patient!!.id)
                                     coroutineScope.launch {
                                         snackbarHostState.showSnackbar(
