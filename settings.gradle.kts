@@ -1,9 +1,6 @@
 import java.net.URI
 
-include(":core:network")
-
-
-include(":core:data")
+include(":sync:workmanager")
 
 
 pluginManagement {
@@ -37,6 +34,8 @@ include(":core:database")
 include(":core:sharedpreference")
 include(":core")
 include(":core:base")
+include(":core:network")
+include(":core:data")
 include(":features:symptomsanddiagnosis")
 include(":core:utils")
 include(":core:ui")
@@ -47,3 +46,4 @@ include(":features:vaccination")
 include(":features:prescription")
 include(":features:dispense")
 include(":features:appointment")
+include(":sync")

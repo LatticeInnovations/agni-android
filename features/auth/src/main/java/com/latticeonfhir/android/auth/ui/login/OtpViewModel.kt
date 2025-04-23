@@ -14,7 +14,7 @@ import com.latticeonfhir.android.auth.data.server.repository.signup.SignUpReposi
 import com.latticeonfhir.core.auth.utils.contants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
 import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiEmptyResponse
-import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiEndResponse
+import com.latticeonfhir.android.utils.converters.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -1,8 +1,6 @@
 package com.latticeonfhir.core.network.api
 
-import com.latticeonfhir.core.base.server.BaseResponse
-import com.latticeonfhir.core.data.server.model.file.request.FilesRequest
-import com.latticeonfhir.android.data.server.model.file.response.FilesResponse
+import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.core.model.server.file.request.FilesRequest
 import com.latticeonfhir.core.model.server.file.response.FilesResponse
 import okhttp3.MultipartBody
@@ -23,5 +21,5 @@ interface FileUploadApiService {
 
     @Multipart
     @POST("upload/file")
-    suspend fun uploadFile(@Part file: List<MultipartBody.Part>): Response<com.latticeonfhir.core.base.server.BaseResponse<FilesResponse>>
+    suspend fun uploadFile(@Part file: List<MultipartBody.Part>): Response<BaseResponse<FilesResponse>>
 }
