@@ -4,10 +4,15 @@ plugins {
     alias(libs.plugins.latticeonfhir.hilt)
 }
 
+android {
+    namespace = "com.latticeonfhir.core.utils"
+}
+
 dependencies {
 
     api(projects.core.database)
     api(projects.core.model)
+    api(projects.core.data)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
