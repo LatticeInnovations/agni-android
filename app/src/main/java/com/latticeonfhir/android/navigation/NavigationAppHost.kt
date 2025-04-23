@@ -5,37 +5,32 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.latticeonfhir.android.prescription.navigation.prescriptionNavGraph
+import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatient
+import com.latticeonfhir.android.ui.householdmember.searchresult.SearchResult
+import com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.upload.PhotoUploadScreen
+import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.EditBasicInformation
+import com.latticeonfhir.android.ui.patientlandingscreen.PatientLandingScreen
+import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
+import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 import com.latticeonfhir.core.auth.navigation.authNavGraph
 import com.latticeonfhir.core.auth.navigation.authRoute
 import com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentScreen
 import com.latticeonfhir.core.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
-import com.latticeonfhir.core.ui.appointments.AppointmentsScreen
-import com.latticeonfhir.core.ui.appointments.schedule.ScheduleAppointments
-import com.latticeonfhir.core.ui.dispense.DrugDispenseScreen
-import com.latticeonfhir.android.ui.dispense.otc.OTCScreen
-import com.latticeonfhir.android.ui.dispense.prescription.dispenseprescription.DispensePrescriptionScreen
 import com.latticeonfhir.core.ui.householdmember.HouseholdMembersScreen
 import com.latticeonfhir.core.ui.householdmember.addhouseholdmember.AddHouseholdMember
-import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatient
-import com.latticeonfhir.android.ui.householdmember.searchresult.SearchResult
-import com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.upload.PhotoUploadScreen
 import com.latticeonfhir.core.ui.labtestandmedicalrecord.photo.view.PhotoViewScreen
 import com.latticeonfhir.core.ui.landingscreen.LandingScreen
 import com.latticeonfhir.core.ui.patienteditscreen.address.EditPatientAddress
-import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.EditBasicInformation
 import com.latticeonfhir.core.ui.patienteditscreen.identification.EditIdentification
-import com.latticeonfhir.android.ui.patientlandingscreen.PatientLandingScreen
 import com.latticeonfhir.core.ui.patientprofile.PatientProfile
-import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.core.ui.patientregistration.preview.PatientRegistrationPreview
 import com.latticeonfhir.core.ui.patientregistration.step4.ConfirmRelationship
-import com.latticeonfhir.core.ui.prescription.PrescriptionScreen
-import com.latticeonfhir.core.ui.prescription.photo.upload.PrescriptionPhotoUploadScreen
-import com.latticeonfhir.android.ui.prescription.photo.view.PrescriptionPhotoViewScreen
-import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 import com.latticeonfhir.core.ui.vitalsscreen.VitalsScreen
 import com.latticeonfhir.core.ui.vitalsscreen.addvitals.AddVitalsScreen
 import com.latticeonfhir.core.vaccination.navigation.vaccinationNavGraph
+import com.latticeonfhir.features.appointment.navigation.appointmentNavGraph
+import com.latticeonfhir.features.dispense.navigation.dispenseNavGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -75,8 +70,6 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.EditBasicInfo.route) { EditBasicInformation(navController = navController) }
         composable(Screen.EditIdentification.route) { EditIdentification(navController = navController) }
         composable(Screen.EditAddress.route) { EditPatientAddress(navController = navController) }
-        composable(Screen.Appointments.route) { AppointmentsScreen(navController = navController) }
-        composable(Screen.ScheduleAppointments.route) { ScheduleAppointments(navController = navController) }
 
         prescriptionNavGraph(navController)
 
@@ -93,10 +86,9 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.LabAndMedPhotoUploadScreen.route) { PhotoUploadScreen(navController = navController) }
         composable(Screen.LabAndMedRecordPhotoViewScreen.route) { PhotoViewScreen(navController = navController) }
 
-        composable(Screen.DrugDispenseScreen.route) { DrugDispenseScreen(navController = navController) }
-        composable(Screen.DispensePrescriptionScreen.route) { DispensePrescriptionScreen(navController = navController) }
-        composable(Screen.OTCScreen.route) { OTCScreen(navController = navController) }
-
+        appointmentNavGraph(navController)
+        dispenseNavGraph(navController)
         vaccinationNavGraph(navController)
+
     }
 }
