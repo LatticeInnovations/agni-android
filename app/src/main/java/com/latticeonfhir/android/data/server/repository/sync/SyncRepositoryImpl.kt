@@ -79,7 +79,7 @@ import com.latticeonfhir.core.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.core.utils.converters.responseconverter.toNoBracketAndNoSpaceString
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
-import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiEndResponse
+import com.latticeonfhir.android.utils.converters.responsemapper.ApiEndResponse
 import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import com.latticeonfhir.android.utils.file.DeleteFileManager

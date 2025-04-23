@@ -10,7 +10,7 @@ import com.latticeonfhir.core.utils.converters.responseconverter.toDiagnosis
 import com.latticeonfhir.core.utils.converters.responseconverter.toDiagnosisEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toSymptoms
 import com.latticeonfhir.core.utils.converters.responseconverter.toSymptomsEntity
-import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiEndResponse
+import com.latticeonfhir.android.utils.converters.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import javax.inject.Inject
