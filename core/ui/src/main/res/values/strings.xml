@@ -18,4 +18,8 @@
     <string name="yes_i_want_to_cancel">Yes, I want to cancel</string>
     <string name="no_go_back">No, go back</string>
     <string name="email">Email</string>
+
+    <string name="yes_discard">Yes, discard</string>
+    <string name="discard_relations_dialog_title">Discard relation?</string>
+    <string name="discard_relations_dialog_description">Are you sure you want to discard this patient record?</string>
 </resources>

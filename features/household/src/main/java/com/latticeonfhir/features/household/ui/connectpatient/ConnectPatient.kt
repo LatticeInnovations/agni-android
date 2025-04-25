@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.householdmember.connectpatient
+package com.latticeonfhir.features.household.ui.connectpatient
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
@@ -61,19 +61,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.R
-import com.latticeonfhir.core.data.local.model.relation.Relation
-import com.latticeonfhir.android.data.local.roomdb.views.RelationView
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.local.model.relation.Relation
+import com.latticeonfhir.android.ui.DiscardAllRelationDialog
+import com.latticeonfhir.android.ui.RelationDialogContent
+import com.latticeonfhir.core.database.views.RelationView
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.android.ui.common.DiscardAllRelationDialog
-import com.latticeonfhir.android.ui.common.RelationDialogContent
-import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter
-import com.latticeonfhir.core.utils.converters.responseconverter.RelationshipList
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import com.latticeonfhir.core.utils.converters.TimeConverter.toAge
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTimeInMilli
+import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.core.utils.converters.responseconverter.RelationConverter
+import com.latticeonfhir.features.household.R
+import com.latticeonfhir.utils.converters.responseconverter.AddressConverter
+import com.latticeonfhir.utils.converters.responseconverter.RelationshipList
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)

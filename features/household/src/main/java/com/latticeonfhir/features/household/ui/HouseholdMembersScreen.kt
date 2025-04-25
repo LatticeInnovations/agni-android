@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui.householdmember
+package com.latticeonfhir.features.household.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -28,7 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -45,17 +45,17 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.R
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.android.ui.TabRowComposable
-import com.latticeonfhir.android.ui.householdmember.members.MembersScreen
-import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreen
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.features.household.ui.members.MembersScreen
+import com.latticeonfhir.features.household.ui.suggestions.SuggestionsScreen
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX
+import com.latticeonfhir.core.utils.converters.TimeConverter.toAge
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTimeInMilli
 import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import com.latticeonfhir.features.household.R
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -92,7 +92,7 @@ fun HouseholdMembersScreen(
         topBar = {
             LargeTopAppBar(
                 modifier = Modifier.fillMaxWidth(),
-                colors = TopAppBarDefaults.largeTopAppBarColors(
+                colors = topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                 ),
                 navigationIcon = {
@@ -131,7 +131,7 @@ fun HouseholdMembersScreen(
         content = {
             Box(modifier = Modifier.padding(it)) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    com.latticeonfhir.core.ui.TabRowComposable(
+                    TabRowComposable(
                         viewModel.tabs,
                         pagerState
                     ) { index ->
