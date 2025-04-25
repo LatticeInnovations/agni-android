@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="household_members">Household members</string>
+    <string name="add_member">Add member</string>
+    <string name="edit_existing">Edit existing</string>
+
+    <string name="add_household_member">Add a household member</string>
+    <string name="create_new_patient">Create a new patient, and
+include them in the household</string>
+    <string name="add_a_patient">Add a patient</string>
+    <string name="search_existing_patient">Search for an existing patient, and
+include them in the household</string>
+    <string name="search_patients">Search patients</string>
+    <string name="nearby_matches">Nearby matches</string>
+    <string name="connect_nearby">Connect nearby</string>
+
+    <string name="connect_to">Connect patient to</string>
+    <string name="connected_patients">Connected Patients</string>
+    <string name="patients_to_connect">Patients to connect</string>
+    <string name="discard_relations_dialog_title">Discard relation?</string>
+    <string name="discard_relations_dialog_description">Are you sure you want to discard this patient record?</string>
+
+    <string name="no_household_members">No household members.</string>
+    <string name="no_suggested_members">No suggested members.</string>
+    <string name="search_results">%s results</string>
+    <string name="connect">Connect</string>
+    <string name="nearby_patients_title">Here are patients with similar addresses or nearby locations.</string>
+    <string name="connect_patient">Connect patient</string>
+    <string name="create">Create</string>
+    <string name="go_back">Go back</string>
+
+</resources>

@@ -19,8 +19,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,11 +45,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.R
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.core.utils.converters.responseconverter.AddressConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.features.household.R
+import com.latticeonfhir.features.household.ui.addhouseholdmember.AddHouseholdMemberViewModel
+import com.latticeonfhir.utils.converters.responseconverter.AddressConverter
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -314,7 +315,7 @@ fun DialogPatientRow(member: PatientResponse, viewModel: AddHouseholdMemberViewM
             }
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Divider(
+        HorizontalDivider(
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant
         )
