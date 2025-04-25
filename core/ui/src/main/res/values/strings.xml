@@ -13,4 +13,9 @@
     <string name="mark_arrived">Mark arrived</string>
     <string name="add_to_queue_dialog_description">To perform this action, the patient has to be in today’s queue.</string>
     <string name="saving">Saving…</string>
+
+    <string name="cancel_appointment">Cancel appointment ?</string>
+    <string name="yes_i_want_to_cancel">Yes, I want to cancel</string>
+    <string name="no_go_back">No, go back</string>
+    <string name="email">Email</string>
 </resources>
