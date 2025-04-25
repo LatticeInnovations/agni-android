@@ -25,7 +25,7 @@ class WorkRequestBuilders(private val applicationContext: Context) {
      * every other worker when app is in foreground or not
      *
      */
-    internal suspend fun setPeriodicTriggerWorker() {
+    suspend fun setPeriodicTriggerWorker() {
         Sync.periodicSync<TriggerWorkerPeriodicImpl>(
             applicationContext,
             PeriodicSyncConfiguration(
@@ -44,7 +44,7 @@ class WorkRequestBuilders(private val applicationContext: Context) {
      * method to update status to "No-Show" at 11:59 PM everyday
      *
      */
-    internal suspend fun setPeriodicAppointmentNoShowStatusUpdateWorker(
+    suspend fun setPeriodicAppointmentNoShowStatusUpdateWorker(
         duration: Duration?,
         delay: Delay?
     ) {
@@ -66,7 +66,7 @@ class WorkRequestBuilders(private val applicationContext: Context) {
      * method to update status to "Completed" at 11:59 PM everyday
      *
      */
-    internal suspend fun setPeriodicAppointmentCompletedStatusUpdateWorker(
+    suspend fun setPeriodicAppointmentCompletedStatusUpdateWorker(
         duration: Duration?,
         delay: Delay?
     ) {
