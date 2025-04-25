@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.householdmember.addhouseholdmember
+package com.latticeonfhir.features.household.ui.addhouseholdmember
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.core.base.viewmodel.BaseViewModel
-import com.latticeonfhir.core.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.data.repository.local.search.SearchRepository
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddHouseholdMemberViewModel @Inject constructor(
     private val searchRepository: SearchRepository
-) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
+) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
 

@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.householdmember.members
+package com.latticeonfhir.features.household.ui.members
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,16 +21,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.ui.Loader
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.android.ui.common.Loader
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.core.utils.converters.TimeConverter.toAge
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTimeInMilli
+import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.core.utils.converters.responseconverter.RelationConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import com.latticeonfhir.features.household.R
 import java.util.Locale
 
 @Composable
