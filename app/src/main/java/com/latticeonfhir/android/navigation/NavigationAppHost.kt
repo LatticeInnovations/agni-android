@@ -6,7 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.latticeonfhir.android.prescription.navigation.prescriptionNavGraph
-import com.latticeonfhir.android.ui.householdmember.connectpatient.ConnectPatient
+import com.latticeonfhir.features.household.ui.connectpatient.ConnectPatient
 import com.latticeonfhir.android.ui.householdmember.searchresult.SearchResult
 import com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.upload.PhotoUploadScreen
 import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.EditBasicInformation
@@ -65,7 +65,11 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         composable(Screen.AddHouseholdMember.route) { AddHouseholdMember(navController = navController) }
         composable(Screen.ConfirmRelationship.route) { ConfirmRelationship(navController = navController) }
         composable(Screen.SearchResult.route) { SearchResult(navController = navController) }
-        composable(Screen.ConnectPatient.route) { ConnectPatient(navController = navController) }
+        composable(Screen.ConnectPatient.route) {
+            com.latticeonfhir.features.household.ui.connectpatient.ConnectPatient(
+                navController = navController
+            )
+        }
         composable(Screen.PatientProfile.route) { PatientProfile(navController = navController) }
         composable(Screen.EditBasicInfo.route) { EditBasicInformation(navController = navController) }
         composable(Screen.EditIdentification.route) { EditIdentification(navController = navController) }

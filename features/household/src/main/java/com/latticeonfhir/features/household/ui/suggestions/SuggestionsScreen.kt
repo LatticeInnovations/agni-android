@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.householdmember.suggestions
+package com.latticeonfhir.features.household.ui.suggestions
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,16 +30,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.latticeonfhir.core.R
 import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.common.Loader
-import com.latticeonfhir.android.ui.common.RelationDialogContent
-import com.latticeonfhir.android.utils.converters.responseconverter.AddressConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.ui.Loader
+import com.latticeonfhir.android.ui.RelationDialogContent
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.utils.converters.TimeConverter.toAge
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTimeInMilli
+import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.core.utils.converters.responseconverter.RelationConverter
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAge
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
+import com.latticeonfhir.features.household.R
+import com.latticeonfhir.utils.converters.responseconverter.AddressConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
