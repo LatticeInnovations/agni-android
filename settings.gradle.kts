@@ -1,5 +1,8 @@
 import java.net.URI
 
+include(":features:patient")
+
+
 include(":sync:workmanager")
 
 
