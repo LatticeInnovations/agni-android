@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 
 object MonthsList {
-    internal fun getMonthsList(dobDay: String): SnapshotStateList<String> {
+    fun getMonthsList(dobDay: String): SnapshotStateList<String> {
         return if (dobDay.toInt() > 30) mutableStateListOf(
             "January",
             "March",
