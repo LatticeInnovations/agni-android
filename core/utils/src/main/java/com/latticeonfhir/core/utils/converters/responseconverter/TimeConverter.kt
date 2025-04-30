@@ -93,7 +93,7 @@ object TimeConverter {
         }
     }
 
-    internal fun isDOBValid(day: Int, month: Int, year: Int): Boolean {
+    fun isDOBValid(day: Int, month: Int, year: Int): Boolean {
         if (year < 1900 || year > Date().toYear().toInt()) return false
         val maxDaysInMonth = when (month) {
             1, 3, 5, 7, 8, 10, 12 -> 31

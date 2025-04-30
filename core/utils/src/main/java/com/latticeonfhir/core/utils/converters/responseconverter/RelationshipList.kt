@@ -1,7 +1,7 @@
 package com.latticeonfhir.core.utils.converters.responseconverter
 
 object RelationshipList {
-    internal fun getRelationshipList(gender: String): List<String> {
+    fun getRelationshipList(gender: String): List<String> {
         return when (gender) {
             "male" -> listOf(
                 "Son",

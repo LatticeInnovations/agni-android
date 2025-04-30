@@ -3,7 +3,7 @@ package com.latticeonfhir.core.utils.converters.responseconverter
 import com.latticeonfhir.core.model.server.patient.PatientAddressResponse
 
 object AddressConverter {
-    internal fun getAddress(addressResponse: PatientAddressResponse): String {
+    fun getAddress(addressResponse: PatientAddressResponse): String {
         return addressResponse.addressLine1 +
                 if (addressResponse.addressLine2.isNullOrEmpty()) "" else {
                     ", " + addressResponse.addressLine2
