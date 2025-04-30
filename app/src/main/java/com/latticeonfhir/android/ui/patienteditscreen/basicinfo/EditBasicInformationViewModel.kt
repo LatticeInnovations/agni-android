@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.core.base.viewmodel.BaseViewModel
 import com.latticeonfhir.core.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.core.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository

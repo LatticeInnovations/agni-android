@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.ui.MedicineDetails
-import com.latticeonfhir.android.utils.converters.MedicationInfoConverter.getMedInfo
+import com.latticeonfhir.core.utils.converters.MedicationInfoConverter.getMedInfo
 import com.latticeonfhir.features.dispense.R
 import com.latticeonfhir.features.dispense.ui.DrugDispenseViewModel
 

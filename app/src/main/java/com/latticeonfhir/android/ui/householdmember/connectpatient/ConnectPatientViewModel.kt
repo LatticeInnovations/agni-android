@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.core.data.local.model.relation.Relation
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.core.data.local.repository.relation.RelationRepository
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class ConnectPatientViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val relationRepository: RelationRepository
-) : com.latticeonfhir.core.base.viewmodel.BaseViewModel() {
+) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var discardAllRelationDialog by mutableStateOf(false)

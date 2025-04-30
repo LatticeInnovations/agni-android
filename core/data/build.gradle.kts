@@ -6,14 +6,13 @@ plugins {
 
 android {
     namespace = "com.latticeonfhir.core.data"
-    testOptions {
-        unitTests {
-            isIncludeAndroidResources = true
-        }
-    }
 }
 
 dependencies {
     api(projects.core.database)
+    api(projects.core.sharedpreference)
     api(projects.core.utils)
+
+    implementation(libs.timber)
+    implementation(libs.androidx.paging.runtime.ktx)
 }

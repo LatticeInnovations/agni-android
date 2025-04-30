@@ -81,6 +81,12 @@ annotationJvm = "1.9.1"
 uiToolingPreviewAndroid = "1.7.8"
 hiltAndroid = "2.49"
 material3AndroidVersion = "1.3.2"
+pagingCommonAndroid = "3.3.6"
+pagingCommonJvm = "3.3.6"
+pagingRuntime = "3.3.6"
+fuzzyWuzzy = "1.4.0"
+runtimeAndroidVersion = "1.8.0"
+exifinterface = "1.3.6"
 
 [bundles]
 androidx-compose-ui-test = ["androidx-compose-ui-test", "androidx-compose-ui-testManifest"]
@@ -186,6 +192,8 @@ sqlite = { group = "androidx.sqlite", name = "sqlite-ktx", version.ref = "sqlite
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+androidx-paging-runtime-ktx = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "pagingRuntime"}
+fuzzy-wuzzy = { group = "me.xdrop", name = "fuzzywuzzy", version.ref = "fuzzyWuzzy" }
 
 # Dependencies of the included build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
@@ -208,6 +216,7 @@ androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jv
 androidx-ui-tooling-preview-android = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version.ref = "uiToolingPreviewAndroid" }
 dagger-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltAndroid" }
 material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3AndroidVersion" }
+androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

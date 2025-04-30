@@ -1,10 +1,10 @@
 package com.latticeonfhir.core.data.repository.local.vaccination.impl
 
-import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
+import com.latticeonfhir.core.data.local.model.vaccination.ImmunizationRecommendation
 import com.latticeonfhir.core.data.repository.local.vaccination.ImmunizationRecommendationRepository
-import com.latticeonfhir.core.data.local.roomdb.dao.vaccincation.ImmunizationDao
-import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationRecommendationDao
-import com.latticeonfhir.core.data.local.roomdb.entities.vaccination.ImmunizationRecommendationEntity
+import com.latticeonfhir.core.database.dao.vaccincation.ImmunizationDao
+import com.latticeonfhir.core.database.dao.vaccincation.ImmunizationRecommendationDao
+import com.latticeonfhir.core.database.entities.vaccination.ImmunizationRecommendationEntity
 import javax.inject.Inject
 
 class ImmunizationRecommendationRepositoryImpl @Inject constructor(

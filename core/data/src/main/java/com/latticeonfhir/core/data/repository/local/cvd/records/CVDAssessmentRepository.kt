@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.data.repository.local.cvd.records
 
-import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
+import com.latticeonfhir.core.model.server.cvd.CVDResponse
 
 interface CVDAssessmentRepository {
     suspend fun insertCVDRecord(vararg cvdResponse: CVDResponse): List<Long>

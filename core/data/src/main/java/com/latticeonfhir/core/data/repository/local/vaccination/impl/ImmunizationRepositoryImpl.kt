@@ -1,11 +1,11 @@
 package com.latticeonfhir.core.data.repository.local.vaccination.impl
 
-import com.latticeonfhir.core.data.local.model.vaccination.Immunization
+import com.latticeonfhir.android.data.local.model.vaccination.Immunization
 import com.latticeonfhir.core.data.repository.local.vaccination.ImmunizationRepository
-import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationDao
-import com.latticeonfhir.core.data.local.roomdb.dao.vaccincation.ImmunizationRecommendationDao
-import com.latticeonfhir.core.data.local.roomdb.dao.vaccincation.ManufacturerDao
-import com.latticeonfhir.core.data.local.roomdb.entities.vaccination.ImmunizationFileEntity
+import com.latticeonfhir.core.database.dao.vaccincation.ImmunizationDao
+import com.latticeonfhir.core.database.dao.vaccincation.ImmunizationRecommendationDao
+import com.latticeonfhir.core.database.dao.vaccincation.ManufacturerDao
+import com.latticeonfhir.core.database.entities.vaccination.ImmunizationFileEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.Vaccination.toImmunizationEntity
 import java.util.Date
 import javax.inject.Inject
@@ -20,7 +20,7 @@ class ImmunizationRepositoryImpl @Inject constructor(
         return immunizationDao.insertImmunization(immunization.toImmunizationEntity()).also {
             if (immunization.filename?.isNotEmpty() == true) {
                 immunizationDao.insertImmunizationFiles(
-                    *immunization.filename.map { filename ->
+                    *immunization.filename!!.map { filename ->
                         ImmunizationFileEntity(
                             filename = filename,
                             immunizationId = immunization.id

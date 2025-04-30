@@ -36,7 +36,7 @@ enum class RelationEnum(val number: Int, val value: String) {
     GUARDIAN(31, "GUARD");
 
     companion object {
-        fun fromInt(number: Int) = values().first { it.number == number }
-        fun fromString(value: String) = values().first { it.value == value }
+        fun fromInt(number: Int) = entries.first { it.number == number }
+        fun fromString(value: String) = entries.first { it.value == value }
     }
 }
