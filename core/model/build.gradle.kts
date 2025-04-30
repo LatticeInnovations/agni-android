@@ -3,6 +3,10 @@ plugins {
     id("kotlin-parcelize")
 }
 
+android {
+    namespace = "com.latticeonfhir.core.model"
+}
+
 dependencies {
     api(libs.kotlinx.datetime)
 
