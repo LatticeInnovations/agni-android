@@ -1,5 +1,14 @@
 import java.net.URI
 
+include(":core:sms-fetch")
+
+
+include(":features:household")
+
+
+include(":features:patient")
+
+
 include(":sync:workmanager")
 
 
