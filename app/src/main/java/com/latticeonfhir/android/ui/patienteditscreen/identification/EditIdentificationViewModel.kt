@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.core.data.local.enums.ChangeTypeEnum
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
@@ -28,7 +28,7 @@ class EditIdentificationViewModel @Inject constructor(
     private val patientRepository: PatientRepository,
     private val genericRepository: GenericRepository,
     private val identifierRepository: IdentifierRepository
-) : com.latticeonfhir.core.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
+) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
 

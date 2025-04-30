@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.core.data.local.model.relation.Relation
 import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.identifier.IdentifierRepository
@@ -29,7 +29,7 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     private val identifierRepository: IdentifierRepository,
     private val relationRepository: RelationRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
-) : com.latticeonfhir.core.base.viewmodel.BaseViewModel() {
+) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var patientResponse by mutableStateOf<PatientResponse?>(null)
 

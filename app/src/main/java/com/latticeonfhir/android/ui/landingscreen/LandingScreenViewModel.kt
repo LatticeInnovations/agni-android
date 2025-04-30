@@ -40,9 +40,9 @@ import com.latticeonfhir.android.service.workmanager.utils.Sync
 import com.latticeonfhir.core.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.android.utils.common.Queries.getSearchListWithLastVisited
 import com.latticeonfhir.core.utils.constants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiErrorResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiErrorResponse
 import com.latticeonfhir.core.utils.network.CheckNetwork.isInternetAvailable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope

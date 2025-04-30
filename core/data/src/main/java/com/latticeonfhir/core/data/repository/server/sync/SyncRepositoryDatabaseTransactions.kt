@@ -614,7 +614,7 @@ open class SyncRepositoryDatabaseTransactions(
             )
             if (type == PhotoUploadTypeEnum.LAB_TEST.value) {
                 val labDocumentIdResponse =
-                    GsonConverters.deserializeList<LabDocumentIdResponse>(createResponse.files)
+                    com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.deserializeList<LabDocumentIdResponse>(createResponse.files)
 
                 labDocumentIdResponse!!.forEach { labTestResponse ->
                     labTestAndMedDao.updateDocumentFhirId(
@@ -624,7 +624,7 @@ open class SyncRepositoryDatabaseTransactions(
                 }
             } else {
                 val medDocumentIdResponse =
-                    GsonConverters.deserializeList<MedDocumentIdResponse>(createResponse.files)
+                    com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.deserializeList<MedDocumentIdResponse>(createResponse.files)
 
                 medDocumentIdResponse!!.forEach { medRecordResponse ->
                     labTestAndMedDao.updateDocumentFhirId(

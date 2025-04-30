@@ -1,12 +1,12 @@
 package com.latticeonfhir.core.data.repository.local.labtest
 
-import com.latticeonfhir.core.data.local.model.labtest.LabTestLocal
+import com.latticeonfhir.android.data.local.model.labtest.LabTestLocal
 import com.latticeonfhir.core.data.local.model.labtest.LabTestPhotoResponseLocal
-import com.latticeonfhir.core.data.local.roomdb.dao.AppointmentDao
-import com.latticeonfhir.core.data.local.roomdb.dao.FileUploadDao
-import com.latticeonfhir.core.data.local.roomdb.dao.LabTestAndMedDao
-import com.latticeonfhir.core.data.server.model.prescription.photo.File
-import com.latticeonfhir.android.utils.converters.responseconverter.toFilesList
+import com.latticeonfhir.core.database.dao.AppointmentDao
+import com.latticeonfhir.core.database.dao.FileUploadDao
+import com.latticeonfhir.core.database.dao.LabTestAndMedDao
+import com.latticeonfhir.core.model.server.prescription.photo.File
+import com.latticeonfhir.core.utils.converters.responseconverter.toFilesList
 import com.latticeonfhir.core.utils.converters.responseconverter.toLabTestAndMedEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toLabTestLocal
 import com.latticeonfhir.core.utils.converters.responseconverter.toLabTestPhotoResponseLocal

@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.data.repository.local.patient.lastupdated
 
-import com.latticeonfhir.core.data.server.model.patient.PatientLastUpdatedResponse
+import com.latticeonfhir.core.model.server.patient.PatientLastUpdatedResponse
 
 interface PatientLastUpdatedRepository {
 

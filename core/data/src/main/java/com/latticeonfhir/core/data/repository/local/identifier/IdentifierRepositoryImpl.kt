@@ -1,7 +1,7 @@
 package com.latticeonfhir.core.data.repository.local.identifier
 
-import com.latticeonfhir.core.data.local.roomdb.dao.IdentifierDao
-import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
+import com.latticeonfhir.core.database.dao.IdentifierDao
+import com.latticeonfhir.core.model.server.patient.PatientIdentifier
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.utils.converters.responseconverter.toIdentifierEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toListOfIdentifierEntity

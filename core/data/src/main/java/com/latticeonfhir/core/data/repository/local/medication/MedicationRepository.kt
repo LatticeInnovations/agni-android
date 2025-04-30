@@ -1,8 +1,8 @@
 package com.latticeonfhir.core.data.repository.local.medication
 
-import com.latticeonfhir.core.data.local.roomdb.entities.medication.MedicationStrengthRelation
-import com.latticeonfhir.core.data.local.roomdb.entities.medication.MedicineTimingEntity
-import com.latticeonfhir.core.data.server.model.prescription.medication.MedicationResponse
+import com.latticeonfhir.core.database.entities.medication.MedicationStrengthRelation
+import com.latticeonfhir.core.database.entities.medication.MedicineTimingEntity
+import com.latticeonfhir.core.model.server.prescription.medication.MedicationResponse
 
 interface MedicationRepository {
 

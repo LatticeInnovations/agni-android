@@ -7,7 +7,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.liveData
 import androidx.paging.map
-import com.latticeonfhir.core.data.local.roomdb.dao.PatientDao
+import com.latticeonfhir.core.database.dao.PatientDao
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.utils.constants.Paging.PAGE_SIZE
 import com.latticeonfhir.core.utils.converters.responseconverter.toPatientEntity

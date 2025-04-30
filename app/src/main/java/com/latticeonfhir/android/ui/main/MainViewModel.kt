@@ -12,7 +12,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     preferenceRepository: PreferenceRepository
-) : com.latticeonfhir.core.base.viewmodel.BaseViewModel() {
+) : BaseViewModel() {
 
     var isUserLoggedIn by mutableStateOf(false)
     var startDestination by mutableStateOf(Screen.PhoneEmailScreen.route)
