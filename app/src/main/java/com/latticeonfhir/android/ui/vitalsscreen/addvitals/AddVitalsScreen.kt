@@ -58,7 +58,7 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.model.vital.VitalLocal
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.core.ui.common.CustomTextField
+import com.latticeonfhir.android.ui.CustomTextField
 import com.latticeonfhir.core.ui.vitalsscreen.components.CustomChip
 import com.latticeonfhir.core.ui.vitalsscreen.components.OptionFilterBottomSheet
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
