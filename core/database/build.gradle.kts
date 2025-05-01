@@ -14,6 +14,7 @@ dependencies {
 
     implementation(libs.kotlinx.datetime)
     implementation(libs.google.gson)
+    implementation(libs.androidx.paging.runtime.ktx)
 
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)

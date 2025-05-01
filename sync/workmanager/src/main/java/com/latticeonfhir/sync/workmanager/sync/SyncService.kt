@@ -1,7 +1,7 @@
 package com.latticeonfhir.sync.workmanager.sync
 
 import android.content.Context
-import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
+import com.latticeonfhir.core.data.repository.server.sync.SyncRepository
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
 import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepository

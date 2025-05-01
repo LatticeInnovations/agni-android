@@ -1,7 +1,7 @@
 package com.latticeonfhir.core.data.repository.local.labtest
 
-import com.latticeonfhir.android.data.local.model.labtest.LabTestLocal
-import com.latticeonfhir.core.data.local.model.labtest.LabTestPhotoResponseLocal
+import com.latticeonfhir.core.model.local.labtest.LabTestLocal
+import com.latticeonfhir.core.model.local.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.core.database.dao.AppointmentDao
 import com.latticeonfhir.core.database.dao.FileUploadDao
 import com.latticeonfhir.core.database.dao.LabTestAndMedDao
