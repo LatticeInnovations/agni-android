@@ -6,7 +6,7 @@ import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.core.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.core.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
-import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
+import com.latticeonfhir.core.data.repository.server.sync.SyncRepository
 import com.latticeonfhir.android.utils.constants.ErrorConstants
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse

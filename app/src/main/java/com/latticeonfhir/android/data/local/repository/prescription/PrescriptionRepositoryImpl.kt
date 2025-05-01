@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.data.local.repository.prescription
 
-import com.latticeonfhir.core.data.local.model.prescription.PrescriptionPhotoResponseLocal
+import com.latticeonfhir.core.model.local.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.core.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.core.data.local.roomdb.dao.FileUploadDao
 import com.latticeonfhir.android.data.local.roomdb.dao.PrescriptionDao

@@ -27,7 +27,7 @@ object Vaccination {
         )
     }
 
-    internal fun ImmunizationRecommendationResponse.toImmunizationRecommendationEntity(patientId: String): ImmunizationRecommendationEntity {
+    fun ImmunizationRecommendationResponse.toImmunizationRecommendationEntity(patientId: String): ImmunizationRecommendationEntity {
         return ImmunizationRecommendationEntity(
             id = "${patientId}-${vaccineCode}-${doseNumber}",
             patientId = patientId,
@@ -58,7 +58,7 @@ object Vaccination {
         )
     }
 
-    internal fun ImmunizationResponse.toImmunizationFileEntity(): List<ImmunizationFileEntity>? {
+    fun ImmunizationResponse.toImmunizationFileEntity(): List<ImmunizationFileEntity>? {
         return this.immunizationFiles?.map { immunizationFile ->
             ImmunizationFileEntity(
                 filename = immunizationFile.filename,
@@ -83,7 +83,7 @@ object Vaccination {
         )
     }
 
-    internal fun ManufacturerResponse.toManufacturerEntity(): ManufacturerEntity {
+    fun ManufacturerResponse.toManufacturerEntity(): ManufacturerEntity {
         return ManufacturerEntity(
             id = this.manufacturerId,
             name = this.manufacturerName,

@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import com.latticeonfhir.core.data.server.model.patient.PatientResponse
 
-class PatientRegistrationViewModel : com.latticeonfhir.android.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
+class PatientRegistrationViewModel : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
 
     var currentStep by mutableStateOf(1)
