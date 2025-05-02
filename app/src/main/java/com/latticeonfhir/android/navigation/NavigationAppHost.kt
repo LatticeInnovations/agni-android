@@ -5,7 +5,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.latticeonfhir.android.prescription.navigation.prescriptionNavGraph
+import com.latticeonfhir.features.prescription.navigation.prescriptionNavGraph
 import com.latticeonfhir.features.household.ui.connectpatient.ConnectPatient
 import com.latticeonfhir.android.ui.householdmember.searchresult.SearchResult
 import com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.upload.PhotoUploadScreen
@@ -13,7 +13,7 @@ import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.EditBasicInforma
 import com.latticeonfhir.android.ui.patientlandingscreen.PatientLandingScreen
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
-import com.latticeonfhir.core.auth.navigation.authNavGraph
+import com.latticeonfhir.features.auth.navigation.authNavGraph
 import com.latticeonfhir.core.auth.navigation.authRoute
 import com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentScreen
 import com.latticeonfhir.core.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
