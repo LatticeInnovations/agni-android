@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.base.viewmodel
+package com.latticeonfhir.core.base.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

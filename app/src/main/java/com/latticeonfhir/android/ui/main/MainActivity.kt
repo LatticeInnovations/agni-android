@@ -21,7 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
-import com.latticeonfhir.android.base.activity.BaseActivity
+import com.latticeonfhir.core.base.activity.BaseActivity
 import com.latticeonfhir.android.navigation.NavigationAppHost
 import com.latticeonfhir.android.theme.FHIRAndroidTheme
 import com.latticeonfhir.android.utils.network.ConnectivityObserver

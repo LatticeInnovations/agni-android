@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.medication.MedicationRepository
 import com.latticeonfhir.core.data.server.model.prescription.medication.MedicationResponse
 import dagger.hilt.android.lifecycle.HiltViewModel

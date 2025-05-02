@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui
+package com.latticeonfhir.core.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check

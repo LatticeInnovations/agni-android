@@ -1,7 +1,7 @@
-package com.latticeonfhir.android.base.activity
+package com.latticeonfhir.core.base.activity
 
 import androidx.appcompat.app.AppCompatActivity
-import com.latticeonfhir.android.base.viewmodel.ParentViewModel
+import com.latticeonfhir.core.base.viewmodel.ParentViewModel
 
 abstract class BaseActivity : AppCompatActivity() {
 
