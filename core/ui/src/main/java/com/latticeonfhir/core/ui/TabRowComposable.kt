@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.ui
+package com.latticeonfhir.core.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.PagerState

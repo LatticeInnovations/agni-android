@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
 import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.android.data.local.repository.generic.GenericRepository

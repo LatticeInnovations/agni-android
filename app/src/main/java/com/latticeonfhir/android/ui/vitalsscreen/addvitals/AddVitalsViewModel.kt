@@ -16,6 +16,7 @@ import com.latticeonfhir.android.data.local.repository.schedule.ScheduleReposito
 import com.latticeonfhir.android.data.local.repository.vital.VitalRepository
 import com.latticeonfhir.core.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.vitalsscreen.enums.BGEnum
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
 import com.latticeonfhir.core.ui.vitalsscreen.enums.EyeTestTypeEnum
 import com.latticeonfhir.core.ui.vitalsscreen.enums.TemperatureEnum
 import com.latticeonfhir.core.ui.vitalsscreen.enums.VitalsEyeEnum
@@ -42,7 +43,7 @@ class AddVitalsViewModel @Inject constructor(
     private val scheduleRepository: ScheduleRepository,
     private val preferenceRepository: PreferenceRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository,
-) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
+) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
     var vitalLocal by mutableStateOf<VitalLocal?>(null)

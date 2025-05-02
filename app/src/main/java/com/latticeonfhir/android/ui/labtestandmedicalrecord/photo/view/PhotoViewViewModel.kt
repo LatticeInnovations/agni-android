@@ -28,6 +28,7 @@ import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.core.utils.constants.LabTestAndMedConstants
 import com.latticeonfhir.android.utils.converters.responseconverter.LabAndMedConverter.createGenericMap
 import com.latticeonfhir.android.utils.converters.responseconverter.LabAndMedConverter.patchGenericMap
+import com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,7 +50,7 @@ class PhotoViewViewModel @Inject constructor(
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository,
     private val preferenceRepository: PreferenceRepository,
     private val scheduleRepository: ScheduleRepository,
-) : com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel(application) {
+) : BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
     var isFabSelected by mutableStateOf(false)

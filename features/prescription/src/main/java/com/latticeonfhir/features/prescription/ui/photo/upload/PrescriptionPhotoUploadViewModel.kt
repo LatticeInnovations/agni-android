@@ -8,7 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toFile
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
+import com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.core.data.local.model.appointment.AppointmentResponseLocal
 import com.latticeonfhir.core.data.local.model.prescription.PrescriptionPhotoResponseLocal

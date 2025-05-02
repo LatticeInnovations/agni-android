@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.navigation
+package com.latticeonfhir.android.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
@@ -16,6 +16,7 @@ import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 import com.latticeonfhir.features.auth.navigation.authNavGraph
 import com.latticeonfhir.core.auth.navigation.authRoute
 import com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentScreen
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
 import com.latticeonfhir.core.ui.householdmember.HouseholdMembersScreen
 import com.latticeonfhir.core.ui.householdmember.addhouseholdmember.AddHouseholdMember
