@@ -7,7 +7,7 @@ import com.latticeonfhir.android.data.local.model.appointment.AppointmentRespons
 import com.latticeonfhir.core.data.local.model.labtest.LabTestLocal
 import com.latticeonfhir.android.data.local.model.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.core.data.local.model.prescription.MedicationLocal
-import com.latticeonfhir.core.data.local.model.prescription.PrescriptionPhotoResponseLocal
+import com.latticeonfhir.core.model.local.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.core.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.core.data.local.model.symdiag.SymptomsAndDiagnosisData

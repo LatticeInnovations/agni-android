@@ -1,8 +1,7 @@
 package com.latticeonfhir.core.data.repository.local.patient.lastupdated
 
-import com.latticeonfhir.core.data.local.roomdb.dao.PatientLastUpdatedDao
-import com.latticeonfhir.core.data.server.model.patient.PatientLastUpdatedResponse
-import com.latticeonfhir.android.utils.converters.responseconverter.toPatientLastUpdatedEntity
+import com.latticeonfhir.core.database.dao.PatientLastUpdatedDao
+import com.latticeonfhir.core.model.server.patient.PatientLastUpdatedResponse
 import javax.inject.Inject
 
 class PatientLastUpdatedRepositoryImpl @Inject constructor(

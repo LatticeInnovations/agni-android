@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.data.repository.local.preference
 
-import com.latticeonfhir.core.data.local.sharedpreferences.PreferenceStorage
+import com.latticeonfhir.core.sharedpreference.preferencestorage.PreferenceStorage
 import javax.inject.Inject
 
 class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage: PreferenceStorage) :

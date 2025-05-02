@@ -1,15 +1,5 @@
 import java.net.URI
 
-include(":core:sms-fetch")
-
-
-include(":features:household")
-
-
-include(":features:patient")
-
-
-include(":sync:workmanager")
 
 
 pluginManagement {
@@ -56,3 +46,5 @@ include(":features:prescription")
 include(":features:dispense")
 include(":features:appointment")
 include(":sync")
+include(":features:vitals")
+include(":sync:workmanager")

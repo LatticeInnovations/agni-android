@@ -77,12 +77,13 @@ import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeStampDate
 import com.latticeonfhir.core.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.core.utils.converters.responseconverter.toNoBracketAndNoSpaceString
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiContinueResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiContinueResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.responsemapper.ApiEndResponse
 import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import com.latticeonfhir.android.utils.file.DeleteFileManager
+import com.latticeonfhir.core.data.repository.server.sync.SyncRepositoryDatabaseTransactions
 import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject

@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken
 import com.latticeonfhir.android.utils.converters.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.core.utils.constants.ErrorConstants.SERVER_ERROR
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiErrorResponse
 import retrofit2.Response
 import timber.log.Timber
 

@@ -1,8 +1,8 @@
 package com.latticeonfhir.core.data.repository.local.labtest
 
-import com.latticeonfhir.android.data.local.model.labtest.LabTestLocal
-import com.latticeonfhir.core.data.local.model.labtest.LabTestPhotoResponseLocal
-import com.latticeonfhir.core.data.server.model.prescription.photo.File
+import com.latticeonfhir.core.model.local.labtest.LabTestLocal
+import com.latticeonfhir.core.model.local.labtest.LabTestPhotoResponseLocal
+import com.latticeonfhir.core.model.server.prescription.photo.File
 
 interface LabTestRepository {
 

@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.data.repository.local.file
 
-import com.latticeonfhir.core.data.local.roomdb.entities.file.DownloadedFileEntity
+import com.latticeonfhir.core.database.entities.file.DownloadedFileEntity
 
 
 interface DownloadedFileRepository {

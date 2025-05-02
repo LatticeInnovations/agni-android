@@ -1,7 +1,7 @@
 package com.latticeonfhir.core.data.local.repository.labtest
 
 import com.latticeonfhir.core.data.local.model.labtest.LabTestLocal
-import com.latticeonfhir.core.data.local.model.labtest.LabTestPhotoResponseLocal
+import com.latticeonfhir.core.model.local.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.core.data.server.model.prescription.photo.File
 
 interface LabTestRepository {

@@ -6,15 +6,10 @@ import com.latticeonfhir.android.data.server.model.file.request.FilesRequest
 import com.latticeonfhir.android.data.server.model.file.response.FilesResponse
 import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
 import com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.utils.file.FileManager
 import com.latticeonfhir.android.utils.file.FileUtils.deleteZipFile
 import com.latticeonfhir.core.FhirApp
-import com.latticeonfhir.core.data.local.enums.SyncType
-import com.latticeonfhir.core.data.local.enums.WorkerStatus
-import com.latticeonfhir.core.data.local.roomdb.entities.file.DownloadedFileEntity
-import com.latticeonfhir.core.data.local.roomdb.entities.file.FileUploadEntity
 import com.latticeonfhir.core.data.server.model.file.response.FilesResponse
 import com.latticeonfhir.core.database.dao.DownloadedFileDao
 import com.latticeonfhir.core.database.dao.FileUploadDao
