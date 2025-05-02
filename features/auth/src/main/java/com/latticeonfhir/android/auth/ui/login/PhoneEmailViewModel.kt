@@ -6,13 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.core.auth.data.server.repository.authentication.AuthenticationRepository
-import com.latticeonfhir.core.auth.utils.contants.ErrorConstants.USER_DOES_NOT_EXIST
-import com.latticeonfhir.core.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
-import com.latticeonfhir.core.data.server.repository.authentication.AuthenticationRepository
 import com.latticeonfhir.core.utils.constants.ErrorConstants.USER_DOES_NOT_EXIST
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
 import com.latticeonfhir.core.utils.regex.EmailRegex
 import com.latticeonfhir.core.utils.regex.OnlyNumberRegex

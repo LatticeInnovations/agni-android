@@ -29,7 +29,7 @@ class AppointmentsFabViewModel @Inject constructor(
     private val genericRepository: GenericRepository,
     private val preferenceRepository: PreferenceRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository
-) : com.latticeonfhir.core.base.viewmodel.BaseViewModel() {
+) : BaseViewModel() {
 
     var appointment by mutableStateOf<AppointmentResponseLocal?>(null)
     var ifAlreadyWaiting by mutableStateOf(false)

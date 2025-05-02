@@ -50,7 +50,7 @@ import com.latticeonfhir.core.auth.data.server.repository.signup.SignUpRepositor
 import com.latticeonfhir.core.auth.data.server.repository.signup.SignUpRepositoryImpl
 import com.latticeonfhir.core.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
 import com.latticeonfhir.core.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepositoryImpl
-import com.latticeonfhir.android.data.server.repository.sync.SyncRepository
+import com.latticeonfhir.core.data.repository.server.sync.SyncRepository
 import com.latticeonfhir.android.data.server.repository.sync.SyncRepositoryImpl
 import dagger.Binds
 import dagger.Module

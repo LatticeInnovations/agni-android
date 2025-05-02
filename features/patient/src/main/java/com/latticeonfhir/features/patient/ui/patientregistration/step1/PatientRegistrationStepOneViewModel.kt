@@ -6,11 +6,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
-import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toMonthInteger
 
-class PatientRegistrationStepOneViewModel : com.latticeonfhir.core.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
+class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObserver {
     internal var isLaunched by mutableStateOf(false)
 
     internal val onlyNumbers = Regex("^\\d+\$")

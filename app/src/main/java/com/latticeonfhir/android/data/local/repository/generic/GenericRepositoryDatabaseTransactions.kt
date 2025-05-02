@@ -27,7 +27,6 @@ import com.latticeonfhir.core.data.server.model.scheduleandappointment.schedule.
 import com.latticeonfhir.core.data.server.model.vaccination.ImmunizationResponse
 import com.latticeonfhir.core.utils.builders.GenericEntityPatchBuilder.processPatch
 import com.latticeonfhir.core.utils.constants.Id
-import com.latticeonfhir.core.utils.converters.responseconverter.FHIR.isFhirId
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.toJson

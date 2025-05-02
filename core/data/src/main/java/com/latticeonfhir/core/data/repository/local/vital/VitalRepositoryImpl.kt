@@ -1,7 +1,7 @@
 package com.latticeonfhir.core.data.repository.local.vital
 
-import com.latticeonfhir.android.data.local.model.vital.VitalLocal
-import com.latticeonfhir.core.data.local.roomdb.dao.VitalDao
+import com.latticeonfhir.core.data.local.model.vital.VitalLocal
+import com.latticeonfhir.core.database.dao.VitalDao
 import com.latticeonfhir.core.utils.converters.responseconverter.toVitalEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toVitalLocal
 import javax.inject.Inject

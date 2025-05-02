@@ -13,7 +13,7 @@ import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.core.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.core.data.local.enums.PhotoUploadTypeEnum
 import com.latticeonfhir.core.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.core.data.local.model.labtest.LabTestPhotoResponseLocal
+import com.latticeonfhir.core.model.local.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.core.data.local.repository.file.DownloadedFileRepository
 import com.latticeonfhir.core.data.local.repository.generic.GenericRepository

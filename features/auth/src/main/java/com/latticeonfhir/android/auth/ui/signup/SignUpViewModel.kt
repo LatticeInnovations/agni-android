@@ -10,7 +10,7 @@ import com.latticeonfhir.core.auth.data.server.repository.signup.SignUpRepositor
 import com.latticeonfhir.core.auth.utils.regex.EmailRegex
 import com.latticeonfhir.core.auth.utils.regex.OnlyNumberRegex
 import com.latticeonfhir.android.utils.converters.responsemapper.ApiEndResponse
-import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiErrorResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiErrorResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

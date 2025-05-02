@@ -1,74 +1,73 @@
-package com.latticeonfhir.core.data.server.repository.sync
+package com.latticeonfhir.core.data.repository.server.sync
 
-import com.latticeonfhir.core.data.local.enums.DispenseStatusEnum
-import com.latticeonfhir.core.data.local.enums.GenericTypeEnum
-import com.latticeonfhir.core.data.local.enums.IdentifierCodeEnum
-import com.latticeonfhir.core.data.local.enums.PhotoDeleteEnum
-import com.latticeonfhir.android.data.local.enums.PhotoUploadTypeEnum
-import com.latticeonfhir.core.data.local.enums.SyncType
-import com.latticeonfhir.android.data.local.roomdb.dao.AppointmentDao
-import com.latticeonfhir.core.data.local.roomdb.dao.CVDDao
-import com.latticeonfhir.core.data.local.roomdb.dao.DispenseDao
-import com.latticeonfhir.core.data.local.roomdb.dao.FileUploadDao
-import com.latticeonfhir.core.data.local.roomdb.dao.GenericDao
-import com.latticeonfhir.core.data.local.roomdb.dao.LabTestAndMedDao
-import com.latticeonfhir.android.data.local.roomdb.dao.MedicationDao
-import com.latticeonfhir.core.data.local.roomdb.dao.PatientDao
-import com.latticeonfhir.core.data.local.roomdb.dao.PatientLastUpdatedDao
-import com.latticeonfhir.core.data.local.roomdb.dao.PrescriptionDao
-import com.latticeonfhir.core.data.local.roomdb.dao.RelationDao
-import com.latticeonfhir.core.data.local.roomdb.dao.ScheduleDao
-import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
-import com.latticeonfhir.core.data.local.roomdb.dao.VitalDao
-import com.latticeonfhir.core.data.local.roomdb.dao.vaccincation.ImmunizationDao
-import com.latticeonfhir.core.data.local.roomdb.dao.vaccincation.ImmunizationRecommendationDao
-import com.latticeonfhir.core.data.local.roomdb.dao.vaccincation.ManufacturerDao
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseDataEntity
-import com.latticeonfhir.core.data.local.roomdb.entities.dispense.DispensePrescriptionEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.dispense.MedicineDispenseListEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.generic.GenericEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
-import com.latticeonfhir.core.data.local.roomdb.entities.patient.IdentifierEntity
-import com.latticeonfhir.core.data.local.roomdb.entities.prescription.PrescriptionDirectionsEntity
-import com.latticeonfhir.core.data.local.roomdb.entities.prescription.photo.PrescriptionPhotoEntity
-import com.latticeonfhir.core.data.local.roomdb.entities.relation.RelationEntity
-import com.latticeonfhir.android.data.server.api.PatientApiService
-import com.latticeonfhir.core.data.server.model.create.CreateResponse
+import com.latticeonfhir.core.database.dao.AppointmentDao
+import com.latticeonfhir.core.database.dao.CVDDao
+import com.latticeonfhir.core.database.dao.DispenseDao
+import com.latticeonfhir.core.database.dao.FileUploadDao
+import com.latticeonfhir.core.database.dao.GenericDao
+import com.latticeonfhir.core.database.dao.LabTestAndMedDao
+import com.latticeonfhir.core.database.dao.MedicationDao
+import com.latticeonfhir.core.database.dao.PatientDao
+import com.latticeonfhir.core.database.dao.PatientLastUpdatedDao
+import com.latticeonfhir.core.database.dao.PrescriptionDao
+import com.latticeonfhir.core.database.dao.RelationDao
+import com.latticeonfhir.core.database.dao.ScheduleDao
+import com.latticeonfhir.core.database.dao.SymptomsAndDiagnosisDao
+import com.latticeonfhir.core.database.dao.VitalDao
+import com.latticeonfhir.core.database.dao.vaccincation.ImmunizationDao
+import com.latticeonfhir.core.database.dao.vaccincation.ImmunizationRecommendationDao
+import com.latticeonfhir.core.database.dao.vaccincation.ManufacturerDao
+import com.latticeonfhir.core.database.entities.dispense.DispenseDataEntity
+import com.latticeonfhir.core.database.entities.dispense.DispensePrescriptionEntity
+import com.latticeonfhir.core.database.entities.dispense.MedicineDispenseListEntity
+import com.latticeonfhir.core.database.entities.generic.GenericEntity
+import com.latticeonfhir.core.database.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
+import com.latticeonfhir.core.database.entities.patient.IdentifierEntity
+import com.latticeonfhir.core.database.entities.prescription.PrescriptionDirectionsEntity
+import com.latticeonfhir.core.database.entities.prescription.photo.PrescriptionPhotoEntity
+import com.latticeonfhir.core.database.entities.relation.RelationEntity
+import com.latticeonfhir.core.model.enums.DispenseStatusEnum
+import com.latticeonfhir.core.model.enums.GenericTypeEnum
+import com.latticeonfhir.core.model.enums.IdentifierCodeEnum
+import com.latticeonfhir.core.model.enums.PhotoDeleteEnum
+import com.latticeonfhir.core.model.enums.PhotoUploadTypeEnum
+import com.latticeonfhir.core.model.enums.SyncType
+import com.latticeonfhir.core.model.server.create.CreateResponse
 import com.latticeonfhir.core.model.server.create.LabDocumentIdResponse
-import com.latticeonfhir.android.data.server.model.create.MedDocumentIdResponse
-import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
-import com.latticeonfhir.android.data.server.model.dispense.response.DispenseData
-import com.latticeonfhir.core.data.server.model.dispense.response.MedicineDispenseResponse
-import com.latticeonfhir.android.data.server.model.labormed.labtest.LabTestResponse
-import com.latticeonfhir.core.data.server.model.labormed.medicalrecord.MedicalRecordResponse
-import com.latticeonfhir.core.data.server.model.patient.PatientLastUpdatedResponse
+import com.latticeonfhir.core.model.server.create.MedDocumentIdResponse
+import com.latticeonfhir.core.model.server.cvd.CVDResponse
+import com.latticeonfhir.core.model.server.dispense.response.DispenseData
+import com.latticeonfhir.core.model.server.dispense.response.MedicineDispenseResponse
+import com.latticeonfhir.core.model.server.labormed.labtest.LabTestResponse
+import com.latticeonfhir.core.model.server.labormed.medicalrecord.MedicalRecordResponse
+import com.latticeonfhir.core.model.server.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.core.model.server.patient.PatientResponse
-import com.latticeonfhir.android.data.server.model.prescription.medication.MedicationResponse
-import com.latticeonfhir.android.data.server.model.prescription.medication.MedicineTimeResponse
-import com.latticeonfhir.android.data.server.model.prescription.photo.PrescriptionPhotoResponse
-import com.latticeonfhir.core.data.server.model.prescription.prescriptionresponse.PrescriptionResponse
-import com.latticeonfhir.android.data.server.model.relatedperson.RelatedPersonResponse
-import com.latticeonfhir.core.data.server.model.scheduleandappointment.appointment.AppointmentResponse
-import com.latticeonfhir.core.data.server.model.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
-import com.latticeonfhir.core.data.server.model.vaccination.ImmunizationRecommendationResponse
-import com.latticeonfhir.core.data.server.model.vaccination.ImmunizationResponse
+import com.latticeonfhir.core.model.server.prescription.medication.MedicationResponse
+import com.latticeonfhir.core.model.server.prescription.medication.MedicineTimeResponse
+import com.latticeonfhir.core.model.server.prescription.photo.PrescriptionPhotoResponse
+import com.latticeonfhir.core.model.server.prescription.prescriptionresponse.PrescriptionResponse
+import com.latticeonfhir.core.model.server.relatedperson.RelatedPersonResponse
+import com.latticeonfhir.core.model.server.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.core.model.server.scheduleandappointment.schedule.ScheduleResponse
+import com.latticeonfhir.core.model.server.symptomsanddiagnosis.SymptomsAndDiagnosisResponse
+import com.latticeonfhir.core.model.server.vaccination.ImmunizationRecommendationResponse
+import com.latticeonfhir.core.model.server.vaccination.ImmunizationResponse
 import com.latticeonfhir.core.model.server.vaccination.ManufacturerResponse
-import com.latticeonfhir.core.data.server.model.vitals.VitalResponse
+import com.latticeonfhir.core.model.server.vitals.VitalResponse
+import com.latticeonfhir.core.network.api.PatientApiService
 import com.latticeonfhir.core.utils.constants.ErrorConstants
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters
-import com.latticeonfhir.core.utils.converters.responseconverter.Vaccination.toImmunizationEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.Vaccination.toImmunizationFileEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.Vaccination.toImmunizationRecommendationEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.Vaccination.toManufacturerEntity
-import com.latticeonfhir.android.utils.converters.responseconverter.toAppointmentEntity
+import com.latticeonfhir.core.utils.converters.responseconverter.toAppointmentEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toCVDEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toDispensePrescriptionEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toLabTestEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toLabTestPhotoResponseLocal
 import com.latticeonfhir.core.utils.converters.responseconverter.toListOfDispenseDataEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toListOfId
-import com.latticeonfhir.android.utils.converters.responseconverter.toListOfIdentifierEntity
+import com.latticeonfhir.core.utils.converters.responseconverter.toListOfIdentifierEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toListOfLabTestAndMedPhotoEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toListOfLabTestPhotoEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toListOfMedicationEntity
@@ -77,7 +76,7 @@ import com.latticeonfhir.core.utils.converters.responseconverter.toListOfMedicin
 import com.latticeonfhir.core.utils.converters.responseconverter.toListOfPrescriptionDirectionsEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toListOfPrescriptionPhotoEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toMedRecordPhotoResponseLocal
-import com.latticeonfhir.android.utils.converters.responseconverter.toPatientEntity
+import com.latticeonfhir.core.utils.converters.responseconverter.toPatientEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toPatientLastUpdatedEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toPrescriptionEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toRelationEntity
@@ -133,35 +132,35 @@ open class SyncRepositoryDatabaseTransactions(
                     GenericEntity(
                         id = UUID.randomUUID().toString(),
                         patientId = patientResponse.id,
-                        payload = patientResponse.fhirId,
+                        payload = patientResponse.fhirId!!,
                         type = GenericTypeEnum.FHIR_IDS_PRESCRIPTION,
                         syncType = SyncType.POST
                     ),
                     GenericEntity(
                         id = UUID.randomUUID().toString(),
                         patientId = patientResponse.id,
-                        payload = patientResponse.fhirId,
+                        payload = patientResponse.fhirId!!,
                         type = GenericTypeEnum.FHIR_IDS_PRESCRIPTION_PHOTO,
                         syncType = SyncType.POST
                     ),
                     GenericEntity(
                         id = UUID.randomUUID().toString(),
                         patientId = patientResponse.id,
-                        payload = patientResponse.fhirId,
+                        payload = patientResponse.fhirId!!,
                         type = GenericTypeEnum.FHIR_IDS_DISPENSE,
                         syncType = SyncType.POST
                     ),
                     GenericEntity(
                         id = UUID.randomUUID().toString(),
                         patientId = patientResponse.id,
-                        payload = patientResponse.fhirId,
+                        payload = patientResponse.fhirId!!,
                         type = GenericTypeEnum.FHIR_IDS_OTC,
                         syncType = SyncType.POST
                     ),
                     GenericEntity(
                         id = UUID.randomUUID().toString(),
                         patientId = patientResponse.id,
-                        payload = patientResponse.fhirId,
+                        payload = patientResponse.fhirId!!,
                         type = GenericTypeEnum.FHIR_IDS_IMMUNIZATION,
                         syncType = SyncType.POST
                     )
@@ -757,7 +756,7 @@ open class SyncRepositoryDatabaseTransactions(
             *body.map { immunizationResponse ->
                 val patientId = patientDao.getPatientIdByFhirId(immunizationResponse.patientId)!!
                 val appointmentId = appointmentDao.getAppointmentIdByFhirId(immunizationResponse.appointmentId)
-                immunizationResponse.toImmunizationEntity(patientId, appointmentId)
+                immunizationResponse.toImmunizationFileEntity(patientId, appointmentId)
             }.toTypedArray()
         )
 
