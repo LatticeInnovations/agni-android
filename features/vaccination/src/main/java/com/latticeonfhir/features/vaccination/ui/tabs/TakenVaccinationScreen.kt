@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.vaccination.ui.tabs
+package com.latticeonfhir.features.vaccination.ui.tabs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -19,14 +19,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE
-import com.latticeonfhir.core.vaccination.R
-import com.latticeonfhir.core.vaccination.navigation.Screen
-import com.latticeonfhir.core.vaccination.ui.AgeComposable
-import com.latticeonfhir.core.vaccination.ui.VaccinationViewModel
-import com.latticeonfhir.android.vaccination.ui.VaccinationViewModel.Companion.TAKEN
-import com.latticeonfhir.core.vaccination.ui.VaccineCard
-import com.latticeonfhir.android.vaccination.ui.VaccineEmptyScreen
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.VACCINE
+import com.latticeonfhir.core.utils.converters.TimeConverter.toMonthAndYear
+import com.latticeonfhir.features.vaccination.R
+import com.latticeonfhir.features.vaccination.navigation.Screen
+import com.latticeonfhir.features.vaccination.ui.AgeComposable
+import com.latticeonfhir.features.vaccination.ui.VaccinationViewModel
+import com.latticeonfhir.features.vaccination.ui.VaccinationViewModel.Companion.TAKEN
+import com.latticeonfhir.features.vaccination.ui.VaccineCard
+import com.latticeonfhir.features.vaccination.ui.VaccineEmptyScreen
 
 @Composable
 fun TakenVaccinationScreen(

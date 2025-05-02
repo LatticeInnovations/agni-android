@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.vaccination.ui.add
+package com.latticeonfhir.features.vaccination.ui.add
 
 import android.Manifest
 import android.app.Activity
@@ -91,7 +91,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -103,31 +102,37 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.latticeonfhir.core.data.local.model.vaccination.ImmunizationRecommendation
-import com.latticeonfhir.core.data.local.roomdb.entities.vaccination.ManufacturerEntity
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.database.entities.vaccination.ManufacturerEntity
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.theme.MissedContainer
 import com.latticeonfhir.core.theme.MissedContainerDark
-import com.latticeonfhir.android.theme.MissedLabel
-import com.latticeonfhir.android.theme.MissedLabelDark
-import com.latticeonfhir.android.ui.CustomDialog
+import com.latticeonfhir.core.theme.MissedLabel
+import com.latticeonfhir.core.theme.MissedLabelDark
+import com.latticeonfhir.core.ui.CustomDialog
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.VACCINE
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.VACCINE_ADDED
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.VACCINE_ERROR_TYPE
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.VACCINE_ERROR_TYPE
+import com.latticeonfhir.core.utils.converters.TimeConverter.convertStringToDate
 import com.latticeonfhir.core.utils.converters.TimeConverter.daysBetween
+import com.latticeonfhir.core.utils.converters.TimeConverter.plusMinusDays
+import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toFileDateAndTimeName
-import com.latticeonfhir.android.utils.converters.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.converters.TimeConverter.toddMMYYYYString
+import com.latticeonfhir.core.utils.converters.TimeConverter.toPrescriptionDate
+import com.latticeonfhir.core.utils.converters.TimeConverter.toSlotDate
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.utils.converters.TimeConverter.toddMMYYYYString
 import com.latticeonfhir.core.utils.file.FileManager
-import com.latticeonfhir.core.vaccination.R
-import com.latticeonfhir.core.vaccination.data.enums.VaccineErrorTypeEnum
-import com.latticeonfhir.core.vaccination.navigation.Screen
-import com.latticeonfhir.core.vaccination.ui.add.AddVaccinationViewModel.Companion.MAX_FILE_SIZE_IN_KB
+import com.latticeonfhir.features.vaccination.R
+import com.latticeonfhir.features.vaccination.data.enums.VaccineErrorTypeEnum
+import com.latticeonfhir.features.vaccination.navigation.Screen
+import com.latticeonfhir.features.vaccination.ui.add.AddVaccinationViewModel.Companion.MAX_FILE_SIZE_IN_KB
 import com.latticeonfhir.features.vaccination.utils.VaccinesUtils.formatBytes
-import com.latticeonfhir.core.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
+import com.latticeonfhir.features.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -1088,7 +1093,7 @@ private fun DisplayImage(
                 Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
             }
             Image(
-                painter = rememberImagePainter(viewModel.selectedImageUri),
+                painter = rememberAsyncImagePainter(viewModel.selectedImageUri),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
@@ -1200,7 +1205,7 @@ private fun CameraComposable(
                     val previewUseCase = Preview.Builder()
                         .build()
                         .also {
-                            it.setSurfaceProvider(previewView.surfaceProvider)
+                            it.surfaceProvider = previewView.surfaceProvider
                         }
                     cameraProviderFuture.addListener({
                         try {

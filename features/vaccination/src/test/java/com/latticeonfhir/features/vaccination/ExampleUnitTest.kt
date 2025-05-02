@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.vaccination
+package com.latticeonfhir.features.vaccination
 
 import org.junit.Test
 
