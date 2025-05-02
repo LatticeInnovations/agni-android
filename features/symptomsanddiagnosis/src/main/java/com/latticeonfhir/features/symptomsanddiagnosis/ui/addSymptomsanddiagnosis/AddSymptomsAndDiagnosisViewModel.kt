@@ -7,34 +7,34 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.core.base.viewmodel.BaseViewModel
-import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
-import com.latticeonfhir.core.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.core.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.core.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.core.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.core.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.local.repository.symptomsanddiagnosis.SymDiagRepository
-import com.latticeonfhir.core.data.local.roomdb.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
-import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsItem
-import com.latticeonfhir.android.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
-import com.latticeonfhir.core.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.CREATED_ON
-import com.latticeonfhir.core.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.DIAGNOSIS
-import com.latticeonfhir.core.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYMPTOMS
-import com.latticeonfhir.core.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG_FHIR_ID
-import com.latticeonfhir.core.utils.common.Queries
-import com.latticeonfhir.core.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
-import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
-import com.latticeonfhir.android.utils.converters.TimeConverter.toEndOfDay
-import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
-import com.latticeonfhir.core.utils.converters.responseconverter.SymDiagConverter.splitString
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.convertedDate
-import com.latticeonfhir.core.utils.converters.responseconverter.toSymDiagData
+import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
+import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
+import com.latticeonfhir.core.data.repository.local.patient.lastupdated.PatientLastUpdatedRepository
+import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepository
+import com.latticeonfhir.core.data.repository.local.schedule.ScheduleRepository
+import com.latticeonfhir.core.data.repository.local.search.SearchRepository
+import com.latticeonfhir.core.data.repository.local.symptomsanddiagnosis.SymDiagRepository
+import com.latticeonfhir.core.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
+import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
 import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
 import com.latticeonfhir.core.model.enums.GenderEnum
 import com.latticeonfhir.core.model.enums.SearchTypeEnum
+import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.model.server.symptomsanddiagnosis.SymptomsAndDiagnosisItem
+import com.latticeonfhir.core.model.server.symptomsanddiagnosis.SymptomsItem
+import com.latticeonfhir.core.utils.common.Queries
+import com.latticeonfhir.core.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
+import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
+import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.convertedDate
+import com.latticeonfhir.core.utils.converters.responseconverter.toSymDiagData
+import com.latticeonfhir.features.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.CREATED_ON
+import com.latticeonfhir.features.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.DIAGNOSIS
+import com.latticeonfhir.features.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYMPTOMS
+import com.latticeonfhir.features.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG_FHIR_ID
+import com.latticeonfhir.features.symptomsanddiagnosis.utils.converters.SymDiagConverter.splitString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.Date
 import java.util.UUID
 import javax.inject.Inject
@@ -328,7 +329,7 @@ class AddSymptomsAndDiagnosisViewModel @Inject constructor(
         }
     }
 
-    private suspend fun insertUpdateSymDiag(
+    private fun insertUpdateSymDiag(
         ioDispatcher: CoroutineDispatcher, updated: (Int) -> Unit
     ) {
 

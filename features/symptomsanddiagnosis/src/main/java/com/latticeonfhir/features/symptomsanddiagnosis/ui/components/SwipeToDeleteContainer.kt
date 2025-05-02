@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.symptomsanddiagnosis.ui.components
+package com.latticeonfhir.features.symptomsanddiagnosis.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.symptomsanddiagnosis.R
+import com.latticeonfhir.features.symptomsanddiagnosis.R
 import kotlinx.coroutines.delay
 
 @Composable

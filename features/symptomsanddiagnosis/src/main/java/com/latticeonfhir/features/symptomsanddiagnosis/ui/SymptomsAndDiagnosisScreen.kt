@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.symptomsanddiagnosis.ui
+package com.latticeonfhir.features.symptomsanddiagnosis.ui
 
 import android.content.Context
 import androidx.compose.foundation.background
@@ -27,7 +27,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,18 +43,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.core.symptomsanddiagnosis.R
-import com.latticeonfhir.features.symptomsanddiagnosis.navigation.Screen
-import com.latticeonfhir.features.symptomsanddiagnosis.ui.components.SymptomsAndDiagnosisCard
-import com.latticeonfhir.core.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants
-import com.latticeonfhir.core.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG_UPDATE_OR_ADD
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.ui.AllSlotsBookedDialog
 import com.latticeonfhir.core.ui.CustomDialog
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import com.latticeonfhir.core.utils.network.CheckNetwork
+import com.latticeonfhir.features.symptomsanddiagnosis.R
+import com.latticeonfhir.features.symptomsanddiagnosis.navigation.Screen
+import com.latticeonfhir.features.symptomsanddiagnosis.ui.components.SymptomsAndDiagnosisCard
+import com.latticeonfhir.features.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants
+import com.latticeonfhir.features.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG_UPDATE_OR_ADD
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -72,7 +72,7 @@ fun SymptomsAndDiagnosisScreen(
     Scaffold(modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackBarHostState) }, topBar = {
             TopAppBar(modifier = Modifier.fillMaxWidth(),
-                colors = TopAppBarDefaults.largeTopAppBarColors(
+                colors = topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
                 ),
                 navigationIcon = {

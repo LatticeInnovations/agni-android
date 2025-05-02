@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.symptomsanddiagnosis.ui.addSymptomsanddiagnosis
+package com.latticeonfhir.features.symptomsanddiagnosis.ui.addSymptomsanddiagnosis
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -51,10 +51,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
-import com.latticeonfhir.core.symptomsanddiagnosis.R
-import com.latticeonfhir.core.symptomsanddiagnosis.ui.components.BottomNavLayout
-import com.latticeonfhir.core.symptomsanddiagnosis.utils.converters.SymDiagConverter.splitString
+import com.latticeonfhir.core.model.server.symptomsanddiagnosis.SymptomsAndDiagnosisItem
+import com.latticeonfhir.features.symptomsanddiagnosis.R
+import com.latticeonfhir.features.symptomsanddiagnosis.ui.components.BottomNavLayout
+import com.latticeonfhir.features.symptomsanddiagnosis.utils.converters.SymDiagConverter.splitString
 import java.util.Locale
 
 @Composable
