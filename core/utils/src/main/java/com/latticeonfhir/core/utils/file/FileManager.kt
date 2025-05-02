@@ -37,7 +37,7 @@ object FileManager {
         val sourceUri = Uri.parse(url)
         val inputStream = cr.openInputStream(sourceUri)
         inputStream?.let {
-            com.latticeonfhir.core.utils.file.FileManager.writeFileToInternalStorage(
+            writeFileToInternalStorage(
                 folder,
                 title,
                 it
@@ -55,7 +55,7 @@ object FileManager {
         fileName: String,
         destinationFileName: String
     ): Boolean {
-        val sourceFile = File(com.latticeonfhir.core.utils.file.FileManager.createFolder(context), fileName)
+        val sourceFile = File(createFolder(context), fileName)
         if (sourceFile.exists()) {
             val externalStorageDir = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)

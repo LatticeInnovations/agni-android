@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 
 object RelationConverter {
 
-    internal fun getInverseRelation(
+    fun getInverseRelation(
         relationEntity: RelationEntity,
         patientDao: PatientDao,
         relationFetched: (RelationEnum) -> Unit
@@ -56,7 +56,7 @@ object RelationConverter {
         }
     }
 
-    internal fun getRelationEnumFromString(relation: String): String {
+    fun getRelationEnumFromString(relation: String): String {
         return when (relation) {
             "Father" -> RelationEnum.FATHER.value
             "Mother" -> RelationEnum.MOTHER.value
@@ -91,7 +91,7 @@ object RelationConverter {
         }
     }
 
-    internal fun getRelationFromRelationEnum(context: Context, relationEnum: RelationEnum): String {
+    fun getRelationFromRelationEnum(context: Context, relationEnum: RelationEnum): String {
         return context.resources.getStringArray(R.array.relation)[relationEnum.number]
     }
 

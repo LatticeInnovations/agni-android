@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="added_to_queue">Patient being added to queue</string>
+    <string name="status_updated_to_arrived">Status updated to arrived</string>
+    <string name="today">Today</string>
+    <string name="logout_dialog_title">Confirm logout</string>
+    <string name="logout_dialog_description">Are you sure you want to logout</string>
+    <string name="logout_btn">Logout</string>
+    <string name="no_go_back">No, go back</string>
+    <string name="status">Status</string>
+    <string name="status_to_arrived">Status changed to \"Arrived\"</string>
+    <string name="status_to_in_progress">Status changed to \"In-progress\"</string>
+    <string name="status_to_completed">Status changed to \"Completed\"</string>
+    <string name="registered">Registered</string>
+    <string name="last_visited">Last visited: %s</string>
+    <string name="no_records">No records.</string>
+    <string name="no_internet_error_msg">Please connect to internet and try again</string>
+    <string name="delete_account">Delete account</string>
+    <string name="delete">Delete</string>
+    <string name="delete_account_dialog_description">Are you sure you want to delete your account. Deleting your account will remove all of your information from our database.</string>
+    <string name="enter_otp_helping_text">Enter the OTP we sent to</string>
+    <string name="resend_otp">Resend OTP</string>
+    <string name="cancel">Cancel</string>
+    <string name="sync_status">Sync Status</string>
+    <string name="synced">Synced</string>
+    <string name="agni_app_version">Agni %s</string>
+    <string name="reschedule">Reschedule</string>
+    <string name="total_appointment">Total: %d</string>
+
+    <string name="postal_code">Postal Code</string>
+    <string name="postal_code_mandatory">Postal Code *</string>
+    <string name="postal_code_error_msg">Enter valid 6 digit postal code</string>
+    <string name="state">State</string>
+    <string name="state_mandatory">State *</string>
+    <string name="state_error_msg">Please select a state.</string>
+    <string name="address_line_1">Address Line 1</string>
+    <string name="address_line_1_mandatory">Address Line 1 *</string>
+    <string name="address_line_1_error_msg">Please enter your address.</string>
+    <string name="address_line_2">Address Line 2</string>
+    <string name="city">City</string>
+    <string name="city_mandatory">City *</string>
+    <string name="city_error_msg">Please enter your city.</string>
+    <string name="district">District</string>
+    <string name="district_error_msg">Please enter your district.</string>
+
+    <string name="invalid_date">Invalid date: %s</string>
+    <string name="yes_continue">Yes, continue</string>
+    <string name="confirm_dob_update">Confirm D.O.B. update</string>
+    <string name="confirm_dob_update_description">If you change your DOB, only future vaccine dates will update; taken doses remain unchanged. Do you wish to proceed?</string>
+
+    <string name="patient_id_error_msg">Patient Id should be between 2 and 12.</string>
+
+    <string name="household_members">Household members</string>
+    <string name="appointments">Appointments</string>
+    <string name="appointments_scheduled">%d upcoming, %d past</string>
+    <string name="cvd_risk_assessment">CVD risk assessment</string>
+    <string name="percentage">%s\%%</string>
+    <string name="cvd_error_message">Not applicable for gender type “Other”, age below 40 or above 74</string>
+    <string name="vital">Vitals</string>
+    <string name="symptoms_and_diagnosis">Symptoms &amp; Diagnosis</string>
+    <string name="prescription">Prescription</string>
+    <string name="drugs_dispense">Drug Dispense</string>
+    <string name="lab_test">Lab Test</string>
+    <string name="medical_record">Medical Record</string>
+    <string name="vaccination">Vaccination</string>
+    <string name="vaccination_info">%d upcoming, %d missed, %d taken</string>
+
+    <string name="search_patients">Search patients</string>
+    <string name="advanced_search">Advanced Search</string>
+    <string name="search">Search</string>
+    <string name="search_helper_text">Search using any of the field below</string>
+    <string name="select_age_range">Select age range</string>
+    <string name="patient_id">Patient ID</string>
+    <string name="patient_name">Patient Name</string>
+    <string name="patient_name_error_msg">Name length should be between 3 and 100.</string>
+    <string name="gender">Gender</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
+    <string name="last_facility_visit">Last facility visit</string>
+    <string name="patient_registration">Patient Registration</string>
+    <string name="establish_relation">Establish relation</string>
+    <string name="create">Create</string>
+    <string name="go_back">Go back</string>
+    <string name="preview">Preview</string>
+    <string name="save">Save</string>
+    <string name="passport_id_web_link">https://www.passportindia.gov.in/</string>
+    <string name="voter_id_web_link">https://www.nvsp.in/</string>
+    <string name="patient_id_web_link">https://www.apollohospitals.com/</string>
+    <string name="edit">Edit</string>
+    <string name="discard_changes">Discard Changes?</string>
+    <string name="discard_dialog_description">Are you sure you want to discard this patient record?</string>
+    <string name="yes_discard">Yes, discard</string>
+    <string name="appointment_rescheduled">Appointment rescheduled</string>
+    <string name="no_appointment">No appointments available</string>
+    <string name="waiting_appointment">Waiting: %d</string>
+    <string name="in_progress_appointment">In-progress: %d</string>
+    <string name="scheduled_appointment">Scheduled: %d</string>
+    <string name="completed_appointment">Completed: %d</string>
+    <string name="cancelled_appointment">Cancelled: %d</string>
+    <string name="waiting">Waiting</string>
+    <string name="appointment_cancelled">Appointment cancelled</string>
+</resources>

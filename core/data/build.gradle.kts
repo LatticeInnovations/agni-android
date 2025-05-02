@@ -11,6 +11,7 @@ android {
 dependencies {
     api(projects.core.database)
     api(projects.core.sharedpreference)
+    api(projects.core.network)
     api(projects.core.utils)
 
     implementation(libs.timber)

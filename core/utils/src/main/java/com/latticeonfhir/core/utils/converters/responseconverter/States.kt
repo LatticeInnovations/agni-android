@@ -1,7 +1,7 @@
 package com.latticeonfhir.core.utils.converters.responseconverter
 
 object States {
-    internal fun getStateList(): List<String> {
+    fun getStateList(): List<String> {
         return listOf(
             "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar",
             "Chhattisgarh", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",

@@ -6,12 +6,12 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.latticeonfhir.android.data.local.enums.PrescriptionType
 import com.latticeonfhir.core.database.entities.prescription.PrescriptionAndMedicineRelation
 import com.latticeonfhir.core.database.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.core.database.entities.prescription.PrescriptionEntity
 import com.latticeonfhir.core.database.entities.prescription.photo.PrescriptionAndFileEntity
 import com.latticeonfhir.core.database.entities.prescription.photo.PrescriptionPhotoEntity
+import com.latticeonfhir.core.model.enums.PrescriptionType
 
 @Dao
 interface PrescriptionDao {

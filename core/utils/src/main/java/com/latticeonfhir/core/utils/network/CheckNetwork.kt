@@ -9,8 +9,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 
 object CheckNetwork {
-    @RequiresApi(Build.VERSION_CODES.M)
-    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     fun isInternetAvailable(context: Context): Boolean {
         val result: Boolean
         val connectivityManager =
