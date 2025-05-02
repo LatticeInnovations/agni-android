@@ -67,7 +67,7 @@ object Vaccination {
         }
     }
 
-    internal fun Immunization.toImmunizationResponse(): ImmunizationResponse {
+    fun Immunization.toImmunizationResponse(): ImmunizationResponse {
         return ImmunizationResponse(
             appointmentId = appointmentId,
             createdOn = takenOn,

@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.vaccination.data.enums
+package com.latticeonfhir.features.vaccination.data.enums
 
 enum class VaccineErrorTypeEnum(val errorType: String) {
     TIME("time"),

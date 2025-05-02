@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.vaccination.ui.view
+package com.latticeonfhir.features.vaccination.ui.view
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -60,23 +60,26 @@ import androidx.compose.ui.zIndex
 import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
-import com.latticeonfhir.android.data.local.model.vaccination.ImmunizationRecommendation
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import coil.compose.rememberAsyncImagePainter
+import com.latticeonfhir.core.data.local.model.vaccination.ImmunizationRecommendation
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.theme.TakenContainer
-import com.latticeonfhir.android.theme.TakenContainerDark
-import com.latticeonfhir.android.theme.TakenLabel
+import com.latticeonfhir.core.theme.TakenContainerDark
+import com.latticeonfhir.core.theme.TakenLabel
 import com.latticeonfhir.core.theme.TakenLabelDark
-import com.latticeonfhir.features.vaccination.utils.VaccinesUtils.formatBytes
-import com.latticeonfhir.core.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
-import com.latticeonfhir.core.vaccination.utils.VaccinesUtils.numberOfWeeksToLabel
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.VACCINE
-import com.latticeonfhir.android.utils.converters.TimeConverter.daysBetween
+import com.latticeonfhir.core.utils.converters.TimeConverter.convertStringToDate
+import com.latticeonfhir.core.utils.converters.TimeConverter.daysBetween
+import com.latticeonfhir.core.utils.converters.TimeConverter.toFileDateAndTimeName
+import com.latticeonfhir.core.utils.converters.TimeConverter.toPrescriptionDate
 import com.latticeonfhir.core.utils.converters.TimeConverter.toPrescriptionNavDate
+import com.latticeonfhir.core.utils.converters.TimeConverter.toddMMYYYYString
 import com.latticeonfhir.core.utils.file.FileManager.getUriFromFileName
-import com.latticeonfhir.core.vaccination.R
+import com.latticeonfhir.features.vaccination.R
+import com.latticeonfhir.features.vaccination.utils.VaccinesUtils.formatBytes
+import com.latticeonfhir.features.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator
+import com.latticeonfhir.features.vaccination.utils.VaccinesUtils.numberOfWeeksToLabel
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -251,7 +254,7 @@ fun ViewVaccinationScreen(
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
-                                immunization.filename.forEach { file ->
+                                immunization.filename!!.forEach { file ->
                                     val uri = file.getUriFromFileName(context)
                                     Row(
                                         modifier = Modifier
@@ -330,7 +333,7 @@ private fun LabelAndDetail(label: String, detail: String) {
     }
 }
 
-@OptIn(ExperimentalCoilApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DisplayImage(
     viewModel: ViewVaccinationViewModel
@@ -405,7 +408,7 @@ private fun DisplayImage(
                             .onSizeChanged {
                                 imageSize.value = it
                             },
-                        painter = rememberImagePainter(
+                        painter = rememberAsyncImagePainter(
                             viewModel.selectedUri
                         ),
                         contentDescription = null,

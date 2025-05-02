@@ -29,7 +29,7 @@ import com.latticeonfhir.core.ui.patientregistration.preview.PatientRegistration
 import com.latticeonfhir.core.ui.patientregistration.step4.ConfirmRelationship
 import com.latticeonfhir.core.ui.vitalsscreen.VitalsScreen
 import com.latticeonfhir.core.ui.vitalsscreen.addvitals.AddVitalsScreen
-import com.latticeonfhir.core.vaccination.navigation.vaccinationNavGraph
+import com.latticeonfhir.features.vaccination.navigation.vaccinationNavGraph
 import com.latticeonfhir.features.appointment.navigation.appointmentNavGraph
 import com.latticeonfhir.features.dispense.navigation.dispenseNavGraph
 import kotlinx.coroutines.CoroutineScope
