@@ -1,4 +1,4 @@
-package com.latticeonfhir.utils.constants
+package com.latticeonfhir.core.utils.constants
 
 object VitalConstants {
 
