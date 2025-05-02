@@ -1,30 +1,31 @@
-package com.latticeonfhir.core.ui.vitalsscreen.addvitals
+package com.latticeonfhir.features.vitals.addvitals
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.core.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.android.data.local.model.vital.VitalLocal
-import com.latticeonfhir.android.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.android.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
-import com.latticeonfhir.core.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.local.repository.schedule.ScheduleRepository
-import com.latticeonfhir.android.data.local.repository.vital.VitalRepository
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.vitalsscreen.enums.BGEnum
-import com.latticeonfhir.core.ui.vitalsscreen.enums.EyeTestTypeEnum
-import com.latticeonfhir.core.ui.vitalsscreen.enums.TemperatureEnum
-import com.latticeonfhir.core.ui.vitalsscreen.enums.VitalsEyeEnum
+import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.data.local.model.vital.VitalLocal
+import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
+import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
+import com.latticeonfhir.core.data.repository.local.patient.lastupdated.PatientLastUpdatedRepository
+import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepository
+import com.latticeonfhir.core.data.repository.local.schedule.ScheduleRepository
+import com.latticeonfhir.core.data.repository.local.vital.VitalRepository
+import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.utils.common.Queries
 import com.latticeonfhir.core.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
 import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
-import com.latticeonfhir.core.utils.constants.VitalConstants
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
+import com.latticeonfhir.features.vitals.enums.BGEnum
+import com.latticeonfhir.features.vitals.enums.EyeTestTypeEnum
+import com.latticeonfhir.features.vitals.enums.TemperatureEnum
+import com.latticeonfhir.features.vitals.enums.VitalsEyeEnum
+import com.latticeonfhir.utils.constants.VitalConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +43,7 @@ class AddVitalsViewModel @Inject constructor(
     private val scheduleRepository: ScheduleRepository,
     private val preferenceRepository: PreferenceRepository,
     private val patientLastUpdatedRepository: PatientLastUpdatedRepository,
-) : com.latticeonfhir.android.base.viewmodel.BaseViewModel() {
+) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
     var vitalLocal by mutableStateOf<VitalLocal?>(null)
