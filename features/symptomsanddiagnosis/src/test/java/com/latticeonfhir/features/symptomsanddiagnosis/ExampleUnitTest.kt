@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.symptomsanddiagnosis
+package com.latticeonfhir.features.symptomsanddiagnosis
 
 import org.junit.Test
 

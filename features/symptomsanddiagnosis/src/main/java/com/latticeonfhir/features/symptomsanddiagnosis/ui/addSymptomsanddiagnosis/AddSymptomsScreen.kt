@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,7 +37,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -58,12 +57,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
-import com.latticeonfhir.core.symptomsanddiagnosis.R
-import com.latticeonfhir.core.symptomsanddiagnosis.ui.components.BodyPartCard
-import com.latticeonfhir.core.symptomsanddiagnosis.ui.components.BottomSheetLayout
-import com.latticeonfhir.android.symptomsanddiagnosis.ui.components.SymptomsCustomChip
-import com.latticeonfhir.android.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG_UPDATE_OR_ADD
+import com.latticeonfhir.core.model.server.symptomsanddiagnosis.SymptomsAndDiagnosisItem
+import com.latticeonfhir.features.symptomsanddiagnosis.R
+import com.latticeonfhir.features.symptomsanddiagnosis.ui.components.BodyPartCard
+import com.latticeonfhir.features.symptomsanddiagnosis.ui.components.BottomSheetLayout
+import com.latticeonfhir.features.symptomsanddiagnosis.ui.components.SymptomsCustomChip
+import com.latticeonfhir.features.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG_UPDATE_OR_ADD
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -98,9 +97,9 @@ fun AddSymptomsScreen(
                     hostState = snackBarHostState,
                     modifier = if (viewModel.state == 1) Modifier.padding(bottom = 66.dp) else Modifier
                 )
-        }, topBar = {
-            TopAppBarLayout(navController, viewModel)
-        }, content = { paddingValues ->
+            }, topBar = {
+                TopAppBarLayout(navController, viewModel)
+            }, content = { paddingValues ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -260,7 +259,6 @@ fun ShowManualEntryView(viewModel: AddSymptomsAndDiagnosisViewModel) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ShowPredefinedListView(
     viewModel: AddSymptomsAndDiagnosisViewModel, context: Context
@@ -400,7 +398,7 @@ private fun TopAppBarLayout(
     navController: NavController,
     viewModel: AddSymptomsAndDiagnosisViewModel
 ) {
-    TopAppBar(modifier = Modifier.fillMaxWidth(), colors = TopAppBarDefaults.largeTopAppBarColors(
+    TopAppBar(modifier = Modifier.fillMaxWidth(), colors = topAppBarColors(
         containerColor = MaterialTheme.colorScheme.surface
     ), actions = {
         IconButton(onClick = {

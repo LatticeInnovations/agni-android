@@ -17,7 +17,7 @@ import com.latticeonfhir.features.auth.navigation.authNavGraph
 import com.latticeonfhir.core.auth.navigation.authRoute
 import com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentScreen
 import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.core.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
+import com.latticeonfhir.features.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
 import com.latticeonfhir.core.ui.householdmember.HouseholdMembersScreen
 import com.latticeonfhir.core.ui.householdmember.addhouseholdmember.AddHouseholdMember
 import com.latticeonfhir.core.ui.labtestandmedicalrecord.photo.view.PhotoViewScreen

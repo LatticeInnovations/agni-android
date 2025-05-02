@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.symptomsanddiagnosis.utils.constants
+package com.latticeonfhir.features.symptomsanddiagnosis.utils.constants
 
 object SymptomsAndDiagnosisConstants {
     const val SYM_DIAG = "sym diag"
