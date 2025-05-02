@@ -1,41 +1,17 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.latticeonfhir.android.library)
+    alias(libs.plugins.latticeonfhir.android.library.jacoco)
+    alias(libs.plugins.latticeonfhir.hilt)
 }
 
 android {
-    namespace = "com.latticeonfhir.android.symptomsanddiagnosis"
-    compileSdk = 35
-
-    defaultConfig {
-        minSdk = 24
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    namespace = "com.latticeonfhir.features.symptomsanddiagnosis"
 }
 
 dependencies {
-    implementation(projects.core.ui)
-    implementation(projects.core.utils)
-    implementation(projects.core.base)
+    api(projects.core.ui)
+    api(projects.core.utils)
+    api(projects.core.base)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
