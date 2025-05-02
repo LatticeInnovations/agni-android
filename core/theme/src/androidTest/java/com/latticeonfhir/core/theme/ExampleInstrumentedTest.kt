@@ -1,4 +1,4 @@
-package com.latticeonfhir.android.theme
+package com.latticeonfhir.core.theme
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
