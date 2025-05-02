@@ -83,6 +83,7 @@ import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndRe
 import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiResponseConverter
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import com.latticeonfhir.android.utils.file.DeleteFileManager
+import com.latticeonfhir.core.data.repository.server.sync.SyncRepositoryDatabaseTransactions
 import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject

@@ -18,6 +18,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import kotlin.math.sqrt
+import androidx.core.graphics.scale
 
 object BitmapUtils {
     private fun getBitmapFromUri(context: Context, uri: Uri): Bitmap? {
@@ -32,7 +33,6 @@ object BitmapUtils {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     fun compressImage(context: Context, uri: Uri, quality: Int = 25): Boolean {
         val tempFile = getTempFile(context, uri)
         return if (uri.sizeInKB() > 1000 && quality >= 5) {
@@ -66,7 +66,6 @@ object BitmapUtils {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     private fun reduceSize(context: Context, uri: Uri): Boolean {
         val originalBitmap = getBitmapFromUri(context, uri)
         val orientation = getExifOrientation(context, uri)
@@ -101,7 +100,6 @@ object BitmapUtils {
         return this.toFile().length() / 1000
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     private fun getExifOrientation(context: Context, uri: Uri): Int {
         return try {
             val inputStream = context.contentResolver.openInputStream(uri)
@@ -140,7 +138,7 @@ object BitmapUtils {
         val targetWidth = sqrt((maxSizeInKB * 1024).toDouble() * aspectRatio).toInt()
         val targetHeight = (targetWidth / aspectRatio).toInt()
 
-        return Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true)
+        return bitmap.scale(targetWidth, targetHeight)
     }
 
     private fun copyImageFile(sourceFile: File, destinationFile: File) {

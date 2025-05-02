@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.core.FhirApp
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum
 import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
 import com.latticeonfhir.core.data.local.enums.PhotoUploadTypeEnum
@@ -15,7 +14,7 @@ import com.latticeonfhir.core.data.local.enums.SyncStatusMessageEnum
 import com.latticeonfhir.core.data.local.enums.SyncType
 import com.latticeonfhir.core.data.local.enums.WorkerStatus
 import com.latticeonfhir.core.data.local.model.appointment.AppointmentResponseLocal
-import com.latticeonfhir.core.data.local.model.labtest.LabTestPhotoResponseLocal
+import com.latticeonfhir.core.model.local.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.core.data.local.repository.appointment.AppointmentRepository
 import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.labtest.LabTestRepository

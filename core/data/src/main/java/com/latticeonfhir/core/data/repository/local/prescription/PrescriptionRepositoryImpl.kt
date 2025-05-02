@@ -1,7 +1,7 @@
 package com.latticeonfhir.core.data.repository.local.prescription
 
 import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionPhotoResponseLocal
-import com.latticeonfhir.core.data.local.model.prescription.PrescriptionPhotoResponseLocal
+import com.latticeonfhir.core.model.local.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.core.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.core.database.dao.FileUploadDao
 import com.latticeonfhir.core.database.dao.PrescriptionDao
