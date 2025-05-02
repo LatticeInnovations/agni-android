@@ -9,7 +9,7 @@ android {
 }
 
 dependencies {
-    api(projects.theme)
+    api(projects.core.theme)
     api(projects.core.base)
     api(projects.core.utils)
     api(projects.core.data)

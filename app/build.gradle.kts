@@ -387,7 +387,7 @@ android {
 }
 
 dependencies {
-    implementation(projects.theme)
+    implementation(projects.core.theme)
     implementation(projects.app)
     implementation(projects.features.auth)
     implementation(projects.features.symptomsanddiagnosis)

@@ -14,7 +14,7 @@ dependencies {
     api(projects.core.data)
     api(projects.core.model)
     api(projects.core.utils)
-    api(projects.theme)
+    api(projects.core.theme)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
