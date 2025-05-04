@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.auth.ui.signup
+package com.latticeonfhir.features.auth.ui.signup
 
 import android.app.Activity
 import androidx.compose.foundation.layout.Box
@@ -25,9 +25,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.auth.R
-import com.latticeonfhir.core.auth.navigation.Screen
-import com.latticeonfhir.android.utils.network.CheckNetwork.isInternetAvailable
+import com.latticeonfhir.core.utils.network.CheckNetwork.isInternetAvailable
+import com.latticeonfhir.features.auth.R
+import com.latticeonfhir.features.auth.navigation.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -3,10 +3,10 @@ package com.latticeonfhir.features.auth.ui.signup
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
-import com.latticeonfhir.core.data.server.repository.signup.SignUpRepository
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.data.repository.server.signup.SignUpRepository
+import com.latticeonfhir.core.model.enums.RegisterTypeEnum
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiErrorResponse
 import com.latticeonfhir.core.utils.regex.EmailRegex
@@ -19,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpPhoneEmailViewModel @Inject constructor(
     private val signUpRepository: SignUpRepository
-) : ViewModel() {
+) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var inputValue by mutableStateOf("")
     var isInputInvalid by mutableStateOf(true)
