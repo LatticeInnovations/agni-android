@@ -12,4 +12,5 @@ dependencies {
     api(projects.core.database)
 
     implementation(libs.androidx.annotation.jvm)
+    implementation(libs.retrofit.converter.gson)
 }

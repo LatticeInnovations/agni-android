@@ -1,9 +1,9 @@
 package com.latticeonfhir.features.auth.data.server.api
 
-import com.latticeonfhir.features.auth.data.server.model.authentication.Login
-import com.latticeonfhir.features.auth.data.server.model.authentication.Otp
-import com.latticeonfhir.features.auth.data.server.model.authentication.TokenResponse
-import com.latticeonfhir.features.auth.data.server.model.user.UserResponse
+import com.latticeonfhir.core.model.server.authentication.Login
+import com.latticeonfhir.core.model.server.authentication.Otp
+import com.latticeonfhir.core.model.server.authentication.TokenResponse
+import com.latticeonfhir.core.model.server.user.UserResponse
 import com.latticeonfhir.features.auth.utils.contants.AuthenticationConstants.TEMP_TOKEN
 import retrofit2.Response
 import retrofit2.http.Body

@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.patientregistration.step3
+package com.latticeonfhir.features.patient.ui.patientregistration.step3
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,15 +25,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.R
 import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.theme.Neutral40
+import com.latticeonfhir.features.patient.R
 import com.latticeonfhir.features.patient.ui.common.AddressComposable
 import com.latticeonfhir.features.patient.ui.patientregistration.PatientRegistrationViewModel
-import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.android.theme.Neutral40
+import com.latticeonfhir.features.patient.ui.patientregistration.model.PatientRegister
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientRegistrationStepThree(
     navController: NavController,

@@ -54,12 +54,12 @@ import com.latticeonfhir.core.ui.AllSlotsBookedDialog
 import com.latticeonfhir.core.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX
+import com.latticeonfhir.core.utils.constants.PhotoUploadViewType.PHOTO_VIEW_TYPE
 import com.latticeonfhir.core.utils.converters.TimeConverter.toAge
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTimeInMilli
 import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.features.patient.R
 import com.latticeonfhir.features.patient.ui.common.BottomNavBar
-import com.latticeonfhir.utils.constants.PhotoUploadViewType.PHOTO_VIEW_TYPE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

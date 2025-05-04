@@ -1,7 +1,6 @@
-package com.latticeonfhir.features.auth.data.server.model.user
+package com.latticeonfhir.core.model.server.user
 
 import androidx.annotation.Keep
-import com.latticeonfhir.core.model.server.user.UserRoleDetails
 
 @Keep
 data class UserResponse(

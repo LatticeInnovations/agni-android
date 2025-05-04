@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -67,8 +68,6 @@ import com.latticeonfhir.core.theme.NoShowLabel
 import com.latticeonfhir.core.theme.TodayScheduledContainer
 import com.latticeonfhir.core.theme.TodayScheduledLabel
 import com.latticeonfhir.core.theme.WalkInContainer
-import com.latticeonfhir.android.ui.CancelAppointmentDialog
-import com.latticeonfhir.android.ui.WeekDaysComposable
 import com.latticeonfhir.core.utils.constants.NavControllerConstants
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
@@ -79,6 +78,8 @@ import com.latticeonfhir.core.theme.CancelledContainer
 import com.latticeonfhir.core.theme.CompletedLabel
 import com.latticeonfhir.core.theme.NoShowContainer
 import com.latticeonfhir.core.theme.WalkInLabel
+import com.latticeonfhir.core.ui.CancelAppointmentDialog
+import com.latticeonfhir.core.ui.WeekDaysComposable
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.core.utils.converters.TimeConverter.to14DaysWeek
 import com.latticeonfhir.core.utils.converters.TimeConverter.toAge

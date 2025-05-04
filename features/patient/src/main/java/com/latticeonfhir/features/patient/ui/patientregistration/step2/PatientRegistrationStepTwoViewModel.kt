@@ -3,9 +3,9 @@ package com.latticeonfhir.features.patient.ui.patientregistration.step2
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.DefaultLifecycleObserver
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
 
-class PatientRegistrationStepTwoViewModel : com.latticeonfhir.android.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
+class PatientRegistrationStepTwoViewModel : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
 
     val maxPassportIdLength = 8

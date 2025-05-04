@@ -7,8 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
-import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.core.FhirApp
+import com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
 import com.latticeonfhir.core.data.repository.local.cvd.records.CVDAssessmentRepository
 import com.latticeonfhir.core.data.repository.local.patient.PatientRepository

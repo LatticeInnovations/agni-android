@@ -50,13 +50,13 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.ui.ButtonLoader
 import com.latticeonfhir.core.BuildConfig
 import com.latticeonfhir.core.model.enums.SyncStatusMessageEnum
 import com.latticeonfhir.core.model.enums.WorkerStatus
 import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.theme.Primary10
 import com.latticeonfhir.core.theme.SyncFailedColor
+import com.latticeonfhir.core.ui.ButtonLoader
 import com.latticeonfhir.core.ui.main.MainActivity
 import com.latticeonfhir.core.utils.network.CheckNetwork.isInternetAvailable
 import com.latticeonfhir.core.utils.regex.OnlyNumberRegex.onlyNumbers
