@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.auth.ui.login
+package com.latticeonfhir.features.auth.ui.login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,11 +46,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.auth.R
-import com.latticeonfhir.core.auth.navigation.Screen
 import com.latticeonfhir.core.ui.main.MainActivity
 import com.latticeonfhir.core.utils.network.CheckNetwork
 import com.latticeonfhir.core.utils.regex.OnlyNumberRegex.onlyNumbers
+import com.latticeonfhir.features.auth.R
+import com.latticeonfhir.features.auth.navigation.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

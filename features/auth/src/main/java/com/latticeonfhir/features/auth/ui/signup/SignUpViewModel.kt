@@ -3,22 +3,23 @@ package com.latticeonfhir.features.auth.ui.signup
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.auth.data.server.model.register.Register
-import com.latticeonfhir.core.auth.data.server.repository.signup.SignUpRepository
-import com.latticeonfhir.core.auth.utils.regex.EmailRegex
-import com.latticeonfhir.core.auth.utils.regex.OnlyNumberRegex
-import com.latticeonfhir.android.utils.converters.responsemapper.ApiEndResponse
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.data.repository.server.signup.SignUpRepository
+import com.latticeonfhir.core.model.server.register.Register
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEndResponse
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiErrorResponse
+import com.latticeonfhir.core.utils.regex.EmailRegex
+import com.latticeonfhir.core.utils.regex.OnlyNumberRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignUpViewModel @Inject constructor(private val signUpRepository: SignUpRepository) :
-    ViewModel() {
+class SignUpViewModel @Inject constructor(
+    private val signUpRepository: SignUpRepository
+) : BaseViewModel() {
     var isLaunched by mutableStateOf(false)
     var inputName by mutableStateOf("")
     var inputClinicName by mutableStateOf("")

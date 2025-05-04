@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.auth.ui.login
+package com.latticeonfhir.features.auth.ui.login
 
 import android.app.Application
 import androidx.compose.runtime.getValue
@@ -6,17 +6,17 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.auth.data.server.model.authentication.TokenResponse
-import com.latticeonfhir.android.auth.data.server.repository.authentication.AuthenticationRepository
-import com.latticeonfhir.android.auth.data.server.repository.signup.SignUpRepository
-import com.latticeonfhir.core.auth.utils.contants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
-import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
-import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiEmptyResponse
-import com.latticeonfhir.android.utils.converters.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel
+import com.latticeonfhir.core.data.repository.server.authentication.AuthenticationRepository
+import com.latticeonfhir.core.data.repository.server.signup.SignUpRepository
+import com.latticeonfhir.core.model.enums.RegisterTypeEnum
+import com.latticeonfhir.core.model.server.authentication.TokenResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEndResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiErrorResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ResponseMapper
+import com.latticeonfhir.features.auth.utils.contants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,7 +27,7 @@ class OtpViewModel @Inject constructor(
     application: Application,
     private val authenticationRepository: AuthenticationRepository,
     private val signUpRepository: SignUpRepository
-) : AndroidViewModel(application) {
+) : BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     val otpValues = List(6) { mutableStateOf("") }
     val focusRequesters = List(6) { FocusRequester() }

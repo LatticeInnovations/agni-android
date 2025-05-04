@@ -5,15 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepository
 import com.latticeonfhir.core.data.repository.server.authentication.AuthenticationRepository
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
+import com.latticeonfhir.core.database.FhirAppDatabase
 import com.latticeonfhir.core.utils.constants.ErrorConstants.USER_DOES_NOT_EXIST
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiErrorResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiErrorResponse
 import com.latticeonfhir.core.utils.regex.EmailRegex
 import com.latticeonfhir.core.utils.regex.OnlyNumberRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -43,8 +44,11 @@ class PhoneEmailViewModel @Inject constructor(
         isError = isInputInvalid
     }
 
-    internal fun login(navigate: (Boolean) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal fun login(
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+        navigate: (Boolean) -> Unit
+    ) {
+        viewModelScope.launch(ioDispatcher) {
             authenticationRepository.login(inputValue).apply {
                 if (this is ApiEmptyResponse) {
                     signUpButtonIsVisible = false
@@ -70,8 +74,10 @@ class PhoneEmailViewModel @Inject constructor(
             .toString() == inputValue)
     }
 
-    internal fun clearAllAppData() {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal fun clearAllAppData(
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        viewModelScope.launch(ioDispatcher) {
             fhirAppDatabase.clearAllTables()
             preferenceRepository.clearPreferences()
         }

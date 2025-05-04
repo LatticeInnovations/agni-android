@@ -29,4 +29,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.compose.material.iconsExtended)
 }

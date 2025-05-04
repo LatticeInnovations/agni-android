@@ -4,10 +4,10 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.latticeonfhir.core.auth.ui.login.OtpScreen
-import com.latticeonfhir.core.auth.ui.login.PhoneEmailScreen
-import com.latticeonfhir.android.auth.ui.signup.SignUpPhoneEmailScreen
-import com.latticeonfhir.core.auth.ui.signup.SignUpScreen
+import com.latticeonfhir.features.auth.ui.login.OtpScreen
+import com.latticeonfhir.features.auth.ui.login.PhoneEmailScreen
+import com.latticeonfhir.features.auth.ui.signup.SignUpPhoneEmailScreen
+import com.latticeonfhir.features.auth.ui.signup.SignUpScreen
 
 
 fun NavGraphBuilder.authNavGraph(
