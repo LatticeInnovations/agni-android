@@ -34,10 +34,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.ui.CancelAppointmentDialog
-import com.latticeonfhir.android.ui.TabRowComposable
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.ui.AllSlotsBookedDialog
+import com.latticeonfhir.core.ui.CancelAppointmentDialog
+import com.latticeonfhir.core.ui.TabRowComposable
 import com.latticeonfhir.core.ui.common.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.RESCHEDULED
