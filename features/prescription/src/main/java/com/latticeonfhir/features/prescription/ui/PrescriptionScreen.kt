@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.prescription
+package com.latticeonfhir.features.prescription.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
@@ -62,17 +63,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.R
-import com.latticeonfhir.core.data.local.model.prescription.medication.MedicationResponseWithMedication
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.prescription.filldetails.FillDetailsScreen
-import com.latticeonfhir.core.ui.prescription.quickselect.QuickSelectScreen
-import com.latticeonfhir.core.ui.prescription.search.PrescriptionSearchResult
-import com.latticeonfhir.android.ui.prescription.search.SearchPrescription
+import com.latticeonfhir.core.model.local.prescription.medication.MedicationResponseWithMedication
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.core.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
+import com.latticeonfhir.core.utils.converters.MedicationInfoConverter.getMedInfo
+import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
+import com.latticeonfhir.features.prescription.R
+import com.latticeonfhir.features.prescription.ui.filldetails.FillDetailsScreen
+import com.latticeonfhir.features.prescription.ui.quickselect.QuickSelectScreen
+import com.latticeonfhir.features.prescription.ui.search.PrescriptionSearchResult
+import com.latticeonfhir.features.prescription.ui.search.SearchPrescription
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Date

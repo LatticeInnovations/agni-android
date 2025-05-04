@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.prescription.model
+package com.latticeonfhir.features.prescription.data.model
 
 import java.util.Date
 

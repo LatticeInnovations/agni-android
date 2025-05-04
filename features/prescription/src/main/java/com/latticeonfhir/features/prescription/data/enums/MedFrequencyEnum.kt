@@ -7,7 +7,7 @@ enum class MedFrequencyEnum(val number: Int, val value: String) {
     QID(4, "QID");
 
     companion object {
-        fun fromInt(number: Int) = MedFrequencyEnum.values().first { it.number == number }
-        fun fromString(value: String) = MedFrequencyEnum.values().first { it.value == value }
+        fun fromInt(number: Int) = entries.first { it.number == number }
+        fun fromString(value: String) = entries.first { it.value == value }
     }
 }

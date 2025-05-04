@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.prescription.photo.upload
+package com.latticeonfhir.features.prescription.ui.photo.upload
 
 import android.content.ContentUris
 import android.content.Context
@@ -72,15 +72,14 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
-import com.latticeonfhir.android.R
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.core.ui.common.ScreenLoader
+import coil.compose.rememberAsyncImagePainter
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.ui.ScreenLoader
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import com.latticeonfhir.core.utils.file.FileManager
+import com.latticeonfhir.features.prescription.R
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -151,7 +150,7 @@ fun PrescriptionPhotoUploadScreen(
                     val previewUseCase = Preview.Builder()
                         .build()
                         .also {
-                            it.setSurfaceProvider(previewView.surfaceProvider)
+                            it.surfaceProvider = previewView.surfaceProvider
                         }
                     cameraProviderFuture.addListener({
                         try {
@@ -262,7 +261,6 @@ fun SetBackHandler(
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 private fun DisplayImage(
     viewModel: PrescriptionPhotoUploadViewModel,
@@ -289,7 +287,7 @@ private fun DisplayImage(
             Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
         }
         Image(
-            painter = rememberImagePainter(viewModel.selectedImageUri),
+            painter = rememberAsyncImagePainter(viewModel.selectedImageUri),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxSize()
@@ -432,7 +430,7 @@ private fun RecentImages(onImageClick: (Uri) -> Unit) {
     ) {
         items(images) { uri ->
             Image(
-                painter = rememberImagePainter(uri),
+                painter = rememberAsyncImagePainter(uri),
                 contentDescription = null,
                 modifier = Modifier
                     .size(85.dp)

@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.prescription.photo.view
+package com.latticeonfhir.features.prescription.ui.photo.view
 
 import android.Manifest
 import android.app.Activity
@@ -105,32 +105,32 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
-import com.latticeonfhir.android.R
-import com.latticeonfhir.core.data.local.enums.PrescriptionType
-import com.latticeonfhir.core.data.local.enums.WorkerStatus
-import com.latticeonfhir.android.data.local.model.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.core.data.local.model.prescription.PrescriptionResponseLocal
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.model.enums.PrescriptionType
+import com.latticeonfhir.core.model.enums.WorkerStatus
+import com.latticeonfhir.core.model.local.prescription.PrescriptionPhotoResponseLocal
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.ui.AddToQueueDialog
+import com.latticeonfhir.core.ui.AllSlotsBookedDialog
+import com.latticeonfhir.core.ui.AppointmentCompletedDialog
 import com.latticeonfhir.core.ui.CustomDialog
-import com.latticeonfhir.core.ui.common.DisplaySyncStatus
-import com.latticeonfhir.core.ui.common.Loader
+import com.latticeonfhir.core.ui.DisplaySyncStatus
+import com.latticeonfhir.core.ui.Loader
 import com.latticeonfhir.core.ui.main.MainActivity
-import com.latticeonfhir.core.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.core.utils.constants.NavControllerConstants
+import com.latticeonfhir.core.utils.converters.MedicationInfoConverter.getMedInfo
+import com.latticeonfhir.core.utils.converters.TimeConverter.toDayFullMonthYear
+import com.latticeonfhir.core.utils.converters.TimeConverter.toPrescriptionNavDate
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.isToday
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.isYesterday
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toDate
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toDayFullMonthYear
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toPrescriptionNavDate
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toPrescriptionTime
-import com.latticeonfhir.core.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import com.latticeonfhir.core.utils.file.FileManager
-import com.latticeonfhir.android.utils.file.FileManager.getUriFromFileName
-import com.latticeonfhir.android.utils.file.FileManager.shareImageToOtherApps
-import com.latticeonfhir.android.utils.network.ConnectivityObserver
-import com.latticeonfhir.core.model.enums.PrescriptionType
-import com.latticeonfhir.core.model.enums.WorkerStatus
+import com.latticeonfhir.core.utils.file.FileManager.getUriFromFileName
+import com.latticeonfhir.core.utils.file.FileManager.shareImageToOtherApps
+import com.latticeonfhir.core.utils.network.ConnectivityObserver
+import com.latticeonfhir.features.prescription.R
+import com.latticeonfhir.features.prescription.navigation.Screen
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Date
@@ -335,7 +335,7 @@ fun PrescriptionPhotoViewScreen(
         }
     )
     if (viewModel.showDeleteDialog) {
-        com.latticeonfhir.core.ui.CustomDialog(
+        CustomDialog(
             title = stringResource(id = R.string.discard_prescription),
             text = stringResource(id = R.string.discard_prescription_description),
             dismissBtnText = stringResource(id = R.string.no_go_back),
@@ -425,7 +425,7 @@ fun PrescriptionPhotoViewScreen(
         }
     }
     if (viewModel.showOpenSettingsDialog) {
-        com.latticeonfhir.core.ui.CustomDialog(
+        CustomDialog(
             canBeDismissed = false,
             title = stringResource(id = R.string.permissions_required),
             text = stringResource(id = R.string.permissions_required_description),
