@@ -39,10 +39,10 @@ import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.core.utils.converters.TimeConverter.ageToPatientDate
 import com.latticeonfhir.core.utils.converters.TimeConverter.toPatientDate
+import com.latticeonfhir.core.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
 import com.latticeonfhir.features.patient.R
 import com.latticeonfhir.features.patient.ui.common.PreviewScreen
 import com.latticeonfhir.features.patient.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.utils.converters.RelationConverter.getRelationEnumFromString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

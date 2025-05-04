@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.patienteditscreen.basicinfo
+package com.latticeonfhir.features.patient.ui.patienteditscreen.basicinfo
 
 import android.util.Patterns
 import androidx.compose.runtime.getValue
@@ -7,14 +7,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.core.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.core.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.core.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.core.data.local.repository.vaccination.ImmunizationRecommendationRepository
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toMonthInteger
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
+import com.latticeonfhir.core.data.repository.local.patient.PatientRepository
+import com.latticeonfhir.core.data.repository.local.vaccination.ImmunizationRecommendationRepository
+import com.latticeonfhir.core.model.enums.ChangeTypeEnum
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.utils.converters.TimeConverter.toMonthInteger
 import com.latticeonfhir.core.utils.regex.AgeRegex
 import com.latticeonfhir.core.utils.regex.DobRegex
 import com.latticeonfhir.core.utils.regex.OnlyNumberRegex
@@ -26,11 +27,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditBasicInformationViewModel @Inject constructor(
-    val patientRepository: PatientRepository,
-    val genericRepository: GenericRepository,
-    val immunizationRecommendationRepository: ImmunizationRecommendationRepository
-) :
-    com.latticeonfhir.android.base.viewmodel.BaseViewModel(), DefaultLifecycleObserver {
+    private val patientRepository: PatientRepository,
+    private val genericRepository: GenericRepository,
+    private val immunizationRecommendationRepository: ImmunizationRecommendationRepository
+) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
 
@@ -183,7 +183,7 @@ class EditBasicInformationViewModel @Inject constructor(
                     saveGender(patientResponse)
                     if (phoneNumber != phoneNumberTemp) {
                         genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
+                            patientFhirId = patientResponse.fhirId!!,
                             map = mapOf(
                                 Pair(
                                     "mobileNumber", ChangeRequest(
@@ -196,7 +196,7 @@ class EditBasicInformationViewModel @Inject constructor(
                     }
                     if (patientResponse.birthDate != birthDate) {
                         genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
+                            patientFhirId = patientResponse.fhirId!!,
                             map = mapOf(
                                 Pair(
                                     "birthDate", ChangeRequest(

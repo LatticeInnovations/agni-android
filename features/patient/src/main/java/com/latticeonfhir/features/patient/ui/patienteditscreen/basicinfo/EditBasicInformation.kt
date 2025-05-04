@@ -58,18 +58,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.ui.CustomFilterChip
-import com.latticeonfhir.android.ui.CustomTextField
 import com.latticeonfhir.core.model.enums.GenderEnum
 import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.ui.CustomFilterChip
+import com.latticeonfhir.core.ui.CustomTextField
 import com.latticeonfhir.core.utils.converters.TimeConverter.ageToPatientDate
 import com.latticeonfhir.core.utils.converters.TimeConverter.toMonthInteger
 import com.latticeonfhir.core.utils.converters.TimeConverter.toPatientDate
+import com.latticeonfhir.core.utils.converters.responseconverter.MonthsList
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter
+import com.latticeonfhir.core.utils.regex.NameRegex.nameRegex
 import com.latticeonfhir.core.utils.regex.PhoneNumberRegex.phoneNumberRegex
 import com.latticeonfhir.features.patient.R
-import com.latticeonfhir.utils.converters.responseconverter.MonthsList
-import com.latticeonfhir.utils.converters.responseconverter.TimeConverter
-import com.latticeonfhir.utils.regex.NameRegex.nameRegex
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

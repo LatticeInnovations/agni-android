@@ -24,11 +24,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.features.patient.ui.common.PreviewScreen
+import com.latticeonfhir.core.utils.constants.IdentificationConstants.PASSPORT_TYPE
+import com.latticeonfhir.core.utils.constants.IdentificationConstants.PATIENT_ID_TYPE
+import com.latticeonfhir.core.utils.constants.IdentificationConstants.VOTER_ID_TYPE
 import com.latticeonfhir.core.utils.converters.TimeConverter.toPatientPreviewDate
-import com.latticeonfhir.utils.constants.IdentificationConstants.PASSPORT_TYPE
-import com.latticeonfhir.utils.constants.IdentificationConstants.PATIENT_ID_TYPE
-import com.latticeonfhir.utils.constants.IdentificationConstants.VOTER_ID_TYPE
+import com.latticeonfhir.features.patient.ui.common.PreviewScreen
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

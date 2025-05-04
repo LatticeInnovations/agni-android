@@ -27,10 +27,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.utils.constants.IdentificationConstants
 import com.latticeonfhir.core.utils.converters.TimeConverter.toPatientPreviewDate
 import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.features.patient.R
-import com.latticeonfhir.utils.constants.IdentificationConstants
 import java.util.Locale
 
 @Composable

@@ -32,11 +32,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.DisplaySyncStatus
-import com.latticeonfhir.android.ui.Loader
 import com.latticeonfhir.core.model.enums.SyncStatusMessageEnum
 import com.latticeonfhir.core.model.enums.WorkerStatus
 import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.ui.DisplaySyncStatus
+import com.latticeonfhir.core.ui.Loader
 import com.latticeonfhir.core.ui.main.MainActivity
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX

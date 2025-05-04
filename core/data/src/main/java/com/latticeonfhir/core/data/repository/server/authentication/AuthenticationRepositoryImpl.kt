@@ -1,17 +1,18 @@
-package com.latticeonfhir.features.auth.data.server.repository.authentication
+package com.latticeonfhir.core.data.repository.server.authentication
 
+import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepository
 import com.latticeonfhir.core.model.server.authentication.Login
 import com.latticeonfhir.core.model.server.authentication.Otp
 import com.latticeonfhir.core.model.server.authentication.TokenResponse
-import com.latticeonfhir.android.auth.data.server.model.user.UserResponse
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
+import com.latticeonfhir.core.model.server.user.UserResponse
+import com.latticeonfhir.core.network.api.AuthenticationApiService
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
-import com.latticeonfhir.android.utils.converters.responsemapper.ApiEndResponse
-import com.latticeonfhir.core.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEndResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ResponseMapper
 import javax.inject.Inject
 
 class AuthenticationRepositoryImpl @Inject constructor(
-    private val authenticationApiService: com.latticeonfhir.features.auth.data.server.api.AuthenticationApiService,
+    private val authenticationApiService: AuthenticationApiService,
     private val preferenceRepository: PreferenceRepository
 ) : AuthenticationRepository {
 

@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.auth.di
 
-import com.latticeonfhir.core.auth.data.server.repository.authentication.AuthenticationRepository
+import com.latticeonfhir.core.data.repository.server.authentication.AuthenticationRepository
 import com.latticeonfhir.core.auth.data.server.repository.authentication.AuthenticationRepositoryImpl
 import com.latticeonfhir.core.auth.data.server.repository.signup.SignUpRepository
 import com.latticeonfhir.android.auth.data.server.repository.signup.SignUpRepositoryImpl
