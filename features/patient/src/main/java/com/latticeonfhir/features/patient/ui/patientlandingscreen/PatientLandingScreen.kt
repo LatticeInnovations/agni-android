@@ -31,7 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,7 +51,7 @@ import com.latticeonfhir.core.model.enums.PhotoUploadTypeEnum
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.ui.AllSlotsBookedDialog
-import com.latticeonfhir.core.ui.common.appointmentsfab.AppointmentsFab
+import com.latticeonfhir.core.ui.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.core.utils.constants.PhotoUploadViewType.PHOTO_VIEW_TYPE
@@ -355,7 +355,7 @@ private fun AppBarComposable(
 ) {
     LargeTopAppBar(
         modifier = Modifier.fillMaxWidth(),
-        colors = TopAppBarDefaults.largeTopAppBarColors(
+        colors = topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
         ),
         navigationIcon = {

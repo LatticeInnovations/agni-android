@@ -38,7 +38,7 @@ import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.ui.AllSlotsBookedDialog
 import com.latticeonfhir.core.ui.CancelAppointmentDialog
 import com.latticeonfhir.core.ui.TabRowComposable
-import com.latticeonfhir.core.ui.common.appointmentsfab.AppointmentsFab
+import com.latticeonfhir.core.ui.appointmentsfab.AppointmentsFab
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.RESCHEDULED
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SCHEDULED

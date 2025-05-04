@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.common.appointmentsfab
+package com.latticeonfhir.core.ui.appointmentsfab
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -38,10 +38,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.R
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.core.ui.appointmentsfab.AppointmentsFabViewModel
+import com.latticeonfhir.core.ui.R
 import com.latticeonfhir.core.utils.constants.NavControllerConstants
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.ADD_TO_QUEUE
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT_ARRIVED
