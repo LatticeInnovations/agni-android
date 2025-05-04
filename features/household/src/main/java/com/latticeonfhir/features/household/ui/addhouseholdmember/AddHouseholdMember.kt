@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.householdmember.addhouseholdmember
+package com.latticeonfhir.features.household.ui.addhouseholdmember
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -47,10 +47,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.features.household.R
-import com.latticeonfhir.features.household.ui.addhouseholdmember.AddHouseholdMemberViewModel
-import com.latticeonfhir.utils.converters.responseconverter.AddressConverter
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

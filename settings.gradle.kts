@@ -1,7 +1,5 @@
 import java.net.URI
 
-
-
 pluginManagement {
     includeBuild("build-logic")
     repositories {
@@ -46,6 +44,7 @@ include(":features:prescription")
 include(":features:dispense")
 include(":features:appointment")
 include(":features:patient")
+include(":features:household")
 include(":sync")
 include(":features:vitals")
 include(":sync:workmanager")

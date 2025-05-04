@@ -35,15 +35,15 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.latticeonfhir.android.ui.Loader
 import com.latticeonfhir.core.data.local.model.search.SearchParameters
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.ui.Loader
 import com.latticeonfhir.core.utils.converters.TimeConverter.toAge
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTimeInMilli
+import com.latticeonfhir.core.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.features.household.R
-import com.latticeonfhir.utils.converters.responseconverter.AddressConverter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
