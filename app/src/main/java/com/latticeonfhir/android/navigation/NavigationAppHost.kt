@@ -15,7 +15,7 @@ import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
 import com.latticeonfhir.features.auth.navigation.authNavGraph
 import com.latticeonfhir.core.auth.navigation.authRoute
-import com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentScreen
+import com.latticeonfhir.features.cvd.ui.CVDRiskAssessmentScreen
 import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.features.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
 import com.latticeonfhir.core.ui.householdmember.HouseholdMembersScreen
@@ -79,7 +79,7 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         prescriptionNavGraph(navController)
 
         composable(Screen.CVDRiskAssessmentScreen.route) {
-            com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentScreen(
+            com.latticeonfhir.features.cvd.ui.CVDRiskAssessmentScreen(
                 navController
             )
         }
