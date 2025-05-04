@@ -55,6 +55,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
 import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.theme.Green
 import com.latticeonfhir.core.ui.NonLazyGrid
 import com.latticeonfhir.core.ui.WeekDaysComposable
@@ -69,7 +70,6 @@ import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import com.latticeonfhir.core.utils.converters.TimeConverter.toWeekList
 import com.latticeonfhir.core.utils.converters.TimeConverter.tomorrow
 import com.latticeonfhir.features.appointment.R
-import com.latticeonfhir.features.appointment.navigation.Screen
 import kotlinx.coroutines.launch
 import java.util.Date
 

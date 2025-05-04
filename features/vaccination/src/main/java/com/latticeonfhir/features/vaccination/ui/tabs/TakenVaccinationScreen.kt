@@ -22,7 +22,7 @@ import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.VACCINE
 import com.latticeonfhir.core.utils.converters.TimeConverter.toMonthAndYear
 import com.latticeonfhir.features.vaccination.R
-import com.latticeonfhir.features.vaccination.navigation.Screen
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.features.vaccination.ui.AgeComposable
 import com.latticeonfhir.features.vaccination.ui.VaccinationViewModel
 import com.latticeonfhir.features.vaccination.ui.VaccinationViewModel.Companion.TAKEN

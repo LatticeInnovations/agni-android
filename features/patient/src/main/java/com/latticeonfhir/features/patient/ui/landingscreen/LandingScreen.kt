@@ -72,9 +72,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.core.data.local.model.search.SearchParameters
 import com.latticeonfhir.core.model.enums.AppointmentStatusEnum.Companion.fromLabel
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.ADD_TO_QUEUE
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT_ARRIVED
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX

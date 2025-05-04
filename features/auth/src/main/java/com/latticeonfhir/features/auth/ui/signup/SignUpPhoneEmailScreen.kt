@@ -25,9 +25,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.utils.network.CheckNetwork.isInternetAvailable
 import com.latticeonfhir.features.auth.R
-import com.latticeonfhir.features.auth.navigation.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

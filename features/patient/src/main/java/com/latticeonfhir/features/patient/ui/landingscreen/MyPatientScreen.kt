@@ -31,10 +31,10 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.core.model.enums.SyncStatusMessageEnum
 import com.latticeonfhir.core.model.enums.WorkerStatus
 import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.ui.DisplaySyncStatus
 import com.latticeonfhir.core.ui.Loader
 import com.latticeonfhir.core.ui.main.MainActivity

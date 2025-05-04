@@ -130,7 +130,7 @@ import com.latticeonfhir.core.utils.file.FileManager.getUriFromFileName
 import com.latticeonfhir.core.utils.file.FileManager.shareImageToOtherApps
 import com.latticeonfhir.core.utils.network.ConnectivityObserver
 import com.latticeonfhir.features.prescription.R
-import com.latticeonfhir.features.prescription.navigation.Screen
+import com.latticeonfhir.core.navigation.Screen
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Date

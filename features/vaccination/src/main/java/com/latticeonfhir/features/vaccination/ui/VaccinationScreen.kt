@@ -64,7 +64,7 @@ import com.latticeonfhir.core.utils.converters.TimeConverter.formatAgeInDaysWeek
 import com.latticeonfhir.core.utils.converters.TimeConverter.plusMinusDays
 import com.latticeonfhir.core.utils.converters.TimeConverter.toPrescriptionDate
 import com.latticeonfhir.features.vaccination.data.enums.VaccineErrorTypeEnum
-import com.latticeonfhir.features.vaccination.navigation.Screen
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.features.vaccination.ui.tabs.MissedVaccinationScreen
 import com.latticeonfhir.features.vaccination.ui.tabs.TakenVaccinationScreen
 import com.latticeonfhir.features.vaccination.R

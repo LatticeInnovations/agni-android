@@ -46,11 +46,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.ui.main.MainActivity
 import com.latticeonfhir.core.utils.network.CheckNetwork
 import com.latticeonfhir.core.utils.regex.OnlyNumberRegex.onlyNumbers
 import com.latticeonfhir.features.auth.R
-import com.latticeonfhir.features.auth.navigation.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -61,7 +61,6 @@ import java.util.Locale
 @Composable
 fun OtpScreen(
     navController: NavController,
-    onAuthSuccess: () -> Unit,
     viewModel: OtpViewModel = hiltViewModel()
 ) {
     val focusManager = LocalFocusManager.current
@@ -90,7 +89,7 @@ fun OtpScreen(
                 viewModel.otpValues[index].value = c.toString()
             }
             viewModel.updateOtp()
-            verifyClick(navController, viewModel, onAuthSuccess)
+            verifyClick(navController, viewModel)
             activity.otp = ""
             activity.unregisterBroadcastReceiver()
         }
@@ -217,7 +216,7 @@ fun OtpScreen(
                             // call function of otp auth
                             // if authenticated, navigate to landing screen
                             if (CheckNetwork.isInternetAvailable(activity)) {
-                                verifyClick(navController, viewModel, onAuthSuccess)
+                                verifyClick(navController, viewModel)
                             } else {
                                 coroutineScope.launch {
                                     snackbarHostState.showSnackbar(
@@ -343,7 +342,7 @@ fun ResendButton(
     }
 }
 
-fun verifyClick(navController: NavController, viewModel: OtpViewModel, onAuthSuccess: () -> Unit) {
+fun verifyClick(navController: NavController, viewModel: OtpViewModel) {
     viewModel.isVerifying = true
     viewModel.validateOtp {
         if (it) {
@@ -359,7 +358,11 @@ fun verifyClick(navController: NavController, viewModel: OtpViewModel, onAuthSuc
                     )
                     navController.navigate(Screen.SignUpScreen.route)
                 } else {
-                    onAuthSuccess()
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "loggedIn",
+                        true
+                    )
+                    navController.navigate(Screen.LandingScreen.route)
                 }
             }
         }
