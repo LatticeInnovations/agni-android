@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.cvd
+package com.latticeonfhir.features.cvd
 
 import org.junit.Test
 

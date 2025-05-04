@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.cvd.ui.form
+package com.latticeonfhir.features.cvd.ui.form
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
@@ -15,7 +15,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -32,11 +31,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.core.cvd.R
-import com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentViewModel
-import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
-import com.latticeonfhir.core.utils.regex.OnlyNumberRegex.onlyNumbersWithDecimal
 import com.latticeonfhir.core.model.enums.YesNoEnum
+import com.latticeonfhir.core.utils.converters.TimeConverter.toAge
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTimeInMilli
+import com.latticeonfhir.core.utils.regex.OnlyNumberRegex.onlyNumbers
+import com.latticeonfhir.core.utils.regex.OnlyNumberRegex.onlyNumbersWithDecimal
+import com.latticeonfhir.features.cvd.R
+import com.latticeonfhir.features.cvd.ui.CVDRiskAssessmentViewModel
 
 @Composable
 fun CVDRiskAssessmentForm(
@@ -108,7 +109,6 @@ fun DisplayField(label: String, value: String) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SegmentedButtonField(
     heading: String,

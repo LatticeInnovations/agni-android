@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.cvd.ui
+package com.latticeonfhir.features.cvd.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -38,7 +38,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
@@ -55,15 +55,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.cvd.R
-import com.latticeonfhir.core.cvd.data.server.model.CVDResponse
-import com.latticeonfhir.core.cvd.ui.form.CVDRiskAssessmentForm
-import com.latticeonfhir.android.cvd.ui.form.DisplayField
-import com.latticeonfhir.core.cvd.ui.records.CVDRiskAssessmentRecords
+import com.latticeonfhir.core.model.enums.YesNoEnum
+import com.latticeonfhir.core.model.server.cvd.CVDResponse
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.theme.HighRiskCircle
-import com.latticeonfhir.android.theme.HighRiskDarkContainer
+import com.latticeonfhir.core.theme.HighRiskDarkContainer
 import com.latticeonfhir.core.theme.HighRiskLightContainer
-import com.latticeonfhir.android.theme.LowRiskCircle
+import com.latticeonfhir.core.theme.LowRiskCircle
 import com.latticeonfhir.core.theme.LowRiskDarkContainer
 import com.latticeonfhir.core.theme.LowRiskLightContainer
 import com.latticeonfhir.core.theme.ModerateRiskCircle
@@ -73,14 +71,16 @@ import com.latticeonfhir.core.theme.VeryHighRiskCircle
 import com.latticeonfhir.core.theme.VeryHighRiskDarkContainer
 import com.latticeonfhir.core.theme.VeryHighRiskLightContainer
 import com.latticeonfhir.core.theme.VeryVeryHighRiskCircle
-import com.latticeonfhir.android.ui.AllSlotsBookedDialog
+import com.latticeonfhir.core.ui.AllSlotsBookedDialog
 import com.latticeonfhir.core.ui.AppointmentCompletedDialog
-import com.latticeonfhir.android.ui.CustomDialog
+import com.latticeonfhir.core.ui.CustomDialog
 import com.latticeonfhir.core.ui.TabRowComposable
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.android.utils.converters.TimeConverter.toddMMMyyyy
-import com.latticeonfhir.core.model.enums.YesNoEnum
-import com.latticeonfhir.core.model.response.patient.PatientResponse
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.core.utils.converters.TimeConverter.toddMMMyyyy
+import com.latticeonfhir.features.cvd.R
+import com.latticeonfhir.features.cvd.ui.form.CVDRiskAssessmentForm
+import com.latticeonfhir.features.cvd.ui.form.DisplayField
+import com.latticeonfhir.features.cvd.ui.records.CVDRiskAssessmentRecords
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,7 +128,7 @@ fun CVDRiskAssessmentScreen(
         topBar = {
             TopAppBar(
                 modifier = Modifier.fillMaxWidth(),
-                colors = TopAppBarDefaults.largeTopAppBarColors(
+                colors = topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                 ),
                 navigationIcon = {
