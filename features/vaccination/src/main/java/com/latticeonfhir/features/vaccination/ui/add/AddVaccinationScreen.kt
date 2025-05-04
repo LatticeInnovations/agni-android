@@ -129,7 +129,7 @@ import com.latticeonfhir.core.utils.converters.TimeConverter.toddMMYYYYString
 import com.latticeonfhir.core.utils.file.FileManager
 import com.latticeonfhir.features.vaccination.R
 import com.latticeonfhir.features.vaccination.data.enums.VaccineErrorTypeEnum
-import com.latticeonfhir.features.vaccination.navigation.Screen
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.features.vaccination.ui.add.AddVaccinationViewModel.Companion.MAX_FILE_SIZE_IN_KB
 import com.latticeonfhir.features.vaccination.utils.VaccinesUtils.formatBytes
 import com.latticeonfhir.features.vaccination.utils.VaccinesUtils.getNumberWithOrdinalIndicator

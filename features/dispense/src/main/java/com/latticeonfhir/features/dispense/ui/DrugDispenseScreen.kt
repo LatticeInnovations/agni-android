@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.ui.AddToQueueDialog
 import com.latticeonfhir.core.ui.AllSlotsBookedDialog
 import com.latticeonfhir.core.ui.AppointmentCompletedDialog
@@ -38,7 +39,6 @@ import com.latticeonfhir.core.ui.TabRowComposable
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.features.dispense.R
 import com.latticeonfhir.features.dispense.data.enums.DispenseCategoryEnum
-import com.latticeonfhir.features.dispense.navigation.Screen
 import com.latticeonfhir.features.dispense.ui.log.DispenseLogScreen
 import com.latticeonfhir.features.dispense.ui.prescription.PrescriptionTabScreen
 import com.latticeonfhir.features.dispense.ui.prescription.ViewRXScreen

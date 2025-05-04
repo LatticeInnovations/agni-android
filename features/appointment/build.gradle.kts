@@ -15,6 +15,7 @@ dependencies {
     api(projects.core.data)
     api(projects.core.model)
     api(projects.core.ui)
+    api(projects.core.navigation)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

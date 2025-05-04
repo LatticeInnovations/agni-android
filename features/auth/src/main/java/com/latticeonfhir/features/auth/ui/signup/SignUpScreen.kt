@@ -27,14 +27,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.utils.network.CheckNetwork.isInternetAvailable
 import com.latticeonfhir.features.auth.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
 fun SignUpScreen(
     navController: NavController,
-    onAuthSuccess: () -> Unit,
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val activity = LocalContext.current as Activity
@@ -82,7 +84,7 @@ fun SignUpScreen(
                     Button(
                         onClick = {
                             when (isInternetAvailable(activity)) {
-                                true -> proceed(viewModel, onAuthSuccess)
+                                true -> proceed(viewModel, navController)
                                 false -> {
                                     coroutineScope.launch {
                                         snackbarHostState.showSnackbar(
@@ -107,9 +109,9 @@ fun SignUpScreen(
 
 fun proceed(
     viewModel: SignUpViewModel,
-    onAuthSuccess: () -> Unit
+    navController: NavController
 ) {
-    navigate(viewModel, onAuthSuccess)
+    navigate(viewModel, navController)
 }
 
 @Composable
@@ -162,11 +164,17 @@ fun InputClinicNameField(activity: Activity, viewModel: SignUpViewModel) {
 
 fun navigate(
     viewModel: SignUpViewModel,
-    onAuthSuccess: () -> Unit
+    navController: NavController
 ) {
     viewModel.register {
         if (it) {
-            onAuthSuccess()
+            CoroutineScope(Dispatchers.Main).launch {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "loggedIn",
+                    true
+                )
+                navController.navigate(Screen.LandingScreen.route)
+            }
         }
     }
 }

@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.model.server.patient.PatientAddressResponse
 import com.latticeonfhir.core.model.server.patient.PatientIdentifier
 import com.latticeonfhir.core.model.server.patient.PatientResponse

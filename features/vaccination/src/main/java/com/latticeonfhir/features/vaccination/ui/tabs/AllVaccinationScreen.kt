@@ -58,7 +58,7 @@ import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toPrescriptionDate
 import com.latticeonfhir.core.utils.converters.TimeConverter.toSlotDate
 import com.latticeonfhir.features.vaccination.R
-import com.latticeonfhir.features.vaccination.navigation.Screen
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.features.vaccination.ui.AgeComposable
 import com.latticeonfhir.features.vaccination.ui.VaccinationViewModel
 import com.latticeonfhir.features.vaccination.ui.navigateToAddVaccine

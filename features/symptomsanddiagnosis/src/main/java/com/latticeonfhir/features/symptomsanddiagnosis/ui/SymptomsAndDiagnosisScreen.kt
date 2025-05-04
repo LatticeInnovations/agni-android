@@ -51,7 +51,7 @@ import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import com.latticeonfhir.core.utils.network.CheckNetwork
 import com.latticeonfhir.features.symptomsanddiagnosis.R
-import com.latticeonfhir.features.symptomsanddiagnosis.navigation.Screen
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.features.symptomsanddiagnosis.ui.components.SymptomsAndDiagnosisCard
 import com.latticeonfhir.features.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants
 import com.latticeonfhir.features.symptomsanddiagnosis.utils.constants.SymptomsAndDiagnosisConstants.SYM_DIAG_UPDATE_OR_ADD

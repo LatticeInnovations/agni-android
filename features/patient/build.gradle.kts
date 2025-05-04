@@ -15,6 +15,7 @@ dependencies {
     api(projects.core.utils)
     api(projects.core.ui)
     api(projects.sync.workmanager)
+    api(projects.core.navigation)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
