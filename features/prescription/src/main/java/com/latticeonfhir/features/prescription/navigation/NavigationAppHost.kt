@@ -4,9 +4,9 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.latticeonfhir.android.prescription.ui.PrescriptionScreen
-import com.latticeonfhir.android.prescription.ui.photo.upload.PrescriptionPhotoUploadScreen
-import com.latticeonfhir.android.prescription.ui.photo.view.PrescriptionPhotoViewScreen
+import com.latticeonfhir.features.prescription.ui.PrescriptionScreen
+import com.latticeonfhir.features.prescription.ui.photo.upload.PrescriptionPhotoUploadScreen
+import com.latticeonfhir.features.prescription.ui.photo.view.PrescriptionPhotoViewScreen
 
 fun NavGraphBuilder.prescriptionNavGraph(
     navController: NavController

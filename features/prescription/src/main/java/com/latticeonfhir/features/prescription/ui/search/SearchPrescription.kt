@@ -35,9 +35,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.core.R
-import com.latticeonfhir.core.ui.prescription.PrescriptionViewModel
-import com.latticeonfhir.android.utils.regex.OnlyAlphabetRegex.onlyAlphabets
+import com.latticeonfhir.core.utils.regex.OnlyAlphabetRegex.onlyAlphabets
+import com.latticeonfhir.features.prescription.R
+import com.latticeonfhir.features.prescription.ui.PrescriptionViewModel
 
 @Composable
 fun SearchPrescription(viewModel: PrescriptionViewModel) {
@@ -137,7 +137,8 @@ fun PreviousSearches(listItem: String, viewModel: PrescriptionViewModel) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            painterResource(id = R.drawable.search_history),
+            painterResource(id =
+            R.drawable.search_history),
             contentDescription = "",
             tint = MaterialTheme.colorScheme.onSurface
         )
