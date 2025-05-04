@@ -5,19 +5,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.data.server.model.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
 import com.latticeonfhir.core.data.repository.local.dispense.DispenseRepository
 import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
 import com.latticeonfhir.core.data.repository.local.medication.MedicationRepository
 import com.latticeonfhir.core.data.repository.local.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.core.data.repository.local.schedule.ScheduleRepository
-import com.latticeonfhir.core.data.server.model.dispense.request.MedicineDispensed
 import com.latticeonfhir.core.database.entities.dispense.DispenseDataEntity
 import com.latticeonfhir.core.database.entities.dispense.MedicineDispenseListEntity
 import com.latticeonfhir.core.database.entities.medication.MedicationStrengthRelation
 import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
 import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
+import com.latticeonfhir.core.model.server.dispense.request.MedicineDispenseRequest
+import com.latticeonfhir.core.model.server.dispense.request.MedicineDispensed
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.utils.builders.UUIDBuilder
 import com.latticeonfhir.core.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
@@ -26,6 +26,7 @@ import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import com.latticeonfhir.features.dispense.data.enums.DispenseCategoryEnum
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -48,14 +49,19 @@ class OTCViewModel @Inject constructor(
     var allMedications by mutableStateOf(listOf<MedicationStrengthRelation>())
     var isError by mutableStateOf(false)
 
-    internal fun getOTCMedications() {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal fun getOTCMedications(
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        viewModelScope.launch(ioDispatcher) {
             allMedications = medicationRepository.getOTCMedication()
         }
     }
 
-    internal fun dispenseMedication(dispensed: () -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+    internal fun dispenseMedication(
+        dispensed: () -> Unit,
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        viewModelScope.launch(ioDispatcher) {
             val appointmentResponseLocal =
                 appointmentRepository.getAppointmentListByDate(
                     Date(Date().toTodayStartDate()).time,

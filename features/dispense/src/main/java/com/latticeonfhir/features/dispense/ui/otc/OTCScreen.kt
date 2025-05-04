@@ -88,15 +88,17 @@ fun OTCScreen(
                     TextButton(
                         onClick = {
                             // add otc
-                            viewModel.dispenseMedication {
-                                coroutineScope.launch {
-                                    navController.previousBackStackEntry?.savedStateHandle?.set(
-                                        OTC_DISPENSED,
-                                        true
-                                    )
-                                    navController.navigateUp()
+                            viewModel.dispenseMedication (
+                                dispensed = {
+                                    coroutineScope.launch {
+                                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                                            OTC_DISPENSED,
+                                            true
+                                        )
+                                        navController.navigateUp()
+                                    }
                                 }
-                            }
+                            )
                         },
                         enabled = viewModel.selectedMedicine != null && viewModel.qtyPrescribed.isNotBlank() && !viewModel.isError
                     ) {
