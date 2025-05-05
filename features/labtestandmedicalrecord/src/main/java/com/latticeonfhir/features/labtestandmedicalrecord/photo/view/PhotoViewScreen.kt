@@ -1,5 +1,4 @@
-package com.latticeonfhir.core.ui.labtestandmedicalrecord.photo.view
-
+package com.latticeonfhir.features.labtestandmedicalrecord.photo.view
 
 import android.Manifest
 import android.content.Context
@@ -20,7 +19,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -95,31 +93,30 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
-import com.latticeonfhir.android.R
-import com.latticeonfhir.core.data.local.enums.PhotoUploadTypeEnum
-import com.latticeonfhir.core.data.local.enums.WorkerStatus
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
+import coil.compose.rememberAsyncImagePainter
+import com.latticeonfhir.core.model.enums.PhotoUploadTypeEnum
+import com.latticeonfhir.core.model.enums.WorkerStatus
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.android.ui.CustomDialog
-import com.latticeonfhir.core.ui.common.DisplaySyncStatus
+import com.latticeonfhir.core.ui.AddToQueueDialog
+import com.latticeonfhir.core.ui.AllSlotsBookedDialog
+import com.latticeonfhir.core.ui.DisplaySyncStatus
 import com.latticeonfhir.core.ui.main.MainActivity
-import com.latticeonfhir.core.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.latticeonfhir.core.utils.constants.NavControllerConstants
 import com.latticeonfhir.core.utils.constants.PhotoUploadViewType.PHOTO_VIEW_TYPE
+import com.latticeonfhir.core.utils.converters.TimeConverter.toDayFullMonthYear
+import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.TimeConverter.toPrescriptionNavDate
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.isSameDay
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.isToday
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.isYesterday
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toDayFullMonthYear
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPrescriptionNavDate
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toPrescriptionTime
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
-import com.latticeonfhir.android.utils.file.FileManager
+import com.latticeonfhir.core.utils.file.FileManager
 import com.latticeonfhir.core.utils.file.FileManager.getUriFromFileName
 import com.latticeonfhir.core.utils.file.FileManager.shareImageToOtherApps
 import com.latticeonfhir.core.utils.network.ConnectivityObserver
+import com.latticeonfhir.features.labtestandmedicalrecord.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -342,8 +339,6 @@ fun PhotoViewScreen(
                                 viewModel.showAddToQueueDialog = true
                             }
                         }
-
-
                     }
                 ) {
                     Icon(
@@ -440,17 +435,8 @@ fun ShowDialogs(
     requestPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>
 ) {
     if (viewModel.showAddToQueueDialog) {
-        com.latticeonfhir.core.ui.CustomDialog(title = if (viewModel.appointment != null) stringResource(
-            id = R.string.patient_arrived_question
-        ) else stringResource(
-            id = R.string.add_to_queue_question
-        ),
-            text = stringResource(id = R.string.add_to_queue_vital_dialog_description),
-            dismissBtnText = stringResource(id = R.string.dismiss),
-            confirmBtnText = if (viewModel.appointment != null) stringResource(id = R.string.mark_arrived) else stringResource(
-                id = R.string.add_to_queue
-            ),
-            dismiss = { viewModel.showAddToQueueDialog = false },
+        AddToQueueDialog(
+            appointment = viewModel.appointment,
             confirm = {
                 if (viewModel.appointment != null) {
                     viewModel.updateStatusToArrived(
@@ -484,13 +470,12 @@ fun ShowDialogs(
                                     navigateToUploadScreen(viewModel, navController, coroutineScope)
                                 }
                             )
-
                         }
-
-
                     }
                 }
-            })
+            },
+            dismiss = { viewModel.showAddToQueueDialog = false }
+        )
     }
     if (viewModel.ifAllSlotsBooked) {
         AllSlotsBookedDialog {
@@ -586,7 +571,6 @@ fun NavBarActions(
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 private fun DisplayImage(
     context: Context, viewModel: PhotoViewViewModel
@@ -634,7 +618,7 @@ private fun DisplayImage(
                 .onSizeChanged {
                     imageSize.value = it
                 },
-            painter = rememberImagePainter(
+            painter = rememberAsyncImagePainter(
                 viewModel.selectedFile?.filename?.getUriFromFileName(
                     context
                 )
@@ -665,7 +649,6 @@ private fun DisplayImage(
     }
 }
 
-@OptIn(ExperimentalCoilApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun PhotoView(viewModel: PhotoViewViewModel) {
     val listState = rememberLazyListState()
@@ -733,7 +716,7 @@ fun PhotoView(viewModel: PhotoViewViewModel) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .animateItemPlacement(tween(300, easing = LinearEasing))
+                        .animateItem(tween(300, easing = LinearEasing))
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.End
@@ -770,7 +753,7 @@ fun PhotoView(viewModel: PhotoViewViewModel) {
                         horizontalAlignment = Alignment.End
                     ) {
                         Image(
-                            painter = rememberImagePainter(uri),
+                            painter = rememberAsyncImagePainter(uri),
                             contentDescription = null,
                             modifier = Modifier
                                 .size(250.dp, 330.dp)
@@ -818,7 +801,6 @@ fun PhotoView(viewModel: PhotoViewViewModel) {
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 private fun AddNoteDialog(
     image: Uri,
@@ -847,7 +829,7 @@ private fun AddNoteDialog(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Image(
-                            painter = rememberImagePainter(image),
+                            painter = rememberAsyncImagePainter(image),
                             contentDescription = null,
                             modifier = Modifier.size(60.dp),
                             contentScale = ContentScale.Crop

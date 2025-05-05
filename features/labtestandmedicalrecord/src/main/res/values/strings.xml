@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="save">Save</string>
+    <string name="please_grant_permission">Please grant permission.</string>
+    <string name="lab_test_title">Lab test</string>
+    <string name="medical_record_title">Medical record</string>
+    <string name="no_lab_test_added">No lab test added</string>
+    <string name="no_med_record_fount">No medical record added</string>
+    <string name="discard_lab_test">Discard lab test?</string>
+    <string name="discard_lab_test_description">Are you sure you want to discard the lab test ?</string>
+    <string name="discard_med_record_test">Discard medical record?</string>
+    <string name="discard_med_record_description">Are you sure you want to discard the medical record?</string>
+    <string name="no_go_back">No, go back</string>
+    <string name="yes_discard">Yes, discard</string>
+    <string name="permissions_required">Permission required</string>
+    <string name="permissions_required_description">To continue, this app needs access to your camera and storage. Please allow these permissions from the settings app.</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_notes_here">Add your notes here</string>
+</resources>
