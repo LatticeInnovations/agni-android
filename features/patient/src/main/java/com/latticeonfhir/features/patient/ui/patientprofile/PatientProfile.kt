@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -14,7 +14,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,11 +24,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.features.patient.ui.common.PreviewScreen
+import com.latticeonfhir.core.utils.constants.IdentificationConstants.PASSPORT_TYPE
+import com.latticeonfhir.core.utils.constants.IdentificationConstants.PATIENT_ID_TYPE
+import com.latticeonfhir.core.utils.constants.IdentificationConstants.VOTER_ID_TYPE
 import com.latticeonfhir.core.utils.converters.TimeConverter.toPatientPreviewDate
-import com.latticeonfhir.utils.constants.IdentificationConstants.PASSPORT_TYPE
-import com.latticeonfhir.utils.constants.IdentificationConstants.PATIENT_ID_TYPE
-import com.latticeonfhir.utils.constants.IdentificationConstants.VOTER_ID_TYPE
+import com.latticeonfhir.features.patient.ui.common.PreviewScreen
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -110,15 +110,14 @@ fun PatientProfile(
                         navController.popBackStack()
                     }) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "BACK_ICON"
                         )
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                 )
-
             )
         },
         content = {

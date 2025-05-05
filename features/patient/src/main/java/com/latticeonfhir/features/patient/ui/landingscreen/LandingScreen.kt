@@ -51,7 +51,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -72,9 +72,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.core.data.local.model.search.SearchParameters
 import com.latticeonfhir.core.model.enums.AppointmentStatusEnum.Companion.fromLabel
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.ADD_TO_QUEUE
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT_ARRIVED
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX
@@ -221,7 +221,7 @@ fun LandingScreen(
                                 modifier = Modifier.testTag("SEARCH_TITLE_TEXT")
                             )
                         },
-                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        colors = topAppBarColors(
                             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                         ),
                         actions = {
@@ -254,7 +254,7 @@ fun LandingScreen(
                                 modifier = Modifier.testTag("HEADING_TAG")
                             )
                         },
-                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        colors = topAppBarColors(
                             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                         ),
                         actions = {
@@ -290,7 +290,7 @@ fun LandingScreen(
                                 style = MaterialTheme.typography.titleLarge
                             )
                         },
-                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        colors = topAppBarColors(
                             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                         ),
                         actions = {
@@ -687,7 +687,7 @@ private fun SearchViewTopAppBar(
     focusRequester: FocusRequester
 ) {
     TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
+        colors = topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
         ),
         navigationIcon = {

@@ -14,7 +14,7 @@ import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiServic
 import com.latticeonfhir.android.data.server.api.VitalApiService
 import com.latticeonfhir.android.data.server.api.SymptomsAndDiagnosisService
 import com.latticeonfhir.core.data.server.api.VaccinationApiService
-import com.latticeonfhir.android.auth.utils.contants.AuthenticationConstants.X_ACCESS_TOKEN
+import com.latticeonfhir.features.auth.utils.contants.AuthenticationConstants.X_ACCESS_TOKEN
 import com.latticeonfhir.core.utils.constants.ErrorConstants
 import dagger.Module
 import dagger.Provides

@@ -5,46 +5,24 @@ plugins {
 }
 
 android {
-    namespace = "com.latticeonfhir.android.ui"
-    compileSdk = 35
-
-    defaultConfig {
-        minSdk = 24
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    namespace = "com.latticeonfhir.core.ui"
 }
 
 dependencies {
     api(projects.core.model)
     api(projects.core.utils)
-    api(projects.theme)
+    api(projects.core.theme)
+    api(projects.core.navigation)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.navigation.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
     implementation(libs.androidx.compose.material.iconsExtended)
+    implementation(libs.androidx.hilt.navigation.compose)
 }

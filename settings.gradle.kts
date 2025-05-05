@@ -1,7 +1,5 @@
 import java.net.URI
 
-
-
 pluginManagement {
     includeBuild("build-logic")
     repositories {
@@ -28,23 +26,29 @@ rootProject.name = "FHIR-Android"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
+
+include(":core")
 include(":core:model")
 include(":core:database")
 include(":core:sharedpreference")
-include(":core")
 include(":core:base")
 include(":core:network")
 include(":core:data")
-include(":features:symptomsanddiagnosis")
+include(":core:navigation")
 include(":core:utils")
 include(":core:ui")
+include(":core:theme")
+
 include(":features:cvd")
-include(":theme")
 include(":features:auth")
 include(":features:vaccination")
 include(":features:prescription")
 include(":features:dispense")
 include(":features:appointment")
-include(":sync")
+include(":features:patient")
+include(":features:household")
+include(":features:symptomsanddiagnosis")
 include(":features:vitals")
+
+include(":sync")
 include(":sync:workmanager")

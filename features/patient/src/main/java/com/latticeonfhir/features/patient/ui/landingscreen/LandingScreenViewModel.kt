@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.landingscreen
+package com.latticeonfhir.features.patient.ui.landingscreen
 
 import android.app.Application
 import android.app.job.JobScheduler
@@ -16,34 +16,36 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.await
 import com.latticeonfhir.core.FhirApp
-import com.latticeonfhir.core.R
+import com.latticeonfhir.core.data.repository.server.authentication.AuthenticationRepository
 import com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel
-import com.latticeonfhir.core.data.local.enums.LastVisit
-import com.latticeonfhir.core.data.local.enums.SyncStatusMessageEnum
-import com.latticeonfhir.core.data.local.enums.WorkerStatus
 import com.latticeonfhir.core.data.local.model.search.SearchParameters
-import com.latticeonfhir.core.data.local.repository.appointment.AppointmentRepository
-import com.latticeonfhir.core.data.local.repository.cvd.chart.RiskPredictionChartRepository
-import com.latticeonfhir.core.data.local.repository.patient.PatientRepository
-import com.latticeonfhir.core.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.core.data.local.repository.search.SearchRepository
-import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
-import com.latticeonfhir.android.data.local.roomdb.entities.cvd.RiskPredictionCharts
-import com.latticeonfhir.core.data.server.enums.RegisterTypeEnum
-import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.core.auth.data.server.repository.authentication.AuthenticationRepository
-import com.latticeonfhir.core.auth.data.server.repository.signup.SignUpRepository
-import com.latticeonfhir.android.service.sync.SyncService
-import com.latticeonfhir.core.service.workmanager.request.WorkRequestBuilders
+import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
+import com.latticeonfhir.core.data.repository.local.cvd.chart.RiskPredictionChartRepository
+import com.latticeonfhir.core.data.repository.local.patient.PatientRepository
+import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepository
+import com.latticeonfhir.core.data.repository.local.search.SearchRepository
+import com.latticeonfhir.core.database.FhirAppDatabase
+import com.latticeonfhir.core.database.entities.cvd.RiskPredictionCharts
+import com.latticeonfhir.core.model.enums.LastVisit
+import com.latticeonfhir.core.model.enums.RegisterTypeEnum
+import com.latticeonfhir.core.model.enums.SyncStatusMessageEnum
+import com.latticeonfhir.core.model.enums.WorkerStatus
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.service.workmanager.utils.Delay
-import com.latticeonfhir.android.service.workmanager.utils.Sync
+import com.latticeonfhir.core.service.workmanager.utils.Sync
 import com.latticeonfhir.core.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
-import com.latticeonfhir.android.utils.common.Queries.getSearchListWithLastVisited
+import com.latticeonfhir.core.utils.common.Queries.getSearchListWithLastVisited
 import com.latticeonfhir.core.utils.constants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
+import com.latticeonfhir.core.utils.converters.TimeConverter.calculateMinutesToOneThirty
+import com.latticeonfhir.core.utils.converters.TimeConverter.toLastSyncTime
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEndResponse
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiErrorResponse
 import com.latticeonfhir.core.utils.network.CheckNetwork.isInternetAvailable
+import com.latticeonfhir.core.data.repository.server.signup.SignUpRepository
+import com.latticeonfhir.features.patient.R
+import com.latticeonfhir.sync.workmanager.request.WorkRequestBuilders
+import com.latticeonfhir.sync.workmanager.sync.SyncService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,7 +73,7 @@ class LandingScreenViewModel @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
     private val fhirAppDatabase: FhirAppDatabase,
     private val riskPredictionChartRepository: RiskPredictionChartRepository
-) : com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel(application) {
+) : BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
     private val syncService: SyncService by lazy { (application as FhirApp).syncService }
@@ -322,7 +324,7 @@ class LandingScreenViewModel @Inject constructor(
             var finalSearchList = searchRepository.getSearchList()
             if (!searchParameters.lastFacilityVisit.isNullOrBlank() && searchParameters.lastFacilityVisit != LastVisit.NOT_APPLICABLE.label) {
                 finalSearchList = getSearchListWithLastVisited(
-                    searchParameters.lastFacilityVisit,
+                    searchParameters.lastFacilityVisit!!,
                     finalSearchList,
                     appointmentRepository
                 )

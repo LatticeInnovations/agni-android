@@ -32,10 +32,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.ui.CustomTextField
+import com.latticeonfhir.core.ui.CustomTextField
+import com.latticeonfhir.core.utils.converters.responseconverter.States
 import com.latticeonfhir.features.patient.R
 import com.latticeonfhir.features.patient.ui.patientregistration.step3.Address
-import com.latticeonfhir.utils.converters.responseconverter.States
 
 @Composable
 fun AddressComposable(label: String?, address: Address, isSearching: Boolean = false) {

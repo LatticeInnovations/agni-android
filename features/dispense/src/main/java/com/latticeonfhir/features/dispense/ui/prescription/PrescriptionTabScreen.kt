@@ -33,12 +33,12 @@ import androidx.navigation.NavController
 import com.latticeonfhir.core.database.entities.dispense.DispenseAndPrescriptionRelation
 import com.latticeonfhir.core.model.enums.DispenseStatusEnum
 import com.latticeonfhir.core.model.enums.DispenseStatusEnum.Companion.codeToDisplay
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.theme.FullyDispensed
 import com.latticeonfhir.core.theme.PartiallyDispensed
 import com.latticeonfhir.core.utils.converters.TimeConverter.toPrescriptionDate
 import com.latticeonfhir.features.dispense.R
 import com.latticeonfhir.features.dispense.data.enums.DispenseCategoryEnum
-import com.latticeonfhir.features.dispense.navigation.Screen
 import com.latticeonfhir.features.dispense.ui.DrugDispenseViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

@@ -31,15 +31,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.ui.Loader
-import com.latticeonfhir.android.ui.RelationDialogContent
 import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.ui.Loader
+import com.latticeonfhir.core.ui.RelationDialogContent
 import com.latticeonfhir.core.utils.converters.TimeConverter.toAge
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTimeInMilli
+import com.latticeonfhir.core.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.core.utils.converters.responseconverter.RelationConverter
 import com.latticeonfhir.features.household.R
-import com.latticeonfhir.utils.converters.responseconverter.AddressConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

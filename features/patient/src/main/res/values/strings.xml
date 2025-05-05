@@ -101,4 +101,49 @@
     <string name="cancelled_appointment">Cancelled: %d</string>
     <string name="waiting">Waiting</string>
     <string name="appointment_cancelled">Appointment cancelled</string>
+
+    <string name="confirm_relationship">Confirm Relationship</string>
+    <string name="addresses">Addresses</string>
+    <string name="same_address_as_source_patient">Same address as source patient</string>
+    <string name="submit_and_preview">Submit &amp; Preview</string>
+    <string name="optional_identification">Optional: Identification</string>
+    <string name="passport_id">Passport ID</string>
+    <string name="voter_id">Voter ID</string>
+    <string name="passport_id_error_msg">Enter valid Passport ID (eg., A1098765)</string>
+    <string name="voter_id_error_msg">Enter valid Voter Id (eg., XYZ9876543)</string>
+
+    <string name="basic_information">Basic Information</string>
+    <string name="date_of_birth">Date of birth</string>
+    <string name="optional_identification">Optional: Identification</string>
+    <string name="passport_id">Passport ID</string>
+    <string name="voter_id">Voter ID</string>
+    <string name="addresses">Addresses</string>
+    <string name="home_address">Home Address</string>
+    <string name="discard_changes">Discard Changes?</string>
+    <string name="discard_dialog_description">Are you sure you want to discard this patient record?</string>
+    <string name="edit">Edit</string>
+    <string name="next">Next</string>
+    <string name="first_name">First Name</string>
+    <string name="middle_name">Middle Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="first_name_error_msg">Name length should be between 3 and 100.</string>
+    <string name="email_error_msg">Enter valid email (eg., abc123@gmail.com)</string>
+    <string name="day">Day</string>
+    <string name="month">Month</string>
+    <string name="year">Year</string>
+    <string name="error_msg_1_to_31_days">Enter valid day between 1 and 31.</string>
+    <string name="error_msg_1_to_29_days">Enter valid day between 1 and 29.</string>
+    <string name="year_error_msg">Enter valid year between 1900 and %s</string>
+
+    <string name="age_days">Days</string>
+    <string name="age_months">Months</string>
+    <string name="age_years">Years</string>
+    <string name="age_years_error_msg">Enter valid input between 0 to 150.</string>
+    <string name="age_months_error_msg">Enter valid input between 1 and 11.</string>
+    <string name="age_days_error_msg">Enter valid input between 1 and 30.</string>
+
+    <string name="enter_phone_number">Enter Phone Number</string>
+    <string name="phone_number_error_msg">Enter Valid Input</string>
+
+    <string name="email">Email</string>
 </resources>

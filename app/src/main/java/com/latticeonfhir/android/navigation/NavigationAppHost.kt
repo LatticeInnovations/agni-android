@@ -1,11 +1,11 @@
-package com.latticeonfhir.core.navigation
+package com.latticeonfhir.android.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.latticeonfhir.android.prescription.navigation.prescriptionNavGraph
+import com.latticeonfhir.features.prescription.navigation.prescriptionNavGraph
 import com.latticeonfhir.features.household.ui.connectpatient.ConnectPatient
 import com.latticeonfhir.android.ui.householdmember.searchresult.SearchResult
 import com.latticeonfhir.android.ui.labtestandmedicalrecord.photo.upload.PhotoUploadScreen
@@ -13,10 +13,11 @@ import com.latticeonfhir.android.ui.patienteditscreen.basicinfo.EditBasicInforma
 import com.latticeonfhir.android.ui.patientlandingscreen.PatientLandingScreen
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistration
 import com.latticeonfhir.android.ui.searchpatient.SearchPatient
-import com.latticeonfhir.core.auth.navigation.authNavGraph
+import com.latticeonfhir.features.auth.navigation.authNavGraph
 import com.latticeonfhir.core.auth.navigation.authRoute
-import com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentScreen
-import com.latticeonfhir.core.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
+import com.latticeonfhir.features.cvd.ui.CVDRiskAssessmentScreen
+import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.features.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
 import com.latticeonfhir.core.ui.householdmember.HouseholdMembersScreen
 import com.latticeonfhir.core.ui.householdmember.addhouseholdmember.AddHouseholdMember
 import com.latticeonfhir.core.ui.labtestandmedicalrecord.photo.view.PhotoViewScreen
@@ -28,9 +29,12 @@ import com.latticeonfhir.core.ui.patientregistration.preview.PatientRegistration
 import com.latticeonfhir.core.ui.patientregistration.step4.ConfirmRelationship
 import com.latticeonfhir.core.ui.vitalsscreen.VitalsScreen
 import com.latticeonfhir.core.ui.vitalsscreen.addvitals.AddVitalsScreen
-import com.latticeonfhir.core.vaccination.navigation.vaccinationNavGraph
+import com.latticeonfhir.features.vaccination.navigation.vaccinationNavGraph
 import com.latticeonfhir.features.appointment.navigation.appointmentNavGraph
+import com.latticeonfhir.features.cvd.navigation.cvdNavGraph
 import com.latticeonfhir.features.dispense.navigation.dispenseNavGraph
+import com.latticeonfhir.features.household.navigation.householdNavGraph
+import com.latticeonfhir.features.patient.navigation.patientNavGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,50 +42,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun NavigationAppHost(navController: NavController, startDest: String) {
     NavHost(navController = navController as NavHostController, startDestination = startDest) {
-        authNavGraph(
-            navController = navController,
-            onAuthSuccess = {
-                CoroutineScope(Dispatchers.Main).launch {
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        "loggedIn",
-                        true
-                    )
-                    navController.navigate(Screen.LandingScreen.route) {
-                        popUpTo(authRoute)
-                    }
-                }
-            },
-        )
-        composable(Screen.LandingScreen.route) { LandingScreen(navController = navController) }
-        composable(Screen.SearchPatientScreen.route) { SearchPatient(navController = navController) }
-        composable(Screen.PatientRegistrationScreen.route) { PatientRegistration(navController = navController) }
-        composable(Screen.PatientRegistrationPreviewScreen.route) {
-            PatientRegistrationPreview(
-                navController = navController
-            )
-        }
-        composable(Screen.PatientLandingScreen.route) { PatientLandingScreen(navController = navController) }
-        composable(Screen.HouseholdMembersScreen.route) { HouseholdMembersScreen(navController = navController) }
-        composable(Screen.AddHouseholdMember.route) { AddHouseholdMember(navController = navController) }
-        composable(Screen.ConfirmRelationship.route) { ConfirmRelationship(navController = navController) }
-        composable(Screen.SearchResult.route) { SearchResult(navController = navController) }
-        composable(Screen.ConnectPatient.route) {
-            com.latticeonfhir.features.household.ui.connectpatient.ConnectPatient(
-                navController = navController
-            )
-        }
-        composable(Screen.PatientProfile.route) { PatientProfile(navController = navController) }
-        composable(Screen.EditBasicInfo.route) { EditBasicInformation(navController = navController) }
-        composable(Screen.EditIdentification.route) { EditIdentification(navController = navController) }
-        composable(Screen.EditAddress.route) { EditPatientAddress(navController = navController) }
-
+        authNavGraph(navController = navController)
+        patientNavGraph(navController)
+        householdNavGraph(navController)
         prescriptionNavGraph(navController)
 
-        composable(Screen.CVDRiskAssessmentScreen.route) {
-            com.latticeonfhir.core.cvd.ui.CVDRiskAssessmentScreen(
-                navController
-            )
-        }
+        cvdNavGraph(navController)
+
         composable(Screen.VitalsScreen.route) { VitalsScreen(navController = navController) }
         composable(Screen.AddVitalsScreen.route) { AddVitalsScreen(navController = navController) }
 

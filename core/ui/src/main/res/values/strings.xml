@@ -22,4 +22,6 @@
     <string name="yes_discard">Yes, discard</string>
     <string name="discard_relations_dialog_title">Discard relation?</string>
     <string name="discard_relations_dialog_description">Are you sure you want to discard this patient record?</string>
+
+    <string name="schedule_appointment">Schedule appointment</string>
 </resources>

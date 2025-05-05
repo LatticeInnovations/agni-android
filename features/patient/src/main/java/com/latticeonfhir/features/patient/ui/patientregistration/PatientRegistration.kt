@@ -35,15 +35,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.ui.RelationDialogContent
 import com.latticeonfhir.core.model.server.patient.PatientResponse
-import com.latticeonfhir.features.patient.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.features.patient.ui.patientregistration.preview.DiscardDialog
-import com.latticeonfhir.core.ui.patientregistration.step1.PatientRegistrationStepOne
-import com.latticeonfhir.core.ui.patientregistration.step2.PatientRegistrationStepTwo
-import com.latticeonfhir.core.ui.patientregistration.step3.PatientRegistrationStepThree
+import com.latticeonfhir.core.ui.RelationDialogContent
+import com.latticeonfhir.features.patient.ui.patientregistration.step1.PatientRegistrationStepOne
+import com.latticeonfhir.features.patient.ui.patientregistration.step2.PatientRegistrationStepTwo
+import com.latticeonfhir.features.patient.ui.patientregistration.step3.PatientRegistrationStepThree
 import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.features.patient.R
+import com.latticeonfhir.features.patient.ui.patientregistration.model.PatientRegister
+import com.latticeonfhir.features.patient.ui.patientregistration.preview.DiscardDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
