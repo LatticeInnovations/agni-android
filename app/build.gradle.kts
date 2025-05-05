@@ -387,14 +387,16 @@ android {
 }
 
 dependencies {
-    implementation(projects.theme)
-    implementation(projects.app)
+    implementation(projects.core.theme)
     implementation(projects.features.auth)
+    implementation(projects.features.patient)
     implementation(projects.features.symptomsanddiagnosis)
     implementation(projects.features.vaccination)
     implementation(projects.features.prescription)
     implementation(projects.features.dispense)
     implementation(projects.features.appointment)
+    implementation(projects.features.cvd)
+    implementation(projects.features.household)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)

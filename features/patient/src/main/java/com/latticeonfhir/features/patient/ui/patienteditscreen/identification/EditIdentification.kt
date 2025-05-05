@@ -42,13 +42,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.ui.CustomTextField
-import com.latticeonfhir.android.ui.IdLength
-import com.latticeonfhir.android.ui.IdSelectionChip
 import com.latticeonfhir.core.model.server.patient.PatientIdentifier
 import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.ui.CustomTextField
+import com.latticeonfhir.core.ui.IdLength
+import com.latticeonfhir.core.ui.IdSelectionChip
+import com.latticeonfhir.core.utils.constants.IdentificationConstants
 import com.latticeonfhir.features.patient.R
-import com.latticeonfhir.utils.constants.IdentificationConstants
 import kotlinx.coroutines.launch
 import timber.log.Timber
 

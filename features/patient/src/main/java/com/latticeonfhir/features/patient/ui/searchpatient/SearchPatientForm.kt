@@ -38,10 +38,10 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.ui.CustomFilterChip
-import com.latticeonfhir.android.ui.CustomTextField
 import com.latticeonfhir.core.model.enums.GenderEnum
 import com.latticeonfhir.core.model.enums.LastVisit.Companion.getLastVisitList
+import com.latticeonfhir.core.ui.CustomFilterChip
+import com.latticeonfhir.core.ui.CustomTextField
 import com.latticeonfhir.features.patient.R
 import com.latticeonfhir.features.patient.ui.common.AddressComposable
 

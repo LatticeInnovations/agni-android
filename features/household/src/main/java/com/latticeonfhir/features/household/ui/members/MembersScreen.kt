@@ -21,9 +21,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.ui.Loader
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.ui.Loader
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.core.utils.converters.TimeConverter.toAge

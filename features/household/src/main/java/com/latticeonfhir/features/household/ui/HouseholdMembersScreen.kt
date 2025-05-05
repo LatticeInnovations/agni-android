@@ -1,7 +1,6 @@
 package com.latticeonfhir.features.household.ui
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,20 +44,20 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.ui.TabRowComposable
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.features.household.ui.members.MembersScreen
-import com.latticeonfhir.features.household.ui.suggestions.SuggestionsScreen
+import com.latticeonfhir.core.ui.TabRowComposable
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.core.utils.converters.TimeConverter.toAge
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTimeInMilli
 import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.features.household.R
+import com.latticeonfhir.features.household.ui.members.MembersScreen
+import com.latticeonfhir.features.household.ui.suggestions.SuggestionsScreen
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HouseholdMembersScreen(
     navController: NavController,

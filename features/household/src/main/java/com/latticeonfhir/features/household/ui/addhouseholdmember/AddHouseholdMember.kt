@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.householdmember.addhouseholdmember
+package com.latticeonfhir.features.household.ui.addhouseholdmember
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -15,7 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -45,12 +45,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.utils.converters.responseconverter.AddressConverter
 import com.latticeonfhir.core.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.features.household.R
-import com.latticeonfhir.features.household.ui.addhouseholdmember.AddHouseholdMemberViewModel
-import com.latticeonfhir.utils.converters.responseconverter.AddressConverter
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,7 +80,7 @@ fun AddHouseholdMember(
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

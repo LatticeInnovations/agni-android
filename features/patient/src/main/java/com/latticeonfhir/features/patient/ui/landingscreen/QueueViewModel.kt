@@ -7,12 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
-import com.latticeonfhir.core.FhirApp
-import com.latticeonfhir.features.patient.R
-import com.latticeonfhir.android.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.core.service.workmanager.utils.Sync.getWorkerInfo
-import com.latticeonfhir.core.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
+import com.latticeonfhir.core.FhirApp
+import com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
 import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
 import com.latticeonfhir.core.data.repository.local.patient.PatientRepository
@@ -24,9 +21,12 @@ import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
 import com.latticeonfhir.core.model.server.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.model.server.scheduleandappointment.appointment.AppointmentResponse
+import com.latticeonfhir.core.service.workmanager.utils.Sync.getWorkerInfo
+import com.latticeonfhir.core.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.core.utils.converters.TimeConverter.to14DaysWeek
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
+import com.latticeonfhir.features.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

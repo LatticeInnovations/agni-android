@@ -41,6 +41,7 @@ import androidx.navigation.NavController
 import com.latticeonfhir.core.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.ui.appointmentsfab.AppointmentsFabViewModel
 import com.latticeonfhir.core.utils.constants.NavControllerConstants
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.ADD_TO_QUEUE
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT_ARRIVED

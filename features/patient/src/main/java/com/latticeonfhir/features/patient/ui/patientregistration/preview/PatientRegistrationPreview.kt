@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.data.local.model.relation.Relation
-import com.latticeonfhir.android.navigation.Screen
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.model.server.patient.PatientAddressResponse
 import com.latticeonfhir.core.model.server.patient.PatientIdentifier
 import com.latticeonfhir.core.model.server.patient.PatientResponse
@@ -39,10 +39,10 @@ import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.core.utils.converters.TimeConverter.ageToPatientDate
 import com.latticeonfhir.core.utils.converters.TimeConverter.toPatientDate
+import com.latticeonfhir.core.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
 import com.latticeonfhir.features.patient.R
 import com.latticeonfhir.features.patient.ui.common.PreviewScreen
 import com.latticeonfhir.features.patient.ui.patientregistration.model.PatientRegister
-import com.latticeonfhir.utils.converters.RelationConverter.getRelationEnumFromString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -32,6 +32,7 @@ import com.latticeonfhir.core.theme.TodayScheduledContainer
 import com.latticeonfhir.core.theme.TodayScheduledLabel
 import com.latticeonfhir.core.theme.WalkInContainer
 import com.latticeonfhir.core.theme.WalkInLabel
+import com.latticeonfhir.core.utils.converters.TimeConverter.toAppointmentDate
 
 @Composable
 fun PastAppointments(viewModel: AppointmentsScreenViewModel) {

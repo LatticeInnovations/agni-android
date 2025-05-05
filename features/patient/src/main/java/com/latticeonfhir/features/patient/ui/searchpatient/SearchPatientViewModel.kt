@@ -1,12 +1,12 @@
-package com.latticeonfhir.core.ui.searchpatient
+package com.latticeonfhir.features.patient.ui.searchpatient
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.latticeonfhir.android.base.viewmodel.BaseViewModel
-import com.latticeonfhir.android.data.local.enums.LastVisit.Companion.getLastVisitList
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.core.ui.patientregistration.step3.Address
+import com.latticeonfhir.core.base.viewmodel.BaseViewModel
+import com.latticeonfhir.core.model.enums.LastVisit.Companion.getLastVisitList
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.features.patient.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

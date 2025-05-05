@@ -495,7 +495,7 @@ class SyncService(
     }
 
     /** Download Medication */
-    internal suspend fun downloadMedication(logout: (Boolean, String) -> Unit) {
+    suspend fun downloadMedication(logout: (Boolean, String) -> Unit) {
         checkAuthenticationStatus(syncRepository.getAndInsertMedication(0), logout)
     }
 
