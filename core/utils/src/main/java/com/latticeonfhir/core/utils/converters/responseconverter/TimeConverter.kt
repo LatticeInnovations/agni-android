@@ -277,7 +277,7 @@ object TimeConverter {
         return calendar.time
     }
 
-    internal fun Date.toTodayStartDate(): Long {
+    fun Date.toTodayStartDate(): Long {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = this.time
         calendar[Calendar.HOUR_OF_DAY] = 0

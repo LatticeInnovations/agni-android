@@ -397,6 +397,7 @@ dependencies {
     implementation(projects.features.appointment)
     implementation(projects.features.cvd)
     implementation(projects.features.household)
+    implementation(projects.features.labtestandmedicalrecord)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
