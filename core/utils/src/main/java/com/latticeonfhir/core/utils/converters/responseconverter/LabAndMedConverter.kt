@@ -7,7 +7,7 @@ import java.util.Date
 
 object LabAndMedConverter {
 
-    internal fun createGenericMap(
+    fun createGenericMap(
         dynamicKey: String,
         dynamicKeyValue: String,
         appointmentId: String,
@@ -25,7 +25,7 @@ object LabAndMedConverter {
         )
     }
 
-    internal fun patchGenericMap(
+    fun patchGenericMap(
         dynamicKeyValue: String,
         files: List<File>
     ): Map<String, Any> {
