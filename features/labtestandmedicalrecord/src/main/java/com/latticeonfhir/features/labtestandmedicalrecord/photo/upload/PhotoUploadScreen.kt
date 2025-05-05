@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.ui.labtestandmedicalrecord.photo.upload
+package com.latticeonfhir.features.labtestandmedicalrecord.photo.upload
 
 import android.content.ContentUris
 import android.content.Context
@@ -63,7 +63,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -71,19 +70,19 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
-import com.latticeonfhir.core.R
-import com.latticeonfhir.android.data.local.enums.PhotoUploadTypeEnum
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.ScreenLoader
-import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.android.utils.constants.PhotoUploadViewType.PHOTO_VIEW_TYPE
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import coil.compose.rememberAsyncImagePainter
+import com.latticeonfhir.core.model.enums.PhotoUploadTypeEnum
+import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.ui.ScreenLoader
+import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
+import com.latticeonfhir.core.utils.constants.PhotoUploadViewType.PHOTO_VIEW_TYPE
+import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
+import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import com.latticeonfhir.core.utils.file.FileManager
+import com.latticeonfhir.features.labtestandmedicalrecord.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -164,7 +163,7 @@ fun CaptureImage(viewModel: PhotoUploadViewModel, context: Context, navControlle
                     val previewUseCase = Preview.Builder()
                         .build()
                         .also {
-                            it.setSurfaceProvider(previewView.surfaceProvider)
+                            it.surfaceProvider = previewView.surfaceProvider
                         }
                     cameraProviderFuture.addListener({
                         try {
@@ -281,7 +280,6 @@ fun HandleLaunchEffects(viewModel: PhotoUploadViewModel, navController: NavContr
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 private fun DisplayImage(
     viewModel: PhotoUploadViewModel,
@@ -311,7 +309,7 @@ private fun DisplayImage(
             Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
         }
         Image(
-            painter = rememberImagePainter(viewModel.selectedImageUri),
+            painter = rememberAsyncImagePainter(viewModel.selectedImageUri),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxSize()
@@ -442,7 +440,6 @@ private fun TopRow(
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 private fun RecentImages(onImageClick: (Uri) -> Unit) {
     val context = LocalContext.current
@@ -474,7 +471,7 @@ private fun RecentImages(onImageClick: (Uri) -> Unit) {
     ) {
         items(images) { uri ->
             Image(
-                painter = rememberImagePainter(uri),
+                painter = rememberAsyncImagePainter(uri),
                 contentDescription = null,
                 modifier = Modifier
                     .size(85.dp)

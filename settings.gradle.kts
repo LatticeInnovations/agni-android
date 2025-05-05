@@ -49,6 +49,7 @@ include(":features:patient")
 include(":features:household")
 include(":features:symptomsanddiagnosis")
 include(":features:vitals")
+include(":features:labtestandmedicalrecord")
 
 include(":sync")
 include(":sync:workmanager")
