@@ -23,8 +23,8 @@ import com.latticeonfhir.core.database.dao.RelationDao
 import com.latticeonfhir.core.database.dao.RiskPredictionDao
 import com.latticeonfhir.core.database.dao.ScheduleDao
 import com.latticeonfhir.core.database.dao.SearchDao
-import com.latticeonfhir.core.database.dao.VitalDao
 import com.latticeonfhir.core.database.dao.SymptomsAndDiagnosisDao
+import com.latticeonfhir.core.database.dao.VitalDao
 import com.latticeonfhir.core.database.dao.vaccincation.ImmunizationDao
 import com.latticeonfhir.core.database.dao.vaccincation.ImmunizationRecommendationDao
 import com.latticeonfhir.core.database.dao.vaccincation.ManufacturerDao
@@ -51,7 +51,6 @@ import com.latticeonfhir.core.database.entities.prescription.photo.PrescriptionP
 import com.latticeonfhir.core.database.entities.relation.RelationEntity
 import com.latticeonfhir.core.database.entities.schedule.ScheduleEntity
 import com.latticeonfhir.core.database.entities.search.SearchHistoryEntity
-import com.latticeonfhir.core.database.entities.vitals.VitalEntity
 import com.latticeonfhir.core.database.entities.search.SymDiagSearchEntity
 import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.DiagnosisEntity
 import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
@@ -60,11 +59,12 @@ import com.latticeonfhir.core.database.entities.vaccination.ImmunizationEntity
 import com.latticeonfhir.core.database.entities.vaccination.ImmunizationFileEntity
 import com.latticeonfhir.core.database.entities.vaccination.ImmunizationRecommendationEntity
 import com.latticeonfhir.core.database.entities.vaccination.ManufacturerEntity
+import com.latticeonfhir.core.database.entities.vitals.VitalEntity
 import com.latticeonfhir.core.database.typeconverters.SymptomDiagnosisTypeConverter
 import com.latticeonfhir.core.database.typeconverters.TypeConverter
 import com.latticeonfhir.core.database.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.core.database.views.RelationView
-import com.latticeonfhir.core.data.local.sharedpreferences.PreferenceStorage
+import com.latticeonfhir.core.sharedpreference.preferencestorage.PreferenceStorage
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
 import java.util.UUID

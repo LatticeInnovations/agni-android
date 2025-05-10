@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.latticeonfhir.core.base.viewmodel.BaseViewModel
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.android.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

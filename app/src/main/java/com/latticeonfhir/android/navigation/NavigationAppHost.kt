@@ -6,8 +6,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.latticeonfhir.core.navigation.Screen
-import com.latticeonfhir.core.ui.vitalsscreen.VitalsScreen
-import com.latticeonfhir.core.ui.vitalsscreen.addvitals.AddVitalsScreen
 import com.latticeonfhir.features.appointment.navigation.appointmentNavGraph
 import com.latticeonfhir.features.auth.navigation.authNavGraph
 import com.latticeonfhir.features.cvd.navigation.cvdNavGraph
@@ -18,6 +16,8 @@ import com.latticeonfhir.features.patient.navigation.patientNavGraph
 import com.latticeonfhir.features.prescription.navigation.prescriptionNavGraph
 import com.latticeonfhir.features.symptomsanddiagnosis.navigation.symptomsAndDiagnosisNavGraph
 import com.latticeonfhir.features.vaccination.navigation.vaccinationNavGraph
+import com.latticeonfhir.features.vitals.navigation.addVitalsNavGraph
+import com.latticeonfhir.features.vitals.navigation.vitalsNavGraph
 
 @Composable
 fun NavigationAppHost(navController: NavController, startDest: String) {
@@ -32,8 +32,7 @@ fun NavigationAppHost(navController: NavController, startDest: String) {
         dispenseNavGraph(navController)
         vaccinationNavGraph(navController)
         cvdNavGraph(navController)
-
-        composable(Screen.VitalsScreen.route) { VitalsScreen(navController = navController) }
-        composable(Screen.AddVitalsScreen.route) { AddVitalsScreen(navController = navController) }
+        vitalsNavGraph(navController)
+        addVitalsNavGraph(navController)
     }
 }

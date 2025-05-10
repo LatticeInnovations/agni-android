@@ -1,34 +1,36 @@
-package com.latticeonfhir.core.service.workmanager.workers.status.completed
+package com.latticeonfhir.sync.workmanager.workmanager.workers.status.completed
 
 import android.content.Context
 import androidx.work.WorkerParameters
-import com.latticeonfhir.core.FhirApp
-import com.latticeonfhir.core.data.local.enums.AppointmentStatusEnum
-import com.latticeonfhir.core.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.android.data.local.enums.GenericTypeEnum
-import com.latticeonfhir.android.data.local.enums.SyncType
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.core.data.local.roomdb.entities.appointment.AppointmentEntity
-import com.latticeonfhir.core.data.local.roomdb.entities.generic.GenericEntity
-import com.latticeonfhir.core.service.workmanager.workers.base.SyncWorker
+import com.latticeonfhir.core.data.repository.server.sync.SyncRepository
+import com.latticeonfhir.core.database.FhirAppDatabase
+import com.latticeonfhir.core.database.entities.appointment.AppointmentEntity
+import com.latticeonfhir.core.database.entities.generic.GenericEntity
+import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.model.enums.ChangeTypeEnum
+import com.latticeonfhir.core.model.enums.GenericTypeEnum
+import com.latticeonfhir.core.model.enums.SyncType
 import com.latticeonfhir.core.utils.builders.UUIDBuilder
 import com.latticeonfhir.core.utils.constants.Id
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.fromJson
-import com.latticeonfhir.android.utils.converters.responseconverter.GsonConverters.toJson
+import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.fromJson
+import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.yesterday
 import com.latticeonfhir.core.utils.converters.responseconverter.toAppointmentResponse
+import com.latticeonfhir.sync.workmanager.workmanager.workers.base.SyncWorker
 import java.util.Date
 
 abstract class AppointmentCompletedStatusUpdateWorker(
     context: Context,
-    workerParameters: WorkerParameters
-) :
-    SyncWorker(context, workerParameters) {
+    workerParameters: WorkerParameters,
+    syncRepository: SyncRepository,
+    private val fhirAppDatabase: FhirAppDatabase
+) : SyncWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
         // update status in appointment entity
-        val appointmentDao = (applicationContext as FhirApp).fhirAppDatabase.getAppointmentDao()
+        val appointmentDao = fhirAppDatabase.getAppointmentDao()
         appointmentDao.getTodayScheduledAppointments(
             status = AppointmentStatusEnum.IN_PROGRESS.value,
             endOfDay = Date().yesterday().toEndOfDay()
@@ -49,8 +51,8 @@ abstract class AppointmentCompletedStatusUpdateWorker(
     }
 
     private suspend fun insertInGenericEntity(appointmentEntity: AppointmentEntity): Long {
-        val genericDao = (applicationContext as FhirApp).fhirAppDatabase.getGenericDao()
-        val scheduleDao = (applicationContext as FhirApp).fhirAppDatabase.getScheduleDao()
+        val genericDao = fhirAppDatabase.getGenericDao()
+        val scheduleDao = fhirAppDatabase.getScheduleDao()
         return genericDao.getGenericEntityById(
             patientId = appointmentEntity.id,
             genericTypeEnum = GenericTypeEnum.APPOINTMENT,
@@ -86,7 +88,7 @@ abstract class AppointmentCompletedStatusUpdateWorker(
                         genericDao.insertGenericEntity(
                             GenericEntity(
                                 id = appointmentGenericPatchEntity.id,
-                                patientId = appointmentEntity.appointmentFhirId,
+                                patientId = appointmentEntity.appointmentFhirId!!,
                                 payload = existingMap.toJson(),
                                 type = GenericTypeEnum.APPOINTMENT,
                                 syncType = SyncType.PATCH
@@ -97,10 +99,10 @@ abstract class AppointmentCompletedStatusUpdateWorker(
                         genericDao.insertGenericEntity(
                             GenericEntity(
                                 id = UUIDBuilder.generateUUID(),
-                                patientId = appointmentEntity.appointmentFhirId,
+                                patientId = appointmentEntity.appointmentFhirId!!,
                                 payload = map.toMutableMap().let { mutableMap ->
                                     mutableMap[Id.APPOINTMENT_ID] =
-                                        appointmentEntity.appointmentFhirId
+                                        appointmentEntity.appointmentFhirId!!
                                     mutableMap
                                 }.toJson(),
                                 type = GenericTypeEnum.APPOINTMENT,
