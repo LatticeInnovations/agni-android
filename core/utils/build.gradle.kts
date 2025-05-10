@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.google.gson)
     implementation(libs.retrofit.core)
+    implementation(libs.retrofit.kotlin.serialization)
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.exifinterface)
     testImplementation(libs.junit)

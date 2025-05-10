@@ -21,8 +21,8 @@ import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
 import com.latticeonfhir.core.model.server.patient.PatientLastUpdatedResponse
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.model.server.scheduleandappointment.appointment.AppointmentResponse
-import com.latticeonfhir.core.service.workmanager.utils.Sync.getWorkerInfo
-import com.latticeonfhir.core.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
+import com.latticeonfhir.sync.workmanager.workmanager.utils.Sync.getWorkerInfo
+import com.latticeonfhir.sync.workmanager.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.core.utils.converters.TimeConverter.to14DaysWeek
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate

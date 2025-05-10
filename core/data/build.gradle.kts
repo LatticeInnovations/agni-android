@@ -13,7 +13,9 @@ dependencies {
     api(projects.core.sharedpreference)
     api(projects.core.network)
     api(projects.core.utils)
-
+    api(projects.sync.workmanager)
+    implementation(libs.retrofit.core)
+    implementation(libs.google.gson)
     implementation(libs.timber)
     implementation(libs.androidx.paging.runtime.ktx)
 }

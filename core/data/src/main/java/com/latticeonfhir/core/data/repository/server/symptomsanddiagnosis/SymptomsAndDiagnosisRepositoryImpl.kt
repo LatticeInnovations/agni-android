@@ -1,18 +1,19 @@
-package com.latticeonfhir.android.data.server.repository.symptomsanddiagnosis
+package com.latticeonfhir.core.data.repository.server.symptomsanddiagnosis
 
-import com.latticeonfhir.core.data.local.roomdb.dao.SymptomsAndDiagnosisDao
-import com.latticeonfhir.core.data.server.api.SymptomsAndDiagnosisService
-import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.Diagnosis
-import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.Symptoms
-import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
-import com.latticeonfhir.android.data.server.model.symptomsanddiagnosis.SymptomsItem
+import com.latticeonfhir.core.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
+import com.latticeonfhir.core.database.dao.SymptomsAndDiagnosisDao
+import com.latticeonfhir.core.model.server.symptomsanddiagnosis.Diagnosis
+import com.latticeonfhir.core.model.server.symptomsanddiagnosis.Symptoms
+import com.latticeonfhir.core.model.server.symptomsanddiagnosis.SymptomsAndDiagnosisItem
+import com.latticeonfhir.core.model.server.symptomsanddiagnosis.SymptomsItem
+import com.latticeonfhir.core.network.api.SymptomsAndDiagnosisService
 import com.latticeonfhir.core.utils.converters.responseconverter.toDiagnosis
 import com.latticeonfhir.core.utils.converters.responseconverter.toDiagnosisEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.toSymptoms
 import com.latticeonfhir.core.utils.converters.responseconverter.toSymptomsEntity
-import com.latticeonfhir.android.utils.converters.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEndResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiResponseConverter
+import com.latticeonfhir.core.utils.converters.responsemapper.ResponseMapper
 import javax.inject.Inject
 
 class SymptomsAndDiagnosisRepositoryImpl @Inject constructor(

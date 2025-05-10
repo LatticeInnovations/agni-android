@@ -193,7 +193,7 @@ object TimeConverter {
         return calendar.time
     }
 
-    internal fun Date.yesterday(): Date {
+    fun Date.yesterday(): Date {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = this.time
         calendar[Calendar.DAY_OF_YEAR] = calendar[Calendar.DAY_OF_YEAR] - 1
@@ -287,7 +287,7 @@ object TimeConverter {
         return calendar.timeInMillis
     }
 
-    internal fun Date.toEndOfDay(): Long {
+    fun Date.toEndOfDay(): Long {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = this.time
         calendar[Calendar.HOUR_OF_DAY] = 23
