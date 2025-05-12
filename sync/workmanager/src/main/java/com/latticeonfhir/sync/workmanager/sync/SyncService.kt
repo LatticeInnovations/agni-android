@@ -1,18 +1,18 @@
 package com.latticeonfhir.sync.workmanager.sync
 
 import android.content.Context
-import com.latticeonfhir.core.data.repository.server.sync.SyncRepository
-import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
 import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepository
-import com.latticeonfhir.core.data.server.repository.file.FileSyncRepository
+import com.latticeonfhir.core.data.repository.server.file.FileSyncRepository
+import com.latticeonfhir.core.data.repository.server.sync.SyncRepository
 import com.latticeonfhir.core.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
 import com.latticeonfhir.core.model.enums.GenericTypeEnum
+import com.latticeonfhir.core.utils.constants.ErrorConstants
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEndResponse
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiErrorResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ResponseMapper
 import com.latticeonfhir.core.utils.network.CheckNetwork
-import com.latticeonfhir.utils.constants.ErrorConstants
-import com.latticeonfhir.utils.converters.responsemapper.ApiEndResponse
-import com.latticeonfhir.utils.converters.responsemapper.ResponseMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +43,7 @@ class SyncService(
      *
      * */
 
-    internal suspend fun syncLauncher(logout: (Boolean, String) -> Unit) {
+    suspend fun syncLauncher(logout: (Boolean, String) -> Unit) {
         if (CheckNetwork.isInternetAvailable(context)) {
             coroutineScope {
                 awaitAll(

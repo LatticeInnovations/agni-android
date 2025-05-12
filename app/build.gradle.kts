@@ -11,17 +11,17 @@
 //    alias(libs.plugins.baselineprofile)
 //    alias(libs.plugins.roborazzi)
 //    alias(libs.plugins.kotlin.serialization)
-//    //    id 'com.android.application'
-//    //    id 'org.jetbrains.kotlin.android'
-//    //    id 'com.google.dagger.hilt.android'
-//    //    id 'kotlin-parcelize'
-//    //    id 'kotlin-android'
-//    //    id 'kotlin-kapt'
-//    //    id 'jacoco'
-//    //    id 'com.google.gms.google-services'
-//    //    id 'com.google.firebase.crashlytics'
-//    //    id 'com.google.devtools.ksp'
-//    //    id 'org.sonarqube' version("3.5.0.2730")
+    //    id 'com.android.application'
+    //    id 'org.jetbrains.kotlin.android'
+    //    id 'com.google.dagger.hilt.android'
+    //    id 'kotlin-parcelize'
+    //    id 'kotlin-android'
+    //    id 'kotlin-kapt'
+    //    id 'jacoco'
+    //    id 'com.google.gms.google-services'
+    //    id 'com.google.firebase.crashlytics'
+    //    id 'com.google.devtools.ksp'
+    //    id 'org.sonarqube' version("3.5.0.2730")
 //}
 //
 //tasks.register<JacocoReport>("jacocoTestReport") {
@@ -305,6 +305,7 @@ plugins {
     alias(libs.plugins.latticeonfhir.android.application.flavors)
     alias(libs.plugins.latticeonfhir.android.application.jacoco)
     alias(libs.plugins.latticeonfhir.android.application.firebase)
+    alias(libs.plugins.latticeonfhir.android.room)
     alias(libs.plugins.latticeonfhir.hilt)
 //    id("com.google.android.gms.oss-licenses-plugin")
     alias(libs.plugins.baselineprofile)
@@ -328,7 +329,7 @@ android {
     defaultConfig {
         applicationId = "com.latticeonfhir.android"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 68
         versionName = "4.0.0"
 
@@ -388,6 +389,9 @@ android {
 
 dependencies {
     implementation(projects.core.theme)
+    api(projects.core.database)
+    api(projects.core.data)
+
     implementation(projects.features.auth)
     implementation(projects.features.patient)
     implementation(projects.features.symptomsanddiagnosis)
@@ -398,6 +402,7 @@ dependencies {
     implementation(projects.features.cvd)
     implementation(projects.features.household)
     implementation(projects.features.labtestandmedicalrecord)
+    implementation(projects.features.vitals)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)

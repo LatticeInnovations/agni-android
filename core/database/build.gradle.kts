@@ -11,6 +11,7 @@ android {
 
 dependencies {
     api(projects.core.model)
+    api(projects.core.sharedpreference)
 
     implementation(libs.kotlinx.datetime)
     implementation(libs.google.gson)
