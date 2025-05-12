@@ -6,7 +6,7 @@ import java.util.zip.ZipFile
 
 object FileUtils {
 
-    internal fun ResponseBody.saveFile(destinationFile: File) {
+    fun ResponseBody.saveFile(destinationFile: File) {
         byteStream().use { inputStream ->
             destinationFile.outputStream().use { outputStream ->
                 inputStream.copyTo(outputStream)
@@ -14,7 +14,7 @@ object FileUtils {
         }
     }
 
-    internal fun unzipFile(file: File) {
+    fun unzipFile(file: File) {
         ZipFile(file.absolutePath).use { zip ->
             zip.entries().asSequence().forEach { entry ->
                 zip.getInputStream(entry).use { input ->
@@ -26,7 +26,7 @@ object FileUtils {
         }
     }
 
-    internal fun deleteZipFile(file: File): Boolean {
+    fun deleteZipFile(file: File): Boolean {
         if (file.exists()) {
             return file.delete()
         }

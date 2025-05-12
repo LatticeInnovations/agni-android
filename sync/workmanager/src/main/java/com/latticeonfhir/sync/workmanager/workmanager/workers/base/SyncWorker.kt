@@ -1,9 +1,9 @@
-package com.latticeonfhir.android.service.workmanager.workers.base
+package com.latticeonfhir.sync.workmanager.workmanager.workers.base
 
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.latticeonfhir.core.data.server.repository.sync.SyncRepository
+import com.latticeonfhir.core.data.repository.server.sync.SyncRepository
 
 abstract class SyncWorker(context: Context, workerParameters: WorkerParameters) :
     CoroutineWorker(context, workerParameters) {

@@ -32,8 +32,8 @@ import com.latticeonfhir.core.model.enums.SyncStatusMessageEnum
 import com.latticeonfhir.core.model.enums.WorkerStatus
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.service.workmanager.utils.Delay
-import com.latticeonfhir.core.service.workmanager.utils.Sync
-import com.latticeonfhir.core.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
+import com.latticeonfhir.sync.workmanager.workmanager.utils.Sync
+import com.latticeonfhir.sync.workmanager.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.core.utils.common.Queries.getSearchListWithLastVisited
 import com.latticeonfhir.core.utils.constants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
 import com.latticeonfhir.core.utils.converters.TimeConverter.calculateMinutesToOneThirty
@@ -44,7 +44,7 @@ import com.latticeonfhir.core.utils.converters.responsemapper.ApiErrorResponse
 import com.latticeonfhir.core.utils.network.CheckNetwork.isInternetAvailable
 import com.latticeonfhir.core.data.repository.server.signup.SignUpRepository
 import com.latticeonfhir.features.patient.R
-import com.latticeonfhir.sync.workmanager.request.WorkRequestBuilders
+import com.latticeonfhir.sync.workmanager.workmanager.request.WorkRequestBuilders
 import com.latticeonfhir.sync.workmanager.sync.SyncService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope

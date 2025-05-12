@@ -15,7 +15,7 @@ import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
 import com.latticeonfhir.core.data.repository.local.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.core.data.repository.local.prescription.PrescriptionRepository
 import com.latticeonfhir.core.data.repository.local.schedule.ScheduleRepository
-import com.latticeonfhir.core.data.server.repository.file.FileSyncRepository
+import com.latticeonfhir.core.data.repository.server.file.FileSyncRepository
 import com.latticeonfhir.core.database.entities.file.DownloadedFileEntity
 import com.latticeonfhir.core.database.entities.file.FileUploadEntity
 import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
