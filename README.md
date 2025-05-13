@@ -11,5 +11,8 @@ latticeagni
 * Appointment
 * Prescription
 
+#### Architecture
+Monolithic
+
 #### Backend used
 FHIR server communicated through FHIR-engine (FHIR-SDK) by frontend.
