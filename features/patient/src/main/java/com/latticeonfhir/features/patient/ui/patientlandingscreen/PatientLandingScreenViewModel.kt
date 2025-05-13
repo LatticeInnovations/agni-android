@@ -16,8 +16,8 @@ import com.latticeonfhir.core.data.repository.local.prescription.PrescriptionRep
 import com.latticeonfhir.core.data.repository.local.vaccination.ImmunizationRecommendationRepository
 import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
 import com.latticeonfhir.core.model.server.patient.PatientResponse
-import com.latticeonfhir.core.service.workmanager.utils.Sync
-import com.latticeonfhir.core.service.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
+import com.latticeonfhir.sync.workmanager.workmanager.utils.Sync
+import com.latticeonfhir.sync.workmanager.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import com.latticeonfhir.core.utils.network.CheckNetwork

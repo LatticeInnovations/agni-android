@@ -19,7 +19,7 @@ import com.latticeonfhir.core.data.repository.local.schedule.ScheduleRepository
 import com.latticeonfhir.core.data.repository.local.vaccination.ImmunizationRecommendationRepository
 import com.latticeonfhir.core.data.repository.local.vaccination.ImmunizationRepository
 import com.latticeonfhir.core.data.repository.local.vaccination.ManufacturerRepository
-import com.latticeonfhir.core.data.server.repository.file.FileSyncRepository
+import com.latticeonfhir.core.data.repository.server.file.FileSyncRepository
 import com.latticeonfhir.core.database.entities.file.DownloadedFileEntity
 import com.latticeonfhir.core.database.entities.file.FileUploadEntity
 import com.latticeonfhir.core.database.entities.vaccination.ManufacturerEntity

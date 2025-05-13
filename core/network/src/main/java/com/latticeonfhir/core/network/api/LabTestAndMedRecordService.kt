@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.network.api
 
-import com.latticeonfhir.android.base.server.BaseResponse
+import com.latticeonfhir.core.model.base.BaseResponse
 import com.latticeonfhir.core.model.server.create.CreateResponse
 import com.latticeonfhir.core.model.server.labormed.labtest.LabTestResponse
 import com.latticeonfhir.core.model.server.labormed.medicalrecord.MedicalRecordResponse

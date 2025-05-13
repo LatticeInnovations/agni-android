@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.latticeonfhir.core.service.workmanager.utils
+package com.latticeonfhir.sync.workmanager.workmanager.utils
 
 import android.content.Context
 import androidx.lifecycle.asFlow
@@ -26,7 +26,11 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.latticeonfhir.core.service.workmanager.workers.base.SyncWorker
+import com.latticeonfhir.core.service.workmanager.utils.MAX_RETRIES_ALLOWED
+import com.latticeonfhir.core.service.workmanager.utils.PeriodicSyncConfiguration
+import com.latticeonfhir.core.service.workmanager.utils.RetryConfiguration
+import com.latticeonfhir.core.service.workmanager.utils.defaultRetryConfiguration
+import com.latticeonfhir.sync.workmanager.workmanager.workers.base.SyncWorker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
@@ -39,7 +43,7 @@ object Sync {
      * the same [SyncWorker] to retrieve the status of the job.
      *
      * @param retryConfiguration configuration to guide the retry mechanism, or `null` to stop retry.
-     * @return a [Flow] of [SyncJobStatus]
+     * @return a [Flow] of [com.latticeonfhir.core.service.workmanager.utils.SyncJobStatus]
      */
     inline fun <reified W : SyncWorker> oneTimeSync(
         context: Context,
@@ -63,7 +67,7 @@ object Sync {
      *
      * @param periodicSyncConfiguration configuration to determine the sync frequency and retry
      * mechanism
-     * @return a [Flow] of [SyncJobStatus]
+     * @return a [Flow] of [com.latticeonfhir.core.service.workmanager.utils.SyncJobStatus]
      */
     @ExperimentalCoroutinesApi
     inline fun <reified W : SyncWorker> periodicSync(

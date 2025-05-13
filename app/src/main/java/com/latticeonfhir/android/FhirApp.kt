@@ -1,39 +1,37 @@
-package com.latticeonfhir.core
+package com.latticeonfhir.android
 
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.latticeonfhir.android.data.local.enums.SyncStatusMessageEnum
-import com.latticeonfhir.android.data.local.enums.WorkerStatus
-import com.latticeonfhir.core.data.local.repository.generic.GenericRepository
-import com.latticeonfhir.core.data.local.repository.generic.GenericRepositoryImpl
-import com.latticeonfhir.core.data.local.repository.preference.PreferenceRepository
-import com.latticeonfhir.core.data.local.repository.preference.PreferenceRepositoryImpl
-import com.latticeonfhir.android.data.local.roomdb.FhirAppDatabase
-import com.latticeonfhir.core.data.local.sharedpreferences.PreferenceStorage
-import com.latticeonfhir.core.data.server.api.CVDApiService
-import com.latticeonfhir.core.data.server.api.DispenseApiService
-import com.latticeonfhir.core.data.server.api.FileUploadApiService
-import com.latticeonfhir.android.data.server.api.LabTestAndMedRecordService
-import com.latticeonfhir.android.data.server.api.PatientApiService
-import com.latticeonfhir.core.data.server.api.PrescriptionApiService
-import com.latticeonfhir.android.data.server.api.ScheduleAndAppointmentApiService
-import com.latticeonfhir.core.data.server.api.SymptomsAndDiagnosisService
-import com.latticeonfhir.core.data.server.api.VaccinationApiService
-import com.latticeonfhir.core.data.server.api.VitalApiService
-import com.latticeonfhir.core.data.server.repository.file.FileSyncRepository
-import com.latticeonfhir.core.data.server.repository.file.FileSyncRepositoryImpl
+import com.latticeonfhir.core.data.repository.server.symptomsanddiagnosis.SymptomsAndDiagnosisRepositoryImpl
+import com.latticeonfhir.android.utils.network.CheckNetwork
+import com.latticeonfhir.core.BuildConfig
+import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
+import com.latticeonfhir.core.data.repository.local.generic.GenericRepositoryImpl
+import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepository
+import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepositoryImpl
+import com.latticeonfhir.core.data.repository.server.file.FileSyncRepositoryImpl
+import com.latticeonfhir.core.data.repository.server.sync.SyncRepository
+import com.latticeonfhir.core.data.repository.server.sync.SyncRepositoryImpl
+import com.latticeonfhir.core.data.repository.server.file.FileSyncRepository
 import com.latticeonfhir.core.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
-import com.latticeonfhir.core.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepositoryImpl
-import com.latticeonfhir.core.data.server.repository.sync.SyncRepository
-import com.latticeonfhir.core.data.server.repository.sync.SyncRepositoryImpl
-import com.latticeonfhir.core.service.sync.SyncService
-import com.latticeonfhir.core.service.workmanager.request.WorkRequestBuilders
-import com.latticeonfhir.core.utils.converters.gson.DateDeserializer
-import com.latticeonfhir.core.utils.converters.gson.DateSerializer
+import com.latticeonfhir.core.database.FhirAppDatabase
+import com.latticeonfhir.core.model.enums.SyncStatusMessageEnum
+import com.latticeonfhir.core.model.enums.WorkerStatus
+import com.latticeonfhir.core.network.api.CVDApiService
+import com.latticeonfhir.core.network.api.DispenseApiService
+import com.latticeonfhir.core.network.api.FileUploadApiService
+import com.latticeonfhir.core.network.api.LabTestAndMedRecordService
+import com.latticeonfhir.core.network.api.PatientApiService
+import com.latticeonfhir.core.network.api.PrescriptionApiService
+import com.latticeonfhir.core.network.api.ScheduleAndAppointmentApiService
+import com.latticeonfhir.core.network.api.SymptomsAndDiagnosisService
+import com.latticeonfhir.core.network.api.VaccinationApiService
+import com.latticeonfhir.core.network.api.VitalApiService
+import com.latticeonfhir.core.sharedpreference.preferencestorage.PreferenceStorage
 import com.latticeonfhir.core.utils.file.DeleteFileManager
-import com.latticeonfhir.core.utils.network.CheckNetwork
+import com.latticeonfhir.sync.workmanager.workmanager.request.WorkRequestBuilders
+import com.latticeonfhir.sync.workmanager.sync.SyncService
+import com.latticeonfhir.sync.workmanager.workmanager.utils.EventBus
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -98,11 +96,12 @@ class FhirApp : Application() {
     private lateinit var _symDiagRepository: SymptomsAndDiagnosisRepository
     private val symDiagRepository get() = _symDiagRepository
     internal var syncWorkerStatus = MutableLiveData<WorkerStatus>()
-    internal var photosWorkerStatus = MutableLiveData<WorkerStatus>()
+//    internal var photosWorkerStatus = MutableLiveData<WorkerStatus>()
     private val isSyncing = AtomicBoolean(false)
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         if (BuildConfig.DEBUG) {
             plant(Timber.DebugTree())
         }
@@ -212,7 +211,7 @@ class FhirApp : Application() {
         mainDispatcher: CoroutineDispatcher = Dispatchers.Main
     ) {
         withContext(mainDispatcher) {
-            photosWorkerStatus.observeForever { photosSyncStatus ->
+            EventBus.photosWorkerStatus.observeForever { photosSyncStatus ->
                 when (photosSyncStatus) {
                     WorkerStatus.SUCCESS -> {
                         preferenceStorage.lastSyncTime = Date().time
@@ -235,7 +234,7 @@ class FhirApp : Application() {
                     }
 
                     else -> {
-                        Timber.d("manseeyy photos sync status $photosWorkerStatus")
+                        Timber.d("manseeyy photos sync status ${EventBus.photosWorkerStatus}")
                     }
                 }
             }
@@ -243,11 +242,11 @@ class FhirApp : Application() {
     }
 
     companion object {
-        val gson: Gson by lazy {
-            GsonBuilder()
-                .registerTypeAdapter(Date::class.java, DateDeserializer())
-                .registerTypeAdapter(Date::class.java, DateSerializer())
-                .create()
-        }
+        lateinit var instance: FhirApp
+            private set
+    }
+
+    init {
+        instance = this
     }
 }
