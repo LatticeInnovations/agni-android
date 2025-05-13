@@ -11,3 +11,22 @@ latticeagni
 ```
 GOOGLE_SERVICES_PASSPHRASE="$PASSPHRASE" ./decrypt_secret.sh
 ```
+
+
+## 'development-nonfhirsdk` branch
+#### Modules included
+* Patient
+* Household member
+* Appointment
+* Prescription
+* CVD
+* Drug dispense
+* Lab test
+* Medical record
+* Symptoms and diagnosis
+* Vaccinations
+* Vitals
+* Sign-up
+
+#### Backend used
+Facade server
