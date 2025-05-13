@@ -11,3 +11,24 @@ latticeagni
 ```
 GOOGLE_SERVICES_PASSPHRASE="$PASSPHRASE" ./decrypt_secret.sh
 ```
+
+## 'development-migrate-to-multimodule` branch
+#### Modules included
+* Patient
+* Household member
+* Appointment
+* Prescription
+* CVD
+* Drug dispense
+* Lab test
+* Medical record
+* Symptoms and diagnosis
+* Vaccinations
+* Vitals
+* Sign-up
+
+#### Architecture
+Multi-module
+
+#### Backend used
+Facade server
