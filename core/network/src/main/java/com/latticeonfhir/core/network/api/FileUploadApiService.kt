@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.network.api
 
-import com.latticeonfhir.android.base.server.BaseResponse
+import com.latticeonfhir.core.model.base.BaseResponse
 import com.latticeonfhir.core.model.server.file.request.FilesRequest
 import com.latticeonfhir.core.model.server.file.response.FilesResponse
 import okhttp3.MultipartBody

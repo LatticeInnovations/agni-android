@@ -1,9 +1,9 @@
 package com.latticeonfhir.core.network.api
 
-import com.latticeonfhir.android.base.server.BaseResponse
 import com.latticeonfhir.core.data.local.model.vital.VitalLocal
-import com.latticeonfhir.core.data.server.model.create.CreateResponse
-import com.latticeonfhir.android.data.server.model.vitals.VitalResponse
+import com.latticeonfhir.core.model.base.BaseResponse
+import com.latticeonfhir.core.model.server.create.CreateResponse
+import com.latticeonfhir.core.model.server.vitals.VitalResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -22,7 +22,7 @@ interface VitalApiService {
     @POST("sync/{endPoint}")
     suspend fun createData(
         @Path("endPoint") endPoint: String, @Body vitals: List<VitalLocal>
-    ): Response<com.latticeonfhir.android.base.server.BaseResponse<List<CreateResponse>>>
+    ): Response<BaseResponse<List<CreateResponse>>>
 
     @PATCH("sync/{endPoint}")
     @JvmSuppressWildcards

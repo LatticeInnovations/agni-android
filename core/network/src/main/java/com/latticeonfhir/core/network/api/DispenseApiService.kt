@@ -1,11 +1,11 @@
 package com.latticeonfhir.core.network.api
 
-import com.latticeonfhir.android.base.server.BaseResponse
-import com.latticeonfhir.android.data.server.constants.EndPoints.DISPENSE_LOG
-import com.latticeonfhir.android.data.server.constants.EndPoints.MEDICATION_DISPENSE
-import com.latticeonfhir.android.data.server.model.dispense.response.DispenseData
-import com.latticeonfhir.core.data.server.model.dispense.response.MedicineDispenseResponse
+import com.latticeonfhir.core.model.base.BaseResponse
 import com.latticeonfhir.core.model.server.create.CreateResponse
+import com.latticeonfhir.core.model.server.dispense.response.DispenseData
+import com.latticeonfhir.core.model.server.dispense.response.MedicineDispenseResponse
+import com.latticeonfhir.core.network.constants.EndPoints.DISPENSE_LOG
+import com.latticeonfhir.core.network.constants.EndPoints.MEDICATION_DISPENSE
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -25,5 +25,5 @@ interface DispenseApiService {
     ): Response<BaseResponse<List<CreateResponse>>>
 
     @GET(DISPENSE_LOG)
-    suspend fun getOTCRecords(@QueryMap(encoded = true) map: Map<String, String>?): Response<com.latticeonfhir.android.base.server.BaseResponse<List<DispenseData>>>
+    suspend fun getOTCRecords(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<DispenseData>>>
 }

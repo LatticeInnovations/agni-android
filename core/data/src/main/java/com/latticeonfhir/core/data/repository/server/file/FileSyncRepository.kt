@@ -1,10 +1,10 @@
-package com.latticeonfhir.core.data.server.repository.file
+package com.latticeonfhir.core.data.repository.server.file
 
-import com.latticeonfhir.android.data.server.model.file.request.FilesRequest
-import com.latticeonfhir.android.data.server.model.file.response.FilesResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ResponseMapper
 import com.latticeonfhir.core.database.entities.file.FileUploadEntity
 import com.latticeonfhir.core.model.enums.GenericTypeEnum
+import com.latticeonfhir.core.model.server.file.request.FilesRequest
+import com.latticeonfhir.core.model.server.file.response.FilesResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ResponseMapper
 import okhttp3.ResponseBody
 import retrofit2.Response
 

@@ -1,13 +1,13 @@
 package com.latticeonfhir.core.network.api
 
-import com.latticeonfhir.android.base.server.BaseResponse
-import com.latticeonfhir.core.network.constants.EndPoints.VACCINE_MANUFACTURER
-import com.latticeonfhir.core.network.constants.EndPoints.IMMUNIZATION
-import com.latticeonfhir.core.network.constants.EndPoints.IMMUNIZATION_RECOMMENDATION
+import com.latticeonfhir.core.model.base.BaseResponse
 import com.latticeonfhir.core.model.server.create.CreateResponse
 import com.latticeonfhir.core.model.server.vaccination.ImmunizationRecommendationResponse
 import com.latticeonfhir.core.model.server.vaccination.ImmunizationResponse
 import com.latticeonfhir.core.model.server.vaccination.ManufacturerResponse
+import com.latticeonfhir.core.network.constants.EndPoints.IMMUNIZATION
+import com.latticeonfhir.core.network.constants.EndPoints.IMMUNIZATION_RECOMMENDATION
+import com.latticeonfhir.core.network.constants.EndPoints.VACCINE_MANUFACTURER
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET

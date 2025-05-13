@@ -1,16 +1,6 @@
 package com.latticeonfhir.core.data.repository.server.file
 
 import android.content.Context
-import com.latticeonfhir.android.data.server.api.FileUploadApiService
-import com.latticeonfhir.android.data.server.model.file.request.FilesRequest
-import com.latticeonfhir.android.data.server.model.file.response.FilesResponse
-import com.latticeonfhir.android.data.server.repository.file.FileSyncRepository
-import com.latticeonfhir.android.utils.converters.responsemapper.ApiResponseConverter
-import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
-import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
-import com.latticeonfhir.android.utils.file.FileUtils.deleteZipFile
-import com.latticeonfhir.core.FhirApp
-import com.latticeonfhir.core.data.server.model.file.response.FilesResponse
 import com.latticeonfhir.core.database.dao.DownloadedFileDao
 import com.latticeonfhir.core.database.dao.FileUploadDao
 import com.latticeonfhir.core.database.dao.GenericDao
@@ -20,13 +10,20 @@ import com.latticeonfhir.core.database.entities.generic.GenericEntity
 import com.latticeonfhir.core.model.enums.GenericTypeEnum
 import com.latticeonfhir.core.model.enums.SyncType
 import com.latticeonfhir.core.model.enums.WorkerStatus
+import com.latticeonfhir.core.model.server.file.request.FilesRequest
+import com.latticeonfhir.core.model.server.file.response.FilesResponse
+import com.latticeonfhir.core.network.api.FileUploadApiService
 import com.latticeonfhir.core.utils.constants.ApiConstants.FILES
 import com.latticeonfhir.core.utils.converters.responseconverter.toListOfId
-import com.latticeonfhir.core.utils.converters.server.responsemapper.ApiResponseConverter
-import com.latticeonfhir.core.utils.converters.server.responsemapper.ResponseMapper
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiEndResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiResponseConverter
+import com.latticeonfhir.core.utils.converters.responsemapper.ResponseMapper
 import com.latticeonfhir.core.utils.file.FileManager
+import com.latticeonfhir.core.utils.file.FileUtils.deleteZipFile
 import com.latticeonfhir.core.utils.file.FileUtils.saveFile
 import com.latticeonfhir.core.utils.file.FileUtils.unzipFile
+import com.latticeonfhir.sync.workmanager.workmanager.utils.EventBus
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -53,7 +50,7 @@ class FileSyncRepositoryImpl @Inject constructor(
         typeEnum: GenericTypeEnum,
         logout: (Boolean, String) -> Unit
     ) {
-        (context as FhirApp).photosWorkerStatus.postValue(WorkerStatus.IN_PROGRESS)
+        EventBus.photosWorkerStatus.postValue(WorkerStatus.IN_PROGRESS)
         genericDao.getSameTypeGenericEntityPayload(
             typeEnum,
             SyncType.POST
@@ -65,7 +62,7 @@ class FileSyncRepositoryImpl @Inject constructor(
                     logout
                 )
             } else {
-                context.photosWorkerStatus.postValue(WorkerStatus.SUCCESS)
+                EventBus.photosWorkerStatus.postValue(WorkerStatus.SUCCESS)
             }
         }
     }
@@ -108,7 +105,7 @@ class FileSyncRepositoryImpl @Inject constructor(
                 startDownload(typeEnum, logout)
             }
             it.errorBody()?.let { errorBody ->
-                (context as FhirApp).photosWorkerStatus.postValue(WorkerStatus.FAILED)
+                EventBus.photosWorkerStatus.postValue(WorkerStatus.FAILED)
                 logout(false, errorBody.string())
             }
         }
