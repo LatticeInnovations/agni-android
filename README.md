@@ -7,6 +7,7 @@ latticeagni
 ## `development` branch
 #### Modules included
 * Patient
+* Household member
 * Appointment
 * Prescription
 
