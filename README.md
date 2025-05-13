@@ -20,5 +20,8 @@ GOOGLE_SERVICES_PASSPHRASE="$PASSPHRASE" ./decrypt_secret.sh
 * Prescription
 * Sign-up
 
+#### Architecture
+Monolithic
+
 #### Backend used
 Facade server
