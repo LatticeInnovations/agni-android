@@ -13,7 +13,7 @@ GOOGLE_SERVICES_PASSPHRASE="$PASSPHRASE" ./decrypt_secret.sh
 ```
 
 
-## 'development-nonfhirsdk` branch
+## `development-nonfhirsdk` branch
 #### Modules included
 * Patient
 * Household member
