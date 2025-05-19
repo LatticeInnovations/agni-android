@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
-import com.latticeonfhir.core.FhirApp
 import com.latticeonfhir.core.base.viewmodel.BaseAndroidViewModel
 import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
 import com.latticeonfhir.core.data.repository.local.cvd.records.CVDAssessmentRepository
@@ -21,6 +20,7 @@ import com.latticeonfhir.sync.workmanager.workmanager.workers.trigger.TriggerWor
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import com.latticeonfhir.core.utils.network.CheckNetwork
+import com.latticeonfhir.sync.workmanager.sync.SyncService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -32,12 +32,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PatientLandingScreenViewModel @Inject constructor(
-    application: Application,
+    private val application: Application,
     private val patientRepository: PatientRepository,
     private val appointmentRepository: AppointmentRepository,
     private val prescriptionRepository: PrescriptionRepository,
     private val cvdAssessmentRepository: CVDAssessmentRepository,
-    private val immunizationRecommendationRepository: ImmunizationRecommendationRepository
+    private val immunizationRecommendationRepository: ImmunizationRecommendationRepository,
+    private val syncService: SyncService
 ) : BaseAndroidViewModel(application) {
     var isLaunched by mutableStateOf(false)
     var patient by mutableStateOf<PatientResponse?>(null)
@@ -59,19 +60,19 @@ class PatientLandingScreenViewModel @Inject constructor(
     var missedVaccine by mutableIntStateOf(0)
     var takenVaccine by mutableIntStateOf(0)
 
-    private val syncService by lazy { getApplication<FhirApp>().syncService }
-
     private suspend fun syncData() {
-        Sync.getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext)
+        Sync.getWorkerInfo<TriggerWorkerPeriodicImpl>(application)
             .collectLatest { workInfo ->
                 if (workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
-                    getApplication<FhirApp>().launchSyncing()
+                    syncService.syncLauncher { logout, error ->
+
+                    }
                 }
             }
     }
 
     internal fun downloadPrescriptions(patientFhirId: String) {
-        if (CheckNetwork.isInternetAvailable(getApplication<FhirApp>().applicationContext)) {
+        if (CheckNetwork.isInternetAvailable(application)) {
             viewModelScope.launch(Dispatchers.IO) {
                 syncService.patchPrescription { isErrorReceived, errorMsg ->
                     if (isErrorReceived) {

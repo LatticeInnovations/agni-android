@@ -15,8 +15,8 @@ import com.latticeonfhir.core.model.enums.GenderEnum
 import com.latticeonfhir.core.model.enums.SearchTypeEnum
 import com.latticeonfhir.core.model.server.patient.PatientAddressResponse
 import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.network.utils.responseconverter.toPatientResponse
 import com.latticeonfhir.core.utils.constants.Paging.PAGE_SIZE
-import com.latticeonfhir.core.utils.converters.responseconverter.toPatientResponse
 import com.latticeonfhir.core.utils.paging.SearchPagingSource
 import com.latticeonfhir.core.utils.search.Search.getFuzzySearchDiagnosisList
 import com.latticeonfhir.core.utils.search.Search.getFuzzySearchList
@@ -90,7 +90,7 @@ class SearchRepositoryImpl @Inject constructor(
             ),
             pagingSourceFactory = {
                 SearchPagingSource(
-                    fuzzySearchList,
+                    fuzzySearchList as MutableList<PatientAndIdentifierEntity>,
                     PAGE_SIZE
                 )
             }

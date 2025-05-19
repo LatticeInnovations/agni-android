@@ -12,8 +12,9 @@ import com.latticeonfhir.core.data.repository.local.preference.PreferenceReposit
 import com.latticeonfhir.core.data.repository.local.schedule.ScheduleRepository
 import com.latticeonfhir.core.data.repository.local.symptomsanddiagnosis.SymDiagRepository
 import com.latticeonfhir.core.data.server.repository.symptomsanddiagnosis.SymptomsAndDiagnosisRepository
+import com.latticeonfhir.core.data.utils.common.Queries
 import com.latticeonfhir.core.database.dao.SymptomsAndDiagnosisDao
-import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
+import com.latticeonfhir.core.model.local.symdiag.SymptomsAndDiagnosisLocal
 import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
 import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
 import com.latticeonfhir.core.model.server.patient.PatientResponse

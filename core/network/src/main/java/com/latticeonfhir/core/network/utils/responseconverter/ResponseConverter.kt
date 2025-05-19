@@ -1,11 +1,11 @@
-package com.latticeonfhir.core.utils.converters.responseconverter
+package com.latticeonfhir.core.network.utils.responseconverter
 
 import com.latticeonfhir.android.data.local.model.relation.Relation
 import com.latticeonfhir.core.model.local.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.core.data.local.model.prescription.MedicationLocal
 import com.latticeonfhir.core.model.local.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.core.data.local.model.prescription.PrescriptionResponseLocal
-import com.latticeonfhir.core.data.local.model.symdiag.SymptomsAndDiagnosisData
+import com.latticeonfhir.core.model.local.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.core.data.local.model.vital.VitalLocal
 import com.latticeonfhir.core.database.dao.AppointmentDao
 import com.latticeonfhir.core.database.dao.MedicationDao
@@ -39,7 +39,7 @@ import com.latticeonfhir.core.database.entities.relation.RelationEntity
 import com.latticeonfhir.core.database.entities.schedule.ScheduleEntity
 import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.DiagnosisEntity
 import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
-import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
+import com.latticeonfhir.core.model.local.symdiag.SymptomsAndDiagnosisLocal
 import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.SymptomsEntity
 import com.latticeonfhir.core.database.entities.vitals.VitalEntity
 import com.latticeonfhir.core.database.views.PrescriptionDirectionAndMedicineView
@@ -82,6 +82,7 @@ import com.latticeonfhir.core.utils.converters.TimeConverter.toPatientDate
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTimeInMilli
 import com.latticeonfhir.core.utils.converters.responseconverter.RelationConverter.getInverseRelation
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiEndResponse
+import com.latticeonfhir.core.utils.converters.responsemapper.ApiResponseConverter
 import java.util.Date
 import java.util.UUID
 
@@ -226,7 +227,7 @@ private suspend fun getRelativeId(
     patientApiService: PatientApiService
 ): String {
     var relativeId = ""
-    com.latticeonfhir.core.utils.converters.responsemapper.ApiResponseConverter.convert(
+    ApiResponseConverter.convert(
         patientApiService.getListData(
             PATIENT,
             mapOf(Pair(QueryParameters.ID, relativeFhirId))

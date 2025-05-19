@@ -5,9 +5,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.latticeonfhir.core.data.local.enums.GenericTypeEnum
-import com.latticeonfhir.core.data.local.enums.SyncType
 import com.latticeonfhir.core.database.entities.generic.GenericEntity
+import com.latticeonfhir.core.model.enums.GenericTypeEnum
+import com.latticeonfhir.core.model.enums.SyncType
 
 @Dao
 interface GenericDao {

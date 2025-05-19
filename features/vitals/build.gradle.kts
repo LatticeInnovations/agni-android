@@ -14,6 +14,7 @@ dependencies {
     api(projects.core.base)
     api(projects.core.data)
     api(projects.core.utils)
+    api(projects.core.ui)
     api(projects.core.navigation)
 
     implementation(libs.androidx.core.ktx)
@@ -25,6 +26,8 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material.iconsExtended)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.mpandroidchart)
+    implementation(libs.timber)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)

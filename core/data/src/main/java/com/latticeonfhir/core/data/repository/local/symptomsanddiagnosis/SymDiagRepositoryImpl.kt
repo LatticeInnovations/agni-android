@@ -1,9 +1,9 @@
 package com.latticeonfhir.core.data.repository.local.symptomsanddiagnosis
 
 import com.latticeonfhir.core.database.dao.SymptomsAndDiagnosisDao
-import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
-import com.latticeonfhir.core.utils.converters.responseconverter.toSymptomsAndDiagnosisEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toSymptomsAndDiagnosisLocal
+import com.latticeonfhir.core.model.local.symdiag.SymptomsAndDiagnosisLocal
+import com.latticeonfhir.core.network.utils.responseconverter.toSymptomsAndDiagnosisEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toSymptomsAndDiagnosisLocal
 import javax.inject.Inject
 
 class SymDiagRepositoryImpl @Inject constructor(private val dao: SymptomsAndDiagnosisDao) :

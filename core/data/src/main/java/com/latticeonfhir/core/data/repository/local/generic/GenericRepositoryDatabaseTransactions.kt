@@ -1,9 +1,8 @@
 package com.latticeonfhir.core.data.repository.local.generic
 
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
-import com.latticeonfhir.core.data.local.model.patch.AppointmentPatchRequest
-import com.latticeonfhir.core.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.core.data.local.model.vital.VitalLocal
+import com.latticeonfhir.core.data.utils.common.FHIR.isFhirId
 import com.latticeonfhir.core.database.dao.AppointmentDao
 import com.latticeonfhir.core.database.dao.GenericDao
 import com.latticeonfhir.core.database.dao.PatientDao
@@ -12,6 +11,8 @@ import com.latticeonfhir.core.database.dao.ScheduleDao
 import com.latticeonfhir.core.database.entities.generic.GenericEntity
 import com.latticeonfhir.core.model.enums.GenericTypeEnum
 import com.latticeonfhir.core.model.enums.SyncType
+import com.latticeonfhir.core.model.local.patch.AppointmentPatchRequest
+import com.latticeonfhir.core.model.local.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.core.model.server.cvd.CVDResponse
 import com.latticeonfhir.core.model.server.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.core.model.server.labormed.labtest.LabTestRequest
@@ -25,6 +26,8 @@ import com.latticeonfhir.core.model.server.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.core.model.server.scheduleandappointment.appointment.AppointmentResponse
 import com.latticeonfhir.core.model.server.scheduleandappointment.schedule.ScheduleResponse
 import com.latticeonfhir.core.model.server.vaccination.ImmunizationResponse
+import com.latticeonfhir.core.utils.builders.GenericEntityPatchBuilder.processPatch
+import com.latticeonfhir.core.utils.constants.Id
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.toJson
@@ -306,12 +309,12 @@ open class GenericRepositoryDatabaseTransactions(
     protected suspend fun updateAppointmentFhirIdInGenericEntityPatch(appointmentGenericEntity: GenericEntity) {
         val existingMap = appointmentGenericEntity.payload.fromJson<MutableMap<String, Any>>()
             .mapToObject(AppointmentPatchRequest::class.java)
-        if (existingMap?.scheduleId != null && !(existingMap.scheduleId.value as String).isFhirId()) {
+        if (existingMap?.scheduleId != null && !(existingMap.scheduleId!!.value as String).isFhirId()) {
             genericDao.insertGenericEntity(
                 appointmentGenericEntity.copy(
                     payload = existingMap.copy(
-                        scheduleId = existingMap.scheduleId.copy(
-                            value = getScheduleFhirIdById(existingMap.scheduleId.value)
+                        scheduleId = existingMap.scheduleId!!.copy(
+                            value = getScheduleFhirIdById(existingMap.scheduleId!!.value as String)
                         )
                     ).toJson()
                 )
@@ -346,7 +349,7 @@ open class GenericRepositoryDatabaseTransactions(
                 genericEntity.copy(
                     payload = existingMap.copy(
                         patientId = if (!existingMap.patientId!!.isFhirId()) getPatientFhirIdById(
-                            existingMap.patientId
+                            existingMap.patientId!!
                         )!! else existingMap.patientId,
                         appointmentId = if (!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(
                             existingMap.appointmentId
@@ -406,7 +409,7 @@ open class GenericRepositoryDatabaseTransactions(
                 genericEntity.copy(
                     payload = existingMap.copy(
                         patientId = if (!existingMap.patientId!!.isFhirId()) getPatientFhirIdById(
-                            existingMap.patientId
+                            existingMap.patientId!!
                         )!! else existingMap.patientId,
                         appointmentId = if (!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(
                             existingMap.appointmentId
@@ -430,13 +433,13 @@ open class GenericRepositoryDatabaseTransactions(
                         patientId = if (!existingMap.patientId.isFhirId()) getPatientFhirIdById(
                             existingMap.patientId
                         )!! else existingMap.patientId,
-                        prescriptionFhirId = if (!existingMap.prescriptionFhirId.isNullOrBlank() && !existingMap.prescriptionFhirId.isFhirId()) getPrescriptionFhirIdById(
-                            existingMap.prescriptionFhirId
+                        prescriptionFhirId = if (!existingMap.prescriptionFhirId.isNullOrBlank() && !existingMap.prescriptionFhirId!!.isFhirId()) getPrescriptionFhirIdById(
+                            existingMap.prescriptionFhirId!!
                         )!! else existingMap.prescriptionFhirId,
                         medicineDispensedList = existingMap.medicineDispensedList.map { medicine ->
                             medicine.copy(
-                                medReqFhirId = if (!medicine.medReqFhirId.isNullOrBlank() && !medicine.medReqFhirId.isFhirId()) getMedReqFhirIdById(
-                                    medicine.medReqFhirId
+                                medReqFhirId = if (!medicine.medReqFhirId.isNullOrBlank() && !medicine.medReqFhirId!!.isFhirId()) getMedReqFhirIdById(
+                                    medicine.medReqFhirId!!
                                 )!!
                                 else medicine.medReqFhirId
                             )

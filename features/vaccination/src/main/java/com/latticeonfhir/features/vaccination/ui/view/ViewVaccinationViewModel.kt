@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.data.local.model.vaccination.Immunization
+import com.latticeonfhir.core.model.local.vaccination.Immunization
 import com.latticeonfhir.core.base.viewmodel.BaseViewModel
 import com.latticeonfhir.core.data.local.model.vaccination.ImmunizationRecommendation
 import com.latticeonfhir.core.data.repository.local.vaccination.ImmunizationRepository

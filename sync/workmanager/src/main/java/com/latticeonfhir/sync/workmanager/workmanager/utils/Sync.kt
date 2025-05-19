@@ -43,7 +43,7 @@ object Sync {
      * the same [SyncWorker] to retrieve the status of the job.
      *
      * @param retryConfiguration configuration to guide the retry mechanism, or `null` to stop retry.
-     * @return a [Flow] of [com.latticeonfhir.core.service.workmanager.utils.SyncJobStatus]
+     * @return a [Flow] of [SyncJobStatus]
      */
     inline fun <reified W : SyncWorker> oneTimeSync(
         context: Context,
@@ -67,7 +67,7 @@ object Sync {
      *
      * @param periodicSyncConfiguration configuration to determine the sync frequency and retry
      * mechanism
-     * @return a [Flow] of [com.latticeonfhir.core.service.workmanager.utils.SyncJobStatus]
+     * @return a [Flow] of [SyncJobStatus]
      */
     @ExperimentalCoroutinesApi
     inline fun <reified W : SyncWorker> periodicSync(
@@ -102,7 +102,7 @@ object Sync {
 //      }
 
     @PublishedApi
-    internal inline fun <W : SyncWorker> createOneTimeWorkRequest(
+    internal fun <W : SyncWorker> createOneTimeWorkRequest(
         retryConfiguration: RetryConfiguration?,
         clazz: Class<W>
     ): OneTimeWorkRequest {
@@ -124,7 +124,7 @@ object Sync {
     }
 
     @PublishedApi
-    internal inline fun <W : SyncWorker> createPeriodicWorkRequest(
+    internal fun <W : SyncWorker> createPeriodicWorkRequest(
         periodicSyncConfiguration: PeriodicSyncConfiguration,
         clazz: Class<W>
     ): PeriodicWorkRequest {

@@ -5,8 +5,10 @@ import androidx.work.WorkerParameters
 import com.latticeonfhir.core.data.repository.server.sync.SyncRepository
 import com.latticeonfhir.core.sharedpreference.preferencestorage.PreferenceStorage
 import com.latticeonfhir.sync.workmanager.sync.SyncService
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 
-class TriggerWorkerPeriodicImpl(context: Context, workerParameters: WorkerParameters,
+class TriggerWorkerPeriodicImpl @AssistedInject constructor(@Assisted context: Context,@Assisted workerParameters: WorkerParameters,
                                 syncService: SyncService, private val syncRepository: SyncRepository,
                                 preferenceStorage: PreferenceStorage
 ) :

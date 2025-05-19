@@ -1,8 +1,8 @@
 package com.latticeonfhir.core.utils.builders
 
 import com.google.gson.internal.LinkedTreeMap
-import com.latticeonfhir.core.data.local.enums.ChangeTypeEnum
-import com.latticeonfhir.core.data.local.model.patch.ChangeRequest
+import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
+import com.latticeonfhir.core.model.enums.ChangeTypeEnum
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.mapToObject
 
 object GenericEntityPatchBuilder {
@@ -46,7 +46,7 @@ object GenericEntityPatchBuilder {
     }
 
 
-    internal fun processPatch(
+    fun processPatch(
         existingMap: MutableMap<String, Any>,
         mapEntry: Map.Entry<String, Any>
     ) {

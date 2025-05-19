@@ -6,8 +6,8 @@ import com.latticeonfhir.core.database.dao.RelationDao
 import com.latticeonfhir.core.database.entities.relation.RelationEntity
 import com.latticeonfhir.core.database.views.RelationView
 import com.latticeonfhir.core.model.enums.RelationEnum
-import com.latticeonfhir.core.utils.converters.responseconverter.toRelationEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toReverseRelation
+import com.latticeonfhir.core.network.utils.responseconverter.toRelationEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toReverseRelation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

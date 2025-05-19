@@ -1,16 +1,16 @@
 package com.latticeonfhir.core.data.repository.local.labtest
 
-import com.latticeonfhir.core.model.local.labtest.LabTestLocal
-import com.latticeonfhir.core.model.local.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.core.database.dao.AppointmentDao
 import com.latticeonfhir.core.database.dao.FileUploadDao
 import com.latticeonfhir.core.database.dao.LabTestAndMedDao
+import com.latticeonfhir.core.model.local.labtest.LabTestLocal
+import com.latticeonfhir.core.model.local.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.core.model.server.prescription.photo.File
-import com.latticeonfhir.core.utils.converters.responseconverter.toFilesList
-import com.latticeonfhir.core.utils.converters.responseconverter.toLabTestAndMedEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toLabTestLocal
-import com.latticeonfhir.core.utils.converters.responseconverter.toLabTestPhotoResponseLocal
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfLabTestPhotoEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toFilesList
+import com.latticeonfhir.core.network.utils.responseconverter.toLabTestAndMedEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toLabTestLocal
+import com.latticeonfhir.core.network.utils.responseconverter.toLabTestPhotoResponseLocal
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfLabTestPhotoEntity
 import javax.inject.Inject
 
 class LabTestRepositoryImpl @Inject constructor(

@@ -4,7 +4,7 @@ import com.latticeonfhir.core.database.dao.MedicationDao
 import com.latticeonfhir.core.database.entities.medication.MedicationStrengthRelation
 import com.latticeonfhir.core.database.entities.medication.MedicineTimingEntity
 import com.latticeonfhir.core.model.server.prescription.medication.MedicationResponse
-import com.latticeonfhir.core.utils.converters.responseconverter.toMedicationResponse
+import com.latticeonfhir.core.network.utils.responseconverter.toMedicationResponse
 import javax.inject.Inject
 
 class MedicationRepositoryImpl @Inject constructor(private val medicationDao: MedicationDao) :

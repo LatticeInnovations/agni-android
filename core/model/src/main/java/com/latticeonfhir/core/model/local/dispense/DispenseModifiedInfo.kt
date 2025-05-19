@@ -1,8 +1,7 @@
-package com.latticeonfhir.core.data.local.model.dispense
+package com.latticeonfhir.core.model.local.dispense
 
 import androidx.annotation.Keep
-import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
-import com.latticeonfhir.core.database.views.PrescriptionDirectionAndMedicineView
+import com.latticeonfhir.core.model.entity.prescription.PrescriptionDirectionAndMedicineView
 
 @Keep
 data class DispenseModifiedInfo (

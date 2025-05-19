@@ -44,6 +44,7 @@ class AndroidRoomConventionPlugin : Plugin<Project> {
             dependencies {
                 "implementation"(libs.findLibrary("room.runtime").get())
                 "implementation"(libs.findLibrary("room.ktx").get())
+                "implementation"(libs.findLibrary("room.paging").get())
                 "ksp"(libs.findLibrary("room.compiler").get())
 
                 //SQL Cipher

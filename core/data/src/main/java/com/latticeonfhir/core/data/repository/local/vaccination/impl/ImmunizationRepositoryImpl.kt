@@ -1,11 +1,12 @@
 package com.latticeonfhir.core.data.repository.local.vaccination.impl
 
-import com.latticeonfhir.android.data.local.model.vaccination.Immunization
 import com.latticeonfhir.core.data.repository.local.vaccination.ImmunizationRepository
 import com.latticeonfhir.core.database.dao.vaccincation.ImmunizationDao
 import com.latticeonfhir.core.database.dao.vaccincation.ImmunizationRecommendationDao
 import com.latticeonfhir.core.database.dao.vaccincation.ManufacturerDao
 import com.latticeonfhir.core.database.entities.vaccination.ImmunizationFileEntity
+import com.latticeonfhir.core.model.entity.vaccination.ManufacturerEntity
+import com.latticeonfhir.core.model.local.vaccination.Immunization
 import com.latticeonfhir.core.utils.converters.responseconverter.Vaccination.toImmunizationEntity
 import java.util.Date
 import javax.inject.Inject
@@ -51,7 +52,7 @@ class ImmunizationRepositoryImpl @Inject constructor(
                 lotNumber = immunizationEntity.lotNumber,
                 takenOn = immunizationEntity.createdOn,
                 expiryDate = immunizationEntity.expiryDate,
-                manufacturer = manufacturer,
+                manufacturer = manufacturer as ManufacturerEntity?,
                 notes = immunizationEntity.notes,
                 filename = filenames.map { it.filename },
                 patientId = immunizationEntity.patientId,
@@ -80,7 +81,7 @@ class ImmunizationRepositoryImpl @Inject constructor(
             lotNumber = immunizationEntity.lotNumber,
             takenOn = immunizationEntity.createdOn,
             expiryDate = immunizationEntity.expiryDate,
-            manufacturer = manufacturer,
+            manufacturer = manufacturer as ManufacturerEntity?,
             notes = immunizationEntity.notes,
             filename = filenames.map { it.filename },
             patientId = immunizationEntity.patientId,

@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.data.repository.local.symptomsanddiagnosis
 
-import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
+import com.latticeonfhir.core.model.local.symdiag.SymptomsAndDiagnosisLocal
 
 interface SymDiagRepository {
 

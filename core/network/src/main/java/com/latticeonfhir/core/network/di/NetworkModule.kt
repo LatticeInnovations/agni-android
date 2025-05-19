@@ -1,5 +1,6 @@
 package com.latticeonfhir.core.network.di
 
+import com.latticeonfhir.core.network.BuildConfig
 import com.latticeonfhir.core.network.api.CVDApiService
 import com.latticeonfhir.core.network.api.DispenseApiService
 import com.latticeonfhir.core.network.api.FileUploadApiService
@@ -13,7 +14,7 @@ import com.latticeonfhir.core.network.api.VitalApiService
 import com.latticeonfhir.core.network.constants.AuthenticationConstants.X_ACCESS_TOKEN
 import com.latticeonfhir.core.network.utils.gson.gson
 import com.latticeonfhir.core.sharedpreference.preferencestorage.PreferenceStorage
-import com.latticeonfhir.utils.constants.ErrorConstants
+import com.latticeonfhir.core.utils.constants.ErrorConstants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -85,7 +86,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL)
+            .baseUrl("BuildConfig.BASE_URL")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()

@@ -3,8 +3,8 @@ package com.latticeonfhir.core.data.repository.local.identifier
 import com.latticeonfhir.core.database.dao.IdentifierDao
 import com.latticeonfhir.core.model.server.patient.PatientIdentifier
 import com.latticeonfhir.core.model.server.patient.PatientResponse
-import com.latticeonfhir.core.utils.converters.responseconverter.toIdentifierEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfIdentifierEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toIdentifierEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfIdentifierEntity
 import javax.inject.Inject
 
 class IdentifierRepositoryImpl @Inject constructor(private val identifierDao: IdentifierDao) :

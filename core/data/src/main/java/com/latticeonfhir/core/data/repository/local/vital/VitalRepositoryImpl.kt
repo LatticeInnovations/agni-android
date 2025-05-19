@@ -2,8 +2,8 @@ package com.latticeonfhir.core.data.repository.local.vital
 
 import com.latticeonfhir.core.data.local.model.vital.VitalLocal
 import com.latticeonfhir.core.database.dao.VitalDao
-import com.latticeonfhir.core.utils.converters.responseconverter.toVitalEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toVitalLocal
+import com.latticeonfhir.core.network.utils.responseconverter.toVitalEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toVitalLocal
 import javax.inject.Inject
 
 class VitalRepositoryImpl @Inject constructor(private val vitalDao: VitalDao) : VitalRepository {
