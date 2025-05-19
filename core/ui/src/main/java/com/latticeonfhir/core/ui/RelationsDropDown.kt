@@ -19,7 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import com.latticeonfhir.utils.converters.responseconverter.RelationshipList
+import com.latticeonfhir.core.utils.converters.responseconverter.RelationshipList
 
 @Composable
 fun RelationsDropDown(

@@ -1,14 +1,14 @@
 package com.latticeonfhir.core.data.repository.local.prescription
 
-import com.latticeonfhir.android.utils.converters.responseconverter.toPrescriptionPhotoResponseLocal
-import com.latticeonfhir.core.model.local.prescription.PrescriptionPhotoResponseLocal
 import com.latticeonfhir.core.data.local.model.prescription.PrescriptionResponseLocal
 import com.latticeonfhir.core.database.dao.FileUploadDao
 import com.latticeonfhir.core.database.dao.PrescriptionDao
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfPrescriptionDirectionsEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfPrescriptionPhotoEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toPrescriptionEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toPrescriptionResponseLocal
+import com.latticeonfhir.core.model.local.prescription.PrescriptionPhotoResponseLocal
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfPrescriptionDirectionsEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfPrescriptionPhotoEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toPrescriptionEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toPrescriptionPhotoResponseLocal
+import com.latticeonfhir.core.network.utils.responseconverter.toPrescriptionResponseLocal
 import javax.inject.Inject
 
 class PrescriptionRepositoryImpl @Inject constructor(

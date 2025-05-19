@@ -318,7 +318,7 @@ class SyncService(
     }
 
     /** Patch Prescription */
-    internal suspend fun patchPrescription(logout: (Boolean, String) -> Unit) {
+    suspend fun patchPrescription(logout: (Boolean, String) -> Unit) {
         coroutineScope {
             prescriptionPatchJob = async {
                 checkAuthenticationStatus(syncRepository.sendPrescriptionPhotoPatchData(), logout)
@@ -460,7 +460,7 @@ class SyncService(
     }
 
     /** Download Form Prescription*/
-    internal suspend fun downloadFormPrescription(
+    suspend fun downloadFormPrescription(
         patientId: String?,
         logout: (Boolean, String) -> Unit
     ): ResponseMapper<Any>? {
@@ -480,7 +480,7 @@ class SyncService(
     }
 
     /** Download Photo Prescription*/
-    internal suspend fun downloadPhotoPrescription(
+    suspend fun downloadPhotoPrescription(
         patientId: String?,
         logout: (Boolean, String) -> Unit
     ): ResponseMapper<Any>? {

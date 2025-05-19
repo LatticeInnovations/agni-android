@@ -2,8 +2,8 @@ package com.latticeonfhir.core.data.repository.local.cvd.records
 
 import com.latticeonfhir.core.database.dao.CVDDao
 import com.latticeonfhir.core.model.server.cvd.CVDResponse
-import com.latticeonfhir.core.utils.converters.responseconverter.toCVDEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toCVDResponse
+import com.latticeonfhir.core.network.utils.responseconverter.toCVDEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toCVDResponse
 import javax.inject.Inject
 
 class CVDAssessmentRepositoryImpl@Inject constructor(

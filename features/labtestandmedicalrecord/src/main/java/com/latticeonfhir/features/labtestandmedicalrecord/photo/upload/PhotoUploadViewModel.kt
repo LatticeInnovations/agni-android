@@ -27,9 +27,9 @@ import com.latticeonfhir.core.model.local.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.model.server.prescription.photo.File
 import com.latticeonfhir.core.utils.builders.UUIDBuilder
-import com.latticeonfhir.core.utils.common.Queries
-import com.latticeonfhir.core.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
-import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
+import com.latticeonfhir.core.data.utils.common.Queries
+import com.latticeonfhir.core.data.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
+import com.latticeonfhir.core.data.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.core.utils.constants.LabTestAndMedConstants
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate

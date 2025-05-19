@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.latticeonfhir.core.service.workmanager.utils
+package com.latticeonfhir.sync.workmanager.workmanager.utils
 
-import com.latticeonfhir.core.data.local.enums.SyncOperation
+import com.latticeonfhir.core.model.enums.SyncOperation
+import com.latticeonfhir.core.service.workmanager.utils.ResourceSyncException
 import java.util.Date
 
 sealed class SyncJobStatus {

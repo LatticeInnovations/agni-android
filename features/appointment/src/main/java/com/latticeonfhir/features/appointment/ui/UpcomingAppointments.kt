@@ -26,12 +26,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
+import com.latticeonfhir.core.navigation.Screen
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.APPOINTMENT_SELECTED
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.IF_RESCHEDULING
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.converters.TimeConverter.toAppointmentDate
 import com.latticeonfhir.features.appointment.R
-import com.latticeonfhir.features.appointment.navigation.Screen
 
 @Composable
 fun UpcomingAppointments(navController: NavController, viewModel: AppointmentsScreenViewModel) {

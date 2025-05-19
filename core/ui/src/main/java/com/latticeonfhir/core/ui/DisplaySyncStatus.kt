@@ -18,9 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.android.theme.Primary10
-import com.latticeonfhir.android.theme.SyncFailedColor
 import com.latticeonfhir.core.model.enums.WorkerStatus
+import com.latticeonfhir.core.theme.Primary10
+import com.latticeonfhir.core.theme.SyncFailedColor
 
 @Composable
 fun DisplaySyncStatus(

@@ -1,7 +1,7 @@
-package com.latticeonfhir.core.data.local.model.patient
+package com.latticeonfhir.core.model.local.patient
 
 import androidx.annotation.Keep
-import com.latticeonfhir.core.data.local.enums.RelationEnum
+import com.latticeonfhir.core.model.enums.RelationEnum
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 
 @Keep

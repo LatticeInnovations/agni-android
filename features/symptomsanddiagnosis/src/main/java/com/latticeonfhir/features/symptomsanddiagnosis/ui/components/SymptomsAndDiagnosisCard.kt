@@ -29,7 +29,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
+import com.latticeonfhir.core.model.local.symdiag.SymptomsAndDiagnosisLocal
 import com.latticeonfhir.core.utils.converters.TimeConverter.convertDateFormat
 import com.latticeonfhir.core.utils.converters.TimeConverter.convertedDate
 import com.latticeonfhir.features.symptomsanddiagnosis.R

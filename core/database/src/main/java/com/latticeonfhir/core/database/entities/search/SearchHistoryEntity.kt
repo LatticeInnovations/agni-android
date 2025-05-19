@@ -3,7 +3,7 @@ package com.latticeonfhir.core.database.entities.search
 import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.latticeonfhir.core.data.local.enums.SearchTypeEnum
+import com.latticeonfhir.core.model.enums.SearchTypeEnum
 import java.util.Date
 
 @Entity

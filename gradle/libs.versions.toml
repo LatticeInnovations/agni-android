@@ -196,6 +196,7 @@ roborazzi-accessibility-check = { group = "io.github.takahirom.roborazzi", name 
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-paging = { group = "androidx.room", name = "room-paging", version.ref = "room" }
 sqlcipher = { group = "net.zetetic", name = "android-database-sqlcipher", version.ref = "sqlcipher" }
 sqlite = { group = "androidx.sqlite", name = "sqlite-ktx", version.ref = "sqlite" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }

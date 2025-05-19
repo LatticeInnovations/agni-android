@@ -1,9 +1,9 @@
 package com.latticeonfhir.core.data.repository.local.generic
 
-import com.latticeonfhir.core.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.core.data.local.model.vital.VitalLocal
 import com.latticeonfhir.core.model.enums.GenericTypeEnum
 import com.latticeonfhir.core.model.enums.SyncType
+import com.latticeonfhir.core.model.local.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.core.model.server.cvd.CVDResponse
 import com.latticeonfhir.core.model.server.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.core.model.server.patient.PatientLastUpdatedResponse

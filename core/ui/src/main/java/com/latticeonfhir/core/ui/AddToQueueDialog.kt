@@ -2,6 +2,7 @@ package com.latticeonfhir.core.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
 
 @Composable
 fun AddToQueueDialog(

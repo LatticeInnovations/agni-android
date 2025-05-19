@@ -13,9 +13,9 @@ import com.latticeonfhir.core.database.dao.PatientDao
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.model.server.relatedperson.RelatedPersonResponse
 import com.latticeonfhir.core.model.server.relatedperson.Relationship
+import com.latticeonfhir.core.network.utils.responseconverter.toRelationEntity
 import com.latticeonfhir.core.utils.builders.UUIDBuilder
 import com.latticeonfhir.core.utils.converters.responseconverter.RelationConverter
-import com.latticeonfhir.core.utils.converters.responseconverter.toRelationEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

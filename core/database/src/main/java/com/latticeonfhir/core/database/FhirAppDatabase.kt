@@ -6,7 +6,6 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.latticeonfhir.core.BuildConfig
 import com.latticeonfhir.core.database.dao.AppointmentDao
 import com.latticeonfhir.core.database.dao.CVDDao
 import com.latticeonfhir.core.database.dao.DispenseDao

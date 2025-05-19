@@ -9,9 +9,9 @@ import androidx.paging.liveData
 import androidx.paging.map
 import com.latticeonfhir.core.database.dao.PatientDao
 import com.latticeonfhir.core.model.server.patient.PatientResponse
+import com.latticeonfhir.core.network.utils.responseconverter.toPatientEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toPatientResponse
 import com.latticeonfhir.core.utils.constants.Paging.PAGE_SIZE
-import com.latticeonfhir.core.utils.converters.responseconverter.toPatientEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toPatientResponse
 import javax.inject.Inject
 
 class PatientRepositoryImpl @Inject constructor(private val patientDao: PatientDao) :

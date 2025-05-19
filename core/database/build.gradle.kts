@@ -10,8 +10,8 @@ android {
 }
 
 dependencies {
-    api(projects.core.model)
     api(projects.core.sharedpreference)
+    api(projects.core.model)
 
     implementation(libs.kotlinx.datetime)
     implementation(libs.google.gson)

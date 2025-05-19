@@ -3,8 +3,8 @@ package com.latticeonfhir.core.data.repository.local.appointment
 import com.latticeonfhir.core.database.dao.AppointmentDao
 import com.latticeonfhir.core.database.entities.appointment.AppointmentEntity
 import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
-import com.latticeonfhir.core.utils.converters.responseconverter.toAppointmentEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toAppointmentResponseLocal
+import com.latticeonfhir.core.network.utils.responseconverter.toAppointmentEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toAppointmentResponseLocal
 import javax.inject.Inject
 
 class AppointmentRepositoryImpl @Inject constructor(private val appointmentDao: AppointmentDao) :

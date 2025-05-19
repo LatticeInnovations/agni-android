@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.utils.converters.responseconverter
 
-import com.latticeonfhir.android.data.local.model.vaccination.Immunization
+import com.latticeonfhir.core.model.local.vaccination.Immunization
 import com.latticeonfhir.core.database.entities.vaccination.ImmunizationEntity
 import com.latticeonfhir.core.database.entities.vaccination.ImmunizationFileEntity
 import com.latticeonfhir.core.database.entities.vaccination.ImmunizationRecommendationEntity
@@ -43,7 +43,7 @@ object Vaccination {
         )
     }
 
-    internal fun ImmunizationResponse.toImmunizationEntity(patientId: String, appointmentId: String): ImmunizationEntity {
+    fun ImmunizationResponse.toImmunizationEntity(patientId: String, appointmentId: String): ImmunizationEntity {
         return ImmunizationEntity(
             id = this.immunizationUuid,
             appointmentId = appointmentId,

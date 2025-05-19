@@ -2,22 +2,22 @@ package com.latticeonfhir.core.utils.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.latticeonfhir.core.database.entities.patient.PatientAndIdentifierEntity
+import com.latticeonfhir.core.model.entity.patient.PatientAndIdentifierEntity
 import java.io.IOException
 
 class SearchPagingSource(
-    private val fuzzyList: List<PatientAndIdentifierEntity>,
+    private val fuzzyList: MutableList<com.latticeonfhir.core.database.entities.patient.PatientAndIdentifierEntity>,
     private val pageSize: Int
-) : PagingSource<Int, PatientAndIdentifierEntity>() {
+) : PagingSource<Int, com.latticeonfhir.core.database.entities.patient.PatientAndIdentifierEntity>() {
 
-    override fun getRefreshKey(state: PagingState<Int, PatientAndIdentifierEntity>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, com.latticeonfhir.core.database.entities.patient.PatientAndIdentifierEntity>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
         }
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PatientAndIdentifierEntity> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, com.latticeonfhir.core.database.entities.patient.PatientAndIdentifierEntity> {
         return try {
             val position = params.key ?: 0
             val left = position * pageSize

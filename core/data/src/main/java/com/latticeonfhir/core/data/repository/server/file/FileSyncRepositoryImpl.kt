@@ -13,8 +13,8 @@ import com.latticeonfhir.core.model.enums.WorkerStatus
 import com.latticeonfhir.core.model.server.file.request.FilesRequest
 import com.latticeonfhir.core.model.server.file.response.FilesResponse
 import com.latticeonfhir.core.network.api.FileUploadApiService
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfId
 import com.latticeonfhir.core.utils.constants.ApiConstants.FILES
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfId
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiEndResponse
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiResponseConverter
@@ -23,7 +23,6 @@ import com.latticeonfhir.core.utils.file.FileManager
 import com.latticeonfhir.core.utils.file.FileUtils.deleteZipFile
 import com.latticeonfhir.core.utils.file.FileUtils.saveFile
 import com.latticeonfhir.core.utils.file.FileUtils.unzipFile
-import com.latticeonfhir.sync.workmanager.workmanager.utils.EventBus
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -50,7 +49,7 @@ class FileSyncRepositoryImpl @Inject constructor(
         typeEnum: GenericTypeEnum,
         logout: (Boolean, String) -> Unit
     ) {
-        EventBus.photosWorkerStatus.postValue(WorkerStatus.IN_PROGRESS)
+//        EventBus.photosWorkerStatus.postValue(WorkerStatus.IN_PROGRESS)
         genericDao.getSameTypeGenericEntityPayload(
             typeEnum,
             SyncType.POST
@@ -62,7 +61,7 @@ class FileSyncRepositoryImpl @Inject constructor(
                     logout
                 )
             } else {
-                EventBus.photosWorkerStatus.postValue(WorkerStatus.SUCCESS)
+//                EventBus.photosWorkerStatus.postValue(WorkerStatus.SUCCESS)
             }
         }
     }
@@ -105,7 +104,7 @@ class FileSyncRepositoryImpl @Inject constructor(
                 startDownload(typeEnum, logout)
             }
             it.errorBody()?.let { errorBody ->
-                EventBus.photosWorkerStatus.postValue(WorkerStatus.FAILED)
+//                EventBus.photosWorkerStatus.postValue(WorkerStatus.FAILED)
                 logout(false, errorBody.string())
             }
         }
