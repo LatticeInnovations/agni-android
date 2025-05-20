@@ -1,17 +1,16 @@
 package com.latticeonfhir.core.utils.search
 
 import com.latticeonfhir.core.data.local.model.search.SearchParameters
-import com.latticeonfhir.core.database.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toAge
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
 object Search {
 
     fun getFuzzySearchList(
-        totalList: List<PatientAndIdentifierEntity>,
+        totalList: List<com.latticeonfhir.core.database.entities.patient.PatientAndIdentifierEntity>,
         searchParameters: SearchParameters,
         matchingRatio: Int
-    ): List<PatientAndIdentifierEntity> {
+    ): MutableList<com.latticeonfhir.core.database.entities.patient.PatientAndIdentifierEntity> {
         var finalList = totalList.toMutableList()
         searchParameters.run {
             if (!gender.isNullOrBlank()) {

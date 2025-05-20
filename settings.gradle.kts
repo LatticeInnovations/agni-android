@@ -1,8 +1,5 @@
 import java.net.URI
 
-include(":features:eventbus")
-
-
 pluginManagement {
     includeBuild("build-logic")
     repositories {
@@ -38,12 +35,14 @@ include(":core:base")
 include(":core:network")
 include(":core:data")
 include(":core:navigation")
+include(":core:sms")
 include(":core:utils")
 include(":core:ui")
 include(":core:theme")
 
 include(":features:cvd")
 include(":features:auth")
+include(":features:eventbus")
 include(":features:vaccination")
 include(":features:prescription")
 include(":features:dispense")

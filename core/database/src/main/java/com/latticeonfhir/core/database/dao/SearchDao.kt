@@ -5,12 +5,12 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.core.database.entities.patient.PatientAndIdentifierEntity
 import com.latticeonfhir.core.database.entities.search.SearchHistoryEntity
 import com.latticeonfhir.core.database.entities.search.SymDiagSearchEntity
 import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.DiagnosisEntity
 import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.SymptomsEntity
+import com.latticeonfhir.core.model.enums.SearchTypeEnum
 
 @Dao
 interface SearchDao {

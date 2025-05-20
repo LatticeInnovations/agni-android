@@ -13,6 +13,8 @@ import com.latticeonfhir.core.data.repository.local.patient.lastupdated.PatientL
 import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepository
 import com.latticeonfhir.core.data.repository.local.prescription.PrescriptionRepository
 import com.latticeonfhir.core.data.repository.local.schedule.ScheduleRepository
+import com.latticeonfhir.core.data.utils.common.Queries
+import com.latticeonfhir.core.data.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
 import com.latticeonfhir.core.model.enums.GenericTypeEnum
 import com.latticeonfhir.core.model.enums.PrescriptionType
@@ -24,12 +26,10 @@ import com.latticeonfhir.core.model.local.prescription.PrescriptionPhotoResponse
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.model.server.prescription.photo.PrescriptionPhotoPatch
 import com.latticeonfhir.core.model.server.prescription.photo.PrescriptionPhotoResponse
-import com.latticeonfhir.features.prescription.data.model.PrescriptionFormAndPhoto
-import com.latticeonfhir.core.utils.common.Queries
-import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import com.latticeonfhir.features.prescription.R
+import com.latticeonfhir.features.prescription.data.model.PrescriptionFormAndPhoto
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope

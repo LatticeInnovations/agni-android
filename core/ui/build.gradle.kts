@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.latticeonfhir.android.library)
     alias(libs.plugins.latticeonfhir.android.library.jacoco)
+    alias(libs.plugins.latticeonfhir.android.library.compose)
     alias(libs.plugins.latticeonfhir.hilt)
 }
 
@@ -13,6 +14,8 @@ dependencies {
     api(projects.core.utils)
     api(projects.core.theme)
     api(projects.core.navigation)
+    api(projects.core.data)
+    api(projects.core.sms)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

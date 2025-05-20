@@ -10,10 +10,10 @@ import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
 import com.latticeonfhir.core.data.repository.local.patient.lastupdated.PatientLastUpdatedRepository
 import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepository
 import com.latticeonfhir.core.data.repository.local.schedule.ScheduleRepository
+import com.latticeonfhir.core.data.utils.common.Queries
 import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
 import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
 import com.latticeonfhir.core.model.server.patient.PatientResponse
-import com.latticeonfhir.core.utils.common.Queries
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import dagger.hilt.android.lifecycle.HiltViewModel

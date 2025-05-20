@@ -23,8 +23,8 @@ import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
 import com.latticeonfhir.core.model.local.labtest.LabTestPhotoResponseLocal
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.model.server.prescription.photo.File
-import com.latticeonfhir.core.utils.common.Queries
-import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
+import com.latticeonfhir.core.data.utils.common.Queries
+import com.latticeonfhir.core.data.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.core.utils.constants.LabTestAndMedConstants
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate

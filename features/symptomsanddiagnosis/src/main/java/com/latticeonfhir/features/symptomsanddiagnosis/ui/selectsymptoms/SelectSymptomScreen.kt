@@ -59,7 +59,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.latticeonfhir.core.database.entities.symptomsanddiagnosis.SymptomsAndDiagnosisLocal
+import com.latticeonfhir.core.model.local.symdiag.SymptomsAndDiagnosisLocal
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay

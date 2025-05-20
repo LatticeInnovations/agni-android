@@ -9,7 +9,6 @@ import androidx.compose.runtime.setValue
 import androidx.core.net.toFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.android.data.local.model.vaccination.Immunization
 import com.latticeonfhir.core.data.local.model.vaccination.ImmunizationRecommendation
 import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
 import com.latticeonfhir.core.data.repository.local.file.DownloadedFileRepository
@@ -20,14 +19,15 @@ import com.latticeonfhir.core.data.repository.local.vaccination.ImmunizationReco
 import com.latticeonfhir.core.data.repository.local.vaccination.ImmunizationRepository
 import com.latticeonfhir.core.data.repository.local.vaccination.ManufacturerRepository
 import com.latticeonfhir.core.data.repository.server.file.FileSyncRepository
+import com.latticeonfhir.core.data.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
+import com.latticeonfhir.core.data.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.core.database.entities.file.DownloadedFileEntity
 import com.latticeonfhir.core.database.entities.file.FileUploadEntity
 import com.latticeonfhir.core.database.entities.vaccination.ManufacturerEntity
 import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
+import com.latticeonfhir.core.model.local.vaccination.Immunization
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.utils.builders.UUIDBuilder
-import com.latticeonfhir.core.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
-import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import com.latticeonfhir.core.utils.converters.responseconverter.Vaccination.toImmunizationResponse
@@ -119,7 +119,7 @@ class AddVaccinationViewModel @Inject constructor(
                 lotNumber = lotNo,
                 takenOn = takenOn,
                 expiryDate = dateOfExpiry!!,
-                manufacturer = if (selectedManufacturer.name != "Select") selectedManufacturer else null,
+                manufacturer = ((if (selectedManufacturer.name != "Select") selectedManufacturer else null) as com.latticeonfhir.core.model.entity.vaccination.ManufacturerEntity?),
                 notes = notes.trim().ifBlank { null },
                 filename = uploadedFileUri.map { it.toFile().name },
                 patientId = patient!!.id,

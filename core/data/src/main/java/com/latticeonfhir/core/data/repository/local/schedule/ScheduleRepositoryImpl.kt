@@ -2,8 +2,8 @@ package com.latticeonfhir.core.data.repository.local.schedule
 
 import com.latticeonfhir.core.database.dao.ScheduleDao
 import com.latticeonfhir.core.model.server.scheduleandappointment.schedule.ScheduleResponse
-import com.latticeonfhir.core.utils.converters.responseconverter.toScheduleEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toScheduleResponse
+import com.latticeonfhir.core.network.utils.responseconverter.toScheduleEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toScheduleResponse
 import javax.inject.Inject
 
 class ScheduleRepositoryImpl @Inject constructor(private val scheduleDao: ScheduleDao) :

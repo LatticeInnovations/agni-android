@@ -64,33 +64,33 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.github.mikephil.charting.data.Entry
-import com.latticeonfhir.android.data.local.model.vital.VitalLocal
-import com.latticeonfhir.core.data.server.model.cvd.CVDResponse
-import com.latticeonfhir.core.data.server.model.patient.PatientResponse
+import com.latticeonfhir.core.data.local.model.vital.VitalLocal
+import com.latticeonfhir.core.model.server.cvd.CVDResponse
+import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.navigation.Screen
+import com.latticeonfhir.core.theme.VitalLabel
+import com.latticeonfhir.core.ui.AllSlotsBookedDialog
 import com.latticeonfhir.core.ui.CustomDialog
-import com.latticeonfhir.core.ui.patientlandingscreen.AllSlotsBookedDialog
-import com.latticeonfhir.android.theme.VitalLabel
-import com.latticeonfhir.core.ui.vitalsscreen.components.CustomChip
-import com.latticeonfhir.core.ui.vitalsscreen.components.LineChartView
-import com.latticeonfhir.android.ui.vitalsscreen.components.LineChartViewGlucose
-import com.latticeonfhir.core.ui.vitalsscreen.components.SegmentedButtonForVital
-import com.latticeonfhir.core.ui.vitalsscreen.enums.BGEnum
-import com.latticeonfhir.core.ui.vitalsscreen.enums.TemperatureEnum
-import com.latticeonfhir.android.ui.vitalsscreen.enums.VitalsEyeEnum
-import com.latticeonfhir.android.ui.vitalsscreen.enums.VitalsTrendEnum
 import com.latticeonfhir.core.utils.constants.NavControllerConstants.PATIENT
-import com.latticeonfhir.android.utils.constants.VitalConstants.ALL
+import com.latticeonfhir.core.utils.constants.VitalConstants.ALL
 import com.latticeonfhir.core.utils.constants.VitalConstants.CVD_RECORD
 import com.latticeonfhir.core.utils.constants.VitalConstants.LIST_TYPE_CVD
 import com.latticeonfhir.core.utils.constants.VitalConstants.LIST_TYPE_VITAL
 import com.latticeonfhir.core.utils.constants.VitalConstants.VITAL_UPDATE_OR_ADD
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.toJson
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.convertDateFormat
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.convertDateFormat
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.convertedDate
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.formatDateToDayMonth
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
-import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toTodayStartDate
+import com.latticeonfhir.features.vitals.components.CustomChip
+import com.latticeonfhir.features.vitals.components.LineChartView
+import com.latticeonfhir.features.vitals.components.LineChartViewGlucose
+import com.latticeonfhir.features.vitals.components.SegmentedButtonForVital
+import com.latticeonfhir.features.vitals.enums.BGEnum
+import com.latticeonfhir.features.vitals.enums.TemperatureEnum
+import com.latticeonfhir.features.vitals.enums.VitalsEyeEnum
+import com.latticeonfhir.features.vitals.enums.VitalsTrendEnum
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -311,7 +311,7 @@ private fun ShowDialogs(
     vitalsViewModel: VitalsViewModel, navController: NavController, scope: CoroutineScope
 ) {
     if (vitalsViewModel.showAddToQueueDialog) {
-        com.latticeonfhir.core.ui.CustomDialog(title = if (vitalsViewModel.appointment != null) stringResource(
+        CustomDialog(title = if (vitalsViewModel.appointment != null) stringResource(
             id = R.string.patient_arrived_question
         ) else stringResource(
             id = R.string.add_to_queue_question
@@ -1035,14 +1035,14 @@ fun ViewMoreItems(vital: VitalLocal, context: Context) {
     Column {
         VitalCardItem(
             title = stringResource(R.string.eye_test_result_left),
-            value = if (vital.leftEye != null) vital.leftEye.toInt()
+            value = if (vital.leftEye != null) vital.leftEye!!.toInt()
                 .getEyeTypeName(context) else stringResource(
                 id = R.string.dashes
             )
         )
         VitalCardItem(
             title = stringResource(R.string.eye_test_result_right),
-            value = if (vital.rightEye != null) vital.rightEye.toInt()
+            value = if (vital.rightEye != null) vital.rightEye!!.toInt()
                 .getEyeTypeName(context) else stringResource(
                 id = R.string.dashes
             )

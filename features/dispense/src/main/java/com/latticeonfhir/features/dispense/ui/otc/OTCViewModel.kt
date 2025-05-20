@@ -20,8 +20,8 @@ import com.latticeonfhir.core.model.server.dispense.request.MedicineDispenseRequ
 import com.latticeonfhir.core.model.server.dispense.request.MedicineDispensed
 import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.utils.builders.UUIDBuilder
-import com.latticeonfhir.core.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
-import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
+import com.latticeonfhir.core.data.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
+import com.latticeonfhir.core.data.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import com.latticeonfhir.features.dispense.data.enums.DispenseCategoryEnum

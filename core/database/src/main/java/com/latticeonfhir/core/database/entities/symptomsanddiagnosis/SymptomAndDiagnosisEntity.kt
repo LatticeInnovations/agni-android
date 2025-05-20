@@ -5,8 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.latticeonfhir.core.data.server.model.symptomsanddiagnosis.SymptomsAndDiagnosisItem
 import com.latticeonfhir.core.database.entities.patient.PatientEntity
+import com.latticeonfhir.core.model.server.symptomsanddiagnosis.SymptomsAndDiagnosisItem
 import java.util.Date
 
 @Entity(

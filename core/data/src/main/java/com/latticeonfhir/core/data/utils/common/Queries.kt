@@ -1,4 +1,4 @@
-package com.latticeonfhir.core.utils.common
+package com.latticeonfhir.core.data.utils.common
 
 import com.latticeonfhir.android.data.local.model.patch.ChangeRequest
 import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
@@ -30,6 +30,7 @@ import com.latticeonfhir.core.utils.converters.TimeConverter.toCurrentTimeInMill
 import com.latticeonfhir.core.utils.converters.TimeConverter.toSlotStartTime
 import timber.log.Timber
 import java.util.Date
+import kotlin.compareTo
 
 object Queries {
     suspend fun addPatientToQueue(

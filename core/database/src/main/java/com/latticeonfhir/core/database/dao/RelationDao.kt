@@ -5,9 +5,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.latticeonfhir.android.data.local.enums.RelationEnum
 import com.latticeonfhir.core.database.entities.relation.RelationEntity
 import com.latticeonfhir.core.database.views.RelationView
+import com.latticeonfhir.core.model.enums.RelationEnum
 
 @Dao
 interface RelationDao {

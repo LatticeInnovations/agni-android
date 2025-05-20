@@ -26,6 +26,7 @@ import com.latticeonfhir.core.database.entities.patient.IdentifierEntity
 import com.latticeonfhir.core.database.entities.prescription.PrescriptionDirectionsEntity
 import com.latticeonfhir.core.database.entities.prescription.photo.PrescriptionPhotoEntity
 import com.latticeonfhir.core.database.entities.relation.RelationEntity
+import com.latticeonfhir.core.model.entity.vaccination.ImmunizationEntity
 import com.latticeonfhir.core.model.enums.DispenseStatusEnum
 import com.latticeonfhir.core.model.enums.GenericTypeEnum
 import com.latticeonfhir.core.model.enums.IdentifierCodeEnum
@@ -55,34 +56,37 @@ import com.latticeonfhir.core.model.server.vaccination.ImmunizationResponse
 import com.latticeonfhir.core.model.server.vaccination.ManufacturerResponse
 import com.latticeonfhir.core.model.server.vitals.VitalResponse
 import com.latticeonfhir.core.network.api.PatientApiService
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfMedicineDirectionsEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfMedicineDispenseListEntity
 import com.latticeonfhir.core.utils.constants.ErrorConstants
+import com.latticeonfhir.core.network.utils.responseconverter.toAppointmentEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toCVDEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toDispensePrescriptionEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toLabTestEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toLabTestPhotoResponseLocal
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfDispenseDataEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfId
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfIdentifierEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfLabTestAndMedPhotoEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfLabTestPhotoEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfMedicationEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfMedicineDirectionsEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfMedicineDispenseListEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfPrescriptionDirectionsEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfPrescriptionPhotoEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toMedRecordPhotoResponseLocal
+import com.latticeonfhir.core.network.utils.responseconverter.toPatientEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toPatientLastUpdatedEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toPrescriptionEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toRelationEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toScheduleEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toSymptomsAndDiagnosisEntity
+import com.latticeonfhir.core.network.utils.responseconverter.toVitalEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters
+import com.latticeonfhir.core.utils.converters.responseconverter.Vaccination.toImmunizationEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.Vaccination.toImmunizationFileEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.Vaccination.toImmunizationRecommendationEntity
 import com.latticeonfhir.core.utils.converters.responseconverter.Vaccination.toManufacturerEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toAppointmentEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toCVDEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toDispensePrescriptionEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toLabTestEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toLabTestPhotoResponseLocal
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfDispenseDataEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfId
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfIdentifierEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfLabTestAndMedPhotoEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfLabTestPhotoEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfMedicationEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfMedicineDirectionsEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfMedicineDispenseListEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfPrescriptionDirectionsEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfPrescriptionPhotoEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toMedRecordPhotoResponseLocal
-import com.latticeonfhir.core.utils.converters.responseconverter.toPatientEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toPatientLastUpdatedEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toPrescriptionEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toRelationEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toScheduleEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toSymptomsAndDiagnosisEntity
-import com.latticeonfhir.core.utils.converters.responseconverter.toVitalEntity
 import com.latticeonfhir.core.utils.file.DeleteFileManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -756,7 +760,7 @@ open class SyncRepositoryDatabaseTransactions(
             *body.map { immunizationResponse ->
                 val patientId = patientDao.getPatientIdByFhirId(immunizationResponse.patientId)!!
                 val appointmentId = appointmentDao.getAppointmentIdByFhirId(immunizationResponse.appointmentId)
-                immunizationResponse.toImmunizationFileEntity(patientId, appointmentId)
+                immunizationResponse.toImmunizationEntity(patientId, appointmentId)
             }.toTypedArray()
         )
 

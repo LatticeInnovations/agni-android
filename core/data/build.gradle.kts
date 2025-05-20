@@ -13,7 +13,9 @@ dependencies {
     api(projects.core.sharedpreference)
     api(projects.core.network)
     api(projects.core.utils)
-    api(projects.sync.workmanager)
+    api(projects.core.model)
+//    api(projects.sync.workmanager)
+    
     implementation(libs.retrofit.core)
     implementation(libs.google.gson)
     implementation(libs.timber)

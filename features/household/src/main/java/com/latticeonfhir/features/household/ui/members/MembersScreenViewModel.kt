@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.latticeonfhir.core.base.viewmodel.BaseViewModel
-import com.latticeonfhir.core.data.local.model.patient.PatientResponseWithRelation
+import com.latticeonfhir.core.model.local.patient.PatientResponseWithRelation
 import com.latticeonfhir.core.data.repository.local.patient.PatientRepository
 import com.latticeonfhir.core.data.repository.local.relation.RelationRepository
 import com.latticeonfhir.core.database.entities.relation.RelationEntity

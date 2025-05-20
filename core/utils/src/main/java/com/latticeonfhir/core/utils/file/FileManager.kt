@@ -8,7 +8,6 @@ import android.os.Environment
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.core.net.toUri
-import com.latticeonfhir.android.BuildConfig
 import com.latticeonfhir.core.utils.R
 import com.latticeonfhir.core.utils.file.FileManager.createFolder
 import timber.log.Timber
@@ -125,13 +124,13 @@ object FileManager {
     }
 
     fun removeFromInternalStorage(context: Context, fileName: String) {
-        File(com.latticeonfhir.core.utils.file.FileManager.createFolder(context), fileName).delete()
+        File(createFolder(context), fileName).delete()
     }
 
     fun shareImageToOtherApps(context: Context, uri: Uri) {
         val contentUri = FileProvider.getUriForFile(
             context,
-            BuildConfig.APPLICATION_ID + ".provider",
+            "BuildConfig.APPLICATION_ID" + ".provider",
             uri.toFile()
         )
         val intent = Intent(Intent.ACTION_SEND).apply {

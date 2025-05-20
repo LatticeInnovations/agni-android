@@ -18,9 +18,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class TriggerWorkerPeriodic @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted workerParameters: WorkerParameters,
+abstract class TriggerWorkerPeriodic(
+    context: Context,
+    workerParameters: WorkerParameters,
     private val syncService: SyncService,
     syncRepository: SyncRepository,
     private val preferenceStorage: PreferenceStorage

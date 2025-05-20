@@ -14,9 +14,9 @@ import com.latticeonfhir.core.data.local.model.search.SearchParameters
 import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
 import com.latticeonfhir.core.data.repository.local.relation.RelationRepository
 import com.latticeonfhir.core.data.repository.local.search.SearchRepository
+import com.latticeonfhir.core.data.utils.common.Queries.getSearchListWithLastVisited
 import com.latticeonfhir.core.model.enums.LastVisit
 import com.latticeonfhir.core.model.server.patient.PatientResponse
-import com.latticeonfhir.core.utils.common.Queries.getSearchListWithLastVisited
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

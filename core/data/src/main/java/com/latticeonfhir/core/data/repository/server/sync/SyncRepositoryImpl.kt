@@ -1,7 +1,6 @@
 package com.latticeonfhir.core.data.repository.server.sync
 
 import com.google.gson.internal.LinkedTreeMap
-import com.latticeonfhir.core.data.local.model.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.core.data.local.model.vital.VitalLocal
 import com.latticeonfhir.core.data.repository.local.preference.PreferenceRepository
 import com.latticeonfhir.core.database.dao.AppointmentDao
@@ -24,6 +23,7 @@ import com.latticeonfhir.core.database.dao.vaccincation.ManufacturerDao
 import com.latticeonfhir.core.model.enums.GenericTypeEnum
 import com.latticeonfhir.core.model.enums.PhotoUploadTypeEnum
 import com.latticeonfhir.core.model.enums.SyncType
+import com.latticeonfhir.core.model.local.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.core.model.server.create.CreateResponse
 import com.latticeonfhir.core.model.server.cvd.CVDResponse
 import com.latticeonfhir.core.model.server.dispense.request.MedicineDispenseRequest
@@ -68,15 +68,15 @@ import com.latticeonfhir.core.network.constants.QueryParameters.GREATER_THAN_BUI
 import com.latticeonfhir.core.network.constants.QueryParameters.ID
 import com.latticeonfhir.core.network.constants.QueryParameters.LAST_UPDATED
 import com.latticeonfhir.core.network.constants.QueryParameters.OFFSET
+import com.latticeonfhir.core.network.constants.QueryParameters.ORG_ID
 import com.latticeonfhir.core.network.constants.QueryParameters.PATIENT
 import com.latticeonfhir.core.network.constants.QueryParameters.PATIENT_ID
 import com.latticeonfhir.core.network.constants.QueryParameters.SORT
-import com.latticeonfhir.core.network.constants.QueryParameters.ORG_ID
+import com.latticeonfhir.core.network.utils.responseconverter.toListOfId
+import com.latticeonfhir.core.network.utils.responseconverter.toNoBracketAndNoSpaceString
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTimeStampDate
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.mapToObject
-import com.latticeonfhir.core.utils.converters.responseconverter.toListOfId
-import com.latticeonfhir.core.utils.converters.responseconverter.toNoBracketAndNoSpaceString
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiContinueResponse
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.core.utils.converters.responsemapper.ApiEndResponse

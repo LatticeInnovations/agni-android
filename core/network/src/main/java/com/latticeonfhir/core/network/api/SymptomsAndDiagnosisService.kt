@@ -1,6 +1,6 @@
 package com.latticeonfhir.core.network.api
 
-import com.latticeonfhir.core.data.local.model.symdiag.SymptomsAndDiagnosisData
+import com.latticeonfhir.core.model.local.symdiag.SymptomsAndDiagnosisData
 import com.latticeonfhir.core.model.base.BaseResponse
 import com.latticeonfhir.core.model.server.create.CreateResponse
 import com.latticeonfhir.core.model.server.symptomsanddiagnosis.Diagnosis

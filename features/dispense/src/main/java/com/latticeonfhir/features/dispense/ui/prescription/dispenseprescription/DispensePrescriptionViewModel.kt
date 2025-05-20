@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.latticeonfhir.core.data.local.model.dispense.DispenseModifiedInfo
+import com.latticeonfhir.core.model.local.dispense.DispenseModifiedInfo
 import com.latticeonfhir.core.data.repository.local.appointment.AppointmentRepository
 import com.latticeonfhir.core.data.repository.local.dispense.DispenseRepository
 import com.latticeonfhir.core.data.repository.local.generic.GenericRepository
@@ -25,8 +25,8 @@ import com.latticeonfhir.core.model.local.appointment.AppointmentResponseLocal
 import com.latticeonfhir.core.model.server.dispense.request.MedicineDispenseRequest
 import com.latticeonfhir.core.model.server.dispense.request.MedicineDispensed
 import com.latticeonfhir.core.utils.builders.UUIDBuilder
-import com.latticeonfhir.core.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
-import com.latticeonfhir.core.utils.common.Queries.updatePatientLastUpdated
+import com.latticeonfhir.core.data.utils.common.Queries.checkAndUpdateAppointmentStatusToInProgress
+import com.latticeonfhir.core.data.utils.common.Queries.updatePatientLastUpdated
 import com.latticeonfhir.core.utils.converters.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.TimeConverter.toTodayStartDate
 import com.latticeonfhir.features.dispense.data.enums.DispenseCategoryEnum

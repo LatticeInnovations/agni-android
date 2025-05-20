@@ -11,13 +11,13 @@ import com.latticeonfhir.core.model.enums.AppointmentStatusEnum
 import com.latticeonfhir.core.model.enums.ChangeTypeEnum
 import com.latticeonfhir.core.model.enums.GenericTypeEnum
 import com.latticeonfhir.core.model.enums.SyncType
+import com.latticeonfhir.core.network.utils.responseconverter.toAppointmentResponse
 import com.latticeonfhir.core.utils.builders.UUIDBuilder
 import com.latticeonfhir.core.utils.constants.Id
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.fromJson
 import com.latticeonfhir.core.utils.converters.responseconverter.GsonConverters.toJson
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.toEndOfDay
 import com.latticeonfhir.core.utils.converters.responseconverter.TimeConverter.yesterday
-import com.latticeonfhir.core.utils.converters.responseconverter.toAppointmentResponse
 import com.latticeonfhir.sync.workmanager.workmanager.workers.base.SyncWorker
 import java.util.Date
 

@@ -34,7 +34,7 @@ import com.latticeonfhir.core.model.server.patient.PatientResponse
 import com.latticeonfhir.core.service.workmanager.utils.Delay
 import com.latticeonfhir.sync.workmanager.workmanager.utils.Sync
 import com.latticeonfhir.sync.workmanager.workmanager.workers.trigger.TriggerWorkerPeriodicImpl
-import com.latticeonfhir.core.utils.common.Queries.getSearchListWithLastVisited
+import com.latticeonfhir.core.data.utils.common.Queries.getSearchListWithLastVisited
 import com.latticeonfhir.core.utils.constants.ErrorConstants.TOO_MANY_ATTEMPTS_ERROR
 import com.latticeonfhir.core.utils.converters.TimeConverter.calculateMinutesToOneThirty
 import com.latticeonfhir.core.utils.converters.TimeConverter.toLastSyncTime
@@ -64,7 +64,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LandingScreenViewModel @Inject constructor(
-    application: Application,
+    private val application: Application,
     private val patientRepository: PatientRepository,
     private val searchRepository: SearchRepository,
     private val preferenceRepository: PreferenceRepository,
@@ -72,11 +72,10 @@ class LandingScreenViewModel @Inject constructor(
     private val signUpRepository: SignUpRepository,
     private val authenticationRepository: AuthenticationRepository,
     private val fhirAppDatabase: FhirAppDatabase,
-    private val riskPredictionChartRepository: RiskPredictionChartRepository
+    private val riskPredictionChartRepository: RiskPredictionChartRepository,
+    private val workRequestBuilders: WorkRequestBuilders,
+    private val syncService: SyncService
 ) : BaseAndroidViewModel(application) {
-
-    private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
-    private val syncService: SyncService by lazy { (application as FhirApp).syncService }
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)
@@ -259,10 +258,10 @@ class LandingScreenViewModel @Inject constructor(
 
     internal fun syncData() {
         viewModelScope.launch(Dispatchers.IO) {
-            Sync.getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext)
+            Sync.getWorkerInfo<TriggerWorkerPeriodicImpl>(application.applicationContext)
                 .collectLatest { workInfo ->
                     if (workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
-                        getApplication<FhirApp>().launchSyncing()
+//                        getApplication<FhirApp>().launchSyncing()
                     }
                 }
         }
@@ -370,7 +369,7 @@ class LandingScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Default) {
             WorkManager.getInstance(getApplication<Application>().applicationContext)
                 .cancelAllWork().await().also {
-                    (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
+                    (application.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
                     preferenceRepository.resetAuthenticationToken()
                 }
         }
@@ -460,14 +459,14 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     private fun clearAllAppData() {
-        fhirAppDatabase.clearAllTables()
+//        fhirAppDatabase.clearAllTables()
         preferenceRepository.clearPreferences()
     }
 
     private suspend fun stopWorkers() {
         WorkManager.getInstance(getApplication<Application>().applicationContext)
             .cancelAllWork().await().also {
-                (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
+                (application.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
             }
     }
 }
