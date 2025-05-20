@@ -11,3 +11,17 @@ latticeagni
 ```
 GOOGLE_SERVICES_PASSPHRASE="$PASSPHRASE" ./decrypt_secret.sh
 ```
+
+## `development-nonfhirsdk-school` branch
+#### Modules included
+* Patient
+* Household member
+* Appointment
+* Prescription
+* Sign-up
+
+#### Architecture
+Monolithic
+
+#### Backend used
+Facade server
