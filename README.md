@@ -3,3 +3,16 @@ Android Application integrated with Hapi fhir server to demonstrate FHIR complia
 
 # JKS Password
 latticeagni
+
+## `development` branch
+#### Modules included
+* Patient
+* Household member
+* Appointment
+* Prescription
+
+#### Architecture
+Monolithic
+
+#### Backend used
+FHIR server communicated through FHIR-engine (FHIR-SDK) by frontend.
