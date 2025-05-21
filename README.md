@@ -1,17 +1,22 @@
+# Main Branch
+Production Ready Code
+
 # FHIR-Android
 Android Application integrated with Hapi fhir server to demonstrate FHIR compliant system
 
-# JKS Password
-latticeagni
+# Minimum Requirements
+Android Studio Meerkat Feature Drop | 2024.3.2
+Build #AI-243.25659.59.2432.13423653, built on April 29, 2025
+Runtime version: 21.0.6+-13368085-b895.109 amd64
+VM: OpenJDK 64-Bit Server VM by JetBrains s.r.o.
+Toolkit: sun.awt.windows.WToolkit
+Kotlin plugin: K2 mode
+GC: G1 Young Generation, G1 Concurrent GC, G1 Old Generation
+
+# Build Pre-requisite
+This app requires Firebase credentials for crashlytics and analytics purpose. Please generate your own credentials and put it into **app** folder for a successful build.
 
 <br/>
-
-**NOTE- After cloning the project for first time, run following command in terminal to decrypt `google-services.json` file.**
-
-```
-GOOGLE_SERVICES_PASSPHRASE="$PASSPHRASE" ./decrypt_secret.sh
-```
-
 
 ## `development-nonfhirsdk` branch
 #### Modules included
@@ -33,3 +38,5 @@ Monolithic
 
 #### Backend used
 Facade server
+
+Update your own **BASE_URL** into Gradle File.
