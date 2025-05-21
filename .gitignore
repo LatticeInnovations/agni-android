@@ -87,4 +87,8 @@ lint/tmp/
 # lint/reports/
 
 # google services key
-google-services.json
+app/google-services.json
+app/google-services.json.gpg
+
+# Signing key
+agni.jks
