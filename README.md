@@ -38,4 +38,5 @@ Monolithic
 
 #### Backend used
 Facade server
-\n Update your own **BASE_URL** into Gradle File.
+
+Update your own **BASE_URL** into Gradle File.
