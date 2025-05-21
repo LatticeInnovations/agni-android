@@ -16,6 +16,9 @@ GC: G1 Young Generation, G1 Concurrent GC, G1 Old Generation
 # Build Pre-requisite
 This app requires Firebase credentials for crashlytics and analytics purpose. Please generate your own credentials and put it into **app** folder for a successful build.
 
+# Build Instructions
+If you met minimum requirements, clone the repository and open in Android Studio. It will automatically build project.
+
 <br/>
 
 ## `development-nonfhirsdk` branch
@@ -38,5 +41,4 @@ Monolithic
 
 #### Backend used
 Facade server
-
-Update your own **BASE_URL** into Gradle File.
+- Update your own ```BASE_URL``` into Gradle File.
