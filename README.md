@@ -19,6 +19,9 @@ This app requires Firebase credentials for crashlytics and analytics purpose. Pl
 # Build Instructions
 If you met minimum requirements, clone the repository and open in Android Studio. It will automatically build project.
 
+# Signing your App
+https://developer.android.com/studio/publish/app-signing
+
 <br/>
 
 ## `development-nonfhirsdk` branch
