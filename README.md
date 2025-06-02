@@ -7,6 +7,7 @@ Agni is a mobile-first platform that:
 
 The system utilizes the WHO’s PEN protocols for cardiovascular disease (CVD) risk assessment[^1], and the Indian Academy of Pediatrics' immunization recommendations[^2]. Along with its focus on cardiac health and immunization, it provides a complete primary care workflow.
 
+Detailed design documentation is available on the [agni website](https://agni.thelattice.in/)
 # Minimum Requirements
 Android Studio Meerkat Feature Drop | 2024.3.2
 Build #AI-243.25659.59.2432.13423653, built on April 29, 2025
