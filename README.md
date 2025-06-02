@@ -20,6 +20,7 @@ Detailed design documentation is available on the [agni website](https://agni.th
 | Authentication        | Phone/email + OTP verification system                                         |
 
 # Technology Stack
+
 ## Development Environment
 - Android Studio: Meerkat Feature Drop 2024.3.2 or later
 - Gradle: 8.10.2 with Kotlin DSL
@@ -38,7 +39,11 @@ Detailed design documentation is available on the [agni website](https://agni.th
 | Testing              | JUnit + Mockito + Espresso    | -                | Unit and integration testing    |
 
 
-# Build Configuration and Quality Assurance
+# External Integrations
+- Facade Server(mandatory): Requires `BASE_URL` to be configured in [build.gradle](/app/build.gradle) to URL of deployed facade server
+- Firebase: Firebase keys for crashlytics and anlytics
+
+# Build Configuration
 The application implements comprehensive build automation and quality assurance:
 
 ## Build System
