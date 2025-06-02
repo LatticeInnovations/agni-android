@@ -40,7 +40,7 @@ Detailed design documentation is available on the [agni website](https://agni.th
 
 
 # External Integrations
-- Facade Server(mandatory): Requires `BASE_URL` to be configured in [build.gradle](/app/build.gradle) to URL of deployed [facade server](https://github.com/LatticeInnovations/fhir-facade-server)
+- Facade Server(mandatory): Requires `BASE_URL` to be configured in [build.gradle](/app/build.gradle) to URL of deployed [agni-facade server](https://github.com/LatticeInnovations/fhir-facade-server)
 - Firebase: Firebase keys for crashlytics and anlytics
 
 # Build Configuration
