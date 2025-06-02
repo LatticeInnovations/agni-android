@@ -51,3 +51,6 @@ The application implements comprehensive build automation and quality assurance:
 # Disclaimer
 * HL7® and FHIR® are [registered trademarks](https://confluence.hl7.org/display/FHIR/FHIR+Trademark+Policy) of Health Level Seven International. HAPI FHIR (https://hapifhir.io/) in an open-source implementation of FHIR in Java. This website is unaffiliated with HL7, FHIR, or HAPI FHIR.
 * We utilize publications from the public domain, from entities such as the World Health Organization, and the Indian Association of Pediatrics. We are unaffiliated with such agencies.
+
+[^1]: [HEARTS: Risk-based CVD management](https://iris.who.int/bitstream/handle/10665/333221/9789240001367-eng.pdf), _Annex 2 and 3: WHO CVD risk charts_; World Health Organization, 2020; ISBN 978-92-4-000136-7.
+[^2]: Kasi SG et al, [IAP ACVIP: Recommended Immunization Schedule (2020-21) and Update on Immunization for Children 0-18 Years](https://iapindia.org/pdf/ACVIP-recommandations-Indian-Pediatrics-January-2021-issue.pdf); _Indian Pediatrics_ 45 58(45): 2021 Jan; PII:S097475591600258
