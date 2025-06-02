@@ -28,8 +28,8 @@ https://developer.android.com/studio/publish/app-signing
 
 <br/>
 
-## `master` branch
-#### Modules included
+## Release branch `master`
+#### Active clinical modules
 * Patient
 * Household member
 * Appointment
