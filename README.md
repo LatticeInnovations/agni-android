@@ -8,49 +8,49 @@ Agni is a mobile-first platform that:
 The system utilizes the WHO’s PEN protocols for cardiovascular disease (CVD) risk assessment[^1], and the Indian Academy of Pediatrics' immunization recommendations[^2]. Along with its focus on cardiac health and immunization, it provides a complete primary care workflow.
 
 Detailed design documentation is available on the [agni website](https://agni.thelattice.in/)
-# Minimum Requirements
-Android Studio Meerkat Feature Drop | 2024.3.2
-Build #AI-243.25659.59.2432.13423653, built on April 29, 2025
-Runtime version: 21.0.6+-13368085-b895.109 amd64
-VM: OpenJDK 64-Bit Server VM by JetBrains s.r.o.
-Toolkit: sun.awt.windows.WToolkit
-Kotlin plugin: K2 mode
-GC: G1 Young Generation, G1 Concurrent GC, G1 Old Generation
 
-# Build Pre-requisite
-This app requires Firebase credentials for crashlytics and analytics purpose. Please generate your own credentials and put it into [app](/app) folder for a successful build.
+# Core Capabilities
 
-# Build Instructions
-If you met minimum requirements, clone the repository and open in Android Studio. It will automatically build project.
+| Module                | Functionality                                                                 |
+|-----------------------|-------------------------------------------------------------------------------|
+| Patient Management    | Registration, profile management, household relationships                     |
+| Clinical Workflows    | Prescriptions, vaccinations, appointments, CVD risk assessment                |
+| Medical Records       | Lab tests, symptoms, diagnosis, vitals monitoring, drug dispensing            |
+| Data Synchronization  | Bidirectional FHIR-compliant sync with backend server                         |
+| Authentication        | Phone/email + OTP verification system                                         |
 
-# Signing your App
-https://developer.android.com/studio/publish/app-signing
+# Technology Stack
+## Development Environment
+- Android Studio: Meerkat Feature Drop 2024.3.2 or later
+- Gradle: 8.10.2 with Kotlin DSL
+- Java/Kotlin: Java 17, Kotlin 1.9.24
+- Min SDK: 26 (Android 8.0), Target SDK: 34 (Android 14)
 
-<br/>
+## Core Technologies
+| Category             | Technology                    | Version          | Purpose                         |
+|----------------------|-------------------------------|------------------|---------------------------------|
+| UI Framework         | Jetpack Compose               | 1.6.6            | Modern declarative UI           |
+| Architecture         | MVVM + Repository             | -                | Clean architecture pattern      |
+| Dependency Injection | Dagger Hilt                   | 2.50             | Service location and DI         |
+| Database             | Room + SQLCipher              | 2.6.1 + 4.5.4    | Encrypted local storage         |
+| Networking           | Retrofit + OkHttp             | 2.9.0 + 4.11.0   | HTTP client and REST API        |
+| Background Work      | WorkManager                   | 2.9.0            | Background sync operations      |
+| Testing              | JUnit + Mockito + Espresso    | -                | Unit and integration testing    |
 
-## Release branch `master`
-#### Active clinical modules
-* Patient
-* Household member
-* Appointment
-* Prescription
-* CVD
-* Drug dispense
-* Lab test
-* Medical record
-* Symptoms and diagnosis
-* Vaccinations
-* Vitals
-* Sign-up
 
-#### Architecture
-Monolithic
+# Build Configuration and Quality Assurance
+The application implements comprehensive build automation and quality assurance:
 
-#### Backend used
-Facade server
-- Update your own ```BASE_URL``` into Gradle File.
-
+## Build System
+- Application ID: `com.latticeonfhir.android`
+- Version: 4.0.1 (build 69)
+- Build Types: Debug (with test coverage) and Release (with ProGuard obfuscation)
+- Signing: Custom keystore for release builds
+- Build Pre-requisites: Firebase credentals for crashlytics and analytics
 
 # Disclaimer
 * HL7® and FHIR® are [registered trademarks](https://confluence.hl7.org/display/FHIR/FHIR+Trademark+Policy) of Health Level Seven International. HAPI FHIR (https://hapifhir.io/) in an open-source implementation of FHIR in Java. This website is unaffiliated with HL7, FHIR, or HAPI FHIR.
 * We utilize publications from the public domain, from entities such as the World Health Organization, and the Indian Association of Pediatrics. We are unaffiliated with such agencies.
+
+[^1]: [HEARTS: Risk-based CVD management](https://iris.who.int/bitstream/handle/10665/333221/9789240001367-eng.pdf), _Annex 2 and 3: WHO CVD risk charts_; World Health Organization, 2020; ISBN 978-92-4-000136-7.
+[^2]: Kasi SG et al, [IAP ACVIP: Recommended Immunization Schedule (2020-21) and Update on Immunization for Children 0-18 Years](https://iapindia.org/pdf/ACVIP-recommandations-Indian-Pediatrics-January-2021-issue.pdf); _Indian Pediatrics_ 45 58(45): 2021 Jan; PII:S097475591600258
