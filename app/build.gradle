@@ -35,7 +35,7 @@ tasks.register('jacocoTestReport', JacocoReport) {
 android {
 
     namespace 'com.latticeonfhir.android'
-    compileSdk 34
+    compileSdk 35
 
     signingConfigs {
         release {
@@ -49,9 +49,9 @@ android {
     defaultConfig {
         applicationId "com.latticeonfhir.android"
         minSdk 26
-        targetSdk 34
-        versionCode 69
-        versionName "4.0.1"
+        targetSdk 35
+        versionCode 70
+        versionName "4.0.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
