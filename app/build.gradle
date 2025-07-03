@@ -79,9 +79,10 @@ android {
             debuggable true
             minifyEnabled false
             shrinkResources false
-            testCoverageEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
+            enableUnitTestCoverage true
+            enableAndroidTestCoverage true
             // dev
         }
         release {
