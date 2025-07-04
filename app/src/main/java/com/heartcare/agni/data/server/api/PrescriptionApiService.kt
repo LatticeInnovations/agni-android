@@ -21,7 +21,7 @@ interface PrescriptionApiService {
     @GET("Medication")
     suspend fun getAllMedications(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<MedicationResponse>>>
 
-    @POST("sync/{endPoint}")
+    @POST("{endPoint}")
     suspend fun postPrescriptionRelatedData(
         @Path("endPoint") endPoint: String,
         @Body prescriptionData: List<Any>
@@ -36,9 +36,9 @@ interface PrescriptionApiService {
     @GET("sct/medTime")
     suspend fun getMedicineTime(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<MedicineTimeResponse>>>
 
-    @PATCH("sync/DocumentReference")
+    @PATCH("DocumentReference")
     suspend fun patchListOfChanges(@Body patchLogs: List<Any>): Response<BaseResponse<List<CreateResponse>>>
 
-    @HTTP(method = "DELETE", path = "sync/PrescriptionFile", hasBody = true)
+    @HTTP(method = "DELETE", path = "PrescriptionFile", hasBody = true)
     suspend fun deletePrescriptionPhoto(@Body patchLogs: List<Any>): Response<BaseResponse<List<CreateResponse>>>
 }

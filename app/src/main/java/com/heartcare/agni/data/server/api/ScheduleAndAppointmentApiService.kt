@@ -17,15 +17,15 @@ interface ScheduleAndAppointmentApiService {
     @GET("Schedule")
     suspend fun getScheduleList(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<ScheduleResponse>>>
 
-    @POST("sync/Schedule")
+    @POST("Schedule")
     suspend fun postScheduleData(@Body scheduleResponses: List<Any>): Response<BaseResponse<List<CreateResponse>>>
 
     @GET("Appointment")
     suspend fun getAppointmentList(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<AppointmentResponse>>>
 
-    @POST("sync/Appointment")
+    @POST("Appointment")
     suspend fun createAppointment(@Body appointmentResponse: List<Any>): Response<BaseResponse<List<CreateResponse>>>
 
-    @PATCH("sync/Appointment")
+    @PATCH("Appointment")
     suspend fun patchListOfChanges(@Body patchLogs: List<Map<String, Any>>): Response<BaseResponse<List<CreateResponse>>>
 }

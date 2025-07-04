@@ -26,20 +26,20 @@ interface LabTestAndMedRecordService {
         @Path("endPoint") endPoint: String, @QueryMap(encoded = true) map: Map<String, String>?
     ): Response<BaseResponse<List<MedicalRecordResponse>>>
 
-    @POST("sync/{endPoint}")
+    @POST("{endPoint}")
     @JvmSuppressWildcards
     suspend fun createData(
         @Path("endPoint") endPoint: String,
         @Body labOrMed: List<Any>
     ): Response<BaseResponse<List<CreateResponse>>>
 
-    @PATCH("sync/DocumentReference")
+    @PATCH("DocumentReference")
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
         @Body patchLogs: List<Map<String, Any>>
     ): Response<BaseResponse<List<CreateResponse>>>
 
-    @HTTP(method = "DELETE", path = "sync/{endPoint}", hasBody = true)
+    @HTTP(method = "DELETE", path = "{endPoint}", hasBody = true)
     @JvmSuppressWildcards
     suspend fun deleteLabOrMedicalRecordPhoto(
         @Path("endPoint") endPoint: String,@Body patchLogs: List<Any>): Response<BaseResponse<List<CreateResponse>>>

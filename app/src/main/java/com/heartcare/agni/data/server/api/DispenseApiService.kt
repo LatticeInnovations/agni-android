@@ -18,7 +18,7 @@ interface DispenseApiService {
     @GET(MEDICATION_DISPENSE)
     suspend fun getDispenseRecords(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<MedicineDispenseResponse>>>
 
-    @POST("sync/{endPoint}")
+    @POST("{endPoint}")
     suspend fun postDispenseData(
         @Path("endPoint") endPoint: String,
         @Body dispenseData: List<Any>

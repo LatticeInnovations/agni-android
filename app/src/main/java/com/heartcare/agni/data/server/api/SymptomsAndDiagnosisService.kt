@@ -28,13 +28,13 @@ interface SymptomsAndDiagnosisService {
         @QueryMap(encoded = true) map: Map<String, String>?
     ): Response<BaseResponse<List<SymptomsAndDiagnosisResponse>>>
 
-    @POST("sync/{endPoint}")
+    @POST("{endPoint}")
     suspend fun createData(
         @Path("endPoint") endPoint: String,
         @Body symDiag: List<SymptomsAndDiagnosisData>
     ): Response<BaseResponse<List<CreateResponse>>>
 
-    @PATCH("sync/{endPoint}")
+    @PATCH("{endPoint}")
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
         @Path("endPoint") endPoint: String,
