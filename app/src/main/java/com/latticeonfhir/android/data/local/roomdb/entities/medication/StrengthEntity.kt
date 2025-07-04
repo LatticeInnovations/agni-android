@@ -7,7 +7,7 @@ import androidx.room.Index
 
 @Keep
 @Entity(
-    indices = [Index("id")],
+    indices = [Index("id"), Index("medFhirId")],
     primaryKeys = ["id"],
     foreignKeys = [
         ForeignKey(

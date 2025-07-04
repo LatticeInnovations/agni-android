@@ -10,6 +10,7 @@ plugins {
     id 'com.google.firebase.crashlytics'
     id 'com.google.devtools.ksp'
     id 'org.sonarqube' version("3.5.0.2730")
+    id 'org.jetbrains.kotlin.plugin.compose'
 }
 
 tasks.register('jacocoTestReport', JacocoReport) {
@@ -150,22 +151,22 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
 
     //Hilt-Dagger
-    implementation 'com.google.dagger:hilt-android:2.50'
-    kapt 'com.google.dagger:hilt-compiler:2.50'
+    implementation 'com.google.dagger:hilt-android:2.56.2'
+    ksp 'com.google.dagger:hilt-compiler:2.56.2'
 
     //Encrypt Shared Preferences
     implementation 'androidx.security:security-crypto:1.0.0'
 
     //Room Database
-    implementation 'androidx.room:room-runtime:2.6.1'
-    implementation 'androidx.room:room-ktx:2.6.1'
-    ksp 'androidx.room:room-compiler:2.6.1'
+    implementation 'androidx.room:room-runtime:2.7.2'
+    implementation 'androidx.room:room-ktx:2.7.2'
+    ksp 'androidx.room:room-compiler:2.7.2'
 
     //Room Database Test Helpers
-    testImplementation 'androidx.room:room-testing:2.6.1'
+    testImplementation 'androidx.room:room-testing:2.7.2'
 
     //Room Database Paging Support
-    implementation 'androidx.room:room-paging:2.6.1'
+    implementation 'androidx.room:room-paging:2.7.2'
 
     //Paging 3
     implementation 'androidx.paging:paging-runtime-ktx:3.3.6'
@@ -190,7 +191,7 @@ dependencies {
 
     //SQL Cipher
     implementation 'net.zetetic:android-database-sqlcipher:4.5.4'
-    implementation 'androidx.sqlite:sqlite-ktx:2.4.0'
+    implementation 'androidx.sqlite:sqlite-ktx:2.5.2'
 
     //Timber
     implementation 'com.jakewharton.timber:timber:5.0.1'
@@ -224,7 +225,7 @@ dependencies {
     // hilt- viewmodel compose
     implementation 'androidx.hilt:hilt-navigation-compose:1.2.0'
     // Firebase Bom
-    implementation platform('com.google.firebase:firebase-bom:31.5.0')
+    implementation platform('com.google.firebase:firebase-bom:33.16.0')
 
     // Firebase Crashlytics
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
@@ -234,8 +235,8 @@ dependencies {
     implementation 'androidx.core:core-splashscreen:1.0.1'
 
     // google consent api for auto detection of otp
-    implementation 'com.google.android.gms:play-services-auth:21.1.0'
-    implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.2'
+    implementation 'com.google.android.gms:play-services-auth:21.3.0'
+    implementation 'com.google.android.gms:play-services-auth-api-phone:18.2.0'
 
     // reordering in lazy column list
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")

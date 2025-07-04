@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
 import androidx.room.Update
 import com.latticeonfhir.android.data.local.roomdb.entities.dispense.DispenseAndPrescriptionRelation
@@ -19,6 +20,7 @@ interface DispenseDao {
     suspend fun insertPrescriptionDispenseData(vararg dispensePrescriptionEntity: DispensePrescriptionEntity): List<Long>
 
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query("SELECT * FROM DispensePrescriptionEntity INNER JOIN PrescriptionEntity ON DispensePrescriptionEntity.prescriptionId = PrescriptionEntity.id WHERE DispensePrescriptionEntity.patientId=:patientId ORDER BY PrescriptionEntity.prescriptionDate DESC")
     suspend fun getPrescriptionDispenseData(patientId: String): List<DispenseAndPrescriptionRelation>
 
