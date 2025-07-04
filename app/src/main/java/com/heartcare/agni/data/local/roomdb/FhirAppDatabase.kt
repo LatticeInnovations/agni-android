@@ -1,7 +1,6 @@
 package com.heartcare.agni.data.local.roomdb
 
 import android.content.Context
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -23,8 +22,8 @@ import com.heartcare.agni.data.local.roomdb.dao.RelationDao
 import com.heartcare.agni.data.local.roomdb.dao.RiskPredictionDao
 import com.heartcare.agni.data.local.roomdb.dao.ScheduleDao
 import com.heartcare.agni.data.local.roomdb.dao.SearchDao
-import com.heartcare.agni.data.local.roomdb.dao.VitalDao
 import com.heartcare.agni.data.local.roomdb.dao.SymptomsAndDiagnosisDao
+import com.heartcare.agni.data.local.roomdb.dao.VitalDao
 import com.heartcare.agni.data.local.roomdb.dao.vaccincation.ImmunizationDao
 import com.heartcare.agni.data.local.roomdb.dao.vaccincation.ImmunizationRecommendationDao
 import com.heartcare.agni.data.local.roomdb.dao.vaccincation.ManufacturerDao
@@ -51,7 +50,6 @@ import com.heartcare.agni.data.local.roomdb.entities.prescription.photo.Prescrip
 import com.heartcare.agni.data.local.roomdb.entities.relation.RelationEntity
 import com.heartcare.agni.data.local.roomdb.entities.schedule.ScheduleEntity
 import com.heartcare.agni.data.local.roomdb.entities.search.SearchHistoryEntity
-import com.heartcare.agni.data.local.roomdb.entities.vitals.VitalEntity
 import com.heartcare.agni.data.local.roomdb.entities.search.SymDiagSearchEntity
 import com.heartcare.agni.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
 import com.heartcare.agni.data.local.roomdb.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
@@ -60,6 +58,7 @@ import com.heartcare.agni.data.local.roomdb.entities.vaccination.ImmunizationEnt
 import com.heartcare.agni.data.local.roomdb.entities.vaccination.ImmunizationFileEntity
 import com.heartcare.agni.data.local.roomdb.entities.vaccination.ImmunizationRecommendationEntity
 import com.heartcare.agni.data.local.roomdb.entities.vaccination.ManufacturerEntity
+import com.heartcare.agni.data.local.roomdb.entities.vitals.VitalEntity
 import com.heartcare.agni.data.local.roomdb.typeconverters.SymptomDiagnosisTypeConverter
 import com.heartcare.agni.data.local.roomdb.typeconverters.TypeConverter
 import com.heartcare.agni.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
@@ -105,23 +104,7 @@ import java.util.UUID
         ManufacturerEntity::class
     ],
     views = [RelationView::class, PrescriptionDirectionAndMedicineView::class],
-    version = 15,
-    autoMigrations = [
-        AutoMigration(from = 1, to = 2),
-        AutoMigration(from = 2, to = 3),
-        AutoMigration(from = 3, to = 4),
-        AutoMigration(from = 4, to = 5),
-        AutoMigration(from = 5, to = 6),
-        AutoMigration(from = 6, to = 7),
-        AutoMigration(from = 7, to = 8),
-        AutoMigration(from = 8, to = 9),
-        AutoMigration(from = 9, to = 10),
-        AutoMigration(from = 10, to = 11),
-        AutoMigration(from = 11, to = 12),
-        AutoMigration(from = 12, to = 13),
-        AutoMigration(from = 13, to = 14),
-        AutoMigration(from = 14, to = 15)
-    ],
+    version = 1,
     exportSchema = true
 )
 @TypeConverters(TypeConverter::class, SymptomDiagnosisTypeConverter::class)
@@ -171,10 +154,10 @@ abstract class FhirAppDatabase : RoomDatabase() {
             val factory = SupportFactory(passphrase)
 
             return if (BuildConfig.DEBUG) {
-                Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android")
+                Room.databaseBuilder(context, FhirAppDatabase::class.java, "heartcare_agni")
                     .build()
             } else {
-                Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android")
+                Room.databaseBuilder(context, FhirAppDatabase::class.java, "heartcare_agni")
                     .openHelperFactory(factory)
                     .build()
             }
