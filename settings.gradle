@@ -16,5 +16,5 @@ dependencyResolutionManagement {
         maven { url 'https://jitpack.io' }
     }
 }
-rootProject.name = "FHIR-Android"
+rootProject.name = "Heartcare-Agni"
 include ':app'

@@ -1,0 +1,84 @@
+package com.heartcare.agni.data.local.repository.relation
+
+import com.heartcare.agni.data.local.enums.RelationEnum
+import com.heartcare.agni.data.local.model.relation.Relation
+import com.heartcare.agni.data.local.roomdb.dao.PatientDao
+import com.heartcare.agni.data.local.roomdb.dao.RelationDao
+import com.heartcare.agni.data.local.roomdb.entities.relation.RelationEntity
+import com.heartcare.agni.data.local.roomdb.views.RelationView
+import com.heartcare.agni.utils.converters.responseconverter.toRelationEntity
+import com.heartcare.agni.utils.converters.responseconverter.toReverseRelation
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+class RelationRepositoryImpl @Inject constructor(
+    private val relationDao: RelationDao,
+    private val patientDao: PatientDao
+) : RelationRepository {
+
+    override suspend fun addRelation(relation: Relation, relationAdded: (List<Long>) -> Unit) {
+        relationDao.insertRelation(
+            relation.toRelationEntity()
+        ).also {
+            relation.toRelationEntity().toReverseRelation(patientDao) { relationEntity ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    relationAdded(
+                        relationDao.insertRelation(
+                            relationEntity
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    override suspend fun addListOfRelation(listOfRelations: List<RelationEntity>): List<Long> {
+        return relationDao.insertRelation(
+            *listOfRelations.toTypedArray()
+        )
+    }
+
+    override suspend fun updateRelation(relation: Relation, relationUpdated: (Int) -> Unit) {
+        relationDao.updateRelation(
+            relationEnum = RelationEnum.fromString(relation.relation),
+            fromId = relation.patientId,
+            toId = relation.relativeId
+        ).also {
+            relation.toRelationEntity().toReverseRelation(patientDao) { relationEntity ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    relationUpdated(
+                        it.coerceAtLeast(
+                            relationDao.updateRelation(
+                                relationEnum = relationEntity.relation,
+                                fromId = relationEntity.fromId,
+                                toId = relationEntity.toId
+                            )
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    override suspend fun getRelationBetween(fromId: String, toId: String): List<RelationView> {
+        return relationDao.getRelation(fromId, toId)
+    }
+
+    override suspend fun getAllRelationOfPatient(patientId: String): List<RelationEntity> {
+        return relationDao.getAllRelationOfPatient(patientId)
+    }
+
+    override suspend fun deleteRelation(vararg relationId: String): Int {
+        return relationDao.deleteRelation(*relationId)
+    }
+
+    override suspend fun deleteRelation(fromId: String, toId: String): Int {
+        return relationDao.deleteRelation(fromId, toId)
+    }
+
+    override suspend fun deleteAllRelationOfPatient(patientId: String): Int {
+        return relationDao.deleteAllRelationOfPatient(patientId)
+    }
+}

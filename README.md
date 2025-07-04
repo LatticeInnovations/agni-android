@@ -47,7 +47,7 @@ Detailed design documentation is available on the [agni website](https://agni.th
 The application implements comprehensive build automation and quality assurance:
 
 ## Build System
-- Application ID: `com.latticeonfhir.android`
+- Application ID: `com.heartcare.agni`
 - Version: 4.0.1 (build 69)
 - Build Types: Debug (with test coverage) and Release (with ProGuard obfuscation)
 - Signing: Custom keystore for release builds
