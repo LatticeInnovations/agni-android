@@ -10,6 +10,7 @@ plugins {
     id 'com.google.firebase.crashlytics'
     id 'com.google.devtools.ksp'
     id 'org.sonarqube' version("3.5.0.2730")
+    id 'org.jetbrains.kotlin.plugin.compose'
 }
 
 tasks.register('jacocoTestReport', JacocoReport) {
@@ -21,12 +22,12 @@ tasks.register('jacocoTestReport', JacocoReport) {
     }
 
     def fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*']
-    def debugTree = fileTree(dir: "${buildDir}/intermediates/classes/debug", excludes: fileFilter)
+    def debugTree = fileTree(dir: "${layout.buildDirectory}/intermediates/classes/debug", excludes: fileFilter)
     def mainSrc = "${project.projectDir}/src/main/java"
 
     sourceDirectories.setFrom(files([mainSrc]))
     classDirectories.setFrom(files([debugTree]))
-    executionData.setFrom(fileTree(dir: "$buildDir", includes: [
+    executionData.setFrom(fileTree(dir: "$layout.buildDirectory", includes: [
             "jacoco/testDebugUnitTest.exec",
             "outputs/code-coverage/connected/*coverage.ec"
     ]))
@@ -79,9 +80,10 @@ android {
             debuggable true
             minifyEnabled false
             shrinkResources false
-            testCoverageEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
+            enableUnitTestCoverage true
+            enableAndroidTestCoverage true
             // dev
         }
         release {
@@ -123,19 +125,19 @@ android {
 dependencies {
 
     //Android Core
-    implementation 'androidx.core:core-ktx:1.13.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core-ktx:1.16.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
 
     //Material Components
-    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'com.google.android.material:material:1.12.0'
 
     //Constraint Layout
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
     //Testing
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
     testImplementation 'org.mockito:mockito-core:5.3.1'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
@@ -146,76 +148,76 @@ dependencies {
 
 
     //Recycler View
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
 
     //Hilt-Dagger
-    implementation 'com.google.dagger:hilt-android:2.50'
-    kapt 'com.google.dagger:hilt-compiler:2.50'
+    implementation 'com.google.dagger:hilt-android:2.56.2'
+    ksp 'com.google.dagger:hilt-compiler:2.56.2'
 
     //Encrypt Shared Preferences
     implementation 'androidx.security:security-crypto:1.0.0'
 
     //Room Database
-    implementation 'androidx.room:room-runtime:2.6.1'
-    implementation 'androidx.room:room-ktx:2.6.1'
-    ksp 'androidx.room:room-compiler:2.6.1'
+    implementation 'androidx.room:room-runtime:2.7.2'
+    implementation 'androidx.room:room-ktx:2.7.2'
+    ksp 'androidx.room:room-compiler:2.7.2'
 
     //Room Database Test Helpers
-    testImplementation 'androidx.room:room-testing:2.6.1'
+    testImplementation 'androidx.room:room-testing:2.7.2'
 
     //Room Database Paging Support
-    implementation 'androidx.room:room-paging:2.6.1'
+    implementation 'androidx.room:room-paging:2.7.2'
 
     //Paging 3
-    implementation 'androidx.paging:paging-runtime-ktx:3.2.1'
+    implementation 'androidx.paging:paging-runtime-ktx:3.3.6'
 
     //Jetpack Compose Paging
-    implementation 'androidx.paging:paging-compose:3.2.1'
+    implementation 'androidx.paging:paging-compose:3.3.6'
 
     //Paging 3 Test Implementation
-    testImplementation 'androidx.paging:paging-common-ktx:3.2.1'
-    androidTestImplementation 'androidx.paging:paging-common-ktx:3.2.1'
+    testImplementation 'androidx.paging:paging-common-ktx:3.3.6'
+    androidTestImplementation 'androidx.paging:paging-common-ktx:3.3.6'
 
     //Retrofit
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
 
     //GSON
     implementation 'com.google.code.gson:gson:2.10.1'
 
     //Fragment
-    implementation 'androidx.fragment:fragment-ktx:1.6.2'
+    implementation 'androidx.fragment:fragment-ktx:1.8.8'
 
     //SQL Cipher
     implementation 'net.zetetic:android-database-sqlcipher:4.5.4'
-    implementation 'androidx.sqlite:sqlite-ktx:2.4.0'
+    implementation 'androidx.sqlite:sqlite-ktx:2.5.2'
 
     //Timber
     implementation 'com.jakewharton.timber:timber:5.0.1'
 
     //compose
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:1.6.6"
-    debugImplementation "androidx.compose.ui:ui-tooling:1.6.6"
-    debugImplementation "androidx.compose.ui:ui-test-manifest:1.6.6"
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
-    implementation 'androidx.activity:activity-compose:1.9.0'
-    implementation "androidx.compose.ui:ui:1.6.6"
-    implementation "androidx.compose.ui:ui-tooling-preview:1.6.6"
-    implementation 'androidx.compose.material3:material3:1.2.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0'
-    implementation 'androidx.compose.foundation:foundation:1.6.6'
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:1.8.3"
+    debugImplementation "androidx.compose.ui:ui-tooling:1.8.3"
+    debugImplementation "androidx.compose.ui:ui-test-manifest:1.8.3"
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.9.1'
+    implementation 'androidx.activity:activity-compose:1.10.1'
+    implementation "androidx.compose.ui:ui:1.8.3"
+    implementation "androidx.compose.ui:ui-tooling-preview:1.8.3"
+    implementation 'androidx.compose.material3:material3:1.3.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1'
+    implementation 'androidx.compose.foundation:foundation:1.8.3'
 
     // navigation
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.navigation:navigation-compose:2.9.1")
 
     // date-time picker
     implementation("com.marosseleng.android:compose-material3-datetime-pickers:0.6.1")
 
     //Work Manager
-    implementation 'androidx.work:work-runtime-ktx:2.9.0'
+    implementation 'androidx.work:work-runtime-ktx:2.10.2'
     //Work Manager Testing
-    androidTestImplementation "androidx.work:work-testing:2.9.0"
+    androidTestImplementation "androidx.work:work-testing:2.10.2"
 
     //Fuzzy Wuzzy
     implementation 'me.xdrop:fuzzywuzzy:1.4.0'
@@ -223,7 +225,7 @@ dependencies {
     // hilt- viewmodel compose
     implementation 'androidx.hilt:hilt-navigation-compose:1.2.0'
     // Firebase Bom
-    implementation platform('com.google.firebase:firebase-bom:31.5.0')
+    implementation platform('com.google.firebase:firebase-bom:33.16.0')
 
     // Firebase Crashlytics
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
@@ -233,8 +235,8 @@ dependencies {
     implementation 'androidx.core:core-splashscreen:1.0.1'
 
     // google consent api for auto detection of otp
-    implementation 'com.google.android.gms:play-services-auth:21.1.0'
-    implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.2'
+    implementation 'com.google.android.gms:play-services-auth:21.3.0'
+    implementation 'com.google.android.gms:play-services-auth-api-phone:18.2.0'
 
     // reordering in lazy column list
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
@@ -243,10 +245,10 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.14.2")
 
     // cameraX
-    implementation("androidx.camera:camera-core:1.3.3")
-    implementation("androidx.camera:camera-camera2:1.3.3")
-    implementation("androidx.camera:camera-lifecycle:1.3.3")
-    implementation("androidx.camera:camera-view:1.3.3")
+    implementation("androidx.camera:camera-core:1.4.2")
+    implementation("androidx.camera:camera-camera2:1.4.2")
+    implementation("androidx.camera:camera-lifecycle:1.4.2")
+    implementation("androidx.camera:camera-view:1.4.2")
 
     // accompanist
     implementation("com.google.accompanist:accompanist-coil:0.15.0")

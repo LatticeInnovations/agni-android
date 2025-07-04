@@ -3,12 +3,14 @@ package com.latticeonfhir.android.data.local.roomdb.entities.cvd
 import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import com.latticeonfhir.android.data.local.roomdb.entities.appointment.AppointmentEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientEntity
 import java.util.Date
 
 @Keep
 @Entity(
+    indices = [Index("patientId"), Index("appointmentId")],
     primaryKeys = ["cvdUuid"],
     foreignKeys = [
         ForeignKey(

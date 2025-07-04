@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
 import androidx.room.Update
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.IdentifierEntity
@@ -23,6 +24,7 @@ interface PatientDao {
     suspend fun insertIdentifiers(vararg identifierEntity: IdentifierEntity): List<Long>
 
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query("SELECT * FROM PatientEntity INNER JOIN PatientLastUpdatedEntity ON PatientEntity.id = PatientLastUpdatedEntity.patientId ORDER BY PatientLastUpdatedEntity.lastUpdated DESC")
     fun getListPatientData(): PagingSource<Int, PatientAndIdentifierEntity>
 

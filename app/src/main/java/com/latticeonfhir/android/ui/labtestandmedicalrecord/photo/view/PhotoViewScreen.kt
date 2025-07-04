@@ -731,7 +731,7 @@ fun PhotoView(viewModel: PhotoViewViewModel) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .animateItemPlacement(tween(300, easing = LinearEasing))
+                        .animateItem(tween(300, easing = LinearEasing))
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.End

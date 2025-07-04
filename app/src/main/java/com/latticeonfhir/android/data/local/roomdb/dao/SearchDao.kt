@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
 import com.latticeonfhir.android.data.local.enums.SearchTypeEnum
 import com.latticeonfhir.android.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
@@ -20,6 +21,7 @@ interface SearchDao {
     suspend fun insertRecentSearch(searchHistoryEntity: SearchHistoryEntity): Long
 
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query("SELECT * FROM PatientEntity INNER JOIN PatientLastUpdatedEntity ON PatientEntity.id = PatientLastUpdatedEntity.patientId ORDER BY PatientLastUpdatedEntity.lastUpdated DESC")
     suspend fun getPatientList(): List<PatientAndIdentifierEntity>
 
