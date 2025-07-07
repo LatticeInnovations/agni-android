@@ -16,10 +16,10 @@ import retrofit2.http.QueryMap
 
 interface SymptomsAndDiagnosisService {
 
-    @GET("ValueSet?name=symptomsList")
+    @GET("SympDx/list?name=symptomsList")
     suspend fun getSymptoms(): Response<BaseResponse<List<Symptoms>>>
 
-    @GET("ValueSet?name=diagnosisList")
+    @GET("SympDx/list?name=diagnosisList")
     suspend fun getDiagnosis(): Response<BaseResponse<List<Diagnosis>>>
 
     @GET("{endPoint}")

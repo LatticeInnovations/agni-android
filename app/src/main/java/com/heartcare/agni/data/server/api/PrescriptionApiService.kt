@@ -27,7 +27,7 @@ interface PrescriptionApiService {
         @Body prescriptionData: List<Any>
     ): Response<BaseResponse<List<CreateResponse>>>
 
-    @GET("MedicationRequest")
+    @GET("Prescription")
     suspend fun getPastPrescription(@QueryMap(encoded = true) map: Map<String, String>?): Response<BaseResponse<List<PrescriptionResponse>>>
 
     @GET("PrescriptionFile")

@@ -487,9 +487,12 @@ class SyncService(
         return checkAuthenticationStatus(
             syncRepository.getAndInsertPhotoPrescription(patientId),
             logout
-        )?.apply {
+        )
+            ?.apply {
             if (this is ApiEmptyResponse || this is ApiEndResponse) {
-                downloadImmunizationAndRecommendation(patientId, logout)
+                downloadPrescriptionPhoto(logout)
+                // TODO: Remove immunization syncing for heart care
+                // downloadImmunizationAndRecommendation(patientId, logout)
             }
         }
     }
