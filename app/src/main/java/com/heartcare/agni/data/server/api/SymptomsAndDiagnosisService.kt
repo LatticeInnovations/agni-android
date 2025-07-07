@@ -16,10 +16,10 @@ import retrofit2.http.QueryMap
 
 interface SymptomsAndDiagnosisService {
 
-    @GET("ValueSet?name=symptomsList")
+    @GET("SympDx/list?name=symptomsList")
     suspend fun getSymptoms(): Response<BaseResponse<List<Symptoms>>>
 
-    @GET("ValueSet?name=diagnosisList")
+    @GET("SympDx/list?name=diagnosisList")
     suspend fun getDiagnosis(): Response<BaseResponse<List<Diagnosis>>>
 
     @GET("{endPoint}")
@@ -28,13 +28,13 @@ interface SymptomsAndDiagnosisService {
         @QueryMap(encoded = true) map: Map<String, String>?
     ): Response<BaseResponse<List<SymptomsAndDiagnosisResponse>>>
 
-    @POST("sync/{endPoint}")
+    @POST("{endPoint}")
     suspend fun createData(
         @Path("endPoint") endPoint: String,
         @Body symDiag: List<SymptomsAndDiagnosisData>
     ): Response<BaseResponse<List<CreateResponse>>>
 
-    @PATCH("sync/{endPoint}")
+    @PATCH("{endPoint}")
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
         @Path("endPoint") endPoint: String,

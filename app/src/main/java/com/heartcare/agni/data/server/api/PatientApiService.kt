@@ -22,7 +22,7 @@ interface PatientApiService {
         @QueryMap(encoded = true) map: Map<String, String>?
     ): Response<BaseResponse<List<PatientResponse>>>
 
-    @POST("sync/{endPoint}")
+    @POST("{endPoint}")
     suspend fun createData(
         @Path("endPoint") endPoint: String,
         @Body patientResponses: List<Any>
@@ -35,7 +35,7 @@ interface PatientApiService {
         @Body patchLogs: Map<String, Any>
     ): Response<BaseResponse<PatientResponse>>
 
-    @PATCH("sync/{endPoint}")
+    @PATCH("{endPoint}")
     suspend fun patchListOfChanges(
         @Path("endPoint") endPoint: String,
         @Body patchLogs: List<Map<String, Any>>

@@ -19,12 +19,12 @@ interface VitalApiService {
         @QueryMap(encoded = true) map: Map<String, String>?
     ): Response<BaseResponse<List<VitalResponse>>>
 
-    @POST("sync/{endPoint}")
+    @POST("{endPoint}")
     suspend fun createData(
         @Path("endPoint") endPoint: String, @Body vitals: List<VitalLocal>
     ): Response<BaseResponse<List<CreateResponse>>>
 
-    @PATCH("sync/{endPoint}")
+    @PATCH("{endPoint}")
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
         @Path("endPoint") endPoint: String,

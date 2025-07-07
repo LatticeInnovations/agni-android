@@ -13,7 +13,7 @@ import retrofit2.http.QueryMap
 @JvmSuppressWildcards
 interface CVDApiService {
 
-    @POST("sync/CVD")
+    @POST("CVD")
     suspend fun createCVD(@Body cvdResponse: List<CVDResponse>): Response<BaseResponse<List<CreateResponse>>>
 
     @GET("CVD")
@@ -21,7 +21,7 @@ interface CVDApiService {
         @QueryMap(encoded = true) map: Map<String, String>?
     ): Response<BaseResponse<List<CVDResponse>>>
 
-    @PATCH("sync/CVD")
+    @PATCH("CVD")
     @JvmSuppressWildcards
     suspend fun patchListOfChanges(
         @Body patchLogs: List<Map<String, Any>>

@@ -13,6 +13,10 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.compose'
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def BASE_URL = properties.getProperty('BASE_URL')
+
 tasks.register('jacocoTestReport', JacocoReport) {
     dependsOn['testDebugUnitTest', 'createDebugCoverageReport']
 
@@ -81,7 +85,7 @@ android {
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
+            buildConfigField "String", "BASE_URL", "\"${BASE_URL}\""
             enableUnitTestCoverage true
             enableAndroidTestCoverage true
             // dev
@@ -90,7 +94,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "YOUR_BASE_URL"
+            buildConfigField "String", "BASE_URL", "\"${BASE_URL}\""
             // test
             signingConfig signingConfigs.release
         }
