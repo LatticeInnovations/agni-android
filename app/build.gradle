@@ -238,9 +238,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:21.3.0'
     implementation 'com.google.android.gms:play-services-auth-api-phone:18.2.0'
 
-    // reordering in lazy column list
-    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
-
     // glide
     implementation("com.github.bumptech.glide:glide:4.14.2")
 
