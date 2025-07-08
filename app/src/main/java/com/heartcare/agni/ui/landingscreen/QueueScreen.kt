@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -95,9 +96,6 @@ import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toTim
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toTodayStartDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.burnoutcrew.reorderable.ReorderableItem
-import org.burnoutcrew.reorderable.rememberReorderableLazyListState
-import org.burnoutcrew.reorderable.reorderable
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -112,13 +110,7 @@ fun QueueScreen(
     viewModel: QueueViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val queueListState = rememberReorderableLazyListState(onMove = { from, to ->
-        if (to.index > 0 && to.index <= viewModel.waitingQueueList.size && from.index > 0 && from.index <= viewModel.waitingQueueList.size) {
-            viewModel.waitingQueueList = viewModel.waitingQueueList.toMutableList().apply {
-                add(to.index - 1, removeAt(from.index - 1))
-            }
-        }
-    })
+    val queueListState = rememberLazyListState()
     viewModel.rescheduled = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(
         NavControllerConstants.RESCHEDULED
     ) == true
@@ -145,7 +137,7 @@ fun QueueScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        AnimatedVisibility(queueListState.listState.firstVisibleItemScrollOffset == 0 && queueListState.listState.firstVisibleItemIndex == 0) {
+        AnimatedVisibility(queueListState.firstVisibleItemScrollOffset == 0 && queueListState.firstVisibleItemIndex == 0) {
             WeekDaysComposable(
                 dateScrollState,
                 viewModel.selectedDate,
@@ -194,7 +186,7 @@ fun QueueScreen(
                     AppointmentStatusChips(
                         R.string.total_appointment,
                         viewModel.appointmentsList.size,
-                        queueListState.listState,
+                        queueListState,
                         coroutineScope,
                         0,
                         viewModel
@@ -203,7 +195,7 @@ fun QueueScreen(
                         AppointmentStatusChips(
                             R.string.waiting_appointment,
                             viewModel.waitingQueueList.size,
-                            queueListState.listState,
+                            queueListState,
                             coroutineScope,
                             0,
                             viewModel
@@ -212,7 +204,7 @@ fun QueueScreen(
                         AppointmentStatusChips(
                             R.string.in_progress_appointment,
                             viewModel.inProgressQueueList.size,
-                            queueListState.listState,
+                            queueListState,
                             coroutineScope,
                             if (viewModel.waitingQueueList.isNotEmpty()) 1 else 0,
                             viewModel
@@ -226,7 +218,7 @@ fun QueueScreen(
                         AppointmentStatusChips(
                             R.string.scheduled_appointment,
                             viewModel.scheduledQueueList.size,
-                            queueListState.listState,
+                            queueListState,
                             coroutineScope,
                             viewModel.inProgressQueueList.size + if (viewModel.waitingQueueList.isNotEmpty()) 1 else 0,
                             viewModel
@@ -234,7 +226,7 @@ fun QueueScreen(
                         AppointmentStatusChips(
                             R.string.completed_appointment,
                             viewModel.completedQueueList.size,
-                            queueListState.listState,
+                            queueListState,
                             coroutineScope,
                             viewModel.inProgressQueueList.size + viewModel.scheduledQueueList.size + if (viewModel.waitingQueueList.isNotEmpty()) 1 else 0,
                             viewModel
@@ -242,7 +234,7 @@ fun QueueScreen(
                         AppointmentStatusChips(
                             R.string.cancelled_appointment,
                             viewModel.cancelledQueueList.size,
-                            queueListState.listState,
+                            queueListState,
                             coroutineScope,
                             viewModel.inProgressQueueList.size + viewModel.scheduledQueueList.size + viewModel.completedQueueList.size + if (viewModel.waitingQueueList.isNotEmpty()) 1 else 0,
                             viewModel
@@ -250,9 +242,7 @@ fun QueueScreen(
                     }
             }
             LazyColumn(
-                state = queueListState.listState,
-                modifier = Modifier
-                    .reorderable(queueListState),
+                state = queueListState,
                 content = {
                     if (viewModel.waitingQueueList.isNotEmpty())
                         item {
@@ -278,35 +268,29 @@ fun QueueScreen(
                                         color = MaterialTheme.colorScheme.outline
                                     )
                                     viewModel.waitingQueueList.forEach { waitingAppointmentResponse ->
-                                        ReorderableItem(
-                                            queueListState, key = waitingAppointmentResponse,
-                                            modifier = Modifier
-                                                .background(MaterialTheme.colorScheme.secondaryContainer)
-                                        ) { _ ->
-                                            var patient by remember {
-                                                mutableStateOf<PatientResponse?>(null)
-                                            }
-                                            waitingAppointmentResponse.patientId.let { patientId ->
-                                                LaunchedEffect(key1 = patientId) {
-                                                    patient = viewModel.getPatientById(
-                                                        patientId
-                                                    )
-                                                }
-                                            }
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(vertical = 9.dp),
-                                                horizontalArrangement = Arrangement.SpaceBetween
-                                            ) {
-                                                QueuePatientCard(
-                                                    navController,
-                                                    viewModel,
-                                                    landingViewModel,
-                                                    waitingAppointmentResponse,
-                                                    patient
+                                        var patient by remember {
+                                            mutableStateOf<PatientResponse?>(null)
+                                        }
+                                        waitingAppointmentResponse.patientId.let { patientId ->
+                                            LaunchedEffect(key1 = patientId) {
+                                                patient = viewModel.getPatientById(
+                                                    patientId
                                                 )
                                             }
+                                        }
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 9.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            QueuePatientCard(
+                                                navController,
+                                                viewModel,
+                                                landingViewModel,
+                                                waitingAppointmentResponse,
+                                                patient
+                                            )
                                         }
                                     }
                                 }
