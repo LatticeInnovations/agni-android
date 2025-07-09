@@ -47,6 +47,8 @@
     <string name="district">District</string>
     <string name="district_error_msg">Please enter your district.</string>
 
+    <string name="province_mandatory">Province*</string>
+
     <string name="email">Email</string>
 
     <string name="add_household_member">Add a household member</string>
@@ -105,10 +107,12 @@ include them in the household</string>
     <string name="patient_id_error_msg">Patient Id should be between 2 and 12.</string>
     <string name="select_age_range">Select age range</string>
     <string name="gender">Gender</string>
+    <string name="gender_mandatory">Gender*</string>
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="other">Other</string>
     <string name="last_facility_visit">Last facility visit</string>
+    <string name="patient_deceased">Patient deceased?*</string>
 
     <string name="preview">Preview</string>
     <string name="save">Save</string>
@@ -119,6 +123,9 @@ include them in the household</string>
     <string name="basic_information">Basic Information</string>
     <string name="date_of_birth">Date of birth</string>
     <string name="optional_identification">Optional: Identification</string>
+    <string name="identification">Identification</string>
+    <string name="hospital_id">Hospital ID</string>
+    <string name="national_id">National ID</string>
     <string name="passport_id">Passport ID</string>
     <string name="voter_id">Voter ID</string>
     <string name="addresses">Addresses</string>
@@ -128,8 +135,10 @@ include them in the household</string>
     <string name="edit">Edit</string>
     <string name="next">Next</string>
     <string name="first_name">First Name</string>
+    <string name="first_name_mandatory">First Name*</string>
     <string name="middle_name">Middle Name</string>
     <string name="last_name">Last Name</string>
+    <string name="last_name_mandatory">Last Name*</string>
     <string name="first_name_error_msg">Name length should be between 3 and 100.</string>
     <string name="email_error_msg">Enter valid email (eg., abc123@gmail.com)</string>
     <string name="day">Day</string>
@@ -154,6 +163,9 @@ include them in the household</string>
 
     <string name="passport_id_error_msg">Enter valid Passport ID (eg., A1098765)</string>
     <string name="voter_id_error_msg">Enter valid Voter Id (eg., XYZ9876543)</string>
+
+    <string name="hospital_id_error_msg">Must contain alphabets &amp; numbers</string>
+    <string name="national_id_error_msg">Enter valid Voter Id (eg., XYZ9876543)</string>
 
     <string name="submit_and_preview">Submit &amp; Preview</string>
     <string name="submit">Submit</string>
@@ -473,4 +485,17 @@ include them in the household</string>
     <string name="yes_continue">Yes, continue</string>
     <string name="fetching_immunization_recommendations">Fetching immunization recommendations</string>
     <string name="fetching_immunization_recommendations_info">Immunization guidelines are stored on a central server. Please give us a few minutes to fetch them. Once they have been retrieved, you will be able to work offline.</string>
+
+    <string name="mother_name_mandatory">Mother’s name*</string>
+    <string name="father_name">Father’s name</string>
+    <string name="spouse_name">Spouse’s name</string>
+    <string name="verified">Verified</string>
+    <string name="last_name_required">Last name is required</string>
+    <string name="first_name_required">First name is required</string>
+    <string name="mother_name_required">Mother\'s name required</string>
+    <string name="person_deceased_note">If a patient is marked as deceased, you will be unable to assign them to a HeartCare session.</string>
+    <string name="select_decease_reason">Select reason for patient\'s demise *</string>
+    <string name="mobile">Mobile</string>
+    <string name="please_specify">Please specify</string>
+    <string name="specify_reason">Please specify a valid reason</string>
 </resources>
