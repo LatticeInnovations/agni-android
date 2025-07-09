@@ -499,4 +499,15 @@ include them in the household</string>
     <string name="please_specify">Please specify</string>
     <string name="specify_reason">Please specify a valid reason</string>
     <string name="unverified">Unverified</string>
+    <string name="area_council_mandatory">Area council*</string>
+    <string name="island_mandatory">Island*</string>
+    <string name="village">Village</string>
+    <string name="other_province_mandatory">Other province*</string>
+    <string name="other_village_mandatory">Other Village*</string>
+    <string name="other_island_mandatory">Other Island*</string>
+    <string name="other_area_council_mandatory">Other Area council*</string>
+    <string name="province_required">Province required</string>
+    <string name="area_council_required">Area council required</string>
+    <string name="island_required">Island required</string>
+    <string name="village_required">Village required</string>
 </resources>
