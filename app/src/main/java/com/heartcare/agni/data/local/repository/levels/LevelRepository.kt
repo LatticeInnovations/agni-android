@@ -4,5 +4,5 @@ import com.heartcare.agni.data.server.model.levels.LevelResponse
 
 interface LevelRepository {
     suspend fun insertLevel(vararg levelResponse: LevelResponse): List<Long>
-    suspend fun getLevels(): List<LevelResponse>
+    suspend fun getLevels(levelType: String, precedingId: String? = null): List<LevelResponse>
 }

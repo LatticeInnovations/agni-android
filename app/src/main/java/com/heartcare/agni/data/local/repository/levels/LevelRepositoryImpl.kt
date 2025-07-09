@@ -13,7 +13,8 @@ class LevelRepositoryImpl @Inject constructor(
         return levelsDao.insertLevelEntity(*levelResponse.map { it.toLevelEntity()}.toTypedArray())
     }
 
-    override suspend fun getLevels(): List<LevelResponse> {
-        return levelsDao.getLevelEntities().map { it.toLevelResponse() }
+    override suspend fun getLevels(levelType: String, precedingId: String?): List<LevelResponse> {
+        return levelsDao.getLevels(levelType, precedingId)
+            .map { it.toLevelResponse() }
     }
 }
