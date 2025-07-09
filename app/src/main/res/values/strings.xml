@@ -498,4 +498,5 @@ include them in the household</string>
     <string name="mobile">Mobile</string>
     <string name="please_specify">Please specify</string>
     <string name="specify_reason">Please specify a valid reason</string>
+    <string name="unverified">Unverified</string>
 </resources>
