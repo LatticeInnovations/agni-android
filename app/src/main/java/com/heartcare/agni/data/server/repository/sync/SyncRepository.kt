@@ -6,6 +6,7 @@ import com.heartcare.agni.data.server.model.dispense.response.DispenseData
 import com.heartcare.agni.data.server.model.dispense.response.MedicineDispenseResponse
 import com.heartcare.agni.data.server.model.labormed.labtest.LabTestResponse
 import com.heartcare.agni.data.server.model.labormed.medicalrecord.MedicalRecordResponse
+import com.heartcare.agni.data.server.model.levels.LevelResponse
 import com.heartcare.agni.data.server.model.patient.PatientLastUpdatedResponse
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.data.server.model.prescription.medication.MedicationResponse
@@ -42,6 +43,7 @@ interface SyncRepository {
     suspend fun getAndInsertOTC(patientId: String?): ResponseMapper<List<DispenseData>>
     suspend fun getAndInsertImmunization(patientId: String?): ResponseMapper<List<ImmunizationResponse>>
     suspend fun getAndInsertManufacturer(): ResponseMapper<List<ManufacturerResponse>>
+    suspend fun getAndInsertLevelsData(): ResponseMapper<List<LevelResponse>>
 
     //POST
     suspend fun sendPersonPostData(): ResponseMapper<List<CreateResponse>>

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a0c41d4ca769d255b4fda41acd0bb3e7",
+    "identityHash": "bd0a326e73df3d9123efc00594f2242a",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -2466,6 +2466,63 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "LevelEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`fhirId` TEXT NOT NULL, `code` TEXT NOT NULL, `levelType` TEXT NOT NULL, `name` TEXT NOT NULL, `population` INTEGER, `precedingLevelId` TEXT, `secondaryName` TEXT, `status` TEXT NOT NULL, PRIMARY KEY(`fhirId`))",
+        "fields": [
+          {
+            "fieldPath": "fhirId",
+            "columnName": "fhirId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "levelType",
+            "columnName": "levelType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "population",
+            "columnName": "population",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "precedingLevelId",
+            "columnName": "precedingLevelId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "secondaryName",
+            "columnName": "secondaryName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "fhirId"
+          ]
+        }
       }
     ],
     "views": [
@@ -2480,7 +2537,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a0c41d4ca769d255b4fda41acd0bb3e7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bd0a326e73df3d9123efc00594f2242a')"
     ]
   }
 }

@@ -26,6 +26,7 @@ import com.heartcare.agni.data.local.roomdb.entities.generic.GenericEntity
 import com.heartcare.agni.data.local.roomdb.entities.labtestandmedrecord.LabTestAndMedEntity
 import com.heartcare.agni.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndFileEntity
 import com.heartcare.agni.data.local.roomdb.entities.labtestandmedrecord.photo.LabTestAndMedPhotoEntity
+import com.heartcare.agni.data.local.roomdb.entities.levels.LevelEntity
 import com.heartcare.agni.data.local.roomdb.entities.medication.MedicationEntity
 import com.heartcare.agni.data.local.roomdb.entities.medication.MedicationStrengthRelation
 import com.heartcare.agni.data.local.roomdb.entities.medication.MedicineTimingEntity
@@ -58,6 +59,7 @@ import com.heartcare.agni.data.server.model.labormed.labtest.DiagnosticReport
 import com.heartcare.agni.data.server.model.labormed.labtest.LabTestResponse
 import com.heartcare.agni.data.server.model.labormed.medicalrecord.MedicalRecord
 import com.heartcare.agni.data.server.model.labormed.medicalrecord.MedicalRecordResponse
+import com.heartcare.agni.data.server.model.levels.LevelResponse
 import com.heartcare.agni.data.server.model.patient.PatientAddressResponse
 import com.heartcare.agni.data.server.model.patient.PatientIdentifier
 import com.heartcare.agni.data.server.model.patient.PatientLastUpdatedResponse
@@ -738,7 +740,8 @@ internal suspend fun VitalResponse.toVitalEntity(
 
 
 internal fun SymptomsItem.toSymptomsEntity(): SymptomsEntity {
-    return SymptomsEntity(id = UUID.randomUUID().toString(), code = code, display = display,
+    return SymptomsEntity(
+        id = UUID.randomUUID().toString(), code = code, display = display,
         type = type,
         gender = gender
     )
@@ -796,6 +799,7 @@ internal suspend fun SymptomsAndDiagnosisResponse.toSymptomsAndDiagnosisEntity(
         patientId = studentDao.getPatientIdByFhirId(patientId)!!
     )
 }
+
 internal fun SymptomsAndDiagnosisLocal.toSymDiagData(): SymptomsAndDiagnosisData {
     return SymptomsAndDiagnosisData(
         symDiagUuid = symDiagUuid,
@@ -921,6 +925,7 @@ internal fun LabTestPhotoResponseLocal.toLabTestAndMedEntity(type: String): LabT
 
     )
 }
+
 internal fun LabTestPhotoResponseLocal.toListOfLabTestPhotoEntity(): List<LabTestAndMedPhotoEntity> {
     return labTests.map { labTestItem ->
         LabTestAndMedPhotoEntity(
@@ -930,6 +935,7 @@ internal fun LabTestPhotoResponseLocal.toListOfLabTestPhotoEntity(): List<LabTes
         )
     }
 }
+
 internal fun LabTestAndMedEntity.toLabTestLocal(): LabTestLocal {
     return LabTestLocal(
         labTestId = id,
@@ -940,6 +946,7 @@ internal fun LabTestAndMedEntity.toLabTestLocal(): LabTestLocal {
 
     )
 }
+
 internal fun LabTestLocal.toLabTestEntity(type: String): LabTestAndMedEntity {
     return LabTestAndMedEntity(
         id = labTestId,
@@ -1029,7 +1036,9 @@ internal suspend fun DispenseData.toListOfDispenseDataEntity(
         prescriptionId = if (prescriptionFhirId.isNullOrBlank()) null else prescriptionDao.getPrescriptionIdByFhirId(
             prescriptionFhirId
         ),
-        appointmentId = if (this.appointmentId.isNullOrBlank()) null else appointmentDao.getAppointmentIdByFhirId(this.appointmentId)
+        appointmentId = if (this.appointmentId.isNullOrBlank()) null else appointmentDao.getAppointmentIdByFhirId(
+            this.appointmentId
+        )
     )
 }
 
@@ -1054,4 +1063,30 @@ internal suspend fun DispenseData.toListOfMedicineDispenseListEntity(
             prescribedMedReqId = it.prescriptionData?.medReqFhirId
         )
     }
+}
+
+internal fun LevelResponse.toLevelEntity(): LevelEntity {
+    return LevelEntity(
+        fhirId = fhirId,
+        code = code,
+        levelType = levelType,
+        name = name,
+        population = population,
+        precedingLevelId = precedingLevelId,
+        secondaryName = secondaryName,
+        status = status
+    )
+}
+
+internal fun LevelEntity.toLevelResponse(): LevelResponse {
+    return LevelResponse(
+        fhirId = fhirId,
+        code = code,
+        levelType = levelType,
+        name = name,
+        population = population,
+        precedingLevelId = precedingLevelId,
+        secondaryName = secondaryName,
+        status = status
+    )
 }

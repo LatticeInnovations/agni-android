@@ -16,6 +16,8 @@ import com.heartcare.agni.data.local.repository.generic.GenericRepository
 import com.heartcare.agni.data.local.repository.generic.GenericRepositoryImpl
 import com.heartcare.agni.data.local.repository.identifier.IdentifierRepository
 import com.heartcare.agni.data.local.repository.identifier.IdentifierRepositoryImpl
+import com.heartcare.agni.data.local.repository.levels.LevelRepository
+import com.heartcare.agni.data.local.repository.levels.LevelRepositoryImpl
 import com.heartcare.agni.data.local.repository.medication.MedicationRepository
 import com.heartcare.agni.data.local.repository.medication.MedicationRepositoryImpl
 import com.heartcare.agni.data.local.repository.patient.PatientRepository
@@ -165,4 +167,8 @@ abstract class RepositoryModule {
     @Binds
     @ViewModelScoped
     abstract fun provideManufacturerRepository(manufacturerRepositoryImpl: ManufacturerRepositoryImpl): ManufacturerRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun provideMLevelsRepository(levelRepositoryImpl: LevelRepositoryImpl): LevelRepository
 }

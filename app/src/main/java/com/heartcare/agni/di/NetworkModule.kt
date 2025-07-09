@@ -8,6 +8,7 @@ import com.heartcare.agni.data.server.api.CVDApiService
 import com.heartcare.agni.data.server.api.DispenseApiService
 import com.heartcare.agni.data.server.api.FileUploadApiService
 import com.heartcare.agni.data.server.api.LabTestAndMedRecordService
+import com.heartcare.agni.data.server.api.LevelsApiService
 import com.heartcare.agni.data.server.api.PatientApiService
 import com.heartcare.agni.data.server.api.PrescriptionApiService
 import com.heartcare.agni.data.server.api.ScheduleAndAppointmentApiService
@@ -163,5 +164,11 @@ object NetworkModule {
     @Singleton
     internal fun provideVaccinationApiService(retrofit: Retrofit): VaccinationApiService {
         return retrofit.create(VaccinationApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    internal fun provideLevelsApiService(retrofit: Retrofit): LevelsApiService {
+        return retrofit.create(LevelsApiService::class.java)
     }
 }

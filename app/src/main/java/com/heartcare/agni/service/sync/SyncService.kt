@@ -80,6 +80,8 @@ class SyncService(
                         patchSymDiag(logout)
                     }, async {
                         downloadVaccineManufacturer(logout)
+                    }, async {
+                        downloadLevelsRecord(logout)
                     }
                 )
             }
@@ -594,6 +596,11 @@ class SyncService(
             syncRepository.getAndInsertOTC(patientId),
             logout
         )
+    }
+
+    /** Download Levels Data */
+    private suspend fun downloadLevelsRecord(logout: (Boolean, String) -> Unit) {
+        checkAuthenticationStatus(syncRepository.getAndInsertLevelsData(), logout)
     }
 
     /**
