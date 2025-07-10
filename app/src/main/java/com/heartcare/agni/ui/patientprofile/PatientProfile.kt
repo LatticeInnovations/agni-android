@@ -26,7 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.heartcare.agni.R
 import com.heartcare.agni.navigation.Screen
-import com.heartcare.agni.ui.common.PreviewScreen
+import com.heartcare.agni.ui.common.preview.PreviewScreen
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

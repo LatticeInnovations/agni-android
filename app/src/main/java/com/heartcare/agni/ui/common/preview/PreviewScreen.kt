@@ -1,4 +1,4 @@
-package com.heartcare.agni.ui.common
+package com.heartcare.agni.ui.common.preview
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +23,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +33,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.heartcare.agni.R
 import com.heartcare.agni.data.local.enums.NationalIdUse
 import com.heartcare.agni.data.local.enums.YesNoEnum
@@ -44,8 +46,22 @@ import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toPat
 @Composable
 fun PreviewScreen(
     patientResponse: PatientResponse,
+    viewModel: PreviewScreenViewModel = hiltViewModel(),
     navigate: (Int) -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.provinceName = viewModel.getLevelNames(patientResponse.permanentAddress.province)
+        viewModel.areaCouncilName =
+            viewModel.getLevelNames(patientResponse.permanentAddress.areaCouncil)
+        viewModel.islandName = viewModel.getLevelNames(patientResponse.permanentAddress.island)
+        viewModel.villageName = if (patientResponse.permanentAddress.village.isNullOrBlank()) ""
+            else {
+                if (patientResponse.permanentAddress.addressLine2.isNullOrBlank()) viewModel.getLevelNames(
+                patientResponse.permanentAddress.village
+            )
+            else patientResponse.permanentAddress.addressLine2
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -55,7 +71,7 @@ fun PreviewScreen(
     ) {
         BasicInformationCard(patientResponse, navigate)
         IdentificationCard(patientResponse, navigate)
-        AddressCard(patientResponse, navigate)
+        AddressCard(viewModel, patientResponse, navigate)
         Spacer(modifier = Modifier.height(60.dp))
     }
 }
@@ -198,6 +214,7 @@ private fun IdentificationCard(
 
 @Composable
 private fun AddressCard(
+    viewModel: PreviewScreenViewModel,
     patientResponse: PatientResponse,
     navigate: (Int) -> Unit
 ) {
@@ -205,11 +222,11 @@ private fun AddressCard(
         modifier = Modifier.fillMaxWidth(),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        val homeAddressLine1 = patientResponse.permanentAddress.village
+        val homeAddressLine1 = viewModel.villageName.ifBlank { null }
         val homeAddressLine2 =
-            "${patientResponse.permanentAddress.island}, ${patientResponse.permanentAddress.areaCouncil}"
+            "${viewModel.islandName}, ${viewModel.areaCouncilName}"
         val homeAddressLine3 =
-            "${patientResponse.permanentAddress.province} ${patientResponse.permanentAddress.postalCode ?: ""}"
+            "${viewModel.provinceName} ${patientResponse.permanentAddress.postalCode ?: ""}"
         Column(
             modifier = Modifier
                 .padding(20.dp)

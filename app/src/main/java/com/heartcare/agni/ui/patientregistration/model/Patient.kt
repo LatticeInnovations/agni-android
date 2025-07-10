@@ -32,8 +32,5 @@ data class PatientRegister(
     var island: LevelResponse? = null,
     var village: LevelResponse? = null,
     var postalCode: String? = "",
-    var otherProvince: String? ="",
-    var otherAreaCouncil: String? ="",
-    var otherIsland: String? ="",
     var otherVillage: String? ="",
 ) : Parcelable

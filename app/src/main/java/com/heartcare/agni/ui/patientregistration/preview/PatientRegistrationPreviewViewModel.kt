@@ -71,9 +71,6 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     var island: LevelResponse? by mutableStateOf(null)
     var village: LevelResponse? by mutableStateOf(null)
     var postalCode by mutableStateOf("")
-    var otherProvince by mutableStateOf("")
-    var otherAreaCouncil by mutableStateOf("")
-    var otherIsland by mutableStateOf("")
     var otherVillage by mutableStateOf("")
 
     internal fun addPatient(patientResponse: PatientResponse) {

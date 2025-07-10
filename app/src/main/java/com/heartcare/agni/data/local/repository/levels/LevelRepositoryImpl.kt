@@ -17,4 +17,8 @@ class LevelRepositoryImpl @Inject constructor(
         return levelsDao.getLevels(levelType, precedingId)
             .map { it.toLevelResponse() }
     }
+
+    override suspend fun getLevelNameFromFhirId(fhirId: String): String {
+        return levelsDao.getLevelNameFromFhirId(fhirId)
+    }
 }

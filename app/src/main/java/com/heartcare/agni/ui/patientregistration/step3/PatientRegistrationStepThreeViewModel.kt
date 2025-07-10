@@ -21,7 +21,7 @@ class PatientRegistrationStepThreeViewModel @Inject constructor(
 ) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     val other = LevelResponse(
-        fhirId = "0",
+        fhirId = "others",
         code = "0",
         levelType = "others",
         name = "Others",
@@ -35,21 +35,12 @@ class PatientRegistrationStepThreeViewModel @Inject constructor(
 
     var province: LevelResponse? by mutableStateOf(null)
     var provinceList: List<LevelResponse> by mutableStateOf(emptyList())
-    var isProvinceOtherSelected by mutableStateOf(false)
-    var otherProvince by mutableStateOf("")
-    var otherProvinceError by mutableStateOf(false)
 
     var areaCouncil: LevelResponse? by mutableStateOf(null)
     var areaCouncilList: List<LevelResponse> by mutableStateOf(emptyList())
-    var isAreaCouncilOtherSelected by mutableStateOf(false)
-    var otherAreaCouncil by mutableStateOf("")
-    var otherAreaCouncilError by mutableStateOf(false)
 
     var island: LevelResponse? by mutableStateOf(null)
     var islandList: List<LevelResponse> by mutableStateOf(emptyList())
-    var isIslandOtherSelected by mutableStateOf(false)
-    var otherIsland by mutableStateOf("")
-    var otherIslandError by mutableStateOf(false)
 
     var village: LevelResponse? by mutableStateOf(null)
     var villageList: List<LevelResponse> by mutableStateOf(emptyList())
@@ -61,7 +52,8 @@ class PatientRegistrationStepThreeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            provinceList = levelRepository.getLevels(levelType = LevelsEnum.PROVINCE.levelType) + listOf(other)
+            provinceList =
+                levelRepository.getLevels(levelType = LevelsEnum.PROVINCE.levelType)
         }
     }
 
@@ -72,7 +64,7 @@ class PatientRegistrationStepThreeViewModel @Inject constructor(
             areaCouncilList = levelRepository.getLevels(
                 levelType = LevelsEnum.AREA_COUNCIL.levelType,
                 precedingId = province!!.fhirId
-            ) + listOf(other)
+            )
         }
     }
 
@@ -83,7 +75,7 @@ class PatientRegistrationStepThreeViewModel @Inject constructor(
             islandList = levelRepository.getLevels(
                 levelType = LevelsEnum.ISLAND.levelType,
                 precedingId = areaCouncil!!.fhirId
-            ) + listOf(other)
+            )
         }
     }
 
@@ -99,37 +91,8 @@ class PatientRegistrationStepThreeViewModel @Inject constructor(
     }
 
     fun addressInfoValidation(): Boolean {
-        // Province is mandatory
-        if (province == null) return false
+        if (province == null || areaCouncil == null || island == null) return false
 
-        // Province = "Other": require lower others
-        if (province == other) {
-            return otherProvince.isNotBlank()
-                    && otherAreaCouncil.isNotBlank()
-                    && otherIsland.isNotBlank()
-                    && otherVillage.isNotBlank()
-        }
-
-        // areaCouncil
-        if (areaCouncil == null) return false
-
-        // areaCouncil = "Other": require lower others
-        if (areaCouncil == other) {
-            return otherAreaCouncil.isNotBlank()
-                    && otherIsland.isNotBlank()
-                    && otherVillage.isNotBlank()
-        }
-
-        // island
-        if (island == null) return false
-
-        // island = "Other": require lower others
-        if (island == other) {
-            return otherIsland.isNotBlank()
-                    && otherVillage.isNotBlank()
-        }
-
-        // village = "Other": only otherVillage required
         if (village == other) {
             return otherVillage.isNotBlank()
         }

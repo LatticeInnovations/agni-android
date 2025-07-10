@@ -35,7 +35,7 @@ import com.heartcare.agni.data.server.model.patient.PatientAddressResponse
 import com.heartcare.agni.data.server.model.patient.PatientIdentifier
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.navigation.Screen
-import com.heartcare.agni.ui.common.PreviewScreen
+import com.heartcare.agni.ui.common.preview.PreviewScreen
 import com.heartcare.agni.ui.patientregistration.model.PatientRegister
 import com.heartcare.agni.utils.constants.IdentificationConstants.HOSPITAL_ID
 import com.heartcare.agni.utils.constants.IdentificationConstants.NATIONAL_ID
@@ -257,11 +257,11 @@ private fun PreviewScreenComposable(
             isDeleted = null,
             permanentAddress = PatientAddressResponse(
                 postalCode = viewModel.postalCode.ifBlank { null },
-                province = viewModel.otherProvince.ifBlank { viewModel.province!!.name },
-                areaCouncil = viewModel.otherAreaCouncil.ifBlank { viewModel.areaCouncil!!.name },
-                island = viewModel.otherIsland.ifBlank { viewModel.island!!.name },
-                village = viewModel.otherVillage.ifBlank { viewModel.village?.name },
-                addressLine2 = null,
+                province = viewModel.province!!.fhirId,
+                areaCouncil = viewModel.areaCouncil!!.fhirId,
+                island = viewModel.island!!.fhirId,
+                village = viewModel.village?.fhirId,
+                addressLine2 = viewModel.otherVillage.ifBlank { null },
                 country = "Vanuatu"
             ),
             identifier = viewModel.identifierList,
@@ -319,15 +319,8 @@ private fun setData(
             viewModel.areaCouncil = areaCouncil
             viewModel.island = island
             viewModel.village = village
-            viewModel.otherProvince = otherProvince.toString()
-            viewModel.otherAreaCouncil = otherAreaCouncil.toString()
-            viewModel.otherIsland = otherIsland.toString()
             viewModel.otherVillage = otherVillage.toString()
             viewModel.postalCode = postalCode.toString()
-//            isProvinceOtherSelected = otherProvince.isNotBlank()
-//            isAreaCouncilOtherSelected = otherAreaCouncil.isNotBlank()
-//            isIslandOtherSelected = otherIsland.isNotBlank()
-//            isVillageOtherSelected = otherVillage.isNotBlank()
 
             if (dobAgeSelector == "dob") {
                 viewModel.dob = "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"

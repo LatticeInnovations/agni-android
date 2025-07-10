@@ -15,4 +15,7 @@ interface LevelsDao {
 
     @Query("SELECT * FROM LevelEntity WHERE levelType = :levelType AND (:precedingId IS NULL OR precedingLevelId = :precedingId) ORDER BY name")
     suspend fun getLevels(levelType: String, precedingId: String? = null): List<LevelEntity>
+
+    @Query("SELECT name FROM LevelEntity WHERE fhirId=:fhirId")
+    suspend fun getLevelNameFromFhirId(fhirId: String): String
 }

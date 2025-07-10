@@ -62,14 +62,8 @@ fun PatientRegistrationStepThree(
                 areaCouncil = patientRegister.areaCouncil
                 island = patientRegister.island
                 village = patientRegister.village
-                otherProvince = patientRegister.otherProvince.toString()
-                otherAreaCouncil = patientRegister.otherAreaCouncil.toString()
-                otherIsland = patientRegister.otherIsland.toString()
                 otherVillage = patientRegister.otherVillage.toString()
                 postalCode = patientRegister.postalCode.toString()
-                isProvinceOtherSelected = otherProvince.isNotBlank()
-                isAreaCouncilOtherSelected = otherAreaCouncil.isNotBlank()
-                isIslandOtherSelected = otherIsland.isNotBlank()
                 isVillageOtherSelected = otherVillage.isNotBlank()
             }
             viewModel.isLaunched = true
@@ -90,7 +84,12 @@ fun PatientRegistrationStepThree(
                 .weight(1f),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            key(viewModel.provinceList, viewModel.areaCouncilList, viewModel.islandList, viewModel.villageList) {
+            key(
+                viewModel.provinceList,
+                viewModel.areaCouncilList,
+                viewModel.islandList,
+                viewModel.villageList
+            ) {
                 AddressHierarchy(viewModel)
             }
         }
@@ -103,13 +102,13 @@ fun PatientRegistrationStepThree(
                     island = viewModel.island
                     village = viewModel.village
                     postalCode = viewModel.postalCode
-                    otherProvince = viewModel.otherProvince
-                    otherAreaCouncil = viewModel.otherAreaCouncil
-                    otherIsland = viewModel.otherIsland
                     otherVillage = viewModel.otherVillage
                 }
 
-                navController.currentBackStackEntry?.savedStateHandle?.set("patient_register_details", patientRegister)
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "patient_register_details",
+                    patientRegister
+                )
 
                 navController.navigate(Screen.PatientRegistrationPreviewScreen.route)
             },
@@ -148,12 +147,8 @@ private fun AddressHierarchy(viewModel: PatientRegistrationStepThreeViewModel) {
         value = viewModel.province?.name ?: "",
         updateValue = {
             viewModel.province = it
-            viewModel.isProvinceOtherSelected = it == viewModel.other
-            if (!viewModel.isProvinceOtherSelected) {
-                viewModel.otherProvince = ""
-                resetAreaCouncilHierarchy(viewModel)
-                viewModel.getAreaCouncilList()
-            }
+            resetAreaCouncilHierarchy(viewModel)
+            viewModel.getAreaCouncilList()
         },
         label = stringResource(id = R.string.province_mandatory),
         dropdownList = viewModel.provinceList,
@@ -162,77 +157,51 @@ private fun AddressHierarchy(viewModel: PatientRegistrationStepThreeViewModel) {
         isEnabled = true
     )
 
-    if (viewModel.isProvinceOtherSelected) {
-        OtherProvinceComposable(viewModel)
-        OtherAreaCouncilComposable(viewModel)
-        OtherIslandComposable(viewModel)
-        OtherVillageComposable(viewModel)
-    } else {
-        DropDownComposable(
-            value = viewModel.areaCouncil?.name ?: "",
-            updateValue = {
-                viewModel.areaCouncil = it
-                viewModel.isAreaCouncilOtherSelected = it == viewModel.other
-                if (!viewModel.isAreaCouncilOtherSelected) {
-                    viewModel.otherAreaCouncil = ""
-                    resetIslandHierarchy(viewModel)
-                    viewModel.getIslandList()
-                }
-            },
-            label = stringResource(id = R.string.area_council_mandatory),
-            dropdownList = viewModel.areaCouncilList,
-            errorText = stringResource(R.string.area_council_required),
-            isMandatory = true,
-            isEnabled = viewModel.province != null
-        )
+    DropDownComposable(
+        value = viewModel.areaCouncil?.name ?: "",
+        updateValue = {
+            viewModel.areaCouncil = it
+            resetIslandHierarchy(viewModel)
+            viewModel.getIslandList()
+        },
+        label = stringResource(id = R.string.area_council_mandatory),
+        dropdownList = viewModel.areaCouncilList,
+        errorText = stringResource(R.string.area_council_required),
+        isMandatory = true,
+        isEnabled = viewModel.province != null
+    )
 
-        if (viewModel.isAreaCouncilOtherSelected) {
-            OtherAreaCouncilComposable(viewModel)
-            OtherIslandComposable(viewModel)
-            OtherVillageComposable(viewModel)
-        } else {
-            DropDownComposable(
-                value = viewModel.island?.name ?: "",
-                updateValue = {
-                    viewModel.island = it
-                    viewModel.isIslandOtherSelected = it == viewModel.other
-                    if (!viewModel.isIslandOtherSelected) {
-                        viewModel.otherIsland = ""
-                        resetVillage(viewModel)
-                        viewModel.getVillageList()
-                    }
-                },
-                label = stringResource(id = R.string.island_mandatory),
-                dropdownList = viewModel.islandList,
-                errorText = stringResource(R.string.island_required),
-                isMandatory = true,
-                isEnabled = viewModel.areaCouncil != null
-            )
+    DropDownComposable(
+        value = viewModel.island?.name ?: "",
+        updateValue = {
+            viewModel.island = it
+            resetVillage(viewModel)
+            viewModel.getVillageList()
+        },
+        label = stringResource(id = R.string.island_mandatory),
+        dropdownList = viewModel.islandList,
+        errorText = stringResource(R.string.island_required),
+        isMandatory = true,
+        isEnabled = viewModel.areaCouncil != null
+    )
 
-            if (viewModel.isIslandOtherSelected) {
-                OtherIslandComposable(viewModel)
-                OtherVillageComposable(viewModel)
-            } else {
-                DropDownComposable(
-                    value = viewModel.village?.name ?: "",
-                    updateValue = {
-                        viewModel.village = it
-                        viewModel.isVillageOtherSelected = it == viewModel.other
-                        if (!viewModel.isVillageOtherSelected) {
-                            viewModel.otherVillage = ""
-                        }
-                    },
-                    label = stringResource(id = R.string.village),
-                    dropdownList = viewModel.villageList,
-                    errorText = stringResource(R.string.village_required),
-                    isMandatory = false,
-                    isEnabled = viewModel.island != null
-                )
-                if (viewModel.isVillageOtherSelected) {
-                    OtherVillageComposable(viewModel)
-                }
+    DropDownComposable(
+        value = viewModel.village?.name ?: "",
+        updateValue = {
+            viewModel.village = it
+            viewModel.isVillageOtherSelected = it == viewModel.other
+            if (!viewModel.isVillageOtherSelected) {
+                viewModel.otherVillage = ""
             }
-        }
+        },
+        label = stringResource(id = R.string.village),
+        dropdownList = viewModel.villageList,
+        errorText = stringResource(R.string.village_required),
+        isMandatory = false,
+        isEnabled = viewModel.island != null
+    )
+    if (viewModel.isVillageOtherSelected) {
+        OtherVillageComposable(viewModel)
     }
 
     PostalCodeComposable(viewModel)
@@ -318,66 +287,6 @@ fun DropDownComposable(
 }
 
 @Composable
-private fun OtherProvinceComposable(
-    viewModel: PatientRegistrationStepThreeViewModel
-) {
-    CustomTextFieldWithLength(
-        value = viewModel.otherProvince,
-        maxLength = viewModel.maxLength,
-        weight = 1f,
-        isError = viewModel.otherProvinceError,
-        error = stringResource(R.string.province_required),
-        label = stringResource(R.string.other_province_mandatory),
-        keyboardType = KeyboardType.Text,
-        keyboardCapitalization = KeyboardCapitalization.Sentences,
-        updateValue = {
-            viewModel.otherProvince = it
-            viewModel.otherProvinceError = viewModel.otherProvince.isBlank()
-        }
-    )
-}
-
-@Composable
-private fun OtherAreaCouncilComposable(
-    viewModel: PatientRegistrationStepThreeViewModel
-) {
-    CustomTextFieldWithLength(
-        value = viewModel.otherAreaCouncil,
-        maxLength = viewModel.maxLength,
-        weight = 1f,
-        isError = viewModel.otherAreaCouncilError,
-        error = stringResource(R.string.area_council_required),
-        label = stringResource(R.string.other_area_council_mandatory),
-        keyboardType = KeyboardType.Text,
-        keyboardCapitalization = KeyboardCapitalization.Sentences,
-        updateValue = {
-            viewModel.otherAreaCouncil = it
-            viewModel.otherAreaCouncilError = viewModel.otherAreaCouncil.isBlank()
-        }
-    )
-}
-
-@Composable
-private fun OtherIslandComposable(
-    viewModel: PatientRegistrationStepThreeViewModel
-) {
-    CustomTextFieldWithLength(
-        value = viewModel.otherIsland,
-        maxLength = viewModel.maxLength,
-        weight = 1f,
-        isError = viewModel.otherIslandError,
-        error = stringResource(R.string.island_required),
-        label = stringResource(R.string.other_island_mandatory),
-        keyboardType = KeyboardType.Text,
-        keyboardCapitalization = KeyboardCapitalization.Sentences,
-        updateValue = {
-            viewModel.otherIsland = it
-            viewModel.otherIslandError = viewModel.otherIsland.isBlank()
-        }
-    )
-}
-
-@Composable
 private fun OtherVillageComposable(
     viewModel: PatientRegistrationStepThreeViewModel
 ) {
@@ -420,15 +329,11 @@ private fun PostalCodeComposable(
 
 private fun resetAreaCouncilHierarchy(viewModel: PatientRegistrationStepThreeViewModel) {
     viewModel.areaCouncil = null
-    viewModel.otherAreaCouncil = ""
-    viewModel.isAreaCouncilOtherSelected = false
     resetIslandHierarchy(viewModel)
 }
 
 private fun resetIslandHierarchy(viewModel: PatientRegistrationStepThreeViewModel) {
     viewModel.island = null
-    viewModel.otherIsland = ""
-    viewModel.isIslandOtherSelected = false
     resetVillage(viewModel)
 }
 
