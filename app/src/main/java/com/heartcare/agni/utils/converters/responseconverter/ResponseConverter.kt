@@ -128,7 +128,8 @@ fun PatientIdentifier.toIdentifierEntity(patientId: String): IdentifierEntity {
         identifierNumber = identifierNumber,
         identifierType = identifierType,
         identifierCode = code,
-        patientId = patientId
+        patientId = patientId,
+        identifierUse = use
     )
 }
 
@@ -170,7 +171,10 @@ fun PatientResponse.toPatientAndIdentifierEntityResponse(): PatientAndIdentifier
 
 fun IdentifierEntity.toPatientIdentifier(): PatientIdentifier {
     return PatientIdentifier(
-        identifierType = identifierType, identifierNumber = identifierNumber, code = identifierCode
+        identifierType = identifierType,
+        identifierNumber = identifierNumber,
+        code = identifierCode,
+        use = identifierUse
     )
 }
 

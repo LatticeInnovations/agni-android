@@ -10,5 +10,5 @@ data class PatientIdentifier(
     val identifierType: String,
     val identifierNumber: String,
     val code: String?,
-    val use: String? = null
+    val use: String?
 ) : Parcelable

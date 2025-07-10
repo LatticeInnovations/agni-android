@@ -49,7 +49,7 @@ fun PreviewScreen(
     viewModel: PreviewScreenViewModel = hiltViewModel(),
     navigate: (Int) -> Unit
 ) {
-    LaunchedEffect(Unit) {
+    LaunchedEffect(patientResponse) {
         viewModel.provinceName = viewModel.getLevelNames(patientResponse.permanentAddress.province)
         viewModel.areaCouncilName =
             viewModel.getLevelNames(patientResponse.permanentAddress.areaCouncil)

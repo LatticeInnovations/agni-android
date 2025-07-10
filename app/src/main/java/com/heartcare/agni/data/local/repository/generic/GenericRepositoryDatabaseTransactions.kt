@@ -31,6 +31,7 @@ import com.heartcare.agni.utils.converters.responseconverter.FHIR.isFhirId
 import com.heartcare.agni.utils.converters.responseconverter.GsonConverters.fromJson
 import com.heartcare.agni.utils.converters.responseconverter.GsonConverters.mapToObject
 import com.heartcare.agni.utils.converters.responseconverter.GsonConverters.toJson
+import java.util.Date
 
 open class GenericRepositoryDatabaseTransactions(
     private val genericDao: GenericDao,
@@ -340,6 +341,7 @@ open class GenericRepositoryDatabaseTransactions(
             )
         }
     }
+
     protected suspend fun updateSymDiagFhirIdInGenericEntity(genericEntity: GenericEntity) {
         val existingMap =
             genericEntity.payload.fromJson<MutableMap<String, Any>>()
@@ -359,6 +361,7 @@ open class GenericRepositoryDatabaseTransactions(
             )
         }
     }
+
     protected suspend fun updateLabTestFhirIdInGenericEntity(genericEntity: GenericEntity) {
         val existingMap =
             genericEntity.payload.fromJson<MutableMap<String, Any>>()
@@ -421,7 +424,6 @@ open class GenericRepositoryDatabaseTransactions(
     }
 
 
-
     protected suspend fun updateDispenseFhirIdInGenericEntity(dispenseGenericEntity: GenericEntity) {
         val existingMap =
             dispenseGenericEntity.payload.fromJson<MutableMap<String, Any>>()
@@ -461,8 +463,12 @@ open class GenericRepositoryDatabaseTransactions(
             genericDao.insertGenericEntity(
                 immunizationGenericEntity.copy(
                     payload = existingMap.copy(
-                        patientId = if(!existingMap.patientId.isFhirId()) getPatientFhirIdById(existingMap.patientId)!! else existingMap.patientId,
-                        appointmentId = if(!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(existingMap.appointmentId)!! else existingMap.appointmentId
+                        patientId = if (!existingMap.patientId.isFhirId()) getPatientFhirIdById(
+                            existingMap.patientId
+                        )!! else existingMap.patientId,
+                        appointmentId = if (!existingMap.appointmentId.isFhirId()) getAppointmentFhirIdById(
+                            existingMap.appointmentId
+                        )!! else existingMap.appointmentId
                     ).toJson()
                 )
             )
@@ -704,32 +710,22 @@ open class GenericRepositoryDatabaseTransactions(
     protected suspend fun insertPatientGenericEntityPatch(
         patientGenericPatchEntity: GenericEntity?,
         patientFhirId: String,
-        map: Map<String, Any>,
+        patientResponse: PatientResponse,
         uuid: String
     ): Long {
         return if (patientGenericPatchEntity != null) {
-            /** Data with this record already present */
-            val existingMap = patientGenericPatchEntity.payload.fromJson<MutableMap<String, Any>>()
-            map.entries.forEach { mapEntry ->
-                processPatientPatch(mapEntry, existingMap)
-            }
-            /** It denotes only ID key is present in map */
-            if (existingMap.size == 1) {
-                genericDao.deleteSyncPayload(listOf(patientGenericPatchEntity.id)).toLong()
-            } else {
-                /** Insert Updated Map */
-                genericDao.insertGenericEntity(patientGenericPatchEntity.copy(payload = existingMap.toJson()))[0]
-            }
+            /** Insert Updated Map */
+            genericDao.insertGenericEntity(
+                patientGenericPatchEntity.copy(
+                    payload = patientResponse.copy(appUpdatedDate = Date().time).toJson()
+                ))[0]
         } else {
             /** Insert Freshly Patch data */
             genericDao.insertGenericEntity(
                 GenericEntity(
                     id = uuid,
                     patientId = patientFhirId,
-                    payload = map.toMutableMap().let { mutableMap ->
-                        mutableMap[Id.ID] = patientFhirId
-                        mutableMap
-                    }.toJson(),
+                    payload = patientResponse.copy(appUpdatedDate = Date().time).toJson(),
                     type = GenericTypeEnum.PATIENT,
                     syncType = SyncType.PATCH
                 )

@@ -20,5 +20,6 @@ data class IdentifierEntity(
     val identifierNumber: String,
     val identifierType: String,
     val identifierCode: String?,
+    val identifierUse: String?,
     val patientId: String
 )

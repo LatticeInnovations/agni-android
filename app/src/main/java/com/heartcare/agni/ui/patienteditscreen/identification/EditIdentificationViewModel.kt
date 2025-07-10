@@ -6,21 +6,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
 import com.heartcare.agni.base.viewmodel.BaseViewModel
-import com.heartcare.agni.data.local.enums.ChangeTypeEnum
-import com.heartcare.agni.data.local.model.patch.ChangeRequest
 import com.heartcare.agni.data.local.repository.generic.GenericRepository
 import com.heartcare.agni.data.local.repository.identifier.IdentifierRepository
 import com.heartcare.agni.data.local.repository.patient.PatientRepository
 import com.heartcare.agni.data.server.model.patient.PatientIdentifier
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.utils.constants.IdentificationConstants
-import com.heartcare.agni.utils.converters.responseconverter.GsonConverters.toJson
-import com.heartcare.agni.utils.regex.PassportRegex
-import com.heartcare.agni.utils.regex.VoterRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,95 +26,68 @@ class EditIdentificationViewModel @Inject constructor(
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
 
-    val maxPassportIdLength = 8
-    val maxVoterIdLength = 10
-    val maxPatientIdLength = 12
-    val minPatientIdLength = 2
+    val maxHospitalIdLength = 6
+    val maxNationalIdLength = 6
 
-    var isPassportSelected by mutableStateOf(false)
-    var isVoterSelected by mutableStateOf(false)
-    var isPatientSelected by mutableStateOf(false)
-    var passportId by mutableStateOf("")
-    var voterId by mutableStateOf("")
-    var patientId by mutableStateOf("")
-
-    val passportPattern = PassportRegex.passportPattern
-    val voterPattern = VoterRegex.voterPattern
-    var isPassportValid by mutableStateOf(false)
-    var isVoterValid by mutableStateOf(false)
-    var isPatientValid by mutableStateOf(false)
+    var hospitalId by mutableStateOf("")
+    var nationalId by mutableStateOf("")
+    var nationalIdUse by mutableStateOf("")
+    var isVerifyClicked by mutableStateOf(false)
+    var isNationalIdVerified by mutableStateOf(false)
+    var isHospitalIdValid by mutableStateOf(false)
 
     val identifierList = mutableListOf<PatientIdentifier>()
     var patient by mutableStateOf<PatientResponse?>(null)
 
-
     // temp
-    var isPassportSelectedTemp by mutableStateOf(false)
-    var isVoterSelectedTemp by mutableStateOf(false)
-    var isPatientSelectedTemp by mutableStateOf(false)
-    var passportIdTemp by mutableStateOf("")
-    var voterIdTemp by mutableStateOf("")
-    var patientIdTemp by mutableStateOf("")
-
+    var hospitalIdTemp by mutableStateOf("")
+    var nationalIdTemp by mutableStateOf("")
+    var nationalIdUseTemp by mutableStateOf("")
+    var isNationalIdVerifiedTemp by mutableStateOf(false)
 
     fun identityInfoValidation(): Boolean {
-        if (isPassportSelected && !passportPattern.matches(passportId))
+        if (isHospitalIdValid)
             return false
-        if (isVoterSelected && !voterPattern.matches(voterId))
-            return false
-        return !(isPatientSelected && patientId.length < minPatientIdLength)
+        return isVerifyClicked || nationalId.isBlank()
     }
 
     fun checkIsEdit(): Boolean {
-        return isPassportSelected != isPassportSelectedTemp ||
-                isVoterSelected != isVoterSelectedTemp ||
-                isPatientSelected != isPatientSelectedTemp ||
-                passportId != passportIdTemp ||
-                voterId != voterIdTemp ||
-                patientId != patientIdTemp
+        return hospitalId != hospitalIdTemp ||
+                nationalId != nationalIdTemp ||
+                isNationalIdVerified != isNationalIdVerifiedTemp ||
+                nationalIdUse != nationalIdUseTemp
     }
 
     fun revertChanges(): Boolean {
-        isPassportSelected = isPassportSelectedTemp
-        isVoterSelected = isVoterSelectedTemp
-        isPatientSelected = isPatientSelectedTemp
-        passportId = passportIdTemp
-        voterId = voterIdTemp
-        patientId = patientIdTemp
-        isPassportValid = false
-        isVoterValid = false
-        isPatientValid = false
+        hospitalId = hospitalIdTemp
+        nationalId = nationalIdTemp
+        isNationalIdVerified = isNationalIdVerifiedTemp
+        nationalIdUse = nationalIdUseTemp
+        isVerifyClicked = false
         return true
     }
 
     fun updateBasicInfo(patientResponse: PatientResponse) {
         viewModelScope.launch(Dispatchers.IO) {
             val toBeDeletedList = mutableListOf<PatientIdentifier>()
-            if (passportIdTemp != passportId || !isPassportSelected) {
+            if (hospitalIdTemp != hospitalId) {
                 toBeDeletedList.add(
                     PatientIdentifier(
-                        identifierType = IdentificationConstants.PASSPORT_TYPE,
-                        identifierNumber = passportIdTemp,
-                        code = null
+                        identifierType = IdentificationConstants.HOSPITAL_ID,
+                        identifierNumber = hospitalIdTemp,
+                        code = null,
+                        use = null
                     )
                 )
             }
 
-            if (voterIdTemp != voterId || !isPassportSelected) {
+            if (nationalIdTemp != nationalId) {
                 toBeDeletedList.add(
                     PatientIdentifier(
-                        identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                        identifierNumber = voterIdTemp,
-                        code = null
-                    )
-                )
-            }
-            if (patientIdTemp != patientId || !isPassportSelected) {
-                toBeDeletedList.add(
-                    PatientIdentifier(
-                        identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                        identifierNumber = patientIdTemp,
-                        code = null
+                        identifierType = IdentificationConstants.NATIONAL_ID,
+                        identifierNumber = nationalIdTemp,
+                        code = null,
+                        use = nationalIdUseTemp
                     )
                 )
             }
@@ -133,145 +100,11 @@ class EditIdentificationViewModel @Inject constructor(
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (response > 0) {
                 identifierRepository.insertIdentifierList(patientResponse = patientResponse)
-
-
                 if (patientResponse.fhirId != null) {
-                    val list = mutableListOf<ChangeRequest>()
-
-                    if (passportId != passportIdTemp && passportId.isEmpty() && passportIdTemp.isNotEmpty()) {
-
-
-                        list.add(
-                            ChangeRequest(
-                                value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
-                                    identifierNumber = passportIdTemp,
-                                    code = null
-                                ), operation = ChangeTypeEnum.REMOVE.value,
-                                key = IdentificationConstants.PASSPORT_TYPE
-                            )
-
-                        )
-
-                    } else if (passportId != passportIdTemp && passportIdTemp.isNotEmpty() && passportId.isNotEmpty()) {
-                        list.add(
-                            ChangeRequest(
-                                value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
-                                    identifierNumber = passportId,
-                                    code = null
-                                ), operation = ChangeTypeEnum.REPLACE.value,
-                                key = IdentificationConstants.PASSPORT_TYPE
-                            )
-
-                        )
-
-                    } else if (passportId != passportIdTemp && passportIdTemp.isEmpty() && passportId.isNotEmpty()) {
-                        list.add(
-                            ChangeRequest(
-                                value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
-                                    identifierNumber = passportId,
-                                    code = null
-                                ), operation = ChangeTypeEnum.ADD.value,
-                                key = IdentificationConstants.PASSPORT_TYPE
-                            )
-
-                        )
-
-                    }
-
-                    if (voterId != voterIdTemp && voterId.isEmpty() && voterIdTemp.isNotEmpty()) {
-                        list.add(
-                            ChangeRequest(
-                                value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                                    identifierNumber = voterIdTemp,
-                                    code = null
-                                ), operation = ChangeTypeEnum.REMOVE.value,
-                                key = IdentificationConstants.VOTER_ID_TYPE
-                            )
-
-                        )
-
-                    } else if (voterId != voterIdTemp && voterIdTemp.isNotEmpty() && voterId.isNotEmpty()) {
-                        list.add(
-                            ChangeRequest(
-                                value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                                    identifierNumber = voterId,
-                                    code = null
-                                ), operation = ChangeTypeEnum.REPLACE.value,
-                                key = IdentificationConstants.VOTER_ID_TYPE
-                            )
-                        )
-
-                    } else if (voterId != voterIdTemp && voterIdTemp.isEmpty() && voterId.isNotEmpty()) {
-                        list.add(
-                            ChangeRequest(
-                                value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                                    identifierNumber = voterId,
-                                    code = null
-                                ), operation = ChangeTypeEnum.ADD.value,
-                                key = IdentificationConstants.VOTER_ID_TYPE
-                            )
-
-                        )
-
-                    }
-
-                    if (patientId != patientIdTemp && patientId.isEmpty() && patientIdTemp.isNotEmpty()) {
-                        list.add(
-                            ChangeRequest(
-                                value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                                    identifierNumber = patientIdTemp,
-                                    code = null
-                                ), operation = ChangeTypeEnum.REMOVE.value,
-                                key = IdentificationConstants.PATIENT_ID_TYPE
-                            )
-
-                        )
-
-                    } else if (patientId != patientIdTemp && patientIdTemp.isNotEmpty() && patientId.isNotEmpty()) {
-                        list.add(
-                            ChangeRequest(
-                                value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                                    identifierNumber = patientId,
-                                    code = null
-                                ), operation = ChangeTypeEnum.REPLACE.value,
-                                key = IdentificationConstants.PATIENT_ID_TYPE
-                            )
-                        )
-
-                    } else if (patientId != patientIdTemp && patientIdTemp.isEmpty() && patientId.isNotEmpty()) {
-                        list.add(
-                            ChangeRequest(
-                                value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                                    identifierNumber = patientId,
-                                    code = null
-                                ), operation = ChangeTypeEnum.ADD.value,
-                                key = IdentificationConstants.PATIENT_ID_TYPE
-                            )
-
-                        )
-
-                    }
-
                     genericRepository.insertOrUpdatePatientPatchEntity(
                         patientFhirId = patientResponse.fhirId,
-                        map = mapOf(
-                            Pair(
-                                "identifier",
-                                list
-                            )
-                        )
+                        patientResponse = patientResponse
                     )
-
-                    Timber.tag("identifier").d(list.toJson())
                 } else {
                     genericRepository.insertPatient(
                         patientResponse

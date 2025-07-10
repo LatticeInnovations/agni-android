@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b44a2d012a818a803d28f733553a9da3",
+    "identityHash": "d57e240d31df9e961ebd537ed616fc0f",
     "entities": [
       {
         "tableName": "PatientEntity",
@@ -202,7 +202,7 @@
       },
       {
         "tableName": "IdentifierEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifierNumber` TEXT NOT NULL, `identifierType` TEXT NOT NULL, `identifierCode` TEXT, `patientId` TEXT NOT NULL, PRIMARY KEY(`identifierNumber`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifierNumber` TEXT NOT NULL, `identifierType` TEXT NOT NULL, `identifierCode` TEXT, `identifierUse` TEXT, `patientId` TEXT NOT NULL, PRIMARY KEY(`identifierNumber`), FOREIGN KEY(`patientId`) REFERENCES `PatientEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "identifierNumber",
@@ -219,6 +219,11 @@
           {
             "fieldPath": "identifierCode",
             "columnName": "identifierCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "identifierUse",
+            "columnName": "identifierUse",
             "affinity": "TEXT"
           },
           {
@@ -2563,7 +2568,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b44a2d012a818a803d28f733553a9da3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd57e240d31df9e961ebd537ed616fc0f')"
     ]
   }
 }

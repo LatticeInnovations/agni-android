@@ -6,13 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
 import com.heartcare.agni.base.viewmodel.BaseViewModel
-import com.heartcare.agni.data.local.enums.ChangeTypeEnum
-import com.heartcare.agni.data.local.model.patch.ChangeRequest
+import com.heartcare.agni.data.local.enums.LevelsEnum
 import com.heartcare.agni.data.local.repository.generic.GenericRepository
+import com.heartcare.agni.data.local.repository.levels.LevelRepository
 import com.heartcare.agni.data.local.repository.patient.PatientRepository
+import com.heartcare.agni.data.server.model.levels.LevelResponse
 import com.heartcare.agni.data.server.model.patient.PatientResponse
-import com.heartcare.agni.ui.patientregistration.step3.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,86 +21,136 @@ import javax.inject.Inject
 @HiltViewModel
 class EditPatientAddressViewModel @Inject constructor(
     val patientRepository: PatientRepository,
-    val genericRepository: GenericRepository
+    val genericRepository: GenericRepository,
+    private val levelRepository: LevelRepository
 ) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
-    var isEditing by mutableStateOf(false)
 
-    var homeAddress by mutableStateOf(Address())
-    var homeAddressTemp by mutableStateOf(Address())
-    private var workAddress by mutableStateOf(Address())
+    val other = LevelResponse(
+        fhirId = "others",
+        code = "0",
+        levelType = "others",
+        name = "Others",
+        population = null,
+        precedingLevelId = null,
+        secondaryName = null,
+        status = "active"
+    )
+    val maxLength = 50
+    val postalCodeLength = 10
 
-    private var addWorkAddress by mutableStateOf(false)
+    var province: LevelResponse? by mutableStateOf(null)
+    var provinceList: List<LevelResponse> by mutableStateOf(emptyList())
+
+    var areaCouncil: LevelResponse? by mutableStateOf(null)
+    var areaCouncilList: List<LevelResponse> by mutableStateOf(emptyList())
+
+    var island: LevelResponse? by mutableStateOf(null)
+    var islandList: List<LevelResponse> by mutableStateOf(emptyList())
+
+    var village: LevelResponse? by mutableStateOf(null)
+    var villageList: List<LevelResponse> by mutableStateOf(emptyList())
+    var isVillageOtherSelected by mutableStateOf(false)
+    var otherVillage by mutableStateOf("")
+    var otherVillageError by mutableStateOf(false)
+
+    var postalCode by mutableStateOf("")
+
+    var provinceTemp: LevelResponse? by mutableStateOf(null)
+    var areaCouncilTemp: LevelResponse? by mutableStateOf(null)
+    var islandTemp: LevelResponse? by mutableStateOf(null)
+    var villageTemp: LevelResponse? by mutableStateOf(null)
+    var otherVillageTemp by mutableStateOf("")
+    var postalCodeTemp by mutableStateOf("")
+
+    fun getLists() {
+        viewModelScope.launch(Dispatchers.IO) {
+            provinceList =
+                levelRepository.getLevels(levelType = LevelsEnum.PROVINCE.levelType)
+            getAreaCouncilList()
+            getIslandList()
+            getVillageList()
+        }
+    }
+
+    fun getAreaCouncilList(
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        viewModelScope.launch(ioDispatcher) {
+            areaCouncilList = levelRepository.getLevels(
+                levelType = LevelsEnum.AREA_COUNCIL.levelType,
+                precedingId = province!!.fhirId
+            )
+        }
+    }
+
+    fun getIslandList(
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        viewModelScope.launch(ioDispatcher) {
+            islandList = levelRepository.getLevels(
+                levelType = LevelsEnum.ISLAND.levelType,
+                precedingId = areaCouncil!!.fhirId
+            )
+        }
+    }
+
+    fun getVillageList(
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        viewModelScope.launch(ioDispatcher) {
+            villageList = levelRepository.getLevels(
+                levelType = LevelsEnum.VILLAGE.levelType,
+                precedingId = island!!.fhirId
+            ) + listOf(other)
+        }
+    }
+
+    suspend fun getLevelByFhirId(fhirId: String): LevelResponse {
+        return levelRepository.getLevelByFhirId(fhirId)
+    }
 
     fun addressInfoValidation(): Boolean {
-        if (homeAddress.pincode.length < 6 || homeAddress.state.isBlank() || homeAddress.addressLine1.isBlank()
-            || homeAddress.city.isBlank()
-        )
-            return false
-        return !(addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state.isBlank() || workAddress.addressLine1.isBlank()
-                || workAddress.city.isBlank()))
+        if (province == null || areaCouncil == null || island == null) return false
+
+        if (village == other) {
+            return otherVillage.isNotBlank()
+        }
+
+        return true
     }
 
     fun checkIsEdit(): Boolean {
-        return homeAddress.pincode != homeAddressTemp.pincode ||
-                homeAddress.state != homeAddressTemp.state ||
-                homeAddress.addressLine1 != homeAddressTemp.addressLine1 ||
-                homeAddress.addressLine2 != homeAddressTemp.addressLine2 ||
-                homeAddress.city != homeAddressTemp.city ||
-                homeAddress.district != homeAddressTemp.district
+        return postalCode != postalCodeTemp ||
+                province != provinceTemp ||
+                areaCouncil != areaCouncilTemp ||
+                island != islandTemp ||
+                village != villageTemp ||
+                otherVillage != otherVillageTemp
     }
 
 
     fun revertChanges(): Boolean {
-        homeAddress.pincode = homeAddressTemp.pincode
-        homeAddress.state = homeAddressTemp.state
-        homeAddress.city = homeAddressTemp.city
-        homeAddress.district = homeAddressTemp.district
-        homeAddress.addressLine1 = homeAddressTemp.addressLine1
-        homeAddress.addressLine2 = homeAddressTemp.addressLine2
-        homeAddress.isPostalCodeValid = false
-        homeAddress.isAddressLine1Valid = false
-        homeAddress.isCityValid = false
-        homeAddress.isStateValid = false
+        postalCode = postalCodeTemp
+        province = provinceTemp
+        areaCouncil = areaCouncilTemp
+        island = islandTemp
+        village = villageTemp
+        otherVillage = otherVillageTemp
+        otherVillageError = false
+        isVillageOtherSelected = otherVillage.isNotBlank()
         return true
     }
 
-    fun updateBasicInfo(patientResponse: PatientResponse) {
+    fun updateAddressInfo(patientResponse: PatientResponse) {
         viewModelScope.launch(Dispatchers.IO) {
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (checkIsEdit() && response > 0) {
                 if (patientResponse.fhirId != null) {
-                    checkIsValueChange(
-                        patientResponse,
-                        homeAddress.pincode,
-                        homeAddressTemp.pincode
+                    genericRepository.insertOrUpdatePatientPatchEntity(
+                        patientFhirId = patientResponse.fhirId,
+                        patientResponse = patientResponse
                     )
-                    checkIsValueChange(
-                        patientResponse,
-                        homeAddress.addressLine1,
-                        homeAddressTemp.addressLine1
-                    )
-                    checkIsValueChange(
-                        patientResponse,
-                        homeAddress.addressLine2,
-                        homeAddressTemp.addressLine2
-                    )
-                    checkIsValueChange(
-                        patientResponse,
-                        homeAddress.state,
-                        homeAddressTemp.state
-                    )
-                    checkIsValueChange(
-                        patientResponse,
-                        homeAddress.city,
-                        homeAddressTemp.city
-                    )
-                    checkIsValueChange(
-                        patientResponse,
-                        homeAddress.district,
-                        homeAddressTemp.district
-                    )
-
                 } else {
                     genericRepository.insertPatient(
                         patientResponse
@@ -108,45 +159,5 @@ class EditPatientAddressViewModel @Inject constructor(
             }
         }
     }
-
-
-    private suspend fun checkIsValueChange(
-        patientResponse: PatientResponse,
-        value: String,
-        tempValue: String
-    ) {
-        when {
-            value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty() -> {
-                updateAddress(patientResponse, ChangeTypeEnum.REPLACE.value)
-            }
-
-            value != tempValue && tempValue.isNotEmpty() && value.isEmpty() -> {
-                updateAddress(patientResponse, ChangeTypeEnum.REPLACE.value)
-
-            }
-
-            value != tempValue && tempValue.isEmpty() && value.isNotEmpty() -> {
-                updateAddress(patientResponse, ChangeTypeEnum.ADD.value)
-            }
-        }
-
-
-    }
-
-    private suspend fun updateAddress(patientResponse: PatientResponse, operation: String) {
-        genericRepository.insertOrUpdatePatientPatchEntity(
-            patientFhirId = patientResponse.fhirId!!,
-            map = mapOf(
-                Pair(
-                    "permanentAddress", ChangeRequest(
-                        value = patientResponse.permanentAddress,
-                        operation = operation
-                    )
-                )
-            )
-        )
-    }
-
-
 }
 
