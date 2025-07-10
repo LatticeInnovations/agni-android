@@ -19,7 +19,6 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
     internal val maxPhoneNumberLength = 15
 
     internal var firstName by mutableStateOf("")
-    internal var middleName by mutableStateOf("")
     internal var lastName by mutableStateOf("")
     internal var phoneNumber by mutableStateOf("")
     internal var email by mutableStateOf("")

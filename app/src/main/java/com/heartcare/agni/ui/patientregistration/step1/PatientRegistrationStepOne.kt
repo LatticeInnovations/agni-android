@@ -528,6 +528,7 @@ fun PatientDeceasedComposable(viewModel: PatientRegistrationStepOneViewModel) {
             YesNoEnum.NO.display
         ) {
             viewModel.isPersonDeceased = it.toInt()
+            viewModel.selectedDeceasedReason = ""
         }
     }
 }
