@@ -512,4 +512,6 @@ include them in the household</string>
     <string name="area_council_required">Area council required</string>
     <string name="island_required">Island required</string>
     <string name="village_required">Village required</string>
+    <string name="undo_all">Undo all</string>
+    <string name="patient_profile">Patient profile</string>
 </resources>
