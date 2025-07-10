@@ -128,7 +128,6 @@ fun SuggestedMembersCard(
                 Text(
                     text = NameConverter.getFullName(
                         member.firstName,
-                        member.middleName,
                         member.lastName
                     ),
                     style = MaterialTheme.typography.bodyLarge,
@@ -190,13 +189,11 @@ fun ConnectDialog(
             RelationDialogContent(
                 NameConverter.getFullName(
                     patient.firstName,
-                    patient.middleName,
                     patient.lastName
                 ),
                 "of ${
                     NameConverter.getFullName(
                         member.firstName,
-                        member.middleName,
                         member.lastName
                     )
                 }.",
@@ -227,7 +224,6 @@ fun ConnectDialog(
                                     message = "${
                                         NameConverter.getFullName(
                                             member.firstName,
-                                            member.middleName,
                                             member.lastName
                                         )
                                     } added to the household.",

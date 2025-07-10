@@ -6,9 +6,6 @@ import kotlinx.parcelize.Parcelize
 
 @Keep
 @Parcelize
-data class PatientIdentifier(
-    val identifierType: String,
-    val identifierNumber: String,
-    val code: String?,
-    val use: String? = null
-) : Parcelable
+data class ManagingOrganization(
+    val reference: String
+): Parcelable

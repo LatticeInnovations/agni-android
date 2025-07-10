@@ -12,12 +12,6 @@ class PatientRegistrationStepTwoViewModel : BaseViewModel(), DefaultLifecycleObs
     val maxHospitalIdLength = 6
     val maxNationalIdLength = 6
 
-    var isPassportSelected by mutableStateOf(false)
-    var isVoterSelected by mutableStateOf(false)
-    var isPatientSelected by mutableStateOf(false)
-    var passportId by mutableStateOf("")
-    var voterId by mutableStateOf("")
-    var patientId by mutableStateOf("")
     var hospitalId by mutableStateOf("")
     var nationalId by mutableStateOf("")
     var isVerifyClicked by mutableStateOf(false)

@@ -53,11 +53,11 @@ fun EditPatientAddress(
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             patientResponse?.run {
-                viewModel.homeAddress.pincode = permanentAddress.postalCode
-                viewModel.homeAddress.state = permanentAddress.state
-                viewModel.homeAddress.city = permanentAddress.city
-                viewModel.homeAddress.district = permanentAddress.district ?: ""
-                viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1
+                viewModel.homeAddress.pincode = permanentAddress.postalCode?:""
+                viewModel.homeAddress.state = permanentAddress.province
+                viewModel.homeAddress.city = permanentAddress.areaCouncil
+                viewModel.homeAddress.district = permanentAddress.island
+                viewModel.homeAddress.addressLine1 = permanentAddress.village?:""
                 viewModel.homeAddress.addressLine2 = permanentAddress.addressLine2 ?: ""
 
                 viewModel.homeAddressTemp.pincode = viewModel.homeAddress.pincode
@@ -159,10 +159,10 @@ fun EditPatientAddress(
                     viewModel.updateBasicInfo(
                         patientResponse!!.copy(
                             permanentAddress = PatientAddressResponse(
-                                addressLine1 = viewModel.homeAddress.addressLine1,
-                                city = viewModel.homeAddress.city,
-                                district = viewModel.homeAddress.district.ifEmpty { null },
-                                state = viewModel.homeAddress.state,
+                                village = viewModel.homeAddress.addressLine1,
+                                areaCouncil = viewModel.homeAddress.city,
+                                island = viewModel.homeAddress.district,
+                                province = viewModel.homeAddress.state,
                                 postalCode = viewModel.homeAddress.pincode,
                                 country = "India",
                                 addressLine2 = viewModel.homeAddress.addressLine2.ifEmpty { null },

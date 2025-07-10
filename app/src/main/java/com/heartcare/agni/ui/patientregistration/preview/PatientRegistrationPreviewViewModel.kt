@@ -1,6 +1,7 @@
 package com.heartcare.agni.ui.patientregistration.preview
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -11,10 +12,10 @@ import com.heartcare.agni.data.local.repository.identifier.IdentifierRepository
 import com.heartcare.agni.data.local.repository.patient.PatientRepository
 import com.heartcare.agni.data.local.repository.patient.lastupdated.PatientLastUpdatedRepository
 import com.heartcare.agni.data.local.repository.relation.RelationRepository
+import com.heartcare.agni.data.server.model.levels.LevelResponse
 import com.heartcare.agni.data.server.model.patient.PatientIdentifier
 import com.heartcare.agni.data.server.model.patient.PatientLastUpdatedResponse
 import com.heartcare.agni.data.server.model.patient.PatientResponse
-import com.heartcare.agni.ui.patientregistration.step3.Address
 import com.heartcare.agni.utils.builders.UUIDBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +35,6 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     var patientResponse by mutableStateOf<PatientResponse?>(null)
 
     internal var firstName by mutableStateOf("")
-    internal var middleName by mutableStateOf("")
     internal var lastName by mutableStateOf("")
     internal var phoneNumber by mutableStateOf("")
     internal var email by mutableStateOf("")
@@ -46,12 +46,16 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     internal var months by mutableStateOf("")
     internal var days by mutableStateOf("")
     internal var gender by mutableStateOf("")
-    internal var passportId by mutableStateOf("")
-    internal var voterId by mutableStateOf("")
-    internal var patientId by mutableStateOf("")
+    var isPersonDeceased by mutableIntStateOf(0)
+    var selectedDeceasedReason by mutableStateOf("")
 
-    internal var homeAddress by mutableStateOf(Address())
-    internal var workAddress by mutableStateOf(Address())
+    internal var motherName by mutableStateOf("")
+    internal var fatherName by mutableStateOf("")
+    internal var spouseName by mutableStateOf("")
+
+    var hospitalId by mutableStateOf("")
+    var nationalId by mutableStateOf("")
+    var isNationalIdVerified by mutableStateOf(false)
 
     internal var openDialog by mutableStateOf(false)
     internal val identifierList = mutableListOf<PatientIdentifier>()
@@ -61,6 +65,16 @@ class PatientRegistrationPreviewViewModel @Inject constructor(
     internal var patientFromId by mutableStateOf("")
     internal var relativeId by mutableStateOf(UUIDBuilder.generateUUID())
     internal var relation by mutableStateOf("")
+
+    var province: LevelResponse? by mutableStateOf(null)
+    var areaCouncil: LevelResponse? by mutableStateOf(null)
+    var island: LevelResponse? by mutableStateOf(null)
+    var village: LevelResponse? by mutableStateOf(null)
+    var postalCode by mutableStateOf("")
+    var otherProvince by mutableStateOf("")
+    var otherAreaCouncil by mutableStateOf("")
+    var otherIsland by mutableStateOf("")
+    var otherVillage by mutableStateOf("")
 
     internal fun addPatient(patientResponse: PatientResponse) {
         viewModelScope.launch(Dispatchers.IO) {

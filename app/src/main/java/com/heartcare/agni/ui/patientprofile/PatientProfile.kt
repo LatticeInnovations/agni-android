@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,9 +53,7 @@ fun PatientProfile(
             viewModel.patientResponse = viewModel.getPatientData(viewModel.id)
             viewModel.patientResponse?.run {
                 viewModel.firstName = firstName
-                viewModel.middleName = middleName ?: ""
-                viewModel.lastName = lastName ?: ""
-                viewModel.email = email ?: ""
+                viewModel.lastName = lastName
                 viewModel.phoneNumber = mobileNumber.toString()
                 viewModel.dob = birthDate.toPatientPreviewDate()
                 viewModel.gender = gender
@@ -80,12 +78,12 @@ fun PatientProfile(
                     }
                 }
 
-                viewModel.homeAddress.pincode = permanentAddress.postalCode
-                viewModel.homeAddress.state = permanentAddress.state
-                viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1
+                viewModel.homeAddress.pincode = permanentAddress.postalCode?:""
+                viewModel.homeAddress.state = permanentAddress.province
+                viewModel.homeAddress.addressLine1 = permanentAddress.village ?:""
                 viewModel.homeAddress.addressLine2 = permanentAddress.addressLine2 ?: ""
-                viewModel.homeAddress.city = permanentAddress.city
-                viewModel.homeAddress.district = permanentAddress.district ?: ""
+                viewModel.homeAddress.city = permanentAddress.areaCouncil
+                viewModel.homeAddress.district = permanentAddress.island
 
             }
         }
@@ -110,7 +108,7 @@ fun PatientProfile(
                         navController.popBackStack()
                     }) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "BACK_ICON"
                         )
                     }

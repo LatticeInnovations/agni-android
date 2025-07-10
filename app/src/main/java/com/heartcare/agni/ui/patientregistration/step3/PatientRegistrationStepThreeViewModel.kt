@@ -23,7 +23,7 @@ class PatientRegistrationStepThreeViewModel @Inject constructor(
     val other = LevelResponse(
         fhirId = "0",
         code = "0",
-        levelType = "other",
+        levelType = "others",
         name = "Others",
         population = null,
         precedingLevelId = null,
@@ -58,12 +58,6 @@ class PatientRegistrationStepThreeViewModel @Inject constructor(
     var otherVillageError by mutableStateOf(false)
 
     var postalCode by mutableStateOf("")
-
-    var homeAddress by mutableStateOf(Address())
-
-    var workAddress by mutableStateOf(Address())
-
-    var addWorkAddress by mutableStateOf(false)
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

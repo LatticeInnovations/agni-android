@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.heartcare.agni.R
+import com.heartcare.agni.data.local.enums.NationalIdUse
 import com.heartcare.agni.ui.common.CustomTextFieldWithLength
 import com.heartcare.agni.ui.patientregistration.PatientRegistrationViewModel
 import com.heartcare.agni.ui.patientregistration.model.PatientRegister
@@ -45,13 +46,10 @@ fun PatientRegistrationStepTwo(
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             patientRegister.run {
-                viewModel.patientId = patientId.toString()
-                viewModel.passportId = passportId.toString()
-                viewModel.voterId = voterId.toString()
-                if (patientRegistrationViewModel.isEditing) viewModel.isPassportSelected =
-                    passportId.toString().isNotEmpty()
-                viewModel.isVoterSelected = voterId.toString().isNotEmpty()
-                viewModel.isPatientSelected = patientId.toString().isNotEmpty()
+                viewModel.hospitalId = hospitalId.toString()
+                viewModel.nationalId = nationalId.toString()
+                viewModel.isNationalIdVerified = nationalIdUse == NationalIdUse.OFFICIAL.use
+                viewModel.isVerifyClicked = !nationalIdUse.isNullOrBlank()
             }
         }
     }
@@ -87,9 +85,12 @@ fun PatientRegistrationStepTwo(
         Button(
             onClick = {
                 patientRegister.run {
-                    passportId = viewModel.passportId
-                    voterId = viewModel.voterId
-                    patientId = viewModel.patientId
+                    nationalId = viewModel.nationalId
+                    hospitalId = viewModel.hospitalId
+                    nationalIdUse = if (viewModel.nationalId.isNotBlank()) {
+                        if (viewModel.isNationalIdVerified) NationalIdUse.OFFICIAL.use
+                        else NationalIdUse.TEMP.use
+                    } else null
                 }
                 patientRegistrationViewModel.currentStep = 3
             },
@@ -151,7 +152,7 @@ private fun NationalIdComposable(
                 NationalIdSupportingText(viewModel)
             },
             trailingIcon = {
-                if(viewModel.nationalId.isNotBlank())
+                if (viewModel.nationalId.isNotBlank())
                     IconButton(
                         onClick = {
                             viewModel.nationalId = ""
@@ -173,7 +174,7 @@ private fun NationalIdComposable(
             onClick = {
                 viewModel.isVerifyClicked = true
                 // TODO : add logic to verify national id
-                viewModel.isNationalIdVerified = false
+                viewModel.isNationalIdVerified = true
             },
             modifier = Modifier.weight(1f),
             enabled = viewModel.nationalId.isNotBlank() && !viewModel.isNationalIdVerified
@@ -187,10 +188,10 @@ private fun NationalIdComposable(
 private fun NationalIdSupportingText(
     viewModel: PatientRegistrationStepTwoViewModel
 ) {
-    Row (
+    Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
-    ){
+    ) {
         if (viewModel.isVerifyClicked) {
             val text: String
             val icon: Int

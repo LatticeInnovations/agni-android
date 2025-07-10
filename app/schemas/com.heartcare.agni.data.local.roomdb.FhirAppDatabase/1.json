@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "bd0a326e73df3d9123efc00594f2242a",
+    "identityHash": "b44a2d012a818a803d28f733553a9da3",
     "entities": [
       {
         "tableName": "PatientEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `active` INTEGER, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER NOT NULL, `email` TEXT, `fhirId` TEXT, `addressLine1` TEXT NOT NULL, `city` TEXT NOT NULL, `district` TEXT, `state` TEXT NOT NULL, `postalCode` TEXT NOT NULL, `country` TEXT, `addressLine2` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER, `fhirId` TEXT, `fathersName` TEXT, `generalPractitioner` TEXT, `isDeleted` INTEGER, `managingOrganization` TEXT, `mothersName` TEXT NOT NULL, `patientDeceasedReason` TEXT, `patientDeceasedReasonId` INTEGER, `spouseName` TEXT, `village` TEXT, `addressLine2` TEXT, `areaCouncil` TEXT NOT NULL, `country` TEXT NOT NULL, `island` TEXT NOT NULL, `postalCode` TEXT, `province` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -21,19 +21,10 @@
             "notNull": true
           },
           {
-            "fieldPath": "middleName",
-            "columnName": "middleName",
-            "affinity": "TEXT"
-          },
-          {
             "fieldPath": "lastName",
             "columnName": "lastName",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "active",
-            "columnName": "active",
-            "affinity": "INTEGER"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "gender",
@@ -50,13 +41,7 @@
           {
             "fieldPath": "mobileNumber",
             "columnName": "mobileNumber",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "email",
-            "columnName": "email",
-            "affinity": "TEXT"
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "fhirId",
@@ -64,43 +49,84 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "permanentAddress.addressLine1",
-            "columnName": "addressLine1",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "permanentAddress.city",
-            "columnName": "city",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "permanentAddress.district",
-            "columnName": "district",
+            "fieldPath": "fathersName",
+            "columnName": "fathersName",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "permanentAddress.state",
-            "columnName": "state",
+            "fieldPath": "generalPractitioner",
+            "columnName": "generalPractitioner",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isDeleted",
+            "columnName": "isDeleted",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "managingOrganization",
+            "columnName": "managingOrganization",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mothersName",
+            "columnName": "mothersName",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "permanentAddress.postalCode",
-            "columnName": "postalCode",
-            "affinity": "TEXT",
-            "notNull": true
+            "fieldPath": "patientDeceasedReason",
+            "columnName": "patientDeceasedReason",
+            "affinity": "TEXT"
           },
           {
-            "fieldPath": "permanentAddress.country",
-            "columnName": "country",
+            "fieldPath": "patientDeceasedReasonId",
+            "columnName": "patientDeceasedReasonId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "spouseName",
+            "columnName": "spouseName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "permanentAddress.village",
+            "columnName": "village",
             "affinity": "TEXT"
           },
           {
             "fieldPath": "permanentAddress.addressLine2",
             "columnName": "addressLine2",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "permanentAddress.areaCouncil",
+            "columnName": "areaCouncil",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "permanentAddress.country",
+            "columnName": "country",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "permanentAddress.island",
+            "columnName": "island",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "permanentAddress.postalCode",
+            "columnName": "postalCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "permanentAddress.province",
+            "columnName": "province",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -2528,7 +2554,7 @@
     "views": [
       {
         "viewName": "RelationView",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select rel.id, pat1.id as patientId , pat1.firstName as patientFirstName, pat1.middleName as patientMiddleName, pat1.lastName as patientLastName, pat1.gender as patientGender, pat1.fhirId as patientFhirId, pat2.id as relativeId ,pat2.firstName as relativeFirstName, pat2.middleName as relativeMiddleName, pat2.lastName as relativeLastName,pat2.gender as relativeGender,pat2.fhirId as relativeFhirId , rel.relation  as relation from RelationEntity rel \ninner join PatientEntity pat1 on rel.fromId = pat1.id\ninner join PatientEntity pat2 on rel.toId = pat2.id"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select rel.id, pat1.id as patientId , pat1.firstName as patientFirstName, pat1.lastName as patientLastName, pat1.gender as patientGender, pat1.fhirId as patientFhirId, pat2.id as relativeId ,pat2.firstName as relativeFirstName, pat2.lastName as relativeLastName,pat2.gender as relativeGender,pat2.fhirId as relativeFhirId , rel.relation  as relation from RelationEntity rel \ninner join PatientEntity pat1 on rel.fromId = pat1.id\ninner join PatientEntity pat2 on rel.toId = pat2.id"
       },
       {
         "viewName": "PrescriptionDirectionAndMedicineView",
@@ -2537,7 +2563,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bd0a326e73df3d9123efc00594f2242a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b44a2d012a818a803d28f733553a9da3')"
     ]
   }
 }

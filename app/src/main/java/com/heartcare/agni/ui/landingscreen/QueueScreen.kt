@@ -666,7 +666,6 @@ fun QueuePatientCard(
                 PatientCardDetails(
                     NameConverter.getFullName(
                         patient?.firstName,
-                        patient?.middleName,
                         patient?.lastName
                     ),
                     subTitle,
@@ -797,7 +796,6 @@ fun CancelledQueueCard(
                 PatientCardDetails(
                     NameConverter.getFullName(
                         patient?.firstName,
-                        patient?.middleName,
                         patient?.lastName
                     ),
                     subTitle,

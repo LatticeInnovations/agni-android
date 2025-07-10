@@ -244,10 +244,10 @@ class SearchRepositoryImpl @Inject constructor(
                 null,
                 null,
                 null,
-                address.addressLine1,
-                address.city,
-                address.district,
-                address.state,
+                address.village,
+                address.areaCouncil,
+                address.island,
+                address.province,
                 address.postalCode,
                 address.addressLine2
             )

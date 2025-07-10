@@ -46,8 +46,6 @@ import com.heartcare.agni.ui.patientregistration.PatientRegistrationViewModel
 import com.heartcare.agni.ui.patientregistration.model.PatientRegister
 import com.heartcare.agni.ui.theme.Neutral40
 import com.heartcare.agni.utils.regex.OnlyNumberRegex.onlyNumbers
-import timber.log.Timber
-import java.util.Locale
 
 @Composable
 fun PatientRegistrationStepThree(
@@ -60,23 +58,19 @@ fun PatientRegistrationStepThree(
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             with(viewModel) {
-                with(homeAddress) {
-                    pincode = patientRegister.homePostalCode.orEmpty()
-                    state = patientRegister.homeState.orEmpty()
-                    city = patientRegister.homeCity.orEmpty()
-                    district = patientRegister.homeDistrict.orEmpty()
-                    addressLine1 = patientRegister.homeAddressLine1.orEmpty()
-                    addressLine2 = patientRegister.homeAddressLine2.orEmpty()
-                }
-                addWorkAddress = patientRegister.workPostalCode?.isNotEmpty() == true
-                with(workAddress) {
-                    pincode = patientRegister.workPostalCode.orEmpty()
-                    state = patientRegister.workState.orEmpty()
-                    city = patientRegister.workCity.orEmpty()
-                    district = patientRegister.workDistrict.orEmpty()
-                    addressLine1 = patientRegister.workAddressLine1.orEmpty()
-                    addressLine2 = patientRegister.workAddressLine2.orEmpty()
-                }
+                province = patientRegister.province
+                areaCouncil = patientRegister.areaCouncil
+                island = patientRegister.island
+                village = patientRegister.village
+                otherProvince = patientRegister.otherProvince.toString()
+                otherAreaCouncil = patientRegister.otherAreaCouncil.toString()
+                otherIsland = patientRegister.otherIsland.toString()
+                otherVillage = patientRegister.otherVillage.toString()
+                postalCode = patientRegister.postalCode.toString()
+                isProvinceOtherSelected = otherProvince.isNotBlank()
+                isAreaCouncilOtherSelected = otherAreaCouncil.isNotBlank()
+                isIslandOtherSelected = otherIsland.isNotBlank()
+                isVillageOtherSelected = otherVillage.isNotBlank()
             }
             viewModel.isLaunched = true
         }
@@ -104,29 +98,18 @@ fun PatientRegistrationStepThree(
         Button(
             onClick = {
                 with(patientRegister) {
-                    homePostalCode = viewModel.homeAddress.pincode
-                    homeAddressLine1 = viewModel.homeAddress.addressLine1.capitalizeFirst()
-                    homeAddressLine2 = viewModel.homeAddress.addressLine2.capitalizeFirst()
-                    homeState = viewModel.homeAddress.state
-                    homeCity = viewModel.homeAddress.city.capitalizeFirst()
-                    homeDistrict = viewModel.homeAddress.district.capitalizeFirst()
-
-                    workPostalCode = viewModel.workAddress.pincode
-                    workAddressLine1 = viewModel.workAddress.addressLine1.capitalizeFirst()
-                    workAddressLine2 = viewModel.workAddress.addressLine2.capitalizeFirst()
-                    workState = viewModel.workAddress.state
-                    workCity = viewModel.workAddress.city.capitalizeFirst()
-                    workDistrict = viewModel.workAddress.district.capitalizeFirst()
+                    province = viewModel.province
+                    areaCouncil = viewModel.areaCouncil
+                    island = viewModel.island
+                    village = viewModel.village
+                    postalCode = viewModel.postalCode
+                    otherProvince = viewModel.otherProvince
+                    otherAreaCouncil = viewModel.otherAreaCouncil
+                    otherIsland = viewModel.otherIsland
+                    otherVillage = viewModel.otherVillage
                 }
 
-                navController.currentBackStackEntry?.savedStateHandle?.apply {
-                    set("patient_register_details", patientRegister)
-                    if (patientRegistrationViewModel.fromHouseholdMember) {
-                        set("fromHouseholdMember", true)
-                        set("patientFrom", patientRegistrationViewModel.patientFrom)
-                        set("relation", patientRegistrationViewModel.relation)
-                    }
-                }
+                navController.currentBackStackEntry?.savedStateHandle?.set("patient_register_details", patientRegister)
 
                 navController.navigate(Screen.PatientRegistrationPreviewScreen.route)
             },
@@ -265,7 +248,6 @@ fun DropDownComposable(
     isMandatory: Boolean,
     isEnabled: Boolean
 ) {
-    Timber.d("manseeyy $label $dropdownList")
     var expanded by remember { mutableStateOf(false) }
     var isError by remember { mutableStateOf(false) }
     Box {
@@ -454,8 +436,4 @@ private fun resetVillage(viewModel: PatientRegistrationStepThreeViewModel) {
     viewModel.village = null
     viewModel.otherVillage = ""
     viewModel.isVillageOtherSelected = false
-}
-
-fun String.capitalizeFirst(): String = replaceFirstChar {
-    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
 }

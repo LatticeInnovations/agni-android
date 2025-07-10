@@ -56,11 +56,11 @@ import com.heartcare.agni.ui.patientregistration.PatientRegistrationViewModel
 import com.heartcare.agni.ui.patientregistration.model.PatientRegister
 import com.heartcare.agni.ui.theme.Neutral40
 import com.heartcare.agni.utils.converters.responseconverter.MonthsList.getMonthsList
+import com.heartcare.agni.utils.converters.responseconverter.StringUtils.capitalizeFirst
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.isDOBValid
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toMonthInteger
 import com.heartcare.agni.utils.regex.NameRegex.nameRegex
 import com.heartcare.agni.utils.regex.PhoneNumberRegex.phoneNumberRegex
-import java.util.Locale
 
 @Composable
 fun PatientRegistrationStepOne(
@@ -72,10 +72,8 @@ fun PatientRegistrationStepOne(
         if (!viewModel.isLaunched) {
             patientRegister.run {
                 viewModel.firstName = firstName.toString()
-                viewModel.middleName = middleName.toString()
                 viewModel.lastName = lastName.toString()
                 viewModel.phoneNumber = phoneNumber.toString()
-                viewModel.email = email.toString()
                 viewModel.dobAgeSelector = dobAgeSelector.toString()
                 viewModel.dobDay = dobDay.toString()
                 viewModel.dobMonth = dobMonth.toString()
@@ -84,6 +82,11 @@ fun PatientRegistrationStepOne(
                 viewModel.months = months.toString()
                 viewModel.days = days.toString()
                 viewModel.gender = gender.toString()
+                viewModel.isPersonDeceased = isPersonDeceased ?: 0
+                viewModel.selectedDeceasedReason = personDeceasedReason.toString()
+                viewModel.motherName = motherName.toString()
+                viewModel.fatherName = fatherName.toString()
+                viewModel.spouseName = spouseName.toString()
             }
             viewModel.isLaunched = true
         }
@@ -178,7 +181,10 @@ fun PatientRegistrationStepOne(
             ) {
                 if (it.length <= viewModel.maxPhoneNumberLength && (it.matches(viewModel.onlyNumbers) || it.isEmpty()))
                     viewModel.phoneNumber = it
-                viewModel.isPhoneValid = viewModel.phoneNumber.isNotBlank() && !viewModel.phoneNumber.matches(phoneNumberRegex)
+                viewModel.isPhoneValid =
+                    viewModel.phoneNumber.isNotBlank() && !viewModel.phoneNumber.matches(
+                        phoneNumberRegex
+                    )
             }
 
             GenderComposable(viewModel)
@@ -229,21 +235,8 @@ fun PatientRegistrationStepOne(
         Button(
             onClick = {
                 patientRegister.run {
-                    firstName = viewModel.firstName.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    middleName = viewModel.middleName.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    lastName = viewModel.lastName.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
+                    firstName = viewModel.firstName.capitalizeFirst()
+                    lastName = viewModel.lastName.capitalizeFirst()
                     dobAgeSelector = viewModel.dobAgeSelector
                     dobDay = viewModel.dobDay
                     dobMonth = viewModel.dobMonth
@@ -252,8 +245,12 @@ fun PatientRegistrationStepOne(
                     months = viewModel.months
                     days = viewModel.days
                     phoneNumber = viewModel.phoneNumber
-                    email = viewModel.email
                     gender = viewModel.gender
+                    isPersonDeceased = viewModel.isPersonDeceased
+                    personDeceasedReason = viewModel.selectedDeceasedReason
+                    motherName = viewModel.motherName.capitalizeFirst()
+                    fatherName = viewModel.fatherName.capitalizeFirst()
+                    spouseName = viewModel.spouseName.capitalizeFirst()
                 }
                 patientRegistrationViewModel.currentStep = 2
             },
@@ -267,7 +264,7 @@ fun PatientRegistrationStepOne(
         }
     }
     if (viewModel.showDeceasedReasonSheet) {
-        DeceasedReasonComposable (
+        DeceasedReasonComposable(
             selectedReason = viewModel.selectedDeceasedReason,
             dismiss = {
                 viewModel.showDeceasedReasonSheet = false
@@ -564,7 +561,8 @@ fun DeceasedReasonComposable(
         dragHandle = null
     ) {
         Column(
-            modifier = Modifier.padding(24.dp)
+            modifier = Modifier
+                .padding(24.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -601,7 +599,7 @@ fun DeceasedReasonComposable(
                     )
                 }
             }
-            AnimatedVisibility (
+            AnimatedVisibility(
                 visible = selectedDeceasedReason.contains(DeceasedReason.OTHERS.reason)
             ) {
                 CustomTextFieldWithLength(
@@ -620,10 +618,10 @@ fun DeceasedReasonComposable(
                             && otherReason.isBlank()
                 }
             }
-            Row (
+            Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
-            ){
+            ) {
                 TextButton(
                     onClick = dismiss
                 ) {
@@ -638,7 +636,9 @@ fun DeceasedReasonComposable(
                         }
                         updatedReasons(selectedDeceasedReason.joinToString(","))
                     },
-                    enabled = selectedDeceasedReason.isNotEmpty() && !(selectedDeceasedReason.contains(DeceasedReason.OTHERS.reason)
+                    enabled = selectedDeceasedReason.isNotEmpty() && !(selectedDeceasedReason.contains(
+                        DeceasedReason.OTHERS.reason
+                    )
                             && otherReason.isBlank())
                 ) {
                     Text(stringResource(R.string.save))

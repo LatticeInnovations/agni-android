@@ -4,12 +4,12 @@ import com.heartcare.agni.data.server.model.patient.PatientAddressResponse
 
 object AddressConverter {
     internal fun getAddress(addressResponse: PatientAddressResponse): String {
-        return addressResponse.addressLine1 +
+        return addressResponse.village +
                 if (addressResponse.addressLine2.isNullOrEmpty()) "" else {
                     ", " + addressResponse.addressLine2
-                } + ", " + addressResponse.city +
-                if (addressResponse.district.isNullOrEmpty()) "" else {
-                    ", " + addressResponse.district
-                } + ", " + addressResponse.state + ", " + addressResponse.postalCode
+                } + ", " + addressResponse.areaCouncil +
+                if (addressResponse.island.isEmpty()) "" else {
+                    ", " + addressResponse.island
+                } + ", " + addressResponse.province + ", " + addressResponse.postalCode
     }
 }

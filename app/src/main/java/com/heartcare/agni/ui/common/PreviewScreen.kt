@@ -12,26 +12,34 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.heartcare.agni.R
+import com.heartcare.agni.data.local.enums.NationalIdUse
+import com.heartcare.agni.data.local.enums.YesNoEnum
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.utils.constants.IdentificationConstants
 import com.heartcare.agni.utils.converters.responseconverter.NameConverter
+import com.heartcare.agni.utils.converters.responseconverter.StringUtils.capitalizeFirst
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
-import java.util.Locale
 
 @Composable
 fun PreviewScreen(
@@ -42,126 +50,180 @@ fun PreviewScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(15.dp)
-            .verticalScroll(rememberScrollState())
-            .testTag("columnLayout")
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
-            ) {
-                Heading("Basic Information", 1) { step ->
-                    navigate(step)
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = "${
-                        NameConverter.getFullName(
-                            patientResponse.firstName,
-                            patientResponse.middleName,
-                            patientResponse.lastName
-                        )
-                    }, ${
-                        patientResponse.gender.replaceFirstChar {
-                            if (it.isLowerCase()) it.titlecase(
-                                Locale.getDefault()
-                            ) else it.toString()
-                        }
-                    }",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.testTag("NAME_TAG")
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Label("Date of birth")
-                Detail(patientResponse.birthDate.toPatientPreviewDate(), "DOB_TAG")
-                Spacer(modifier = Modifier.height(10.dp))
-                Label("Phone No.")
-                Detail("+91 ${patientResponse.mobileNumber}", "PHONE_NO_TAG")
-                if (!patientResponse.email.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Label("Email")
-                    Detail(patientResponse.email, "EMAIL_TAG")
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
-            ) {
-
-                Heading("Identification", 2) { step ->
-                    navigate(step)
-                }
-                patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == IdentificationConstants.PASSPORT_TYPE) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Label("Passport ID")
-                        Detail(identifier.identifierNumber, "PASSPORT_ID_TAG")
-                    }
-                }
-                patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == IdentificationConstants.VOTER_ID_TYPE) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Label("Voter ID")
-                        Detail(identifier.identifierNumber, "VOTER_ID_TAG")
-                    }
-                }
-                patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == IdentificationConstants.PATIENT_ID_TYPE) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Label("Patient ID")
-                        Detail(identifier.identifierNumber, "PATIENT_ID_TAG")
-                    }
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-        ) {
-            val homeAddressLine1 = patientResponse.permanentAddress.addressLine1 +
-                    if (patientResponse.permanentAddress.addressLine2.isNullOrBlank()) "" else {
-                        ", " + patientResponse.permanentAddress.addressLine2
-                    }
-            val homeAddressLine2 = patientResponse.permanentAddress.city +
-                    if (patientResponse.permanentAddress.district.isNullOrBlank()) "" else {
-                        ", " + patientResponse.permanentAddress.district
-                    }
-            val homeAddressLine3 =
-                "${patientResponse.permanentAddress.state}, ${patientResponse.permanentAddress.postalCode}"
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
-            ) {
-                Heading("Addresses", 3) { step ->
-                    navigate(step)
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                Label("Home Address")
-                Detail(homeAddressLine1, "ADDRESS_LINE1_TAG")
-                Detail(homeAddressLine2, "ADDRESS_LINE2_TAG")
-                Detail(homeAddressLine3, "ADDRESS_LINE3_TAG")
-            }
-        }
-        Spacer(
-            modifier = Modifier
-                .padding(bottom = 60.dp)
-                .testTag("end of page")
-        )
+        BasicInformationCard(patientResponse, navigate)
+        IdentificationCard(patientResponse, navigate)
+        AddressCard(patientResponse, navigate)
+        Spacer(modifier = Modifier.height(60.dp))
     }
+}
 
+@Composable
+private fun BasicInformationCard(
+    patientResponse: PatientResponse,
+    navigate: (Int) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth()
+        ) {
+            Heading(stringResource(R.string.basic_information), 1) { step ->
+                navigate(step)
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = "${
+                    NameConverter.getFullName(
+                        patientResponse.firstName,
+                        patientResponse.lastName
+                    )
+                }, ${patientResponse.gender.capitalizeFirst()}",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Label(stringResource(R.string.date_of_birth))
+            Detail(patientResponse.birthDate.toPatientPreviewDate())
+            if (patientResponse.mobileNumber != null) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Label(stringResource(R.string.phone_number_label))
+                Detail("+91 ${patientResponse.mobileNumber}")
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Label(stringResource(R.string.patient_deceased_label))
+            Detail(
+                if (patientResponse.patientDeceasedReason.isNullOrBlank()) YesNoEnum.NO.display
+                else YesNoEnum.YES.display
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Label(stringResource(R.string.mother_name))
+            Detail(patientResponse.mothersName)
+            if (!patientResponse.fathersName.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Label(stringResource(R.string.father_name))
+                Detail(patientResponse.fathersName)
+            }
+            if (!patientResponse.spouseName.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Label(stringResource(R.string.spouse_name))
+                Detail(patientResponse.spouseName)
+            }
+        }
+    }
+}
+
+@Composable
+private fun IdentificationCard(
+    patientResponse: PatientResponse,
+    navigate: (Int) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth()
+        ) {
+
+            Heading(stringResource(R.string.identification), 2) { step ->
+                navigate(step)
+            }
+            patientResponse.identifier.forEach { identifier ->
+                if (identifier.identifierType == IdentificationConstants.HOSPITAL_ID) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Label(stringResource(R.string.hospital_id))
+                    Detail(identifier.identifierNumber)
+                }
+            }
+            patientResponse.identifier.forEach { identifier ->
+                if (identifier.identifierType == IdentificationConstants.NATIONAL_ID) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Column {
+                            Label(stringResource(R.string.national_id))
+                            Detail(identifier.identifierNumber)
+                        }
+                        val text: String
+                        val icon: Painter
+                        if (identifier.use == NationalIdUse.OFFICIAL.use) {
+                            text = stringResource(R.string.verified)
+                            icon = painterResource(R.drawable.sync_completed_icon)
+                        } else {
+                            text = stringResource(R.string.unverified)
+                            icon = painterResource(R.drawable.info)
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            ),
+                            color = Color.Transparent
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    painter = icon,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Text(
+                                    text = text,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddressCard(
+    patientResponse: PatientResponse,
+    navigate: (Int) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        val homeAddressLine1 = patientResponse.permanentAddress.village
+        val homeAddressLine2 =
+            "${patientResponse.permanentAddress.island}, ${patientResponse.permanentAddress.areaCouncil}"
+        val homeAddressLine3 =
+            "${patientResponse.permanentAddress.province} ${patientResponse.permanentAddress.postalCode ?: ""}"
+        Column(
+            modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth()
+        ) {
+            Heading(stringResource(R.string.addresses), 3) { step ->
+                navigate(step)
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            if (!homeAddressLine1.isNullOrBlank()) Detail(homeAddressLine1)
+            Detail(homeAddressLine2)
+            Detail(homeAddressLine3)
+        }
+    }
 }
 
 @Composable
@@ -205,15 +267,14 @@ fun Heading(
 }
 
 @Composable
-fun Label(label: String) {
+private fun Label(label: String) {
     Text(text = label, style = MaterialTheme.typography.bodySmall)
 }
 
 @Composable
-fun Detail(detail: String, tag: String) {
+private fun Detail(detail: String) {
     Text(
         text = detail,
-        style = MaterialTheme.typography.bodyLarge,
-        modifier = Modifier.testTag(tag)
+        style = MaterialTheme.typography.bodyLarge
     )
 }

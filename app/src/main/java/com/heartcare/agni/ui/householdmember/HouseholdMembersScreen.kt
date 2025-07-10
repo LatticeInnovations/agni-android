@@ -117,7 +117,6 @@ fun HouseholdMembersScreen(
                             text = "${
                                 NameConverter.getFullName(
                                     viewModel.patient?.firstName,
-                                    viewModel.patient?.middleName,
                                     viewModel.patient?.lastName
                                 )
                             }, $subTitle", style = MaterialTheme.typography.bodyLarge,

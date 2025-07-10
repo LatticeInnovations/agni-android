@@ -378,7 +378,6 @@ private fun AppBarComposable(
                 Text(
                     text = NameConverter.getFullName(
                         viewModel.patient?.firstName,
-                        viewModel.patient?.middleName,
                         viewModel.patient?.lastName
                     ),
                     style = MaterialTheme.typography.titleLarge,

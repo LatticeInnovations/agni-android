@@ -22,7 +22,7 @@ object Search {
             if (!name.isNullOrBlank()) {
                 finalList = finalList.filter {
                     val fullName =
-                        "${it.patientEntity.firstName}${it.patientEntity.middleName ?: ""}${it.patientEntity.lastName ?: ""}"
+                        "${it.patientEntity.firstName}${it.patientEntity.lastName}"
                     FuzzySearch.weightedRatio(
                         name.replace(" ", "").trim(),
                         fullName
@@ -46,7 +46,7 @@ object Search {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
                         addressLine1,
-                        it.patientEntity.permanentAddress.addressLine1
+                        it.patientEntity.permanentAddress.village
                     ) > matchingRatio
                 }.toMutableList()
             }
@@ -54,7 +54,7 @@ object Search {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
                         city,
-                        it.patientEntity.permanentAddress.city
+                        it.patientEntity.permanentAddress.areaCouncil
                     ) > matchingRatio
                 }.toMutableList()
             }
@@ -62,7 +62,7 @@ object Search {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
                         district,
-                        it.patientEntity.permanentAddress.district ?: ""
+                        it.patientEntity.permanentAddress.island
                     ) > matchingRatio
                 }.toMutableList()
             }
@@ -70,7 +70,7 @@ object Search {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
                         state,
-                        it.patientEntity.permanentAddress.state
+                        it.patientEntity.permanentAddress.province
                     ) > matchingRatio
                 }.toMutableList()
             }

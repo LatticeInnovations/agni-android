@@ -1,5 +1,6 @@
 package com.heartcare.agni.ui.landingscreen
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,7 +55,7 @@ fun MyPatientScreen(
     navController: NavController,
     viewModel: LandingScreenViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current as MainActivity
+    val context = LocalActivity.current as MainActivity
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -193,7 +193,6 @@ private fun PatientItemCard(
             Text(
                 text = NameConverter.getFullName(
                     patient.firstName,
-                    patient.middleName,
                     patient.lastName
                 ),
                 color = MaterialTheme.colorScheme.onSurface,

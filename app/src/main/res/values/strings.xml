@@ -113,6 +113,7 @@ include them in the household</string>
     <string name="other">Other</string>
     <string name="last_facility_visit">Last facility visit</string>
     <string name="patient_deceased">Patient deceased?*</string>
+    <string name="patient_deceased_label">Patient deceased?</string>
 
     <string name="preview">Preview</string>
     <string name="save">Save</string>
@@ -486,6 +487,7 @@ include them in the household</string>
     <string name="fetching_immunization_recommendations">Fetching immunization recommendations</string>
     <string name="fetching_immunization_recommendations_info">Immunization guidelines are stored on a central server. Please give us a few minutes to fetch them. Once they have been retrieved, you will be able to work offline.</string>
 
+    <string name="mother_name">Mother’s name</string>
     <string name="mother_name_mandatory">Mother’s name*</string>
     <string name="father_name">Father’s name</string>
     <string name="spouse_name">Spouse’s name</string>

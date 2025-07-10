@@ -180,7 +180,6 @@ fun PatientRegistration(
                         RelationDialogContent(
                             NameConverter.getFullName(
                                 viewModel.patientFrom?.firstName,
-                                viewModel.patientFrom?.middleName,
                                 viewModel.patientFrom?.lastName
                             ),
                             "of the patient I am about to create",

@@ -60,6 +60,8 @@ import com.heartcare.agni.data.server.model.labormed.labtest.LabTestResponse
 import com.heartcare.agni.data.server.model.labormed.medicalrecord.MedicalRecord
 import com.heartcare.agni.data.server.model.labormed.medicalrecord.MedicalRecordResponse
 import com.heartcare.agni.data.server.model.levels.LevelResponse
+import com.heartcare.agni.data.server.model.patient.GeneralPractitioner
+import com.heartcare.agni.data.server.model.patient.ManagingOrganization
 import com.heartcare.agni.data.server.model.patient.PatientAddressResponse
 import com.heartcare.agni.data.server.model.patient.PatientIdentifier
 import com.heartcare.agni.data.server.model.patient.PatientLastUpdatedResponse
@@ -92,27 +94,32 @@ fun PatientResponse.toPatientEntity(): PatientEntity {
     return PatientEntity(
         id = id,
         firstName = firstName,
-        middleName = middleName,
         lastName = lastName,
-        active = active,
         gender = gender,
         birthDate = birthDate.toTimeInMilli(),
         mobileNumber = mobileNumber,
-        email = email,
         permanentAddress = permanentAddress.toPermanentAddressEntity(),
-        fhirId = fhirId
+        fhirId = fhirId,
+        mothersName = mothersName,
+        fathersName = fathersName,
+        spouseName = spouseName,
+        generalPractitioner = generalPractitioner?.get(0)?.reference,
+        isDeleted = isDeleted,
+        managingOrganization = managingOrganization?.reference,
+        patientDeceasedReason = patientDeceasedReason,
+        patientDeceasedReasonId = patientDeceasedReasonId,
     )
 }
 
 fun PatientAddressResponse.toPermanentAddressEntity(): PermanentAddressEntity {
     return PermanentAddressEntity(
-        addressLine1 = addressLine1,
-        city = city,
-        district = district,
-        state = state,
         postalCode = postalCode,
         country = country,
-        addressLine2 = addressLine2
+        addressLine2 = addressLine2,
+        village = village,
+        island = island,
+        province = province,
+        areaCouncil = areaCouncil
     )
 }
 
@@ -135,16 +142,22 @@ fun PatientAndIdentifierEntity.toPatientResponse(): PatientResponse {
     return PatientResponse(
         id = patientEntity.id,
         firstName = patientEntity.firstName,
-        middleName = patientEntity.middleName,
         lastName = patientEntity.lastName,
         identifier = identifiers.map { it.toPatientIdentifier() },
-        active = patientEntity.active,
         gender = patientEntity.gender,
         birthDate = Date(patientEntity.birthDate).time.toPatientDate(),
         mobileNumber = patientEntity.mobileNumber,
-        email = patientEntity.email,
         permanentAddress = patientEntity.permanentAddress.toPatientAddressResponse(),
-        fhirId = patientEntity.fhirId
+        fhirId = patientEntity.fhirId,
+        mothersName = patientEntity.mothersName,
+        fathersName = patientEntity.fathersName,
+        spouseName = patientEntity.spouseName,
+        isDeleted = patientEntity.isDeleted,
+        managingOrganization = patientEntity.managingOrganization?.let { ManagingOrganization(reference = it) },
+        generalPractitioner = patientEntity.generalPractitioner?.let { listOf(GeneralPractitioner(reference = it))},
+        patientDeceasedReason = patientEntity.patientDeceasedReason,
+        patientDeceasedReasonId = patientEntity.patientDeceasedReasonId,
+        appUpdatedDate = null
     )
 }
 
@@ -163,13 +176,13 @@ fun IdentifierEntity.toPatientIdentifier(): PatientIdentifier {
 
 fun PermanentAddressEntity.toPatientAddressResponse(): PatientAddressResponse {
     return PatientAddressResponse(
-        addressLine1 = addressLine1,
-        city = city,
-        district = district,
-        state = state,
         postalCode = postalCode,
         country = country,
-        addressLine2 = addressLine2
+        addressLine2 = addressLine2,
+        village = village,
+        province = province,
+        areaCouncil = areaCouncil,
+        island = island
     )
 }
 
