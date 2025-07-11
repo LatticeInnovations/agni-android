@@ -148,7 +148,7 @@ fun PatientAndIdentifierEntity.toPatientResponse(): PatientResponse {
         identifier = identifiers.map { it.toPatientIdentifier() },
         gender = patientEntity.gender,
         birthDate = Date(patientEntity.birthDate).time.toPatientDate(),
-        mobileNumber = patientEntity.mobileNumber.toString(),
+        mobileNumber = patientEntity.mobileNumber?.toString(),
         permanentAddress = patientEntity.permanentAddress.toPatientAddressResponse(),
         fhirId = patientEntity.fhirId,
         mothersName = patientEntity.mothersName,
