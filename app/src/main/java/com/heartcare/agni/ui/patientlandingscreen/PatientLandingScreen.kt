@@ -50,11 +50,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.heartcare.agni.R
+import com.heartcare.agni.data.local.enums.NationalIdUse
 import com.heartcare.agni.data.local.enums.PhotoUploadTypeEnum
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.navigation.Screen
 import com.heartcare.agni.ui.common.BottomNavBar
 import com.heartcare.agni.ui.common.appointmentsfab.AppointmentsFab
+import com.heartcare.agni.utils.constants.IdentificationConstants.NATIONAL_ID
 import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
 import com.heartcare.agni.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.heartcare.agni.utils.constants.PhotoUploadViewType.PHOTO_VIEW_TYPE
@@ -371,20 +373,34 @@ private fun AppBarComposable(
         },
         title = {
             val age = viewModel.patient?.birthDate?.toTimeInMilli()?.toAge()
-            val subTitle = "${
-                viewModel.patient?.gender?.get(0)?.uppercase()
-            }/$age · ${viewModel.patient?.mobileNumber} ${if (viewModel.patient?.fhirId.isNullOrEmpty()) "" else " · ${viewModel.patient?.fhirId}"} "
+            val subTitle = "${viewModel.patient?.gender?.get(0)?.uppercase()}/$age" +
+                    (if (viewModel.patient?.mobileNumber == null) "" else " · ${viewModel.patient?.mobileNumber}") +
+                    (if (viewModel.patient?.fhirId.isNullOrEmpty()) "" else " · ${viewModel.patient?.fhirId}")
             Column {
-                Text(
-                    text = NameConverter.getFullName(
-                        viewModel.patient?.firstName,
-                        viewModel.patient?.lastName
-                    ),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.testTag("TITLE"),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = NameConverter.getFullName(
+                            viewModel.patient?.firstName,
+                            viewModel.patient?.lastName
+                        ),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.testTag("TITLE"),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    viewModel.patient?.identifier?.firstOrNull { it.identifierType == NATIONAL_ID }?.let { nationalId ->
+                        Icon(
+                            painter = if (nationalId.use == NationalIdUse.OFFICIAL.use) painterResource(R.drawable.check_circle_outline)
+                            else painterResource(R.drawable.info),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
                 Text(
                     text = subTitle,
                     style = MaterialTheme.typography.bodyLarge,

@@ -92,10 +92,12 @@ fun EditIdentification(
                     }
                 }
                 viewModel.isVerifyClicked = viewModel.nationalIdUse.isNotBlank()
+
                 viewModel.hospitalIdTemp = viewModel.hospitalId
                 viewModel.nationalIdTemp = viewModel.nationalId
                 viewModel.nationalIdUseTemp = viewModel.nationalIdUse
                 viewModel.isNationalIdVerifiedTemp = viewModel.isNationalIdVerified
+                viewModel.isVerifyClickedTemp = viewModel.isVerifyClicked
             }
             viewModel.isLaunched = true
         }

@@ -44,6 +44,7 @@ class EditIdentificationViewModel @Inject constructor(
     var nationalIdTemp by mutableStateOf("")
     var nationalIdUseTemp by mutableStateOf("")
     var isNationalIdVerifiedTemp by mutableStateOf(false)
+    var isVerifyClickedTemp by mutableStateOf(false)
 
     fun identityInfoValidation(): Boolean {
         if (isHospitalIdValid)
@@ -55,7 +56,8 @@ class EditIdentificationViewModel @Inject constructor(
         return hospitalId != hospitalIdTemp ||
                 nationalId != nationalIdTemp ||
                 isNationalIdVerified != isNationalIdVerifiedTemp ||
-                nationalIdUse != nationalIdUseTemp
+                nationalIdUse != nationalIdUseTemp ||
+                isVerifyClicked != isVerifyClickedTemp
     }
 
     fun revertChanges(): Boolean {
@@ -63,7 +65,7 @@ class EditIdentificationViewModel @Inject constructor(
         nationalId = nationalIdTemp
         isNationalIdVerified = isNationalIdVerifiedTemp
         nationalIdUse = nationalIdUseTemp
-        isVerifyClicked = false
+        isVerifyClicked = isVerifyClickedTemp
         return true
     }
 
