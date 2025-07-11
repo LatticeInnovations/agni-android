@@ -62,6 +62,10 @@ interface PreferenceRepository {
     fun setLastSyncManufacturerRecord(long: Long)
     fun getLastSyncManufacturerRecord(): Long
 
+    /** Last Level Data */
+    fun setLastSyncLevelRecord(long: Long)
+    fun getLastSyncLevelRecord(): Long
+
     /** User Data */
     fun setUserFhirId(userFhirId: String)
     fun getUserFhirId(): String

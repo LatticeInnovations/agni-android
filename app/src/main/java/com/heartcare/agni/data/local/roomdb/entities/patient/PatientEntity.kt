@@ -12,13 +12,19 @@ data class PatientEntity(
     @PrimaryKey
     val id: String,
     val firstName: String,
-    val middleName: String?,
-    val lastName: String?,
-    val active: Boolean?,
+    val lastName: String,
     val gender: String,
     val birthDate: Long,
-    val mobileNumber: Long,
-    val email: String?,
+    val mobileNumber: Long?,
     @Embedded val permanentAddress: PermanentAddressEntity,
-    val fhirId: String?
+    val fhirId: String?,
+    val fathersName: String?,
+    val generalPractitioner: String?,
+    val isDeleted: Boolean?,
+    val managingOrganization: String?,
+    val mothersName: String,
+    val patientDeceasedReason: String?,
+    val patientDeceasedReasonId: Int?,
+    val spouseName: String?,
+    val active: Boolean?
 )

@@ -1,15 +1,14 @@
 package com.heartcare.agni.ui.patientregistration.model
 
 import android.os.Parcelable
+import com.heartcare.agni.data.server.model.levels.LevelResponse
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class PatientRegister(
     var firstName: String? = "",
-    var middleName: String? = "",
     var lastName: String? = "",
     var phoneNumber: String? = "",
-    var email: String? = "",
     var dobAgeSelector: String? = "dob",
     var dobDay: String? = "",
     var dobMonth: String? = "",
@@ -18,19 +17,20 @@ data class PatientRegister(
     var months: String? = "",
     var days: String? = "",
     var gender: String? = "",
-    var passportId: String? = "",
-    var voterId: String? = "",
-    var patientId: String? = "",
-    var homePostalCode: String? = "",
-    var homeState: String? = "",
-    var homeAddressLine1: String? = "",
-    var homeAddressLine2: String? = "",
-    var homeCity: String? = "",
-    var homeDistrict: String? = "",
-    var workPostalCode: String? = "",
-    var workState: String? = "",
-    var workAddressLine1: String? = "",
-    var workAddressLine2: String? = "",
-    var workCity: String? = "",
-    var workDistrict: String? = ""
+    var isPersonDeceased: Int? = 0,
+    var personDeceasedReason: String? = "",
+    var motherName: String? = "",
+    var fatherName: String? = "",
+    var spouseName: String? = "",
+
+    var hospitalId: String? = "",
+    var nationalId: String? = "",
+    var nationalIdUse: String? = "",
+
+    var province: LevelResponse? = null,
+    var areaCouncil: LevelResponse? = null,
+    var island: LevelResponse? = null,
+    var village: LevelResponse? = null,
+    var postalCode: String? = "",
+    var otherVillage: String? ="",
 ) : Parcelable

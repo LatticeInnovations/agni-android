@@ -1,10 +1,9 @@
 package com.heartcare.agni.ui.patienteditscreen.basicinfo
 
-import android.util.Patterns
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,15 +11,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -32,6 +31,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -46,26 +46,24 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.heartcare.agni.R
 import com.heartcare.agni.data.local.enums.GenderEnum
+import com.heartcare.agni.data.local.enums.YesNoEnum
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.ui.common.CustomFilterChip
 import com.heartcare.agni.ui.common.CustomTextField
-import com.heartcare.agni.utils.converters.responseconverter.MonthsList
-import com.heartcare.agni.utils.converters.responseconverter.TimeConverter
+import com.heartcare.agni.ui.common.CustomTextFieldWithLength
+import com.heartcare.agni.ui.patientregistration.step1.DeceasedReasonComposable
+import com.heartcare.agni.utils.converters.responseconverter.MonthsList.getMonthsList
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.ageToPatientDate
+import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.isDOBValid
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toMonthInteger
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.heartcare.agni.utils.regex.NameRegex.nameRegex
@@ -89,13 +87,16 @@ fun EditBasicInformation(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding()
+            .navigationBarsPadding(),
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Basic information",
+                        text = stringResource(R.string.basic_information),
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -119,222 +120,221 @@ fun EditBasicInformation(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                 ),
                 actions = {
-                    Text(
-                        text = "Undo all",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (viewModel.isEditing) MaterialTheme.colorScheme.primary else Color.Gray,
-                        modifier = Modifier
-                            .padding(end = 12.dp)
-                            .clickable(viewModel.isEditing, onClick = {
-                                if (viewModel.revertChanges()) {
-                                    coroutineScope.launch {
-                                        snackBarHostState.showSnackbar("Changes undone")
-
-                                    }
+                    TextButton(
+                        onClick = {
+                            if (viewModel.revertChanges()) {
+                                coroutineScope.launch {
+                                    snackBarHostState.showSnackbar("Changes undone")
                                 }
-                            })
-
-                    )
+                            }
+                        },
+                        enabled = viewModel.checkIsEdit()
+                    ) {
+                        Text(text = stringResource(R.string.undo_all))
+                    }
                 }
             )
         },
-        content = {
+        content = { paddingValues ->
 
             Column(
                 modifier = Modifier
+                    .padding(paddingValues)
                     .padding(15.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-
                 Spacer(modifier = Modifier.height(15.dp))
                 Column(
                     modifier = Modifier
                         .verticalScroll(rememberScrollState())
                         .testTag("columnLayout")
-                        .weight(1f)
-                        .padding(it)
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-
-                    CustomTextField(
-                        viewModel.firstName,
-                        "First Name",
-                        1f,
-                        viewModel.maxFirstNameLength,
-                        viewModel.isNameValid,
-                        "Name length should be between 3 and 100.",
-                        KeyboardType.Text,
-                        KeyboardCapitalization.Words
+                    CustomTextFieldWithLength(
+                        value = viewModel.lastName,
+                        label = stringResource(id = R.string.last_name_mandatory),
+                        placeholder = null,
+                        weight = 1f,
+                        maxLength = viewModel.maxNameLength,
+                        isError = viewModel.isLastNameValid,
+                        error = stringResource(R.string.last_name_required),
+                        keyboardType = KeyboardType.Text,
+                        keyboardCapitalization = KeyboardCapitalization.Words
                     ) {
-                        checkFirstName(viewModel, it)
+                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.lastName =
+                            it.trim()
+                        viewModel.isLastNameValid = viewModel.lastName.isBlank()
                     }
-                    ValueLength(viewModel.firstName)
-                    CustomTextField(
-                        viewModel.middleName,
-                        "Middle Name",
-                        1f,
-                        viewModel.maxMiddleNameLength,
-                        false,
-                        "",
-                        KeyboardType.Text,
-                        KeyboardCapitalization.Words
+                    CustomTextFieldWithLength(
+                        value = viewModel.firstName,
+                        label = stringResource(id = R.string.first_name_mandatory),
+                        placeholder = null,
+                        weight = 1f,
+                        maxLength = viewModel.maxNameLength,
+                        isError = viewModel.isFirstNameValid,
+                        error = stringResource(id = R.string.first_name_required),
+                        keyboardType = KeyboardType.Text,
+                        keyboardCapitalization = KeyboardCapitalization.Words
                     ) {
-                        checkMiddleName(viewModel, it)
+                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.firstName =
+                            it.trim()
+                        viewModel.isFirstNameValid = viewModel.firstName.isBlank()
                     }
-                    ValueLength(viewModel.middleName)
-                    CustomTextField(
-                        viewModel.lastName,
-                        "Last Name",
-                        1f,
-                        viewModel.maxLastNameLength,
-                        false,
-                        "",
-                        KeyboardType.Text,
-                        KeyboardCapitalization.Words
-                    ) {
-                        checkLastName(viewModel, it)
-                    }
-                    ValueLength(viewModel.lastName)
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        CustomFilterChip(viewModel.dobAgeSelector, "dob", "Date of Birth") {
-                            viewModel.dobAgeSelector = it
-                            viewModel.days = ""
-                            viewModel.months = ""
-                            viewModel.years = ""
-                            viewModel.isAgeDaysValid = false
-                            viewModel.isAgeMonthsValid = false
-                            viewModel.isAgeYearsValid = false
+                    Column {
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            CustomFilterChip(viewModel.dobAgeSelector, "dob", "Date of Birth") {
+                                viewModel.dobAgeSelector = it
+                                viewModel.days = ""
+                                viewModel.months = ""
+                                viewModel.years = ""
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            CustomFilterChip(viewModel.dobAgeSelector, "age", "Age") {
+                                viewModel.dobAgeSelector = it
+                                viewModel.dobDay = ""
+                                viewModel.dobMonth = ""
+                                viewModel.dobYear = ""
+                            }
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
-                        CustomFilterChip(viewModel.dobAgeSelector, "age", "Age") {
-                            viewModel.dobAgeSelector = it
-                            viewModel.dobDay = ""
-                            viewModel.dobMonth = ""
-                            viewModel.dobYear = ""
-                        }
+                        if (viewModel.dobAgeSelector == "dob") {
+                            DobTextField(viewModel)
+                        } else
+                            AgeTextField(viewModel)
                     }
-                    if (viewModel.dobAgeSelector == "dob") {
-                        DobTextField(viewModel)
-                    } else {
-                        AgeTextField(viewModel)
-                    }
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    ContactTextField(viewModel)
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    CustomTextField(
-                        viewModel.email,
-                        "Email",
-                        1F,
-                        viewModel.maxEmailLength,
-                        viewModel.isEmailValid,
-                        "Enter valid userEmail (eg., abc123@gmail.com)",
-                        KeyboardType.Email,
-                        KeyboardCapitalization.None
+                    CustomTextFieldWithLength(
+                        value = viewModel.phoneNumber,
+                        label = stringResource(id = R.string.mobile),
+                        placeholder = null,
+                        weight = 1f,
+                        maxLength = viewModel.maxPhoneNumberLength,
+                        isError = viewModel.isPhoneValid,
+                        error = stringResource(id = R.string.phone_number_error_msg),
+                        keyboardType = KeyboardType.Number,
+                        keyboardCapitalization = KeyboardCapitalization.Words
                     ) {
-                        checkEmail(viewModel, it)
+                        if (it.length <= viewModel.maxPhoneNumberLength && (it.matches(viewModel.onlyNumbers) || it.isEmpty()))
+                            viewModel.phoneNumber = it
+                        viewModel.isPhoneValid =
+                            viewModel.phoneNumber.isNotBlank() && !viewModel.phoneNumber.matches(
+                                phoneNumberRegex
+                            )
                     }
-                    ValueLengthEmail(viewModel.email)
-
-
-                    Spacer(modifier = Modifier.height(10.dp))
 
                     GenderComposable(viewModel)
-                    viewModel.isEditing = viewModel.checkIsEdit()
-                    Spacer(
-                        modifier = Modifier
-                            .height(100.dp)
-                            .testTag("END_OF_SCREEN")
-                    )
+                    PatientDeceasedComposable(viewModel)
+                    CustomTextFieldWithLength(
+                        value = viewModel.motherName,
+                        label = stringResource(id = R.string.mother_name_mandatory),
+                        placeholder = null,
+                        weight = 1f,
+                        maxLength = viewModel.maxNameLength,
+                        isError = viewModel.isMotherNameValid,
+                        error = stringResource(id = R.string.mother_name_required),
+                        keyboardType = KeyboardType.Text,
+                        keyboardCapitalization = KeyboardCapitalization.Words
+                    ) {
+                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.motherName =
+                            it.trim()
+                        viewModel.isMotherNameValid = viewModel.motherName.isBlank()
+                    }
+
+                    CustomTextFieldWithLength(
+                        value = viewModel.fatherName,
+                        label = stringResource(id = R.string.father_name),
+                        placeholder = null,
+                        weight = 1f,
+                        maxLength = viewModel.maxNameLength,
+                        isError = false,
+                        error = "",
+                        keyboardType = KeyboardType.Text,
+                        keyboardCapitalization = KeyboardCapitalization.Words
+                    ) {
+                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.fatherName =
+                            it.trim()
+                    }
+
+                    CustomTextFieldWithLength(
+                        value = viewModel.spouseName,
+                        label = stringResource(id = R.string.spouse_name),
+                        placeholder = null,
+                        weight = 1f,
+                        maxLength = viewModel.maxNameLength,
+                        isError = false,
+                        error = "",
+                        keyboardType = KeyboardType.Text,
+                        keyboardCapitalization = KeyboardCapitalization.Words
+                    ) {
+                        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.spouseName =
+                            it.trim()
+                    }
+                    Spacer(Modifier.height(64.dp))
                 }
             }
-        }, floatingActionButton = {
-            Button(
-                onClick = {
-                    val birthDate = if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
-                    else ageToPatientDate(
-                        viewModel.years.toIntOrNull() ?: 0,
-                        viewModel.months.toIntOrNull() ?: 0,
-                        viewModel.days.toIntOrNull() ?: 0
-                    ).toPatientDate()
-                    if (patientResponse!!.birthDate != birthDate) {
-                        viewModel.showDOBWarning = true
-                    } else
-                        handleBasicInfoNavigation(viewModel, navController, patientResponse)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 30.dp, start = 30.dp)
-                    .testTag("step2"),
-                enabled = viewModel.basicInfoValidation() && viewModel.checkIsEdit()
+        },
+        floatingActionButton = {
+            Surface(
+                color = MaterialTheme.colorScheme.surface
             ) {
-                Text(text = "Save")
+                Button(
+                    onClick = {
+                        handleBasicInfoNavigation(viewModel, navController, patientResponse)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp, start = 30.dp)
+                        .testTag("step2"),
+                    enabled = viewModel.basicInfoValidation() && viewModel.checkIsEdit()
+                ) {
+                    Text(text = stringResource(R.string.save))
+                }
             }
-
         }
     )
-    if (viewModel.showDOBWarning) {
-        AlertDialog(
-            onDismissRequest = { },
-            title = {
-                Text(stringResource(R.string.confirm_dob_update))
+
+    if (viewModel.showDeceasedReasonSheet) {
+        DeceasedReasonComposable(
+            selectedReason = viewModel.selectedDeceasedReason,
+            dismiss = {
+                viewModel.showDeceasedReasonSheet = false
             },
-            text = {
-                Text(stringResource(R.string.confirm_dob_update_description))
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.showDOBWarning = false
-                    }
-                ) {
-                    Text(stringResource(R.string.no_go_back))
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        // delete old immunization recommendation
-                        viewModel.clearOldImmunizationRecommendation(patientResponse!!.id)
-                        handleBasicInfoNavigation(viewModel, navController, patientResponse)
-                        viewModel.showDOBWarning = false
-                    }
-                ) {
-                    Text(stringResource(R.string.yes_continue))
-                }
+            updatedReasons = { reasons ->
+                viewModel.selectedDeceasedReason = reasons
+                viewModel.showDeceasedReasonSheet = false
+                viewModel.isPersonDeceased = YesNoEnum.YES.code
             }
         )
     }
 }
 
-fun checkFirstName(viewModel: EditBasicInformationViewModel, it: String) {
-    if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.firstName =
-        it.trim()
-    viewModel.isNameValid =
-        viewModel.firstName.length < 3 || viewModel.firstName.length > 100
-
-}
-
-fun checkMiddleName(viewModel: EditBasicInformationViewModel, it: String) {
-    if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.middleName =
-        it.trim()
-}
-
-private fun checkLastName(viewModel: EditBasicInformationViewModel, it: String) {
-    if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.lastName =
-        it.trim()
-}
-
-private fun checkEmail(viewModel: EditBasicInformationViewModel, value: String) {
-    viewModel.email = value
-    if (viewModel.email.isNotEmpty()) {
-        viewModel.isEmailValid =
-            !Patterns.EMAIL_ADDRESS.matcher(viewModel.email).matches()
-    } else {
-        viewModel.isEmailValid = false
+@Composable
+fun PatientDeceasedComposable(viewModel: EditBasicInformationViewModel) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.patient_deceased),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Spacer(modifier = Modifier.width(20.dp))
+        CustomFilterChip(
+            viewModel.isPersonDeceased.toString(),
+            YesNoEnum.YES.code.toString(),
+            YesNoEnum.YES.display
+        ) {
+            viewModel.showDeceasedReasonSheet = true
+        }
+        Spacer(modifier = Modifier.width(15.dp))
+        CustomFilterChip(
+            viewModel.isPersonDeceased.toString(),
+            YesNoEnum.NO.code.toString(),
+            YesNoEnum.NO.display
+        ) {
+            viewModel.isPersonDeceased = it.toInt()
+            viewModel.selectedDeceasedReason = ""
+        }
     }
 }
 
@@ -346,17 +346,19 @@ private fun handleBasicInfoNavigation(
     viewModel.updateBasicInfo(
         patientResponse!!.copy(
             firstName = viewModel.firstName,
-            middleName = viewModel.middleName,
             lastName = viewModel.lastName,
-            mobileNumber = viewModel.phoneNumber.toLong(),
-            email = viewModel.email,
+            mobileNumber = viewModel.phoneNumber.ifBlank { null },
             birthDate = if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
             else ageToPatientDate(
                 viewModel.years.toIntOrNull() ?: 0,
                 viewModel.months.toIntOrNull() ?: 0,
                 viewModel.days.toIntOrNull() ?: 0
             ).toPatientDate(),
-            gender = viewModel.gender
+            gender = viewModel.gender,
+            mothersName = viewModel.motherName,
+            fathersName = viewModel.fatherName.ifBlank { null },
+            spouseName = viewModel.spouseName.ifBlank { null },
+            patientDeceasedReason = viewModel.selectedDeceasedReason.ifBlank { null }
         )
     )
     navController.previousBackStackEntry?.savedStateHandle?.set(
@@ -375,10 +377,8 @@ fun HandleLaunchedEffect(
         if (!viewModel.isLaunched) {
             patientResponse?.run {
                 viewModel.firstName = firstName
-                viewModel.middleName = middleName ?: ""
-                viewModel.lastName = lastName ?: ""
-                viewModel.phoneNumber = mobileNumber.toString()
-                viewModel.email = email ?: ""
+                viewModel.lastName = lastName
+                viewModel.phoneNumber = mobileNumber ?: ""
                 if (viewModel.dobRegex.matches(birthDate)) {
                     viewModel.dobAgeSelector = "dob"
                     val (day, month, year) = viewModel.splitDOB(birthDate)
@@ -394,12 +394,17 @@ fun HandleLaunchedEffect(
                 }
                 viewModel.gender = gender
                 viewModel.birthDate = birthDate
+
+                viewModel.motherName = mothersName
+                viewModel.fatherName = fathersName ?: ""
+                viewModel.spouseName = spouseName ?: ""
+                viewModel.isPersonDeceased = if (patientDeceasedReason.isNullOrBlank()) 0 else 1
+                viewModel.selectedDeceasedReason = patientDeceasedReason ?: ""
             }
             viewModel.isLaunched = true
 
             //set temp value
             viewModel.firstNameTemp = viewModel.firstName
-            viewModel.middleNameTemp = viewModel.middleName
             viewModel.lastNameTemp = viewModel.lastName
             viewModel.phoneNumberTemp = viewModel.phoneNumber
             viewModel.emailTemp = viewModel.email
@@ -411,36 +416,14 @@ fun HandleLaunchedEffect(
             viewModel.monthsTemp = viewModel.months
             viewModel.yearsTemp = viewModel.years
             viewModel.genderTemp = viewModel.gender
-
+            viewModel.motherNameTemp = viewModel.motherName
+            viewModel.fatherNameTemp = viewModel.fatherName
+            viewModel.spouseNameTemp = viewModel.spouseName
+            viewModel.isPersonDeceasedTemp = viewModel.isPersonDeceased
+            viewModel.selectedDeceasedReasonTemp = viewModel.selectedDeceasedReason
         }
     }
 
-}
-
-@Composable
-fun ValueLength(value: String) {
-    Text(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(end = 15.dp),
-        text = if (value.isEmpty()) "" else "${value.length}/100",
-        style = MaterialTheme.typography.bodySmall,
-        textAlign = TextAlign.Right,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-}
-
-@Composable
-fun ValueLengthEmail(value: String) {
-    Text(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(end = 15.dp),
-        text = if (value.isEmpty()) "" else "${value.length}/150",
-        style = MaterialTheme.typography.bodySmall,
-        textAlign = TextAlign.Right,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
 }
 
 @Composable
@@ -452,7 +435,7 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
         ) {
             CustomTextField(
                 value = viewModel.dobDay,
-                label = "Day",
+                label = stringResource(id = R.string.day),
                 weight = 0.23f,
                 maxLength = 2,
                 isError = false,
@@ -460,14 +443,17 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
                 KeyboardType.Number,
                 KeyboardCapitalization.None
             ) {
-                setDobValues(viewModel, it)
+                if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobDay = it
+                if (viewModel.dobDay.isNotEmpty()) {
+                    viewModel.monthsList = getMonthsList(viewModel.dobDay)
+                }
             }
             Spacer(modifier = Modifier.width(10.dp))
-            MonthField(viewModel)
+            MonthDropDown(viewModel)
             Spacer(modifier = Modifier.width(10.dp))
             CustomTextField(
                 value = viewModel.dobYear,
-                label = "Year",
+                label = stringResource(id = R.string.year),
                 weight = 1f,
                 maxLength = 4,
                 isError = false,
@@ -478,41 +464,34 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
                 if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobYear = it
             }
         }
-        if (validateDate(viewModel)) {
-            Text(
-                text = stringResource(
-                    id = R.string.invalid_date,
-                    "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
-                ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        }
+        DateErrorText(viewModel)
     }
-}
-
-private fun setDobValues(viewModel: EditBasicInformationViewModel, value: String) {
-    if (value.matches(viewModel.onlyNumbers) || value.isEmpty()) viewModel.dobDay = value
-    if (viewModel.dobDay.isNotEmpty()) {
-        viewModel.monthsList = MonthsList.getMonthsList(viewModel.dobDay)
-    }
-}
-
-private fun validateDate(viewModel: EditBasicInformationViewModel): Boolean {
-    return viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
-            && !TimeConverter.isDOBValid(
-        viewModel.dobDay.toInt(),
-        viewModel.dobMonth.toMonthInteger(),
-        viewModel.dobYear.toInt()
-    )
-
 }
 
 @Composable
-private fun MonthField(viewModel: EditBasicInformationViewModel) {
-    var monthExpanded by remember { mutableStateOf(false) }
+private fun DateErrorText(viewModel: EditBasicInformationViewModel) {
+    if (viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
+        && !isDOBValid(
+            viewModel.dobDay.toInt(),
+            viewModel.dobMonth.toMonthInteger(),
+            viewModel.dobYear.toInt()
+        )
+    ) {
+        Text(
+            text = stringResource(
+                id = R.string.invalid_date,
+                "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(start = 8.dp)
+        )
+    }
+}
 
+@Composable
+private fun MonthDropDown(viewModel: EditBasicInformationViewModel) {
+    var monthExpanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth(0.6f)
@@ -524,7 +503,7 @@ private fun MonthField(viewModel: EditBasicInformationViewModel) {
                 viewModel.dobMonth = it
             },
             label = {
-                Text(text = "Month")
+                Text(text = stringResource(id = R.string.month))
             },
             trailingIcon = {
                 Icon(Icons.Default.ArrowDropDown, contentDescription = "")
@@ -572,101 +551,71 @@ fun AgeTextField(viewModel: EditBasicInformationViewModel) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
-        CustomTextField(
-            viewModel.years,
-            label = "Years",
-            0.25F,
-            3,
-            viewModel.isAgeYearsValid,
-            "Enter valid input between 0 to 150.",
-            KeyboardType.Number,
-            KeyboardCapitalization.None
-        ) {
-            setAgeValues(viewModel, it)
-        }
+        AgeYearsComposable(viewModel)
         Spacer(modifier = Modifier.width(15.dp))
-        CustomTextField(
-            viewModel.months,
-            label = "Months",
-            0.36F,
-            2,
-            viewModel.isAgeMonthsValid,
-            "Enter valid input between 1 and 11.",
-            KeyboardType.Number,
-            KeyboardCapitalization.None
-        ) {
-            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.months = it
-            if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =
-                viewModel.months.toInt() < 1 || viewModel.months.toInt() > 11
-        }
+        AgeMonthsComposable(viewModel)
         Spacer(modifier = Modifier.width(15.dp))
-        CustomTextField(
-            viewModel.days,
-            label = "Days",
-            0.5F,
-            2,
-            viewModel.isAgeDaysValid,
-            "Enter valid input between 1 and 30.",
-            KeyboardType.Number,
-            KeyboardCapitalization.None
-        ) {
-            setDayValue(viewModel, it)
-        }
+        AgeDaysComposable(viewModel)
     }
 }
 
-private fun setDayValue(viewModel: EditBasicInformationViewModel, it: String) {
-    if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
-    if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
-        viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
-}
-
-private fun setAgeValues(viewModel: EditBasicInformationViewModel, it: String) {
-    if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
-    if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
-        viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
+@Composable
+private fun AgeDaysComposable(viewModel: EditBasicInformationViewModel) {
+    CustomTextField(
+        viewModel.days,
+        label = stringResource(id = R.string.age_days),
+        0.5F,
+        2,
+        viewModel.isAgeDaysValid,
+        stringResource(
+            id = R.string.age_days_error_msg
+        ),
+        KeyboardType.Number,
+        KeyboardCapitalization.None
+    ) {
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
+        if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
+            viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
+    }
 }
 
 @Composable
-fun ContactTextField(viewModel: EditBasicInformationViewModel) {
-    Row(
-        modifier = Modifier.fillMaxWidth()
+private fun AgeMonthsComposable(viewModel: EditBasicInformationViewModel) {
+    CustomTextField(
+        viewModel.months,
+        label = stringResource(id = R.string.age_months),
+        0.36F,
+        2,
+        viewModel.isAgeMonthsValid,
+        stringResource(
+            id = R.string.age_months_error_msg
+        ),
+        KeyboardType.Number,
+        KeyboardCapitalization.None
     ) {
-        OutlinedTextField(
-            value = "IND (+91)",
-            onValueChange = {},
-            trailingIcon = {
-                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-            },
-            modifier = Modifier.fillMaxWidth(0.4f),
-            readOnly = true,
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.width(6.dp))
-        OutlinedTextField(
-            value = viewModel.phoneNumber,
-            onValueChange = {
-                if (it.length <= 10 && (it.matches(viewModel.onlyNumbers) || it.isEmpty()))
-                    viewModel.phoneNumber = it
-                viewModel.isPhoneValid = !viewModel.phoneNumber.matches(phoneNumberRegex)
-            },
-            modifier = Modifier
-                .fillMaxWidth(1f)
-                .testTag("Phone Number"),
-            placeholder = {
-                Text(text = "Enter Phone Number")
-            },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next,
-                keyboardType = KeyboardType.Number
-            ),
-            isError = viewModel.isPhoneValid,
-            supportingText = {
-                if (viewModel.isPhoneValid)
-                    Text("Enter Valid Input", style = MaterialTheme.typography.bodySmall)
-            }
-        )
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.months = it
+        if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =
+            viewModel.months.toInt() < 1 || viewModel.months.toInt() > 11
+    }
+}
+
+@Composable
+private fun AgeYearsComposable(viewModel: EditBasicInformationViewModel) {
+    CustomTextField(
+        viewModel.years,
+        label = stringResource(id = R.string.age_years),
+        0.25F,
+        3,
+        viewModel.isAgeYearsValid,
+        stringResource(
+            id = R.string.age_years_error_msg
+        ),
+        KeyboardType.Number,
+        KeyboardCapitalization.None
+    ) {
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
+        if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
+            viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
     }
 }
 
@@ -678,19 +627,25 @@ fun GenderComposable(viewModel: EditBasicInformationViewModel) {
             .testTag("genderRow"),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Gender", style = MaterialTheme.typography.bodyLarge)
+        Text(
+            text = stringResource(id = R.string.gender_mandatory),
+            style = MaterialTheme.typography.bodyLarge
+        )
         Spacer(modifier = Modifier.width(20.dp))
-        CustomFilterChip(viewModel.gender, GenderEnum.MALE.value, "Male") {
+        CustomFilterChip(
+            viewModel.gender,
+            GenderEnum.MALE.value,
+            stringResource(id = R.string.male)
+        ) {
             viewModel.gender = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(viewModel.gender, GenderEnum.FEMALE.value, "Female") {
-            viewModel.gender = it
-        }
-        Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(viewModel.gender, GenderEnum.OTHER.value, "Other") {
+        CustomFilterChip(
+            viewModel.gender,
+            GenderEnum.FEMALE.value,
+            stringResource(id = R.string.female)
+        ) {
             viewModel.gender = it
         }
     }
 }
-

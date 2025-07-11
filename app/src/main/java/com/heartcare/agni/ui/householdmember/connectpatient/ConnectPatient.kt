@@ -110,7 +110,6 @@ fun ConnectPatient(
                         Text(
                             text = NameConverter.getFullName(
                                 viewModel.patientFrom?.firstName,
-                                viewModel.patientFrom?.middleName,
                                 viewModel.patientFrom?.lastName
                             ),
                             style = MaterialTheme.typography.titleMedium
@@ -219,7 +218,6 @@ fun ConnectPatient(
                                             Text(
                                                 text = NameConverter.getFullName(
                                                     member?.firstName,
-                                                    member?.middleName,
                                                     member?.lastName
                                                 ),
                                                 style = MaterialTheme.typography.bodyLarge
@@ -307,7 +305,6 @@ fun ConnectedMemberCard(
             text = "${
                 NameConverter.getFullName(
                     relationView.patientFirstName,
-                    relationView.patientMiddleName,
                     relationView.patientLastName
                 )
             } " +
@@ -320,7 +317,6 @@ fun ConnectedMemberCard(
                     "${
                         NameConverter.getFullName(
                             relationView.relativeFirstName,
-                            relationView.relativeMiddleName,
                             relationView.relativeLastName
                         )
                     }.",
@@ -395,7 +391,6 @@ fun DeleteDialog(
                     "${
                         NameConverter.getFullName(
                             relationView.patientFirstName,
-                            relationView.patientMiddleName,
                             relationView.patientLastName
                         )
                     } " +
@@ -408,7 +403,6 @@ fun DeleteDialog(
                             "${
                                 NameConverter.getFullName(
                                     relationView.relativeFirstName,
-                                    relationView.relativeMiddleName,
                                     relationView.relativeLastName
                                 )
                             }.",
@@ -482,13 +476,11 @@ fun EditDialog(
             RelationDialogContent(
                 NameConverter.getFullName(
                     relationView.patientFirstName,
-                    relationView.patientMiddleName,
                     relationView.patientLastName
                 ),
                 "of ${
                     NameConverter.getFullName(
                         relationView.relativeFirstName,
-                        relationView.relativeMiddleName,
                         relationView.relativeLastName
                     )
                 }.",
@@ -559,7 +551,6 @@ fun PatientRow(member: PatientResponse, viewModel: ConnectPatientViewModel) {
             Text(
                 text = NameConverter.getFullName(
                     member.firstName,
-                    member.middleName,
                     member.lastName
                 ),
                 style = MaterialTheme.typography.bodyLarge,
@@ -613,7 +604,6 @@ fun ConnectMemberDialog(
                 Text(
                     NameConverter.getFullName(
                         viewModel.patientFrom?.firstName,
-                        viewModel.patientFrom?.middleName,
                         viewModel.patientFrom?.lastName
                     ),
                     style = MaterialTheme.typography.bodyLarge
@@ -697,7 +687,6 @@ fun ConnectMemberDialog(
                     text = "of ${
                         NameConverter.getFullName(
                             member.firstName,
-                            member.middleName,
                             member.lastName
                         )
                     }.",

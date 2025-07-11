@@ -1,7 +1,7 @@
 package com.heartcare.agni.ui.patientregistration.step1
 
-import android.util.Patterns
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,13 +15,10 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
 
     internal val onlyNumbers = Regex("^\\d+\$")
 
-    internal val maxFirstNameLength = 100
-    internal val maxMiddleNameLength = 100
-    internal val maxLastNameLength = 100
-    internal val maxEmailLength = 100
+    internal val maxNameLength = 50
+    internal val maxPhoneNumberLength = 15
 
     internal var firstName by mutableStateOf("")
-    internal var middleName by mutableStateOf("")
     internal var lastName by mutableStateOf("")
     internal var phoneNumber by mutableStateOf("")
     internal var email by mutableStateOf("")
@@ -33,33 +30,35 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
     internal var months by mutableStateOf("")
     internal var days by mutableStateOf("")
     internal var gender by mutableStateOf("")
+    internal var isPersonDeceased by mutableIntStateOf(0)
+    var showDeceasedReasonSheet by mutableStateOf(false)
+    var selectedDeceasedReason by mutableStateOf("")
+
+    internal var motherName by mutableStateOf("")
+    internal var fatherName by mutableStateOf("")
+    internal var spouseName by mutableStateOf("")
 
     internal var monthsList = mutableStateListOf(
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     )
 
-    internal var isNameValid by mutableStateOf(false)
-    internal var isEmailValid by mutableStateOf(false)
+    internal var isMotherNameValid by mutableStateOf(false)
+    internal var isLastNameValid by mutableStateOf(false)
+    internal var isFirstNameValid by mutableStateOf(false)
     internal var isPhoneValid by mutableStateOf(false)
     internal var isAgeDaysValid by mutableStateOf(false)
     internal var isAgeMonthsValid by mutableStateOf(false)
     internal var isAgeYearsValid by mutableStateOf(false)
 
     internal fun basicInfoValidation(): Boolean {
-        if (firstName.length < 3 || firstName.length > 100)
-            return false
-        if (middleName.length > 100 || lastName.length > 100)
-            return false
-        if (verifyDOB())
-            return false
-        if (verifyAge())
-            return false
-        if (isPhoneValid || phoneNumber.isBlank())
-            return false
-        if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
-            return false
-        return gender != ""
+        return firstName.isNotBlank() &&
+                lastName.isNotBlank() &&
+                motherName.isNotBlank() &&
+                !verifyDOB() &&
+                !verifyAge() &&
+                !isPhoneValid &&
+                gender.isNotBlank()
     }
 
     private fun verifyDOB(): Boolean{

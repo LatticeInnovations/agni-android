@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,15 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.heartcare.agni.R
 import com.heartcare.agni.navigation.Screen
-import com.heartcare.agni.ui.common.PreviewScreen
-import com.heartcare.agni.utils.constants.IdentificationConstants.PASSPORT_TYPE
-import com.heartcare.agni.utils.constants.IdentificationConstants.PATIENT_ID_TYPE
-import com.heartcare.agni.utils.constants.IdentificationConstants.VOTER_ID_TYPE
-import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
+import com.heartcare.agni.ui.common.preview.PreviewScreen
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -51,43 +49,6 @@ fun PatientProfile(
         withContext(ioDispatcher) {
             if (viewModel.id == "null") viewModel.id = viewModel.patientResponse!!.id
             viewModel.patientResponse = viewModel.getPatientData(viewModel.id)
-            viewModel.patientResponse?.run {
-                viewModel.firstName = firstName
-                viewModel.middleName = middleName ?: ""
-                viewModel.lastName = lastName ?: ""
-                viewModel.email = email ?: ""
-                viewModel.phoneNumber = mobileNumber.toString()
-                viewModel.dob = birthDate.toPatientPreviewDate()
-                viewModel.gender = gender
-                viewModel.identifier = identifier.toMutableList()
-                viewModel.passportId = ""
-                viewModel.patientId = ""
-                viewModel.voterId = ""
-                viewModel.identifier.forEach { identity ->
-                    when (identity.identifierType) {
-                        PASSPORT_TYPE -> {
-                            viewModel.passportId = identity.identifierNumber
-                        }
-
-                        VOTER_ID_TYPE -> {
-                            viewModel.voterId = identity.identifierNumber
-
-                        }
-
-                        PATIENT_ID_TYPE -> {
-                            viewModel.patientId = identity.identifierNumber
-                        }
-                    }
-                }
-
-                viewModel.homeAddress.pincode = permanentAddress.postalCode
-                viewModel.homeAddress.state = permanentAddress.state
-                viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1
-                viewModel.homeAddress.addressLine2 = permanentAddress.addressLine2 ?: ""
-                viewModel.homeAddress.city = permanentAddress.city
-                viewModel.homeAddress.district = permanentAddress.district ?: ""
-
-            }
         }
 
     }
@@ -101,7 +62,7 @@ fun PatientProfile(
             TopAppBar(
                 title = {
                     Text(
-                        "Patient profile",
+                        stringResource(R.string.patient_profile),
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -110,7 +71,7 @@ fun PatientProfile(
                         navController.popBackStack()
                     }) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "BACK_ICON"
                         )
                     }

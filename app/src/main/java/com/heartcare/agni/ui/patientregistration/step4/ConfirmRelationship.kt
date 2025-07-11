@@ -232,7 +232,6 @@ fun MemberCard(
             text = "${
                 NameConverter.getFullName(
                     relationView.patientFirstName,
-                    relationView.patientMiddleName,
                     relationView.patientLastName
                 )
             } " +
@@ -240,7 +239,6 @@ fun MemberCard(
                     "${
                         NameConverter.getFullName(
                             relationView.relativeFirstName,
-                            relationView.relativeMiddleName,
                             relationView.relativeLastName
                         )
                     }.",
@@ -317,7 +315,6 @@ fun DeleteDialog(
                     "${
                         NameConverter.getFullName(
                             relationView.patientFirstName,
-                            relationView.patientMiddleName,
                             relationView.patientLastName
                         )
                     } " +
@@ -330,7 +327,6 @@ fun DeleteDialog(
                             "${
                                 NameConverter.getFullName(
                                     relationView.relativeFirstName,
-                                    relationView.relativeMiddleName,
                                     relationView.relativeLastName
                                 )
                             }.",
@@ -405,7 +401,6 @@ fun EditDialog(
                 Text(
                     NameConverter.getFullName(
                         relationView.patientFirstName,
-                        relationView.patientMiddleName,
                         relationView.patientLastName
                     ),
                     style = MaterialTheme.typography.bodyLarge,
@@ -478,7 +473,6 @@ fun EditDialog(
                     text = "of ${
                         NameConverter.getFullName(
                             relationView.relativeFirstName,
-                            relationView.relativeMiddleName,
                             relationView.relativeLastName
                         )
                     }.",

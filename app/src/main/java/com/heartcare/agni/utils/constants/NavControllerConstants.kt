@@ -2,6 +2,7 @@ package com.heartcare.agni.utils.constants
 
 object NavControllerConstants {
     const val PATIENT = "patient"
+    const val PATIENT_SAVED = "patient_saved"
     const val APPOINTMENT_SELECTED = "appointment_selected"
     const val ADD_TO_QUEUE = "added_to_queue"
     const val PATIENT_ARRIVED = "patient_arrived"

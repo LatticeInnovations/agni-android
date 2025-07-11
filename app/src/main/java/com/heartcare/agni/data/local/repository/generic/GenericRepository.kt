@@ -88,7 +88,7 @@ interface GenericRepository {
 
     suspend fun insertOrUpdatePatientPatchEntity(
         patientFhirId: String,
-        map: Map<String, Any>,
+        patientResponse: PatientResponse,
         uuid: String = UUIDBuilder.generateUUID()
     ): Long
 

@@ -1,18 +1,15 @@
 package com.heartcare.agni.ui.patienteditscreen.basicinfo
 
-import android.util.Patterns
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.viewModelScope
 import com.heartcare.agni.base.viewmodel.BaseViewModel
-import com.heartcare.agni.data.local.enums.ChangeTypeEnum
-import com.heartcare.agni.data.local.model.patch.ChangeRequest
 import com.heartcare.agni.data.local.repository.generic.GenericRepository
 import com.heartcare.agni.data.local.repository.patient.PatientRepository
-import com.heartcare.agni.data.local.repository.vaccination.ImmunizationRecommendationRepository
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toMonthInteger
@@ -20,7 +17,6 @@ import com.heartcare.agni.utils.regex.AgeRegex
 import com.heartcare.agni.utils.regex.DobRegex
 import com.heartcare.agni.utils.regex.OnlyNumberRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,40 +24,39 @@ import javax.inject.Inject
 @HiltViewModel
 class EditBasicInformationViewModel @Inject constructor(
     val patientRepository: PatientRepository,
-    val genericRepository: GenericRepository,
-    val immunizationRecommendationRepository: ImmunizationRecommendationRepository
-) :
-    BaseViewModel(), DefaultLifecycleObserver {
+    val genericRepository: GenericRepository
+) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
-    var isEditing by mutableStateOf(false)
 
     val onlyNumbers = OnlyNumberRegex.onlyNumbers
     val ageRegex = AgeRegex.ageRegex
     val dobRegex = DobRegex.dobRegex
 
+    internal val maxNameLength = 50
+    internal val maxPhoneNumberLength = 15
 
-    val maxFirstNameLength = 100
-    val maxMiddleNameLength = 100
-    val maxLastNameLength = 100
-    val maxEmailLength = 150
+    internal var firstName by mutableStateOf("")
+    internal var lastName by mutableStateOf("")
+    internal var phoneNumber by mutableStateOf("")
+    internal var email by mutableStateOf("")
+    internal var dobAgeSelector by mutableStateOf("dob")
+    internal var dobDay by mutableStateOf("")
+    internal var dobMonth by mutableStateOf("")
+    internal var dobYear by mutableStateOf("")
+    internal var years by mutableStateOf("")
+    internal var months by mutableStateOf("")
+    internal var days by mutableStateOf("")
+    internal var gender by mutableStateOf("")
+    internal var isPersonDeceased by mutableIntStateOf(0)
+    var showDeceasedReasonSheet by mutableStateOf(false)
+    var selectedDeceasedReason by mutableStateOf("")
 
-    var firstName by mutableStateOf("")
-    var middleName by mutableStateOf("")
-    var lastName by mutableStateOf("")
-    var phoneNumber by mutableStateOf("")
-    var email by mutableStateOf("")
-    var dobAgeSelector by mutableStateOf("dob")
-    var dobDay by mutableStateOf("")
-    var dobMonth by mutableStateOf("")
-    var dobYear by mutableStateOf("")
-    var years by mutableStateOf("")
-    var months by mutableStateOf("")
-    var days by mutableStateOf("")
-    var gender by mutableStateOf("")
+    internal var motherName by mutableStateOf("")
+    internal var fatherName by mutableStateOf("")
+    internal var spouseName by mutableStateOf("")
 
     //temp var
     var firstNameTemp by mutableStateOf("")
-    var middleNameTemp by mutableStateOf("")
     var lastNameTemp by mutableStateOf("")
     var phoneNumberTemp by mutableStateOf("")
     var emailTemp by mutableStateOf("")
@@ -74,45 +69,45 @@ class EditBasicInformationViewModel @Inject constructor(
     var daysTemp by mutableStateOf("")
     var genderTemp by mutableStateOf("")
     var birthDate by mutableStateOf("")
-
-    var showDOBWarning by mutableStateOf(false)
+    var motherNameTemp by mutableStateOf("")
+    var fatherNameTemp by mutableStateOf("")
+    var spouseNameTemp by mutableStateOf("")
+    var isPersonDeceasedTemp by mutableIntStateOf(0)
+    var selectedDeceasedReasonTemp by mutableStateOf("")
 
     var monthsList = mutableStateListOf(
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     )
 
-    var isNameValid by mutableStateOf(false)
-    var isEmailValid by mutableStateOf(false)
-    var isPhoneValid by mutableStateOf(false)
-    var isAgeDaysValid by mutableStateOf(false)
-    var isAgeMonthsValid by mutableStateOf(false)
-    var isAgeYearsValid by mutableStateOf(false)
-
+    internal var isMotherNameValid by mutableStateOf(false)
+    internal var isLastNameValid by mutableStateOf(false)
+    internal var isFirstNameValid by mutableStateOf(false)
+    internal var isPhoneValid by mutableStateOf(false)
+    internal var isAgeDaysValid by mutableStateOf(false)
+    internal var isAgeMonthsValid by mutableStateOf(false)
+    internal var isAgeYearsValid by mutableStateOf(false)
 
     fun basicInfoValidation(): Boolean {
-        if (firstName.length < 3 || firstName.length > 100)
-            return false
-        if (middleName.length > 100 || lastName.length > 100)
-            return false
-        if (checkDob())
-            return false
-        if (dobAgeSelector == "age" && (days.isEmpty() && months.isEmpty() && years.isEmpty()) || (isAgeDaysValid || isAgeMonthsValid || isAgeYearsValid))
-            return false
-        if (isPhoneValid || phoneNumber.isBlank())
-            return false
-        if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
-            return false
-        return gender != ""
+        return firstName.isNotBlank() &&
+                lastName.isNotBlank() &&
+                motherName.isNotBlank() &&
+                !verifyDOB() &&
+                !verifyAge() &&
+                !isPhoneValid &&
+                gender.isNotBlank()
     }
 
-    private fun checkDob(): Boolean {
+    private fun verifyDOB(): Boolean{
         return dobAgeSelector == "dob" && ((dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()) || (!TimeConverter.isDOBValid(
             dobDay.toInt(),
             dobMonth.toMonthInteger(),
             dobYear.toInt()
         )))
+    }
 
+    private fun verifyAge(): Boolean{
+        return dobAgeSelector == "age" && ((years.isBlank() && months.isBlank() && days.isBlank()) || (isAgeYearsValid || isAgeDaysValid || isAgeMonthsValid))
     }
 
     fun splitDOB(dob: String): Triple<Int, String, Int> {
@@ -134,7 +129,6 @@ class EditBasicInformationViewModel @Inject constructor(
 
     fun checkIsEdit(): Boolean {
         return firstName != firstNameTemp ||
-                middleName != middleNameTemp ||
                 lastName != lastNameTemp ||
                 phoneNumber != phoneNumberTemp ||
                 email != emailTemp ||
@@ -142,12 +136,16 @@ class EditBasicInformationViewModel @Inject constructor(
                 dobDay != dobDayTemp ||
                 dobMonth != dobMonthTemp ||
                 dobYear != dobYearTemp ||
-                gender != genderTemp
+                gender != genderTemp ||
+                motherName != motherNameTemp ||
+                fatherName != fatherNameTemp ||
+                spouseName != spouseNameTemp ||
+                isPersonDeceased != isPersonDeceasedTemp ||
+                selectedDeceasedReason != selectedDeceasedReasonTemp
     }
 
     fun revertChanges(): Boolean {
         firstName = firstNameTemp
-        middleName = middleNameTemp
         lastName = lastNameTemp
         phoneNumber = phoneNumberTemp
         email = emailTemp
@@ -159,8 +157,14 @@ class EditBasicInformationViewModel @Inject constructor(
         months = ""
         years = ""
         gender = genderTemp
-        isNameValid = false
-        isEmailValid = false
+        motherName = motherNameTemp
+        fatherName = fatherNameTemp
+        spouseName = spouseNameTemp
+        isPersonDeceased = isPersonDeceasedTemp
+        selectedDeceasedReason = selectedDeceasedReasonTemp
+        isFirstNameValid = false
+        isLastNameValid = false
+        isMotherNameValid = false
         isPhoneValid = false
         isAgeDaysValid = false
         isAgeMonthsValid = false
@@ -176,39 +180,10 @@ class EditBasicInformationViewModel @Inject constructor(
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (response > 0) {
                 if (patientResponse.fhirId != null) {
-                    saveFirstName(patientResponse)
-                    checkIsValueChange(patientResponse, middleName, middleNameTemp, "middleName")
-                    checkIsValueChange(patientResponse, lastName, lastNameTemp, "lastName")
-                    checkIsValueChange(patientResponse, email, emailTemp, "email")
-
-                    saveGender(patientResponse)
-                    if (phoneNumber != phoneNumberTemp) {
-                        genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
-                            map = mapOf(
-                                Pair(
-                                    "mobileNumber", ChangeRequest(
-                                        value = patientResponse.mobileNumber,
-                                        operation = ChangeTypeEnum.REPLACE.value
-                                    )
-                                )
-                            )
-                        )
-                    }
-                    if (patientResponse.birthDate != birthDate) {
-                        genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
-                            map = mapOf(
-                                Pair(
-                                    "birthDate", ChangeRequest(
-                                        value = patientResponse.birthDate,
-                                        operation = ChangeTypeEnum.REPLACE.value
-                                    )
-                                )
-                            )
-                        )
-                    }
-
+                    genericRepository.insertOrUpdatePatientPatchEntity(
+                        patientFhirId = patientResponse.fhirId,
+                        patientResponse = patientResponse
+                    )
                 } else {
                     genericRepository.insertPatient(
                         patientResponse
@@ -217,98 +192,4 @@ class EditBasicInformationViewModel @Inject constructor(
             }
         }
     }
-
-    private suspend fun saveGender(patientResponse: PatientResponse) {
-        if (patientResponse.gender != genderTemp) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        "gender", ChangeRequest(
-                            value = patientResponse.gender,
-                            operation = ChangeTypeEnum.REPLACE.value
-                        )
-                    )
-                )
-            )
-        }
-
-    }
-
-    private suspend fun saveFirstName(patientResponse: PatientResponse) {
-        if (firstName != firstNameTemp) {
-            genericRepository.insertOrUpdatePatientPatchEntity(
-                patientFhirId = patientResponse.fhirId!!,
-                map = mapOf(
-                    Pair(
-                        "firstName", ChangeRequest(
-                            value = firstName, operation = ChangeTypeEnum.REPLACE.value
-                        )
-                    )
-                )
-            )
-        }
-    }
-
-    private suspend fun checkIsValueChange(
-        patientResponse: PatientResponse,
-        value: String,
-        tempValue: String,
-        key: String
-    ) {
-        when {
-            value != tempValue && tempValue.isNotEmpty() && value.isNotEmpty() -> {
-                genericRepository.insertOrUpdatePatientPatchEntity(
-                    patientFhirId = patientResponse.fhirId!!,
-                    map = mapOf(
-                        Pair(
-                            key, ChangeRequest(
-                                value = value, operation = ChangeTypeEnum.REPLACE.value
-                            )
-                        )
-                    )
-                )
-            }
-
-            value != tempValue && tempValue.isNotEmpty() && value.isEmpty() -> {
-                genericRepository.insertOrUpdatePatientPatchEntity(
-                    patientFhirId = patientResponse.fhirId!!,
-                    map = mapOf(
-                        Pair(
-                            key, ChangeRequest(
-                                value = tempValue, operation = ChangeTypeEnum.REMOVE.value
-                            )
-                        )
-                    )
-                )
-
-            }
-
-            value != tempValue && tempValue.isEmpty() && value.isNotEmpty() -> {
-                genericRepository.insertOrUpdatePatientPatchEntity(
-                    patientFhirId = patientResponse.fhirId!!,
-                    map = mapOf(
-                        Pair(
-                            key, ChangeRequest(
-                                value = value, operation = ChangeTypeEnum.ADD.value
-                            )
-                        )
-                    )
-                )
-
-            }
-        }
-
-
-    }
-
-    internal fun clearOldImmunizationRecommendation(
-        patientId: String,
-        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
-    ) {
-        viewModelScope.launch(ioDispatcher) {
-            immunizationRecommendationRepository.clearImmunizationRecommendationOfPatient(patientId)
-        }
-    }
-
 }

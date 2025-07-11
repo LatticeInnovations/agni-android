@@ -12,6 +12,7 @@ import com.heartcare.agni.data.local.roomdb.dao.DispenseDao
 import com.heartcare.agni.data.local.roomdb.dao.FileUploadDao
 import com.heartcare.agni.data.local.roomdb.dao.GenericDao
 import com.heartcare.agni.data.local.roomdb.dao.LabTestAndMedDao
+import com.heartcare.agni.data.local.roomdb.dao.LevelsDao
 import com.heartcare.agni.data.local.roomdb.dao.MedicationDao
 import com.heartcare.agni.data.local.roomdb.dao.PatientDao
 import com.heartcare.agni.data.local.roomdb.dao.PatientLastUpdatedDao
@@ -41,6 +42,7 @@ import com.heartcare.agni.data.server.model.dispense.response.DispenseData
 import com.heartcare.agni.data.server.model.dispense.response.MedicineDispenseResponse
 import com.heartcare.agni.data.server.model.labormed.labtest.LabTestResponse
 import com.heartcare.agni.data.server.model.labormed.medicalrecord.MedicalRecordResponse
+import com.heartcare.agni.data.server.model.levels.LevelResponse
 import com.heartcare.agni.data.server.model.patient.PatientLastUpdatedResponse
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.data.server.model.prescription.medication.MedicationResponse
@@ -66,6 +68,7 @@ import com.heartcare.agni.utils.converters.responseconverter.toCVDEntity
 import com.heartcare.agni.utils.converters.responseconverter.toDispensePrescriptionEntity
 import com.heartcare.agni.utils.converters.responseconverter.toLabTestEntity
 import com.heartcare.agni.utils.converters.responseconverter.toLabTestPhotoResponseLocal
+import com.heartcare.agni.utils.converters.responseconverter.toLevelEntity
 import com.heartcare.agni.utils.converters.responseconverter.toListOfDispenseDataEntity
 import com.heartcare.agni.utils.converters.responseconverter.toListOfId
 import com.heartcare.agni.utils.converters.responseconverter.toListOfIdentifierEntity
@@ -109,7 +112,8 @@ open class SyncRepositoryDatabaseTransactions(
     private val deleteFileManager: DeleteFileManager,
     private val immunizationRecommendationDao: ImmunizationRecommendationDao,
     private val immunizationDao: ImmunizationDao,
-    private val manufacturerDao: ManufacturerDao
+    private val manufacturerDao: ManufacturerDao,
+    private val levelsDao: LevelsDao
 ) {
 
 
@@ -797,5 +801,11 @@ open class SyncRepositoryDatabaseTransactions(
             immunizationDao.updateFhirId(createResponse.id!!, createResponse.fhirId!!)
         }
         return deleteGenericEntityData(listOfGenericEntities)
+    }
+
+    protected suspend fun insertLevels(body: List<LevelResponse>) {
+        levelsDao.insertLevelEntity(
+            *body.map { it.toLevelEntity() }.toTypedArray()
+        )
     }
 }

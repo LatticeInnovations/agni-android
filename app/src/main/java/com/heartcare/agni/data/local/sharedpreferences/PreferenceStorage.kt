@@ -38,5 +38,7 @@ interface PreferenceStorage {
 
     var lastSyncManufacturerRecord: Long
 
+    var lastSyncLevelRecord: Long
+
     fun clear()
 }

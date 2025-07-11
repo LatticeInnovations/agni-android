@@ -15,12 +15,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -80,7 +80,7 @@ fun AddHouseholdMember(
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "BACK_ICON")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -300,7 +300,6 @@ fun DialogPatientRow(member: PatientResponse, viewModel: AddHouseholdMemberViewM
                 Text(
                     text = NameConverter.getFullName(
                         member.firstName,
-                        member.middleName,
                         member.lastName
                     ),
                     style = MaterialTheme.typography.bodyLarge,
@@ -314,7 +313,7 @@ fun DialogPatientRow(member: PatientResponse, viewModel: AddHouseholdMemberViewM
             }
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Divider(
+        HorizontalDivider(
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant
         )

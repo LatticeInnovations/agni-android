@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -42,7 +42,6 @@ fun CancelAppointmentDialog(
                 Text(
                     text = getFullName(
                         patient.firstName,
-                        patient.middleName,
                         patient.lastName
                     ),
                     color = MaterialTheme.colorScheme.onSurface,
@@ -59,7 +58,7 @@ fun CancelAppointmentDialog(
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Divider(
+                HorizontalDivider(
                     thickness = 1.dp,
                     color = MaterialTheme.colorScheme.outlineVariant
                 )

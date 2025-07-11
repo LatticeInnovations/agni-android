@@ -1,6 +1,7 @@
 package com.heartcare.agni.data.server.api
 
 import com.heartcare.agni.base.server.BaseResponse
+import com.heartcare.agni.data.server.constants.EndPoints.PATIENT
 import com.heartcare.agni.data.server.model.create.CreateResponse
 import com.heartcare.agni.data.server.model.patient.PatientLastUpdatedResponse
 import com.heartcare.agni.data.server.model.patient.PatientResponse
@@ -10,6 +11,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.QueryMap
 
@@ -39,6 +41,11 @@ interface PatientApiService {
     suspend fun patchListOfChanges(
         @Path("endPoint") endPoint: String,
         @Body patchLogs: List<Map<String, Any>>
+    ): Response<BaseResponse<List<CreateResponse>>>
+
+    @PUT(PATIENT)
+    suspend fun patchPatient(
+        @Body patientResponses: List<PatientResponse>
     ): Response<BaseResponse<List<CreateResponse>>>
 
     @GET("{endPoint}")

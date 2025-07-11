@@ -251,7 +251,7 @@ class GenericRepositoryImpl @Inject constructor(
 
     override suspend fun insertOrUpdatePatientPatchEntity(
         patientFhirId: String,
-        map: Map<String, Any>,
+        patientResponse: PatientResponse,
         uuid: String
     ): Long {
         return genericDao.getGenericEntityById(
@@ -259,7 +259,7 @@ class GenericRepositoryImpl @Inject constructor(
             genericTypeEnum = GenericTypeEnum.PATIENT,
             syncType = SyncType.PATCH
         ).let { patientPatchGenericEntity ->
-            insertPatientGenericEntityPatch(patientPatchGenericEntity, patientFhirId, map, uuid)
+            insertPatientGenericEntityPatch(patientPatchGenericEntity, patientFhirId, patientResponse, uuid)
         }
     }
 

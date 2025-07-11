@@ -89,7 +89,7 @@ fun MembersCard(
     navController: NavController,
     selectedIndex: Int
 ) {
-    val name = NameConverter.getFullName(relative.firstName, relative.middleName, relative.lastName)
+    val name = NameConverter.getFullName(relative.firstName, relative.lastName)
     val age = relative.birthDate.toTimeInMilli().toAge()
     val subtitle = "${relative.gender[0].uppercase()}/$age · PID ${relative.fhirId}"
     Surface(

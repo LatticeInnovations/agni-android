@@ -10,6 +10,7 @@ import com.heartcare.agni.data.local.roomdb.dao.FileUploadDao
 import com.heartcare.agni.data.local.roomdb.dao.GenericDao
 import com.heartcare.agni.data.local.roomdb.dao.IdentifierDao
 import com.heartcare.agni.data.local.roomdb.dao.LabTestAndMedDao
+import com.heartcare.agni.data.local.roomdb.dao.LevelsDao
 import com.heartcare.agni.data.local.roomdb.dao.MedicationDao
 import com.heartcare.agni.data.local.roomdb.dao.PatientDao
 import com.heartcare.agni.data.local.roomdb.dao.PatientLastUpdatedDao
@@ -166,5 +167,11 @@ object DatabaseModule {
     @Provides
     fun provideManufacturerDao(fhirAppDatabase: FhirAppDatabase): ManufacturerDao {
         return fhirAppDatabase.getManufacturerDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideLevelsDao(fhirAppDatabase: FhirAppDatabase): LevelsDao {
+        return fhirAppDatabase.getLevelsDao()
     }
 }

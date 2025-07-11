@@ -13,6 +13,7 @@ import com.heartcare.agni.data.local.roomdb.dao.DispenseDao
 import com.heartcare.agni.data.local.roomdb.dao.FileUploadDao
 import com.heartcare.agni.data.local.roomdb.dao.GenericDao
 import com.heartcare.agni.data.local.roomdb.dao.LabTestAndMedDao
+import com.heartcare.agni.data.local.roomdb.dao.LevelsDao
 import com.heartcare.agni.data.local.roomdb.dao.MedicationDao
 import com.heartcare.agni.data.local.roomdb.dao.PatientDao
 import com.heartcare.agni.data.local.roomdb.dao.PatientLastUpdatedDao
@@ -27,6 +28,7 @@ import com.heartcare.agni.data.local.roomdb.dao.vaccincation.ManufacturerDao
 import com.heartcare.agni.data.server.api.CVDApiService
 import com.heartcare.agni.data.server.api.DispenseApiService
 import com.heartcare.agni.data.server.api.LabTestAndMedRecordService
+import com.heartcare.agni.data.server.api.LevelsApiService
 import com.heartcare.agni.data.server.api.PatientApiService
 import com.heartcare.agni.data.server.api.PrescriptionApiService
 import com.heartcare.agni.data.server.api.ScheduleAndAppointmentApiService
@@ -51,6 +53,7 @@ import com.heartcare.agni.data.server.constants.QueryParameters.OFFSET
 import com.heartcare.agni.data.server.constants.QueryParameters.ORG_ID
 import com.heartcare.agni.data.server.constants.QueryParameters.PATIENT_ID
 import com.heartcare.agni.data.server.constants.QueryParameters.SORT
+import com.heartcare.agni.data.server.constants.QueryParameters.TYPE
 import com.heartcare.agni.data.server.model.create.CreateResponse
 import com.heartcare.agni.data.server.model.cvd.CVDResponse
 import com.heartcare.agni.data.server.model.dispense.request.MedicineDispenseRequest
@@ -58,6 +61,7 @@ import com.heartcare.agni.data.server.model.dispense.response.DispenseData
 import com.heartcare.agni.data.server.model.dispense.response.MedicineDispenseResponse
 import com.heartcare.agni.data.server.model.labormed.labtest.LabTestResponse
 import com.heartcare.agni.data.server.model.labormed.medicalrecord.MedicalRecordResponse
+import com.heartcare.agni.data.server.model.levels.LevelResponse
 import com.heartcare.agni.data.server.model.patient.PatientLastUpdatedResponse
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.data.server.model.prescription.medication.MedicationResponse
@@ -97,6 +101,7 @@ class SyncRepositoryImpl @Inject constructor(
     private val labTestAndMedRecordService: LabTestAndMedRecordService,
     private val dispenseApiService: DispenseApiService,
     private val vaccinationApiService: VaccinationApiService,
+    private val levelsApiService: LevelsApiService,
     patientDao: PatientDao,
     private val genericDao: GenericDao,
     private val preferenceRepository: PreferenceRepository,
@@ -115,7 +120,8 @@ class SyncRepositoryImpl @Inject constructor(
     fileUploadDao: FileUploadDao,
     immunizationRecommendationDao: ImmunizationRecommendationDao,
     immunizationDao: ImmunizationDao,
-    manufacturerDao: ManufacturerDao
+    manufacturerDao: ManufacturerDao,
+    levelsDao: LevelsDao
 ) : SyncRepository, SyncRepositoryDatabaseTransactions(
     patientApiService,
     patientDao,
@@ -135,7 +141,8 @@ class SyncRepositoryImpl @Inject constructor(
     deleteFileManager,
     immunizationRecommendationDao,
     immunizationDao,
-    manufacturerDao
+    manufacturerDao,
+    levelsDao
 ) {
 
     override suspend fun getAndInsertListPatientData(
@@ -1198,9 +1205,11 @@ class SyncRepositoryImpl @Inject constructor(
             if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
             else {
                 ApiResponseConverter.convert(
-                    patientApiService.patchListOfChanges(
-                        PATIENT,
-                        listOfGenericEntity.map { it.payload.fromJson() })
+                    patientApiService.patchPatient(
+                        listOfGenericEntity.map {
+                            it.payload.fromJson<LinkedTreeMap<*, *>>()
+                                .mapToObject(PatientResponse::class.java)!!
+                        })
                 ).run {
                     when (this) {
                         is ApiEndResponse -> {
@@ -1493,4 +1502,30 @@ class SyncRepositoryImpl @Inject constructor(
 
     }
 
+    override suspend fun getAndInsertLevelsData(): ResponseMapper<List<LevelResponse>> {
+        val map = mutableMapOf<String, String>()
+        map[TYPE] = "village,province,area-council,health-facility,island"
+        map[SORT] = "-$ID"
+        if (preferenceRepository.getLastSyncLevelRecord() != 0L) map[LAST_UPDATED] =
+            String.format(
+                GREATER_THAN_BUILDER,
+                preferenceRepository.getLastSyncLevelRecord().toTimeStampDate()
+            )
+
+        return ApiResponseConverter.convert(
+            levelsApiService.getLevelsData(
+                map
+            )
+        ).run {
+            when (this) {
+                is ApiEndResponse -> {
+                    preferenceRepository.setLastSyncLevelRecord(Date().time)
+                    insertLevels(body)
+                    this
+                }
+
+                else -> this
+            }
+        }
+    }
 }

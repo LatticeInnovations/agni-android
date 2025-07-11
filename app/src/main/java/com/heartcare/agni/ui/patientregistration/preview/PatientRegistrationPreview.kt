@@ -1,6 +1,5 @@
 package com.heartcare.agni.ui.patientregistration.preview
 
-import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,28 +23,27 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.heartcare.agni.R
-import com.heartcare.agni.data.local.model.relation.Relation
+import com.heartcare.agni.data.local.enums.NationalIdUse
 import com.heartcare.agni.data.server.model.patient.PatientAddressResponse
 import com.heartcare.agni.data.server.model.patient.PatientIdentifier
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.navigation.Screen
-import com.heartcare.agni.ui.common.PreviewScreen
+import com.heartcare.agni.ui.common.preview.PreviewScreen
 import com.heartcare.agni.ui.patientregistration.model.PatientRegister
+import com.heartcare.agni.utils.constants.IdentificationConstants.HOSPITAL_ID
+import com.heartcare.agni.utils.constants.IdentificationConstants.NATIONAL_ID
 import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
+import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT_SAVED
 import com.heartcare.agni.utils.constants.NavControllerConstants.SELECTED_INDEX
-import com.heartcare.agni.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toPatientDate
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +56,6 @@ fun PatientRegistrationPreview(
             key = "patient_register_details"
         )
     setData(patientRegisterDetails, viewModel)
-    val context = LocalContext.current
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
@@ -66,9 +63,10 @@ fun PatientRegistrationPreview(
                 ) == true
             ) {
                 viewModel.fromHouseholdMember = true
-                viewModel.relation = navController.previousBackStackEntry?.savedStateHandle?.get<String>(
-                    key = "relation"
-                )!!
+                viewModel.relation =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                        key = "relation"
+                    )!!
                 viewModel.patientFrom =
                     navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                         key = "patientFrom"
@@ -141,7 +139,7 @@ fun PatientRegistrationPreview(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                PreviewScreenComposable(patientRegisterDetails, viewModel, context, navController)
+                PreviewScreenComposable(patientRegisterDetails, viewModel, navController)
                 if (viewModel.openDialog) {
                     DiscardDialog(
                         closeDialog = {
@@ -161,44 +159,20 @@ fun PatientRegistrationPreview(
                     viewModel.addPatient(
                         viewModel.patientResponse!!
                     )
-                    if (viewModel.fromHouseholdMember) {
-                        // adding relation
-                        viewModel.addRelation(
-                            Relation(
-                                patientId = viewModel.patientFromId,
-                                relativeId = viewModel.relativeId,
-                                relation = getRelationEnumFromString(viewModel.relation)
-                            )
-                        ) {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "patientId",
-                                    viewModel.patientFromId
-                                )
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "relativeId",
-                                    viewModel.relativeId
-                                )
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "relation",
-                                    viewModel.relation
-                                )
-                                navController.navigate(Screen.ConfirmRelationship.route)
-                            }
-
-                        }
-                    } else {
-                        navController.popBackStack(Screen.LandingScreen.route, false)
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            PATIENT,
-                            viewModel.patientResponse!!
-                        )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            SELECTED_INDEX,
-                            0
-                        )
-                        navController.navigate(Screen.PatientLandingScreen.route)
-                    }
+                    navController.popBackStack(Screen.LandingScreen.route, false)
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        PATIENT,
+                        viewModel.patientResponse!!
+                    )
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        SELECTED_INDEX,
+                        0
+                    )
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        PATIENT_SAVED,
+                        true
+                    )
+                    navController.navigate(Screen.PatientLandingScreen.route)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -214,59 +188,59 @@ fun PatientRegistrationPreview(
 private fun PreviewScreenComposable(
     patientRegisterDetails: PatientRegister?,
     viewModel: PatientRegistrationPreviewViewModel,
-    context: Context,
     navController: NavController
 ) {
     if (patientRegisterDetails != null) {
         viewModel.identifierList.clear()
-        if (viewModel.passportId.isNotEmpty()) {
+        if (viewModel.hospitalId.isNotEmpty()) {
             viewModel.identifierList.add(
                 PatientIdentifier(
-                    identifierType = context.getString(R.string.passport_id_web_link),
-                    identifierNumber = viewModel.passportId,
-                    code = null
+                    identifierType = HOSPITAL_ID,
+                    identifierNumber = viewModel.hospitalId,
+                    code = null,
+                    use = null
                 )
             )
         }
-        if (viewModel.voterId.isNotEmpty()) {
+        if (viewModel.nationalId.isNotEmpty()) {
             viewModel.identifierList.add(
                 PatientIdentifier(
-                    identifierType = context.getString(R.string.voter_id_web_link),
-                    identifierNumber = viewModel.voterId,
-                    code = null
-                )
-            )
-        }
-        if (viewModel.patientId.isNotEmpty()) {
-            viewModel.identifierList.add(
-                PatientIdentifier(
-                    identifierType = context.getString(R.string.patient_id_web_link),
-                    identifierNumber = viewModel.patientId,
-                    code = null
+                    identifierType = NATIONAL_ID,
+                    identifierNumber = viewModel.nationalId,
+                    code = null,
+                    use = if (viewModel.isNationalIdVerified) NationalIdUse.OFFICIAL.use
+                    else NationalIdUse.TEMP.use
                 )
             )
         }
         viewModel.patientResponse = PatientResponse(
             id = viewModel.relativeId,
             firstName = viewModel.firstName,
-            middleName = viewModel.middleName.ifBlank { null },
-            lastName = viewModel.lastName.ifBlank { null },
+            lastName = viewModel.lastName,
             birthDate = viewModel.dob.toPatientDate(),
-            email = viewModel.email.ifBlank { null },
-            active = true,
             gender = viewModel.gender,
-            mobileNumber = viewModel.phoneNumber.toLong(),
+            mobileNumber = viewModel.phoneNumber.ifBlank { null },
+            mothersName = viewModel.motherName,
+            fathersName = viewModel.fatherName.ifBlank { null },
+            spouseName = viewModel.spouseName.ifBlank { null },
             fhirId = null,
+            generalPractitioner = null,
+            managingOrganization = null,
+            isDeleted = null,
             permanentAddress = PatientAddressResponse(
-                postalCode = viewModel.homeAddress.pincode,
-                state = viewModel.homeAddress.state,
-                addressLine1 = viewModel.homeAddress.addressLine1,
-                addressLine2 = viewModel.homeAddress.addressLine2.ifBlank { null },
-                city = viewModel.homeAddress.city,
-                country = "India",
-                district = viewModel.homeAddress.district.ifBlank { null }
+                postalCode = viewModel.postalCode.ifBlank { null },
+                province = viewModel.province!!.fhirId,
+                areaCouncil = viewModel.areaCouncil!!.fhirId,
+                island = viewModel.island!!.fhirId,
+                village = viewModel.village?.fhirId,
+                addressLine2 = viewModel.otherVillage.ifBlank { null },
+                country = "Vanuatu"
             ),
-            identifier = viewModel.identifierList
+            identifier = viewModel.identifierList,
+            patientDeceasedReasonId = null,
+            patientDeceasedReason = viewModel.selectedDeceasedReason.ifBlank { null },
+            appUpdatedDate = Date(),
+            active = true
         )
         PreviewScreen(
             viewModel.patientResponse!!
@@ -288,13 +262,14 @@ private fun PreviewScreenComposable(
     }
 }
 
-private fun setData(patientRegisterDetails: PatientRegister?, viewModel: PatientRegistrationPreviewViewModel) {
+private fun setData(
+    patientRegisterDetails: PatientRegister?,
+    viewModel: PatientRegistrationPreviewViewModel
+) {
     patientRegisterDetails
         ?.run {
             viewModel.firstName = firstName.toString()
-            viewModel.middleName = middleName.toString()
             viewModel.lastName = lastName.toString()
-            viewModel.email = email.toString()
             viewModel.phoneNumber = phoneNumber.toString()
             viewModel.dobDay = dobDay.toString()
             viewModel.dobMonth = dobMonth.toString()
@@ -303,21 +278,22 @@ private fun setData(patientRegisterDetails: PatientRegister?, viewModel: Patient
             viewModel.months = months.toString()
             viewModel.days = days.toString()
             viewModel.gender = gender.toString()
-            viewModel.passportId = passportId.toString()
-            viewModel.voterId = voterId.toString()
-            viewModel.patientId = patientId.toString()
-            viewModel.homeAddress.pincode = homePostalCode.toString()
-            viewModel.homeAddress.state = homeState.toString()
-            viewModel.homeAddress.addressLine1 = homeAddressLine1.toString()
-            viewModel.homeAddress.addressLine2 = homeAddressLine2.toString()
-            viewModel.homeAddress.city = homeCity.toString()
-            viewModel.homeAddress.district = homeDistrict.toString()
-            viewModel.workAddress.pincode = workPostalCode.toString()
-            viewModel.workAddress.state = workState.toString()
-            viewModel.workAddress.addressLine1 = workAddressLine1.toString()
-            viewModel.workAddress.addressLine2 = workAddressLine2.toString()
-            viewModel.workAddress.city = workCity.toString()
-            viewModel.workAddress.district = workDistrict.toString()
+            viewModel.isPersonDeceased = isPersonDeceased ?: 0
+            viewModel.selectedDeceasedReason = personDeceasedReason.toString()
+            viewModel.motherName = motherName.toString()
+            viewModel.fatherName = fatherName.toString()
+            viewModel.spouseName = spouseName.toString()
+
+            viewModel.hospitalId = hospitalId.toString()
+            viewModel.nationalId = nationalId.toString()
+            viewModel.isNationalIdVerified = nationalIdUse == NationalIdUse.OFFICIAL.use
+
+            viewModel.province = province
+            viewModel.areaCouncil = areaCouncil
+            viewModel.island = island
+            viewModel.village = village
+            viewModel.otherVillage = otherVillage.toString()
+            viewModel.postalCode = postalCode.toString()
 
             if (dobAgeSelector == "dob") {
                 viewModel.dob = "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
