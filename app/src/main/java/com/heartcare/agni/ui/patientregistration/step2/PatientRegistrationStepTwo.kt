@@ -174,7 +174,7 @@ private fun NationalIdComposable(
             onClick = {
                 viewModel.isVerifyClicked = true
                 // TODO : add logic to verify national id
-                viewModel.isNationalIdVerified = true
+                viewModel.isNationalIdVerified = false
             },
             modifier = Modifier.weight(1f),
             enabled = viewModel.nationalId.isNotBlank() && !viewModel.isNationalIdVerified
