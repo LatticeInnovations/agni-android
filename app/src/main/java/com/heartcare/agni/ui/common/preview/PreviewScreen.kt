@@ -115,7 +115,7 @@ private fun BasicInformationCard(
             Label(stringResource(R.string.patient_deceased_label))
             Detail(
                 if (patientResponse.patientDeceasedReason.isNullOrBlank()) YesNoEnum.NO.display
-                else YesNoEnum.YES.display
+                else "${YesNoEnum.YES.display} | ${patientResponse.patientDeceasedReason}"
             )
             Spacer(modifier = Modifier.height(10.dp))
             Label(stringResource(R.string.mother_name))
