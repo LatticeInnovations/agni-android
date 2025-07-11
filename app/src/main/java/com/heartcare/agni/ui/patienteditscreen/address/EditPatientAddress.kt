@@ -3,6 +3,7 @@ package com.heartcare.agni.ui.patienteditscreen.address
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -162,13 +163,17 @@ fun EditPatientAddress(
                 Column(
                     modifier = Modifier
                         .verticalScroll(rememberScrollState())
-                        .weight(1f)
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     key(
                         viewModel.provinceList,
                         viewModel.areaCouncilList,
                         viewModel.islandList,
-                        viewModel.villageList
+                        viewModel.villageList,
+                        viewModel.province,
+                        viewModel.areaCouncil,
+                        viewModel.island
                     ) {
                         AddressHierarchy(viewModel)
                     }
