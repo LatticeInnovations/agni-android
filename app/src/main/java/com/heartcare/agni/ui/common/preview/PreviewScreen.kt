@@ -109,7 +109,7 @@ private fun BasicInformationCard(
             if (patientResponse.mobileNumber != null) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Label(stringResource(R.string.phone_number_label))
-                Detail("+91 ${patientResponse.mobileNumber}")
+                Detail("${patientResponse.mobileNumber}")
             }
             Spacer(modifier = Modifier.height(10.dp))
             Label(stringResource(R.string.patient_deceased_label))

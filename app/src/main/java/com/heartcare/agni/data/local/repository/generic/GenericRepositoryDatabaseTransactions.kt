@@ -48,14 +48,14 @@ open class GenericRepositoryDatabaseTransactions(
     ): Long {
         return if (patientGenericEntity != null) {
             genericDao.insertGenericEntity(
-                patientGenericEntity.copy(payload = patientResponse.toJson())
+                patientGenericEntity.copy(payload = patientResponse.copy(appUpdatedDate = Date()).toJson())
             )[0]
         } else {
             genericDao.insertGenericEntity(
                 GenericEntity(
                     id = uuid,
                     patientId = patientResponse.id,
-                    payload = patientResponse.toJson(),
+                    payload = patientResponse.copy(appUpdatedDate = Date()).toJson(),
                     type = GenericTypeEnum.PATIENT,
                     syncType = SyncType.POST
                 )
@@ -717,7 +717,7 @@ open class GenericRepositoryDatabaseTransactions(
             /** Insert Updated Map */
             genericDao.insertGenericEntity(
                 patientGenericPatchEntity.copy(
-                    payload = patientResponse.copy(appUpdatedDate = Date().time).toJson()
+                    payload = patientResponse.copy(appUpdatedDate = Date()).toJson()
                 ))[0]
         } else {
             /** Insert Freshly Patch data */
@@ -725,7 +725,7 @@ open class GenericRepositoryDatabaseTransactions(
                 GenericEntity(
                     id = uuid,
                     patientId = patientFhirId,
-                    payload = patientResponse.copy(appUpdatedDate = Date().time).toJson(),
+                    payload = patientResponse.copy(appUpdatedDate = Date()).toJson(),
                     type = GenericTypeEnum.PATIENT,
                     syncType = SyncType.PATCH
                 )

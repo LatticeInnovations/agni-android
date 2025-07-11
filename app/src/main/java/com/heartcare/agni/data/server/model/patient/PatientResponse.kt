@@ -3,6 +3,7 @@ package com.heartcare.agni.data.server.model.patient
 import android.os.Parcelable
 import androidx.annotation.Keep
 import kotlinx.parcelize.Parcelize
+import java.util.Date
 
 @Keep
 @Parcelize
@@ -24,5 +25,5 @@ data class PatientResponse(
     val patientDeceasedReasonId: Int?,
     val permanentAddress: PatientAddressResponse,
     val spouseName: String?,
-    val appUpdatedDate: Long?
+    val appUpdatedDate: Date?
 ) : Parcelable

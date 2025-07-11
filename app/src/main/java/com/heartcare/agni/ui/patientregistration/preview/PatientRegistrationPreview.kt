@@ -30,7 +30,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.heartcare.agni.R
 import com.heartcare.agni.data.local.enums.NationalIdUse
-import com.heartcare.agni.data.local.model.relation.Relation
 import com.heartcare.agni.data.server.model.patient.PatientAddressResponse
 import com.heartcare.agni.data.server.model.patient.PatientIdentifier
 import com.heartcare.agni.data.server.model.patient.PatientResponse
@@ -41,12 +40,8 @@ import com.heartcare.agni.utils.constants.IdentificationConstants.HOSPITAL_ID
 import com.heartcare.agni.utils.constants.IdentificationConstants.NATIONAL_ID
 import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
 import com.heartcare.agni.utils.constants.NavControllerConstants.SELECTED_INDEX
-import com.heartcare.agni.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toPatientDate
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -163,44 +158,16 @@ fun PatientRegistrationPreview(
                     viewModel.addPatient(
                         viewModel.patientResponse!!
                     )
-                    if (viewModel.fromHouseholdMember) {
-                        // adding relation
-                        viewModel.addRelation(
-                            Relation(
-                                patientId = viewModel.patientFromId,
-                                relativeId = viewModel.relativeId,
-                                relation = getRelationEnumFromString(viewModel.relation)
-                            )
-                        ) {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "patientId",
-                                    viewModel.patientFromId
-                                )
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "relativeId",
-                                    viewModel.relativeId
-                                )
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "relation",
-                                    viewModel.relation
-                                )
-                                navController.navigate(Screen.ConfirmRelationship.route)
-                            }
-
-                        }
-                    } else {
-                        navController.popBackStack(Screen.LandingScreen.route, false)
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            PATIENT,
-                            viewModel.patientResponse!!
-                        )
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            SELECTED_INDEX,
-                            0
-                        )
-                        navController.navigate(Screen.PatientLandingScreen.route)
-                    }
+                    navController.popBackStack(Screen.LandingScreen.route, false)
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        PATIENT,
+                        viewModel.patientResponse!!
+                    )
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        SELECTED_INDEX,
+                        0
+                    )
+                    navController.navigate(Screen.PatientLandingScreen.route)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -267,7 +234,7 @@ private fun PreviewScreenComposable(
             identifier = viewModel.identifierList,
             patientDeceasedReasonId = null,
             patientDeceasedReason = viewModel.selectedDeceasedReason.ifBlank { null },
-            appUpdatedDate = Date().time
+            appUpdatedDate = Date()
         )
         PreviewScreen(
             viewModel.patientResponse!!
