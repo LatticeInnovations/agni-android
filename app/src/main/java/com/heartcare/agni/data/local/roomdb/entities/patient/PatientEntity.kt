@@ -26,5 +26,6 @@ data class PatientEntity(
     val patientDeceasedReason: String?,
     val patientDeceasedReasonId: Int?,
     val spouseName: String?,
-    val active: Boolean?
+    val active: Boolean?,
+    val heartcareId: String?
 )
