@@ -234,7 +234,8 @@ private fun PreviewScreenComposable(
             identifier = viewModel.identifierList,
             patientDeceasedReasonId = null,
             patientDeceasedReason = viewModel.selectedDeceasedReason.ifBlank { null },
-            appUpdatedDate = Date()
+            appUpdatedDate = Date(),
+            active = true
         )
         PreviewScreen(
             viewModel.patientResponse!!

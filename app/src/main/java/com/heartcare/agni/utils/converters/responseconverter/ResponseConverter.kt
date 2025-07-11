@@ -108,6 +108,7 @@ fun PatientResponse.toPatientEntity(): PatientEntity {
         managingOrganization = managingOrganization?.reference,
         patientDeceasedReason = patientDeceasedReason,
         patientDeceasedReasonId = patientDeceasedReasonId,
+        active = active
     )
 }
 
@@ -158,7 +159,8 @@ fun PatientAndIdentifierEntity.toPatientResponse(): PatientResponse {
         generalPractitioner = patientEntity.generalPractitioner?.let { listOf(GeneralPractitioner(reference = it))},
         patientDeceasedReason = patientEntity.patientDeceasedReason,
         patientDeceasedReasonId = patientEntity.patientDeceasedReasonId,
-        appUpdatedDate = null
+        appUpdatedDate = null,
+        active = patientEntity.active
     )
 }
 

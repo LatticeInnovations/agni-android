@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d57e240d31df9e961ebd537ed616fc0f",
+    "identityHash": "f11e7542e5795cd51954f4e4ff71b88b",
     "entities": [
       {
         "tableName": "PatientEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER, `fhirId` TEXT, `fathersName` TEXT, `generalPractitioner` TEXT, `isDeleted` INTEGER, `managingOrganization` TEXT, `mothersName` TEXT NOT NULL, `patientDeceasedReason` TEXT, `patientDeceasedReasonId` INTEGER, `spouseName` TEXT, `village` TEXT, `addressLine2` TEXT, `areaCouncil` TEXT NOT NULL, `country` TEXT NOT NULL, `island` TEXT NOT NULL, `postalCode` TEXT, `province` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `gender` TEXT NOT NULL, `birthDate` INTEGER NOT NULL, `mobileNumber` INTEGER, `fhirId` TEXT, `fathersName` TEXT, `generalPractitioner` TEXT, `isDeleted` INTEGER, `managingOrganization` TEXT, `mothersName` TEXT NOT NULL, `patientDeceasedReason` TEXT, `patientDeceasedReasonId` INTEGER, `spouseName` TEXT, `active` INTEGER, `village` TEXT, `addressLine2` TEXT, `areaCouncil` TEXT NOT NULL, `country` TEXT NOT NULL, `island` TEXT NOT NULL, `postalCode` TEXT, `province` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -88,6 +88,11 @@
             "fieldPath": "spouseName",
             "columnName": "spouseName",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "active",
+            "columnName": "active",
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "permanentAddress.village",
@@ -2568,7 +2573,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd57e240d31df9e961ebd537ed616fc0f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f11e7542e5795cd51954f4e4ff71b88b')"
     ]
   }
 }
