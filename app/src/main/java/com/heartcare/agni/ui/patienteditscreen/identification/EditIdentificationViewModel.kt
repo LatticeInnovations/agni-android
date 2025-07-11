@@ -63,6 +63,7 @@ class EditIdentificationViewModel @Inject constructor(
     fun revertChanges(): Boolean {
         hospitalId = hospitalIdTemp
         nationalId = nationalIdTemp
+        isHospitalIdValid = false
         isNationalIdVerified = isNationalIdVerifiedTemp
         nationalIdUse = nationalIdUseTemp
         isVerifyClicked = isVerifyClickedTemp
