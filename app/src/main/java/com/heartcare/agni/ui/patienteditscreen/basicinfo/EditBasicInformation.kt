@@ -61,9 +61,9 @@ import com.heartcare.agni.ui.common.CustomFilterChip
 import com.heartcare.agni.ui.common.CustomTextField
 import com.heartcare.agni.ui.common.CustomTextFieldWithLength
 import com.heartcare.agni.ui.patientregistration.step1.DeceasedReasonComposable
-import com.heartcare.agni.utils.converters.responseconverter.MonthsList
-import com.heartcare.agni.utils.converters.responseconverter.TimeConverter
+import com.heartcare.agni.utils.converters.responseconverter.MonthsList.getMonthsList
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.ageToPatientDate
+import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.isDOBValid
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toMonthInteger
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toPatientDate
 import com.heartcare.agni.utils.regex.NameRegex.nameRegex
@@ -434,7 +434,7 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
         ) {
             CustomTextField(
                 value = viewModel.dobDay,
-                label = "Day",
+                label = stringResource(id = R.string.day),
                 weight = 0.23f,
                 maxLength = 2,
                 isError = false,
@@ -442,14 +442,17 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
                 KeyboardType.Number,
                 KeyboardCapitalization.None
             ) {
-                setDobValues(viewModel, it)
+                if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobDay = it
+                if (viewModel.dobDay.isNotEmpty()) {
+                    viewModel.monthsList = getMonthsList(viewModel.dobDay)
+                }
             }
             Spacer(modifier = Modifier.width(10.dp))
-            MonthField(viewModel)
+            MonthDropDown(viewModel)
             Spacer(modifier = Modifier.width(10.dp))
             CustomTextField(
                 value = viewModel.dobYear,
-                label = "Year",
+                label = stringResource(id = R.string.year),
                 weight = 1f,
                 maxLength = 4,
                 isError = false,
@@ -460,41 +463,34 @@ fun DobTextField(viewModel: EditBasicInformationViewModel) {
                 if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobYear = it
             }
         }
-        if (validateDate(viewModel)) {
-            Text(
-                text = stringResource(
-                    id = R.string.invalid_date,
-                    "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
-                ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        }
+        DateErrorText(viewModel)
     }
-}
-
-private fun setDobValues(viewModel: EditBasicInformationViewModel, value: String) {
-    if (value.matches(viewModel.onlyNumbers) || value.isEmpty()) viewModel.dobDay = value
-    if (viewModel.dobDay.isNotEmpty()) {
-        viewModel.monthsList = MonthsList.getMonthsList(viewModel.dobDay)
-    }
-}
-
-private fun validateDate(viewModel: EditBasicInformationViewModel): Boolean {
-    return viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
-            && !TimeConverter.isDOBValid(
-        viewModel.dobDay.toInt(),
-        viewModel.dobMonth.toMonthInteger(),
-        viewModel.dobYear.toInt()
-    )
-
 }
 
 @Composable
-private fun MonthField(viewModel: EditBasicInformationViewModel) {
-    var monthExpanded by remember { mutableStateOf(false) }
+private fun DateErrorText(viewModel: EditBasicInformationViewModel) {
+    if (viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
+        && !isDOBValid(
+            viewModel.dobDay.toInt(),
+            viewModel.dobMonth.toMonthInteger(),
+            viewModel.dobYear.toInt()
+        )
+    ) {
+        Text(
+            text = stringResource(
+                id = R.string.invalid_date,
+                "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(start = 8.dp)
+        )
+    }
+}
 
+@Composable
+private fun MonthDropDown(viewModel: EditBasicInformationViewModel) {
+    var monthExpanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth(0.6f)
@@ -506,7 +502,7 @@ private fun MonthField(viewModel: EditBasicInformationViewModel) {
                 viewModel.dobMonth = it
             },
             label = {
-                Text(text = "Month")
+                Text(text = stringResource(id = R.string.month))
             },
             trailingIcon = {
                 Icon(Icons.Default.ArrowDropDown, contentDescription = "")
@@ -554,59 +550,72 @@ fun AgeTextField(viewModel: EditBasicInformationViewModel) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
-        CustomTextField(
-            viewModel.years,
-            label = "Years",
-            0.25F,
-            3,
-            viewModel.isAgeYearsValid,
-            "Enter valid input between 0 to 150.",
-            KeyboardType.Number,
-            KeyboardCapitalization.None
-        ) {
-            setAgeValues(viewModel, it)
-        }
+        AgeYearsComposable(viewModel)
         Spacer(modifier = Modifier.width(15.dp))
-        CustomTextField(
-            viewModel.months,
-            label = "Months",
-            0.36F,
-            2,
-            viewModel.isAgeMonthsValid,
-            "Enter valid input between 1 and 11.",
-            KeyboardType.Number,
-            KeyboardCapitalization.None
-        ) {
-            if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.months = it
-            if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =
-                viewModel.months.toInt() < 1 || viewModel.months.toInt() > 11
-        }
+        AgeMonthsComposable(viewModel)
         Spacer(modifier = Modifier.width(15.dp))
-        CustomTextField(
-            viewModel.days,
-            label = "Days",
-            0.5F,
-            2,
-            viewModel.isAgeDaysValid,
-            "Enter valid input between 1 and 30.",
-            KeyboardType.Number,
-            KeyboardCapitalization.None
-        ) {
-            setDayValue(viewModel, it)
-        }
+        AgeDaysComposable(viewModel)
     }
 }
 
-private fun setDayValue(viewModel: EditBasicInformationViewModel, it: String) {
-    if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
-    if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
-        viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
+@Composable
+private fun AgeDaysComposable(viewModel: EditBasicInformationViewModel) {
+    CustomTextField(
+        viewModel.days,
+        label = stringResource(id = R.string.age_days),
+        0.5F,
+        2,
+        viewModel.isAgeDaysValid,
+        stringResource(
+            id = R.string.age_days_error_msg
+        ),
+        KeyboardType.Number,
+        KeyboardCapitalization.None
+    ) {
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
+        if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
+            viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
+    }
 }
 
-private fun setAgeValues(viewModel: EditBasicInformationViewModel, it: String) {
-    if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
-    if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
-        viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
+@Composable
+private fun AgeMonthsComposable(viewModel: EditBasicInformationViewModel) {
+    CustomTextField(
+        viewModel.months,
+        label = stringResource(id = R.string.age_months),
+        0.36F,
+        2,
+        viewModel.isAgeMonthsValid,
+        stringResource(
+            id = R.string.age_months_error_msg
+        ),
+        KeyboardType.Number,
+        KeyboardCapitalization.None
+    ) {
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.months = it
+        if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =
+            viewModel.months.toInt() < 1 || viewModel.months.toInt() > 11
+    }
+}
+
+@Composable
+private fun AgeYearsComposable(viewModel: EditBasicInformationViewModel) {
+    CustomTextField(
+        viewModel.years,
+        label = stringResource(id = R.string.age_years),
+        0.25F,
+        3,
+        viewModel.isAgeYearsValid,
+        stringResource(
+            id = R.string.age_years_error_msg
+        ),
+        KeyboardType.Number,
+        KeyboardCapitalization.None
+    ) {
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
+        if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
+            viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
+    }
 }
 
 @Composable
@@ -617,19 +626,25 @@ fun GenderComposable(viewModel: EditBasicInformationViewModel) {
             .testTag("genderRow"),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Gender", style = MaterialTheme.typography.bodyLarge)
+        Text(
+            text = stringResource(id = R.string.gender_mandatory),
+            style = MaterialTheme.typography.bodyLarge
+        )
         Spacer(modifier = Modifier.width(20.dp))
-        CustomFilterChip(viewModel.gender, GenderEnum.MALE.value, "Male") {
+        CustomFilterChip(
+            viewModel.gender,
+            GenderEnum.MALE.value,
+            stringResource(id = R.string.male)
+        ) {
             viewModel.gender = it
         }
         Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(viewModel.gender, GenderEnum.FEMALE.value, "Female") {
-            viewModel.gender = it
-        }
-        Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(viewModel.gender, GenderEnum.OTHER.value, "Other") {
+        CustomFilterChip(
+            viewModel.gender,
+            GenderEnum.FEMALE.value,
+            stringResource(id = R.string.female)
+        ) {
             viewModel.gender = it
         }
     }
 }
-

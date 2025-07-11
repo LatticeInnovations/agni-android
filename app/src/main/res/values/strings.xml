@@ -142,18 +142,18 @@ include them in the household</string>
     <string name="last_name_mandatory">Last Name*</string>
     <string name="first_name_error_msg">Name length should be between 3 and 100.</string>
     <string name="email_error_msg">Enter valid email (eg., abc123@gmail.com)</string>
-    <string name="day">Day</string>
-    <string name="month">Month</string>
-    <string name="year">Year</string>
+    <string name="day">Day*</string>
+    <string name="month">Month*</string>
+    <string name="year">Year*</string>
     <string name="error_msg_1_to_31_days">Enter valid day between 1 and 31.</string>
     <string name="error_msg_1_to_29_days">Enter valid day between 1 and 29.</string>
     <string name="year_error_msg">Enter valid year between 1900 and %s</string>
     <string name="enter_your_name">Enter your name</string>
     <string name="enter_your_clinic_name">Enter your clinic name</string>
 
-    <string name="age_days">Days</string>
-    <string name="age_months">Months</string>
-    <string name="age_years">Years</string>
+    <string name="age_days">Days*</string>
+    <string name="age_months">Months*</string>
+    <string name="age_years">Years*</string>
     <string name="age_years_error_msg">Enter valid input between 0 to 150.</string>
     <string name="age_months_error_msg">Enter valid input between 1 and 11.</string>
     <string name="age_days_error_msg">Enter valid input between 1 and 30.</string>

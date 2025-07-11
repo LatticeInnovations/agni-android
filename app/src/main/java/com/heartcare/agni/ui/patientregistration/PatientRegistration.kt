@@ -85,7 +85,7 @@ fun PatientRegistration(
         }
     }
     BackHandler {
-        if (viewModel.currentStep == 1) navController.navigateUp()
+        if (viewModel.currentStep > 1) viewModel.currentStep -= 1
         else viewModel.openDialog = true
     }
     Scaffold(
@@ -117,8 +117,7 @@ fun PatientRegistration(
                 ),
                 actions = {
                     IconButton(onClick = {
-                        if (viewModel.currentStep == 1) navController.navigateUp()
-                        else viewModel.openDialog = true
+                        viewModel.openDialog = true
                     }) {
                         Icon(Icons.Default.Clear, contentDescription = "CLEAR_ICON")
                     }
