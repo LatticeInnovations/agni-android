@@ -1205,9 +1205,11 @@ class SyncRepositoryImpl @Inject constructor(
             if (listOfGenericEntity.isEmpty()) ApiEmptyResponse()
             else {
                 ApiResponseConverter.convert(
-                    patientApiService.patchListOfChanges(
-                        PATIENT,
-                        listOfGenericEntity.map { it.payload.fromJson() })
+                    patientApiService.patchPatient(
+                        listOfGenericEntity.map {
+                            it.payload.fromJson<LinkedTreeMap<*, *>>()
+                                .mapToObject(PatientResponse::class.java)!!
+                        })
                 ).run {
                     when (this) {
                         is ApiEndResponse -> {
