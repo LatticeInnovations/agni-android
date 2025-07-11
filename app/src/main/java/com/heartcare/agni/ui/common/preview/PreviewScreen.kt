@@ -168,7 +168,7 @@ private fun IdentificationCard(
                     ) {
                         Column {
                             Label(stringResource(R.string.national_id))
-                            Detail(identifier.identifierNumber)
+                            Detail(identifier.identifierNumber.map { "X" }.joinToString(""))
                         }
                         val text: String
                         val icon: Painter
