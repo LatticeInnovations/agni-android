@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import com.heartcare.agni.base.viewmodel.BaseViewModel
 import com.heartcare.agni.data.local.repository.generic.GenericRepository
 import com.heartcare.agni.data.local.repository.patient.PatientRepository
-import com.heartcare.agni.data.local.repository.vaccination.ImmunizationRecommendationRepository
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toMonthInteger
@@ -18,7 +17,6 @@ import com.heartcare.agni.utils.regex.AgeRegex
 import com.heartcare.agni.utils.regex.DobRegex
 import com.heartcare.agni.utils.regex.OnlyNumberRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,8 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class EditBasicInformationViewModel @Inject constructor(
     val patientRepository: PatientRepository,
-    val genericRepository: GenericRepository,
-    val immunizationRecommendationRepository: ImmunizationRecommendationRepository
+    val genericRepository: GenericRepository
 ) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
 
@@ -75,10 +72,8 @@ class EditBasicInformationViewModel @Inject constructor(
     var motherNameTemp by mutableStateOf("")
     var fatherNameTemp by mutableStateOf("")
     var spouseNameTemp by mutableStateOf("")
-    var isPersonDeceasedTemp by mutableStateOf(0)
+    var isPersonDeceasedTemp by mutableIntStateOf(0)
     var selectedDeceasedReasonTemp by mutableStateOf("")
-
-    var showDOBWarning by mutableStateOf(false)
 
     var monthsList = mutableStateListOf(
         "January", "February", "March", "April", "May", "June",
@@ -197,14 +192,4 @@ class EditBasicInformationViewModel @Inject constructor(
             }
         }
     }
-
-    internal fun clearOldImmunizationRecommendation(
-        patientId: String,
-        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
-    ) {
-        viewModelScope.launch(ioDispatcher) {
-            immunizationRecommendationRepository.clearImmunizationRecommendationOfPatient(patientId)
-        }
-    }
-
 }
