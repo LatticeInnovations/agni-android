@@ -19,7 +19,7 @@ data class PatientResponse(
     val isDeleted: Boolean?,
     val lastName: String,
     val managingOrganization: ManagingOrganization?,
-    val mobileNumber: Long?,
+    val mobileNumber: String?,
     val mothersName: String,
     val patientDeceasedReason: String?,
     val patientDeceasedReasonId: Int?,

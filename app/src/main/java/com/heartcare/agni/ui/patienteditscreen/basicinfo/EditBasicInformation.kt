@@ -347,7 +347,7 @@ private fun handleBasicInfoNavigation(
         patientResponse!!.copy(
             firstName = viewModel.firstName,
             lastName = viewModel.lastName,
-            mobileNumber = viewModel.phoneNumber.ifBlank { null }?.toLong(),
+            mobileNumber = viewModel.phoneNumber.ifBlank { null },
             birthDate = if (viewModel.dobAgeSelector == "dob") "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}".toPatientDate()
             else ageToPatientDate(
                 viewModel.years.toIntOrNull() ?: 0,
@@ -378,7 +378,7 @@ fun HandleLaunchedEffect(
             patientResponse?.run {
                 viewModel.firstName = firstName
                 viewModel.lastName = lastName
-                viewModel.phoneNumber = mobileNumber?.toString() ?: ""
+                viewModel.phoneNumber = mobileNumber ?: ""
                 if (viewModel.dobRegex.matches(birthDate)) {
                     viewModel.dobAgeSelector = "dob"
                     val (day, month, year) = viewModel.splitDOB(birthDate)

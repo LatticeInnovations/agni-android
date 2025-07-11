@@ -58,6 +58,7 @@ import com.heartcare.agni.ui.common.BottomNavBar
 import com.heartcare.agni.ui.common.appointmentsfab.AppointmentsFab
 import com.heartcare.agni.utils.constants.IdentificationConstants.NATIONAL_ID
 import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
+import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT_SAVED
 import com.heartcare.agni.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.heartcare.agni.utils.constants.PhotoUploadViewType.PHOTO_VIEW_TYPE
 import com.heartcare.agni.utils.converters.responseconverter.NameConverter
@@ -87,6 +88,12 @@ fun PatientLandingScreen(
             viewModel.patient?.fhirId?.let { patientFhirId ->
                 viewModel.downloadPrescriptions(
                     patientFhirId
+                )
+            }
+            if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(PATIENT_SAVED) == true){
+                navController.previousBackStackEntry?.savedStateHandle?.remove<Boolean>(PATIENT_SAVED)
+                snackbarHostState.showSnackbar(
+                    message = context.getString(R.string.patient_registered_successfully)
                 )
             }
         }

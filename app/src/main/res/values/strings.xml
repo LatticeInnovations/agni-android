@@ -514,4 +514,5 @@ include them in the household</string>
     <string name="village_required">Village required</string>
     <string name="undo_all">Undo all</string>
     <string name="patient_profile">Patient profile</string>
+    <string name="patient_registered_successfully">Patient registered successfully</string>
 </resources>

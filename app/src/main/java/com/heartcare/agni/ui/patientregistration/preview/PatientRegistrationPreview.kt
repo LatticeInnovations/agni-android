@@ -39,6 +39,7 @@ import com.heartcare.agni.ui.patientregistration.model.PatientRegister
 import com.heartcare.agni.utils.constants.IdentificationConstants.HOSPITAL_ID
 import com.heartcare.agni.utils.constants.IdentificationConstants.NATIONAL_ID
 import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
+import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT_SAVED
 import com.heartcare.agni.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toPatientDate
@@ -167,6 +168,10 @@ fun PatientRegistrationPreview(
                         SELECTED_INDEX,
                         0
                     )
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        PATIENT_SAVED,
+                        true
+                    )
                     navController.navigate(Screen.PatientLandingScreen.route)
                 },
                 modifier = Modifier
@@ -214,7 +219,7 @@ private fun PreviewScreenComposable(
             lastName = viewModel.lastName,
             birthDate = viewModel.dob.toPatientDate(),
             gender = viewModel.gender,
-            mobileNumber = viewModel.phoneNumber.ifBlank { null }?.toLong(),
+            mobileNumber = viewModel.phoneNumber.ifBlank { null },
             mothersName = viewModel.motherName,
             fathersName = viewModel.fatherName.ifBlank { null },
             spouseName = viewModel.spouseName.ifBlank { null },

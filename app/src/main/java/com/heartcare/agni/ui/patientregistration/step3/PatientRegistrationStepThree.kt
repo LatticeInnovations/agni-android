@@ -117,7 +117,7 @@ fun PatientRegistrationStepThree(
                 .padding(top = 15.dp),
             enabled = viewModel.addressInfoValidation()
         ) {
-            Text(text = stringResource(id = R.string.submit_and_preview))
+            Text(text = stringResource(id = R.string.preview))
         }
     }
 }
