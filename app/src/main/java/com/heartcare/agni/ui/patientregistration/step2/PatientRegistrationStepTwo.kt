@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -147,7 +148,7 @@ private fun NationalIdComposable(
             label = {
                 Text(stringResource(R.string.national_id))
             },
-            modifier = Modifier.weight(3f),
+            modifier = Modifier.weight(2.5f),
             supportingText = {
                 NationalIdSupportingText(viewModel)
             },
@@ -170,7 +171,7 @@ private fun NationalIdComposable(
                 keyboardType = KeyboardType.Number
             )
         )
-        Button(
+        FilledTonalButton(
             onClick = {
                 viewModel.isVerifyClicked = true
                 // TODO : add logic to verify national id
