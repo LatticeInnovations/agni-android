@@ -26,5 +26,6 @@ data class PatientResponse(
     val permanentAddress: PatientAddressResponse,
     val spouseName: String?,
     val appUpdatedDate: Date?,
-    val active: Boolean?
+    val active: Boolean?,
+    val heartcareId: String?
 ) : Parcelable

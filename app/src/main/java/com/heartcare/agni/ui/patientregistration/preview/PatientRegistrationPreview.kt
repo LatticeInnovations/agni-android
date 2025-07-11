@@ -240,7 +240,8 @@ private fun PreviewScreenComposable(
             patientDeceasedReasonId = null,
             patientDeceasedReason = viewModel.selectedDeceasedReason.ifBlank { null },
             appUpdatedDate = Date(),
-            active = true
+            active = true,
+            heartcareId = null
         )
         PreviewScreen(
             viewModel.patientResponse!!
