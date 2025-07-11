@@ -333,6 +333,7 @@ fun PatientDeceasedComposable(viewModel: EditBasicInformationViewModel) {
             YesNoEnum.NO.display
         ) {
             viewModel.isPersonDeceased = it.toInt()
+            viewModel.selectedDeceasedReason = ""
         }
     }
 }

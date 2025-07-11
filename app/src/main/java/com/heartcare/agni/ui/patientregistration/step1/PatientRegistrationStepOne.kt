@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -544,12 +545,22 @@ fun DeceasedReasonComposable(
 
     var otherReason by remember { mutableStateOf("") }
     var isOtherError by remember { mutableStateOf(false) }
+    var isLaunched by remember { mutableStateOf(false) }
 
-    selectedReason.split(",").forEach { reason ->
-        if (getDeceasedReasonList().contains(reason)) selectedDeceasedReason.add(reason)
-        else if (reason.isNotBlank()) {
-            selectedDeceasedReason.add(DeceasedReason.OTHERS.reason)
-            otherReason = reason
+    LaunchedEffect(isLaunched) {
+        if (!isLaunched) {
+            selectedReason.split(",").forEach { reason ->
+                if (getDeceasedReasonList().contains(reason)) selectedDeceasedReason.add(reason)
+                else if (reason.isNotBlank()) {
+                    if (otherReason.isBlank()) {
+                        selectedDeceasedReason.add(DeceasedReason.OTHERS.reason)
+                        otherReason = reason
+                    } else {
+                        otherReason += ",$reason"
+                    }
+                }
+            }
+            isLaunched = true
         }
     }
     ModalBottomSheet(
@@ -558,6 +569,7 @@ fun DeceasedReasonComposable(
         },
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         modifier = Modifier
+            .statusBarsPadding()
             .navigationBarsPadding(),
         dragHandle = null
     ) {
@@ -614,7 +626,7 @@ fun DeceasedReasonComposable(
                     keyboardType = KeyboardType.Text,
                     keyboardCapitalization = KeyboardCapitalization.Sentences
                 ) {
-                    otherReason = it.trim()
+                    otherReason = it
                     isOtherError = selectedDeceasedReason.contains(DeceasedReason.OTHERS.reason)
                             && otherReason.isBlank()
                 }
@@ -633,7 +645,7 @@ fun DeceasedReasonComposable(
                     onClick = {
                         if (selectedDeceasedReason.contains(DeceasedReason.OTHERS.reason)) {
                             selectedDeceasedReason.remove(DeceasedReason.OTHERS.reason)
-                            selectedDeceasedReason.add(otherReason)
+                            selectedDeceasedReason.add(otherReason.trim())
                         }
                         updatedReasons(selectedDeceasedReason.joinToString(","))
                     },
