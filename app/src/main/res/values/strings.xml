@@ -515,4 +515,27 @@ include them in the household</string>
     <string name="undo_all">Undo all</string>
     <string name="patient_profile">Patient profile</string>
     <string name="patient_registered_successfully">Patient registered successfully</string>
+    <string name="enter_user_id_and_password">Enter your user id and password</string>
+    <string name="user_id">User ID</string>
+    <string name="user_id_required_error_msg">User ID is required</string>
+    <string name="enter_valid_user_id">Enter a valid User ID</string>
+    <string name="password">Password</string>
+    <string name="password_validation_error_msg">Password must have 8–15 characters, with at least one special, uppercase, and lowercase character</string>
+    <string name="password_required_error_msg">Password is required</string>
+    <string name="forgot_password">Forgot password</string>
+    <string name="continue_text">Continue</string>
+    <string name="new_password">New password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="create_new_password">Create new password</string>
+    <string name="create_pin">Create your m-pin</string>
+    <string name="pin_info">This pin will be required for login</string>
+    <string name="save_pin">Save m-pin</string>
+    <string name="enter_email_number">Enter the registered email or mobile number</string>
+    <string name="enter_valid_phone_number_or_email">Enter valid phone number or email address</string>
+    <string name="enter_pin">Enter your m-pin to login</string>
+    <string name="reset_pin">Reset your m-pin</string>
+    <string name="forgot_pin">Forgot m-pin</string>
+    <string name="login">Login</string>
+    <string name="reset_password">Reset password</string>
 </resources>
