@@ -1,6 +1,10 @@
 package com.heartcare.agni.navigation
 
 sealed class Screen(val route: String) {
+    data object UserIdPasswordScreen: Screen("user_id_password_screen")
+    data object CreatePasswordScreen: Screen("create_new_password_screen")
+    data object PinScreen: Screen("pin_screen")
+    data object ForgotPasswordScreen: Screen("forgot_password_screen")
     data object PhoneEmailScreen : Screen("phone_email_screen")
     data object SignUpPhoneEmailScreen : Screen("sign_up_phone_email_screen")
     data object OtpScreen : Screen("otp_screen")
