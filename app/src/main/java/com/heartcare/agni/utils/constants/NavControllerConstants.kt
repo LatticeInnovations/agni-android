@@ -14,4 +14,6 @@ object NavControllerConstants {
     const val VACCINE_ERROR_TYPE = "vaccine_error_type"
     const val VACCINE = "vaccine_error_type"
     const val VACCINE_ADDED = "vaccine_added"
+    const val PIN_SCREEN = "pin_screen_flag"
+    const val PASSWORD_SCREEN = "password_screen_flag"
 }
