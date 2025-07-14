@@ -47,6 +47,7 @@
     <string name="district">District</string>
     <string name="district_error_msg">Please enter your district.</string>
 
+    <string name="province">Province</string>
     <string name="province_mandatory">Province*</string>
 
     <string name="email">Email</string>
@@ -502,6 +503,7 @@ include them in the household</string>
     <string name="specify_reason">Please specify a valid reason</string>
     <string name="unverified">Unverified</string>
     <string name="area_council_mandatory">Area council*</string>
+    <string name="area_council">Area council</string>
     <string name="island_mandatory">Island*</string>
     <string name="village">Village</string>
     <string name="other_province_mandatory">Other province*</string>
@@ -538,4 +540,6 @@ include them in the household</string>
     <string name="forgot_pin">Forgot m-pin</string>
     <string name="login">Login</string>
     <string name="reset_password">Reset password</string>
+    <string name="heartcare_id">Heartcare ID</string>
+    <string name="risk_category">Risk category</string>
 </resources>

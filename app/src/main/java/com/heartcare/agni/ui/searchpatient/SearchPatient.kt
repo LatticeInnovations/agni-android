@@ -22,7 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.heartcare.agni.R
 import com.heartcare.agni.data.local.model.search.SearchParameters
@@ -33,7 +33,7 @@ import com.heartcare.agni.navigation.Screen
 @Composable
 fun SearchPatient(
     navController: NavController,
-    viewModel: SearchPatientViewModel = viewModel()
+    viewModel: SearchPatientViewModel = hiltViewModel()
 ) {
     LaunchedEffect(viewModel.isLaunched) {
         if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
@@ -82,7 +82,7 @@ fun SearchPatient(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                SearchPatientForm(searchPatientViewModel = viewModel)
+                SearchPatientForm(viewModel)
             }
         },
         floatingActionButton = {
@@ -122,8 +122,7 @@ fun SearchPatient(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 30.dp),
-                enabled = !(viewModel.isNameValid || viewModel.isPatientIdValid || viewModel.address.isPostalCodeValid)
+                    .padding(start = 30.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.search),
