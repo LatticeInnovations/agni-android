@@ -27,6 +27,7 @@ class SearchPatientViewModel @Inject constructor(
     val maxHeartcareIdLength = 8
     val maxHospitalIdLength = 6
     val maxNationalIdLength = 6
+    val maxNameLength = 100
 
     val select = LevelResponse(
         fhirId = "",

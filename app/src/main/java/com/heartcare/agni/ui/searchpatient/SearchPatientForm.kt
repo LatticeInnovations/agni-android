@@ -175,18 +175,18 @@ private fun AgeBoxRow(searchPatientViewModel: SearchPatientViewModel) {
 }
 
 @Composable
-private fun PatientNameComposable(searchPatientViewModel: SearchPatientViewModel) {
+private fun PatientNameComposable(viewModel: SearchPatientViewModel) {
     CustomTextField(
-        value = searchPatientViewModel.patientName,
+        value = viewModel.patientName,
         label = stringResource(id = R.string.patient_name),
         weight = 1f,
-        maxLength = 100,
+        maxLength = viewModel.maxNameLength,
         isError = false,
         error = "",
         keyboardType = KeyboardType.Text,
         keyboardCapitalization = KeyboardCapitalization.Words
     ) {
-        if (it.length <= 100) searchPatientViewModel.patientName = it.trim()
+        viewModel.patientName = it
     }
 }
 
