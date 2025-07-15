@@ -90,17 +90,17 @@ fun SearchPatient(
                 onClick = {
                     val searchParameters = SearchParameters(
                         name = viewModel.patientName.ifEmpty { null },
-                        patientId = viewModel.patientId.ifEmpty { null },
                         minAge = viewModel.minAge.toInt(),
                         maxAge = viewModel.maxAge.toInt(),
-                        addressLine1 = viewModel.address.addressLine1.ifEmpty { null },
-                        addressLine2 = viewModel.address.addressLine2.ifEmpty { null },
-                        postalCode = viewModel.address.pincode.ifEmpty { null },
-                        state = viewModel.address.state.ifEmpty { null },
-                        district = viewModel.address.district.ifEmpty { null },
-                        city = viewModel.address.city.ifEmpty { null },
                         lastFacilityVisit = viewModel.visitSelected,
-                        gender = viewModel.gender.ifEmpty { null }
+                        riskCategory = viewModel.riskCategory.ifBlank { null },
+                        heartcareId = viewModel.heartcareId.ifBlank { null },
+                        hospitalId = viewModel.hospitalId.ifBlank { null },
+                        nationalId = viewModel.nationalId.ifBlank { null },
+                        provinceId = viewModel.province.fhirId.ifBlank { null },
+                        areaCouncilId = viewModel.areaCouncil.fhirId.ifBlank { null },
+                        gender = viewModel.gender.ifBlank { null },
+                        fhirId = null
                     )
                     if (viewModel.fromHouseholdMember) {
                         navController.currentBackStackEntry?.savedStateHandle?.set(

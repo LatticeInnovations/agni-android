@@ -9,5 +9,6 @@ enum class RiskCategoryEnum(val label: String, val riskRange: IntRange) {
 
     companion object {
         fun getRiskCategoryList(): List<String> = RiskCategoryEnum.entries.map { it.label }
+        fun getRiskRange(label: String): IntRange = RiskCategoryEnum.entries.first { it.label == label }.riskRange
     }
 }

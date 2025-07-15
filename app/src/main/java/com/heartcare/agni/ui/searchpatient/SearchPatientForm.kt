@@ -229,7 +229,8 @@ private fun AgeRangeSlider(viewModel: SearchPatientViewModel) {
             viewModel.range = it
             viewModel.minAge = it.start.toInt().toString()
             viewModel.maxAge = it.endInclusive.toInt().toString()
-        }
+        },
+        valueRange = 0f..100f
     )
 }
 

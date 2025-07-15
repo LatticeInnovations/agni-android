@@ -166,13 +166,6 @@ fun PatientAndIdentifierEntity.toPatientResponse(): PatientResponse {
     )
 }
 
-fun PatientResponse.toPatientAndIdentifierEntityResponse(): PatientAndIdentifierEntity {
-    return PatientAndIdentifierEntity(
-        patientEntity = toPatientEntity(),
-        identifiers = toListOfIdentifierEntity()
-    )
-}
-
 fun IdentifierEntity.toPatientIdentifier(): PatientIdentifier {
     return PatientIdentifier(
         identifierType = identifierType,
