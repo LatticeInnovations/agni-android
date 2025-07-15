@@ -10,18 +10,17 @@ import com.heartcare.agni.data.local.enums.LevelsEnum
 import com.heartcare.agni.data.local.repository.levels.LevelRepository
 import com.heartcare.agni.data.server.model.levels.LevelResponse
 import com.heartcare.agni.data.server.model.patient.PatientResponse
-import com.heartcare.agni.ui.patientregistration.step3.Address
+import com.heartcare.agni.di.dispatcher.IoDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchPatientViewModel @Inject constructor(
-    private val levelRepository: LevelRepository
+    private val levelRepository: LevelRepository,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BaseViewModel() {
-    val onlyNumbers = Regex("^\\d+\$")
     var isLaunched by mutableStateOf(false)
 
     val maxHeartcareIdLength = 8
@@ -43,7 +42,7 @@ class SearchPatientViewModel @Inject constructor(
     var fromHouseholdMember by mutableStateOf(false)
     var patientFrom by mutableStateOf<PatientResponse?>(null)
     var patientName by mutableStateOf("")
-    var patientId by mutableStateOf("")
+
     var gender by mutableStateOf("")
     var minAge by mutableStateOf("0")
     var maxAge by mutableStateOf("100")
@@ -63,18 +62,14 @@ class SearchPatientViewModel @Inject constructor(
     var areaCouncil by mutableStateOf(select)
     var areaCouncilList: List<LevelResponse> by mutableStateOf(emptyList())
 
-    var address = Address()
-
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             provinceList = listOf(select) + levelRepository.getLevels(levelType = LevelsEnum.PROVINCE.levelType)
             getAreaCouncilList()
         }
     }
 
-    fun getAreaCouncilList(
-        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
-    ) {
+    fun getAreaCouncilList() {
         viewModelScope.launch(ioDispatcher) {
             areaCouncilList = listOf(select) + levelRepository.getLevels(
                 levelType = LevelsEnum.AREA_COUNCIL.levelType,

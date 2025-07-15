@@ -46,6 +46,7 @@ import com.heartcare.agni.data.local.enums.RiskCategoryEnum.Companion.getRiskCat
 import com.heartcare.agni.ui.common.CustomFilterChip
 import com.heartcare.agni.ui.common.CustomTextField
 import com.heartcare.agni.ui.patientregistration.step3.DropDownComposable
+import com.heartcare.agni.utils.regex.OnlyNumberRegex.onlyNumbers
 
 @Composable
 fun SearchPatientForm(
@@ -148,27 +149,27 @@ fun SearchPatientForm(
 }
 
 @Composable
-private fun AgeBoxRow(searchPatientViewModel: SearchPatientViewModel) {
+private fun AgeBoxRow(viewModel: SearchPatientViewModel) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        AgeBox(searchPatientViewModel.minAge, "Min") {
-            if (it.isEmpty()) searchPatientViewModel.minAge = it
-            else if (it.matches(searchPatientViewModel.onlyNumbers) && it.toInt() in 0..100)
-                searchPatientViewModel.minAge = it
-            searchPatientViewModel.updateRange(
-                searchPatientViewModel.minAge,
-                searchPatientViewModel.maxAge
+        AgeBox(viewModel.minAge, "Min") {
+            if (it.isEmpty()) viewModel.minAge = it
+            else if (it.matches(onlyNumbers) && it.toInt() in 0..100)
+                viewModel.minAge = it
+            viewModel.updateRange(
+                viewModel.minAge,
+                viewModel.maxAge
             )
         }
-        AgeBox(searchPatientViewModel.maxAge, "Max") {
-            if (it.isEmpty()) searchPatientViewModel.maxAge = it
-            else if (it.matches(searchPatientViewModel.onlyNumbers) && it.toInt() in 0..100)
-                searchPatientViewModel.maxAge = it
-            searchPatientViewModel.updateRange(
-                searchPatientViewModel.minAge,
-                searchPatientViewModel.maxAge
+        AgeBox(viewModel.maxAge, "Max") {
+            if (it.isEmpty()) viewModel.maxAge = it
+            else if (it.matches(onlyNumbers) && it.toInt() in 0..100)
+                viewModel.maxAge = it
+            viewModel.updateRange(
+                viewModel.minAge,
+                viewModel.maxAge
             )
         }
     }
