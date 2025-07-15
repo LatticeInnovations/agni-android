@@ -33,6 +33,8 @@ import com.heartcare.agni.data.server.enums.RegisterTypeEnum
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.data.server.repository.authentication.AuthenticationRepository
 import com.heartcare.agni.data.server.repository.signup.SignUpRepository
+import com.heartcare.agni.di.dispatcher.DefaultDispatcher
+import com.heartcare.agni.di.dispatcher.IoDispatcher
 import com.heartcare.agni.service.sync.SyncService
 import com.heartcare.agni.service.workmanager.request.WorkRequestBuilders
 import com.heartcare.agni.service.workmanager.utils.Delay
@@ -47,8 +49,8 @@ import com.heartcare.agni.utils.converters.server.responsemapper.ApiEndResponse
 import com.heartcare.agni.utils.converters.server.responsemapper.ApiErrorResponse
 import com.heartcare.agni.utils.network.CheckNetwork.isInternetAvailable
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -72,7 +74,9 @@ class LandingScreenViewModel @Inject constructor(
     private val signUpRepository: SignUpRepository,
     private val authenticationRepository: AuthenticationRepository,
     private val fhirAppDatabase: FhirAppDatabase,
-    private val riskPredictionChartRepository: RiskPredictionChartRepository
+    private val riskPredictionChartRepository: RiskPredictionChartRepository,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : BaseAndroidViewModel(application) {
 
     private val workRequestBuilders: WorkRequestBuilders by lazy { (application as FhirApp).workRequestBuilder }
@@ -80,7 +84,8 @@ class LandingScreenViewModel @Inject constructor(
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)
-    val items = listOf("My Patients", "Queue", "Profile")
+
+    val headings = listOf("My Patients", "Schedule", "Profile")
     var isSearching by mutableStateOf(false)
     var isSearchingByQuery by mutableStateOf(false)
     var isSearchResult by mutableStateOf(false)
@@ -129,7 +134,7 @@ class LandingScreenViewModel @Inject constructor(
 
     init {
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val data = mutableListOf<RiskPredictionCharts>()
             val inputStream = application.assets.open("RiskPredictionChartSouthAsia.csv") // Assuming the file is in the assets folder
             val reader = BufferedReader(InputStreamReader(inputStream))
@@ -178,7 +183,7 @@ class LandingScreenViewModel @Inject constructor(
                         syncIcon = R.drawable.sync_completed_icon
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_COMPLETED.message
                         setSyncDisplayData()
-                        CoroutineScope(Dispatchers.IO).launch {
+                        CoroutineScope(ioDispatcher).launch {
                             delay(20000)
                             hideSyncStatus()
                         }
@@ -189,7 +194,7 @@ class LandingScreenViewModel @Inject constructor(
                         syncStatus = WorkerStatus.FAILED
                         syncStatusMessage = SyncStatusMessageEnum.SYNCING_FAILED.message
                         setSyncDisplayData()
-                        CoroutineScope(Dispatchers.IO).launch {
+                        CoroutineScope(ioDispatcher).launch {
                             delay(20000)
                             hideSyncStatus()
                         }
@@ -212,7 +217,7 @@ class LandingScreenViewModel @Inject constructor(
 
         //Medication Sync
         if (isInternetAvailable(getApplication<Application>().applicationContext)) {
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch(ioDispatcher) {
                 syncService.downloadMedication { isErrorReceived, errorMsg ->
                     if (isErrorReceived) {
                         logoutUser = true
@@ -223,12 +228,12 @@ class LandingScreenViewModel @Inject constructor(
         }
 
         // Trigger Periodic Sync Worker
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             workRequestBuilders.setPeriodicTriggerWorker()
         }
 
         // Trigger Periodic Update Appointment No Show Status Worker
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             workRequestBuilders.setPeriodicAppointmentNoShowStatusUpdateWorker(
                 null,
                 Delay(
@@ -239,7 +244,7 @@ class LandingScreenViewModel @Inject constructor(
         }
 
         // Trigger Periodic Update Appointment Completed Status Worker
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             workRequestBuilders.setPeriodicAppointmentCompletedStatusUpdateWorker(
                 null,
                 Delay(
@@ -258,7 +263,7 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     internal fun syncData() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             Sync.getWorkerInfo<TriggerWorkerPeriodicImpl>(getApplication<FhirApp>().applicationContext)
                 .collectLatest { workInfo ->
                     if (workInfo != null && workInfo.state == WorkInfo.State.ENQUEUED) {
@@ -289,7 +294,7 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     private fun getPatientList() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             patientList = patientRepository.getPatientList().asFlow().cachedIn(viewModelScope)
             isLoading = false
         }
@@ -308,19 +313,19 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     internal fun getPreviousSearches() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             previousSearchList = searchRepository.getRecentPatientSearches().toMutableList()
         }
     }
 
     internal fun insertRecentSearch() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             searchRepository.insertRecentPatientSearch(searchQuery.trim())
         }
     }
 
     private fun searchPatient(searchParameters: SearchParameters) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             var finalSearchList = searchRepository.getSearchList()
             if (!searchParameters.lastFacilityVisit.isNullOrBlank() && searchParameters.lastFacilityVisit != LastVisit.NOT_APPLICABLE.label) {
                 finalSearchList = getSearchListWithLastVisited(
@@ -342,7 +347,7 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     private fun searchPatientByQuery() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             searchResultList = searchRepository.searchPatientByQuery(
                 searchQuery.trim(),
                 searchRepository.getSearchList()
@@ -367,7 +372,7 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     internal fun logout() {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(defaultDispatcher) {
             WorkManager.getInstance(getApplication<Application>().applicationContext)
                 .cancelAllWork().await().also {
                     (getApplication<FhirApp>().applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler).cancelAll()
@@ -377,7 +382,7 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     internal fun sendDeleteAccountOtp(navigate: (Boolean) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             signUpRepository.verification(
                 userEmail.ifBlank { userPhoneNo },
                 RegisterTypeEnum.DELETE
@@ -393,7 +398,7 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     internal fun validateOtp(navigate: (Boolean) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             signUpRepository.otpVerification(
                 userEmail.ifBlank { userPhoneNo },
                 otpEntered.toInt(),
@@ -433,7 +438,7 @@ class LandingScreenViewModel @Inject constructor(
     }
 
     internal fun resendOTP(resent: (Boolean) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             signUpRepository.verification(
                 userEmail.ifBlank { userPhoneNo },
                 RegisterTypeEnum.DELETE

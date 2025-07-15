@@ -2,6 +2,7 @@ package com.heartcare.agni.ui.landingscreen
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -63,7 +64,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -96,7 +96,7 @@ fun LandingScreen(
     val focusRequester = remember { FocusRequester() }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val activity = LocalContext.current as Activity
+    val activity = LocalActivity.current as Activity
     val dateScrollState = rememberLazyListState()
     BackHandler(enabled = true) {
         when (viewModel.selectedIndex) {
@@ -216,7 +216,8 @@ fun LandingScreen(
                     TopAppBar(
                         title = {
                             Text(
-                                text = if (viewModel.isLoading) "Searching..." else "${viewModel.size} matches found",
+                                text = if (viewModel.isLoading) stringResource(R.string.searching)
+                                else stringResource(R.string.results_count, viewModel.size),
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.testTag("SEARCH_TITLE_TEXT")
                             )
@@ -249,7 +250,7 @@ fun LandingScreen(
                     TopAppBar(
                         title = {
                             Text(
-                                text = viewModel.items[viewModel.selectedIndex],
+                                text = viewModel.headings[viewModel.selectedIndex],
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.testTag("HEADING_TAG")
                             )
@@ -286,7 +287,7 @@ fun LandingScreen(
                     CenterAlignedTopAppBar(
                         title = {
                             Text(
-                                text = viewModel.items[viewModel.selectedIndex],
+                                text = viewModel.headings[viewModel.selectedIndex],
                                 style = MaterialTheme.typography.titleLarge
                             )
                         },
@@ -432,7 +433,8 @@ fun LandingScreen(
         SearchView(viewModel, focusRequester, navController)
         val keyboardController = LocalSoftwareKeyboardController.current
         Box(
-            modifier = Modifier.matchParentSize()
+            modifier = Modifier
+                .matchParentSize()
                 .statusBarsPadding()
         ) {
             AnimatedVisibility(
@@ -505,13 +507,13 @@ fun LandingScreen(
         }
         Box(
             modifier =
-            if (!viewModel.showStatusChangeLayout) Modifier
-                .matchParentSize()
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
-            else Modifier
-                .matchParentSize()
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
-                .clickable(enabled = false) { },
+                if (!viewModel.showStatusChangeLayout) Modifier
+                    .matchParentSize()
+                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
+                else Modifier
+                    .matchParentSize()
+                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+                    .clickable(enabled = false) { },
             contentAlignment = Alignment.BottomCenter
         ) {
             AnimatedVisibility(
@@ -587,14 +589,14 @@ fun PreviousSearches(listItem: String, viewModel: LandingScreenViewModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(14.dp)
             .clickable {
                 viewModel.isSearchResult = true
                 viewModel.isSearching = false
                 viewModel.isSearchingByQuery = true
                 viewModel.searchQuery = listItem
                 viewModel.populateList()
-            },
+            }
+            .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(

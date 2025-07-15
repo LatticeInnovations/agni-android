@@ -89,4 +89,9 @@
         <item>mg/dl</item>
         <item>mmol/L</item>
     </string-array>
+    <string-array name="bottom_nav">
+        <item>Patient list</item>
+        <item>Schedule</item>
+        <item>Profile</item>
+    </string-array>
 </resources>

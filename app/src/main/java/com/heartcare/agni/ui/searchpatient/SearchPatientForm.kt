@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,12 +42,16 @@ import androidx.compose.ui.unit.dp
 import com.heartcare.agni.R
 import com.heartcare.agni.data.local.enums.GenderEnum
 import com.heartcare.agni.data.local.enums.LastVisit.Companion.getLastVisitList
-import com.heartcare.agni.ui.common.AddressComposable
+import com.heartcare.agni.data.local.enums.RiskCategoryEnum.Companion.getRiskCategoryList
 import com.heartcare.agni.ui.common.CustomFilterChip
 import com.heartcare.agni.ui.common.CustomTextField
+import com.heartcare.agni.ui.patientregistration.step3.DropDownComposable
+import com.heartcare.agni.utils.regex.OnlyNumberRegex.onlyNumbers
 
 @Composable
-fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
+fun SearchPatientForm(
+    viewModel: SearchPatientViewModel
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,111 +61,141 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
         Column(
             modifier = Modifier
                 .padding(horizontal = 15.dp)
-                .testTag("ROOT_LAYOUT")
+                .testTag("ROOT_LAYOUT"),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
                 text = stringResource(id = R.string.search_helper_text),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(modifier = Modifier.height(15.dp))
-            GenderComposable(viewModel = searchPatientViewModel)
-            Spacer(modifier = Modifier.height(20.dp))
-            PatientNameComposable(searchPatientViewModel)
-            Spacer(modifier = Modifier.height(15.dp))
-            PatientIdComposable(searchPatientViewModel)
-            Spacer(modifier = Modifier.height(20.dp))
+            PatientNameComposable(viewModel)
+            RiskCategoryComposable(viewModel)
+            CustomTextField(
+                value = viewModel.heartcareId,
+                label = stringResource(R.string.heartcare_id),
+                weight = 1f,
+                maxLength = viewModel.maxHeartcareIdLength,
+                isError = false,
+                error = "",
+                keyboardType = KeyboardType.Text,
+                keyboardCapitalization = KeyboardCapitalization.None,
+                updateValue = {
+                    viewModel.heartcareId = it
+                }
+            )
+            CustomTextField(
+                value = viewModel.hospitalId,
+                label = stringResource(R.string.hospital_id),
+                weight = 1f,
+                maxLength = viewModel.maxHospitalIdLength,
+                isError = false,
+                error = "",
+                keyboardType = KeyboardType.Text,
+                keyboardCapitalization = KeyboardCapitalization.None,
+                updateValue = {
+                    viewModel.hospitalId = it
+                }
+            )
+            CustomTextField(
+                value = viewModel.nationalId,
+                label = stringResource(R.string.national_id),
+                weight = 1f,
+                maxLength = viewModel.maxNationalIdLength,
+                isError = false,
+                error = "",
+                keyboardType = KeyboardType.Text,
+                keyboardCapitalization = KeyboardCapitalization.None,
+                updateValue = {
+                    viewModel.nationalId = it
+                }
+            )
+            DropDownComposable(
+                value = viewModel.province.name,
+                updateValue = {
+                    viewModel.province = it
+                    viewModel.areaCouncil = viewModel.select
+                    viewModel.getAreaCouncilList()
+                },
+                label = stringResource(id = R.string.province),
+                dropdownList = viewModel.provinceList,
+                errorText = stringResource(R.string.province_required),
+                isMandatory = false,
+                isEnabled = true
+            )
+            DropDownComposable(
+                value = viewModel.areaCouncil.name,
+                updateValue = {
+                    viewModel.areaCouncil = it
+                },
+                label = stringResource(id = R.string.area_council),
+                dropdownList = viewModel.areaCouncilList,
+                errorText = stringResource(R.string.area_council_required),
+                isMandatory = false,
+                isEnabled = true
+            )
             Text(
                 text = stringResource(id = R.string.select_age_range),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(15.dp))
-            AgeBoxRow(searchPatientViewModel)
-            Spacer(modifier = Modifier.height(10.dp))
-            AgeRangeSlider(viewModel = searchPatientViewModel)
-            Spacer(modifier = Modifier.height(10.dp))
-            VisitDropdown(searchPatientViewModel)
-            Spacer(modifier = Modifier.height(30.dp))
-            AddressComposable(
-                label = "Address",
-                address = searchPatientViewModel.address,
-                isSearching = true
-            )
-            Spacer(
-                modifier = Modifier
-                    .height(50.dp)
-                    .testTag("END_OF_SCREEN")
-            )
+            AgeBoxRow(viewModel)
+            AgeRangeSlider(viewModel)
+            GenderComposable(viewModel)
+            VisitDropdown(viewModel)
+            Spacer(Modifier.height(64.dp))
         }
     }
-
 }
 
 @Composable
-private fun AgeBoxRow(searchPatientViewModel: SearchPatientViewModel) {
+private fun AgeBoxRow(viewModel: SearchPatientViewModel) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        AgeBox(searchPatientViewModel.minAge, "Min") {
-            if (it.isEmpty()) searchPatientViewModel.minAge = it
-            else if (it.matches(searchPatientViewModel.onlyNumbers) && it.toInt() in 0..100)
-                searchPatientViewModel.minAge = it
-            searchPatientViewModel.updateRange(
-                searchPatientViewModel.minAge,
-                searchPatientViewModel.maxAge
+        AgeBox(viewModel.minAge, "Min") {
+            if (it.isEmpty()) viewModel.minAge = it
+            else if (it.matches(onlyNumbers) && it.toInt() in 0..100)
+                viewModel.minAge = it
+            viewModel.updateRange(
+                viewModel.minAge,
+                viewModel.maxAge
             )
         }
-        AgeBox(searchPatientViewModel.maxAge, "Max") {
-            if (it.isEmpty()) searchPatientViewModel.maxAge = it
-            else if (it.matches(searchPatientViewModel.onlyNumbers) && it.toInt() in 0..100)
-                searchPatientViewModel.maxAge = it
-            searchPatientViewModel.updateRange(
-                searchPatientViewModel.minAge,
-                searchPatientViewModel.maxAge
+        AgeBox(viewModel.maxAge, "Max") {
+            if (it.isEmpty()) viewModel.maxAge = it
+            else if (it.matches(onlyNumbers) && it.toInt() in 0..100)
+                viewModel.maxAge = it
+            viewModel.updateRange(
+                viewModel.minAge,
+                viewModel.maxAge
             )
         }
     }
 }
 
 @Composable
-private fun PatientIdComposable(searchPatientViewModel: SearchPatientViewModel) {
+private fun PatientNameComposable(viewModel: SearchPatientViewModel) {
     CustomTextField(
-        value = searchPatientViewModel.patientId,
-        label = stringResource(id = R.string.patient_id),
-        weight = 1f,
-        maxLength = 12, searchPatientViewModel.isPatientIdValid,
-        stringResource(id = R.string.patient_id_error_msg),
-        KeyboardType.Text,
-        KeyboardCapitalization.Characters
-    ) {
-        searchPatientViewModel.patientId = it
-        searchPatientViewModel.isPatientIdValid =
-            searchPatientViewModel.patientId.isNotEmpty() && searchPatientViewModel.patientId.length < 2
-    }
-}
-
-@Composable
-private fun PatientNameComposable(searchPatientViewModel: SearchPatientViewModel) {
-    CustomTextField(
-        value = searchPatientViewModel.patientName,
+        value = viewModel.patientName,
         label = stringResource(id = R.string.patient_name),
         weight = 1f,
-        maxLength = 100, searchPatientViewModel.isNameValid,
-        stringResource(id = R.string.patient_name_error_msg),
-        KeyboardType.Text,
-        KeyboardCapitalization.Words
-    ) {
-        if (it.length <= 150) searchPatientViewModel.patientName = it
-        searchPatientViewModel.isNameValid =
-            searchPatientViewModel.patientName.isNotEmpty() && searchPatientViewModel.patientName.length < 3
+        maxLength = viewModel.maxNameLength,
+        isError = false,
+        error = "",
+        keyboardType = KeyboardType.Text,
+        keyboardCapitalization = KeyboardCapitalization.Words
+    ) { updatedValue ->
+        if (updatedValue.all { it.isLetter() || it.isWhitespace() }) {
+            viewModel.patientName = updatedValue
+        }
     }
 }
 
 
 @Composable
-fun AgeBox(age: String, label: String, updateAge: (String) -> Unit) {
+private fun AgeBox(age: String, label: String, updateAge: (String) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -190,9 +225,8 @@ fun AgeBox(age: String, label: String, updateAge: (String) -> Unit) {
 }
 
 @Composable
-fun AgeRangeSlider(viewModel: SearchPatientViewModel) {
+private fun AgeRangeSlider(viewModel: SearchPatientViewModel) {
     RangeSlider(
-        modifier = Modifier.testTag("age range slider"),
         value = viewModel.range,
         onValueChange = {
             viewModel.range = it
@@ -204,7 +238,7 @@ fun AgeRangeSlider(viewModel: SearchPatientViewModel) {
 }
 
 @Composable
-fun GenderComposable(viewModel: SearchPatientViewModel) {
+private fun GenderComposable(viewModel: SearchPatientViewModel) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -218,30 +252,24 @@ fun GenderComposable(viewModel: SearchPatientViewModel) {
             selector = viewModel.gender,
             selected = GenderEnum.MALE.value,
             label = stringResource(id = R.string.male)
-        ) {
-            viewModel.gender = it
+        ) { updatedGender ->
+            if (viewModel.gender == updatedGender) viewModel.gender = ""
+            else viewModel.gender = updatedGender
         }
         Spacer(modifier = Modifier.width(15.dp))
         CustomFilterChip(
             selector = viewModel.gender,
             selected = GenderEnum.FEMALE.value,
             label = stringResource(id = R.string.female)
-        ) {
-            viewModel.gender = it
-        }
-        Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(
-            selector = viewModel.gender,
-            selected = GenderEnum.OTHER.value,
-            label = stringResource(id = R.string.other)
-        ) {
-            viewModel.gender = it
+        ) { updatedGender ->
+            if (viewModel.gender == updatedGender) viewModel.gender = ""
+            else viewModel.gender = updatedGender
         }
     }
 }
 
 @Composable
-fun VisitDropdown(viewModel: SearchPatientViewModel) {
+private fun VisitDropdown(viewModel: SearchPatientViewModel) {
     var expanded by remember { mutableStateOf(false) }
     Box {
         OutlinedTextField(
@@ -292,3 +320,36 @@ fun VisitDropdown(viewModel: SearchPatientViewModel) {
         }
     }
 }
+
+@Composable
+private fun RiskCategoryComposable(
+    viewModel: SearchPatientViewModel
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.risk_category),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            getRiskCategoryList().forEach { riskCategory ->
+                CustomFilterChip(
+                    isSelected = viewModel.riskCategory.contains(riskCategory),
+                    label = riskCategory,
+                    updateSelected = { selectedRisk ->
+                        if (viewModel.riskCategory.contains(selectedRisk)) {
+                            viewModel.riskCategory = viewModel.riskCategory - listOf(riskCategory)
+                        } else {
+                            viewModel.riskCategory = viewModel.riskCategory + listOf(riskCategory)
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
+

@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.unit.dp
 import com.heartcare.agni.R
 
@@ -28,7 +29,7 @@ fun BottomNavBar(
                 R.drawable.list_alt,
                 R.drawable.person_icon
             )
-        listOf("My Patients", "Queue", "Profile").forEachIndexed { index, item ->
+        stringArrayResource(R.array.bottom_nav).forEachIndexed { index, item ->
             NavigationBarItem(
                 icon = {
                     Icon(

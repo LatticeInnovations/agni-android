@@ -7,16 +7,16 @@ import kotlinx.parcelize.Parcelize
 @Keep
 @Parcelize
 data class SearchParameters(
-    val patientId: String?,
     val name: String?,
+    val fhirId: String?,
+    val riskCategory: List<String>?,
+    val heartcareId: String?,
+    val hospitalId: String?,
+    val nationalId: String?,
+    val provinceId: String?,
+    val areaCouncilId: String?,
     val minAge: Int?,
     val maxAge: Int?,
     val gender: String?,
-    val lastFacilityVisit: String?,
-    val addressLine1: String?,
-    val city: String?,
-    val district: String?,
-    val state: String?,
-    val postalCode: String?,
-    val addressLine2: String?
+    val lastFacilityVisit: String?
 ) : Parcelable

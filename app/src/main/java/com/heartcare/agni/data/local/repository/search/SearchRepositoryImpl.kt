@@ -111,8 +111,8 @@ class SearchRepositoryImpl @Inject constructor(
         return if (query.contains("[0-9]".toRegex())) {
             searchPatients(
                 SearchParameters(
-                    query,
                     null,
+                    query,
                     null,
                     null,
                     null,
@@ -129,8 +129,8 @@ class SearchRepositoryImpl @Inject constructor(
         } else {
             searchPatients(
                 SearchParameters(
-                    null,
                     query,
+                    null,
                     null,
                     null,
                     null,
@@ -235,7 +235,8 @@ class SearchRepositoryImpl @Inject constructor(
         patientId: String,
         address: PatientAddressResponse
     ): List<PatientResponse> {
-        var suggestionsList = listOf<PatientResponse>()
+        val suggestionsList = listOf<PatientResponse>()
+        /*** Household member feature is not included
         getSuggestedMembers(
             patientId, SearchParameters(
                 null,
@@ -256,6 +257,7 @@ class SearchRepositoryImpl @Inject constructor(
                 list.subList(0, 5)
             } else list
         }
+        ***/
         return suggestionsList
     }
 
@@ -295,6 +297,7 @@ class SearchRepositoryImpl @Inject constructor(
         }
 
     }
+
     override suspend fun getRecentSymptomAndDiagnosisSearches(searchTypeEnum: SearchTypeEnum): List<String> {
         return searchDao.getMostFrequentSearches(searchTypeEnum)
     }

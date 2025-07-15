@@ -1,7 +1,10 @@
 package com.heartcare.agni.utils.search
 
+import com.heartcare.agni.data.local.enums.RiskCategoryEnum.Companion.getRiskRange
 import com.heartcare.agni.data.local.model.search.SearchParameters
 import com.heartcare.agni.data.local.roomdb.entities.patient.PatientAndIdentifierEntity
+import com.heartcare.agni.utils.constants.IdentificationConstants.HOSPITAL_ID
+import com.heartcare.agni.utils.constants.IdentificationConstants.NATIONAL_ID
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toAge
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
@@ -19,6 +22,31 @@ object Search {
                     gender == it.patientEntity.gender
                 }.toMutableList()
             }
+            if (!provinceId.isNullOrBlank()) {
+                finalList = finalList.filter {
+                    it.patientEntity.permanentAddress.province == provinceId
+                }.toMutableList()
+            }
+            if (!areaCouncilId.isNullOrBlank()) {
+                finalList = finalList.filter {
+                    it.patientEntity.permanentAddress.areaCouncil == areaCouncilId
+                }.toMutableList()
+            }
+            if (minAge != null && maxAge != null) {
+                finalList = finalList.filter {
+                    (minAge <= it.patientEntity.birthDate.toAge()) && (it.patientEntity.birthDate.toAge() <= maxAge)
+                }.toMutableList()
+            }
+            if (!riskCategory.isNullOrEmpty()) {
+                val combinedRiskSet = riskCategory
+                    .flatMap { getRiskRange(it) }
+                    .toSet()
+
+                finalList = finalList.filter {
+                    val latestCvd = it.cvdList.maxByOrNull { cvd -> cvd.createdOn }
+                    latestCvd?.risk in combinedRiskSet
+                }.toMutableList()
+            }
             if (!name.isNullOrBlank()) {
                 finalList = finalList.filter {
                     val fullName =
@@ -29,64 +57,35 @@ object Search {
                     ) > matchingRatio
                 }.toMutableList()
             }
-            if (!patientId.isNullOrBlank()) {
+            if (!fhirId.isNullOrBlank()) {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
-                        patientId,
+                        fhirId,
                         it.patientEntity.fhirId ?: ""
                     ) > matchingRatio
                 }.toMutableList()
             }
-            if (minAge != null && maxAge != null) {
-                finalList = finalList.filter {
-                    (minAge <= it.patientEntity.birthDate.toAge()) && (it.patientEntity.birthDate.toAge() <= maxAge)
-                }.toMutableList()
-            }
-            if (!addressLine1.isNullOrBlank()) {
+            if (!heartcareId.isNullOrBlank()) {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
-                        addressLine1,
-                        it.patientEntity.permanentAddress.village
+                        heartcareId,
+                        it.patientEntity.heartcareId ?: ""
                     ) > matchingRatio
                 }.toMutableList()
             }
-            if (!city.isNullOrBlank()) {
+            if (!hospitalId.isNullOrBlank()) {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
-                        city,
-                        it.patientEntity.permanentAddress.areaCouncil
+                        hospitalId,
+                        it.identifiers.firstOrNull { id -> id.identifierType == HOSPITAL_ID }?.identifierNumber ?: ""
                     ) > matchingRatio
                 }.toMutableList()
             }
-            if (!district.isNullOrBlank()) {
+            if (!nationalId.isNullOrBlank()) {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
-                        district,
-                        it.patientEntity.permanentAddress.island
-                    ) > matchingRatio
-                }.toMutableList()
-            }
-            if (!state.isNullOrBlank()) {
-                finalList = finalList.filter {
-                    FuzzySearch.weightedRatio(
-                        state,
-                        it.patientEntity.permanentAddress.province
-                    ) > matchingRatio
-                }.toMutableList()
-            }
-            if (!postalCode.isNullOrBlank()) {
-                finalList = finalList.filter {
-                    FuzzySearch.weightedRatio(
-                        postalCode,
-                        it.patientEntity.permanentAddress.postalCode
-                    ) > matchingRatio
-                }.toMutableList()
-            }
-            if (!addressLine2.isNullOrBlank()) {
-                finalList = finalList.filter {
-                    FuzzySearch.weightedRatio(
-                        addressLine2,
-                        it.patientEntity.permanentAddress.addressLine2 ?: ""
+                        nationalId,
+                        it.identifiers.firstOrNull { id -> id.identifierType == NATIONAL_ID }?.identifierNumber ?: ""
                     ) > matchingRatio
                 }.toMutableList()
             }
