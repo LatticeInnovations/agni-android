@@ -542,4 +542,6 @@ include them in the household</string>
     <string name="reset_password">Reset password</string>
     <string name="heartcare_id">Heartcare ID</string>
     <string name="risk_category">Risk category</string>
+    <string name="searching">Searching…</string>
+    <string name="results_count">%d results</string>
 </resources>

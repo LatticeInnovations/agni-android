@@ -216,7 +216,8 @@ fun LandingScreen(
                     TopAppBar(
                         title = {
                             Text(
-                                text = if (viewModel.isLoading) "Searching..." else "${viewModel.size} matches found",
+                                text = if (viewModel.isLoading) stringResource(R.string.searching)
+                                else stringResource(R.string.results_count, viewModel.size),
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.testTag("SEARCH_TITLE_TEXT")
                             )
@@ -432,7 +433,8 @@ fun LandingScreen(
         SearchView(viewModel, focusRequester, navController)
         val keyboardController = LocalSoftwareKeyboardController.current
         Box(
-            modifier = Modifier.matchParentSize()
+            modifier = Modifier
+                .matchParentSize()
                 .statusBarsPadding()
         ) {
             AnimatedVisibility(
@@ -505,13 +507,13 @@ fun LandingScreen(
         }
         Box(
             modifier =
-            if (!viewModel.showStatusChangeLayout) Modifier
-                .matchParentSize()
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
-            else Modifier
-                .matchParentSize()
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
-                .clickable(enabled = false) { },
+                if (!viewModel.showStatusChangeLayout) Modifier
+                    .matchParentSize()
+                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0f))
+                else Modifier
+                    .matchParentSize()
+                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+                    .clickable(enabled = false) { },
             contentAlignment = Alignment.BottomCenter
         ) {
             AnimatedVisibility(
