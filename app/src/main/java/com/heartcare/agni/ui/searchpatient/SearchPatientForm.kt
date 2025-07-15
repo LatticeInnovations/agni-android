@@ -252,16 +252,18 @@ private fun GenderComposable(viewModel: SearchPatientViewModel) {
             selector = viewModel.gender,
             selected = GenderEnum.MALE.value,
             label = stringResource(id = R.string.male)
-        ) {
-            viewModel.gender = it
+        ) { updatedGender ->
+            if (viewModel.gender == updatedGender) viewModel.gender = ""
+            else viewModel.gender = updatedGender
         }
         Spacer(modifier = Modifier.width(15.dp))
         CustomFilterChip(
             selector = viewModel.gender,
             selected = GenderEnum.FEMALE.value,
             label = stringResource(id = R.string.female)
-        ) {
-            viewModel.gender = it
+        ) { updatedGender ->
+            if (viewModel.gender == updatedGender) viewModel.gender = ""
+            else viewModel.gender = updatedGender
         }
     }
 }
