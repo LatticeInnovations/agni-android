@@ -9,7 +9,7 @@ import kotlinx.parcelize.Parcelize
 data class SearchParameters(
     val name: String?,
     val fhirId: String?,
-    val riskCategory: String?,
+    val riskCategory: List<String>?,
     val heartcareId: String?,
     val hospitalId: String?,
     val nationalId: String?,

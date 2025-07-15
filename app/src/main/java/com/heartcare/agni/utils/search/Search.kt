@@ -37,9 +37,14 @@ object Search {
                     (minAge <= it.patientEntity.birthDate.toAge()) && (it.patientEntity.birthDate.toAge() <= maxAge)
                 }.toMutableList()
             }
-            if (!riskCategory.isNullOrBlank()) {
+            if (!riskCategory.isNullOrEmpty()) {
+                val combinedRiskSet = riskCategory
+                    .flatMap { getRiskRange(it) }
+                    .toSet()
+
                 finalList = finalList.filter {
-                    it.cvdList.maxByOrNull { cvd -> cvd.createdOn }?.risk in getRiskRange(riskCategory)
+                    val latestCvd = it.cvdList.maxByOrNull { cvd -> cvd.createdOn }
+                    latestCvd?.risk in combinedRiskSet
                 }.toMutableList()
             }
             if (!name.isNullOrBlank()) {

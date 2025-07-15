@@ -338,15 +338,18 @@ private fun RiskCategoryComposable(
         ) {
             getRiskCategoryList().forEach { riskCategory ->
                 CustomFilterChip(
-                    selector = viewModel.riskCategory,
-                    selected = riskCategory,
+                    isSelected = viewModel.riskCategory.contains(riskCategory),
                     label = riskCategory,
-                    updateSelected = { updatedRisk ->
-                        if (viewModel.riskCategory == updatedRisk) viewModel.riskCategory = ""
-                        else viewModel.riskCategory = updatedRisk
+                    updateSelected = { selectedRisk ->
+                        if (viewModel.riskCategory.contains(selectedRisk)) {
+                            viewModel.riskCategory = viewModel.riskCategory - listOf(riskCategory)
+                        } else {
+                            viewModel.riskCategory = viewModel.riskCategory + listOf(riskCategory)
+                        }
                     }
                 )
             }
         }
     }
 }
+

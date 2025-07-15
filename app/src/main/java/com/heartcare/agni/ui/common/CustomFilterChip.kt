@@ -38,3 +38,31 @@ fun CustomFilterChip(
         )
     )
 }
+
+@Composable
+fun CustomFilterChip(
+    isSelected: Boolean,
+    label: String,
+    updateSelected: (String) -> Unit
+) {
+    FilterChip(
+        selected = isSelected,
+        onClick = { updateSelected(label) },
+        label = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge
+            )
+        },
+        colors = FilterChipDefaults.filterChipColors(
+            labelColor = MaterialTheme.colorScheme.outline,
+            selectedLabelColor = MaterialTheme.colorScheme.primary
+        ),
+        border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = isSelected,
+            selectedBorderColor = MaterialTheme.colorScheme.primary,
+            selectedBorderWidth = 1.dp
+        )
+    )
+}

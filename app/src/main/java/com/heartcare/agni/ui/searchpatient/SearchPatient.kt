@@ -93,7 +93,7 @@ fun SearchPatient(
                         minAge = viewModel.minAge.toInt(),
                         maxAge = viewModel.maxAge.toInt(),
                         lastFacilityVisit = viewModel.visitSelected,
-                        riskCategory = viewModel.riskCategory.ifBlank { null },
+                        riskCategory = viewModel.riskCategory.ifEmpty { null },
                         heartcareId = viewModel.heartcareId.ifBlank { null },
                         hospitalId = viewModel.hospitalId.ifBlank { null },
                         nationalId = viewModel.nationalId.ifBlank { null },

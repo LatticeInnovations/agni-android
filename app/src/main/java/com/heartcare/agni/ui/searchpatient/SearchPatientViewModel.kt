@@ -48,7 +48,7 @@ class SearchPatientViewModel @Inject constructor(
     var maxAge by mutableStateOf("100")
     var visitSelected by mutableStateOf(getLastVisitList()[0])
 
-    var riskCategory by mutableStateOf("")
+    var riskCategory by mutableStateOf(listOf<String>())
 
     var range by mutableStateOf(minAge.toFloat()..maxAge.toFloat())
 
