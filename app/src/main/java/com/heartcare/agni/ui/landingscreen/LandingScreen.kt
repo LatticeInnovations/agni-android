@@ -67,7 +67,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -250,7 +249,7 @@ fun LandingScreen(
                     TopAppBar(
                         title = {
                             Text(
-                                text = stringArrayResource(R.array.bottom_nav)[viewModel.selectedIndex],
+                                text = viewModel.headings[viewModel.selectedIndex],
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.testTag("HEADING_TAG")
                             )
@@ -287,7 +286,7 @@ fun LandingScreen(
                     CenterAlignedTopAppBar(
                         title = {
                             Text(
-                                text = stringArrayResource(R.array.bottom_nav)[viewModel.selectedIndex],
+                                text = viewModel.headings[viewModel.selectedIndex],
                                 style = MaterialTheme.typography.titleLarge
                             )
                         },

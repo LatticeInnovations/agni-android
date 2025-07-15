@@ -84,6 +84,8 @@ class LandingScreenViewModel @Inject constructor(
 
     var isLaunched by mutableStateOf(false)
     var isLoading by mutableStateOf(true)
+
+    val headings = listOf("My Patients", "Schedule", "Profile")
     var isSearching by mutableStateOf(false)
     var isSearchingByQuery by mutableStateOf(false)
     var isSearchResult by mutableStateOf(false)
