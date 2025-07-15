@@ -186,8 +186,10 @@ private fun PatientNameComposable(viewModel: SearchPatientViewModel) {
         error = "",
         keyboardType = KeyboardType.Text,
         keyboardCapitalization = KeyboardCapitalization.Words
-    ) {
-        viewModel.patientName = it
+    ) { updatedValue ->
+        if (updatedValue.all { it.isLetter() || it.isWhitespace() }) {
+            viewModel.patientName = updatedValue
+        }
     }
 }
 

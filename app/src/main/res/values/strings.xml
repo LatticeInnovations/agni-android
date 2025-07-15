@@ -100,7 +100,7 @@ include them in the household</string>
     <string name="send_me_otp">Send me OTP</string>
     <string name="advanced_search">Advanced Search</string>
     <string name="search">Search</string>
-    <string name="search_helper_text">Search using any of the field below</string>
+    <string name="search_helper_text">Search using any of the fields</string>
 
     <string name="patient_name">Patient Name</string>
     <string name="patient_name_error_msg">Name length should be between 3 and 100.</string>
