@@ -2,6 +2,7 @@ package com.heartcare.agni.ui.landingscreen
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -63,10 +64,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -96,7 +97,7 @@ fun LandingScreen(
     val focusRequester = remember { FocusRequester() }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val activity = LocalContext.current as Activity
+    val activity = LocalActivity.current as Activity
     val dateScrollState = rememberLazyListState()
     BackHandler(enabled = true) {
         when (viewModel.selectedIndex) {
@@ -249,7 +250,7 @@ fun LandingScreen(
                     TopAppBar(
                         title = {
                             Text(
-                                text = viewModel.items[viewModel.selectedIndex],
+                                text = stringArrayResource(R.array.bottom_nav)[viewModel.selectedIndex],
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.testTag("HEADING_TAG")
                             )
@@ -286,7 +287,7 @@ fun LandingScreen(
                     CenterAlignedTopAppBar(
                         title = {
                             Text(
-                                text = viewModel.items[viewModel.selectedIndex],
+                                text = stringArrayResource(R.array.bottom_nav)[viewModel.selectedIndex],
                                 style = MaterialTheme.typography.titleLarge
                             )
                         },
@@ -587,14 +588,14 @@ fun PreviousSearches(listItem: String, viewModel: LandingScreenViewModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(14.dp)
             .clickable {
                 viewModel.isSearchResult = true
                 viewModel.isSearching = false
                 viewModel.isSearchingByQuery = true
                 viewModel.searchQuery = listItem
                 viewModel.populateList()
-            },
+            }
+            .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
