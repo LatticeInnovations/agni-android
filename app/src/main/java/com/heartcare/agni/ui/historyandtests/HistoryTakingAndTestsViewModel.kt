@@ -10,4 +10,6 @@ class HistoryTakingAndTestsViewModel: ViewModel() {
     var isLaunched by mutableStateOf(false)
 
     var patient by mutableStateOf<PatientResponse?>(null)
+
+    var priorDxList by mutableStateOf(listOf("", "", ""))
 }

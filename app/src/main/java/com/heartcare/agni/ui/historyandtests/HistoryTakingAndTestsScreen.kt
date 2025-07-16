@@ -41,6 +41,7 @@ import androidx.navigation.NavController
 import com.heartcare.agni.R
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.ui.common.ScrollableTabRowComposable
+import com.heartcare.agni.ui.historyandtests.priordx.PriorDxView
 import com.heartcare.agni.ui.theme.Black
 import com.heartcare.agni.ui.theme.White
 import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
@@ -111,7 +112,10 @@ fun HistoryTakingAndTestsScreen(
                     HorizontalPager(
                         state = pagerState
                     ) { index ->
-                        Text(tabs[index])
+                        when (index) {
+                            0 -> PriorDxView(viewModel)
+                            else -> Text(tabs[index])
+                        }
                     }
                 }
             }
