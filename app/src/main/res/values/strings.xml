@@ -549,4 +549,11 @@ include them in the household</string>
     <string name="national_id_unverified">National ID unverified</string>
     <string name="national_id_unverified_info">We couldn’t verify this ID with official records.</string>
     <string name="history_taking_and_tests">History taking and tests</string>
+    <string name="add_prior_dx">Add prior diagnosis</string>
+    <string name="back">Back</string>
+    <string name="add_allergies">Add allergies</string>
+    <string name="add_medication">Add medication</string>
+    <string name="add_family_history">Add family history</string>
+    <string name="add_risk_factor">Add risk factor</string>
+    <string name="add_tobacco_cessation">Add tobaccoo cessation</string>
 </resources>

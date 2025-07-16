@@ -94,4 +94,12 @@
         <item>Schedule</item>
         <item>Profile</item>
     </string-array>
+    <string-array name="history_and_tests_tabs">
+        <item>Prior Dx</item>
+        <item>Medication</item>
+        <item>Family history</item>
+        <item>Allergies</item>
+        <item>Risk factors</item>
+        <item>Tobacco cessation</item>
+    </string-array>
 </resources>
