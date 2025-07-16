@@ -544,4 +544,8 @@ include them in the household</string>
     <string name="risk_category">Risk category</string>
     <string name="searching">Searching…</string>
     <string name="results_count">%d results</string>
+    <string name="national_id_verified">National ID verified</string>
+    <string name="national_id_verified_info">This ID has been successfully verified with official records.</string>
+    <string name="national_id_unverified">National ID unverified</string>
+    <string name="national_id_unverified_info">We couldn’t verify this ID with official records.</string>
 </resources>

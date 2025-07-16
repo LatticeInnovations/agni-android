@@ -51,6 +51,9 @@ class PatientLandingScreenViewModel @Inject constructor(
     var isFabSelected by mutableStateOf(false)
     var showAllSlotsBookedDialog by mutableStateOf(false)
 
+    var showIdStatusDialog by mutableStateOf(false)
+    var isNationalIdVerified by mutableStateOf(false)
+
     var cvdRisk by mutableStateOf("")
 
     var selectedIndex by mutableIntStateOf(0)
