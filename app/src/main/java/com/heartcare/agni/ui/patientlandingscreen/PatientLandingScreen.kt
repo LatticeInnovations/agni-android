@@ -55,6 +55,7 @@ import com.heartcare.agni.data.local.enums.PhotoUploadTypeEnum
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.navigation.Screen
 import com.heartcare.agni.ui.common.BottomNavBar
+import com.heartcare.agni.ui.common.CustomDialog
 import com.heartcare.agni.ui.common.appointmentsfab.AppointmentsFab
 import com.heartcare.agni.utils.constants.IdentificationConstants.NATIONAL_ID
 import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
@@ -81,6 +82,8 @@ fun PatientLandingScreen(
                 navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(
                     PATIENT
                 )
+            viewModel.isNationalIdVerified =
+                viewModel.patient?.identifier?.firstOrNull { it.identifierType == NATIONAL_ID }?.use == NationalIdUse.OFFICIAL.use
             viewModel.selectedIndex =
                 navController.previousBackStackEntry?.savedStateHandle?.get<Int>(
                     SELECTED_INDEX
@@ -164,6 +167,23 @@ fun PatientLandingScreen(
                 viewModel.showAllSlotsBookedDialog = true
             } else viewModel.isFabSelected = !viewModel.isFabSelected
         }
+    }
+    if (viewModel.showIdStatusDialog) {
+        CustomDialog(
+            canBeDismissed = true,
+            title = if (viewModel.isNationalIdVerified) stringResource(R.string.national_id_verified)
+            else stringResource(R.string.national_id_unverified),
+            text = if (viewModel.isNationalIdVerified) stringResource(R.string.national_id_verified_info)
+            else stringResource(R.string.national_id_unverified_info),
+            dismissBtnText = null,
+            confirmBtnText = stringResource(R.string.okay),
+            dismiss = {
+                viewModel.showIdStatusDialog = false
+            },
+            confirm = {
+                viewModel.showIdStatusDialog = false
+            }
+        )
     }
 }
 
@@ -385,8 +405,7 @@ private fun AppBarComposable(
                     (if (viewModel.patient?.fhirId.isNullOrEmpty()) "" else " · ${viewModel.patient?.fhirId}")
             Column {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = NameConverter.getFullName(
@@ -398,15 +417,21 @@ private fun AppBarComposable(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    viewModel.patient?.identifier?.firstOrNull { it.identifierType == NATIONAL_ID }?.let { nationalId ->
-                        Icon(
-                            painter = if (nationalId.use == NationalIdUse.OFFICIAL.use) painterResource(R.drawable.check_circle_outline)
-                            else painterResource(R.drawable.info),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
+                    viewModel.patient?.identifier?.firstOrNull { it.identifierType == NATIONAL_ID }
+                        ?.let {
+                            IconButton(
+                                onClick = {
+                                    viewModel.showIdStatusDialog = true
+                                }
+                            ) {
+                                Icon(
+                                    painter = if (viewModel.isNationalIdVerified) painterResource(R.drawable.check_circle_outline)
+                                    else painterResource(R.drawable.info),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
                 }
                 Text(
                     text = subTitle,
