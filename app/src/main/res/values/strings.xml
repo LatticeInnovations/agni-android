@@ -548,4 +548,5 @@ include them in the household</string>
     <string name="national_id_verified_info">This ID has been successfully verified with official records.</string>
     <string name="national_id_unverified">National ID unverified</string>
     <string name="national_id_unverified_info">We couldn’t verify this ID with official records.</string>
+    <string name="history_taking_and_tests">History taking and tests</string>
 </resources>

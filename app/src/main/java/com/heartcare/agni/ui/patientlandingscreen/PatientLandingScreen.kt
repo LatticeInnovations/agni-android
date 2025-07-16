@@ -203,20 +203,16 @@ private fun CardComposableList(
             )
     ) {
         CardComposable(
-            viewModel,
-            stringResource(id = R.string.household_members),
-            R.drawable.group_icon,
-            null,
+            viewModel = viewModel,
+            label = stringResource(id = R.string.history_taking_and_tests),
+            icon = R.drawable.overview,
+            subText = null,
             onClick = {
                 navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "patient",
+                    PATIENT,
                     viewModel.patient
                 )
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    SELECTED_INDEX,
-                    viewModel.selectedIndex
-                )
-                navController.navigate(Screen.HouseholdMembersScreen.route)
+                navController.navigate(Screen.HistoryTakingAndTestsScreen.route)
             }
         )
         CardComposable(
