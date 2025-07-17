@@ -63,13 +63,14 @@ fun CustomTextField(
 
 @Composable
 fun CustomTextFieldWithLength(
+    modifier: Modifier = Modifier,
     value: String,
     label: String? = null,
     placeholder: String? = null,
     weight: Float,
     maxLength: Int,
     isError: Boolean,
-    error: String,
+    error: String? = null,
     keyboardType: KeyboardType,
     keyboardCapitalization: KeyboardCapitalization,
     updateValue: (String) -> Unit
@@ -80,7 +81,7 @@ fun CustomTextFieldWithLength(
             if (it.length <= maxLength)
                 updateValue(it)
         },
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(weight),
         label = if (label == null) null else {
             {
@@ -110,7 +111,7 @@ fun CustomTextFieldWithLength(
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if (isError) Text(text = error, style = MaterialTheme.typography.bodySmall)
+                if (isError && error != null) Text(text = error, style = MaterialTheme.typography.bodySmall)
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = "${value.length}/$maxLength",

@@ -549,11 +549,15 @@ include them in the household</string>
     <string name="national_id_unverified">National ID unverified</string>
     <string name="national_id_unverified_info">We couldn’t verify this ID with official records.</string>
     <string name="history_taking_and_tests">History taking and tests</string>
-    <string name="add_prior_dx">Add prior diagnosis</string>
+    <string name="add_prior_diagnosis">Add prior diagnosis</string>
+    <string name="add_prior_dx">Add prior dx</string>
     <string name="back">Back</string>
     <string name="add_allergies">Add allergies</string>
     <string name="add_medication">Add medication</string>
     <string name="add_family_history">Add family history</string>
     <string name="add_risk_factor">Add risk factor</string>
     <string name="add_tobacco_cessation">Add tobaccoo cessation</string>
+    <string name="prior_dx_header_text">Have you ever been diagnosed with any of the following conditions:</string>
+    <string name="please_specify_mandatory">Please specify*</string>
+    <string name="prior_dx_saved">Prior Dx saved</string>
 </resources>

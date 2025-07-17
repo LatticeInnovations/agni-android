@@ -24,14 +24,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -40,11 +44,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.heartcare.agni.R
 import com.heartcare.agni.data.server.model.patient.PatientResponse
+import com.heartcare.agni.navigation.Screen
 import com.heartcare.agni.ui.common.ScrollableTabRowComposable
 import com.heartcare.agni.ui.historyandtests.priordx.PriorDxView
 import com.heartcare.agni.ui.theme.Black
 import com.heartcare.agni.ui.theme.White
 import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
+import com.heartcare.agni.utils.constants.NavControllerConstants.PRIOR_DX_SAVED
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -56,6 +62,8 @@ fun HistoryTakingAndTestsScreen(
 ) {
     val tabs = stringArrayResource(R.array.history_and_tests_tabs).toList()
     val coroutineScope = rememberCoroutineScope()
+    val snackBarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
     val pagerState = rememberPagerState(
         initialPage = 0,
         initialPageOffsetFraction = 0f
@@ -70,9 +78,16 @@ fun HistoryTakingAndTestsScreen(
                 )
             viewModel.isLaunched = true
         }
+        if (navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(PRIOR_DX_SAVED) == true) {
+            snackBarHostState.showSnackbar(
+                message = context.getString(R.string.prior_dx_saved)
+            )
+            navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>(PRIOR_DX_SAVED)
+        }
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackBarHostState) },
         topBar = {
             TopAppBar(
                 modifier = Modifier.fillMaxWidth(),
@@ -86,7 +101,7 @@ fun HistoryTakingAndTestsScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "BACK_ICON")
                     }
                 }
@@ -121,7 +136,7 @@ fun HistoryTakingAndTestsScreen(
             }
         },
         bottomBar = {
-            BottomAppBar(pagerState, coroutineScope)
+            BottomAppBar(pagerState, coroutineScope, navController)
         }
     )
 }
@@ -129,7 +144,8 @@ fun HistoryTakingAndTestsScreen(
 @Composable
 private fun BottomAppBar(
     pagerState: PagerState,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    navController: NavController
 ) {
     Column(
         modifier = Modifier
@@ -145,6 +161,11 @@ private fun BottomAppBar(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
                 // add action perform
+                when (pagerState.currentPage) {
+                    0 -> {
+                        navController.navigate(Screen.AddPriorDxScreen.route)
+                    }
+                }
             }
         ) {
             Icon(
@@ -153,17 +174,7 @@ private fun BottomAppBar(
                 modifier = Modifier.size(20.dp)
             )
             Spacer(Modifier.width(8.dp))
-            Text(
-                when (pagerState.currentPage) {
-                    0 -> stringResource(R.string.add_prior_dx)
-                    1 -> stringResource(R.string.add_medication)
-                    2 -> stringResource(R.string.add_family_history)
-                    3 -> stringResource(R.string.add_allergies)
-                    4 -> stringResource(R.string.add_risk_factor)
-                    5 -> stringResource(R.string.add_tobacco_cessation)
-                    else -> ""
-                }
-            )
+            Text(getBtnText(pagerState))
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -197,12 +208,23 @@ private fun BottomAppBar(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    when (pagerState.currentPage) {
-                        5 -> stringResource(R.string.done)
-                        else -> stringResource(R.string.next)
-                    }
+                    if (pagerState.canScrollForward) stringResource(R.string.next)
+                    else stringResource(R.string.done)
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun getBtnText(pagerState: PagerState): String {
+    return when (pagerState.currentPage) {
+        0 -> stringResource(R.string.add_prior_diagnosis)
+        1 -> stringResource(R.string.add_medication)
+        2 -> stringResource(R.string.add_family_history)
+        3 -> stringResource(R.string.add_allergies)
+        4 -> stringResource(R.string.add_risk_factor)
+        5 -> stringResource(R.string.add_tobacco_cessation)
+        else -> ""
     }
 }
