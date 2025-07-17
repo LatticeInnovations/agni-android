@@ -333,7 +333,8 @@ include them in the household</string>
     <string name="eye_test_result_right">Eye test result (right)</string>
     <string name="spo2_title">SpO2 (%)</string>
     <string name="dashes">--</string>
-    <string name="no_record_found">No vitals added yet</string>
+    <string name="no_vitals_added">No vitals added yet</string>
+    <string name="no_record_found">No record found</string>
     <string name="add_icon">add_icon</string>
     <string name="view_less">View less</string>
     <string name="view_more">View more</string>
