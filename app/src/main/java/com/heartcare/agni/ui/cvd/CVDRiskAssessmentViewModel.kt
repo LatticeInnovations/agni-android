@@ -186,7 +186,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
                 !weightError && !cholesterolError
     }
 
-    fun getTodayCVDAssessment() {
+    fun getTodayCVDAssessment(onLoaded: () -> Unit = {}) {
         viewModelScope.launch(ioDispatcher) {
             getRecords()
             previousRecordsWithReferralStatus.map { it.first }.firstOrNull()?.let { record ->
@@ -217,6 +217,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
                         )
                 }
             }
+            onLoaded()
         }
     }
 

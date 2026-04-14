@@ -59,7 +59,8 @@ fun PreviousPrescriptionsScreen(
     snackBarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
-    viewModel: PrescriptionViewModel = hiltViewModel()
+    viewModel: PrescriptionViewModel = hiltViewModel(),
+    onRequireWizard: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -88,7 +89,8 @@ fun PreviousPrescriptionsScreen(
                                 && viewModel.patient!!.patientDeceasedReason.isNullOrBlank(),
                         snackBarHostState,
                         coroutineScope,
-                        pagerState
+                        pagerState,
+                        onRequireWizard
                     )
                 }
             }
@@ -103,7 +105,8 @@ fun PrescriptionCard(
     showRePrescribeBtn: Boolean,
     snackBarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
-    pagerState: PagerState
+    pagerState: PagerState,
+    onRequireWizard: () -> Unit
 ) {
     val context = LocalContext.current
     var expanded by rememberSaveable {
@@ -191,7 +194,7 @@ fun PrescriptionCard(
                                         snackBarHostState = snackBarHostState,
                                         context = context,
                                         prescription = prescription,
-                                        pagerState = pagerState
+                                        onRequireWizard = onRequireWizard
                                     )
                                 },
                                 modifier = Modifier
@@ -214,43 +217,19 @@ private fun rePrescribeBtnClick(
     snackBarHostState: SnackbarHostState,
     context: Context,
     prescription: PrescriptionAndMedicineRelation,
-    pagerState: PagerState
+    onRequireWizard: () -> Unit
 ) {
-    viewModel.getAppointmentInfo(
-        callback = {
-            when {
-                viewModel.existsInOtherHospital -> {
-                    coroutineScope.launch {
-                        snackBarHostState.showSnackbar(
-                            message = context.getString(R.string.appointment_exists_in_other_hospital)
-                        )
-                    }
-                }
-
-                viewModel.canAddAssessment -> {
-                    saveRePrescription(
-                        context,
-                        viewModel,
-                        prescription,
-                        coroutineScope,
-                        snackBarHostState,
-                        pagerState
-                    )
-                }
-
-                viewModel.isAppointmentCompleted -> {
-                    viewModel.showAppointmentCompletedDialog = true
-                }
-
-                else -> {
-                    viewModel.isReprescribing = true
-                    viewModel.represcribingPrescription =
-                        prescription
-                    viewModel.showAddToQueueDialog = true
-                }
-            }
+    if (viewModel.patient!!.patientDeceasedReason.isNullOrBlank()) {
+        viewModel.isReprescribing = true
+        viewModel.represcribingPrescription = prescription
+        onRequireWizard()
+    } else {
+        coroutineScope.launch {
+            snackBarHostState.showSnackbar(
+                context.getString(R.string.patient_deceased_error_msg)
+            )
         }
-    )
+    }
 }
 
 @Composable

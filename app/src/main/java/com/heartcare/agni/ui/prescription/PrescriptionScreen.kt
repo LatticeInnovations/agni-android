@@ -51,9 +51,11 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -65,10 +67,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.heartcare.agni.R
+import com.heartcare.agni.data.local.enums.RecordType
 import com.heartcare.agni.data.local.model.prescription.medication.MedicationResponseWithMedication
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.ui.common.AppointmentCompletedDialog
 import com.heartcare.agni.ui.common.CustomDialog
+import com.heartcare.agni.ui.common.RecordTypeSelectionContent
+import com.heartcare.agni.ui.common.ScreeningSiteListContent
 import com.heartcare.agni.ui.common.TabRowComposable
 import com.heartcare.agni.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.heartcare.agni.ui.prescription.filldetails.FillDetailsScreen
@@ -78,6 +83,7 @@ import com.heartcare.agni.ui.prescription.quickselect.QuickSelectScreen
 import com.heartcare.agni.ui.prescription.search.PrescriptionSearchResult
 import com.heartcare.agni.ui.prescription.search.SearchPrescription
 import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
+import com.heartcare.agni.utils.constants.ScreenSiteConstants.SITE_LIST
 import com.heartcare.agni.utils.converters.responseconverter.medication.MedicationInfoConverter.getMedInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -99,7 +105,50 @@ fun PrescriptionScreen(
         viewModel.tabs.size
     }
 
-    SetBackHandler(viewModel, navController, pagerState, coroutineScope)
+    var currentStep by remember { mutableIntStateOf(0) }
+    var selectedSite by remember { mutableStateOf<String?>(null) }
+    var selectedType by remember { mutableStateOf<RecordType?>(null) }
+
+    fun handleAddPrescriptionAction(onWizardReset: () -> Unit) {
+        viewModel.getAppointmentInfo(
+            callback = {
+                when {
+                    viewModel.existsInOtherHospital -> {
+                        onWizardReset()
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = context.getString(R.string.appointment_exists_in_other_hospital)
+                            )
+                        }
+                    }
+
+                    viewModel.canAddAssessment -> {
+                        onWizardReset()
+                        if (viewModel.isReprescribing) {
+                             saveRePrescription(context, viewModel, viewModel.represcribingPrescription!!, coroutineScope, snackBarHostState, pagerState)
+                        } else {
+                             viewModel.setTodayData()
+                             coroutineScope.launch {
+                                 pagerState.animateScrollToPage(1)
+                             }
+                        }
+                    }
+
+                    viewModel.isAppointmentCompleted -> {
+                        onWizardReset()
+                        viewModel.showAppointmentCompletedDialog = true
+                    }
+
+                    else -> {
+                        onWizardReset()
+                        viewModel.showAddToQueueDialog = true
+                    }
+                }
+            }
+        )
+    }
+
+    SetBackHandler(viewModel, navController, pagerState, coroutineScope, currentStep) { currentStep = it }
     HandleLaunchedEffect(viewModel, navController)
 
     Scaffold(
@@ -114,37 +163,78 @@ fun PrescriptionScreen(
                 modifier = Modifier
                     .padding(it)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    TabRowComposable(
-                        viewModel.tabs,
-                        pagerState
-                    ) { index ->
-                        handleTabNavigation(
-                            index = index,
-                            viewModel = viewModel,
-                            pagerState = pagerState,
-                            coroutineScope = coroutineScope,
-                            snackBarHostState = snackBarHostState,
-                            context = context
-                        )
-                    }
-                    HorizontalPager(
-                        state = pagerState,
-                        userScrollEnabled = viewModel.canAddAssessment && viewModel.patient!!.patientDeceasedReason.isNullOrBlank()
-                    ) { index ->
-                        when (index) {
-                            0 -> PreviousPrescriptionsScreen(
-                                snackBarHostState,
-                                coroutineScope,
+                when (currentStep) {
+                    0 -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                        ) {
+                            TabRowComposable(
+                                viewModel.tabs,
                                 pagerState
-                            )
+                            ) { index ->
+                                handleTabNavigation(
+                                    index = index,
+                                    viewModel = viewModel,
+                                    pagerState = pagerState,
+                                    coroutineScope = coroutineScope,
+                                    snackBarHostState = snackBarHostState,
+                                    context = context,
+                                    onTabRequiresWizard = {
+                                        if (viewModel.todayPrescription != null && !viewModel.existsInOtherHospital) {
+                                            handleAddPrescriptionAction { currentStep = 0 }
+                                        } else {
+                                            currentStep = 1
+                                        }
+                                    }
+                                )
+                            }
+                            HorizontalPager(
+                                state = pagerState,
+                                userScrollEnabled = viewModel.canAddAssessment && viewModel.patient!!.patientDeceasedReason.isNullOrBlank()
+                            ) { index ->
+                                when (index) {
+                                    0 -> PreviousPrescriptionsScreen(
+                                        snackBarHostState = snackBarHostState,
+                                        coroutineScope = coroutineScope,
+                                        pagerState = pagerState,
+                                        viewModel = viewModel,
+                                        onRequireWizard = {
+                                            if (viewModel.todayPrescription != null && !viewModel.existsInOtherHospital) {
+                                                handleAddPrescriptionAction { currentStep = 0 }
+                                            } else {
+                                                currentStep = 1
+                                            }
+                                        }
+                                    )
 
-                            1 -> QuickSelectScreen()
+                                    1 -> QuickSelectScreen()
+                                }
+                            }
                         }
                     }
+                    1 -> RecordTypeSelectionContent(
+                        modifier = Modifier.fillMaxSize(),
+                        selectedType = selectedType,
+                        onTypeSelected = { selectedType = it },
+                        onContinueClick = {
+                            if (selectedType == RecordType.FACILITY) {
+                                handleAddPrescriptionAction() { currentStep = 0 }
+                            } else if (selectedType == RecordType.SCREENING_SITE) {
+                                currentStep = 2
+                            }
+                        }
+                    )
+                    2 -> ScreeningSiteListContent(
+                        modifier = Modifier.fillMaxSize(),
+                        sites = SITE_LIST,
+                        selectedSite = selectedSite,
+                        onSiteSelected = { selectedSite = it },
+                        onBackClick = { currentStep = 1 },
+                        onContinueClick = {
+                            handleAddPrescriptionAction() { currentStep = 0 }
+                        }
+                    )
                 }
             }
         }
@@ -178,11 +268,17 @@ private fun SetBackHandler(
     viewModel: PrescriptionViewModel,
     navController: NavController,
     pagerState: PagerState,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    currentStep: Int,
+    onStepChange: (Int) -> Unit
 ) {
     BackHandler(enabled = true) {
         when {
             viewModel.isSearching -> viewModel.isSearching = false
+            currentStep > 0 -> {
+                if (currentStep == 2) onStepChange(1)
+                else onStepChange(0)
+            }
             viewModel.checkedMedication != null -> {
                 viewModel.checkedMedication = null
                 viewModel.medicationToEdit = null
@@ -226,40 +322,14 @@ private fun handleTabNavigation(
     pagerState: PagerState,
     coroutineScope: CoroutineScope,
     snackBarHostState: SnackbarHostState,
-    context: Context
+    context: Context,
+    onTabRequiresWizard: () -> Unit
 ) {
     if (index == 1) {
         if (viewModel.patient!!.patientDeceasedReason.isNullOrBlank()) {
-            viewModel.getAppointmentInfo(
-                callback = {
-                    when {
-                        viewModel.existsInOtherHospital -> {
-                            coroutineScope.launch {
-                                snackBarHostState.showSnackbar(
-                                    message = context.getString(R.string.appointment_exists_in_other_hospital)
-                                )
-                            }
-                        }
-
-                        viewModel.canAddAssessment -> {
-                            viewModel.setTodayData()
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(
-                                    index
-                                )
-                            }
-                        }
-
-                        viewModel.isAppointmentCompleted -> {
-                            viewModel.showAppointmentCompletedDialog = true
-                        }
-
-                        else -> {
-                            viewModel.showAddToQueueDialog = true
-                        }
-                    }
-                }
-            )
+             viewModel.isReprescribing = false
+             viewModel.represcribingPrescription = null
+             onTabRequiresWizard()
         } else {
             coroutineScope.launch {
                 snackBarHostState.showSnackbar(

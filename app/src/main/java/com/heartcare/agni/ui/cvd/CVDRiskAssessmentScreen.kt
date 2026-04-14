@@ -48,8 +48,12 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
@@ -64,12 +68,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.heartcare.agni.R
+import com.heartcare.agni.data.local.enums.RecordType
 import com.heartcare.agni.data.local.enums.YesNoEnum
 import com.heartcare.agni.data.server.model.cvd.CVDResponse
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.navigation.Screen
 import com.heartcare.agni.ui.common.AppointmentCompletedDialog
 import com.heartcare.agni.ui.common.CustomDialog
+import com.heartcare.agni.ui.common.RecordTypeSelectionContent
+import com.heartcare.agni.ui.common.ScreeningSiteListContent
 import com.heartcare.agni.ui.common.TabRowComposable
 import com.heartcare.agni.ui.cvd.form.CVDRiskAssessmentForm
 import com.heartcare.agni.ui.cvd.form.DisplayField
@@ -89,6 +96,7 @@ import com.heartcare.agni.ui.theme.VeryHighRiskDarkContainer
 import com.heartcare.agni.ui.theme.VeryHighRiskLightContainer
 import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
 import com.heartcare.agni.utils.constants.NavControllerConstants.REFERRAL_FROM_CVD
+import com.heartcare.agni.utils.constants.ScreenSiteConstants.SITE_LIST
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toddMMMyyyy
 import com.heartcare.agni.utils.converters.responseconverter.TimeConverter.toddMMYYYYString
 import kotlinx.coroutines.CoroutineScope
@@ -110,6 +118,9 @@ fun CVDRiskAssessmentScreen(
         viewModel.tabs.size
     }
     val focusManager = LocalFocusManager.current
+    var currentStep by remember { mutableIntStateOf(0) }
+    var selectedSite by remember { mutableStateOf<String?>(null) }
+    var selectedType by remember { mutableStateOf<RecordType?>(null) }
 
     HandleLaunchedEffect(
         viewModel = viewModel,
@@ -117,11 +128,12 @@ fun CVDRiskAssessmentScreen(
         scope = scope,
         pagerState = pagerState,
         snackBarHostState = snackBarHostState,
-        context = context
+        context = context,
+        onCVDLoaded = { currentStep = 2 }
     )
 
-    AddBackHandler(viewModel, navController, pagerState, scope)
 
+    AddBackHandler(viewModel, navController, pagerState, scope)
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -162,7 +174,45 @@ fun CVDRiskAssessmentScreen(
                         state = pagerState
                     ) { index ->
                         when (index) {
-                            0 -> CVDRiskAssessmentForm(viewModel)
+                            0 -> {
+                                Column(modifier = Modifier.fillMaxSize()) {
+
+                                    when (currentStep) {
+                                        0 -> {
+                                            RecordTypeSelectionContent(
+                                                modifier = Modifier.fillMaxSize(),
+                                                selectedType = selectedType,
+                                                onTypeSelected = { selectedType = it },
+                                                onContinueClick = {
+                                                    if (selectedType == RecordType.FACILITY) {
+                                                        currentStep = 2
+                                                    } else if (selectedType == RecordType.SCREENING_SITE) {
+                                                        currentStep = 1
+                                                    }
+                                                }
+                                            )
+                                        }
+                                        1 -> {
+                                            ScreeningSiteListContent(
+                                                modifier = Modifier.fillMaxSize(),
+                                                sites =SITE_LIST,
+                                                selectedSite = selectedSite,
+                                                onSiteSelected = { selectedSite = it },
+                                                onBackClick = {
+                                                    currentStep = 0
+                                                },
+                                                onContinueClick = {
+                                                    currentStep = 2
+                                                }
+                                            )
+                                        }
+                                        2 -> {
+                                            CVDRiskAssessmentForm(viewModel)
+                                        }
+                                    }
+                                }
+                            }
+
                             1 -> CVDRiskAssessmentRecords(viewModel, navController)
                         }
                     }
@@ -170,6 +220,7 @@ fun CVDRiskAssessmentScreen(
             }
         },
         bottomBar = {
+            if (currentStep == 2)
             CVDBottomAppBar(viewModel, focusManager, scope, pagerState, snackBarHostState, context)
         }
     )
@@ -199,7 +250,8 @@ private fun HandleLaunchedEffect(
     scope: CoroutineScope,
     pagerState: PagerState,
     snackBarHostState: SnackbarHostState,
-    context: Context
+    context: Context,
+    onCVDLoaded: () -> Unit
 ) {
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
@@ -210,7 +262,11 @@ private fun HandleLaunchedEffect(
             viewModel.getAppointmentInfo(callback = {})
             viewModel.isLaunched = true
         }
-        viewModel.getTodayCVDAssessment()
+        viewModel.getTodayCVDAssessment() {
+            if (viewModel.todayCVD != null) {
+                onCVDLoaded()
+            }
+        }
         navController.currentBackStackEntry?.savedStateHandle?.let { handle ->
             if (handle.remove<Boolean>(REFERRAL_FROM_CVD) == true){
                 navigateToRecordsAfterSaving(

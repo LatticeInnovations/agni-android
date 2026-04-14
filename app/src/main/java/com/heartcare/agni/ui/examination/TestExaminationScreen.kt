@@ -1,6 +1,7 @@
 package com.heartcare.agni.ui.examination
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,8 +29,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -39,10 +44,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.heartcare.agni.R
+import com.heartcare.agni.data.local.enums.RecordType
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.navigation.Screen
 import com.heartcare.agni.ui.common.CustomDialog
 import com.heartcare.agni.ui.common.ExpandableCard
+import com.heartcare.agni.ui.common.RecordTypeSelectionContent
+import com.heartcare.agni.ui.common.ScreeningSiteListContent
 import com.heartcare.agni.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.heartcare.agni.ui.common.AppointmentCompletedDialog
 import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
@@ -59,6 +67,22 @@ fun TestExaminationScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+
+    var currentStep by remember { mutableIntStateOf(0) }
+    var selectedSite by remember { mutableStateOf<String?>(null) }
+    var selectedType by remember { mutableStateOf<RecordType?>(null) }
+
+    BackHandler {
+        if (currentStep > 0) {
+            if (currentStep == 2) {
+                currentStep = 1
+            } else if (currentStep == 1) {
+                currentStep = 0
+            }
+        } else {
+            navController.navigateUp()
+        }
+    }
 
     HandleLaunchedEffect(navController, viewModel, snackBarHostState, context)
 
@@ -89,17 +113,59 @@ fun TestExaminationScreen(
                     .padding(paddingValues)
                     .fillMaxSize()
             ) {
-                TestExaminationContent(viewModel)
+                when (currentStep) {
+                    0 -> TestExaminationContent(viewModel)
+                    1 -> RecordTypeSelectionContent(
+                        modifier = Modifier.fillMaxSize(),
+                        selectedType = selectedType,
+                        onTypeSelected = { selectedType = it },
+                        onContinueClick = {
+                            if (selectedType == RecordType.FACILITY) {
+                                handleAddTestLogic(viewModel, navController, coroutineScope, snackBarHostState, context)
+                            } else if (selectedType == RecordType.SCREENING_SITE) {
+                                currentStep = 2
+                            }
+                        }
+                    )
+                    2 -> ScreeningSiteListContent(
+                        modifier = Modifier.fillMaxSize(),
+                        sites = listOf(
+                            "Shefa Vaccine Drive",
+                            "Tanna Island Outreach Q2",
+                            "Torba Nutrition Program",
+                            "Santo Malaria Prevention"
+                        ),
+                        selectedSite = selectedSite,
+                        onSiteSelected = { selectedSite = it },
+                        onBackClick = { currentStep = 1 },
+                        onContinueClick = {
+                            handleAddTestLogic(viewModel, navController, coroutineScope, snackBarHostState, context)
+                        }
+                    )
+                }
             }
         },
         bottomBar = {
-            TestExaminationBottomBar(
-                navController,
-                viewModel,
-                coroutineScope,
-                context,
-                snackBarHostState
-            )
+            if (currentStep == 0) {
+                TestExaminationBottomBar(
+                    viewModel = viewModel,
+                    onClickAdd = {
+                        if (viewModel.patient!!.patientDeceasedReason.isNullOrBlank()) {
+                            if (viewModel.todayTestExamination != null && !viewModel.existsInOtherHospital) {
+                                handleAddTestLogic(viewModel, navController, coroutineScope, snackBarHostState, context)
+                            } else {
+                                currentStep = 1
+                            }
+                        } else {
+                            coroutineScope.launch {
+                                snackBarHostState.showSnackbar(
+                                    context.getString(R.string.patient_deceased_error_msg)
+                                )
+                            }
+                        }
+                    }
+                )
+            }
         }
     )
 
@@ -178,13 +244,51 @@ private fun TestExaminationContent(
 }
 
 
+private fun handleAddTestLogic(
+    viewModel: TestExaminationViewModel,
+    navController: NavController,
+    coroutineScope: CoroutineScope,
+    snackBarHostState: SnackbarHostState,
+    context: Context
+) {
+    viewModel.getAppointmentInfo(
+        callback = {
+            when {
+                viewModel.existsInOtherHospital -> {
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar(
+                            message = context.getString(R.string.appointment_exists_in_other_hospital)
+                        )
+                    }
+                }
+
+                viewModel.canAddAssessment -> {
+                    coroutineScope.launch {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            PATIENT,
+                            viewModel.patient
+                        )
+                        navController.navigate(Screen.AddTestExaminationScreen.route)
+                    }
+                }
+
+                viewModel.isAppointmentCompleted -> {
+                    viewModel.showAppointmentCompletedDialog = true
+                }
+
+                else -> {
+                    viewModel.showAddToQueueDialog = true
+                }
+            }
+        }
+    )
+}
+
+
 @Composable
 private fun TestExaminationBottomBar(
-    navController: NavController,
     viewModel: TestExaminationViewModel,
-    coroutineScope: CoroutineScope,
-    context: Context,
-    snackBarHostState: SnackbarHostState
+    onClickAdd: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -198,48 +302,7 @@ private fun TestExaminationBottomBar(
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth(),
-            onClick = {
-                // add intervention
-                if (viewModel.patient!!.patientDeceasedReason.isNullOrBlank()) {
-                    viewModel.getAppointmentInfo(
-                        callback = {
-                            when {
-                                viewModel.existsInOtherHospital -> {
-                                    coroutineScope.launch {
-                                        snackBarHostState.showSnackbar(
-                                            message = context.getString(R.string.appointment_exists_in_other_hospital)
-                                        )
-                                    }
-                                }
-
-                                viewModel.canAddAssessment -> {
-                                    coroutineScope.launch {
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            PATIENT,
-                                            viewModel.patient
-                                        )
-                                        navController.navigate(Screen.AddTestExaminationScreen.route)
-                                    }
-                                }
-
-                                viewModel.isAppointmentCompleted -> {
-                                    viewModel.showAppointmentCompletedDialog = true
-                                }
-
-                                else -> {
-                                    viewModel.showAddToQueueDialog = true
-                                }
-                            }
-                        }
-                    )
-                } else {
-                    coroutineScope.launch {
-                        snackBarHostState.showSnackbar(
-                            context.getString(R.string.patient_deceased_error_msg)
-                        )
-                    }
-                }
-            }
+            onClick = onClickAdd
         ) {
             Icon(Icons.Filled.Add, Icons.Filled.Add.name)
             Spacer(Modifier.width(6.dp))

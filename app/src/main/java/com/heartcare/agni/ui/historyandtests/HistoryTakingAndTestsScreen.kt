@@ -1,6 +1,7 @@
 package com.heartcare.agni.ui.historyandtests
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -20,6 +21,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,8 +39,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -49,11 +55,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.heartcare.agni.R
+import com.heartcare.agni.data.local.enums.RecordType
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.navigation.Screen
 import com.heartcare.agni.ui.common.AppointmentCompletedDialog
 import com.heartcare.agni.ui.common.CustomDialog
 import com.heartcare.agni.ui.common.Loader
+import com.heartcare.agni.ui.common.RecordTypeSelectionContent
+import com.heartcare.agni.ui.common.ScreeningSiteListContent
 import com.heartcare.agni.ui.common.ScrollableTabRowComposable
 import com.heartcare.agni.ui.historyandtests.allergy.AllergyView
 import com.heartcare.agni.ui.historyandtests.family.FamilyHistoryView
@@ -71,6 +80,7 @@ import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
 import com.heartcare.agni.utils.constants.NavControllerConstants.PRIOR_DX_SAVED
 import com.heartcare.agni.utils.constants.NavControllerConstants.RISK_FACTORS_SAVED
 import com.heartcare.agni.utils.constants.NavControllerConstants.TOBACCO_CESSATION_SAVED
+import com.heartcare.agni.utils.constants.ScreenSiteConstants.SITE_LIST
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -89,6 +99,22 @@ fun HistoryTakingAndTestsScreen(
         initialPageOffsetFraction = 0f
     ) { tabs.size }
 
+    var currentStep by remember { mutableIntStateOf(0) }
+    var selectedSite by remember { mutableStateOf<String?>(null) }
+    var selectedType by remember { mutableStateOf<RecordType?>(null) }
+
+    BackHandler {
+        if (currentStep > 0) {
+            if (currentStep == 2) {
+                currentStep = 1
+            } else if (currentStep == 1) {
+                currentStep = 0
+            }
+        } else {
+            navController.navigateUp()
+        }
+    }
+
     HandleLaunchedEffectsAndSnackBars(
         viewModel = viewModel,
         navController = navController,
@@ -103,13 +129,22 @@ fun HistoryTakingAndTestsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.history_taking_and_tests),
+                        text = if (currentStep > 0) "Add ${tabs[pagerState.currentPage]}" else stringResource(R.string.history_taking_and_tests),
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    if (currentStep == 0) {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                },
+                actions = {
+                    if (currentStep > 0) {
+                        IconButton(onClick = { currentStep = 0 }) {
+                            Icon(Icons.Default.Clear, contentDescription = "Close")
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -118,24 +153,66 @@ fun HistoryTakingAndTestsScreen(
             )
         },
         bottomBar = {
-            HistoryBottomAppBar(
-                pagerState,
-                coroutineScope,
-                navController,
-                viewModel,
-                snackBarHostState,
-                context
-            )
+            if (currentStep == 0) {
+                HistoryBottomAppBar(
+                    pagerState,
+                    coroutineScope,
+                    navController,
+                    viewModel,
+                    snackBarHostState,
+                    context
+                ) { currentStep = 1 }
+            }
         },
         content = { paddingValues ->
-            HistoryScaffoldContent(
-                tabs = tabs,
-                pagerState = pagerState,
-                viewModel = viewModel,
-                coroutineScope = coroutineScope,
-                modifier = Modifier.padding(paddingValues),
-                navController = navController
-            )
+            when(currentStep) {
+                0 -> {
+                    HistoryScaffoldContent(
+                        tabs = tabs,
+                        pagerState = pagerState,
+                        viewModel = viewModel,
+                        coroutineScope = coroutineScope,
+                        modifier = Modifier.padding(paddingValues),
+                        navController = navController
+                    )
+                }
+                1 -> RecordTypeSelectionContent(
+                    modifier = Modifier.padding(paddingValues).fillMaxSize(),
+                    selectedType = selectedType,
+                    onTypeSelected = { selectedType = it },
+                    onContinueClick = {
+                        if (selectedType == RecordType.FACILITY) {
+                            handleAddButtonClick(
+                                viewModel = viewModel,
+                                pagerState = pagerState,
+                                coroutineScope = coroutineScope,
+                                navController = navController,
+                                snackBarHostState = snackBarHostState,
+                                context = context
+                            )
+                        } else if (selectedType == RecordType.SCREENING_SITE) {
+                            currentStep = 2
+                        }
+                    }
+                )
+                2 -> ScreeningSiteListContent(
+                    modifier = Modifier.padding(paddingValues).fillMaxSize(),
+                    sites = SITE_LIST,
+                    selectedSite = selectedSite,
+                    onSiteSelected = { selectedSite = it },
+                    onBackClick = { currentStep = 1 },
+                    onContinueClick = {
+                        handleAddButtonClick(
+                            viewModel = viewModel,
+                            pagerState = pagerState,
+                            coroutineScope = coroutineScope,
+                            navController = navController,
+                            snackBarHostState = snackBarHostState,
+                            context = context
+                        )
+                    }
+                )
+            }
         }
     )
 
@@ -257,7 +334,8 @@ private fun HistoryBottomAppBar(
     navController: NavController,
     viewModel: HistoryTakingAndTestsViewModel,
     snackBarHostState: SnackbarHostState,
-    context: Context
+    context: Context,
+    onAddClick: () -> Unit
 ) {
     Column {
         HorizontalDivider(
@@ -276,10 +354,11 @@ private fun HistoryBottomAppBar(
             AddAssessmentButton(
                 pagerState = pagerState,
                 coroutineScope = coroutineScope,
-                navController = navController,
                 viewModel = viewModel,
                 snackBarHostState = snackBarHostState,
-                context = context
+                context = context,
+                navController=navController,
+                onAddClick = onAddClick
             )
 
             NavigationButtons(
@@ -295,23 +374,37 @@ private fun HistoryBottomAppBar(
 private fun AddAssessmentButton(
     pagerState: PagerState,
     coroutineScope: CoroutineScope,
-    navController: NavController,
     viewModel: HistoryTakingAndTestsViewModel,
     snackBarHostState: SnackbarHostState,
-    context: Context
+    context: Context,
+    navController: NavController,
+    onAddClick: () -> Unit
 ) {
     Button(
         modifier = Modifier.fillMaxWidth(),
         onClick = {
             if (viewModel.patient!!.patientDeceasedReason.isNullOrBlank()) {
-                handleAddButtonClick(
-                    viewModel = viewModel,
-                    pagerState = pagerState,
-                    coroutineScope = coroutineScope,
-                    navController = navController,
-                    snackBarHostState = snackBarHostState,
-                    context = context
-                )
+                val hasData = when (pagerState.currentPage) {
+                    0 -> viewModel.todayPriorDx != null
+                    1 -> viewModel.todayHistoryMedication != null
+                    2 -> viewModel.todayFamilyHistory != null
+                    3 -> viewModel.todayAllergy != null
+                    4 -> viewModel.todayRiskFactor != null
+                    5 -> viewModel.todayTobaccoCessation != null
+                    else -> false
+                }
+                if (hasData && !viewModel.existsInOtherHospital) {
+                    handleAddButtonClick(
+                        viewModel = viewModel,
+                        pagerState = pagerState,
+                        coroutineScope = coroutineScope,
+                        navController = navController,
+                        snackBarHostState = snackBarHostState,
+                        context = context
+                    )
+                } else {
+                    onAddClick()
+                }
             } else {
                 coroutineScope.launch {
                     snackBarHostState.showSnackbar(

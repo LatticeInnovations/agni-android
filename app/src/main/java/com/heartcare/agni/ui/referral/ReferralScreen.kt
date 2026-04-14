@@ -1,6 +1,7 @@
 package com.heartcare.agni.ui.referral
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,8 +30,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,15 +46,19 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.heartcare.agni.R
+import com.heartcare.agni.data.local.enums.RecordType
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.navigation.Screen
 import com.heartcare.agni.ui.common.AppointmentCompletedDialog
 import com.heartcare.agni.ui.common.CardWithRightArrow
 import com.heartcare.agni.ui.common.CustomDialog
+import com.heartcare.agni.ui.common.RecordTypeSelectionContent
+import com.heartcare.agni.ui.common.ScreeningSiteListContent
 import com.heartcare.agni.ui.patientlandingscreen.AllSlotsBookedDialog
 import com.heartcare.agni.utils.constants.NavControllerConstants.PATIENT
 import com.heartcare.agni.utils.constants.NavControllerConstants.REFERRAL
 import com.heartcare.agni.utils.constants.NavControllerConstants.REFERRAL_SAVED
+import com.heartcare.agni.utils.constants.ScreenSiteConstants.SITE_LIST
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -62,6 +71,22 @@ fun ReferralScreen(
     val coroutineScope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+
+    var currentStep by remember { mutableIntStateOf(0) }
+    var selectedSite by remember { mutableStateOf<String?>(null) }
+    var selectedType by remember { mutableStateOf<RecordType?>(null) }
+
+    BackHandler {
+        if (currentStep > 0) {
+            if (currentStep == 2) {
+                currentStep = 1
+            } else if (currentStep == 1) {
+                currentStep = 0
+            }
+        } else {
+            navController.navigateUp()
+        }
+    }
 
     HandleLaunchedEffect(viewModel, navController, snackBarHostState, context)
 
@@ -93,11 +118,54 @@ fun ReferralScreen(
                 modifier = Modifier
                     .padding(paddingValues)
             ) {
-                ReferralScreenContent(viewModel, navController)
+                when (currentStep) {
+                    0 -> ReferralScreenContent(viewModel, navController)
+                    1 -> RecordTypeSelectionContent(
+                        modifier = Modifier.fillMaxSize(),
+                        selectedType = selectedType,
+                        onTypeSelected = { selectedType = it },
+                        onContinueClick = {
+                            if (selectedType == RecordType.FACILITY) {
+                                handleAddReferralLogic(viewModel, navController, coroutineScope, snackBarHostState, context)
+                            } else if (selectedType == RecordType.SCREENING_SITE) {
+                                currentStep = 2
+                            }
+                        }
+                    )
+                    2 -> ScreeningSiteListContent(
+                        modifier = Modifier.fillMaxSize(),
+                        sites = SITE_LIST,
+                        selectedSite = selectedSite,
+                        onSiteSelected = { selectedSite = it },
+                        onBackClick = { currentStep = 1 },
+                        onContinueClick = {
+                            handleAddReferralLogic(viewModel, navController, coroutineScope, snackBarHostState, context)
+                        }
+                    )
+                }
             }
         },
         bottomBar = {
-            ReferralBottomBar(viewModel, navController, coroutineScope, snackBarHostState, context)
+            if (currentStep == 0) {
+                ReferralBottomBar(
+                    viewModel = viewModel,
+                    onClickAdd = {
+                        if (viewModel.patient!!.patientDeceasedReason.isNullOrBlank()) {
+                            if (viewModel.todayReferral != null && !viewModel.existsInOtherHospital) {
+                                handleAddReferralLogic(viewModel, navController, coroutineScope, snackBarHostState, context)
+                            } else {
+                                currentStep = 1
+                            }
+                        } else {
+                            coroutineScope.launch {
+                                snackBarHostState.showSnackbar(
+                                    context.getString(R.string.patient_deceased_error_msg)
+                                )
+                            }
+                        }
+                    }
+                )
+            }
         }
     )
     Dialogs(viewModel, navController, coroutineScope)
@@ -188,13 +256,50 @@ private fun ReferralScreenContent(
     }
 }
 
-@Composable
-private fun ReferralBottomBar(
+private fun handleAddReferralLogic(
     viewModel: ReferralViewModel,
     navController: NavController,
     coroutineScope: CoroutineScope,
     snackBarHostState: SnackbarHostState,
     context: Context
+) {
+    viewModel.getAppointmentInfo(
+        callback = {
+            when {
+                viewModel.existsInOtherHospital -> {
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar(
+                            message = context.getString(R.string.appointment_exists_in_other_hospital)
+                        )
+                    }
+                }
+
+                viewModel.canAddAssessment -> {
+                    coroutineScope.launch {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            PATIENT,
+                            viewModel.patient
+                        )
+                        navController.navigate(Screen.AddReferralScreen.route)
+                    }
+                }
+
+                viewModel.isAppointmentCompleted -> {
+                    viewModel.showAppointmentCompletedDialog = true
+                }
+
+                else -> {
+                    viewModel.showAddToQueueDialog = true
+                }
+            }
+        }
+    )
+}
+
+@Composable
+private fun ReferralBottomBar(
+    viewModel: ReferralViewModel,
+    onClickAdd: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -203,48 +308,7 @@ private fun ReferralBottomBar(
             .navigationBarsPadding()
     ) {
         Button(
-            onClick = {
-                // navigate to add referral
-                if (viewModel.patient!!.patientDeceasedReason.isNullOrBlank()) {
-                    viewModel.getAppointmentInfo(
-                        callback = {
-                            when {
-                                viewModel.existsInOtherHospital -> {
-                                    coroutineScope.launch {
-                                        snackBarHostState.showSnackbar(
-                                            message = context.getString(R.string.appointment_exists_in_other_hospital)
-                                        )
-                                    }
-                                }
-
-                                viewModel.canAddAssessment -> {
-                                    coroutineScope.launch {
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            PATIENT,
-                                            viewModel.patient
-                                        )
-                                        navController.navigate(Screen.AddReferralScreen.route)
-                                    }
-                                }
-
-                                viewModel.isAppointmentCompleted -> {
-                                    viewModel.showAppointmentCompletedDialog = true
-                                }
-
-                                else -> {
-                                    viewModel.showAddToQueueDialog = true
-                                }
-                            }
-                        }
-                    )
-                } else {
-                    coroutineScope.launch {
-                        snackBarHostState.showSnackbar(
-                            context.getString(R.string.patient_deceased_error_msg)
-                        )
-                    }
-                }
-            },
+            onClick = onClickAdd,
             modifier = Modifier.fillMaxWidth()
         ) {
             Icon(

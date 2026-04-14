@@ -1,6 +1,7 @@
 package com.heartcare.agni.ui.vitalsscreen
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -49,8 +50,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -66,12 +70,15 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.github.mikephil.charting.data.Entry
 import com.heartcare.agni.R
+import com.heartcare.agni.data.local.enums.RecordType
 import com.heartcare.agni.data.local.enums.YesNoEnum
 import com.heartcare.agni.data.server.model.cvd.CVDResponse
 import com.heartcare.agni.data.server.model.patient.PatientResponse
 import com.heartcare.agni.data.server.model.vitals.VitalResponse
 import com.heartcare.agni.navigation.Screen
 import com.heartcare.agni.ui.common.CustomDialog
+import com.heartcare.agni.ui.common.RecordTypeSelectionContent
+import com.heartcare.agni.ui.common.ScreeningSiteListContent
 import com.heartcare.agni.ui.common.displayOrDash
 import com.heartcare.agni.ui.cvd.form.DisplayField
 import com.heartcare.agni.ui.patientlandingscreen.AllSlotsBookedDialog
@@ -110,6 +117,22 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
+
+    var currentStep by remember { mutableIntStateOf(0) }
+    var selectedSite by remember { mutableStateOf<String?>(null) }
+    var selectedType by remember { mutableStateOf<RecordType?>(null) }
+
+    BackHandler {
+        if (currentStep > 0) {
+            if (currentStep == 2) {
+                currentStep = 1
+            } else if (currentStep == 1) {
+                currentStep = 0
+            }
+        } else {
+            navController.navigateUp()
+        }
+    }
 
     LaunchedEffect(key1 = vitalsViewModel.msg) {
         if (vitalsViewModel.msg.isNotBlank()) {
@@ -150,60 +173,89 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
             )
         },
         content = { paddingValues ->
-            ShowGraphAndList(vitalsViewModel, paddingValues)
+            when (currentStep) {
+                0 -> ShowGraphAndList(vitalsViewModel, paddingValues)
+                1 -> RecordTypeSelectionContent(
+                    modifier = Modifier.padding(paddingValues).fillMaxSize(),
+                    selectedType = selectedType,
+                    onTypeSelected = { selectedType = it },
+                    onContinueClick = {
+                        if (selectedType == RecordType.FACILITY) {
+                            handleAddVitalLogic(vitalsViewModel, navController, scope, snackBarHostState, context)
+                        } else if (selectedType == RecordType.SCREENING_SITE) {
+                            currentStep = 2
+                        }
+                    }
+                )
+                2 -> ScreeningSiteListContent(
+                    modifier = Modifier.padding(paddingValues).fillMaxSize(),
+                    sites = listOf(
+                        "Shefa Vaccine Drive",
+                        "Tanna Island Outreach Q2",
+                        "Torba Nutrition Program",
+                        "Santo Malaria Prevention"
+                    ),
+                    selectedSite = selectedSite,
+                    onSiteSelected = { selectedSite = it },
+                    onBackClick = { currentStep = 1 },
+                    onContinueClick = {
+                        handleAddVitalLogic(vitalsViewModel, navController, scope, snackBarHostState, context)
+                    }
+                )
+            }
         },
         bottomBar = {
-            Box(
-                modifier = Modifier
-                    .padding()
-                    .navigationBarsPadding(),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                Column(
+            if (currentStep == 0) {
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface),
-                    verticalArrangement = Arrangement.Bottom,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding()
+                        .navigationBarsPadding(),
+                    contentAlignment = Alignment.BottomCenter
                 ) {
-                    Button(
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        ),
+                    Column(
                         modifier = Modifier
-                            .padding(12.dp)
-                            .fillMaxWidth(),
-                        onClick = {
-                            if (vitalsViewModel.patient!!.patientDeceasedReason.isNullOrBlank()) {
-                                handleAddBtnClick(
-                                    vitalsViewModel = vitalsViewModel,
-                                    scope = scope,
-                                    snackBarHostState = snackBarHostState,
-                                    context = context,
-                                    navController = navController
-                                )
-                            } else {
-                                scope.launch {
-                                    snackBarHostState.showSnackbar(
-                                        context.getString(R.string.patient_deceased_error_msg)
-                                    )
-                                }
-                            }
-                        },
-                        contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface),
+                        verticalArrangement = Arrangement.Bottom,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
-                            Icons.Filled.Add,
-                            contentDescription = stringResource(R.string.add_icon),
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(
-                            if (vitalsViewModel.todayVital == null || vitalsViewModel.existsInOtherHospital)
-                                stringResource(id = R.string.add_vitals)
-                            else stringResource(id = R.string.update_vitals)
-                        )
+                        Button(
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            ),
+                            modifier = Modifier
+                                .padding(12.dp)
+                                .fillMaxWidth(),
+                            onClick = {
+                                if (vitalsViewModel.patient!!.patientDeceasedReason.isNullOrBlank()) {
+                                    if (vitalsViewModel.todayVital != null && !vitalsViewModel.existsInOtherHospital) {
+                                        handleAddVitalLogic(vitalsViewModel, navController, scope, snackBarHostState, context)
+                                    } else {
+                                        currentStep = 1
+                                    }
+                                } else {
+                                    scope.launch {
+                                        snackBarHostState.showSnackbar(
+                                            context.getString(R.string.patient_deceased_error_msg)
+                                        )
+                                    }
+                                }
+                            },
+                            contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+                        ) {
+                            Icon(
+                                Icons.Filled.Add,
+                                contentDescription = stringResource(R.string.add_icon),
+                                modifier = Modifier.size(ButtonDefaults.IconSize)
+                            )
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Text(
+                                if (vitalsViewModel.todayVital == null || vitalsViewModel.existsInOtherHospital)
+                                    stringResource(id = R.string.add_vitals)
+                                else stringResource(id = R.string.update_vitals)
+                            )
+                        }
                     }
                 }
             }
@@ -212,40 +264,40 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
     ShowDialogs(vitalsViewModel, navController, scope)
 }
 
-private fun handleAddBtnClick(
-    vitalsViewModel: VitalsViewModel,
-    scope: CoroutineScope,
+private fun handleAddVitalLogic(
+    viewModel: VitalsViewModel,
+    navController: NavController,
+    coroutineScope: CoroutineScope,
     snackBarHostState: SnackbarHostState,
-    context: Context,
-    navController: NavController
+    context: Context
 ) {
-    vitalsViewModel.getAppointmentInfo(
+    viewModel.getAppointmentInfo(
         callback = {
             when {
-                vitalsViewModel.existsInOtherHospital -> {
-                    scope.launch {
+                viewModel.existsInOtherHospital -> {
+                    coroutineScope.launch {
                         snackBarHostState.showSnackbar(
                             message = context.getString(R.string.appointment_exists_in_other_hospital)
                         )
                     }
                 }
 
-                vitalsViewModel.canAddAssessment -> {
-                    scope.launch {
+                viewModel.canAddAssessment -> {
+                    coroutineScope.launch {
                         navController.currentBackStackEntry?.savedStateHandle?.set(
                             PATIENT,
-                            vitalsViewModel.patient
+                            viewModel.patient
                         )
                         navController.navigate(Screen.AddVitalsScreen.route)
                     }
                 }
 
-                vitalsViewModel.isAppointmentCompleted -> {
-                    vitalsViewModel.showAppointmentCompletedDialog = true
+                viewModel.isAppointmentCompleted -> {
+                    viewModel.showAppointmentCompletedDialog = true
                 }
 
                 else -> {
-                    vitalsViewModel.showAddToQueueDialog = true
+                    viewModel.showAddToQueueDialog = true
                 }
             }
         }

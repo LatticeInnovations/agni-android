@@ -472,4 +472,10 @@
     <string name="fetching_location">Fetching location</string>
     <string name="gps_location_saved">GPS location saved</string>
     <string name="update_location">Update location</string>
+    <string name="record_type_title">Is this record for a screening site or routine facility visit?</string>
+    <string name="facility">Facility</string>
+    <string name="standard_clinic_record_not_linked_to_any_campaign">Standard clinic record, not linked to any campaign</string>
+    <string name="screening_site">Screening Site</string>
+    <string name="tag_this_record_to_an_active_screening_campaign">Tag this record to an active screening campaign</string>
+    <string name="screening_site_title">Select the screening site</string>
 </resources>
