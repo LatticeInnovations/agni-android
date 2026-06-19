@@ -7,5 +7,6 @@ import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 data class Otp(
     val userContact: String,
     val otp: Int,
-    val type: RegisterTypeEnum? = null
+    val type: RegisterTypeEnum? = null,
+    val platform: String = "mobile"
 )

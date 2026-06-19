@@ -6,5 +6,6 @@ import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 @Keep
 data class Login(
     val userContact: String,
-    val type: RegisterTypeEnum? = null
+    val type: RegisterTypeEnum? = null,
+    val platform: String = "mobile"
 )
