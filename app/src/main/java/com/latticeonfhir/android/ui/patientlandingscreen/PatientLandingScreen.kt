@@ -266,19 +266,6 @@ private fun CardComposableList(
         )
         CardComposable(
             viewModel,
-            stringResource(id = R.string.prescription),
-            R.drawable.prescriptions_icon,
-            null,
-            onClick = {
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "patient",
-                    viewModel.patient
-                )
-                navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
-            }
-        )
-        CardComposable(
-            viewModel,
             stringResource(id = R.string.drugs_dispense),
             R.drawable.pill,
             null,
