@@ -23,6 +23,7 @@ data class PatientRegister(
     var patientId: String? = "",
     var homePostalCode: String? = "",
     var homeState: String? = "",
+    var homeBlock: String? = "",
     var homeAddressLine1: String? = "",
     var homeAddressLine2: String? = "",
     var homeCity: String? = "",

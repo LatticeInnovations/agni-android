@@ -17,15 +17,11 @@ class PatientRegistrationStepThreeViewModel : BaseViewModel(), DefaultLifecycleO
     var addWorkAddress by mutableStateOf(false)
 
     fun addressInfoValidation(): Boolean {
-        if (homeAddress.pincode.length < 6 || homeAddress.state == "" || homeAddress.addressLine1 == ""
-            || homeAddress.city == ""
-        )
-            return false
-        if (addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state == "" || workAddress.addressLine1 == ""
-                    || workAddress.city == "")
-        )
-            return false
-        return true
+        return !(
+                homeAddress.state.isBlank() || homeAddress.isStateValid
+                        || homeAddress.district.isBlank() || homeAddress.isDistrictValid
+                        || homeAddress.block.isBlank() || homeAddress.isBlockValid
+                )
     }
 }
 

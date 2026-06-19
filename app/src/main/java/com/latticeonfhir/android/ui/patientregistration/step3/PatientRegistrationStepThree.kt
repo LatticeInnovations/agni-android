@@ -148,46 +148,20 @@ fun PatientRegistrationStepThree(
         Button(
             onClick = {
                 patientRegister.run {
-                    homePostalCode = viewModel.homeAddress.pincode
+                    homeState = viewModel.homeAddress.state
+                    homeDistrict = viewModel.homeAddress.district
+                    homeBlock = viewModel.homeAddress.block
+                    homeCity = viewModel.homeAddress.city.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }
                     homeAddressLine1 = viewModel.homeAddress.addressLine1.replaceFirstChar {
                         if (it.isLowerCase()) it.titlecase(
                             Locale.getDefault()
                         ) else it.toString()
                     }
                     homeAddressLine2 = viewModel.homeAddress.addressLine2.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    homeState = viewModel.homeAddress.state
-                    homeCity = viewModel.homeAddress.city.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    homeDistrict = viewModel.homeAddress.district.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    workPostalCode = viewModel.workAddress.pincode
-                    workAddressLine1 = viewModel.workAddress.addressLine1.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    workAddressLine2 = viewModel.workAddress.addressLine2.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    workState = viewModel.workAddress.state
-                    workCity = viewModel.workAddress.city.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    workDistrict = viewModel.workAddress.district.replaceFirstChar {
                         if (it.isLowerCase()) it.titlecase(
                             Locale.getDefault()
                         ) else it.toString()
