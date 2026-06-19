@@ -265,17 +265,17 @@ private fun CholesterolTextField(viewModel: CVDRiskAssessmentViewModel) {
                 value = viewModel.cholesterol,
                 onValueChange = { value ->
                     if (viewModel.selectedCholesterolIndex == 0) {
-                        if (value.isBlank() || (value.matches(onlyNumbersWithDecimal) && value.length < 5)) {
-                            viewModel.cholesterol = value
-                            viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
-                                    viewModel.cholesterol.toDouble() !in 1.0..13.0
-                            viewModel.riskPercentage = ""
-                        }
-                    } else {
                         if (value.isBlank() || (value.matches(onlyNumbers) && value.length < 4)) {
                             viewModel.cholesterol = value
                             viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
                                     viewModel.cholesterol.toInt() !in 1..500
+                            viewModel.riskPercentage = ""
+                        }
+                    } else {
+                        if (value.isBlank() || (value.matches(onlyNumbersWithDecimal) && value.length < 5)) {
+                            viewModel.cholesterol = value
+                            viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
+                                    viewModel.cholesterol.toDouble() !in 1.0..13.0
                             viewModel.riskPercentage = ""
                         }
                     }
@@ -292,14 +292,14 @@ private fun CholesterolTextField(viewModel: CVDRiskAssessmentViewModel) {
                     {
                         Text(
                             if (viewModel.selectedCholesterolIndex == 0)
+                                stringResource(R.string.value_cannot_exceed, "1", "500", "mg/dL")
+                            else
                                 stringResource(
                                     R.string.value_cannot_exceed,
                                     "1.0",
                                     "13.0",
                                     "mmol/L"
                                 )
-                            else
-                                stringResource(R.string.value_cannot_exceed, "1", "500", "mg/dL")
                         )
                     }
                 } else null,
