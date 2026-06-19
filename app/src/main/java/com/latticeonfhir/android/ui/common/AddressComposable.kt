@@ -32,22 +32,22 @@ fun AddressComposable(
 ) {
     val context = LocalContext.current
 
-    label?.let {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
-    }
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        label?.let {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        }
         StateDropDown(address, isSearching, getStateNames(context))
         DistrictDropDown(address, isSearching, getDistrictNames(context, address.state))
         BlockDropDown(address, isSearching, getBlockNames(context, address.state, address.district))
