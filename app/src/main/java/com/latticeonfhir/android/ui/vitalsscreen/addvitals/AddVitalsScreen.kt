@@ -722,16 +722,16 @@ private fun CholesterolTextField(viewModel: AddVitalsViewModel, modifier: Modifi
                                 if (viewModel.selectedCholesterolIndex == 0)
                                     stringResource(
                                         R.string.value_cannot_exceed,
-                                        "1.0",
-                                        "13.0",
-                                        "mmol/L"
+                                        "1",
+                                        "500",
+                                        "mg/dL"
                                     )
                                 else
                                     stringResource(
                                         R.string.value_cannot_exceed,
-                                        "1",
-                                        "500",
-                                        "mg/dL"
+                                        "1.0",
+                                        "13.0",
+                                        "mmol/L"
                                     )
                             )
                         }
@@ -1028,19 +1028,18 @@ fun checkTempValid(viewModel: AddVitalsViewModel, temp: String, context: Context
 fun checkCholesterolValid(viewModel: AddVitalsViewModel, value: String) {
     viewModel.apply {
         if (viewModel.selectedCholesterolIndex == 0) {
-            if (value.isBlank() || (value.matches(onlyNumbersWithDecimal) && value.length < 5)) {
-                viewModel.cholesterol = value
-                viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
-                        viewModel.cholesterol.toDouble() !in 1.0..13.0
-            }
-        } else {
             if (value.isBlank() || (value.matches(onlyNumbers) && value.length < 4)) {
                 viewModel.cholesterol = value
                 viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
                         viewModel.cholesterol.toInt() !in 1..500
             }
+        } else {
+            if (value.isBlank() || (value.matches(onlyNumbersWithDecimal) && value.length < 5)) {
+                viewModel.cholesterol = value
+                viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
+                        viewModel.cholesterol.toDouble() !in 1.0..13.0
+            }
         }
-
     }
 }
 

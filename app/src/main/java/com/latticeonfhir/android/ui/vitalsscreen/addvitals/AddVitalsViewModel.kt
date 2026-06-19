@@ -87,7 +87,7 @@ class AddVitalsViewModel @Inject constructor(
     var cholesterol by mutableStateOf("")
     var cholesterolError by mutableStateOf(false)
     var selectedCholesterolIndex by mutableIntStateOf(0)
-    var cholesterolUnits = listOf("mmol/L", "mg/dl")
+    var cholesterolUnits = listOf("mg/dl", "mmol/L")
 
     fun validateVitalsDetails(): Boolean {
         return !(checkHeight() || checkWeight() || checkHearRate() || checkRR() || checkSpo2() || checkTemp() || checkBG() || checkBP() || checkCholesterol() || checkEyes() || checkAllFields())
