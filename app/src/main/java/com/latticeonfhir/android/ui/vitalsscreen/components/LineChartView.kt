@@ -21,10 +21,13 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.latticeonfhir.android.ui.theme.VitalLabel
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 
 @Composable
@@ -32,17 +35,19 @@ fun LineChartView(
     modifier: Modifier = Modifier,
     entries1: List<Entry>?,
     entries2: List<Entry>?,
-    labels: List<String>,
     isBp: Boolean = false
 ) {
 
-    Timber.d("Entries: $entries1 \nLabels: $labels")
-    val chartWidth = (labels.size * 50).dp
+    Timber.d("Entries: $entries1 \nLabels")
 
     // Calculate Y-axis minimum and maximum values dynamically
     val allEntries = (entries1.orEmpty() + entries2.orEmpty())
     val yMin = allEntries.minOfOrNull { it.y } ?: 0f  // Minimum Y value
     val yMax = allEntries.maxOfOrNull { it.y } ?: 0f  // Maximum Y value
+    val xMin = allEntries.minOfOrNull { it.x }?:0f
+    val xMax = allEntries.maxOfOrNull { it.x }?:0f
+
+    val chartWidth = ((xMax-xMin)* 30f+100f).dp.coerceIn(350.dp, 3000.dp)
 
     // Add some padding to min and max values for better visualization
     val axisMin = yMin - 10f
@@ -66,7 +71,19 @@ fun LineChartView(
                 description.isEnabled = false // Disable description
 
                 // X Axis configuration
-                xAxis.xAxisConfiguration(gridLineColor, labels)
+                val xAxisValueFormatter = object : ValueFormatter(){
+                    private val dateFormat = SimpleDateFormat("dd MMM", Locale.getDefault()).apply {
+                        timeZone = TimeZone.getTimeZone("UTC")
+
+                    }
+
+                    override fun getFormattedValue(value: Float): String? {
+                        val timeUTC = value.toLong() *(1000 * 60L *60L *24L)
+                        return dateFormat.format(Date(timeUTC))
+                    }
+
+                }
+                xAxis.xAxisConfiguration(gridLineColor, xAxisValueFormatter)
 
                 // Y Axis (Left) configuration
                 axisLeft.axisLeftConfiguration(
@@ -123,16 +140,15 @@ fun LineChartView(
     )
 }
 
-fun XAxis.xAxisConfiguration(gridLineColor: Int, labels: List<String>) {
+fun XAxis.xAxisConfiguration(gridLineColor: Int, xFormatter: ValueFormatter) {
     this.apply {
         position = XAxis.XAxisPosition.BOTTOM
         setDrawGridLines(true)
         setDrawAxisLine(false)
         textSize = 10f
-        labelCount = labels.size
         textColor = Color.GRAY
         granularity = 1f
-        valueFormatter = IndexAxisValueFormatter(labels)
+        valueFormatter = xFormatter
         gridColor = gridLineColor
         setGridDashedLine(DashPathEffect(floatArrayOf(10f, 5f), 0f))
 
@@ -213,18 +229,19 @@ fun List<Entry>?.lineDateSet2(
 fun LineChartViewGlucose(
     modifier: Modifier = Modifier,
     entriesRandom: List<Entry>?,   // Random glucose values
-    entriesFasting: List<Entry>?,  // Fasting glucose values
-    labels: List<String>
+    entriesFasting: List<Entry>?  // Fasting glucose values
 ) {
 
-    val chartWidth = (labels.size * 50).dp
     Timber.d("Entries: $entriesRandom")
 
     // Calculate Y-axis minimum and maximum values dynamically
     val allEntries = (entriesRandom.orEmpty() + entriesFasting.orEmpty())
     val yMin = allEntries.minOfOrNull { it.y } ?: 0f  // Minimum Y value
     val yMax = allEntries.maxOfOrNull { it.y } ?: 0f  // Maximum Y value
+    val xMin = allEntries.minOfOrNull { it.x }?: 0f
+    val xMax = allEntries.maxOfOrNull { it.x }?: 0f
 
+    val chartWidth = ((xMax- xMin) *30f+100f).dp.coerceIn(350.dp, 3000.dp)
     // Add some padding to min and max values for better visualization
     val axisMin = yMin - 10f
     val axisMax = yMax + 10f
@@ -247,15 +264,27 @@ fun LineChartViewGlucose(
                 description.isEnabled = false // Disable description
 
                 // X Axis configuration
+                val xAxisValueFormatter = object : ValueFormatter(){
+                    private val dateFormat = SimpleDateFormat("dd MMM", Locale.getDefault()).apply {
+                        timeZone = TimeZone.getTimeZone("UTC")
+
+                    }
+
+                    override fun getFormattedValue(value: Float): String? {
+                        val timeUTC = value.toLong() *(1000 * 60L *60L *24L)
+                        return dateFormat.format(Date(timeUTC))
+                    }
+
+                }
                 xAxis.apply {
                     position = XAxis.XAxisPosition.BOTTOM
                     setDrawGridLines(true)
                     setDrawAxisLine(false)
                     textSize = 10f
-                    labelCount = labels.size
+
                     textColor = Color.GRAY
                     granularity = 1f
-                    valueFormatter = IndexAxisValueFormatter(labels)
+                    valueFormatter = xAxisValueFormatter
                     gridColor = gridLineColor
                     setGridDashedLine(DashPathEffect(floatArrayOf(10f, 5f), 0f))
                 }
@@ -361,20 +390,14 @@ private fun LineCharPreview() {
 
             )
 
-        // Second line data entries
 
-        val labels = listOf(
-            "14 Oct",
-            "13 Oct",
-            "12 Oct"
-        )
+
         LineChartView(
             modifier = Modifier
                 .height(200.dp)
                 .fillMaxWidth(),
             entries1 = entries1,
-            entries2 = null,
-            labels = labels,
+            entries2 = null
         )
 
         val randomEntries = listOf(
@@ -386,13 +409,10 @@ private fun LineCharPreview() {
             Entry(3f, 600f), // Corresponds to 21 Oct
             Entry(4f, 60f)  // Corresponds to 20 Oct
         )
-        val labels2 = listOf(
-            "24 Oct", "23 Oct", "22 Oct", "21 Oct", "20 Oct"
-        )
+
         LineChartViewGlucose(
             entriesRandom = randomEntries,
             entriesFasting = fastingEntries,
-            labels = labels2,
         )
 
     }
