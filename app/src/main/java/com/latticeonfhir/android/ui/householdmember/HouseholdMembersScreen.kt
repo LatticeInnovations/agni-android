@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -34,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -48,15 +45,12 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.householdmember.members.MembersScreen
-import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -78,14 +72,7 @@ fun HouseholdMembersScreen(
         viewModel.isLaunched = true
     }
 
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val pagerState = rememberPagerState(
-        initialPage = 0,
-        initialPageOffsetFraction = 0f
-    ) {
-        viewModel.tabs.size
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -131,126 +118,102 @@ fun HouseholdMembersScreen(
         content = {
             Box(modifier = Modifier.padding(it)) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    TabRowComposable(
-                        viewModel.tabs,
-                        pagerState
-                    ) { index ->
-                        scope.launch { pagerState.animateScrollToPage(index) }
-                    }
-                    HorizontalPager(
-                        state = pagerState
-                    ) { index ->
-                        when (index) {
-                            0 -> viewModel.patient?.let { it1 ->
-                                MembersScreen(
-                                    it1,
-                                    navController,
-                                    viewModel.selectedIndex
-                                )
-                            }
-
-                            1 -> viewModel.patient?.let { it1 ->
-                                SuggestionsScreen(
-                                    it1,
-                                    snackbarHostState,
-                                    scope
-                                )
-                            }
-                        }
+                    viewModel.patient?.let { it1 ->
+                        MembersScreen(
+                            it1,
+                            navController,
+                            viewModel.selectedIndex
+                        )
                     }
                 }
             }
         },
         floatingActionButton = {
-            if (pagerState.currentPage == 0) {
-                //if (!viewModel.isUpdateSelected) {
-                AnimatedVisibility(visible = !viewModel.isUpdateSelected) {
-                    FloatingActionButton(
-                        onClick = { viewModel.isUpdateSelected = true },
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                        modifier = Modifier.testTag("UPDATE_FAB")
+            AnimatedVisibility(visible = !viewModel.isUpdateSelected) {
+                FloatingActionButton(
+                    onClick = { viewModel.isUpdateSelected = true },
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    modifier = Modifier.testTag("UPDATE_FAB")
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 15.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 15.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.group_icon),
-                                contentDescription = null,
-                                Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text(text = "Update")
-                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.group_icon),
+                            contentDescription = null,
+                            Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(text = "Update")
                     }
                 }
-                //else {
-                AnimatedVisibility(visible = viewModel.isUpdateSelected) {
+            }
+            //else {
+            AnimatedVisibility(visible = viewModel.isUpdateSelected) {
 
-                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                        Column {
-                            FloatingActionButton(
-                                onClick = {
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "patient",
-                                        viewModel.patient
-                                    )
-                                    navController.navigate(Screen.AddHouseholdMember.route)
-                                    viewModel.isUpdateSelected = false
-                                },
-                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                                modifier = Modifier.testTag("ADD_MEMBER_FAB")
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    Column {
+                        FloatingActionButton(
+                            onClick = {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    "patient",
+                                    viewModel.patient
+                                )
+                                navController.navigate(Screen.AddHouseholdMember.route)
+                                viewModel.isUpdateSelected = false
+                            },
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.testTag("ADD_MEMBER_FAB")
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Row(
-                                    modifier = Modifier.padding(10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(text = stringResource(id = R.string.add_member))
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Icon(
-                                        Icons.Default.Add,
-                                        contentDescription = null
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
-                            FloatingActionButton(
-                                onClick = { },
-                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                                modifier = Modifier.testTag("EDIT_EXISTING_FAB")
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(text = stringResource(id = R.string.edit_existing))
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.edit_icon),
-                                        contentDescription = null,
-                                        Modifier.size(20.dp)
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
-                            FloatingActionButton(
-                                onClick = { viewModel.isUpdateSelected = false },
-                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                                modifier = Modifier.testTag("CLEAR_FAB")
-                            ) {
+                                Text(text = stringResource(id = R.string.add_member))
+                                Spacer(modifier = Modifier.width(10.dp))
                                 Icon(
-                                    Icons.Default.Clear,
+                                    Icons.Default.Add,
                                     contentDescription = null
                                 )
                             }
                         }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        FloatingActionButton(
+                            onClick = { },
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.testTag("EDIT_EXISTING_FAB")
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = stringResource(id = R.string.edit_existing))
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Icon(
+                                    painter = painterResource(id = R.drawable.edit_icon),
+                                    contentDescription = null,
+                                    Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        FloatingActionButton(
+                            onClick = { viewModel.isUpdateSelected = false },
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.testTag("CLEAR_FAB")
+                        ) {
+                            Icon(
+                                Icons.Default.Clear,
+                                contentDescription = null
+                            )
+                        }
                     }
                 }
-
             }
         }
     )

@@ -266,19 +266,6 @@ private fun CardComposableList(
         )
         CardComposable(
             viewModel,
-            stringResource(id = R.string.prescription),
-            R.drawable.prescriptions_icon,
-            null,
-            onClick = {
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "patient",
-                    viewModel.patient
-                )
-                navController.navigate(Screen.PrescriptionPhotoViewScreen.route)
-            }
-        )
-        CardComposable(
-            viewModel,
             stringResource(id = R.string.drugs_dispense),
             R.drawable.pill,
             null,
@@ -288,40 +275,6 @@ private fun CardComposableList(
                     viewModel.patient
                 )
                 navController.navigate(Screen.DrugDispenseScreen.route)
-            }
-        )
-        CardComposable(
-            viewModel,
-            stringResource(id = R.string.lab_test),
-            R.drawable.lab_research,
-            null,
-            onClick = {
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    PHOTO_VIEW_TYPE,
-                    PhotoUploadTypeEnum.LAB_TEST.value
-                )
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    PATIENT,
-                    viewModel.patient
-                )
-                navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
-            }
-        )
-        CardComposable(
-            viewModel,
-            stringResource(id = R.string.medical_record),
-            R.drawable.contract,
-            null,
-            onClick = {
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    PHOTO_VIEW_TYPE,
-                    PhotoUploadTypeEnum.MEDICAL_RECORD.value
-                )
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    PATIENT,
-                    viewModel.patient
-                )
-                navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
             }
         )
         CardComposable(
@@ -340,6 +293,23 @@ private fun CardComposableList(
                     viewModel.patient
                 )
                 navController.navigate(Screen.VaccinationScreen.route)
+            }
+        )
+        CardComposable(
+            viewModel,
+            stringResource(id = R.string.medical_record),
+            R.drawable.contract,
+            null,
+            onClick = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PHOTO_VIEW_TYPE,
+                    PhotoUploadTypeEnum.MEDICAL_RECORD.value
+                )
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    PATIENT,
+                    viewModel.patient
+                )
+                navController.navigate(Screen.LabAndMedRecordPhotoViewScreen.route)
             }
         )
         Spacer(

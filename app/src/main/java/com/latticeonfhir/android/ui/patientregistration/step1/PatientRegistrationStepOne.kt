@@ -37,13 +37,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.local.enums.GenderEnum
 import com.latticeonfhir.android.ui.common.CustomFilterChip
 import com.latticeonfhir.android.ui.common.CustomTextField
+import com.latticeonfhir.android.ui.common.CustomTextFieldWithLength
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
 import com.latticeonfhir.android.ui.theme.Neutral40
@@ -105,210 +105,152 @@ fun PatientRegistrationStepOne(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .testTag("columnLayout")
-                .weight(1f)
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-
-            CustomTextField(
-                viewModel.firstName,
-                stringResource(id = R.string.first_name),
-                1f,
-                viewModel.maxFirstNameLength,
-                viewModel.isNameValid,
-                stringResource(id = R.string.first_name_error_msg),
-                KeyboardType.Text,
-                KeyboardCapitalization.Words
-            ) {
-                if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.firstName = it.trim()
-                viewModel.isNameValid =
-                    viewModel.firstName.length < 3 || viewModel.firstName.length > 100
-            }
-            ValueLength(viewModel.firstName, "FIRST_NAME_LENGTH")
-            CustomTextField(
-                viewModel.middleName,
-                stringResource(id = R.string.middle_name),
-                1f,
-                viewModel.maxMiddleNameLength,
-                false,
-                "",
-                KeyboardType.Text,
-                KeyboardCapitalization.Words
-            ) {
-                if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.middleName = it.trim()
-            }
-            ValueLength(viewModel.middleName, "MIDDLE_NAME_LENGTH")
-            CustomTextField(
-                viewModel.lastName,
-                stringResource(id = R.string.last_name),
-                1f,
-                viewModel.maxLastNameLength,
-                false,
-                "",
-                KeyboardType.Text,
-                KeyboardCapitalization.Words
-            ) {
-                if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.lastName = it.trim()
-            }
-            ValueLength(viewModel.lastName, "LAST_NAME_LENGTH")
-            Row(modifier = Modifier.fillMaxWidth()) {
-                CustomFilterChip(viewModel.dobAgeSelector, "dob", "Date of Birth") {
-                    viewModel.dobAgeSelector = it
-                    viewModel.days = ""
-                    viewModel.months = ""
-                    viewModel.years = ""
-                }
-                Spacer(modifier = Modifier.width(10.dp))
-                CustomFilterChip(viewModel.dobAgeSelector, "age", "Age") {
-                    viewModel.dobAgeSelector = it
-                    viewModel.dobDay = ""
-                    viewModel.dobMonth = ""
-                    viewModel.dobYear = ""
-                }
-            }
-            if (viewModel.dobAgeSelector == "dob") {
-                DobTextField(viewModel)
-            } else
-                AgeTextField(viewModel)
-
-            Spacer(modifier = Modifier.height(20.dp))
-
+            FirstNameTextField(viewModel)
+            MiddleNameTextField(viewModel)
+            LastNameTextField(viewModel)
+            DOBAndAgeFields(viewModel)
+            Spacer(modifier = Modifier.height(1.dp))
             ContactTextField(viewModel)
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            CustomTextField(
-                viewModel.email,
-                stringResource(id = R.string.email),
-                1F,
-                viewModel.maxEmailLength,
-                viewModel.isEmailValid,
-                stringResource(id = R.string.email_error_msg),
-                KeyboardType.Email,
-                KeyboardCapitalization.None
-            ) {
-                viewModel.email = it
-                viewModel.isEmailValid = !Patterns.EMAIL_ADDRESS.matcher(viewModel.email).matches()
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
+            EmailTextField(viewModel)
             GenderComposable(viewModel)
+            Spacer(modifier = Modifier.height(10.dp))
         }
-        Button(
-            onClick = {
-                patientRegister.run {
-                    firstName = viewModel.firstName.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    middleName = viewModel.middleName.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    lastName = viewModel.lastName.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
-                    dobAgeSelector = viewModel.dobAgeSelector
-                    dobDay = viewModel.dobDay
-                    dobMonth = viewModel.dobMonth
-                    dobYear = viewModel.dobYear
-                    years = viewModel.years
-                    months = viewModel.months
-                    days = viewModel.days
-                    phoneNumber = viewModel.phoneNumber
-                    email = viewModel.email
-                    gender = viewModel.gender
-                }
-                patientRegistrationViewModel.currentStep = 2
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp)
-                .testTag("step2"),
-            enabled = viewModel.basicInfoValidation()
-        ) {
-            Text(text = stringResource(id = R.string.next))
+        NextButton(patientRegister, viewModel, patientRegistrationViewModel)
+    }
+}
+
+@Composable
+private fun FirstNameTextField(
+    viewModel: PatientRegistrationStepOneViewModel
+){
+    CustomTextFieldWithLength(
+        value = viewModel.firstName,
+        label = stringResource(id = R.string.first_name),
+        placeholder = null,
+        weight = 1f,
+        maxLength = viewModel.maxFirstNameLength,
+        isError = viewModel.isNameValid,
+        error = if (viewModel.firstName.isBlank())  stringResource(id = R.string.first_name_is_required)
+        else stringResource(id = R.string.first_name_error_msg),
+        keyboardType = KeyboardType.Text,
+        keyboardCapitalization = KeyboardCapitalization.Words
+    ) {
+        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.firstName = it.trim()
+        viewModel.isNameValid = viewModel.firstName.length !in 3..100
+    }
+}
+
+@Composable
+private fun MiddleNameTextField(
+    viewModel: PatientRegistrationStepOneViewModel
+){
+    CustomTextFieldWithLength(
+        value = viewModel.middleName,
+        label = stringResource(id = R.string.middle_name),
+        placeholder = null,
+        weight = 1f,
+        maxLength = viewModel.maxMiddleNameLength,
+        isError = false,
+        error = "",
+        keyboardType = KeyboardType.Text,
+        keyboardCapitalization = KeyboardCapitalization.Words
+    ) {
+        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.middleName = it.trim()
+    }
+}
+
+@Composable
+private fun LastNameTextField(
+    viewModel: PatientRegistrationStepOneViewModel
+) {
+    CustomTextFieldWithLength(
+        value = viewModel.lastName,
+        label = stringResource(id = R.string.last_name),
+        placeholder = null,
+        weight = 1f,
+        maxLength = viewModel.maxLastNameLength,
+        isError = false,
+        error = "",
+        keyboardType = KeyboardType.Text,
+        keyboardCapitalization = KeyboardCapitalization.Words
+    ) {
+        if (it.trim().matches(nameRegex) || it.isEmpty()) viewModel.lastName = it.trim()
+    }
+}
+
+@Composable
+private fun DOBAndAgeFields(viewModel: PatientRegistrationStepOneViewModel) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            CustomFilterChip(viewModel.dobAgeSelector, "dob", "Date of Birth") {
+                viewModel.dobAgeSelector = it
+                viewModel.days = ""
+                viewModel.months = ""
+                viewModel.years = ""
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            CustomFilterChip(viewModel.dobAgeSelector, "age", "Age") {
+                viewModel.dobAgeSelector = it
+                viewModel.dobDay = ""
+                viewModel.dobMonth = ""
+                viewModel.dobYear = ""
+            }
+        }
+        if (viewModel.dobAgeSelector == "dob") {
+            DobTextField(viewModel)
+        } else
+            AgeTextField(viewModel)
+
+        if (viewModel.isDOBAgeBlank()) {
+            Text(
+                text = stringResource(id = R.string.dob_age_required),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
     }
 }
 
 @Composable
-fun ValueLength(value: String, tag: String) {
-    Text(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 5.dp, end = 15.dp)
-            .testTag(tag),
-        text = if (value.isEmpty()) "" else "${value.length}/100",
-        style = MaterialTheme.typography.bodySmall,
-        textAlign = TextAlign.Right,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-}
-
-@Composable
-fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
+private fun DobTextField(viewModel: PatientRegistrationStepOneViewModel) {
     Column {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            CustomTextField(
-                value = viewModel.dobDay,
-                label = stringResource(id = R.string.day),
-                weight = 0.23f,
-                maxLength = 2,
-                isError = false,
-                error = "",
-                KeyboardType.Number,
-                KeyboardCapitalization.None
-            ) {
-                if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobDay = it
-                if (viewModel.dobDay.isNotEmpty()) {
-                    viewModel.monthsList = getMonthsList(viewModel.dobDay)
-                }
-            }
-            Spacer(modifier = Modifier.width(10.dp))
+            DOBDayField(viewModel)
             MonthDropDown(viewModel)
-            Spacer(modifier = Modifier.width(10.dp))
-            CustomTextField(
-                value = viewModel.dobYear,
-                label = stringResource(id = R.string.year),
-                weight = 1f,
-                maxLength = 4,
-                isError = false,
-                error = "",
-                KeyboardType.Number,
-                KeyboardCapitalization.None
-            ) {
-                if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.dobYear = it
-            }
+            DOBYearField(viewModel)
         }
         DateErrorText(viewModel)
     }
 }
 
 @Composable
-private fun DateErrorText(viewModel: PatientRegistrationStepOneViewModel) {
-    if (viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
-        && !isDOBValid(
-            viewModel.dobDay.toInt(),
-            viewModel.dobMonth.toMonthInteger(),
-            viewModel.dobYear.toInt()
-        )
+private fun DOBDayField(viewModel: PatientRegistrationStepOneViewModel) {
+    CustomTextField(
+        value = viewModel.dobDay,
+        label = stringResource(id = R.string.day),
+        weight = 0.23f,
+        maxLength = 2,
+        isError = false,
+        error = "",
+        KeyboardType.Number,
+        KeyboardCapitalization.None
     ) {
-        Text(
-            text = stringResource(
-                id = R.string.invalid_date,
-                "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
-            ),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.padding(start = 8.dp)
-        )
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) {
+            viewModel.dobDay = it
+        }
+        if (viewModel.dobDay.isNotEmpty()) {
+            viewModel.monthsList = getMonthsList(viewModel.dobDay)
+        }
     }
 }
 
@@ -370,7 +312,46 @@ private fun MonthDropDown(viewModel: PatientRegistrationStepOneViewModel) {
 }
 
 @Composable
-fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
+private fun DOBYearField(viewModel: PatientRegistrationStepOneViewModel) {
+    CustomTextField(
+        value = viewModel.dobYear,
+        label = stringResource(id = R.string.year),
+        weight = 1f,
+        maxLength = 4,
+        isError = false,
+        error = "",
+        KeyboardType.Number,
+        KeyboardCapitalization.None
+    ) {
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) {
+            viewModel.dobYear = it
+        }
+    }
+}
+
+@Composable
+private fun DateErrorText(viewModel: PatientRegistrationStepOneViewModel) {
+    if (viewModel.dobDay.isNotEmpty() && viewModel.dobMonth.isNotEmpty() && viewModel.dobYear.isNotEmpty()
+        && !isDOBValid(
+            viewModel.dobDay.toInt(),
+            viewModel.dobMonth.toMonthInteger(),
+            viewModel.dobYear.toInt()
+        )
+    ) {
+        Text(
+            text = stringResource(
+                id = R.string.invalid_date,
+                "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+        )
+    }
+}
+
+@Composable
+private fun AgeTextField(viewModel: PatientRegistrationStepOneViewModel) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -396,9 +377,10 @@ private fun AgeDaysComposable(viewModel: PatientRegistrationStepOneViewModel) {
         KeyboardType.Number,
         KeyboardCapitalization.None
     ) {
-        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.days = it
-        if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid =
-            viewModel.days.toInt() < 1 || viewModel.days.toInt() > 30
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) {
+            viewModel.days = it
+        }
+        if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid = viewModel.days.toInt() !in 1..30
     }
 }
 
@@ -416,9 +398,10 @@ private fun AgeMonthsComposable(viewModel: PatientRegistrationStepOneViewModel) 
         KeyboardType.Number,
         KeyboardCapitalization.None
     ) {
-        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.months = it
-        if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =
-            viewModel.months.toInt() < 1 || viewModel.months.toInt() > 11
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) {
+            viewModel.months = it
+        }
+        if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =  viewModel.months.toInt() !in 1..11
     }
 }
 
@@ -436,9 +419,10 @@ private fun AgeYearsComposable(viewModel: PatientRegistrationStepOneViewModel) {
         KeyboardType.Number,
         KeyboardCapitalization.None
     ) {
-        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) viewModel.years = it
-        if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid =
-            viewModel.years.toInt() < 0 || viewModel.years.toInt() > 150
+        if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) {
+            viewModel.years = it
+        }
+        if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid = viewModel.years.toInt() !in 0..150
     }
 }
 
@@ -465,7 +449,7 @@ fun ContactTextField(viewModel: PatientRegistrationStepOneViewModel) {
             onValueChange = {
                 if (it.length <= 10 && (it.matches(viewModel.onlyNumbers) || it.isEmpty()))
                     viewModel.phoneNumber = it
-                viewModel.isPhoneValid = !viewModel.phoneNumber.matches(phoneNumberRegex)
+                viewModel.isPhoneValid = !viewModel.phoneNumber.matches(phoneNumberRegex) || viewModel.phoneNumber.isBlank()
             },
             modifier = Modifier
                 .fillMaxWidth(1f)
@@ -491,41 +475,117 @@ fun ContactTextField(viewModel: PatientRegistrationStepOneViewModel) {
 }
 
 @Composable
-fun GenderComposable(viewModel: PatientRegistrationStepOneViewModel) {
-    Row(
+private fun EmailTextField(
+    viewModel: PatientRegistrationStepOneViewModel
+) {
+    CustomTextField(
+        viewModel.email,
+        stringResource(id = R.string.email),
+        1F,
+        viewModel.maxEmailLength,
+        viewModel.isEmailValid,
+        stringResource(id = R.string.email_error_msg),
+        KeyboardType.Email,
+        KeyboardCapitalization.None
+    ) {
+        viewModel.email = it
+        viewModel.isEmailValid = !Patterns.EMAIL_ADDRESS.matcher(viewModel.email).matches()
+    }
+}
+
+@Composable
+private fun GenderComposable(viewModel: PatientRegistrationStepOneViewModel) {
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("genderRow"),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.gender_mandatory),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Spacer(modifier = Modifier.width(20.dp))
+            CustomFilterChip(
+                viewModel.gender,
+                GenderEnum.MALE.value,
+                stringResource(id = R.string.male)
+            ) {
+                viewModel.gender = it
+            }
+            Spacer(modifier = Modifier.width(15.dp))
+            CustomFilterChip(
+                viewModel.gender,
+                GenderEnum.FEMALE.value,
+                stringResource(id = R.string.female)
+            ) {
+                viewModel.gender = it
+            }
+            Spacer(modifier = Modifier.width(15.dp))
+            CustomFilterChip(
+                viewModel.gender,
+                GenderEnum.OTHER.value,
+                stringResource(id = R.string.other)
+            ) {
+                viewModel.gender = it
+            }
+        }
+
+        if (viewModel.gender.isEmpty()) {
+            Text(
+                text = stringResource( id = R.string.gender_is_required),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
+
+@Composable
+private fun NextButton(
+    patientRegister: PatientRegister,
+    viewModel: PatientRegistrationStepOneViewModel,
+    patientRegistrationViewModel: PatientRegistrationViewModel
+) {
+    Button(
+        onClick = {
+            patientRegister.run {
+                firstName = viewModel.firstName.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(
+                        Locale.getDefault()
+                    ) else it.toString()
+                }
+                middleName = viewModel.middleName.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(
+                        Locale.getDefault()
+                    ) else it.toString()
+                }
+                lastName = viewModel.lastName.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(
+                        Locale.getDefault()
+                    ) else it.toString()
+                }
+                dobAgeSelector = viewModel.dobAgeSelector
+                dobDay = viewModel.dobDay
+                dobMonth = viewModel.dobMonth
+                dobYear = viewModel.dobYear
+                years = viewModel.years
+                months = viewModel.months
+                days = viewModel.days
+                phoneNumber = viewModel.phoneNumber
+                email = viewModel.email
+                gender = viewModel.gender
+            }
+            patientRegistrationViewModel.currentStep = 2
+        },
         modifier = Modifier
             .fillMaxWidth()
-            .testTag("genderRow"),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(top = 10.dp)
+            .testTag("step2"),
+        enabled = viewModel.basicInfoValidation()
     ) {
-        Text(
-            text = stringResource(id = R.string.gender),
-            style = MaterialTheme.typography.bodyLarge
-        )
-        Spacer(modifier = Modifier.width(20.dp))
-        CustomFilterChip(
-            viewModel.gender,
-            GenderEnum.MALE.value,
-            stringResource(id = R.string.male)
-        ) {
-            viewModel.gender = it
-        }
-        Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(
-            viewModel.gender,
-            GenderEnum.FEMALE.value,
-            stringResource(id = R.string.female)
-        ) {
-            viewModel.gender = it
-        }
-        Spacer(modifier = Modifier.width(15.dp))
-        CustomFilterChip(
-            viewModel.gender,
-            GenderEnum.OTHER.value,
-            stringResource(id = R.string.other)
-        ) {
-            viewModel.gender = it
-        }
+        Text(text = stringResource(id = R.string.next))
     }
 }
 

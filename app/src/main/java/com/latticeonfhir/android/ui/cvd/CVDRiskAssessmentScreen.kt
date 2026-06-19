@@ -255,8 +255,8 @@ fun CVDRiskAssessmentScreen(
                                 onClick = {
                                     viewModel.saveCVDRecord(
                                         saved = {
-                                            focusManager.clearFocus()
                                             scope.launch {
+                                                focusManager.clearFocus()
                                                 pagerState.animateScrollToPage(0)
                                                 snackbarHostState.showSnackbar(
                                                     message = context.getString(R.string.assessment_record_saved)

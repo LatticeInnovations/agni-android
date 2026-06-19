@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -151,20 +152,30 @@ fun AddVitals(navController: NavController, viewModel: AddVitalsViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(paddingValues = paddingValues)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             HeightCard(viewModel = viewModel)
+            HorizontalDivider()
             WeightCard(viewModel = viewModel)
+            HorizontalDivider()
             EyeTestCard(viewModel = viewModel)
+            HorizontalDivider()
             HeartRateCard(viewModel = viewModel)
+            HorizontalDivider()
             RespiratoryCard(viewModel = viewModel)
+            HorizontalDivider()
             SpO2Card(viewModel = viewModel)
+            HorizontalDivider()
             TemperatureCard(viewModel = viewModel)
+            HorizontalDivider()
             BloodPressureCard(viewModel = viewModel)
+            HorizontalDivider()
             CholesterolTextField(viewModel = viewModel)
+            HorizontalDivider()
             BloodGlucoseCard(viewModel = viewModel)
+            HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
             SetBottomSheets(viewModel)
         }
@@ -378,7 +389,6 @@ fun HeightCard(viewModel: AddVitalsViewModel, modifier: Modifier = Modifier) {
 fun WeightCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
     Column(
         modifier = modifier
-            .padding(top = 4.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .background(
@@ -422,7 +432,6 @@ fun WeightCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
 fun EyeTestCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
     Column(
         modifier = modifier
-            .padding(top = 4.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .background(
@@ -479,7 +488,6 @@ fun EyeTestCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
 fun HeartRateCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
     Column(
         modifier = modifier
-            .padding(top = 4.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .background(
@@ -507,7 +515,6 @@ fun HeartRateCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) 
 fun RespiratoryCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
     Column(
         modifier = modifier
-            .padding(top = 4.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .background(
@@ -536,7 +543,6 @@ fun RespiratoryCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel
 fun SpO2Card(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
     Column(
         modifier = modifier
-            .padding(top = 4.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .background(
@@ -566,7 +572,6 @@ fun TemperatureCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel
     val context = LocalContext.current
     Column(
         modifier = modifier
-            .padding(top = 4.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .background(
@@ -618,7 +623,6 @@ fun TemperatureCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel
 fun BloodPressureCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
     Column(
         modifier = modifier
-            .padding(top = 4.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .background(
@@ -681,7 +685,6 @@ fun BloodPressureCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewMod
 private fun CholesterolTextField(viewModel: AddVitalsViewModel, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
-            .padding(top = 4.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .background(
@@ -719,16 +722,16 @@ private fun CholesterolTextField(viewModel: AddVitalsViewModel, modifier: Modifi
                                 if (viewModel.selectedCholesterolIndex == 0)
                                     stringResource(
                                         R.string.value_cannot_exceed,
-                                        "1.0",
-                                        "13.0",
-                                        "mmol/L"
+                                        "1",
+                                        "500",
+                                        "mg/dL"
                                     )
                                 else
                                     stringResource(
                                         R.string.value_cannot_exceed,
-                                        "1",
-                                        "500",
-                                        "mg/dL"
+                                        "1.0",
+                                        "13.0",
+                                        "mmol/L"
                                     )
                             )
                         }
@@ -774,7 +777,6 @@ fun BloodGlucoseCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewMode
     val context = LocalContext.current
     Column(
         modifier = modifier
-            .padding(top = 4.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .background(
@@ -1026,19 +1028,18 @@ fun checkTempValid(viewModel: AddVitalsViewModel, temp: String, context: Context
 fun checkCholesterolValid(viewModel: AddVitalsViewModel, value: String) {
     viewModel.apply {
         if (viewModel.selectedCholesterolIndex == 0) {
-            if (value.isBlank() || (value.matches(onlyNumbersWithDecimal) && value.length < 5)) {
-                viewModel.cholesterol = value
-                viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
-                        viewModel.cholesterol.toDouble() !in 1.0..13.0
-            }
-        } else {
             if (value.isBlank() || (value.matches(onlyNumbers) && value.length < 4)) {
                 viewModel.cholesterol = value
                 viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
                         viewModel.cholesterol.toInt() !in 1..500
             }
+        } else {
+            if (value.isBlank() || (value.matches(onlyNumbersWithDecimal) && value.length < 5)) {
+                viewModel.cholesterol = value
+                viewModel.cholesterolError = viewModel.cholesterol.isNotBlank() &&
+                        viewModel.cholesterol.toDouble() !in 1.0..13.0
+            }
         }
-
     }
 }
 

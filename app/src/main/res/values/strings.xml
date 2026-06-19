@@ -49,6 +49,9 @@
 
     <string name="email">Email</string>
 
+    <string name="gender_is_required">Gender is required</string>
+    <string name="dob_age_required">Valid DOB/Age is required</string>
+
     <string name="add_household_member">Add a household member</string>
     <string name="create_new_patient">Create a new patient, and
 include them in the household</string>
@@ -105,6 +108,7 @@ include them in the household</string>
     <string name="patient_id_error_msg">Patient Id should be between 2 and 12.</string>
     <string name="select_age_range">Select age range</string>
     <string name="gender">Gender</string>
+    <string name="gender_mandatory">Gender*</string>
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="other">Other</string>
@@ -127,28 +131,29 @@ include them in the household</string>
     <string name="discard_dialog_description">Are you sure you want to discard this patient record?</string>
     <string name="edit">Edit</string>
     <string name="next">Next</string>
-    <string name="first_name">First Name</string>
+    <string name="first_name">First Name*</string>
     <string name="middle_name">Middle Name</string>
     <string name="last_name">Last Name</string>
+    <string name="first_name_is_required">First name is required</string>
     <string name="first_name_error_msg">Name length should be between 3 and 100.</string>
     <string name="email_error_msg">Enter valid email (eg., abc123@gmail.com)</string>
-    <string name="day">Day</string>
-    <string name="month">Month</string>
-    <string name="year">Year</string>
+    <string name="day">Day*</string>
+    <string name="month">Month*</string>
+    <string name="year">Year*</string>
     <string name="error_msg_1_to_31_days">Enter valid day between 1 and 31.</string>
     <string name="error_msg_1_to_29_days">Enter valid day between 1 and 29.</string>
     <string name="year_error_msg">Enter valid year between 1900 and %s</string>
     <string name="enter_your_name">Enter your name</string>
     <string name="enter_your_clinic_name">Enter your clinic name</string>
 
-    <string name="age_days">Days</string>
-    <string name="age_months">Months</string>
-    <string name="age_years">Years</string>
+    <string name="age_days">Days*</string>
+    <string name="age_months">Months*</string>
+    <string name="age_years">Years*</string>
     <string name="age_years_error_msg">Enter valid input between 0 to 150.</string>
     <string name="age_months_error_msg">Enter valid input between 1 and 11.</string>
     <string name="age_days_error_msg">Enter valid input between 1 and 30.</string>
 
-    <string name="enter_phone_number">Enter Phone Number</string>
+    <string name="enter_phone_number">Enter Phone Number*</string>
     <string name="enter_phone_number_or_email">Enter phone number or email</string>
     <string name="phone_number_error_msg">Enter Valid Input</string>
 
@@ -347,10 +352,10 @@ include them in the household</string>
     <string name="edit_vital">Edit vitals</string>
     <string name="bmi_label">BMI</string>
     <string name="add_to_queue_vital_dialog_description">To perform this action, the patient has to be in today\'s queue</string>
-    <string name="symptoms_and_diagnosis">Symptoms &amp; Diagnosis</string>
-    <string name="add_symptoms_diagnosis">Add symptoms &amp; diagnosis</string>
-    <string name="update_symptoms_diagnosis">Update symptoms &amp; diagnosis</string>
-    <string name="symtoms_title">Symptoms &amp; diagnosis</string>
+    <string name="symptoms_and_diagnosis">Symptoms</string>
+    <string name="add_symptoms_diagnosis">Add symptoms</string>
+    <string name="update_symptoms_diagnosis">Update symptoms</string>
+    <string name="symtoms_title">Symptoms</string>
     <string name="add_symtoms_title">Add symptoms</string>
     <string name="save_exit">Save &amp; Exit</string>
     <string name="save_add_diagnosis">Save &amp; add diagnosis</string>
@@ -366,18 +371,18 @@ include them in the household</string>
     <string name="symptoms_lable">Search, e.g., Headache, Fever</string>
     <string name="symptoms">Symptoms:</string>
     <string name="diagnosis">Diagnosis:</string>
-    <string name="symdiag_added_successfully">Symptoms &amp; diagnosis added successfully!</string>
-    <string name="symdiag_update_successfully">Symptoms &amp; diagnosis updated successfully!</string>
+    <string name="symdiag_added_successfully">Symptoms added successfully!</string>
+    <string name="symdiag_update_successfully">Symptoms updated successfully!</string>
     <string name="discard_diagnosis_dialog_title">Discard Diagnosis ?</string>
     <string name="discard_diagnosis_dialog_description">Are you sure you want to discard all Diagnosis ?</string>
-    <string name="recent_symptoms_diagnosis">Recent symptoms &amp; diagnosis</string>
+    <string name="recent_symptoms_diagnosis">Recent symptoms</string>
     <string name="bottom_nav_title_diagnosis">Diagnosis</string>
     <string name="already_added">Already added!</string>
     <string name="select_by_body_part">Select by body parts</string>
     <string name="additional_symptoms">Additional Symptoms</string>
     <string name="edit_symtoms_title">Edit symptoms</string>
     <string name="arrow_right_icon">arrow_right_icon</string>
-    <string name="no_symptoms_found">No symptoms &amp; diagnosis added yet</string>
+    <string name="no_symptoms_found">No symptoms added yet</string>
 
     <string name="lab_test">Lab Test</string>
     <string name="lab_test_title">Lab test</string>
