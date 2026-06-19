@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -34,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -48,15 +45,12 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
-import com.latticeonfhir.android.ui.common.TabRowComposable
 import com.latticeonfhir.android.ui.householdmember.members.MembersScreen
-import com.latticeonfhir.android.ui.householdmember.suggestions.SuggestionsScreen
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toAge
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toTimeInMilli
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
