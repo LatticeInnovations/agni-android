@@ -39,15 +39,20 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
         "July", "August", "September", "October", "November", "December"
     )
 
-    internal var isNameValid by mutableStateOf(false)
+    internal var isNameValid by mutableStateOf(true)
     internal var isEmailValid by mutableStateOf(false)
-    internal var isPhoneValid by mutableStateOf(false)
+    internal var isPhoneValid by mutableStateOf(true)
     internal var isAgeDaysValid by mutableStateOf(false)
     internal var isAgeMonthsValid by mutableStateOf(false)
     internal var isAgeYearsValid by mutableStateOf(false)
 
-    internal fun basicInfoValidation(): Boolean {
-        if (firstName.length < 3 || firstName.length > 100)
+    fun isDOBAgeBlank() : Boolean{
+        return if (dobAgeSelector == "dob") dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()
+        else years.isBlank() && months.isBlank() && days.isBlank()
+    }
+
+    fun basicInfoValidation(): Boolean {
+        if (firstName.length !in 3..100)
             return false
         if (middleName.length > 100 || lastName.length > 100)
             return false
@@ -55,7 +60,7 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
             return false
         if (verifyAge())
             return false
-        if (isPhoneValid || phoneNumber.isBlank())
+        if (isPhoneValid)
             return false
         if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return false
