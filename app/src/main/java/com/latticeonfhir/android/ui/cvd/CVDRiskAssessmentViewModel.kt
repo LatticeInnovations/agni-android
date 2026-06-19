@@ -58,7 +58,7 @@ class CVDRiskAssessmentViewModel @Inject constructor(
     var cholesterol by mutableStateOf("")
     var cholesterolError by mutableStateOf(false)
     var selectedCholesterolIndex by mutableIntStateOf(0)
-    var cholesterolUnits = listOf("mmol/L", "mg/dl")
+    var cholesterolUnits = listOf("mg/dl", "mmol/L")
     var heightUnits = listOf("cm", "ft/inch")
     var selectedHeightUnitIndex by mutableIntStateOf(0)
     var heightInCM by mutableStateOf("")
