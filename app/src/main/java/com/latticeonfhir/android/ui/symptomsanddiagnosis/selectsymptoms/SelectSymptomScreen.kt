@@ -300,7 +300,7 @@ private fun BottomButtonLayout(
                     Button(
                         modifier = Modifier
                             .padding(
-                                start = 8.dp, bottom = 12.dp, top = 12.dp
+                                start = 8.dp, bottom = 12.dp, top = 12.dp, end = 8.dp
                             )
                             .weight(.5f),
                         onClick = {
@@ -315,10 +315,6 @@ private fun BottomButtonLayout(
                             }
                         },
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.primary
-                        ),
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding
                     ) {
                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
@@ -327,42 +323,10 @@ private fun BottomButtonLayout(
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
-                    Button(
-                        modifier = Modifier
-                            .padding(
-                                end = 12.dp, bottom = 12.dp, top = 12.dp
-                            )
-                            .weight(.6f), onClick = {
-                            viewModel.isSearchForDiagnosis = true
-                            viewModel.searchQuery = ""
-                            viewModel.isSearchResult = false
-                            viewModel.isSearching = true
-                            viewModel.isSearchingInProgress = false
-                            viewModel.getPreviousSearches()
-                            handleNavigate(
-                                viewModel,
-                                coroutineScope,
-                                navController,
-                                context
-                            ) {}
-                        }, contentPadding = ButtonDefaults.ButtonWithIconContentPadding
-                    ) {
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(
-                            stringResource(id = R.string.save_add_diagnosis),
-                            style = MaterialTheme.typography.labelMedium
-
-                        )
-                    }
-
-
                 }
             }
-
-
         }
     }
-
 }
 
 
