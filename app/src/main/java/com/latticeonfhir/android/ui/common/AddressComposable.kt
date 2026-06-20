@@ -181,23 +181,16 @@ private fun BlockDropDown(
         expanded = expanded,
         onExpandedChange = {
             expanded = it
-            address.isBlockValid = address.block.isBlank()
         },
         onValueChange = { query ->
             address.block = query
-            address.isBlockValid = address.block.isBlank()
         },
         onItemSelected = { selected ->
             address.block = selected
-            address.isBlockValid = false
         },
-        label = if (isSearching) {
-            stringResource(R.string.block)
-        } else {
-            stringResource(R.string.block_mandatory)
-        },
-        isError = address.isBlockValid && !isSearching,
-        errorMessage = stringResource(R.string.block_error_msg),
+        label = stringResource(R.string.block),
+        isError = false,
+        errorMessage = "",
         enabled = (!address.isDistrictValid && address.district.isNotBlank()) || isSearching
     )
 }

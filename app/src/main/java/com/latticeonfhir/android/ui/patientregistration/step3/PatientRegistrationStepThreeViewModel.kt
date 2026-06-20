@@ -20,7 +20,6 @@ class PatientRegistrationStepThreeViewModel : BaseViewModel(), DefaultLifecycleO
         return !(
                 homeAddress.state.isBlank() || homeAddress.isStateValid
                         || homeAddress.district.isBlank() || homeAddress.isDistrictValid
-                        || homeAddress.block.isBlank() || homeAddress.isBlockValid
                 )
     }
 }
