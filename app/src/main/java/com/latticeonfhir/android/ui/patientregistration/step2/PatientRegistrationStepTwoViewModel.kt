@@ -9,29 +9,24 @@ import com.latticeonfhir.android.base.viewmodel.BaseViewModel
 class PatientRegistrationStepTwoViewModel : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
 
-    val maxPassportIdLength = 8
-    val maxVoterIdLength = 10
-    val maxPatientIdLength = 12
-    val minPatientIdLength = 2
+    val maxAbhaIdLength = 14
+    val maxRationCardLength = 20
 
-    var isPassportSelected by mutableStateOf(false)
-    var isVoterSelected by mutableStateOf(false)
-    var isPatientSelected by mutableStateOf(false)
-    var passportId by mutableStateOf("")
-    var voterId by mutableStateOf("")
-    var patientId by mutableStateOf("")
+    var isAbhaSelected by mutableStateOf(false)
+    var isRationCardSelected by mutableStateOf(false)
+    var abhaId by mutableStateOf("")
+    var rationCard by mutableStateOf("")
 
-    val passportPattern = Regex("^[A-PR-WYa-pr-wy][1-9]\\d\\s?\\d{4}[1-9]$")
-    val voterPattern = Regex("^[A-Za-z]{3}[0-9]{7}$")
-    var isPassportValid by mutableStateOf(false)
-    var isVoterValid by mutableStateOf(false)
-    var isPatientValid by mutableStateOf(false)
+    val abhaRegex = Regex("^\\d{14}$")
+    val rationCardRegex = Regex("^[A-Z0-9]{20}$")
+    var isAbhaIdValid by mutableStateOf(false)
+    var isRationCardValid by mutableStateOf(false)
 
     fun identityInfoValidation(): Boolean {
-        if (isPassportSelected && !passportPattern.matches(passportId))
+        if (isAbhaSelected && !abhaRegex.matches(abhaId))
             return false
-        if (isVoterSelected && !voterPattern.matches(voterId))
+        if (isRationCardSelected && !rationCardRegex.matches(rationCard))
             return false
-        return !(isPatientSelected && patientId.length < minPatientIdLength)
+        return true
     }
 }

@@ -8,11 +8,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,8 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.latticeonfhir.android.R
-import com.latticeonfhir.android.ui.common.CustomTextField
-import com.latticeonfhir.android.ui.common.IdLength
+import com.latticeonfhir.android.ui.common.CustomTextFieldWithLength
 import com.latticeonfhir.android.ui.common.IdSelectionChip
 import com.latticeonfhir.android.ui.patientregistration.PatientRegistrationViewModel
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
@@ -39,15 +39,8 @@ fun PatientRegistrationStepTwo(
     val patientRegistrationViewModel: PatientRegistrationViewModel = viewModel()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
-            patientRegister.run {
-                viewModel.patientId = patientId.toString()
-                viewModel.passportId = passportId.toString()
-                viewModel.voterId = voterId.toString()
-                if (patientRegistrationViewModel.isEditing) viewModel.isPassportSelected =
-                    passportId.toString().isNotEmpty()
-                viewModel.isVoterSelected = voterId.toString().isNotEmpty()
-                viewModel.isPatientSelected = patientId.toString().isNotEmpty()
-            }
+            setData(patientRegister, viewModel, patientRegistrationViewModel)
+            viewModel.isLaunched = true
         }
     }
     Column(
@@ -73,45 +66,44 @@ fun PatientRegistrationStepTwo(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 IdSelectionChip(
-                    idSelected = viewModel.isPassportSelected,
-                    label = stringResource(id = R.string.passport_id)
+                    idSelected = viewModel.isAbhaSelected,
+                    label = stringResource(id = R.string.abha_id)
                 ) {
-                    viewModel.isPassportSelected = !it
+                    viewModel.isAbhaSelected = !it
+                    if (!viewModel.isAbhaSelected) {
+                        viewModel.abhaId = ""
+                        viewModel.isAbhaIdValid = false
+                    }
                 }
-                Spacer(modifier = Modifier.width(5.dp))
                 IdSelectionChip(
-                    idSelected = viewModel.isVoterSelected,
-                    label = stringResource(id = R.string.voter_id)
+                    idSelected = viewModel.isRationCardSelected,
+                    label = stringResource(id = R.string.ration_card)
                 ) {
-                    viewModel.isVoterSelected = !it
-                }
-                Spacer(modifier = Modifier.width(5.dp))
-                IdSelectionChip(
-                    idSelected = viewModel.isPatientSelected,
-                    label = stringResource(id = R.string.patient_id)
-                ) {
-                    viewModel.isPatientSelected = !it
+                    viewModel.isRationCardSelected = !it
+                    if (!viewModel.isRationCardSelected) {
+                        viewModel.rationCard = ""
+                        viewModel.isRationCardValid = false
+                    }
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            PassportIdComposable(viewModel)
-            VoterIdComposable(viewModel)
-            PatientIdComposable(viewModel)
+            AbhaIdComposable(viewModel)
+            RationCardComposable(viewModel)
         }
         Button(
             onClick = {
                 patientRegister.run {
-                    passportId = viewModel.passportId
-                    voterId = viewModel.voterId
-                    patientId = viewModel.patientId
+                    abhaId = viewModel.abhaId
+                    rationCard = viewModel.rationCard
                 }
                 patientRegistrationViewModel.currentStep = 3
             },
@@ -124,82 +116,79 @@ fun PatientRegistrationStepTwo(
     }
 }
 
-@Composable
-private fun PatientIdComposable(viewModel: PatientRegistrationStepTwoViewModel) {
-    Column {
-        if (viewModel.isPatientSelected) {
-            Spacer(modifier = Modifier.height(5.dp))
-            CustomTextField(
-                value = viewModel.patientId,
-                label = stringResource(id = R.string.patient_id),
-                weight = 1f,
-                viewModel.maxPatientIdLength,
-                viewModel.isPatientValid,
-                stringResource(id = R.string.patient_id_error_msg),
-                KeyboardType.Text,
-                KeyboardCapitalization.Characters
-            ) {
-                viewModel.patientId = it
-                viewModel.isPatientValid =
-                    viewModel.patientId.length < viewModel.minPatientIdLength
-            }
-            IdLength(viewModel.patientId, viewModel.maxPatientIdLength, "PATIENT_ID_LENGTH")
-        } else {
-            viewModel.patientId = ""
-            viewModel.isPatientValid = false
+private fun setData(
+    patientRegister: PatientRegister,
+    viewModel: PatientRegistrationStepTwoViewModel,
+    patientRegistrationViewModel: PatientRegistrationViewModel
+) {
+    patientRegister.run {
+        viewModel.abhaId = abhaId.toString()
+        viewModel.rationCard = rationCard.toString()
+        if (patientRegistrationViewModel.isEditing) {
+            viewModel.isAbhaSelected = abhaId.toString().isNotEmpty()
+            viewModel.isRationCardSelected = rationCard.toString().isNotEmpty()
         }
     }
 }
 
 @Composable
-private fun VoterIdComposable(viewModel: PatientRegistrationStepTwoViewModel) {
-    Column {
-        if (viewModel.isVoterSelected) {
-            Spacer(modifier = Modifier.height(5.dp))
-            CustomTextField(
-                value = viewModel.voterId,
-                label = stringResource(id = R.string.voter_id),
-                weight = 1f,
-                viewModel.maxVoterIdLength,
-                viewModel.isVoterValid,
-                stringResource(id = R.string.voter_id_error_msg),
-                KeyboardType.Text,
-                KeyboardCapitalization.Characters
-            ) {
-                viewModel.voterId = it
-                viewModel.isVoterValid = !viewModel.voterPattern.matches(viewModel.voterId)
+private fun AbhaIdComposable(viewModel: PatientRegistrationStepTwoViewModel) {
+    if (viewModel.isAbhaSelected) {
+        OutlinedTextField(
+            value = viewModel.abhaId,
+            onValueChange = { input ->
+                val digits = input.filter { it.isDigit() }.take(14)
+
+                viewModel.abhaId = digits
+                viewModel.isAbhaIdValid = digits.length != 14
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(text = stringResource(R.string.abha_id))
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number
+            ),
+            visualTransformation = AbhaIdVisualTransformation(),
+            isError = viewModel.isAbhaIdValid,
+            supportingText = {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (viewModel.isAbhaIdValid) {
+                        Text(stringResource(R.string.abha_id_error_msg))
+                    }
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        text = "${viewModel.abhaId.length}/${viewModel.maxAbhaIdLength}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
-            IdLength(viewModel.voterId, viewModel.maxVoterIdLength, "VOTER_ID_LENGTH")
-        } else {
-            viewModel.voterId = ""
-            viewModel.isVoterValid = false
-        }
+        )
     }
 }
 
 @Composable
-private fun PassportIdComposable(viewModel: PatientRegistrationStepTwoViewModel) {
-    Column {
-        if (viewModel.isPassportSelected) {
-            Spacer(modifier = Modifier.height(5.dp))
-            CustomTextField(
-                value = viewModel.passportId,
-                label = stringResource(id = R.string.passport_id),
-                weight = 1f,
-                viewModel.maxPassportIdLength,
-                viewModel.isPassportValid,
-                stringResource(id = R.string.passport_id_error_msg),
-                KeyboardType.Text,
-                KeyboardCapitalization.Characters
-            ) {
-                viewModel.passportId = it
-                viewModel.isPassportValid =
-                    !viewModel.passportPattern.matches(viewModel.passportId)
-            }
-            IdLength(viewModel.passportId, viewModel.maxPassportIdLength, "PASSPORT_ID_LENGTH")
-        } else {
-            viewModel.passportId = ""
-            viewModel.isPassportValid = false
+private fun RationCardComposable(viewModel: PatientRegistrationStepTwoViewModel) {
+    if (viewModel.isRationCardSelected) {
+        CustomTextFieldWithLength(
+            value = viewModel.rationCard,
+            label = stringResource(id = R.string.ration_card),
+            weight = 1f,
+            maxLength = viewModel.maxRationCardLength,
+            isError = viewModel.isRationCardValid,
+            error = stringResource(id = R.string.ration_card_error_msg),
+            keyboardType = KeyboardType.Text,
+            keyboardCapitalization = KeyboardCapitalization.Characters
+        ) { input ->
+            val value = input.uppercase()
+                .filter { it.isLetterOrDigit() }
+                .take(viewModel.maxRationCardLength)
+
+            viewModel.rationCard = value
+            viewModel.isRationCardValid = !viewModel.rationCardRegex.matches(value)
         }
     }
 }
