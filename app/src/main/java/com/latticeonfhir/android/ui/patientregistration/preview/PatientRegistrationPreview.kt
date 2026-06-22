@@ -258,13 +258,14 @@ private fun PreviewScreenComposable(
             mobileNumber = viewModel.phoneNumber.toLong(),
             fhirId = null,
             permanentAddress = PatientAddressResponse(
-                postalCode = viewModel.homeAddress.pincode,
+                postalCode = viewModel.homeAddress.pincode.ifBlank { null },
                 state = viewModel.homeAddress.state,
-                addressLine1 = viewModel.homeAddress.addressLine1,
+                addressLine1 = viewModel.homeAddress.addressLine1.ifBlank { null },
                 addressLine2 = viewModel.homeAddress.addressLine2.ifBlank { null },
-                city = viewModel.homeAddress.city,
+                city = viewModel.homeAddress.city.ifBlank { null },
                 country = "India",
-                district = viewModel.homeAddress.district.ifBlank { null }
+                district = viewModel.homeAddress.district,
+                block = viewModel.homeAddress.block.ifBlank { null }
             ),
             identifier = viewModel.identifierList
         )

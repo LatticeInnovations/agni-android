@@ -110,7 +110,8 @@ fun PatientAddressResponse.toPermanentAddressEntity(): PermanentAddressEntity {
         state = state,
         postalCode = postalCode,
         country = country,
-        addressLine2 = addressLine2
+        addressLine2 = addressLine2,
+        block = block
     )
 }
 
@@ -167,7 +168,8 @@ fun PermanentAddressEntity.toPatientAddressResponse(): PatientAddressResponse {
         state = state,
         postalCode = postalCode,
         country = country,
-        addressLine2 = addressLine2
+        addressLine2 = addressLine2,
+        block = block
     )
 }
 

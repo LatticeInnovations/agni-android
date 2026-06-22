@@ -53,11 +53,11 @@ fun EditPatientAddress(
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             patientResponse?.run {
-                viewModel.homeAddress.pincode = permanentAddress.postalCode
+                viewModel.homeAddress.pincode = permanentAddress.postalCode ?: ""
                 viewModel.homeAddress.state = permanentAddress.state
-                viewModel.homeAddress.city = permanentAddress.city
-                viewModel.homeAddress.district = permanentAddress.district ?: ""
-                viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1
+                viewModel.homeAddress.city = permanentAddress.city ?: ""
+                viewModel.homeAddress.district = permanentAddress.district
+                viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1 ?: ""
                 viewModel.homeAddress.addressLine2 = permanentAddress.addressLine2 ?: ""
 
                 viewModel.homeAddressTemp.pincode = viewModel.homeAddress.pincode
@@ -159,13 +159,14 @@ fun EditPatientAddress(
                     viewModel.updateBasicInfo(
                         patientResponse!!.copy(
                             permanentAddress = PatientAddressResponse(
-                                addressLine1 = viewModel.homeAddress.addressLine1,
-                                city = viewModel.homeAddress.city,
-                                district = viewModel.homeAddress.district.ifEmpty { null },
+                                addressLine1 = viewModel.homeAddress.addressLine1.ifBlank { null },
+                                city = viewModel.homeAddress.city.ifBlank { null },
+                                district = viewModel.homeAddress.district,
                                 state = viewModel.homeAddress.state,
-                                postalCode = viewModel.homeAddress.pincode,
+                                postalCode = viewModel.homeAddress.pincode.ifBlank { null },
                                 country = "India",
                                 addressLine2 = viewModel.homeAddress.addressLine2.ifEmpty { null },
+                                block = viewModel.homeAddress.block.ifEmpty { null }
                             )
                         )
                     )
