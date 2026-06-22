@@ -1,11 +1,11 @@
 package com.latticeonfhir.android.data.server.repository.authentication
 
+import androidx.core.text.isDigitsOnly
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.api.AuthenticationApiService
 import com.latticeonfhir.android.data.server.model.authentication.Login
 import com.latticeonfhir.android.data.server.model.authentication.Otp
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
-import com.latticeonfhir.android.data.server.model.user.UserResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEmptyResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiEndResponse
 import com.latticeonfhir.android.utils.converters.server.responsemapper.ApiResponseConverter
@@ -37,32 +37,24 @@ class AuthenticationRepositoryImpl @Inject constructor(
             )
         ).apply {
             if (this is ApiEndResponse) {
-                preferenceRepository.setAuthenticationToken(body.token)
-                getUserDetails()
+                saveUserDetails(body)
             }
         }
     }
 
-    override suspend fun getUserDetails(): ResponseMapper<UserResponse> {
-        return ApiResponseConverter.convert(
-            authenticationApiService.getUserDetails()
-        ).apply {
-            if (this is ApiEndResponse) {
-                body.apply {
-                    preferenceRepository.setUserFhirId(userId)
-                    preferenceRepository.setUserName(userName)
-                    preferenceRepository.setUserRoleId(role[0].roleId)
-                    preferenceRepository.setUserRole(role[0].role)
-                    preferenceRepository.setOrganizationFhirId(role[0].orgId)
-                    preferenceRepository.setOrganization(role[0].orgName)
-                    userEmail?.let { email -> preferenceRepository.setUserEmail(email) }
-                    mobileNumber?.let { mobileNumber ->
-                        preferenceRepository.setUserMobile(
-                            mobileNumber
-                        )
-                    }
-                }
-            }
+    override suspend fun saveUserDetails(
+        body: TokenResponse
+    ) {
+        preferenceRepository.setAuthenticationToken(body.token)
+        preferenceRepository.setUserFhirId(body.userId)
+        preferenceRepository.setUserName(body.name)
+        preferenceRepository.setUserRoleId(body.role)
+        preferenceRepository.setUserRole(body.roleName)
+        preferenceRepository.setOrganizationFhirId(body.orgId)
+        if (body.contact.isDigitsOnly()){
+            preferenceRepository.setUserMobile(body.contact.toLong())
+        } else {
+            preferenceRepository.setUserEmail(body.contact)
         }
     }
 

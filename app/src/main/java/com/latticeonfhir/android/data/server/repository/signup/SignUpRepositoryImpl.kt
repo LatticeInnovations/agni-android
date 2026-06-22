@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.data.server.repository.signup
 
-import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.api.SignUpApiService
 import com.latticeonfhir.android.data.server.enums.RegisterTypeEnum
 import com.latticeonfhir.android.data.server.model.authentication.Login
@@ -15,7 +14,6 @@ import javax.inject.Inject
 
 class SignUpRepositoryImpl @Inject constructor(
     private val signUpApiService: SignUpApiService,
-    private val preferenceRepository: PreferenceRepository,
     private val authenticationRepository: AuthenticationRepository
 ) : SignUpRepository {
 
@@ -57,8 +55,7 @@ class SignUpRepositoryImpl @Inject constructor(
             signUpApiService.register(tempAuthToken, register)
         ).apply {
             if (this is ApiEndResponse) {
-                preferenceRepository.setAuthenticationToken(body.token)
-                authenticationRepository.getUserDetails()
+                authenticationRepository.saveUserDetails(body)
             }
         }
     }
