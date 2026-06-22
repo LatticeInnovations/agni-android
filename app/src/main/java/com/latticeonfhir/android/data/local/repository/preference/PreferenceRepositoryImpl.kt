@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.data.local.repository.preference
 
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
+import com.latticeonfhir.android.data.server.model.authentication.FacilityResponse
 import javax.inject.Inject
 
 class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage: PreferenceStorage) :
@@ -138,11 +139,13 @@ class PreferenceRepositoryImpl @Inject constructor(private val preferenceStorage
 
     override fun getOrganizationFhirId() = preferenceStorage.organizationFhirId
 
-    override fun setOrganization(organization: String) {
-        preferenceStorage.organization = organization
+    override fun setFacilityDetails(facilityResponse: FacilityResponse) {
+        preferenceStorage.facility = facilityResponse
     }
 
-    override fun getOrganization() = preferenceStorage.organization
+    override fun getFacilityDetails(): FacilityResponse? {
+        return preferenceStorage.facility
+    }
 
     override fun setAuthenticationToken(authToken: String) {
         preferenceStorage.token = authToken

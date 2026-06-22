@@ -3,6 +3,7 @@ package com.latticeonfhir.android.data.server.repository.authentication
 import androidx.core.text.isDigitsOnly
 import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
 import com.latticeonfhir.android.data.server.api.AuthenticationApiService
+import com.latticeonfhir.android.data.server.model.authentication.FacilityResponse
 import com.latticeonfhir.android.data.server.model.authentication.Login
 import com.latticeonfhir.android.data.server.model.authentication.Otp
 import com.latticeonfhir.android.data.server.model.authentication.TokenResponse
@@ -37,14 +38,14 @@ class AuthenticationRepositoryImpl @Inject constructor(
             )
         ).apply {
             if (this is ApiEndResponse) {
-                saveUserDetails(body)
+                saveUserDetailsAndGetFacility(body)
             }
         }
     }
 
-    override suspend fun saveUserDetails(
+    override suspend fun saveUserDetailsAndGetFacility(
         body: TokenResponse
-    ) {
+    ): ResponseMapper<FacilityResponse> {
         preferenceRepository.setAuthenticationToken(body.token)
         preferenceRepository.setUserFhirId(body.userId)
         preferenceRepository.setUserName(body.name)
@@ -55,6 +56,22 @@ class AuthenticationRepositoryImpl @Inject constructor(
             preferenceRepository.setUserMobile(body.contact.toLong())
         } else {
             preferenceRepository.setUserEmail(body.contact)
+        }
+
+        return getFacilityDetails(body.orgId)
+    }
+
+    private suspend fun getFacilityDetails(
+        facilityId: String
+    ): ResponseMapper<FacilityResponse> {
+        return ApiResponseConverter.convert(
+            authenticationApiService.getFacilityDetails(
+                facilityId = facilityId
+            )
+        ).apply {
+            if (this is ApiEndResponse) {
+                preferenceRepository.setFacilityDetails(body)
+            }
         }
     }
 
