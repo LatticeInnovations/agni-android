@@ -89,9 +89,13 @@ class EditBasicInformationViewModel @Inject constructor(
     var isAgeMonthsValid by mutableStateOf(false)
     var isAgeYearsValid by mutableStateOf(false)
 
+    fun isDOBAgeBlank() : Boolean{
+        return if (dobAgeSelector == "dob") dobDay.isBlank() || dobMonth.isBlank() || dobYear.isBlank()
+        else years.isBlank() && months.isBlank() && days.isBlank()
+    }
 
     fun basicInfoValidation(): Boolean {
-        if (firstName.length < 3 || firstName.length > 100)
+        if (firstName.length !in 3..100)
             return false
         if (middleName.length > 100 || lastName.length > 100)
             return false
@@ -99,7 +103,7 @@ class EditBasicInformationViewModel @Inject constructor(
             return false
         if (dobAgeSelector == "age" && (days.isEmpty() && months.isEmpty() && years.isEmpty()) || (isAgeDaysValid || isAgeMonthsValid || isAgeYearsValid))
             return false
-        if (isPhoneValid || phoneNumber.isBlank())
+        if (isPhoneValid)
             return false
         if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return false
