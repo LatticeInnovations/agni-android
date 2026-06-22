@@ -32,6 +32,7 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
 import com.latticeonfhir.android.utils.constants.IdentificationConstants.ABHA_ID_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.StringConverter.formatToAbhaId
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
 import java.util.Locale
 
@@ -110,7 +111,7 @@ fun PreviewScreen(
                     if (identifier.identifierType == ABHA_ID_TYPE) {
                         Spacer(modifier = Modifier.height(10.dp))
                         Label(stringResource(R.string.abha_id))
-                        Detail(identifier.identifierNumber, "")
+                        Detail(identifier.identifierNumber.formatToAbhaId(), "")
                     }
                 }
                 patientResponse.identifier.forEach { identifier ->
