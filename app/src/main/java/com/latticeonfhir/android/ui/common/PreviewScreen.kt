@@ -138,9 +138,9 @@ fun PreviewScreen(
             ).joinToString(", ").ifBlank { null }
             val homeAddressLine2 = listOfNotNull(
                 patientResponse.permanentAddress.city?.ifBlank { null },
-                patientResponse.permanentAddress.block?.ifBlank { null }
+                patientResponse.permanentAddress.block?.substringAfter("|")?.ifBlank { null }
             ).joinToString(", ").ifBlank { null }
-            val homeAddressLine3 = "${patientResponse.permanentAddress.district}, ${patientResponse.permanentAddress.state}"
+            val homeAddressLine3 = "${patientResponse.permanentAddress.district.substringAfter("|")}, ${patientResponse.permanentAddress.state.substringAfter("|")}"
             Column(
                 modifier = Modifier
                     .padding(20.dp)

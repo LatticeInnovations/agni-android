@@ -23,6 +23,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,9 @@ import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.ageToPatientDate
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientDate
+import com.latticeonfhir.android.utils.states.getBlockCode
+import com.latticeonfhir.android.utils.states.getDistrictCode
+import com.latticeonfhir.android.utils.states.getStateCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -215,6 +219,7 @@ private fun PreviewScreenComposable(
     viewModel: PatientRegistrationPreviewViewModel,
     navController: NavController
 ) {
+    val context = LocalContext.current
     if (patientRegisterDetails != null) {
         viewModel.identifierList.clear()
         if (viewModel.abhaId.isNotEmpty()) {
@@ -247,14 +252,38 @@ private fun PreviewScreenComposable(
             mobileNumber = viewModel.phoneNumber.ifBlank { null }?.toLong(),
             fhirId = null,
             permanentAddress = PatientAddressResponse(
-                postalCode = viewModel.homeAddress.pincode.ifBlank { null },
-                state = viewModel.homeAddress.state,
+                state = listOf(
+                    getStateCode(context, viewModel.homeAddress.state),
+                    viewModel.homeAddress.state
+                ).joinToString("|"),
+
+                district = listOf(
+                    getDistrictCode(
+                        context = context,
+                        stateName = viewModel.homeAddress.state,
+                        districtName = viewModel.homeAddress.district
+                    ),
+                    viewModel.homeAddress.district
+                ).joinToString("|"),
+
+                block = if (viewModel.homeAddress.block.isBlank()) null
+                else {
+                    listOf(
+                        getBlockCode(
+                            context = context,
+                            stateName = viewModel.homeAddress.state,
+                            districtName = viewModel.homeAddress.district,
+                            blockName = viewModel.homeAddress.block
+                        ),
+                        viewModel.homeAddress.block
+                    ).joinToString("|")
+                },
+
+                city = viewModel.homeAddress.city.ifBlank { null },
                 addressLine1 = viewModel.homeAddress.addressLine1.ifBlank { null },
                 addressLine2 = viewModel.homeAddress.addressLine2.ifBlank { null },
-                city = viewModel.homeAddress.city.ifBlank { null },
                 country = "India",
-                district = viewModel.homeAddress.district,
-                block = viewModel.homeAddress.block.ifBlank { null }
+                postalCode = viewModel.homeAddress.pincode.ifBlank { null }
             ),
             identifier = viewModel.identifierList
         )
