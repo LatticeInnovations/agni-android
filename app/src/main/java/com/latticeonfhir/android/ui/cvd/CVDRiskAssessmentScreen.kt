@@ -172,7 +172,7 @@ fun CVDRiskAssessmentScreen(
                     }
                     HorizontalPager(
                         state = pagerState,
-                        userScrollEnabled = viewModel.canAddAssessment
+                        userScrollEnabled = false
                     ) { index ->
                         when (index) {
                             0 -> CVDRiskAssessmentRecords(viewModel)
