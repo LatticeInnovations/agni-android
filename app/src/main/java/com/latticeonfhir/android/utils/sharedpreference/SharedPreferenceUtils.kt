@@ -3,6 +3,7 @@ package com.latticeonfhir.android.utils.sharedpreference
 import android.content.SharedPreferences
 import androidx.annotation.WorkerThread
 import androidx.core.content.edit
+import com.google.gson.Gson
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -69,6 +70,32 @@ class SetPreference(
     override fun setValue(thisRef: Any, property: KProperty<*>, value: HashSet<String>?) {
         preferences.edit {
             putStringSet(name, value)
+        }
+    }
+}
+
+class NullableObjectPreference<T>(
+    private val preferences: SharedPreferences,
+    private val name: String,
+    private val clazz: Class<T>
+) : ReadWriteProperty<Any, T?> {
+
+    private val gson = Gson()
+
+    @WorkerThread
+    override fun getValue(thisRef: Any, property: KProperty<*>): T? {
+        return preferences.getString(name, null)?.let {
+            gson.fromJson(it, clazz)
+        }
+    }
+
+    override fun setValue(thisRef: Any, property: KProperty<*>, value: T?) {
+        preferences.edit {
+            if (value == null) {
+                remove(name)
+            } else {
+                putString(name, gson.toJson(value))
+            }
         }
     }
 }

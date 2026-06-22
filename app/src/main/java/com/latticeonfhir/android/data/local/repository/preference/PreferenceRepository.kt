@@ -1,5 +1,7 @@
 package com.latticeonfhir.android.data.local.repository.preference
 
+import com.latticeonfhir.android.data.server.model.authentication.FacilityResponse
+
 interface PreferenceRepository {
 
     /** Last Sync Status */
@@ -77,8 +79,8 @@ interface PreferenceRepository {
     fun getUserRole(): String
     fun setOrganizationFhirId(organizationFhirId: String)
     fun getOrganizationFhirId(): String
-    fun setOrganization(organization: String)
-    fun getOrganization(): String
+    fun setFacilityDetails(facilityResponse: FacilityResponse)
+    fun getFacilityDetails(): FacilityResponse?
 
     /** Authentication Token */
     fun setAuthenticationToken(authToken: String)

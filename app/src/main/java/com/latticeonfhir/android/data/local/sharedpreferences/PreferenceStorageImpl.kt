@@ -2,7 +2,9 @@ package com.latticeonfhir.android.data.local.sharedpreferences
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.latticeonfhir.android.data.server.model.authentication.FacilityResponse
 import com.latticeonfhir.android.utils.sharedpreference.LongPreference
+import com.latticeonfhir.android.utils.sharedpreference.NullableObjectPreference
 import com.latticeonfhir.android.utils.sharedpreference.StringPreference
 
 class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : PreferenceStorage {
@@ -19,7 +21,11 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         PREF_ORGANIZATION_FHIR_ID,
         ""
     )
-    override var organization by StringPreference(sharedPreferences, PREF_ORGANIZATION, "")
+    override var facility by NullableObjectPreference(
+        sharedPreferences,
+        PREF_FACILITY,
+        FacilityResponse::class.java
+    )
     override var roomDBEncryptionKey by StringPreference(
         sharedPreferences,
         PREF_ROOM_ENCRYPTION_KEY,
@@ -98,7 +104,7 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
     )
     override var lastSyncManufacturerRecord by LongPreference(
         sharedPreferences,
-        PREF_LAST_MEDICAL_RECORD_SYNC_TIME,
+        PREF_LAST_MANUFACTURER_RECORD_SYNC_TIME,
         0L
     )
 
@@ -121,7 +127,7 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         const val PREF_USER_ROLE_ID = "pref_user_role_id"
         const val PREF_USER_ROLE = "pref_user_role"
         const val PREF_ORGANIZATION_FHIR_ID = "pref_organization_fhir_id"
-        const val PREF_ORGANIZATION = "pref_organization"
+        const val PREF_FACILITY = "pref_facility"
 
         const val PREF_ROOM_ENCRYPTION_KEY = "pref_room_encryption_key"
 
@@ -140,5 +146,6 @@ class PreferenceStorageImpl(private val sharedPreferences: SharedPreferences) : 
         const val PREF_LAST_SYM_DIAG_SYNC_TIME = "pref_last_sym_diag_sync_time"
         const val PREF_LAST_LAB_TEST_SYNC_TIME = "pref_last_lab_test_sync_time"
         const val PREF_LAST_MEDICAL_RECORD_SYNC_TIME = "pref_last_medical_record_sync_time"
+        const val PREF_LAST_MANUFACTURER_RECORD_SYNC_TIME = "pref_last_manufacture_record_sync_time"
     }
 }

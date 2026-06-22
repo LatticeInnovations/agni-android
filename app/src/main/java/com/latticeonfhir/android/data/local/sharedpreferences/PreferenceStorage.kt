@@ -1,5 +1,7 @@
 package com.latticeonfhir.android.data.local.sharedpreferences
 
+import com.latticeonfhir.android.data.server.model.authentication.FacilityResponse
+
 interface PreferenceStorage {
 
     /** Auth Token */
@@ -13,7 +15,7 @@ interface PreferenceStorage {
     var userRoleId: String
     var userRole: String
     var organizationFhirId: String
-    var organization: String
+    var facility: FacilityResponse?
 
     /** Room DB Encryption Key */
     var roomDBEncryptionKey: String

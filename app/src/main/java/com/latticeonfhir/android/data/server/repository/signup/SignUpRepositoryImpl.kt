@@ -55,7 +55,7 @@ class SignUpRepositoryImpl @Inject constructor(
             signUpApiService.register(tempAuthToken, register)
         ).apply {
             if (this is ApiEndResponse) {
-                authenticationRepository.saveUserDetails(body)
+                authenticationRepository.saveUserDetailsAndGetFacility(body)
             }
         }
     }
