@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.patientregistration.preview
 
-import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +23,6 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -38,6 +36,8 @@ import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.PreviewScreen
 import com.latticeonfhir.android.ui.patientregistration.model.PatientRegister
+import com.latticeonfhir.android.utils.constants.IdentificationConstants.ABHA_ID_TYPE
+import com.latticeonfhir.android.utils.constants.IdentificationConstants.RATION_CARD_TYPE
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.PATIENT
 import com.latticeonfhir.android.utils.constants.NavControllerConstants.SELECTED_INDEX
 import com.latticeonfhir.android.utils.converters.responseconverter.RelationConverter.getRelationEnumFromString
@@ -58,7 +58,6 @@ fun PatientRegistrationPreview(
             key = "patient_register_details"
         )
     setData(patientRegisterDetails, viewModel)
-    val context = LocalContext.current
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             if (navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>(
@@ -141,7 +140,7 @@ fun PatientRegistrationPreview(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                PreviewScreenComposable(patientRegisterDetails, viewModel, context, navController)
+                PreviewScreenComposable(patientRegisterDetails, viewModel, navController)
                 if (viewModel.openDialog) {
                     DiscardDialog(
                         closeDialog = {
@@ -214,34 +213,24 @@ fun PatientRegistrationPreview(
 private fun PreviewScreenComposable(
     patientRegisterDetails: PatientRegister?,
     viewModel: PatientRegistrationPreviewViewModel,
-    context: Context,
     navController: NavController
 ) {
     if (patientRegisterDetails != null) {
         viewModel.identifierList.clear()
-        if (viewModel.passportId.isNotEmpty()) {
+        if (viewModel.abhaId.isNotEmpty()) {
             viewModel.identifierList.add(
                 PatientIdentifier(
-                    identifierType = context.getString(R.string.passport_id_web_link),
-                    identifierNumber = viewModel.passportId,
+                    identifierType = ABHA_ID_TYPE,
+                    identifierNumber = viewModel.abhaId,
                     code = null
                 )
             )
         }
-        if (viewModel.voterId.isNotEmpty()) {
+        if (viewModel.rationCard.isNotEmpty()) {
             viewModel.identifierList.add(
                 PatientIdentifier(
-                    identifierType = context.getString(R.string.voter_id_web_link),
-                    identifierNumber = viewModel.voterId,
-                    code = null
-                )
-            )
-        }
-        if (viewModel.patientId.isNotEmpty()) {
-            viewModel.identifierList.add(
-                PatientIdentifier(
-                    identifierType = context.getString(R.string.patient_id_web_link),
-                    identifierNumber = viewModel.patientId,
+                    identifierType = RATION_CARD_TYPE,
+                    identifierNumber = viewModel.rationCard,
                     code = null
                 )
             )
@@ -255,7 +244,7 @@ private fun PreviewScreenComposable(
             email = viewModel.email.ifBlank { null },
             active = true,
             gender = viewModel.gender,
-            mobileNumber = viewModel.phoneNumber.toLong(),
+            mobileNumber = viewModel.phoneNumber.ifBlank { null }?.toLong(),
             fhirId = null,
             permanentAddress = PatientAddressResponse(
                 postalCode = viewModel.homeAddress.pincode.ifBlank { null },
@@ -292,33 +281,27 @@ private fun PreviewScreenComposable(
 private fun setData(patientRegisterDetails: PatientRegister?, viewModel: PatientRegistrationPreviewViewModel) {
     patientRegisterDetails
         ?.run {
-            viewModel.firstName = firstName.toString()
-            viewModel.middleName = middleName.toString()
-            viewModel.lastName = lastName.toString()
-            viewModel.email = email.toString()
-            viewModel.phoneNumber = phoneNumber.toString()
-            viewModel.dobDay = dobDay.toString()
-            viewModel.dobMonth = dobMonth.toString()
-            viewModel.dobYear = dobYear.toString()
-            viewModel.years = years.toString()
-            viewModel.months = months.toString()
-            viewModel.days = days.toString()
-            viewModel.gender = gender.toString()
-            viewModel.passportId = passportId.toString()
-            viewModel.voterId = voterId.toString()
-            viewModel.patientId = patientId.toString()
-            viewModel.homeAddress.pincode = homePostalCode.toString()
-            viewModel.homeAddress.state = homeState.toString()
-            viewModel.homeAddress.addressLine1 = homeAddressLine1.toString()
-            viewModel.homeAddress.addressLine2 = homeAddressLine2.toString()
-            viewModel.homeAddress.city = homeCity.toString()
-            viewModel.homeAddress.district = homeDistrict.toString()
-            viewModel.workAddress.pincode = workPostalCode.toString()
-            viewModel.workAddress.state = workState.toString()
-            viewModel.workAddress.addressLine1 = workAddressLine1.toString()
-            viewModel.workAddress.addressLine2 = workAddressLine2.toString()
-            viewModel.workAddress.city = workCity.toString()
-            viewModel.workAddress.district = workDistrict.toString()
+            viewModel.firstName = firstName.orEmpty()
+            viewModel.middleName = middleName.orEmpty()
+            viewModel.lastName = lastName.orEmpty()
+            viewModel.email = email.orEmpty()
+            viewModel.phoneNumber = phoneNumber.orEmpty()
+            viewModel.dobDay = dobDay.orEmpty()
+            viewModel.dobMonth = dobMonth.orEmpty()
+            viewModel.dobYear = dobYear.orEmpty()
+            viewModel.years = years.orEmpty()
+            viewModel.months = months.orEmpty()
+            viewModel.days = days.orEmpty()
+            viewModel.gender = gender.orEmpty()
+            viewModel.abhaId = abhaId.orEmpty()
+            viewModel.rationCard = rationCard.orEmpty()
+            viewModel.homeAddress.pincode = homePostalCode.orEmpty()
+            viewModel.homeAddress.state = homeState.orEmpty()
+            viewModel.homeAddress.addressLine1 = homeAddressLine1.orEmpty()
+            viewModel.homeAddress.addressLine2 = homeAddressLine2.orEmpty()
+            viewModel.homeAddress.city = homeCity.orEmpty()
+            viewModel.homeAddress.district = homeDistrict.orEmpty()
+            viewModel.homeAddress.block = homeBlock.orEmpty()
 
             if (dobAgeSelector == "dob") {
                 viewModel.dob = "${viewModel.dobDay}-${viewModel.dobMonth}-${viewModel.dobYear}"
