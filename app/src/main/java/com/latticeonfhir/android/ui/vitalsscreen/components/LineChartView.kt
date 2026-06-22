@@ -2,12 +2,9 @@ package com.latticeonfhir.android.ui.vitalsscreen.components
 
 import android.graphics.Color
 import android.graphics.DashPathEffect
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -44,10 +41,6 @@ fun LineChartView(
     val allEntries = (entries1.orEmpty() + entries2.orEmpty())
     val yMin = allEntries.minOfOrNull { it.y } ?: 0f  // Minimum Y value
     val yMax = allEntries.maxOfOrNull { it.y } ?: 0f  // Maximum Y value
-    val xMin = allEntries.minOfOrNull { it.x }?:0f
-    val xMax = allEntries.maxOfOrNull { it.x }?:0f
-
-    val chartWidth = ((xMax-xMin)* 30f+100f).dp.coerceIn(350.dp, 3000.dp)
 
     // Add some padding to min and max values for better visualization
     val axisMin = yMin - 10f
@@ -134,8 +127,7 @@ fun LineChartView(
             lineChart.invalidate() // Redraw chart
         },
         modifier = modifier
-            .horizontalScroll(rememberScrollState())
-            .width(chartWidth)
+            .fillMaxWidth()
             .height(300.dp) // Adjust chart size as needed
     )
 }
@@ -238,10 +230,7 @@ fun LineChartViewGlucose(
     val allEntries = (entriesRandom.orEmpty() + entriesFasting.orEmpty())
     val yMin = allEntries.minOfOrNull { it.y } ?: 0f  // Minimum Y value
     val yMax = allEntries.maxOfOrNull { it.y } ?: 0f  // Maximum Y value
-    val xMin = allEntries.minOfOrNull { it.x }?: 0f
-    val xMax = allEntries.maxOfOrNull { it.x }?: 0f
 
-    val chartWidth = ((xMax- xMin) *30f+100f).dp.coerceIn(350.dp, 3000.dp)
     // Add some padding to min and max values for better visualization
     val axisMin = yMin - 10f
     val axisMax = yMax + 10f
@@ -374,8 +363,7 @@ fun LineChartViewGlucose(
             }
         },
         modifier = modifier
-            .horizontalScroll(rememberScrollState())
-            .width(chartWidth)
+            .fillMaxWidth()
             .height(300.dp) // Adjust chart size as needed
     )
 }
