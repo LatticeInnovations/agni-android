@@ -25,9 +25,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.navigation.Screen
 import com.latticeonfhir.android.ui.common.PreviewScreen
-import com.latticeonfhir.android.utils.constants.IdentificationConstants.PASSPORT_TYPE
-import com.latticeonfhir.android.utils.constants.IdentificationConstants.PATIENT_ID_TYPE
-import com.latticeonfhir.android.utils.constants.IdentificationConstants.VOTER_ID_TYPE
+import com.latticeonfhir.android.utils.constants.IdentificationConstants.ABHA_ID_TYPE
+import com.latticeonfhir.android.utils.constants.IdentificationConstants.RATION_CARD_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -56,40 +55,34 @@ fun PatientProfile(
                 viewModel.middleName = middleName ?: ""
                 viewModel.lastName = lastName ?: ""
                 viewModel.email = email ?: ""
-                viewModel.phoneNumber = mobileNumber.toString()
+                viewModel.phoneNumber = mobileNumber?.toString().orEmpty()
                 viewModel.dob = birthDate.toPatientPreviewDate()
                 viewModel.gender = gender
+
                 viewModel.identifier = identifier.toMutableList()
-                viewModel.passportId = ""
-                viewModel.patientId = ""
-                viewModel.voterId = ""
+                viewModel.abhaId = ""
+                viewModel.rationCard = ""
                 viewModel.identifier.forEach { identity ->
                     when (identity.identifierType) {
-                        PASSPORT_TYPE -> {
-                            viewModel.passportId = identity.identifierNumber
+                        ABHA_ID_TYPE -> {
+                            viewModel.abhaId = identity.identifierNumber
                         }
 
-                        VOTER_ID_TYPE -> {
-                            viewModel.voterId = identity.identifierNumber
-
-                        }
-
-                        PATIENT_ID_TYPE -> {
-                            viewModel.patientId = identity.identifierNumber
+                        RATION_CARD_TYPE -> {
+                            viewModel.rationCard = identity.identifierNumber
                         }
                     }
                 }
 
-                viewModel.homeAddress.pincode = permanentAddress.postalCode ?: ""
                 viewModel.homeAddress.state = permanentAddress.state
-                viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1 ?: ""
-                viewModel.homeAddress.addressLine2 = permanentAddress.addressLine2 ?: ""
-                viewModel.homeAddress.city = permanentAddress.city ?: ""
                 viewModel.homeAddress.district = permanentAddress.district
-
+                viewModel.homeAddress.block = permanentAddress.block.orEmpty()
+                viewModel.homeAddress.city = permanentAddress.city.orEmpty()
+                viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1.orEmpty()
+                viewModel.homeAddress.addressLine2 = permanentAddress.addressLine2.orEmpty()
+                viewModel.homeAddress.pincode = permanentAddress.postalCode.orEmpty()
             }
         }
-
     }
 
     val snackBarHostState = remember { SnackbarHostState() }
