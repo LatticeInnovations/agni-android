@@ -4,5 +4,11 @@ import androidx.annotation.Keep
 
 @Keep
 data class TokenResponse(
-    val token: String
+    val contact: String,
+    val name: String,
+    val orgId: String,
+    val role: String,
+    val roleName: String,
+    val token: String,
+    val userId: String
 )
