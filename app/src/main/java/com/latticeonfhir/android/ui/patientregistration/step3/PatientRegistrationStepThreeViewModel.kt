@@ -17,27 +17,31 @@ class PatientRegistrationStepThreeViewModel : BaseViewModel(), DefaultLifecycleO
     var addWorkAddress by mutableStateOf(false)
 
     fun addressInfoValidation(): Boolean {
-        if (homeAddress.pincode.length < 6 || homeAddress.state == "" || homeAddress.addressLine1 == ""
-            || homeAddress.city == ""
-        )
-            return false
-        if (addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state == "" || workAddress.addressLine1 == ""
-                    || workAddress.city == "")
-        )
-            return false
-        return true
+        return !(
+                homeAddress.state.isBlank() || homeAddress.isStateValid
+                        || homeAddress.district.isBlank() || homeAddress.isDistrictValid
+                )
     }
 }
 
 class Address {
     var pincode by mutableStateOf("")
-    var state by mutableStateOf("")
-    var addressLine1 by mutableStateOf("")
-    var addressLine2 by mutableStateOf("")
-    var city by mutableStateOf("")
-    var district by mutableStateOf("")
     var isPostalCodeValid by mutableStateOf(false)
-    var isAddressLine1Valid by mutableStateOf(false)
-    var isCityValid by mutableStateOf(false)
+
+    var state by mutableStateOf("")
     var isStateValid by mutableStateOf(false)
+
+    var district by mutableStateOf("")
+    var isDistrictValid by mutableStateOf(false)
+
+    var block by mutableStateOf("")
+    var isBlockValid by mutableStateOf(false)
+
+    var city by mutableStateOf("")
+    var isCityValid by mutableStateOf(false)
+
+    var addressLine1 by mutableStateOf("")
+    var isAddressLine1Valid by mutableStateOf(false)
+
+    var addressLine2 by mutableStateOf("")
 }

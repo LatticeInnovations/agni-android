@@ -1,0 +1,97 @@
+package com.latticeonfhir.android.utils.states
+
+import android.content.Context
+import com.google.gson.Gson
+import com.latticeonfhir.android.data.local.model.states.States
+import timber.log.Timber
+import java.io.InputStreamReader
+
+private var cachedStates: States? = null
+
+private fun getStatesData(context: Context): States {
+    return cachedStates ?: context.assets
+        .open("india_states_districts_blocks_pincodes.json")
+        .use { inputStream ->
+            InputStreamReader(inputStream).use { reader ->
+                Gson().fromJson(reader, States::class.java)
+            }
+        }.also {
+            cachedStates = it
+        }
+}
+
+fun getStateNames(context: Context): List<String> {
+    return try {
+        getStatesData(context)
+            .states
+            .map { it.stateName }
+            .sorted()
+    } catch (e: Exception) {
+        Timber.e(e)
+        emptyList()
+    }
+}
+
+fun getDistrictNames(
+    context: Context,
+    stateName: String
+): List<String> {
+    return try {
+        val states = getStatesData(context).states
+
+        if (stateName.isBlank()) {
+            states
+                .flatMap { state -> state.districts }
+                .map { district -> district.districtName }
+                .distinct()
+                .sorted()
+        } else {
+            states
+                .firstOrNull {
+                    it.stateName.equals(stateName, ignoreCase = true)
+                }
+                ?.districts
+                ?.map { district -> district.districtName }
+                ?.sorted()
+                ?: emptyList()
+        }
+    } catch (e: Exception) {
+        Timber.e(e)
+        emptyList()
+    }
+}
+
+fun getBlockNames(
+    context: Context,
+    stateName: String,
+    districtName: String
+): List<String> {
+    return try {
+        getStatesData(context)
+            .states
+            .asSequence()
+            .filter {
+                stateName.isBlank() ||
+                        it.stateName.equals(stateName, ignoreCase = true)
+            }
+            .flatMap { state ->
+                state.districts.asSequence()
+            }
+            .filter {
+                districtName.isBlank() ||
+                        it.districtName.equals(districtName, ignoreCase = true)
+            }
+            .flatMap { district ->
+                district.blocks.asSequence()
+            }
+            .map { block ->
+                block.blockName
+            }
+            .distinct()
+            .sorted()
+            .toList()
+    } catch (e: Exception) {
+        Timber.e(e)
+        emptyList()
+    }
+}
