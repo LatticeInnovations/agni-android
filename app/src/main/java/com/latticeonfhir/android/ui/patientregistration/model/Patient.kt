@@ -21,6 +21,8 @@ data class PatientRegister(
     var passportId: String? = "",
     var voterId: String? = "",
     var patientId: String? = "",
+    var abhaId: String? = "",
+    var rationCard: String? = "",
     var homePostalCode: String? = "",
     var homeState: String? = "",
     var homeBlock: String? = "",
