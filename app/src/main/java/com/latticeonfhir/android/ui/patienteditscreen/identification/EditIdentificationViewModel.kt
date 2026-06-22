@@ -32,94 +32,71 @@ class EditIdentificationViewModel @Inject constructor(
     var isLaunched by mutableStateOf(false)
     var isEditing by mutableStateOf(false)
 
-    val maxPassportIdLength = 8
-    val maxVoterIdLength = 10
-    val maxPatientIdLength = 12
-    val minPatientIdLength = 2
+    val maxAbhaIdLength = 14
+    val maxRationCardLength = 20
 
-    var isPassportSelected by mutableStateOf(false)
-    var isVoterSelected by mutableStateOf(false)
-    var isPatientSelected by mutableStateOf(false)
-    var passportId by mutableStateOf("")
-    var voterId by mutableStateOf("")
-    var patientId by mutableStateOf("")
+    var isAbhaSelected by mutableStateOf(false)
+    var isRationCardSelected by mutableStateOf(false)
+    var abhaId by mutableStateOf("")
+    var rationCard by mutableStateOf("")
 
-    val passportPattern = PassportRegex.passportPattern
-    val voterPattern = VoterRegex.voterPattern
-    var isPassportValid by mutableStateOf(false)
-    var isVoterValid by mutableStateOf(false)
-    var isPatientValid by mutableStateOf(false)
+    val abhaRegex = Regex("^\\d{14}$")
+    val rationCardRegex = Regex("^[A-Z0-9]{20}$")
+    var isAbhaIdValid by mutableStateOf(false)
+    var isRationCardValid by mutableStateOf(false)
 
     val identifierList = mutableListOf<PatientIdentifier>()
     var patient by mutableStateOf<PatientResponse?>(null)
 
-
     // temp
-    var isPassportSelectedTemp by mutableStateOf(false)
-    var isVoterSelectedTemp by mutableStateOf(false)
-    var isPatientSelectedTemp by mutableStateOf(false)
-    var passportIdTemp by mutableStateOf("")
-    var voterIdTemp by mutableStateOf("")
-    var patientIdTemp by mutableStateOf("")
-
+    var isAbhaSelectedTemp by mutableStateOf(false)
+    var isRationCardSelectedTemp by mutableStateOf(false)
+    var abhaIdTemp by mutableStateOf("")
+    var rationCardTemp by mutableStateOf("")
 
     fun identityInfoValidation(): Boolean {
-        if (isPassportSelected && !passportPattern.matches(passportId))
+        if (isAbhaSelected && !abhaRegex.matches(abhaId))
             return false
-        if (isVoterSelected && !voterPattern.matches(voterId))
+        if (isRationCardSelected && !rationCardRegex.matches(rationCard))
             return false
-        return !(isPatientSelected && patientId.length < minPatientIdLength)
+        return true
     }
 
     fun checkIsEdit(): Boolean {
-        return isPassportSelected != isPassportSelectedTemp ||
-                isVoterSelected != isVoterSelectedTemp ||
-                isPatientSelected != isPatientSelectedTemp ||
-                passportId != passportIdTemp ||
-                voterId != voterIdTemp ||
-                patientId != patientIdTemp
+        return isAbhaSelected != isAbhaSelectedTemp ||
+                isRationCardSelected != isRationCardSelectedTemp ||
+                abhaId != abhaIdTemp ||
+                rationCard != rationCardTemp
     }
 
     fun revertChanges(): Boolean {
-        isPassportSelected = isPassportSelectedTemp
-        isVoterSelected = isVoterSelectedTemp
-        isPatientSelected = isPatientSelectedTemp
-        passportId = passportIdTemp
-        voterId = voterIdTemp
-        patientId = patientIdTemp
-        isPassportValid = false
-        isVoterValid = false
-        isPatientValid = false
+        isAbhaSelected = isAbhaSelectedTemp
+        isRationCardSelected = isRationCardSelectedTemp
+        abhaId = abhaIdTemp
+        rationCard = rationCardTemp
+        isAbhaIdValid = false
+        isRationCardValid = false
         return true
     }
 
     fun updateBasicInfo(patientResponse: PatientResponse) {
         viewModelScope.launch(Dispatchers.IO) {
             val toBeDeletedList = mutableListOf<PatientIdentifier>()
-            if (passportIdTemp != passportId || !isPassportSelected) {
+            if (abhaIdTemp != abhaId || !isAbhaSelected) {
                 toBeDeletedList.add(
                     PatientIdentifier(
-                        identifierType = IdentificationConstants.PASSPORT_TYPE,
-                        identifierNumber = passportIdTemp,
+                        identifierType = IdentificationConstants.ABHA_ID_TYPE,
+                        identifierNumber = abhaIdTemp,
                         code = null
                     )
                 )
             }
 
-            if (voterIdTemp != voterId || !isPassportSelected) {
+            if (rationCardTemp != rationCard || !isRationCardSelected) {
                 toBeDeletedList.add(
                     PatientIdentifier(
-                        identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                        identifierNumber = voterIdTemp,
-                        code = null
-                    )
-                )
-            }
-            if (patientIdTemp != patientId || !isPassportSelected) {
-                toBeDeletedList.add(
-                    PatientIdentifier(
-                        identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                        identifierNumber = patientIdTemp,
+                        identifierType = IdentificationConstants.RATION_CARD_TYPE,
+                        identifierNumber = rationCardTemp,
                         code = null
                     )
                 )
@@ -138,123 +115,83 @@ class EditIdentificationViewModel @Inject constructor(
                 if (patientResponse.fhirId != null) {
                     val list = mutableListOf<ChangeRequest>()
 
-                    if (passportId != passportIdTemp && passportId.isEmpty() && passportIdTemp.isNotEmpty()) {
+                    if (abhaId != abhaIdTemp && abhaId.isEmpty() && abhaIdTemp.isNotEmpty()) {
 
 
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
-                                    identifierNumber = passportIdTemp,
+                                    identifierType = IdentificationConstants.ABHA_ID_TYPE,
+                                    identifierNumber = abhaIdTemp,
                                     code = null
                                 ), operation = ChangeTypeEnum.REMOVE.value,
-                                key = IdentificationConstants.PASSPORT_TYPE
+                                key = IdentificationConstants.ABHA_ID_TYPE
                             )
 
                         )
 
-                    } else if (passportId != passportIdTemp && passportIdTemp.isNotEmpty() && passportId.isNotEmpty()) {
+                    } else if (abhaId != abhaIdTemp && abhaIdTemp.isNotEmpty() && abhaId.isNotEmpty()) {
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
-                                    identifierNumber = passportId,
+                                    identifierType = IdentificationConstants.ABHA_ID_TYPE,
+                                    identifierNumber = abhaId,
                                     code = null
                                 ), operation = ChangeTypeEnum.REPLACE.value,
-                                key = IdentificationConstants.PASSPORT_TYPE
+                                key = IdentificationConstants.ABHA_ID_TYPE
                             )
 
                         )
 
-                    } else if (passportId != passportIdTemp && passportIdTemp.isEmpty() && passportId.isNotEmpty()) {
+                    } else if (abhaId != abhaIdTemp && abhaIdTemp.isEmpty() && abhaId.isNotEmpty()) {
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PASSPORT_TYPE,
-                                    identifierNumber = passportId,
+                                    identifierType = IdentificationConstants.ABHA_ID_TYPE,
+                                    identifierNumber = abhaId,
                                     code = null
                                 ), operation = ChangeTypeEnum.ADD.value,
-                                key = IdentificationConstants.PASSPORT_TYPE
+                                key = IdentificationConstants.ABHA_ID_TYPE
                             )
 
                         )
 
                     }
 
-                    if (voterId != voterIdTemp && voterId.isEmpty() && voterIdTemp.isNotEmpty()) {
+                    if (rationCard != rationCardTemp && rationCard.isEmpty() && rationCardTemp.isNotEmpty()) {
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                                    identifierNumber = voterIdTemp,
+                                    identifierType = IdentificationConstants.RATION_CARD_TYPE,
+                                    identifierNumber = rationCardTemp,
                                     code = null
                                 ), operation = ChangeTypeEnum.REMOVE.value,
-                                key = IdentificationConstants.VOTER_ID_TYPE
+                                key = IdentificationConstants.RATION_CARD_TYPE
                             )
 
                         )
 
-                    } else if (voterId != voterIdTemp && voterIdTemp.isNotEmpty() && voterId.isNotEmpty()) {
+                    } else if (rationCard != rationCardTemp && rationCardTemp.isNotEmpty() && rationCard.isNotEmpty()) {
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                                    identifierNumber = voterId,
+                                    identifierType = IdentificationConstants.RATION_CARD_TYPE,
+                                    identifierNumber = rationCard,
                                     code = null
                                 ), operation = ChangeTypeEnum.REPLACE.value,
-                                key = IdentificationConstants.VOTER_ID_TYPE
+                                key = IdentificationConstants.RATION_CARD_TYPE
                             )
                         )
 
-                    } else if (voterId != voterIdTemp && voterIdTemp.isEmpty() && voterId.isNotEmpty()) {
+                    } else if (rationCard != rationCardTemp && rationCardTemp.isEmpty() && rationCard.isNotEmpty()) {
                         list.add(
                             ChangeRequest(
                                 value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                                    identifierNumber = voterId,
+                                    identifierType = IdentificationConstants.RATION_CARD_TYPE,
+                                    identifierNumber = rationCard,
                                     code = null
                                 ), operation = ChangeTypeEnum.ADD.value,
-                                key = IdentificationConstants.VOTER_ID_TYPE
-                            )
-
-                        )
-
-                    }
-
-                    if (patientId != patientIdTemp && patientId.isEmpty() && patientIdTemp.isNotEmpty()) {
-                        list.add(
-                            ChangeRequest(
-                                value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                                    identifierNumber = patientIdTemp,
-                                    code = null
-                                ), operation = ChangeTypeEnum.REMOVE.value,
-                                key = IdentificationConstants.PATIENT_ID_TYPE
-                            )
-
-                        )
-
-                    } else if (patientId != patientIdTemp && patientIdTemp.isNotEmpty() && patientId.isNotEmpty()) {
-                        list.add(
-                            ChangeRequest(
-                                value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                                    identifierNumber = patientId,
-                                    code = null
-                                ), operation = ChangeTypeEnum.REPLACE.value,
-                                key = IdentificationConstants.PATIENT_ID_TYPE
-                            )
-                        )
-
-                    } else if (patientId != patientIdTemp && patientIdTemp.isEmpty() && patientId.isNotEmpty()) {
-                        list.add(
-                            ChangeRequest(
-                                value = PatientIdentifier(
-                                    identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                                    identifierNumber = patientId,
-                                    code = null
-                                ), operation = ChangeTypeEnum.ADD.value,
-                                key = IdentificationConstants.PATIENT_ID_TYPE
+                                key = IdentificationConstants.RATION_CARD_TYPE
                             )
 
                         )

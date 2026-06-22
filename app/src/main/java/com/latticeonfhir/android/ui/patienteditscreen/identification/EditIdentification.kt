@@ -3,15 +3,16 @@ package com.latticeonfhir.android.ui.patienteditscreen.identification
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -20,6 +21,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -45,9 +47,9 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientIdentifier
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
-import com.latticeonfhir.android.ui.common.CustomTextField
-import com.latticeonfhir.android.ui.common.IdLength
+import com.latticeonfhir.android.ui.common.CustomTextFieldWithLength
 import com.latticeonfhir.android.ui.common.IdSelectionChip
+import com.latticeonfhir.android.ui.patientregistration.step2.AbhaIdVisualTransformation
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -70,19 +72,14 @@ fun EditIdentification(
                 identifier.forEach { identity ->
 
                     when (identity.identifierType) {
-                        IdentificationConstants.PASSPORT_TYPE -> {
-                            viewModel.passportId = identity.identifierNumber
-                            viewModel.isPassportSelected = viewModel.passportId.isNotBlank()
+                        IdentificationConstants.ABHA_ID_TYPE -> {
+                            viewModel.abhaId = identity.identifierNumber
+                            viewModel.isAbhaSelected = viewModel.abhaId.isNotBlank()
                         }
 
-                        IdentificationConstants.VOTER_ID_TYPE -> {
-                            viewModel.voterId = identity.identifierNumber
-                            viewModel.isVoterSelected = viewModel.voterId.isNotBlank()
-                        }
-
-                        IdentificationConstants.PATIENT_ID_TYPE -> {
-                            viewModel.patientId = identity.identifierNumber
-                            viewModel.isPatientSelected = viewModel.patientId.isNotBlank()
+                        IdentificationConstants.RATION_CARD_TYPE -> {
+                            viewModel.rationCard = identity.identifierNumber
+                            viewModel.isRationCardSelected = viewModel.rationCard.isNotBlank()
                         }
 
                         else -> {
@@ -91,14 +88,10 @@ fun EditIdentification(
 
                     }
                 }
-                viewModel.isPassportSelectedTemp = viewModel.isPassportSelected
-                viewModel.isVoterSelectedTemp = viewModel.isVoterSelected
-                viewModel.isPatientSelectedTemp = viewModel.isPatientSelected
-                viewModel.passportIdTemp = viewModel.passportId
-                viewModel.voterIdTemp = viewModel.voterId
-                viewModel.patientIdTemp = viewModel.patientId
-
-
+                viewModel.isAbhaSelectedTemp = viewModel.isAbhaSelected
+                viewModel.isRationCardSelectedTemp = viewModel.isRationCardSelected
+                viewModel.abhaIdTemp = viewModel.abhaId
+                viewModel.rationCardTemp = viewModel.rationCard
             }
             viewModel.isLaunched = true
 
@@ -113,7 +106,8 @@ fun EditIdentification(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
+            .imePadding(),
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         topBar = {
             TopAppBar(
@@ -147,10 +141,10 @@ fun EditIdentification(
                         text = "Undo all",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (viewModel.isEditing) MaterialTheme.colorScheme.primary else Color.Gray,
+                        color = if (viewModel.checkIsEdit()) MaterialTheme.colorScheme.primary else Color.Gray,
                         modifier = Modifier
                             .padding(end = 12.dp)
-                            .clickable(viewModel.isEditing, onClick = {
+                            .clickable(viewModel.checkIsEdit(), onClick = {
                                 if (viewModel.revertChanges()) {
                                     coroutineScope.launch {
                                         snackBarHostState.showSnackbar("Changes undone")
@@ -163,160 +157,73 @@ fun EditIdentification(
                 }
             )
         },
-        content = {
+        content = { paddingValues ->
             Column(
-                modifier = Modifier.padding(15.dp),
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(15.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Spacer(modifier = Modifier.height(20.dp))
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(it)
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState())
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         IdSelectionChip(
-                            idSelected = viewModel.isPassportSelected,
-                            label = "Passport Id"
+                            idSelected = viewModel.isAbhaSelected,
+                            label = stringResource(id = R.string.abha_id)
                         ) {
-                            viewModel.isPassportSelected = !it
-                        }
-                        Spacer(modifier = Modifier.width(5.dp))
-                        IdSelectionChip(
-                            idSelected = viewModel.isVoterSelected,
-                            label = "Voter Id"
-                        ) {
-                            viewModel.isVoterSelected = !it
-                        }
-                        Spacer(modifier = Modifier.width(5.dp))
-                        IdSelectionChip(
-                            idSelected = viewModel.isPatientSelected,
-                            label = "Patient Id"
-                        ) {
-                            viewModel.isPatientSelected = !it
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    if (viewModel.isPassportSelected) {
-                        Spacer(modifier = Modifier.height(5.dp))
-                        CustomTextField(
-                            value = viewModel.passportId,
-                            label = "Passport Id",
-                            weight = 1f,
-                            viewModel.maxPassportIdLength,
-                            viewModel.isPassportValid,
-                            "Enter valid Passport ID (eg., A1098765)",
-                            KeyboardType.Text,
-                            KeyboardCapitalization.Characters
-                        ) {
-                            viewModel.passportId = it
-                            if (viewModel.passportId.isNotEmpty())
-                                viewModel.isPassportValid =
-                                    !viewModel.passportPattern.matches(viewModel.passportId)
-                            else
-                                viewModel.isPassportValid = false
-                        }
-                        IdLength(
-                            viewModel.passportId,
-                            viewModel.maxPassportIdLength,
-                            "PASSPORT_ID_LENGTH"
-                        )
-                    } else {
-                        viewModel.passportId = ""
-                    }
-                    if (viewModel.isVoterSelected) {
-                        Spacer(modifier = Modifier.height(5.dp))
-                        CustomTextField(
-                            value = viewModel.voterId,
-                            label = "Voter Id",
-                            weight = 1f,
-                            viewModel.maxVoterIdLength,
-                            viewModel.isVoterValid,
-                            "Enter valid Voter Id (eg., XYZ9876543)",
-                            KeyboardType.Text,
-                            KeyboardCapitalization.Characters
-                        ) {
-                            viewModel.voterId = it
-                            if (viewModel.voterId.isNotEmpty())
-                                viewModel.isVoterValid =
-                                    !viewModel.voterPattern.matches(viewModel.voterId)
-                            else {
-                                viewModel.isVoterValid = false
+                            viewModel.isAbhaSelected = !it
+                            if (!viewModel.isAbhaSelected) {
+                                viewModel.abhaId = ""
+                                viewModel.isAbhaIdValid = false
                             }
                         }
-                        IdLength(viewModel.voterId, viewModel.maxVoterIdLength, "VOTER_ID_LENGTH")
-                    } else {
-                        viewModel.voterId = ""
-                    }
-                    if (viewModel.isPatientSelected) {
-                        Spacer(modifier = Modifier.height(5.dp))
-                        CustomTextField(
-                            value = viewModel.patientId,
-                            label = "Patient Id",
-                            weight = 1f,
-                            viewModel.maxPatientIdLength,
-                            viewModel.isPatientValid,
-                            stringResource(id = R.string.patient_id_error_msg),
-                            KeyboardType.Text,
-                            KeyboardCapitalization.Characters
+                        IdSelectionChip(
+                            idSelected = viewModel.isRationCardSelected,
+                            label = stringResource(id = R.string.ration_card)
                         ) {
-                            viewModel.patientId = it
-                            if (viewModel.patientId.isNotEmpty())
-                                viewModel.isPatientValid =
-                                    viewModel.patientId.length < viewModel.minPatientIdLength
-                            else
-                                viewModel.isPatientValid = false
+                            viewModel.isRationCardSelected = !it
+                            if (!viewModel.isRationCardSelected) {
+                                viewModel.rationCard = ""
+                                viewModel.isRationCardValid = false
+                            }
                         }
-                        IdLength(
-                            viewModel.patientId,
-                            viewModel.maxPatientIdLength,
-                            "PATIENT_ID_LENGTH"
-                        )
-                    } else {
-                        viewModel.patientId = ""
                     }
+                    AbhaIdComposable(viewModel)
+                    RationCardComposable(viewModel)
                 }
-                viewModel.isEditing = viewModel.checkIsEdit()
             }
 
         }, floatingActionButton = {
             Button(
                 onClick = {
-                    if (viewModel.passportId.isNotEmpty() && viewModel.isPassportSelected) {
+                    if (viewModel.abhaId.isNotEmpty() && viewModel.isAbhaSelected) {
                         viewModel.identifierList.add(
                             PatientIdentifier(
-                                identifierType = IdentificationConstants.PASSPORT_TYPE,
-                                identifierNumber = viewModel.passportId,
+                                identifierType = IdentificationConstants.ABHA_ID_TYPE,
+                                identifierNumber = viewModel.abhaId,
                                 code = null
                             )
                         )
                     }
-                    if (viewModel.voterId.isNotEmpty() && viewModel.isVoterSelected) {
+                    if (viewModel.rationCard.isNotEmpty() && viewModel.isRationCardSelected) {
                         viewModel.identifierList.add(
                             PatientIdentifier(
-                                identifierType = IdentificationConstants.VOTER_ID_TYPE,
-                                identifierNumber = viewModel.voterId,
+                                identifierType = IdentificationConstants.RATION_CARD_TYPE,
+                                identifierNumber = viewModel.rationCard,
                                 code = null
                             )
                         )
                     }
-                    if (viewModel.patientId.isNotEmpty() && viewModel.isPatientSelected) {
-                        viewModel.identifierList.add(
-                            PatientIdentifier(
-                                identifierType = IdentificationConstants.PATIENT_ID_TYPE,
-                                identifierNumber = viewModel.patientId,
-                                code = null
-                            )
-                        )
-                    }
-
-
                     viewModel.updateBasicInfo(viewModel.patient!!.copy(identifier = viewModel.identifierList))
                     navController.previousBackStackEntry?.savedStateHandle?.set(
                         "isProfileUpdated",
@@ -327,11 +234,74 @@ fun EditIdentification(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 10.dp, start = 30.dp),
-                enabled = viewModel.identityInfoValidation() && viewModel.isEditing
+                enabled = viewModel.identityInfoValidation() && viewModel.checkIsEdit()
             ) {
                 Text(text = "Save")
             }
 
         }
     )
+}
+
+
+@Composable
+private fun AbhaIdComposable(viewModel: EditIdentificationViewModel) {
+    if (viewModel.isAbhaSelected) {
+        OutlinedTextField(
+            value = viewModel.abhaId,
+            onValueChange = { input ->
+                val digits = input.filter { it.isDigit() }.take(14)
+
+                viewModel.abhaId = digits
+                viewModel.isAbhaIdValid = digits.length != 14
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(text = stringResource(R.string.abha_id))
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number
+            ),
+            visualTransformation = AbhaIdVisualTransformation(),
+            isError = viewModel.isAbhaIdValid,
+            supportingText = {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (viewModel.isAbhaIdValid) {
+                        Text(stringResource(R.string.abha_id_error_msg))
+                    }
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        text = "${viewModel.abhaId.length}/${viewModel.maxAbhaIdLength}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun RationCardComposable(viewModel: EditIdentificationViewModel) {
+    if (viewModel.isRationCardSelected) {
+        CustomTextFieldWithLength(
+            value = viewModel.rationCard,
+            label = stringResource(id = R.string.ration_card),
+            weight = 1f,
+            maxLength = viewModel.maxRationCardLength,
+            isError = viewModel.isRationCardValid,
+            error = stringResource(id = R.string.ration_card_error_msg),
+            keyboardType = KeyboardType.Text,
+            keyboardCapitalization = KeyboardCapitalization.Characters
+        ) { input ->
+            val value = input.uppercase()
+                .filter { it.isLetterOrDigit() }
+                .take(viewModel.maxRationCardLength)
+
+            viewModel.rationCard = value
+            viewModel.isRationCardValid = !viewModel.rationCardRegex.matches(value)
+        }
+    }
 }
