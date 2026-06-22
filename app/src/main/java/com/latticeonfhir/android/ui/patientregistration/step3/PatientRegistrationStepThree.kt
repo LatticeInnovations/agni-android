@@ -147,6 +147,7 @@ fun PatientRegistrationStepThree(
         Button(
             onClick = {
                 patientRegister.run {
+                    homePostalCode = viewModel.homeAddress.pincode.ifBlank { null }
                     homeState = viewModel.homeAddress.state
                     homeDistrict = viewModel.homeAddress.district
                     homeBlock = viewModel.homeAddress.block
