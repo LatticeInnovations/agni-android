@@ -90,12 +90,20 @@ fun LineChartView(
                 axisRight.isEnabled = false // Disable the right Y Axis
 
                 // Additional chart appearance settings
-                setTouchEnabled(false)       // Disable user interaction
                 legend.isEnabled = false     // Hide legend
                 setDrawBorders(false)        // No borders
                 setDrawGridBackground(false) // No background grid
-                // In case there's no data
                 setNoDataTextColor(Color.RED)
+
+                setTouchEnabled(true)
+
+                isDragEnabled = true
+                setScaleEnabled(true)
+
+                setPinchZoom(true)
+
+                isScaleXEnabled = true
+                isScaleYEnabled = false
             }
             val customValueFormatter = object : ValueFormatter() {
                 override fun getPointLabel(entry: Entry?): String {
@@ -295,11 +303,20 @@ fun LineChartViewGlucose(
                 axisRight.isEnabled = false // Disable the right Y Axis
 
                 // Additional chart appearance settings
-                setTouchEnabled(false)       // Disable user interaction
                 legend.isEnabled = false     // Hide legend
                 setDrawBorders(false)        // No borders
                 setDrawGridBackground(false) // No background grid
                 setNoDataTextColor(Color.RED)
+
+                setTouchEnabled(true)
+
+                isDragEnabled = true
+                setScaleEnabled(true)
+
+                setPinchZoom(true)
+
+                isScaleXEnabled = true
+                isScaleYEnabled = false
             }
 
             // Custom value formatter to display values on the right side of the dots
