@@ -95,9 +95,8 @@ import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverte
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
+import java.util.TimeZone
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -573,7 +572,6 @@ fun ShowTrendGraphCard(
                 .height(200.dp),
                 entries1 = getChartEntries(list, vitalsViewModel),
                 entries2 = getChartEntries2(list, vitalsViewModel),
-                labels = getLabels(vitalsViewModel, list),
                 isBp = vitalsViewModel.isBPSelected
             )
             Timber.d("List : ${list.map { it.createdOn.formatDateToDayMonth() }}")
@@ -584,29 +582,21 @@ fun ShowTrendGraphCard(
                 .height(200.dp),
                 entriesRandom = getChartEntries2(list, vitalsViewModel),
                 entriesFasting = getChartEntries(list, vitalsViewModel),
-                labels = getLabels(vitalsViewModel, list)
             )
         }
     }
 
 
 }
-
-fun getLabels(vitalsViewModel: VitalsViewModel, list: List<VitalLocal>): List<String> {
-    return if (!vitalsViewModel.isBPSelected) {
-        (list.map { it.createdOn }).distinct().sorted().map { it.formatDateToDayMonth() }.distinct()
-    } else {
-        val vitalDates = list.map { it.createdOn }
-        val cvdDates = vitalsViewModel.previousRecords.map { it.createdOn }
-
-        // Combine and sort the dates
-        (vitalDates + cvdDates).distinct().sorted().map { it.formatDateToDayMonth() }.distinct()
-    }
+fun Date.toEpocDays(): Long{
+    val tz = TimeZone.getDefault()
+    val offset= tz.getOffset(this.time)
+    return (this.time+ offset) / (1000L *60L *60L *24L)
 }
 
 fun getBPListSize(list: List<VitalLocal>, vitalsViewModel: VitalsViewModel): Int {
     return list.filter { it.bpSystolic != null }
-        .groupBy { it.createdOn.formatDateToDayMonth() }.keys.size + vitalsViewModel.previousRecords.groupBy { it.createdOn.formatDateToDayMonth() }.keys.size
+        .groupBy { it.createdOn.toEpocDays() }.keys.size + vitalsViewModel.previousRecords.groupBy { it.createdOn.toEpocDays() }.keys.size
 }
 
 @Composable
@@ -723,45 +713,21 @@ private fun getEntries(
     val mutableList: MutableList<Entry> = mutableListOf()
 
     // Group the list by formatted dates
-    val filteredList = list.groupBy { it.createdOn.formatDateToDayMonth() }
-    val vitalGroupedByDate = bgList?.groupBy { it.createdOn.formatDateToDayMonth() }
-        ?: list.groupBy { it.createdOn.formatDateToDayMonth() }
+    val filteredList = list.groupBy { it.createdOn.toEpocDays() }
+    val vitalGroupedByDate = bgList?.groupBy { it.createdOn.toEpocDays() }
+        ?: list.groupBy { it.createdOn.toEpocDays() }
 
     // Get a union of all dates from both lists
-    (vitalGroupedByDate.keys).distinct()
-        .sortedBy { SimpleDateFormat("dd MMM", Locale.getDefault()).parse(it) }.also { allDates ->
-            Timber.d("Date: $allDates")
-            for (date in allDates) {
+   val allDates = (vitalGroupedByDate.keys).distinct().sorted()
+    Timber.d("Date: $allDates")
 
-                // Find the index of the date in the labels list
-                val labelIndex = allDates.indexOf(date)
-                if (labelIndex != -1) {
-                    Timber.d(
-                        "Value: $labelIndex: $date :\n${
-                            vitalGroupedByDate[date]?.mapNotNull(
-                                valueSelector
-                            ).orEmpty()
-                        }"
-                    )
-                    // Calculate the average value for the grouped records
-
-                    val values = if (bgList != null) filteredList[date]?.mapNotNull(valueSelector)
-                        .orEmpty() else vitalGroupedByDate[date]?.mapNotNull(valueSelector)
-                        .orEmpty()
-                    if (values.isNotEmpty()) {
-                        // Calculate the average only if values are present
-                        val averageValue = values.average().toFloat()
-                        // Add the average value as an Entry for the graph
-                        mutableList.add(
-                            Entry(
-                                labelIndex.toFloat(),
-                                averageValue.roundToInt().toFloat()
-                            )
-                        )
-                    }
-                }
+        for (date in allDates){
+            val  values = if (bgList!=null) filteredList[date]?.mapNotNull(valueSelector).orEmpty()
+            else vitalGroupedByDate[date]?.mapNotNull(valueSelector).orEmpty()
+            if (values.isNotEmpty()){
+                val averageValue = values.average().toFloat()
+                mutableList.add(Entry(date.toFloat(), averageValue.roundToInt().toFloat()))
             }
-
         }
 
     return mutableList
@@ -777,18 +743,12 @@ private fun getCombinedEntries(
     val mutableList: MutableList<Entry> = mutableListOf()
 
     // Group both lists by formatted dates
-    val vitalGroupedByDate = vitalList.groupBy { it.createdOn.formatDateToDayMonth() }
-    val cvdGroupedByDate = cvdList.groupBy { it.createdOn.formatDateToDayMonth() }
+    val vitalGroupedByDate = vitalList.groupBy { it.createdOn.toEpocDays() }
+    val cvdGroupedByDate = cvdList.groupBy { it.createdOn.toEpocDays() }
 
     // Get a union of all dates from both lists
-    val allDates = (vitalGroupedByDate.keys + cvdGroupedByDate.keys).distinct()
-        .sortedBy { SimpleDateFormat("dd MMM", Locale.getDefault()).parse(it) }
-
-
+    val allDates = (vitalGroupedByDate.keys + cvdGroupedByDate.keys).distinct().sorted()
     for (date in allDates) {
-        val labelIndex = allDates.indexOf(date)
-        if (labelIndex != -1) {
-            // Collect all values from both VitalLocal and CVDResponse for this date
             val vitalValues = vitalGroupedByDate[date]?.mapNotNull(vitalValueSelector).orEmpty()
             val cvdValues = cvdGroupedByDate[date]?.mapNotNull(cvdValueSelector).orEmpty()
 
@@ -798,9 +758,9 @@ private fun getCombinedEntries(
             // Calculate the average of the combined values
             if (combinedValues.isNotEmpty()) {
                 val finalAverage = combinedValues.average().toFloat()
-                mutableList.add(Entry(labelIndex.toFloat(), finalAverage.roundToInt().toFloat()))
+                mutableList.add(Entry(date.toFloat(), finalAverage.roundToInt().toFloat()))
             }
-        }
+
     }
 
     return mutableList
