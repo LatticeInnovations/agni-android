@@ -449,7 +449,7 @@ fun ContactTextField(viewModel: PatientRegistrationStepOneViewModel) {
             onValueChange = {
                 if (it.length <= 10 && (it.matches(viewModel.onlyNumbers) || it.isEmpty()))
                     viewModel.phoneNumber = it
-                viewModel.isPhoneValid = !viewModel.phoneNumber.matches(phoneNumberRegex) || viewModel.phoneNumber.isBlank()
+                viewModel.isPhoneValid = !viewModel.phoneNumber.matches(phoneNumberRegex) && viewModel.phoneNumber.isNotBlank()
             },
             modifier = Modifier
                 .fillMaxWidth(1f)
