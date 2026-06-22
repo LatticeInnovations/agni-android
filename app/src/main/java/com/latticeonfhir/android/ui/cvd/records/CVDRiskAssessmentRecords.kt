@@ -4,7 +4,6 @@ import android.graphics.Color
 import android.graphics.DashPathEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -31,15 +29,19 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.cvd.CVDResponse
 import com.latticeonfhir.android.ui.cvd.CVDRiskAssessmentViewModel
 import com.latticeonfhir.android.ui.theme.Black
 import com.latticeonfhir.android.ui.theme.White
+import com.latticeonfhir.android.ui.vitalsscreen.toEpocDays
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.formatDateToDayMonth
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toddMMMyyyy
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.math.ceil
 
 @Composable
@@ -83,9 +85,7 @@ fun CVDRiskAssessmentRecords(
                 }.map { (_, entries) ->
                     entries.maxBy { it.createdOn }
                 }),
-                entries2 = null,
-                labels = viewModel.previousRecords.reversed()
-                    .map { it.createdOn.formatDateToDayMonth() }.toSet().toList()
+                entries2 = null
             )
         }
         if (viewModel.previousRecords.isEmpty()) {
@@ -150,26 +150,15 @@ private fun RecordDetailsComposable(
 fun LineChartView(
     modifier: Modifier = Modifier,
     entries1: List<Entry>?,
-    entries2: List<Entry>?,
-    labels: List<String>
+    entries2: List<Entry>?
 ) {
-
-    val chartWidth = (labels.size * 50).dp
-
     // Calculate Y-axis minimum and maximum values dynamically
     val allEntries = (entries1.orEmpty() + entries2.orEmpty())
-    val yMin = 0f  // Minimum Y value
     val yMax = allEntries.maxOfOrNull { it.y } ?: 0f  // Maximum Y value
 
     // Add some padding to min and max values for better visualization
     val axisMin = 0f
-    val axisMax = yMax + 10f
     val roundedMaxY = (ceil(yMax / 10) * 10)
-
-    // Calculate a reasonable number of Y-axis labels (e.g., between 3 to 6 labels)
-    val yRange = axisMax - axisMin
-    val yLabelCount = (yRange / 10).coerceIn(4f, 10f)
-        .toInt()  // Adjust number of labels based on range
 
     val gridLineColor = MaterialTheme.colorScheme.primary.toArgb()
     val fastingColor = MaterialTheme.colorScheme.primary.toArgb()
@@ -184,19 +173,30 @@ fun LineChartView(
             lineChart.apply {
                 description.isEnabled = false // Disable description
 
+                val xAxisValueFormatter = object : ValueFormatter() {
+
+                    private val dateFormat =
+                        SimpleDateFormat("dd MMM", Locale.getDefault()).apply {
+                            timeZone = TimeZone.getTimeZone("UTC")
+                        }
+
+                    override fun getFormattedValue(value: Float): String {
+                        val timeUTC = value.toLong() * (1000L * 60L * 60L * 24L)
+                        return dateFormat.format(Date(timeUTC))
+                    }
+                }
+
                 // X Axis configuration
                 xAxis.apply {
                     position = XAxis.XAxisPosition.BOTTOM
                     setDrawGridLines(true)
                     setDrawAxisLine(false)
                     textSize = 10f
-                    labelCount = labels.size
                     textColor = Color.GRAY
                     granularity = 1f
-                    valueFormatter = IndexAxisValueFormatter(labels)
+                    valueFormatter = xAxisValueFormatter
                     gridColor = gridLineColor
                     setGridDashedLine(DashPathEffect(floatArrayOf(10f, 5f), 0f))
-
                 }
 
                 // Y Axis (Left) configuration
@@ -217,12 +217,20 @@ fun LineChartView(
                 axisRight.isEnabled = false // Disable the right Y Axis
 
                 // Additional chart appearance settings
-                setTouchEnabled(false)       // Disable user interaction
                 legend.isEnabled = false     // Hide legend
                 setDrawBorders(false)        // No borders
                 setDrawGridBackground(false) // No background grid
-                // In case there's no data
                 setNoDataTextColor(Color.RED)
+
+                setTouchEnabled(true)
+
+                isDragEnabled = true
+                setScaleEnabled(true)
+
+                setPinchZoom(true)
+
+                isScaleXEnabled = true
+                isScaleYEnabled = false
             }
             // First line data set (e.g., Line 1)
             val lineDataSet1 = entries1?.let {
@@ -266,34 +274,29 @@ fun LineChartView(
             lineChart.invalidate() // Redraw chart
         },
         modifier = modifier
-            .horizontalScroll(rememberScrollState())
-            .width(chartWidth)
+            .fillMaxWidth()
             .height(300.dp) // Adjust chart size as needed
     )
 }
 
 
 fun getChartEntries(list: List<CVDResponse>): List<Entry> {
-    val mutableList: MutableList<Entry> = mutableListOf()
 
-    // Iterate over the list
-    for (item in list) {
-        // Get the formatted date for the current item
-        val formattedDate = item.createdOn.formatDateToDayMonth()
+    return list
+        .groupBy { it.createdOn.toEpocDays() }
+        .mapNotNull { (date, records) ->
 
-        // Find the index of the formatted date in the labels list
-        val labelIndex = list.map { it.createdOn.formatDateToDayMonth() }.indexOf(formattedDate)
+            val averageRisk = records
+                .map { it.risk.toFloat() }
+                .average()
 
-        // If the date is found in the labels, get the value and add the entry
-        if (labelIndex != -1) {
-            item.risk.let { value ->
-                mutableList.add(Entry(labelIndex.toFloat(), value.toFloat()))
+            if (averageRisk.isNaN()) {
+                null
+            } else {
+                Entry(date.toFloat(), averageRisk.toFloat())
             }
         }
-    }
-
-    return mutableList
-
+        .sortedBy { it.x }
 }
 
 class PercentageValueFormatter : ValueFormatter() {

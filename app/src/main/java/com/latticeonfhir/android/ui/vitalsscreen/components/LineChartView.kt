@@ -2,12 +2,9 @@ package com.latticeonfhir.android.ui.vitalsscreen.components
 
 import android.graphics.Color
 import android.graphics.DashPathEffect
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,10 +18,13 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.latticeonfhir.android.ui.theme.VitalLabel
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 
 @Composable
@@ -32,12 +32,10 @@ fun LineChartView(
     modifier: Modifier = Modifier,
     entries1: List<Entry>?,
     entries2: List<Entry>?,
-    labels: List<String>,
     isBp: Boolean = false
 ) {
 
-    Timber.d("Entries: $entries1 \nLabels: $labels")
-    val chartWidth = (labels.size * 50).dp
+    Timber.d("Entries: $entries1 \nLabels")
 
     // Calculate Y-axis minimum and maximum values dynamically
     val allEntries = (entries1.orEmpty() + entries2.orEmpty())
@@ -66,7 +64,19 @@ fun LineChartView(
                 description.isEnabled = false // Disable description
 
                 // X Axis configuration
-                xAxis.xAxisConfiguration(gridLineColor, labels)
+                val xAxisValueFormatter = object : ValueFormatter(){
+                    private val dateFormat = SimpleDateFormat("dd MMM", Locale.getDefault()).apply {
+                        timeZone = TimeZone.getTimeZone("UTC")
+
+                    }
+
+                    override fun getFormattedValue(value: Float): String? {
+                        val timeUTC = value.toLong() *(1000 * 60L *60L *24L)
+                        return dateFormat.format(Date(timeUTC))
+                    }
+
+                }
+                xAxis.xAxisConfiguration(gridLineColor, xAxisValueFormatter)
 
                 // Y Axis (Left) configuration
                 axisLeft.axisLeftConfiguration(
@@ -80,12 +90,20 @@ fun LineChartView(
                 axisRight.isEnabled = false // Disable the right Y Axis
 
                 // Additional chart appearance settings
-                setTouchEnabled(false)       // Disable user interaction
                 legend.isEnabled = false     // Hide legend
                 setDrawBorders(false)        // No borders
                 setDrawGridBackground(false) // No background grid
-                // In case there's no data
                 setNoDataTextColor(Color.RED)
+
+                setTouchEnabled(true)
+
+                isDragEnabled = true
+                setScaleEnabled(true)
+
+                setPinchZoom(true)
+
+                isScaleXEnabled = true
+                isScaleYEnabled = false
             }
             val customValueFormatter = object : ValueFormatter() {
                 override fun getPointLabel(entry: Entry?): String {
@@ -117,22 +135,20 @@ fun LineChartView(
             lineChart.invalidate() // Redraw chart
         },
         modifier = modifier
-            .horizontalScroll(rememberScrollState())
-            .width(chartWidth)
+            .fillMaxWidth()
             .height(300.dp) // Adjust chart size as needed
     )
 }
 
-fun XAxis.xAxisConfiguration(gridLineColor: Int, labels: List<String>) {
+fun XAxis.xAxisConfiguration(gridLineColor: Int, xFormatter: ValueFormatter) {
     this.apply {
         position = XAxis.XAxisPosition.BOTTOM
         setDrawGridLines(true)
         setDrawAxisLine(false)
         textSize = 10f
-        labelCount = labels.size
         textColor = Color.GRAY
         granularity = 1f
-        valueFormatter = IndexAxisValueFormatter(labels)
+        valueFormatter = xFormatter
         gridColor = gridLineColor
         setGridDashedLine(DashPathEffect(floatArrayOf(10f, 5f), 0f))
 
@@ -213,11 +229,9 @@ fun List<Entry>?.lineDateSet2(
 fun LineChartViewGlucose(
     modifier: Modifier = Modifier,
     entriesRandom: List<Entry>?,   // Random glucose values
-    entriesFasting: List<Entry>?,  // Fasting glucose values
-    labels: List<String>
+    entriesFasting: List<Entry>?  // Fasting glucose values
 ) {
 
-    val chartWidth = (labels.size * 50).dp
     Timber.d("Entries: $entriesRandom")
 
     // Calculate Y-axis minimum and maximum values dynamically
@@ -247,15 +261,27 @@ fun LineChartViewGlucose(
                 description.isEnabled = false // Disable description
 
                 // X Axis configuration
+                val xAxisValueFormatter = object : ValueFormatter(){
+                    private val dateFormat = SimpleDateFormat("dd MMM", Locale.getDefault()).apply {
+                        timeZone = TimeZone.getTimeZone("UTC")
+
+                    }
+
+                    override fun getFormattedValue(value: Float): String? {
+                        val timeUTC = value.toLong() *(1000 * 60L *60L *24L)
+                        return dateFormat.format(Date(timeUTC))
+                    }
+
+                }
                 xAxis.apply {
                     position = XAxis.XAxisPosition.BOTTOM
                     setDrawGridLines(true)
                     setDrawAxisLine(false)
                     textSize = 10f
-                    labelCount = labels.size
+
                     textColor = Color.GRAY
                     granularity = 1f
-                    valueFormatter = IndexAxisValueFormatter(labels)
+                    valueFormatter = xAxisValueFormatter
                     gridColor = gridLineColor
                     setGridDashedLine(DashPathEffect(floatArrayOf(10f, 5f), 0f))
                 }
@@ -277,11 +303,20 @@ fun LineChartViewGlucose(
                 axisRight.isEnabled = false // Disable the right Y Axis
 
                 // Additional chart appearance settings
-                setTouchEnabled(false)       // Disable user interaction
                 legend.isEnabled = false     // Hide legend
                 setDrawBorders(false)        // No borders
                 setDrawGridBackground(false) // No background grid
                 setNoDataTextColor(Color.RED)
+
+                setTouchEnabled(true)
+
+                isDragEnabled = true
+                setScaleEnabled(true)
+
+                setPinchZoom(true)
+
+                isScaleXEnabled = true
+                isScaleYEnabled = false
             }
 
             // Custom value formatter to display values on the right side of the dots
@@ -345,8 +380,7 @@ fun LineChartViewGlucose(
             }
         },
         modifier = modifier
-            .horizontalScroll(rememberScrollState())
-            .width(chartWidth)
+            .fillMaxWidth()
             .height(300.dp) // Adjust chart size as needed
     )
 }
@@ -361,20 +395,14 @@ private fun LineCharPreview() {
 
             )
 
-        // Second line data entries
 
-        val labels = listOf(
-            "14 Oct",
-            "13 Oct",
-            "12 Oct"
-        )
+
         LineChartView(
             modifier = Modifier
                 .height(200.dp)
                 .fillMaxWidth(),
             entries1 = entries1,
-            entries2 = null,
-            labels = labels,
+            entries2 = null
         )
 
         val randomEntries = listOf(
@@ -386,13 +414,10 @@ private fun LineCharPreview() {
             Entry(3f, 600f), // Corresponds to 21 Oct
             Entry(4f, 60f)  // Corresponds to 20 Oct
         )
-        val labels2 = listOf(
-            "24 Oct", "23 Oct", "22 Oct", "21 Oct", "20 Oct"
-        )
+
         LineChartViewGlucose(
             entriesRandom = randomEntries,
             entriesFasting = fastingEntries,
-            labels = labels2,
         )
 
     }
