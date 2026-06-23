@@ -1,6 +1,5 @@
 package com.latticeonfhir.android.ui.landingscreen
 
-import android.app.Activity
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -23,18 +22,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -70,12 +66,10 @@ import java.util.Locale
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    snackbarHostState: SnackbarHostState,
     viewModel: LandingScreenViewModel = hiltViewModel()
 ) {
 
     val activity = LocalContext.current as MainActivity
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(activity.otp) {
         if (activity.otp.isNotEmpty()) {
@@ -145,11 +139,6 @@ fun ProfileScreen(
         PhoneNumberRow(viewModel)
         EmailRow(viewModel)
         SyncStatusView(viewModel)
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant
-        )
-        DeleteAccountButton(activity, viewModel, snackbarHostState, coroutineScope)
         Spacer(modifier = Modifier.weight(1f))
         AppVersionInfoCard()
     }
@@ -523,45 +512,6 @@ private fun AppVersionInfoCard() {
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
-}
-
-@Composable
-private fun DeleteAccountButton(
-    activity: Activity,
-    viewModel: LandingScreenViewModel,
-    snackbarHostState: SnackbarHostState,
-    coroutineScope: CoroutineScope,
-) {
-    FilledTonalButton(
-        onClick = {
-            if (isInternetAvailable(activity)) {
-                viewModel.showConfirmDeleteAccountDialog = true
-            } else {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = activity.getString(R.string.no_internet_error_msg)
-                    )
-                }
-            }
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.delete_icon),
-                contentDescription = "DELETE_ICON",
-                modifier = Modifier.size(15.dp)
-            )
-            Text(
-                text = stringResource(R.string.delete_account)
-            )
-        }
-    }
 }
 
 private fun checkNetwork(
