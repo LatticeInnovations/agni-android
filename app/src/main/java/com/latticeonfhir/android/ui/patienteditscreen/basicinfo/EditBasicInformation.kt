@@ -3,6 +3,7 @@ package com.latticeonfhir.android.ui.patienteditscreen.basicinfo
 import android.util.Patterns
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -584,7 +585,7 @@ private fun GenderComposable(viewModel: EditBasicInformationViewModel) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .testTag("genderRow"),
+                .horizontalScroll(rememberScrollState()),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(

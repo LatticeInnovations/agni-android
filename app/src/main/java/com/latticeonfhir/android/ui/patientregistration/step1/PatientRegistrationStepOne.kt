@@ -1,6 +1,7 @@
 package com.latticeonfhir.android.ui.patientregistration.step1
 
 import android.util.Patterns
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -500,7 +501,7 @@ private fun GenderComposable(viewModel: PatientRegistrationStepOneViewModel) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .testTag("genderRow"),
+                .horizontalScroll(rememberScrollState()),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
