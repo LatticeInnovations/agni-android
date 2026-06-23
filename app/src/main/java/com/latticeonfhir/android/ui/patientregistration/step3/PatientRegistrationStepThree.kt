@@ -12,7 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -87,7 +87,6 @@ fun PatientRegistrationStepThree(
                 color = Neutral40
             )
         }
-        Spacer(modifier = Modifier.height(20.dp))
         if (patientRegistrationViewModel.fromHouseholdMember) {
             Row(
                 modifier = Modifier.fillMaxWidth()
@@ -95,7 +94,7 @@ fun PatientRegistrationStepThree(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                     Checkbox(
                         checked = viewModel.checkedState,
                         onCheckedChange = { value ->
@@ -103,18 +102,18 @@ fun PatientRegistrationStepThree(
                             if (value) {
                                 viewModel.homeAddress.apply {
                                     pincode =
-                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.postalCode ?: ""
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.postalCode.orEmpty()
                                     state =
-                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.state
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.state.substringAfter("|")
                                     addressLine1 =
-                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.addressLine1 ?: ""
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.addressLine1.orEmpty()
                                     addressLine2 =
-                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.addressLine2
-                                            ?: ""
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.addressLine2.orEmpty()
                                     district =
-                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.district
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.district.substringAfter("|")
                                     city =
-                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.city ?: ""
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.city.orEmpty()
+                                    block = patientRegistrationViewModel.patientFrom!!.permanentAddress.block?.substringAfter("|").orEmpty()
                                 }
                             } else {
                                 viewModel.homeAddress.apply {
@@ -124,6 +123,7 @@ fun PatientRegistrationStepThree(
                                     addressLine2 = ""
                                     district = ""
                                     city = ""
+                                    block = ""
                                 }
                             }
                         }
@@ -135,6 +135,8 @@ fun PatientRegistrationStepThree(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
+        } else {
+            Spacer(modifier = Modifier.height(20.dp))
         }
         Column(
             modifier = Modifier
