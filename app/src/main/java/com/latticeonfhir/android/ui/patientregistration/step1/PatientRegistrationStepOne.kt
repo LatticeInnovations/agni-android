@@ -381,8 +381,8 @@ private fun AgeDaysComposable(viewModel: PatientRegistrationStepOneViewModel) {
     ) {
         if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) {
             viewModel.days = it
+            viewModel.isAgeDaysValid = viewModel.days.isNotBlank() && viewModel.days.toInt() !in 1..30
         }
-        if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid = viewModel.days.toInt() !in 1..30
     }
 }
 
@@ -402,8 +402,8 @@ private fun AgeMonthsComposable(viewModel: PatientRegistrationStepOneViewModel) 
     ) {
         if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) {
             viewModel.months = it
+            viewModel.isAgeMonthsValid = viewModel.months.isNotBlank() && viewModel.months.toInt() !in 1..11
         }
-        if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =  viewModel.months.toInt() !in 1..11
     }
 }
 
@@ -423,8 +423,8 @@ private fun AgeYearsComposable(viewModel: PatientRegistrationStepOneViewModel) {
     ) {
         if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) {
             viewModel.years = it
+            viewModel.isAgeYearsValid = viewModel.years.isNotBlank() && viewModel.years.toInt() !in 0..150
         }
-        if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid = viewModel.years.toInt() !in 0..150
     }
 }
 
