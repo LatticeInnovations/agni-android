@@ -161,9 +161,10 @@ fun EditBasicInformation(
                     LastNameTextField(viewModel)
                     DOBAndAgeFields(viewModel)
                     Spacer(modifier = Modifier.height(1.dp))
+                    GenderComposable(viewModel)
+                    Spacer(modifier = Modifier.height(1.dp))
                     ContactTextField(viewModel)
                     EmailTextField(viewModel)
-                    GenderComposable(viewModel)
                     Spacer(modifier = Modifier.height(64.dp))
                 }
             }

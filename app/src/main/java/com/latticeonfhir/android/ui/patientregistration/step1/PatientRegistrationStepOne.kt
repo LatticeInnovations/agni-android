@@ -113,9 +113,10 @@ fun PatientRegistrationStepOne(
             LastNameTextField(viewModel)
             DOBAndAgeFields(viewModel)
             Spacer(modifier = Modifier.height(1.dp))
+            GenderComposable(viewModel)
+            Spacer(modifier = Modifier.height(1.dp))
             ContactTextField(viewModel)
             EmailTextField(viewModel)
-            GenderComposable(viewModel)
             Spacer(modifier = Modifier.height(10.dp))
         }
         NextButton(patientRegister, viewModel, patientRegistrationViewModel)
