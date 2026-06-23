@@ -341,9 +341,18 @@ private fun AppBarComposable(
         },
         title = {
             val age = viewModel.patient?.birthDate?.toTimeInMilli()?.toAge()
-            val subTitle = "${viewModel.patient?.gender?.get(0)?.uppercase()}/$age" +
-                    if (viewModel.patient?.mobileNumber == null) "" else " · +91 ${viewModel.patient?.mobileNumber}" +
-                    if (viewModel.patient?.fhirId.isNullOrEmpty()) "" else " · ${viewModel.patient?.fhirId}"
+            val subTitle =
+                "${viewModel.patient?.gender?.firstOrNull()?.uppercase() ?: ""}/$age" +
+                        (if (viewModel.patient?.mobileNumber == null) {
+                            ""
+                        } else {
+                            " · +91 ${viewModel.patient?.mobileNumber}"
+                        }) +
+                        (if (viewModel.patient?.fhirId.isNullOrEmpty()) {
+                            ""
+                        } else {
+                            " · ${viewModel.patient?.fhirId}"
+                        })
             Column {
                 Text(
                     text = NameConverter.getFullName(
