@@ -180,25 +180,9 @@ class EditBasicInformationViewModel @Inject constructor(
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (response > 0) {
                 if (patientResponse.fhirId != null) {
+                    // mandatory fields
                     saveFirstName(patientResponse)
-                    checkIsValueChange(patientResponse, middleName, middleNameTemp, "middleName")
-                    checkIsValueChange(patientResponse, lastName, lastNameTemp, "lastName")
-                    checkIsValueChange(patientResponse, email, emailTemp, "email")
-
                     saveGender(patientResponse)
-                    if (phoneNumber != phoneNumberTemp) {
-                        genericRepository.insertOrUpdatePatientPatchEntity(
-                            patientFhirId = patientResponse.fhirId,
-                            map = mapOf(
-                                Pair(
-                                    "mobileNumber", ChangeRequest(
-                                        value = patientResponse.mobileNumber,
-                                        operation = ChangeTypeEnum.REPLACE.value
-                                    )
-                                )
-                            )
-                        )
-                    }
                     if (patientResponse.birthDate != birthDate) {
                         genericRepository.insertOrUpdatePatientPatchEntity(
                             patientFhirId = patientResponse.fhirId,
@@ -213,6 +197,11 @@ class EditBasicInformationViewModel @Inject constructor(
                         )
                     }
 
+                    // optional fields
+                    checkIsValueChange(patientResponse, middleName, middleNameTemp, "middleName")
+                    checkIsValueChange(patientResponse, lastName, lastNameTemp, "lastName")
+                    checkIsValueChange(patientResponse, email, emailTemp, "email")
+                    checkIsValueChange(patientResponse, phoneNumber, phoneNumberTemp, "mobileNumber")
                 } else {
                     genericRepository.insertPatient(
                         patientResponse
