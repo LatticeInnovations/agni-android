@@ -53,7 +53,7 @@
 
     <string name="email">Email</string>
 
-    <string name="gender_is_required">Sex is required</string>
+    <string name="gender_is_required">Sex at birth is required</string>
     <string name="dob_age_required">Valid DOB/Age is required</string>
 
     <string name="add_household_member">Add a household member</string>
@@ -111,8 +111,8 @@ include them in the household</string>
     <string name="patient_id">Patient ID</string>
     <string name="patient_id_error_msg">Patient Id should be between 2 and 12.</string>
     <string name="select_age_range">Select age range</string>
-    <string name="gender">Sex</string>
-    <string name="gender_mandatory">Sex*</string>
+    <string name="gender">Sex at birth</string>
+    <string name="gender_mandatory">Sex at birth*</string>
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="other">Other</string>
@@ -262,7 +262,7 @@ include them in the household</string>
     <string name="cvd_risk_assessment">CVD risk assessment</string>
     <string name="predict">Predict</string>
     <string name="age">Age:</string>
-    <string name="gender_colon">Sex:</string>
+    <string name="gender_colon">Sex at birth:</string>
     <string name="diabetic_colon">Diabetic:</string>
     <string name="current_smoker">Current smoker:</string>
     <string name="blood_pressure_colon">Blood pressure:</string>
