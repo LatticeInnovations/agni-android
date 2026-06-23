@@ -89,7 +89,7 @@ fun SearchPatientForm(searchPatientViewModel: SearchPatientViewModel) {
             )
             Spacer(
                 modifier = Modifier
-                    .height(50.dp)
+                    .height(60.dp)
                     .testTag("END_OF_SCREEN")
             )
         }

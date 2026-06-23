@@ -18,5 +18,6 @@ data class SearchParameters(
     val district: String?,
     val state: String?,
     val postalCode: String?,
-    val addressLine2: String?
+    val addressLine2: String?,
+    val block: String?
 ) : Parcelable
