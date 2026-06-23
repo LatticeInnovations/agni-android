@@ -93,8 +93,6 @@ private fun StateDropDown(
             address.isStateValid = states.none { state ->
                 state == address.state
             }
-
-            address.clearStateDependents()
         },
         onValueChange = { query ->
             address.state = query
@@ -139,8 +137,6 @@ private fun DistrictDropDown(
             address.isDistrictValid = districts.none { state ->
                 state.equals(address.district, ignoreCase = true)
             }
-
-            address.clearBlock()
         },
         onValueChange = { query ->
             address.district = query

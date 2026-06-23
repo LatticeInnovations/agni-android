@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.patienteditscreen.address
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,6 +13,9 @@ import com.latticeonfhir.android.data.local.repository.generic.GenericRepository
 import com.latticeonfhir.android.data.local.repository.patient.PatientRepository
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
+import com.latticeonfhir.android.utils.states.getBlockCode
+import com.latticeonfhir.android.utils.states.getDistrictCode
+import com.latticeonfhir.android.utils.states.getStateCode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,21 +27,16 @@ class EditPatientAddressViewModel @Inject constructor(
     val genericRepository: GenericRepository
 ) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
-    var isEditing by mutableStateOf(false)
 
     var homeAddress by mutableStateOf(Address())
     var homeAddressTemp by mutableStateOf(Address())
-    private var workAddress by mutableStateOf(Address())
-
-    private var addWorkAddress by mutableStateOf(false)
 
     fun addressInfoValidation(): Boolean {
-        if (homeAddress.pincode.length < 6 || homeAddress.state.isBlank() || homeAddress.addressLine1.isBlank()
-            || homeAddress.city.isBlank()
-        )
-            return false
-        return !(addWorkAddress && (workAddress.pincode.length < 6 || workAddress.state.isBlank() || workAddress.addressLine1.isBlank()
-                || workAddress.city.isBlank()))
+        return !(
+                homeAddress.state.isBlank() || homeAddress.isStateValid
+                        || homeAddress.district.isBlank() || homeAddress.isDistrictValid
+                        || homeAddress.isPostalCodeValid
+                )
     }
 
     fun checkIsEdit(): Boolean {
@@ -46,7 +45,8 @@ class EditPatientAddressViewModel @Inject constructor(
                 homeAddress.addressLine1 != homeAddressTemp.addressLine1 ||
                 homeAddress.addressLine2 != homeAddressTemp.addressLine2 ||
                 homeAddress.city != homeAddressTemp.city ||
-                homeAddress.district != homeAddressTemp.district
+                homeAddress.district != homeAddressTemp.district ||
+                homeAddress.block != homeAddressTemp.block
     }
 
 
@@ -57,14 +57,19 @@ class EditPatientAddressViewModel @Inject constructor(
         homeAddress.district = homeAddressTemp.district
         homeAddress.addressLine1 = homeAddressTemp.addressLine1
         homeAddress.addressLine2 = homeAddressTemp.addressLine2
+        homeAddress.block = homeAddressTemp.block
         homeAddress.isPostalCodeValid = false
         homeAddress.isAddressLine1Valid = false
         homeAddress.isCityValid = false
         homeAddress.isStateValid = false
+        homeAddress.isBlockValid = false
         return true
     }
 
-    fun updateBasicInfo(patientResponse: PatientResponse) {
+    fun updateBasicInfo(
+        context: Context,
+        patientResponse: PatientResponse
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             val response = patientRepository.updatePatientData(patientResponse = patientResponse)
             if (checkIsEdit() && response > 0) {
@@ -86,20 +91,67 @@ class EditPatientAddressViewModel @Inject constructor(
                     )
                     checkIsValueChange(
                         patientResponse,
-                        homeAddress.state,
-                        homeAddressTemp.state
-                    )
-                    checkIsValueChange(
-                        patientResponse,
                         homeAddress.city,
                         homeAddressTemp.city
                     )
                     checkIsValueChange(
                         patientResponse,
-                        homeAddress.district,
-                        homeAddressTemp.district
+                        listOf(
+                            getStateCode(context, homeAddress.state),
+                            homeAddress.state
+                        ).joinToString("|"),
+                        listOf(
+                            getStateCode(context, homeAddressTemp.state),
+                            homeAddressTemp.state
+                        ).joinToString("|")
                     )
+                    checkIsValueChange(
+                        patientResponse,
+                        listOf(
+                            getDistrictCode(
+                                context = context,
+                                stateName = homeAddress.state,
+                                districtName = homeAddress.district
+                            ),
+                            homeAddress.district
+                        ).joinToString("|"),
+                        listOf(
+                            getDistrictCode(
+                                context = context,
+                                stateName = homeAddressTemp.state,
+                                districtName = homeAddressTemp.district
+                            ),
+                            homeAddressTemp.district
+                        ).joinToString("|")
+                    )
+                    checkIsValueChange(
+                        patientResponse,
+                        if (homeAddress.block.isBlank()) ""
+                        else {
+                            listOf(
+                                getBlockCode(
+                                    context = context,
+                                    stateName = homeAddress.state,
+                                    districtName = homeAddress.district,
+                                    blockName = homeAddress.block
+                                ),
+                                homeAddress.block
+                            ).joinToString("|")
+                        },
 
+                        if (homeAddressTemp.block.isBlank()) ""
+                        else {
+                            listOf(
+                                getBlockCode(
+                                    context = context,
+                                    stateName = homeAddressTemp.state,
+                                    districtName = homeAddressTemp.district,
+                                    blockName = homeAddressTemp.block
+                                ),
+                                homeAddressTemp.block
+                            ).joinToString("|")
+                        }
+                    )
                 } else {
                     genericRepository.insertPatient(
                         patientResponse
