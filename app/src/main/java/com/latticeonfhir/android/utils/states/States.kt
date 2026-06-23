@@ -32,6 +32,23 @@ fun getStateNames(context: Context): List<String> {
     }
 }
 
+fun getStateCode(
+    context: Context,
+    stateName: String
+): String {
+    return try {
+        getStatesData(context)
+            .states
+            .firstOrNull {
+                it.stateName == stateName
+            }
+            ?.stateCode.orEmpty()
+    } catch (e: Exception) {
+        Timber.e(e)
+        ""
+    }
+}
+
 fun getDistrictNames(
     context: Context,
     stateName: String
@@ -58,6 +75,33 @@ fun getDistrictNames(
     } catch (e: Exception) {
         Timber.e(e)
         emptyList()
+    }
+}
+
+fun getDistrictCode(
+    context: Context,
+    stateName: String,
+    districtName: String
+): String {
+    return try {
+        getStatesData(context)
+            .states
+            .asSequence()
+            .filter {
+                stateName.isBlank() ||
+                        it.stateName == stateName
+            }
+            .flatMap { state ->
+                state.districts.asSequence()
+            }
+            .firstOrNull {
+                it.districtName == districtName
+            }
+            ?.districtCode
+            .orEmpty()
+    } catch (e: Exception) {
+        Timber.e(e)
+        ""
     }
 }
 
@@ -93,5 +137,40 @@ fun getBlockNames(
     } catch (e: Exception) {
         Timber.e(e)
         emptyList()
+    }
+}
+
+fun getBlockCode(
+    context: Context,
+    stateName: String,
+    districtName: String,
+    blockName: String
+): String {
+    return try {
+        getStatesData(context)
+            .states
+            .asSequence()
+            .filter {
+                stateName.isBlank() ||
+                        it.stateName == stateName
+            }
+            .flatMap { state ->
+                state.districts.asSequence()
+            }
+            .filter {
+                districtName.isBlank() ||
+                        it.districtName == districtName
+            }
+            .flatMap { district ->
+                district.blocks.asSequence()
+            }
+            .firstOrNull {
+                it.blockName == blockName
+            }
+            ?.blockCode
+            .orEmpty()
+    } catch (e: Exception) {
+        Timber.e(e)
+        ""
     }
 }

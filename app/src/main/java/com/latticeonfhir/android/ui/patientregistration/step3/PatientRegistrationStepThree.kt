@@ -98,19 +98,18 @@ fun PatientRegistrationStepThree(
                             if (value) {
                                 viewModel.homeAddress.apply {
                                     pincode =
-                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.postalCode
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.postalCode ?: ""
                                     state =
                                         patientRegistrationViewModel.patientFrom!!.permanentAddress.state
                                     addressLine1 =
-                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.addressLine1
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.addressLine1 ?: ""
                                     addressLine2 =
                                         patientRegistrationViewModel.patientFrom!!.permanentAddress.addressLine2
                                             ?: ""
                                     district =
                                         patientRegistrationViewModel.patientFrom!!.permanentAddress.district
-                                            ?: ""
                                     city =
-                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.city
+                                        patientRegistrationViewModel.patientFrom!!.permanentAddress.city ?: ""
                                 }
                             } else {
                                 viewModel.homeAddress.apply {
@@ -148,6 +147,7 @@ fun PatientRegistrationStepThree(
         Button(
             onClick = {
                 patientRegister.run {
+                    homePostalCode = viewModel.homeAddress.pincode.ifBlank { null }
                     homeState = viewModel.homeAddress.state
                     homeDistrict = viewModel.homeAddress.district
                     homeBlock = viewModel.homeAddress.block

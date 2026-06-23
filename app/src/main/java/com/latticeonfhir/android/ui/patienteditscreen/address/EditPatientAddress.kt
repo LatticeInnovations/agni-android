@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -30,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,8 +42,10 @@ import androidx.navigation.NavController
 import com.latticeonfhir.android.data.server.model.patient.PatientAddressResponse
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.ui.common.AddressComposable
+import com.latticeonfhir.android.utils.states.getBlockCode
+import com.latticeonfhir.android.utils.states.getDistrictCode
+import com.latticeonfhir.android.utils.states.getStateCode
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,17 +53,19 @@ fun EditPatientAddress(
     navController: NavController,
     viewModel: EditPatientAddressViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val patientResponse =
         navController.previousBackStackEntry?.savedStateHandle?.get<PatientResponse>(key = "patient_details")
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             patientResponse?.run {
-                viewModel.homeAddress.pincode = permanentAddress.postalCode
-                viewModel.homeAddress.state = permanentAddress.state
-                viewModel.homeAddress.city = permanentAddress.city
-                viewModel.homeAddress.district = permanentAddress.district ?: ""
-                viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1
+                viewModel.homeAddress.pincode = permanentAddress.postalCode ?: ""
+                viewModel.homeAddress.state = permanentAddress.state.substringAfter("|")
+                viewModel.homeAddress.city = permanentAddress.city ?: ""
+                viewModel.homeAddress.district = permanentAddress.district.substringAfter("|")
+                viewModel.homeAddress.addressLine1 = permanentAddress.addressLine1 ?: ""
                 viewModel.homeAddress.addressLine2 = permanentAddress.addressLine2 ?: ""
+                viewModel.homeAddress.block = permanentAddress.block?.substringAfter("|").orEmpty()
 
                 viewModel.homeAddressTemp.pincode = viewModel.homeAddress.pincode
                 viewModel.homeAddressTemp.state = viewModel.homeAddress.state
@@ -66,6 +73,7 @@ fun EditPatientAddress(
                 viewModel.homeAddressTemp.district = viewModel.homeAddress.district
                 viewModel.homeAddressTemp.addressLine1 = viewModel.homeAddress.addressLine1
                 viewModel.homeAddressTemp.addressLine2 = viewModel.homeAddress.addressLine2
+                viewModel.homeAddressTemp.block = viewModel.homeAddress.block
             }
         }
         viewModel.isLaunched = true
@@ -80,7 +88,8 @@ fun EditPatientAddress(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
+            .imePadding(),
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         topBar = {
             TopAppBar(
@@ -114,10 +123,10 @@ fun EditPatientAddress(
                         text = "Undo all",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (viewModel.isEditing) MaterialTheme.colorScheme.primary else Color.Gray,
+                        color = if (viewModel.checkIsEdit()) MaterialTheme.colorScheme.primary else Color.Gray,
                         modifier = Modifier
                             .padding(end = 12.dp)
-                            .clickable(viewModel.isEditing, onClick = {
+                            .clickable(viewModel.checkIsEdit(), onClick = {
                                 if (viewModel.revertChanges()) {
                                     coroutineScope.launch {
                                         snackBarHostState.showSnackbar("Changes undone")
@@ -144,12 +153,8 @@ fun EditPatientAddress(
                         .testTag("columnLayout")
                 ) {
                     AddressComposable(label = "Home Address", address = viewModel.homeAddress)
-                    Spacer(modifier = Modifier.testTag("end of page"))
+                    Spacer(modifier = Modifier.height(60.dp))
                 }
-
-                viewModel.isEditing = viewModel.checkIsEdit()
-                Timber.tag("CheckEdit").d(viewModel.isEditing.toString())
-
             }
 
         }, floatingActionButton = {
@@ -157,15 +162,41 @@ fun EditPatientAddress(
                 onClick = {
 
                     viewModel.updateBasicInfo(
+                        context,
                         patientResponse!!.copy(
                             permanentAddress = PatientAddressResponse(
-                                addressLine1 = viewModel.homeAddress.addressLine1,
-                                city = viewModel.homeAddress.city,
-                                district = viewModel.homeAddress.district.ifEmpty { null },
-                                state = viewModel.homeAddress.state,
-                                postalCode = viewModel.homeAddress.pincode,
+                                state = listOf(
+                                    getStateCode(context, viewModel.homeAddress.state),
+                                    viewModel.homeAddress.state
+                                ).joinToString("|"),
+
+                                district = listOf(
+                                    getDistrictCode(
+                                        context = context,
+                                        stateName = viewModel.homeAddress.state,
+                                        districtName = viewModel.homeAddress.district
+                                    ),
+                                    viewModel.homeAddress.district
+                                ).joinToString("|"),
+
+                                block = if (viewModel.homeAddress.block.isBlank()) null
+                                else {
+                                    listOf(
+                                        getBlockCode(
+                                            context = context,
+                                            stateName = viewModel.homeAddress.state,
+                                            districtName = viewModel.homeAddress.district,
+                                            blockName = viewModel.homeAddress.block
+                                        ),
+                                        viewModel.homeAddress.block
+                                    ).joinToString("|")
+                                },
+
+                                city = viewModel.homeAddress.city.ifBlank { null },
+                                addressLine1 = viewModel.homeAddress.addressLine1.ifBlank { null },
+                                addressLine2 = viewModel.homeAddress.addressLine2.ifBlank { null },
                                 country = "India",
-                                addressLine2 = viewModel.homeAddress.addressLine2.ifEmpty { null },
+                                postalCode = viewModel.homeAddress.pincode.ifBlank { null }
                             )
                         )
                     )
@@ -181,7 +212,7 @@ fun EditPatientAddress(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 15.dp, start = 30.dp),
-                enabled = viewModel.addressInfoValidation() && viewModel.isEditing
+                enabled = viewModel.addressInfoValidation() && viewModel.checkIsEdit()
             ) {
                 Text(text = "Save")
             }

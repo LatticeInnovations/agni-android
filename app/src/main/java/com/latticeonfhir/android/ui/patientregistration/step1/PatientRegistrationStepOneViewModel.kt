@@ -41,7 +41,7 @@ class PatientRegistrationStepOneViewModel : BaseViewModel(), DefaultLifecycleObs
 
     internal var isNameValid by mutableStateOf(true)
     internal var isEmailValid by mutableStateOf(false)
-    internal var isPhoneValid by mutableStateOf(true)
+    internal var isPhoneValid by mutableStateOf(false)
     internal var isAgeDaysValid by mutableStateOf(false)
     internal var isAgeMonthsValid by mutableStateOf(false)
     internal var isAgeYearsValid by mutableStateOf(false)

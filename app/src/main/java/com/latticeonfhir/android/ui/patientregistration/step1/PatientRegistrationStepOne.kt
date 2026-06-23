@@ -113,9 +113,10 @@ fun PatientRegistrationStepOne(
             LastNameTextField(viewModel)
             DOBAndAgeFields(viewModel)
             Spacer(modifier = Modifier.height(1.dp))
+            GenderComposable(viewModel)
+            Spacer(modifier = Modifier.height(1.dp))
             ContactTextField(viewModel)
             EmailTextField(viewModel)
-            GenderComposable(viewModel)
             Spacer(modifier = Modifier.height(10.dp))
         }
         NextButton(patientRegister, viewModel, patientRegistrationViewModel)
@@ -449,7 +450,7 @@ fun ContactTextField(viewModel: PatientRegistrationStepOneViewModel) {
             onValueChange = {
                 if (it.length <= 10 && (it.matches(viewModel.onlyNumbers) || it.isEmpty()))
                     viewModel.phoneNumber = it
-                viewModel.isPhoneValid = !viewModel.phoneNumber.matches(phoneNumberRegex) || viewModel.phoneNumber.isBlank()
+                viewModel.isPhoneValid = !viewModel.phoneNumber.matches(phoneNumberRegex) && viewModel.phoneNumber.isNotBlank()
             },
             modifier = Modifier
                 .fillMaxWidth(1f)

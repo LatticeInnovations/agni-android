@@ -25,11 +25,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.data.server.model.patient.PatientResponse
 import com.latticeonfhir.android.utils.constants.IdentificationConstants
+import com.latticeonfhir.android.utils.constants.IdentificationConstants.ABHA_ID_TYPE
 import com.latticeonfhir.android.utils.converters.responseconverter.NameConverter
+import com.latticeonfhir.android.utils.converters.responseconverter.StringConverter.formatToAbhaId
 import com.latticeonfhir.android.utils.converters.responseconverter.TimeConverter.toPatientPreviewDate
 import java.util.Locale
 
@@ -78,9 +81,11 @@ fun PreviewScreen(
                 Spacer(modifier = Modifier.height(10.dp))
                 Label("Date of birth")
                 Detail(patientResponse.birthDate.toPatientPreviewDate(), "DOB_TAG")
-                Spacer(modifier = Modifier.height(10.dp))
-                Label("Phone No.")
-                Detail("+91 ${patientResponse.mobileNumber}", "PHONE_NO_TAG")
+                if (patientResponse.mobileNumber != null) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Label("Phone No.")
+                    Detail("+91 ${patientResponse.mobileNumber}", "PHONE_NO_TAG")
+                }
                 if (!patientResponse.email.isNullOrBlank()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Label("Email")
@@ -103,24 +108,17 @@ fun PreviewScreen(
                     navigate(step)
                 }
                 patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == IdentificationConstants.PASSPORT_TYPE) {
+                    if (identifier.identifierType == ABHA_ID_TYPE) {
                         Spacer(modifier = Modifier.height(10.dp))
-                        Label("Passport ID")
-                        Detail(identifier.identifierNumber, "PASSPORT_ID_TAG")
+                        Label(stringResource(R.string.abha_id))
+                        Detail(identifier.identifierNumber.formatToAbhaId(), "")
                     }
                 }
                 patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == IdentificationConstants.VOTER_ID_TYPE) {
+                    if (identifier.identifierType == IdentificationConstants.RATION_CARD_TYPE) {
                         Spacer(modifier = Modifier.height(10.dp))
-                        Label("Voter ID")
-                        Detail(identifier.identifierNumber, "VOTER_ID_TAG")
-                    }
-                }
-                patientResponse.identifier.forEach { identifier ->
-                    if (identifier.identifierType == IdentificationConstants.PATIENT_ID_TYPE) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Label("Patient ID")
-                        Detail(identifier.identifierNumber, "PATIENT_ID_TAG")
+                        Label(stringResource(R.string.ration_card))
+                        Detail(identifier.identifierNumber, "")
                     }
                 }
             }
@@ -130,16 +128,19 @@ fun PreviewScreen(
             modifier = Modifier.fillMaxWidth(),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         ) {
-            val homeAddressLine1 = patientResponse.permanentAddress.addressLine1 +
-                    if (patientResponse.permanentAddress.addressLine2.isNullOrBlank()) "" else {
-                        ", " + patientResponse.permanentAddress.addressLine2
-                    }
-            val homeAddressLine2 = patientResponse.permanentAddress.city +
-                    if (patientResponse.permanentAddress.district.isNullOrBlank()) "" else {
-                        ", " + patientResponse.permanentAddress.district
-                    }
-            val homeAddressLine3 =
-                "${patientResponse.permanentAddress.state}, ${patientResponse.permanentAddress.postalCode}"
+            // add line 1, add line 2,
+            // city, block,
+            // district, state
+            // postal code
+            val homeAddressLine1 = listOfNotNull(
+                patientResponse.permanentAddress.addressLine1?.ifBlank { null },
+                patientResponse.permanentAddress.addressLine2?.ifBlank { null }
+            ).joinToString(", ").ifBlank { null }
+            val homeAddressLine2 = listOfNotNull(
+                patientResponse.permanentAddress.city?.ifBlank { null },
+                patientResponse.permanentAddress.block?.substringAfter("|")?.ifBlank { null }
+            ).joinToString(", ").ifBlank { null }
+            val homeAddressLine3 = "${patientResponse.permanentAddress.district.substringAfter("|")}, ${patientResponse.permanentAddress.state.substringAfter("|")}"
             Column(
                 modifier = Modifier
                     .padding(20.dp)
@@ -150,9 +151,10 @@ fun PreviewScreen(
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Label("Home Address")
-                Detail(homeAddressLine1, "ADDRESS_LINE1_TAG")
-                Detail(homeAddressLine2, "ADDRESS_LINE2_TAG")
+                homeAddressLine1?.let { Detail(homeAddressLine1, "ADDRESS_LINE1_TAG") }
+                homeAddressLine2?.let { Detail(homeAddressLine2, "ADDRESS_LINE2_TAG") }
                 Detail(homeAddressLine3, "ADDRESS_LINE3_TAG")
+                patientResponse.permanentAddress.postalCode?.let { Detail(it, "POSTAL_CODE_TAG") }
             }
         }
         Spacer(

@@ -31,9 +31,8 @@ class PatientProfileViewModel @Inject constructor(
     internal var months by mutableStateOf("")
     internal var days by mutableStateOf("")
     internal var gender by mutableStateOf("")
-    internal var passportId by mutableStateOf("")
-    internal var voterId by mutableStateOf("")
-    internal var patientId by mutableStateOf("")
+    internal var abhaId by mutableStateOf("")
+    internal var rationCard by mutableStateOf("")
     internal var isProfileUpdated by mutableStateOf(false)
     internal var identifier = mutableListOf<PatientIdentifier>()
 

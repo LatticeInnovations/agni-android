@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.latticeonfhir.android.R
 import com.latticeonfhir.android.ui.patientregistration.step3.Address
+import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
 import com.latticeonfhir.android.utils.states.getBlockNames
 import com.latticeonfhir.android.utils.states.getDistrictNames
 import com.latticeonfhir.android.utils.states.getStateNames
@@ -54,6 +55,7 @@ fun AddressComposable(
         City(address)
         AddressLineOne(address)
         AddressLineTwo(address)
+        PostalCode(address)
     }
 }
 
@@ -91,8 +93,6 @@ private fun StateDropDown(
             address.isStateValid = states.none { state ->
                 state == address.state
             }
-
-            address.clearStateDependents()
         },
         onValueChange = { query ->
             address.state = query
@@ -137,8 +137,6 @@ private fun DistrictDropDown(
             address.isDistrictValid = districts.none { state ->
                 state.equals(address.district, ignoreCase = true)
             }
-
-            address.clearBlock()
         },
         onValueChange = { query ->
             address.district = query
@@ -245,5 +243,26 @@ private fun City(
         KeyboardCapitalization.Words
     ) {
         address.city = it
+    }
+}
+
+@Composable
+private fun PostalCode(
+    address: Address
+) {
+    CustomTextField(
+        value = address.pincode,
+        label = stringResource(id = R.string.postal_code),
+        weight = 1f,
+        maxLength = 6,
+        isError = address.isPostalCodeValid,
+        error = stringResource(R.string.postal_code_error_msg),
+        KeyboardType.Number,
+        KeyboardCapitalization.None
+    ) {
+        if (it.isEmpty() || it.matches(onlyNumbers)) {
+            address.pincode = it
+            address.isPostalCodeValid = it.isNotEmpty() && it.length != 6
+        }
     }
 }
