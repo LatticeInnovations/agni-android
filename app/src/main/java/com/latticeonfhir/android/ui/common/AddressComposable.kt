@@ -51,7 +51,7 @@ fun AddressComposable(
         }
         StateDropDown(address, isSearching, getStateNames(context))
         DistrictDropDown(address, isSearching, getDistrictNames(context, address.state))
-        BlockDropDown(address, isSearching, getBlockNames(context, address.state, address.district))
+        BlockDropDown(address, getBlockNames(context, address.state, address.district))
         City(address)
         AddressLineOne(address)
         AddressLineTwo(address)
@@ -159,14 +159,13 @@ private fun DistrictDropDown(
         },
         isError = address.isDistrictValid && !isSearching,
         errorMessage = stringResource(R.string.district_error_msg),
-        enabled = (!address.isStateValid && address.state.isNotBlank()) || isSearching
+        enabled = !address.isStateValid && address.state.isNotBlank()
     )
 }
 
 @Composable
 private fun BlockDropDown(
     address: Address,
-    isSearching: Boolean,
     districts: List<String>
 ) {
     var expanded by rememberSaveable {
@@ -189,7 +188,7 @@ private fun BlockDropDown(
         label = stringResource(R.string.block),
         isError = false,
         errorMessage = "",
-        enabled = (!address.isDistrictValid && address.district.isNotBlank()) || isSearching
+        enabled = !address.isDistrictValid && address.district.isNotBlank()
     )
 }
 
