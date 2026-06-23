@@ -46,7 +46,7 @@ object Search {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
                         addressLine1,
-                        it.patientEntity.permanentAddress.addressLine1
+                        it.patientEntity.permanentAddress.addressLine1.orEmpty()
                     ) > matchingRatio
                 }.toMutableList()
             }
@@ -54,7 +54,15 @@ object Search {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
                         city,
-                        it.patientEntity.permanentAddress.city
+                        it.patientEntity.permanentAddress.city.orEmpty()
+                    ) > matchingRatio
+                }.toMutableList()
+            }
+            if (!block.isNullOrBlank()) {
+                finalList = finalList.filter {
+                    FuzzySearch.weightedRatio(
+                        block,
+                        it.patientEntity.permanentAddress.block?.substringAfter("|").orEmpty()
                     ) > matchingRatio
                 }.toMutableList()
             }
@@ -62,7 +70,7 @@ object Search {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
                         district,
-                        it.patientEntity.permanentAddress.district ?: ""
+                        it.patientEntity.permanentAddress.district.substringAfter("|")
                     ) > matchingRatio
                 }.toMutableList()
             }
@@ -70,7 +78,7 @@ object Search {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
                         state,
-                        it.patientEntity.permanentAddress.state
+                        it.patientEntity.permanentAddress.state.substringAfter("|")
                     ) > matchingRatio
                 }.toMutableList()
             }
@@ -78,7 +86,7 @@ object Search {
                 finalList = finalList.filter {
                     FuzzySearch.weightedRatio(
                         postalCode,
-                        it.patientEntity.permanentAddress.postalCode
+                        it.patientEntity.permanentAddress.postalCode.orEmpty()
                     ) > matchingRatio
                 }.toMutableList()
             }

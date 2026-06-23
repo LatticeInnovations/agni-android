@@ -122,6 +122,7 @@ class SearchRepositoryImpl @Inject constructor(
                     null,
                     null,
                     null,
+                    null,
                     null
                 ),
                 searchList
@@ -131,6 +132,7 @@ class SearchRepositoryImpl @Inject constructor(
                 SearchParameters(
                     null,
                     query,
+                    null,
                     null,
                     null,
                     null,
@@ -249,7 +251,8 @@ class SearchRepositoryImpl @Inject constructor(
                 address.district,
                 address.state,
                 address.postalCode,
-                address.addressLine2
+                address.addressLine2,
+                address.block
             )
         ) { list ->
             suggestionsList = if (list.size > 5) {

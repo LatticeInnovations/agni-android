@@ -100,7 +100,8 @@ fun SearchPatient(
                         district = viewModel.address.district.ifEmpty { null },
                         city = viewModel.address.city.ifEmpty { null },
                         lastFacilityVisit = viewModel.visitSelected,
-                        gender = viewModel.gender.ifEmpty { null }
+                        gender = viewModel.gender.ifEmpty { null },
+                        block = viewModel.address.block.ifEmpty { null }
                     )
                     if (viewModel.fromHouseholdMember) {
                         navController.currentBackStackEntry?.savedStateHandle?.set(
