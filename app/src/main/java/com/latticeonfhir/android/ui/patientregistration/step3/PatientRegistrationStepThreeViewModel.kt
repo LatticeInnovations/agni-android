@@ -5,10 +5,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.DefaultLifecycleObserver
 import com.latticeonfhir.android.base.viewmodel.BaseViewModel
+import com.latticeonfhir.android.data.local.repository.preference.PreferenceRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class PatientRegistrationStepThreeViewModel : BaseViewModel(), DefaultLifecycleObserver {
+@HiltViewModel
+class PatientRegistrationStepThreeViewModel @Inject constructor(
+    preferenceRepository: PreferenceRepository
+) : BaseViewModel(), DefaultLifecycleObserver {
     var isLaunched by mutableStateOf(false)
     var checkedState by mutableStateOf(false)
+
+    val facility = preferenceRepository.getFacilityDetails()
 
     var homeAddress by mutableStateOf(Address())
 
@@ -22,6 +30,12 @@ class PatientRegistrationStepThreeViewModel : BaseViewModel(), DefaultLifecycleO
                         || homeAddress.district.isBlank() || homeAddress.isDistrictValid
                         || homeAddress.isPostalCodeValid
                 )
+    }
+
+    fun prefillData() {
+        homeAddress.state = facility?.state.orEmpty()
+        homeAddress.district = facility?.district.orEmpty()
+        homeAddress.block = facility?.block.orEmpty()
     }
 }
 

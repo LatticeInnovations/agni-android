@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.latticeonfhir.android.R
@@ -38,9 +39,9 @@ import java.util.Locale
 fun PatientRegistrationStepThree(
     navController: NavController,
     patientRegister: PatientRegister,
-    viewModel: PatientRegistrationStepThreeViewModel = viewModel()
+    viewModel: PatientRegistrationStepThreeViewModel = hiltViewModel(),
+    patientRegistrationViewModel: PatientRegistrationViewModel = viewModel()
 ) {
-    val patientRegistrationViewModel: PatientRegistrationViewModel = viewModel()
     LaunchedEffect(viewModel.isLaunched) {
         if (!viewModel.isLaunched) {
             patientRegister.run {
@@ -57,6 +58,10 @@ fun PatientRegistrationStepThree(
                 viewModel.workAddress.district = workDistrict.toString()
                 viewModel.homeAddress.addressLine1 = homeAddressLine1.toString()
                 viewModel.homeAddress.addressLine2 = homeAddressLine2.toString()
+
+                if (homeState?.isBlank() == true) {
+                    viewModel.prefillData()
+                }
             }
         }
         viewModel.isLaunched = true
