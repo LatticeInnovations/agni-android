@@ -163,10 +163,10 @@ class SyncRepositoryImpl @Inject constructor(
                 }
 
                 is ApiEndResponse -> {
-                    //Set Last Update Time
-                    preferenceRepository.setLastSyncPatient(Date().time)
                     //Insert Patient
                     insertPatient(body)
+                    //Set Last Update Time
+                    preferenceRepository.setLastSyncPatient(Date().time)
                     this
                 }
 
@@ -338,8 +338,8 @@ class SyncRepositoryImpl @Inject constructor(
                 }
 
                 is ApiEndResponse -> {
-                    preferenceRepository.setLastMedicationSyncDate(Date().time)
                     insertMedication(body)
+                    preferenceRepository.setLastMedicationSyncDate(Date().time)
                     this
                 }
 
@@ -363,8 +363,8 @@ class SyncRepositoryImpl @Inject constructor(
         ).run {
             when (this) {
                 is ApiEndResponse -> {
-                    preferenceRepository.setLastMedicineDosageInstructionSyncDate(Date().time)
                     insertMedicationTiming(body)
+                    preferenceRepository.setLastMedicineDosageInstructionSyncDate(Date().time)
                     this
                 }
 
@@ -397,8 +397,8 @@ class SyncRepositoryImpl @Inject constructor(
                 }
 
                 is ApiEndResponse -> {
-                    preferenceRepository.setLastSyncSchedule(Date().time)
                     insertSchedule(body)
+                    preferenceRepository.setLastSyncSchedule(Date().time)
                     this
                 }
 
@@ -431,8 +431,8 @@ class SyncRepositoryImpl @Inject constructor(
                 }
 
                 is ApiEndResponse -> {
-                    preferenceRepository.setLastSyncAppointment(Date().time)
                     insertAppointment(body)
+                    preferenceRepository.setLastSyncAppointment(Date().time)
                     this
                 }
 
@@ -480,8 +480,8 @@ class SyncRepositoryImpl @Inject constructor(
                 }
 
                 is ApiEndResponse -> {
-                    preferenceRepository.setLastSyncCVD(Date().time)
                     insertCVD(body)
+                    preferenceRepository.setLastSyncCVD(Date().time)
                     this
                 }
 
@@ -513,10 +513,10 @@ class SyncRepositoryImpl @Inject constructor(
                 }
 
                 is ApiEndResponse -> {
-                    //Set Last Update Time
-                    preferenceRepository.setLastSyncVital(Date().time)
                     //Insert Patient
                     insertVital(body)
+                    //Set Last Update Time
+                    preferenceRepository.setLastSyncVital(Date().time)
                     this
                 }
 
@@ -548,10 +548,10 @@ class SyncRepositoryImpl @Inject constructor(
                 }
 
                 is ApiEndResponse -> {
-                    //Set Last Update Time
-                    preferenceRepository.setLastSyncSymDiag(Date().time)
                     //Insert Patient
                     insertSymDiag(body)
+                    //Set Last Update Time
+                    preferenceRepository.setLastSyncSymDiag(Date().time)
                     this
                 }
 
@@ -583,10 +583,10 @@ class SyncRepositoryImpl @Inject constructor(
                 }
 
                 is ApiEndResponse -> {
-                    //Set Last Update Time
-                    preferenceRepository.setLastSyncLabTest(Date().time)
                     //Insert Patient
                     insertLabTest(body, PhotoUploadTypeEnum.LAB_TEST.value)
+                    //Set Last Update Time
+                    preferenceRepository.setLastSyncLabTest(Date().time)
                     this
                 }
 
@@ -620,10 +620,10 @@ class SyncRepositoryImpl @Inject constructor(
                 }
 
                 is ApiEndResponse -> {
-                    //Set Last Update Time
-                    preferenceRepository.setLastSyncMedicalRecord(Date().time)
                     //Insert Patient
                     insertMedicalRecord(body, PhotoUploadTypeEnum.MEDICAL_RECORD.value)
+                    //Set Last Update Time
+                    preferenceRepository.setLastSyncMedicalRecord(Date().time)
                     this
                 }
 
