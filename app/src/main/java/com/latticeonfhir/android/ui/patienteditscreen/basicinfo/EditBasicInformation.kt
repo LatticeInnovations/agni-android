@@ -3,6 +3,7 @@ package com.latticeonfhir.android.ui.patienteditscreen.basicinfo
 import android.util.Patterns
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -464,8 +465,8 @@ private fun AgeDaysComposable(viewModel: EditBasicInformationViewModel) {
     ) {
         if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) {
             viewModel.days = it
+            viewModel.isAgeDaysValid = viewModel.days.isNotBlank() && viewModel.days.toInt() !in 1..30
         }
-        if (viewModel.days.isNotEmpty()) viewModel.isAgeDaysValid = viewModel.days.toInt() !in 1..30
     }
 }
 
@@ -485,8 +486,8 @@ private fun AgeMonthsComposable(viewModel: EditBasicInformationViewModel) {
     ) {
         if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) {
             viewModel.months = it
+            viewModel.isAgeMonthsValid = viewModel.months.isNotBlank() && viewModel.months.toInt() !in 1..11
         }
-        if (viewModel.months.isNotEmpty()) viewModel.isAgeMonthsValid =  viewModel.months.toInt() !in 1..11
     }
 }
 
@@ -506,8 +507,8 @@ private fun AgeYearsComposable(viewModel: EditBasicInformationViewModel) {
     ) {
         if (it.matches(viewModel.onlyNumbers) || it.isEmpty()) {
             viewModel.years = it
+            viewModel.isAgeYearsValid = viewModel.years.isNotBlank() && viewModel.years.toInt() !in 0..150
         }
-        if (viewModel.years.isNotEmpty()) viewModel.isAgeYearsValid = viewModel.years.toInt() !in 0..150
     }
 }
 
@@ -584,7 +585,7 @@ private fun GenderComposable(viewModel: EditBasicInformationViewModel) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .testTag("genderRow"),
+                .horizontalScroll(rememberScrollState()),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
