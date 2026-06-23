@@ -174,3 +174,32 @@ fun getBlockCode(
         ""
     }
 }
+
+fun getStateAndDistrictByPincode(
+    context: Context,
+    pincode: String
+): Pair<String, String>? {
+    return try {
+        getStatesData(context)
+            .states
+            .asSequence()
+            .flatMap { state ->
+                state.districts.asSequence().map { district ->
+                    Triple(
+                        state.stateName,
+                        district.districtName,
+                        district.pincodes
+                    )
+                }
+            }
+            .firstOrNull { (_, _, pincodes) ->
+                pincode in pincodes
+            }
+            ?.let { (stateName, districtName, _) ->
+                stateName to districtName
+            }
+    } catch (e: Exception) {
+        Timber.e(e)
+        null
+    }
+}

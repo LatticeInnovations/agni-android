@@ -1,5 +1,6 @@
 package com.latticeonfhir.android.ui.common
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import com.latticeonfhir.android.ui.patientregistration.step3.Address
 import com.latticeonfhir.android.utils.regex.OnlyNumberRegex.onlyNumbers
 import com.latticeonfhir.android.utils.states.getBlockNames
 import com.latticeonfhir.android.utils.states.getDistrictNames
+import com.latticeonfhir.android.utils.states.getStateAndDistrictByPincode
 import com.latticeonfhir.android.utils.states.getStateNames
 
 @Composable
@@ -55,7 +57,7 @@ fun AddressComposable(
         City(address)
         AddressLineOne(address)
         AddressLineTwo(address)
-        PostalCode(address)
+        PostalCode(address, context)
     }
 }
 
@@ -67,6 +69,13 @@ private fun Address.clearDistrict() {
 private fun Address.clearBlock() {
     block = ""
     isBlockValid = false
+
+    clearPincode()
+}
+
+private fun Address.clearPincode() {
+    pincode = ""
+    isPostalCodeValid = false
 }
 
 private fun Address.clearStateDependents() {
@@ -95,18 +104,22 @@ private fun StateDropDown(
             }
         },
         onValueChange = { query ->
-            address.state = query
-            address.isStateValid = states.none {
-                it.equals(query, ignoreCase = true)
-            }
+            if (address.state != query) {
+                address.state = query
+                address.isStateValid = states.none {
+                    it.equals(query, ignoreCase = true)
+                }
 
-            address.clearStateDependents()
+                address.clearStateDependents()
+            }
         },
         onItemSelected = { selected ->
-            address.state = selected
-            address.isStateValid = false
+            if (address.state != selected) {
+                address.state = selected
+                address.isStateValid = false
 
-            address.clearStateDependents()
+                address.clearStateDependents()
+            }
         },
         label = if (isSearching) {
             stringResource(R.string.state)
@@ -139,18 +152,22 @@ private fun DistrictDropDown(
             }
         },
         onValueChange = { query ->
-            address.district = query
-            address.isDistrictValid = districts.none { state ->
-                state.equals(address.district, ignoreCase = true)
-            }
+            if (address.district != query) {
+                address.district = query
+                address.isDistrictValid = districts.none { state ->
+                    state.equals(address.district, ignoreCase = true)
+                }
 
-            address.clearBlock()
+                address.clearBlock()
+            }
         },
         onItemSelected = { selected ->
-            address.district = selected
-            address.isDistrictValid = false
+            if (address.district != selected) {
+                address.district = selected
+                address.isDistrictValid = false
 
-            address.clearBlock()
+                address.clearBlock()
+            }
         },
         label = if (isSearching) {
             stringResource(R.string.district)
@@ -247,7 +264,8 @@ private fun City(
 
 @Composable
 private fun PostalCode(
-    address: Address
+    address: Address,
+    context: Context
 ) {
     CustomTextField(
         value = address.pincode,
@@ -262,6 +280,13 @@ private fun PostalCode(
         if (it.isEmpty() || it.matches(onlyNumbers)) {
             address.pincode = it
             address.isPostalCodeValid = it.isNotEmpty() && it.length != 6
+        }
+        if (address.pincode.length == 6) {
+            getStateAndDistrictByPincode(context, it)?.let { (state, district) ->
+                address.state = state
+                address.district = district
+                address.block = ""
+            }
         }
     }
 }
