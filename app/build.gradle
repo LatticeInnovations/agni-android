@@ -190,7 +190,7 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.8.8'
 
     //SQL Cipher
-    implementation 'net.zetetic:android-database-sqlcipher:4.5.4'
+    implementation 'net.zetetic:sqlcipher-android:4.10.0'
     implementation 'androidx.sqlite:sqlite-ktx:2.5.2'
 
     //Timber
