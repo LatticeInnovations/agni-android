@@ -653,7 +653,7 @@ private fun DisplayImage(
                     Text(
                         text = viewModel.selectedFile!!.note,
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = Color.White,
                         modifier = Modifier
                             .padding(16.dp)
                     )
