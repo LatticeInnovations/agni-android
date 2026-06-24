@@ -23,8 +23,8 @@ import com.latticeonfhir.android.data.local.roomdb.dao.RelationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.RiskPredictionDao
 import com.latticeonfhir.android.data.local.roomdb.dao.ScheduleDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SearchDao
-import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.local.roomdb.dao.SymptomsAndDiagnosisDao
+import com.latticeonfhir.android.data.local.roomdb.dao.VitalDao
 import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ImmunizationRecommendationDao
 import com.latticeonfhir.android.data.local.roomdb.dao.vaccincation.ManufacturerDao
@@ -51,7 +51,6 @@ import com.latticeonfhir.android.data.local.roomdb.entities.prescription.photo.P
 import com.latticeonfhir.android.data.local.roomdb.entities.relation.RelationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.schedule.ScheduleEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SearchHistoryEntity
-import com.latticeonfhir.android.data.local.roomdb.entities.vitals.VitalEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.search.SymDiagSearchEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.DiagnosisEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.symptomsanddiagnosis.SymptomAndDiagnosisEntity
@@ -60,13 +59,14 @@ import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.Immuniza
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationFileEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ImmunizationRecommendationEntity
 import com.latticeonfhir.android.data.local.roomdb.entities.vaccination.ManufacturerEntity
+import com.latticeonfhir.android.data.local.roomdb.entities.vitals.VitalEntity
 import com.latticeonfhir.android.data.local.roomdb.typeconverters.SymptomDiagnosisTypeConverter
 import com.latticeonfhir.android.data.local.roomdb.typeconverters.TypeConverter
 import com.latticeonfhir.android.data.local.roomdb.views.PrescriptionDirectionAndMedicineView
 import com.latticeonfhir.android.data.local.roomdb.views.RelationView
 import com.latticeonfhir.android.data.local.sharedpreferences.PreferenceStorage
-import net.sqlcipher.database.SQLiteDatabase
-import net.sqlcipher.database.SupportFactory
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
+import java.nio.charset.StandardCharsets
 import java.util.UUID
 
 @Database(
@@ -167,9 +167,8 @@ abstract class FhirAppDatabase : RoomDatabase() {
                 preferenceStorage.roomDBEncryptionKey = UUID.randomUUID().toString()
             }
 
-            val passphrase: ByteArray =
-                SQLiteDatabase.getBytes(preferenceStorage.roomDBEncryptionKey.toCharArray())
-            val factory = SupportFactory(passphrase)
+            val passphrase: ByteArray = preferenceStorage.roomDBEncryptionKey.toByteArray(StandardCharsets.UTF_8)
+            val factory = SupportOpenHelperFactory(passphrase)
 
             return if (BuildConfig.DEBUG) {
                 Room.databaseBuilder(context, FhirAppDatabase::class.java, "fhir_android")
