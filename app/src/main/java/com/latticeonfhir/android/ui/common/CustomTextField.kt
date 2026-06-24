@@ -54,7 +54,7 @@ fun CustomTextField(
             capitalization = keyboardCapitalization
         ),
         isError = isError,
-        supportingText = if (isError) {
+        supportingText = if (isError && error.isNotBlank()) {
             {
                 Text(text = error, style = MaterialTheme.typography.bodySmall)
             }

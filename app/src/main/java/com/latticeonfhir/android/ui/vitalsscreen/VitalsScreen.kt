@@ -137,8 +137,7 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
     }, bottomBar = {
         Box(
             modifier = Modifier
-                .padding()
-                .navigationBarsPadding(),
+                .padding(),
             contentAlignment = Alignment.BottomCenter
         ) {
             Column(
@@ -155,6 +154,7 @@ fun VitalsScreen(navController: NavController, vitalsViewModel: VitalsViewModel 
                     ),
                     modifier = Modifier
                         .padding(12.dp)
+                        .navigationBarsPadding()
                         .fillMaxWidth(), onClick = {
                         vitalsViewModel.getAppointmentInfo {
                             if (vitalsViewModel.canAddAssessment) {

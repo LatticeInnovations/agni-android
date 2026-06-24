@@ -304,9 +304,6 @@ fun HeightCard(viewModel: AddVitalsViewModel, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(
-                MaterialTheme.colorScheme.surfaceBright
-            )
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
@@ -374,7 +371,7 @@ fun HeightCard(viewModel: AddVitalsViewModel, modifier: Modifier = Modifier) {
         }
         AnimatedVisibility(visible = viewModel.isFeetNotValid || viewModel.isInchNotValid) {
             Text(
-                modifier = modifier.padding(bottom = 8.dp),
+                modifier = modifier.padding(8.dp),
                 text = if (viewModel.isFeetNotValid) stringResource(R.string.height_error_msg) else stringResource(
                     R.string.inch_error_msg
                 ),
@@ -391,9 +388,6 @@ fun WeightCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(
-                MaterialTheme.colorScheme.surfaceBright
-            )
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
@@ -434,16 +428,13 @@ fun EyeTestCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(
-                MaterialTheme.colorScheme.surfaceBright
-            )
-            .padding(start = 16.dp, end = 16.dp)
-
+            .padding(start = 16.dp, end = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = stringResource(R.string.eye_test_result),
             style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+            modifier = Modifier.padding(top = 16.dp)
         )
         Row(
             modifier = modifier.fillMaxWidth(),
@@ -480,7 +471,7 @@ fun EyeTestCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
                 viewModel.isShowRightEyeSheet = isClicked
 
             })
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(1.dp))
     }
 }
 
@@ -490,9 +481,6 @@ fun HeartRateCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) 
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(
-                MaterialTheme.colorScheme.surfaceBright
-            )
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
@@ -517,9 +505,6 @@ fun RespiratoryCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(
-                MaterialTheme.colorScheme.surfaceBright
-            )
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
@@ -545,9 +530,6 @@ fun SpO2Card(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel) {
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(
-                MaterialTheme.colorScheme.surfaceBright
-            )
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
@@ -574,9 +556,6 @@ fun TemperatureCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewModel
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(
-                MaterialTheme.colorScheme.surfaceBright
-            )
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
@@ -625,9 +604,6 @@ fun BloodPressureCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewMod
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(
-                MaterialTheme.colorScheme.surfaceBright
-            )
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
@@ -669,7 +645,7 @@ fun BloodPressureCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewMod
         }
         AnimatedVisibility(visible = viewModel.isDiastolicNotValid || viewModel.isSystolicNotValid) {
             Text(
-                modifier = modifier.padding(bottom = 8.dp),
+                modifier = modifier.padding(8.dp),
                 text = if (viewModel.isDiastolicNotValid) stringResource(R.string.bpDiastolic_error_msg) else stringResource(
                     R.string.bpSystolic_error_msg
                 ),
@@ -687,9 +663,6 @@ private fun CholesterolTextField(viewModel: AddVitalsViewModel, modifier: Modifi
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(
-                MaterialTheme.colorScheme.surfaceBright
-            )
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
@@ -779,9 +752,6 @@ fun BloodGlucoseCard(modifier: Modifier = Modifier, viewModel: AddVitalsViewMode
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(
-                MaterialTheme.colorScheme.surfaceBright
-            )
             .padding(start = 16.dp, end = 16.dp)
 
     ) {
